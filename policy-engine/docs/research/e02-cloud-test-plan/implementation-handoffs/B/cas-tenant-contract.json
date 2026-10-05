@@ -1,0 +1,1974 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cas-bound-admission",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAS-02"
+  ],
+  "bounded_findings": [
+    "B148",
+    "B149"
+  ],
+  "slice_base_sha": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+  "implementation_commits": [
+    "a1ed35181947b23d64eb2a4cd25488f97d30bf01",
+    "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+    "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+    "46283ae1cbcaa775cebac51f0361262f64b5b206"
+  ],
+  "candidate_tree_sha": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+  "branch": "codex/e02-B-cas",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/14",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py",
+    "policy-engine/release-fragments/unreleased/2026-10-05-cas-bound-admission.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/store.py",
+    "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py",
+    "policy-engine/tests/unit/remediation/test_cas_02.py"
+  ],
+  "predecessor_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas.json@36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+  "baseline_cells": [
+    {
+      "id": "F01-P051",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "state": "FAILED",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "168",
+      "source_ref": "research_main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/remediation/test_cas_02.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F09-P055",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "171",
+      "source_ref": "e02_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/remediation/test_cas_02.py@00d946c2b7d052522be092f9c70eb9902f6521c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F14-P061",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "state": "FAILED",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "411",
+      "source_ref": "integration_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/remediation/test_cas_02.py@0213101b6d124e6f855b1aff7c442bb0912a61c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F01-P072",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "state": "PASS",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "189",
+      "source_ref": "research_main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/phase0/test_artifact_store.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F01-P077",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+      "state": "PASS",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "194",
+      "source_ref": "research_main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F02-P073",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "state": "PASS",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "201",
+      "source_ref": "research_main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F04-P043",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "253",
+      "source_ref": "research_main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/remediation/test_cas_01.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F04-P101",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "311",
+      "source_ref": "research_main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F04-P136",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "346",
+      "source_ref": "research_main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F05-P095",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "505",
+      "source_ref": "e02_execution_base",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/phase0/test_artifact_store.py@78187878ee188ff6d27442ba1498bd094da9785b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F06-P095",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "state": "PASS",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "279",
+      "source_ref": "e02_execution_base",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py@78187878ee188ff6d27442ba1498bd094da9785b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F06-P143",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "state": "PASS",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "327",
+      "source_ref": "e02_execution_base",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py@78187878ee188ff6d27442ba1498bd094da9785b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F08-P074",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "197",
+      "source_ref": "e02_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py@00d946c2b7d052522be092f9c70eb9902f6521c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F08-P129",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "252",
+      "source_ref": "e02_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py@00d946c2b7d052522be092f9c70eb9902f6521c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F09-P048",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "164",
+      "source_ref": "e02_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/remediation/test_cas_01.py@00d946c2b7d052522be092f9c70eb9902f6521c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F09-P074",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "190",
+      "source_ref": "e02_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/phase0/test_artifact_store.py@00d946c2b7d052522be092f9c70eb9902f6521c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F10-P072",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "192",
+      "source_ref": "main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py@5fd3ebcc15637e98bbd4938de5d62ee5004504a8, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F10-P073",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "193",
+      "source_ref": "main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/phase0/test_artifact_store.py@5fd3ebcc15637e98bbd4938de5d62ee5004504a8, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F12-P120",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "705",
+      "source_ref": "main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py@5fd3ebcc15637e98bbd4938de5d62ee5004504a8, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F13-P084",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "211",
+      "source_ref": "integration_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/phase0/test_artifact_store.py@0213101b6d124e6f855b1aff7c442bb0912a61c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F14-P052",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "402",
+      "source_ref": "integration_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/remediation/test_cas_01.py@0213101b6d124e6f855b1aff7c442bb0912a61c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F15-P085",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "state": "PASS",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "240",
+      "source_ref": "integration_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py@0213101b6d124e6f855b1aff7c442bb0912a61c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F15-P090",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+      "state": "PASS",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "245",
+      "source_ref": "integration_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py@0213101b6d124e6f855b1aff7c442bb0912a61c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F15-P117",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+      "state": "PASS",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "272",
+      "source_ref": "integration_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py@0213101b6d124e6f855b1aff7c442bb0912a61c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F15-P158",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "state": "PASS",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "313",
+      "source_ref": "integration_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py@0213101b6d124e6f855b1aff7c442bb0912a61c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F02-P052",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "state": "PASS",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "180",
+      "source_ref": "research_main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/remediation/test_cas_03.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F08-P055",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "178",
+      "source_ref": "e02_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/remediation/test_cas_03.py@00d946c2b7d052522be092f9c70eb9902f6521c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F13-P060",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "state": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "187",
+      "source_ref": "integration_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt#metadata-environment-or-toolchain",
+      "input_closure": "policy-engine/tests/unit/remediation/test_cas_03.py@0213101b6d124e6f855b1aff7c442bb0912a61c2, source job manifest/pytest+uv config hashes; actual VM raw bytes untransferred",
+      "semantic_adequacy": "not_established"
+    }
+  ],
+  "baseline_interpretation": "28 complete routed cells across CAS01/02/03 retained as source-reported navigation. Canonical F01/F09/F14 CAS02 SHA/ref/env/input locators do not prove this candidate. Original machine raw archives untransferred.",
+  "canonical_bundle": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-02.md",
+    "ref": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "findings": [
+      "B148",
+      "B149"
+    ],
+    "criterion": "verified complete transfer then publication; preserve prior bytes/profiles on refusal; ownership where required; atomicity over necessary closed group, no invented giant-archive transaction"
+  },
+  "lease": {
+    "canonical_family": "CAS-02/B-W02",
+    "root_authorized_paths": [
+      "policy-engine/src/polisyos/core/artifacts/store.py",
+      "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py",
+      "policy-engine/tests/unit/remediation/test_cas_02.py (two obsolete fault oracles only)"
+    ],
+    "mandatory_companions": [
+      "policy-engine/src/polisyos/core/artifacts/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-05-cas-bound-admission.toml",
+      "reproducible probe drivers and receipts"
+    ],
+    "other_families": "CAS01/03 source unchanged; A generation_cycle/run_lifecycle and C streaming unchanged",
+    "source_frozen": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+    "writer_release": "source complete; no ongoing production edits"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py --source 36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6 --overlay-ref a1ed35181947b23d64eb2a4cd25488f97d30bf01 --overlay-test tests/unit/core/artifacts/test_import_tenant_context.py --mode baseline tests/unit/core/artifacts/test_import_tenant_context.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_ref": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+        "test_overlay_ref": "a1ed35181947b23d64eb2a4cd25488f97d30bf01",
+        "test_overlay_path": "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "test_overlay_sha256": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+        "driver_ref": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+        "mutation": "none"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/bound-base39.txt",
+        "bytes": 18889,
+        "sha256": "9e001339cff8db31d150cc29846114f4e93c429b96405123c50498b59b059c78",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "27 failed, 12 passed in 2.01s; expected negative baseline"
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/core/artifacts/test_import_tenant_context.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "a1ed35181947b23d64eb2a4cd25488f97d30bf01",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_and_tests_ref": "a1ed35181947b23d64eb2a4cd25488f97d30bf01",
+        "test_sha256": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+        "fixtures": "actual put, import, exact-view, pending recovery and reopened consumer paths"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/bound-candidate39.txt",
+        "bytes": 99,
+        "sha256": "ecc2a660b74a49e719736d46f1699eabff406d01116eb929c314a72940165c48",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "39 passed"
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py --source 34b6c191cc617d89475bdb73c3b50bc0340e4b09 --overlay-ref 34b6c191cc617d89475bdb73c3b50bc0340e4b09 --mode bound-removal tests/unit/core/artifacts/test_import_tenant_context.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "driver_ref": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+        "mutation": "only _require_bound_context_owner body returns; signature, docstring and all intake/emission call sites remain; exact mutated SHA and immutable overlay metadata in full log"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/bound-removal39.txt",
+        "bytes": 18762,
+        "sha256": "d926ac92675ed8953f16e8c7f4091e2216d3406d6e8908ffccf4f35228731767",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "27 failed, 12 passed in 1.17s; expected property-removal negative"
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py --source 34b6c191cc617d89475bdb73c3b50bc0340e4b09 --overlay-ref 34b6c191cc617d89475bdb73c3b50bc0340e4b09 --mode directory-live tests/unit/remediation/test_cas_02.py::test_failed_reused_directory_export_preserves_prior_complete_generation",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "driver_ref": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+        "mutation": "after a real initial export, directory member writer addresses live prior output while publication helpers and markers remain"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/directory-removal.txt",
+        "bytes": 1942,
+        "sha256": "55f1b1edaa9b09ac178d1a91f9871a432462a4aaf00e01f42591ac261c116a6b",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "1 failed in 0.11s; old filesystem generation acquires extra new blob under actual fsync failure"
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py --source 34b6c191cc617d89475bdb73c3b50bc0340e4b09 --overlay-ref 34b6c191cc617d89475bdb73c3b50bc0340e4b09 --mode import-unfenced tests/unit/remediation/test_cas_02.py::test_import_refuses_pending_publication_and_recovers_exact_retry",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "driver_ref": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+        "mutation": "ownership.require_no_pending_transaction body returns; publication intent/staging/link operations unchanged"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/pending-import-removal.txt",
+        "bytes": 1358,
+        "sha256": "2cdd9c7ace5c3027d441947d4480b2cee2c0299ed4c951da9d871c2a33572847",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "1 failed in 0.14s; pending real publication is readable if only denial property is removed"
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py --source c40d4acae1ce58b597267255026d9356565828fd --overlay-ref 9e8574b7c7afeec474e5a0e77c5142da4004d279 --overlay-test tests/unit/core/artifacts/test_transfer_publication.py --mode baseline --pytest-k \"failed_archive_replacement or publishes_only_new_inventory\" tests/unit/core/artifacts/test_transfer_publication.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_ref": "c40d4acae1ce58b597267255026d9356565828fd",
+        "test_overlay_ref": "9e8574b7c7afeec474e5a0e77c5142da4004d279",
+        "test_overlay_blob": "b2ae6a1bb03c25ad249ea4bb339f7dd0c8dcf9ed",
+        "test_overlay_sha256": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+        "driver_ref": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+        "selector": "first four final pinned controls, no historical untracked overlay dependency"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/archive-base-pinned.txt",
+        "bytes": 2483,
+        "sha256": "fd7e7aae94cf2663b34a95c129d30683dda5eeb3abf7ad3b410a774cf7aaa5bc",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "3 failed, 1 passed, 3 deselected in 0.15s; member fault corrupts previous live archive"
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py --source 9e8574b7c7afeec474e5a0e77c5142da4004d279 --overlay-ref 9e8574b7c7afeec474e5a0e77c5142da4004d279 --mode archive-live --pytest-k \"not killed\" tests/unit/core/artifacts/test_transfer_publication.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "9e8574b7c7afeec474e5a0e77c5142da4004d279",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_ref": "9e8574b7c7afeec474e5a0e77c5142da4004d279",
+        "driver_ref": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+        "test_ref": "9e8574b7c7afeec474e5a0e77c5142da4004d279",
+        "test_blob": "b2ae6a1bb03c25ad249ea4bb339f7dd0c8dcf9ed",
+        "mutated_transfer_sha256": "45052887c89774fb72c29a0ce258fad5e787c556d950d95b91a4f555bb841b9d",
+        "historical_mutant_identical": "sha256 matched retained original /workspace/e02-cas-removal-5znbjd0j/src/polisyos/core/artifacts/_transfer_ops.py; test bytes also matched final archive blob"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/archive-removal-pinned.txt",
+        "bytes": 2455,
+        "sha256": "b0fd85e9d5c513434000c01d714308d87e51faf50f330647f1ec88bfc1baf130",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "3 failed, 3 passed, 1 deselected in 0.27s; expected old-byte-preservation failures"
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/remediation/test_cas_02.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_and_tests_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "config_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "fixtures": "real FileSystemCAS on isolated temporary filesystem; source payload and manifest bytes; native consumer files at the pinned Git ref",
+        "no_production_dataset": true
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/canonical-cas02.txt",
+        "bytes": 729,
+        "sha256": "e1af16332d6cae3578024d8895222106b47117514500848d90c21aa4bd76233d",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "17 passed, 1 failed in 0.40s; untouched test_import_enforces_existing_tenant_ownership",
+      "classification": "semantic owner decision remains held; complete source denominator includes changed store/transfer modules; never inherited/disjoint"
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_config.py tests/unit/core/artifacts/test_artifact_id_serialization_contract.py tests/unit/core/artifacts/test_artifact_store_protocol.py tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py tests/unit/core/artifacts/test_multi_tenant_shared_cas.py tests/unit/core/artifacts/test_ownership_history.py tests/unit/core/artifacts/test_transfer_publication.py tests/unit/core/phase0/test_artifact_export_import.py tests/unit/foundry/runtime/test_executor_snapshots.py tests/unit/ir/analytics/test_ncm.py tests/unit/remediation/test_cas_01.py tests/unit/remediation/test_cas_02.py tests/unit/remediation/test_cas_03.py tests/unit/runtime/quality/test_authority_reconciliation.py tests/unit/runtime/quality/test_multi_tenant_shared_cas.py tests/unit/runtime/quality/test_tenant_cas_approval_governance.py tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_and_tests_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "config_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "fixtures": "real FileSystemCAS on isolated temporary filesystem; source payload and manifest bytes; native consumer files at the pinned Git ref",
+        "no_production_dataset": true
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/native-bounded295.txt",
+        "bytes": 1051,
+        "sha256": "a154d0ee007f3539d3fbe5bba72106b718eec1a8cba1365938ade997d92d5f80",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "294 passed, 1 failed in 29.84s; held unbound case is retained",
+      "test_file_denominator": [
+        "tests/unit/core/artifacts/backends/test_caching_store.py",
+        "tests/unit/core/artifacts/backends/test_config.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_ownership_history.py",
+        "tests/unit/core/artifacts/test_transfer_publication.py",
+        "tests/unit/core/phase0/test_artifact_export_import.py",
+        "tests/unit/foundry/runtime/test_executor_snapshots.py",
+        "tests/unit/ir/analytics/test_ncm.py",
+        "tests/unit/remediation/test_cas_01.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/runtime/quality/test_authority_reconciliation.py",
+        "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+        "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+        "tests/unit/scientist/orchestration/engine/test_idempotency.py"
+      ],
+      "test_case_denominator": 295,
+      "complete_selection": true
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_config.py tests/unit/core/artifacts/test_artifact_id_serialization_contract.py tests/unit/core/artifacts/test_artifact_store_protocol.py tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py tests/unit/core/artifacts/test_multi_tenant_shared_cas.py tests/unit/core/artifacts/test_ownership_history.py tests/unit/core/artifacts/test_transfer_publication.py tests/unit/core/phase0/test_artifact_export_import.py tests/unit/foundry/runtime/test_executor_snapshots.py tests/unit/ir/analytics/test_ncm.py tests/unit/remediation/test_cas_01.py tests/unit/remediation/test_cas_02.py tests/unit/remediation/test_cas_03.py tests/unit/runtime/quality/test_authority_reconciliation.py tests/unit/runtime/quality/test_multi_tenant_shared_cas.py tests/unit/runtime/quality/test_tenant_cas_approval_governance.py tests/unit/scientist/orchestration/engine/test_idempotency.py tests/unit/runtime/quality/test_data_forge_binding.py tests/unit/runtime/quality/test_promotion_sequence.py tests/unit/runtime/http/test_public_decision_verification_routes.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_and_tests_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "config_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "fixtures": "real FileSystemCAS on isolated temporary filesystem; source payload and manifest bytes; native consumer files at the pinned Git ref",
+        "no_production_dataset": true
+      },
+      "outcome": "ERROR",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-before-fts-interrupted.txt",
+        "bytes": 108794,
+        "sha256": "f9795f1aee10f39c0c0e0cb5ab8edc21f87da5b801d268121f976ef0a8fa6bad",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "350 passed, 60 failed; SIGINT graceful interruption after repeated missing signed DuckDB FTS prerequisite; 410 completed, 102 uncompleted of 512",
+      "test_file_denominator": [
+        "tests/unit/core/artifacts/backends/test_caching_store.py",
+        "tests/unit/core/artifacts/backends/test_config.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_ownership_history.py",
+        "tests/unit/core/artifacts/test_transfer_publication.py",
+        "tests/unit/core/phase0/test_artifact_export_import.py",
+        "tests/unit/foundry/runtime/test_executor_snapshots.py",
+        "tests/unit/ir/analytics/test_ncm.py",
+        "tests/unit/remediation/test_cas_01.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/runtime/quality/test_authority_reconciliation.py",
+        "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+        "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+        "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "tests/unit/runtime/quality/test_data_forge_binding.py",
+        "tests/unit/runtime/quality/test_promotion_sequence.py",
+        "tests/unit/runtime/http/test_public_decision_verification_routes.py"
+      ],
+      "test_case_denominator": 512,
+      "completed": 410,
+      "unrun": 102,
+      "exit_code": 2,
+      "classification": "58 observed pre-CAS missing-FTS failures, plus held unbound and JSON census; full stdout retained; not a process quota or product failure conclusion",
+      "bootstrap_recipe": {
+        "fetch_commands": [
+          "curl --fail --location --max-time 30 https://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz --output _build/e02-cas/extensions/fts.duckdb_extension.gz",
+          "curl --fail --location --max-time 30 https://extensions.duckdb.org/v1.4.3/linux_amd64/httpfs.duckdb_extension.gz --output _build/e02-cas/extensions/httpfs.duckdb_extension.gz"
+        ],
+        "installation": "For each fts/httpfs gzip, gzip.decompress into corresponding .duckdb_extension; duckdb.connect() with default security; assert duckdb.__version__ == 1.4.3 and SELECT current_setting('allow_unsigned_extensions') == False; INSTALL each absolute local official binary then LOAD extension name; query duckdb_extensions() to reconcile installed/loaded/version and execute a real PRAGMA create_fts_index + match_bm25 query.",
+        "note": "Normal HTTPS transport and default signed extension checks. Binary/gzip digests and real index query result retained in complete success output; artifacts remain ignored local dependency cache."
+      }
+    },
+    {
+      "command": "curl --fail --location --max-time 30 https://extensions.duckdb.org/v1.4.3/linux_amd64/{fts,httpfs}.duckdb_extension.gz; gzip decompress; DuckDB INSTALL each local absolute official binary; LOAD fts/httpfs; create real FTS index and execute match_bm25",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "dependency": "official HTTPS v1.4.3/linux_amd64 signed extension binaries; gzip and binary sha256 values in committed log",
+        "security": "default signature verification retained; no allow_unsigned/offsecurity override",
+        "version": "1.4.3",
+        "cache": "/home/agent/.duckdb/extensions/v1.4.3/linux_amd64/"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/fts-bootstrap.txt",
+        "bytes": 609,
+        "sha256": "7d57e0c5dfd4733cfff4dc6c9acabe68d808c7eee54e3ee67d48152eedb566e4",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "DuckDB 1.4.3, allow_unsigned_extensions=False, installed+loaded fts/httpfs; real FTS query [(1,)]"
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_config.py tests/unit/core/artifacts/test_artifact_id_serialization_contract.py tests/unit/core/artifacts/test_artifact_store_protocol.py tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py tests/unit/core/artifacts/test_multi_tenant_shared_cas.py tests/unit/core/artifacts/test_ownership_history.py tests/unit/core/artifacts/test_transfer_publication.py tests/unit/core/phase0/test_artifact_export_import.py tests/unit/foundry/runtime/test_executor_snapshots.py tests/unit/ir/analytics/test_ncm.py tests/unit/remediation/test_cas_01.py tests/unit/remediation/test_cas_02.py tests/unit/remediation/test_cas_03.py tests/unit/runtime/quality/test_authority_reconciliation.py tests/unit/runtime/quality/test_multi_tenant_shared_cas.py tests/unit/runtime/quality/test_tenant_cas_approval_governance.py tests/unit/scientist/orchestration/engine/test_idempotency.py tests/unit/runtime/quality/test_data_forge_binding.py tests/unit/runtime/quality/test_promotion_sequence.py tests/unit/runtime/http/test_public_decision_verification_routes.py --junitxml=/workspace/e02-cas-tenant-native-ready.xml",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_and_tests_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "same_python_source_and_tests_as": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "dependency_input": "signed FTS/httpfs installed by preceding bootstrap",
+        "fixtures": "native pytest tmp_path; production_data absent; full tracked JSON census includes archive receipt",
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-ready512.xml",
+          "bytes": 279928,
+          "sha256": "9361995301f54f5b932935c38c65454a4fda23bbe4ed4ff102024955bbe1e984",
+          "normalization": "none; complete retained bytes"
+        },
+        "full_case_classification": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-denominator.json",
+          "bytes": 35145,
+          "sha256": "b843787ce3438ceaa49b352e1bc4a175562d4f14295f11a1d1e02eb4b7b0797d",
+          "normalization": "none; complete retained bytes"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-ready512.txt",
+        "bytes": 177584,
+        "sha256": "4a0bdc2fd10c751ea047a096a6599b52c5666ed3668afdbc69f8b3d89cea8608",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "388 passed, 116 failed, 4 errors, 4 skipped in 352.36s",
+      "test_file_denominator": [
+        "tests/unit/core/artifacts/backends/test_caching_store.py",
+        "tests/unit/core/artifacts/backends/test_config.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "tests/unit/core/artifacts/test_import_tenant_context.py",
+        "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_ownership_history.py",
+        "tests/unit/core/artifacts/test_transfer_publication.py",
+        "tests/unit/core/phase0/test_artifact_export_import.py",
+        "tests/unit/foundry/runtime/test_executor_snapshots.py",
+        "tests/unit/ir/analytics/test_ncm.py",
+        "tests/unit/remediation/test_cas_01.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/runtime/quality/test_authority_reconciliation.py",
+        "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+        "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+        "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "tests/unit/runtime/quality/test_data_forge_binding.py",
+        "tests/unit/runtime/quality/test_promotion_sequence.py",
+        "tests/unit/runtime/http/test_public_decision_verification_routes.py"
+      ],
+      "test_case_denominator": 512,
+      "complete_selection": true,
+      "nonpass_denominator": {
+        "held_unbound_failure": 1,
+        "grounding_admission_strangle_drift_failures": 103,
+        "tracked_json_count_failure": 1,
+        "missing_production_substrate_catalog_failures": 8,
+        "catalog_fetch_source_unreadable_failures": 3,
+        "catalog_fetch_source_unreadable_setup_errors": 4,
+        "CP_SAT_unavailable_skips": 4
+      },
+      "classification": "No full green or blanket inherited attribution. All 103 grounding traces enter _cg2_contract_bind fixture before any CAS publication. Every failed/skipped node is preserved in denominator JSON/JUnit."
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/runtime/quality/test_promotion_sequence.py::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow tests/unit/runtime/quality/test_promotion_sequence.py::test_historical_receipt_corpus_replays_without_current_authority",
+      "cwd": "/workspace/e02-cas-contract-base36/policy-engine",
+      "target_sha": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "clean_detached_slice_ref": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+        "signed_extensions": "same verified cache",
+        "source_and_tests": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+        "complete_gate_denominator": "all tracked *.json from repository git ls-files -z, not a selected corpus subset"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/promotion-base-attribution.txt",
+        "bytes": 2109,
+        "sha256": "ae177a9517b6b07c8db033e1707f04adfda4b987a2a61adb1aaaaa03904ada2a",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "2 failed in 20.12s: grounding_admission_strangle_drift; 2890 != 2870",
+      "classification": "Baseline reproduces these witnesses; corpus gate intersects archive receipt changed JSON input (c40=2889 to archive base=2890), so not inherited/disjoint."
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/runtime/http/test_public_decision_verification_routes.py",
+      "cwd": "/workspace/e02-cas-contract-base36/policy-engine",
+      "target_sha": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "clean_detached_slice_ref": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+        "source_and_tests": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+        "fixture": "runtime HTTP catalog paths provided by native fixtures; production data unavailable"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/http-base-attribution.txt",
+        "bytes": 42376,
+        "sha256": "ca5428a06493829f88cdc4170266007025418a249af961bda8be12f804efa076",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "3 failed, 4 errors in 6.81s: catalog_fetch_source_unreadable during fixture/startup",
+      "classification": "Same pre-CAS startup failure reproduced. Complete runtime gate remains unresolved; no served public-verifier PASS claimed."
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_method_input_roundtrips_measured_and_assumed_fields",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "source_and_tests_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "fixture": "native measured panel source + real recorded MeasurementRoot CAS producer; system tenant / None cell typed consumer"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/measurement-root-consumer.txt",
+        "bytes": 99,
+        "sha256": "6f6dda909d786131cfa6be3c8d9e5f2ece9493670f333536ea3dc3f4c2b91f7c",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "1 passed in 24.29s",
+      "observation_reconciliation": "All32 transfer/generic-put observations compared to (explicit bound context and active owner and exact tenant/cell inequality) => refuse; accepted observations reopen exact payload/manifest and have no pending intent. All6 actual NodeResultCache observations:2 matching contexts load,4 mismatch contexts refuse and produce no claim. Native39 tests are deciding automated behavioral assertions."
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "driver_ref": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+        "driver_sha256": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "store_sha256": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+        "fixture": "real temporary filesystem with independent source/target/reopen paths; no source mutation"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/final-matrix.json",
+        "bytes": 17989,
+        "sha256": "68dc7230db9461c2d88ec915e6c62724e7cf7bac43eea3771ddb0b204f8e48be",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "24 transfer observations, 8 generic put observations, 6 actual NodeResultCache observations; raw behavior, not authority closure"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/core/artifacts/store.py tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/remediation/test_cas_02.py docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "paths": "complete changed Python files for admission and oracle/probe slice"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/ruff.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "All checks passed!"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/core/artifacts/store.py tests/unit/remediation/test_cas_02.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "paths": "full source + remediation test formatter denominator"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/source-format.txt",
+        "bytes": 136,
+        "sha256": "44934851a00b66293caa445417c60b9996595de0aec57c5f7cafcdd32f30c4d5",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "2 files would be reformatted; unchanged formatting outside authorized hunks retained",
+      "classification": "No source formatter PASS and no weakened gate; cannot call inherited disjoint."
+    },
+    {
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base 36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6 --receipt _build/e02-cas/raw/tenant-production-invocation.json",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": {
+        "selector": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py; static direct-call reachability only",
+        "raw_bytes": 170953977,
+        "raw_sha256": "10944217619bbf0c874fa465e9c0c5980ddcabb34552773413ce76a88e6d0e58",
+        "raw_ignored_path": "policy-engine/_build/e02-cas/raw/tenant-production-invocation.json",
+        "static_summary": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/static-invocation-summary.json",
+          "bytes": 1338,
+          "sha256": "e589d1c52359dabbe736574ab4d6677e2b77a6b5d5fb7698bd7a6f8bcfcd65ef",
+          "normalization": "none; complete retained bytes"
+        }
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/static-invocation.txt",
+        "bytes": 1337,
+        "sha256": "060ac2e539632fb17a1a469e012d0b920269138f124ccdc1b45606606b633653",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "process exit0, static status passed/coverage partial; runtime_invocation_established=false",
+      "classification": "No HTTP dispatch, execution, persisted business receipt or authority invocation established; raw not transferred, rerun needed for any deeper static verdict"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check tests/unit/core/artifacts/test_import_tenant_context.py docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "duckdb": "1.4.3",
+          "pydantic": "2.12.5",
+          "cryptography": "46.0.4",
+          "pytest-asyncio": "1.3.0",
+          "ortools": null
+        },
+        "production_dataset": "absent in this cloud worktree",
+        "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
+        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+        "sha256": {
+          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        }
+      },
+      "input_closure": "new native admission test and both committed probe drivers; full existing store/remediation file formatter is separate FAIL",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/new-format.txt",
+        "bytes": 26,
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+        "normalization": "none; complete retained bytes"
+      },
+      "observed_result": "3 files already formatted"
+    }
+  ],
+  "committed_log_index": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/bound-base39.txt",
+      "bytes": 18889,
+      "sha256": "9e001339cff8db31d150cc29846114f4e93c429b96405123c50498b59b059c78",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/bound-candidate39.txt",
+      "bytes": 99,
+      "sha256": "ecc2a660b74a49e719736d46f1699eabff406d01116eb929c314a72940165c48",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/bound-removal39.txt",
+      "bytes": 18762,
+      "sha256": "d926ac92675ed8953f16e8c7f4091e2216d3406d6e8908ffccf4f35228731767",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/directory-removal.txt",
+      "bytes": 1942,
+      "sha256": "55f1b1edaa9b09ac178d1a91f9871a432462a4aaf00e01f42591ac261c116a6b",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/pending-import-removal.txt",
+      "bytes": 1358,
+      "sha256": "2cdd9c7ace5c3027d441947d4480b2cee2c0299ed4c951da9d871c2a33572847",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/archive-base-pinned.txt",
+      "bytes": 2483,
+      "sha256": "fd7e7aae94cf2663b34a95c129d30683dda5eeb3abf7ad3b410a774cf7aaa5bc",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/archive-removal-pinned.txt",
+      "bytes": 2455,
+      "sha256": "b0fd85e9d5c513434000c01d714308d87e51faf50f330647f1ec88bfc1baf130",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/canonical-cas02.txt",
+      "bytes": 729,
+      "sha256": "e1af16332d6cae3578024d8895222106b47117514500848d90c21aa4bd76233d",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/native-bounded295.txt",
+      "bytes": 1051,
+      "sha256": "a154d0ee007f3539d3fbe5bba72106b718eec1a8cba1365938ade997d92d5f80",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-before-fts-interrupted.txt",
+      "bytes": 108794,
+      "sha256": "f9795f1aee10f39c0c0e0cb5ab8edc21f87da5b801d268121f976ef0a8fa6bad",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-ready512.txt",
+      "bytes": 177584,
+      "sha256": "4a0bdc2fd10c751ea047a096a6599b52c5666ed3668afdbc69f8b3d89cea8608",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-ready512.xml",
+      "bytes": 279928,
+      "sha256": "9361995301f54f5b932935c38c65454a4fda23bbe4ed4ff102024955bbe1e984",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-collection.txt",
+      "bytes": 64561,
+      "sha256": "200724e339f09e8ca14800db41756abd790b9566a79bf90321638fa4649fc0c8",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-denominator.json",
+      "bytes": 35145,
+      "sha256": "b843787ce3438ceaa49b352e1bc4a175562d4f14295f11a1d1e02eb4b7b0797d",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/fts-bootstrap.txt",
+      "bytes": 609,
+      "sha256": "7d57e0c5dfd4733cfff4dc6c9acabe68d808c7eee54e3ee67d48152eedb566e4",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/promotion-ready-attribution.txt",
+      "bytes": 1429,
+      "sha256": "edc13bda3f36fe08c44222849160cf54511eca81b871fc7e171312b01999147b",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/promotion-base-attribution.txt",
+      "bytes": 2109,
+      "sha256": "ae177a9517b6b07c8db033e1707f04adfda4b987a2a61adb1aaaaa03904ada2a",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/http-base-attribution.txt",
+      "bytes": 42376,
+      "sha256": "ca5428a06493829f88cdc4170266007025418a249af961bda8be12f804efa076",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/measurement-root-consumer.txt",
+      "bytes": 99,
+      "sha256": "6f6dda909d786131cfa6be3c8d9e5f2ece9493670f333536ea3dc3f4c2b91f7c",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/json-census.json",
+      "bytes": 339,
+      "sha256": "6476672d1ad33246c6582ffa566aea61769d913385ff93b0532d21c05743cb5d",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/environment.json",
+      "bytes": 1708,
+      "sha256": "81df51ef893953dc2576ea32f57eded75c8526fcfc6f4207be1c9d68665cb770",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/final-matrix.json",
+      "bytes": 17989,
+      "sha256": "68dc7230db9461c2d88ec915e6c62724e7cf7bac43eea3771ddb0b204f8e48be",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/ruff.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/source-format.txt",
+      "bytes": 136,
+      "sha256": "44934851a00b66293caa445417c60b9996595de0aec57c5f7cafcdd32f30c4d5",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/static-invocation.txt",
+      "bytes": 1337,
+      "sha256": "060ac2e539632fb17a1a469e012d0b920269138f124ccdc1b45606606b633653",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/static-invocation-summary.json",
+      "bytes": 1338,
+      "sha256": "e589d1c52359dabbe736574ab4d6677e2b77a6b5d5fb7698bd7a6f8bcfcd65ef",
+      "normalization": "none; complete retained bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/new-format.txt",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "normalization": "none; complete retained bytes"
+    }
+  ],
+  "property": {
+    "statement": "Before a scoped FileSystemCAS write publishes any new durable intent or ownership claim, every explicitly bound manifest must match the resolved write owner tenant and exact cell identity. Package intake preflights all selected views; retry/resume and generic put use the same predicate.",
+    "runtime_path": [
+      "PutOptions / ArtifactManifest tenant_context from native producers",
+      "put_bytes/put_json -> _put_blob_and_manifest_once -> resolved scoped owner -> common bound guard -> intent -> bytes/profile -> durable blob/view/default claims",
+      "historical pending put -> _resume_publish_transaction -> reconstructed manifest -> common guard before staging/mutation",
+      "archive/directory/import_exact_view -> validated complete payload + manifest profiles -> _publish_staged_import -> all-view common guard under lease before first intent -> publication -> read/recovery",
+      "CachingArtifactStore._populate_local -> passive exact profile custody; scoped durable backend retains admission responsibility",
+      "NodeResultCache + NCM selected-view + MeasurementRoot system-tenant/cell-None actual consumers"
+    ],
+    "surface": "scoped get_manifest/get_bytes/has, reopened filesystem consumers, real exact-profile cache and typed pending refusal; production served authority surface not established by this bounded slice",
+    "proxy_divergence": "A cryptographically valid blob/profile and successful byte import can still mint tenant-B/cell-B durable claims for a manifest explicitly bound to tenant-A/cell-A. Base probe does that; field existence/hash/inventory markers cannot distinguish it. Helper-body removal keeps marker/call sites but recreates 27 real refusals failing.",
+    "negative_controls": [
+      "4 tenant/cell mismatch variants on archive/directory/exact-view",
+      "same-tenant None-cell vs scoped-cell in both directions",
+      "mixed package valid first + foreign-bound last refuses before any intent/claim",
+      "existing matching default cannot hide a foreign-bound selected view",
+      "pending mismatched put/import replay refuses before touching intent or bytes",
+      "generic JSON/bytes sibling emissions use same guard",
+      "pending read denial removal with actual final-link fault",
+      "directory live-generation writer and archive live-writer mutations fail independent byte/inventory checks"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_limits": {
+    "declared_context_vs_scoped_owner": "recomputed from validated manifest and existing resolved write owner under publication lease",
+    "blob/profile preservation": "independently_reconciled by reopened import/read consumers",
+    "authority eligibility/completeness": "not_established; this guard compares existing declared context only",
+    "unbound cross-tenant policy": "not_established; semantic owner decision held"
+  },
+  "source_contract": {
+    "source_refs": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "symbol": "ArtifactTenantContextInfo",
+        "ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "contract": "declared tenant/cell context that owned an authority-bearing write; cell_id may be None"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+        "symbol": "ArtifactWriteOptions.tenant_context",
+        "ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "contract": "optional bound metadata; no new authority/SIK completeness rule"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "symbol": "ManifestLifecycle.build/profile_sha256",
+        "ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "contract": "tenant context remains part of exact persisted profile"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+        "symbol": "ArtifactOwnershipIndex._record_matches_owner/_record_matches_view_owner/_normal_cell_id",
+        "ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "contract": "existing scoped tenant + normalized cell identity; None is a distinct identity"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "_resolve_owner/_require_bound_context_owner/_put_blob_and_manifest_once/_resume_publish_transaction/_publish_staged_import",
+        "ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "contract": "one active scoped owner; every bound manifest checked before new intent/claims; all import package views preflighted"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "symbol": "NodeResultCache._validate_entry_scope",
+        "ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "contract": "actual consumer requires matching manifest/payload/cache tenant context"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/ncm.py",
+        "symbol": "load_ncm_spec_selected_view",
+        "ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "contract": "selected view tenant/cell is validated; None cell does not skip validation"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+        "symbol": "test_remote_population_preserves_the_complete_selected_manifest_profile/test_exact_cached_view_requires_durable_tenant_admission",
+        "ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "contract": "passive unscoped raw cache preserves complete bound view; durable remote owner still guards scoped runtime access"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/authority_reconciliation.py",
+        "symbol": "_assert_expected_identity",
+        "ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+        "contract": "optional query None means omitted expectation in this function only; not a wildcard rule for scoped durable identity"
+      }
+    ],
+    "matrix": [
+      {
+        "manifest": "bound same tenant and exact cell (including None)",
+        "active_scoped_owner": "allow existing contract",
+        "passive_unscoped_exact_cache": "preserve exact profile"
+      },
+      {
+        "manifest": "bound foreign tenant or unequal cell (including None vs scoped cell)",
+        "active_scoped_owner": "refuse before new intent/claims",
+        "passive_unscoped_exact_cache": "preserve exact profile; no scoped owner claim"
+      },
+      {
+        "manifest": "unbound",
+        "active_scoped_owner": "existing independently owned selected-view/physical-byte reuse behavior retained",
+        "passive_unscoped_exact_cache": "existing custody retained"
+      }
+    ],
+    "none_cell": "An explicit persisted None cell is the unscoped-cell identity. It cannot equal cell-a or act as a wildcard. An omitted optional expected-field query in authority_reconciliation is a separate interface.",
+    "missing_owner": "Absence of active write owner remains legitimate passive custody. No blanket refusal for bound -> unscoped exact cache.",
+    "intake_emission_enumeration": "Tracked canonical store call paths: public put_bytes/put_json and retry -> put/resume guard; export bridge archive/directory and import_exact_view -> all-view guard; cache population exact copy -> same import; legacy _record_write_owner/_record_write_view_owner methods have no tracked callers. Explicit metadata-free administrative record_artifact_owner is outside this declared bound-manifest emission class and remains named residual.",
+    "class_bucket": "P31/P40 same class includes generic put/resume and package intake; common helper covers those active metadata-bearing producers. Authority completeness, retroactive bad claims and metadata-free admin admission are separate bounded residuals, not silently declared closed."
+  },
+  "independent_review": {
+    "reviewer": "B root",
+    "target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+    "target_tree": "d404763e8285051b1c1bcd6d678afa567784adec",
+    "git_evidence_commit": "570b7e75171d5ba97112230da44e97b16d3cc0f6",
+    "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.txt",
+    "stdout_sha256": "805e13f541f4d2677f5d56d958555ebd5d5c82d1ee4e013e291b6e008ae76a71",
+    "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.xml",
+    "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/core/artifacts/backends/test_caching_store.py --junitxml=/workspace/e02-B-coordination/.polisyos/e02-B/raw/cas-admission-review.xml",
+    "cwd": "/workspace/e02-B-cas/policy-engine",
+    "observed": "67 passed in 2.54s; exact 39 admission controls plus all 28 native cache cases",
+    "review_scope": "common guard and put/resume/import sites; no blocking finding within existing declared bound metadata class; two actual fault-oracle changes reviewed independently; no broader authority or admin claim"
+  },
+  "capability_state_or_finding_state": "partial; bounded active scoped admission + exact retry consumers verified; full canonical CAS02 and broader gate FAIL, owner and local-input residuals retained",
+  "finding_dispositions": [
+    {
+      "finding_id": "B148",
+      "canonical_bundle": [
+        "CAS-02"
+      ],
+      "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B148",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B148",
+      "disposition": "partial; scoped declared bound-context mismatch refused before any new put/resume/import intent and claims; native passive exact-cache and unbound legitimate reuse preserved; pending import typed refusal + exact-byte retry verified; four-base source criterion and unbound policy decision remain open",
+      "baseline_cell_ids": [
+        "F01-P051",
+        "F09-P055",
+        "F14-P061"
+      ]
+    },
+    {
+      "finding_id": "B149",
+      "canonical_bundle": [
+        "CAS-02"
+      ],
+      "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B149",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B149",
+      "disposition": "partial; staged archive old/new-byte publication and current directory export fsync failure/inventory verified; independent old/new import consumers and property-removal negatives retained; no complete four-base closure",
+      "baseline_cell_ids": [
+        "F01-P051",
+        "F09-P055",
+        "F14-P061"
+      ]
+    },
+    {
+      "finding_id": "B150",
+      "canonical_bundle": [
+        "CAS-01"
+      ],
+      "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B150",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B150",
+      "disposition": "preserve closed_bounded; distinct views/honest refs fresh regression passes, no broader backend/custody claim",
+      "baseline_cell_ids": [
+        "F01-P072",
+        "F01-P077",
+        "F02-P073",
+        "F04-P043",
+        "F04-P101",
+        "F04-P136",
+        "F05-P095",
+        "F06-P095",
+        "F06-P143",
+        "F08-P074",
+        "F08-P129",
+        "F09-P048",
+        "F09-P074",
+        "F10-P072",
+        "F10-P073",
+        "F12-P120",
+        "F13-P084",
+        "F14-P052",
+        "F15-P085",
+        "F15-P090",
+        "F15-P117",
+        "F15-P158"
+      ]
+    },
+    {
+      "finding_id": "B151",
+      "canonical_bundle": [
+        "CAS-01"
+      ],
+      "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B151",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B151",
+      "disposition": "partial; existing corrupt-blob retry negative passes, full source-card four-base witness remains unestablished",
+      "baseline_cell_ids": [
+        "F01-P072",
+        "F01-P077",
+        "F02-P073",
+        "F04-P043",
+        "F04-P101",
+        "F04-P136",
+        "F05-P095",
+        "F06-P095",
+        "F06-P143",
+        "F08-P074",
+        "F08-P129",
+        "F09-P048",
+        "F09-P074",
+        "F10-P072",
+        "F10-P073",
+        "F12-P120",
+        "F13-P084",
+        "F14-P052",
+        "F15-P085",
+        "F15-P090",
+        "F15-P117",
+        "F15-P158"
+      ]
+    },
+    {
+      "finding_id": "B152",
+      "canonical_bundle": [
+        "CAS-03"
+      ],
+      "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B152",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B152",
+      "disposition": "partial; one snapshot/hash + actual Ed25519 control passes; wrong byte_size selected-view negative still absent from admitted cohort",
+      "baseline_cell_ids": [
+        "F02-P052",
+        "F08-P055",
+        "F13-P060"
+      ]
+    },
+    {
+      "finding_id": "B153",
+      "canonical_bundle": [
+        "CAS-01"
+      ],
+      "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B153",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B153",
+      "disposition": "preserve closed_bounded; existing active-waiter/striped lock bounded behavioral tests pass",
+      "baseline_cell_ids": [
+        "F01-P072",
+        "F01-P077",
+        "F02-P073",
+        "F04-P043",
+        "F04-P101",
+        "F04-P136",
+        "F05-P095",
+        "F06-P095",
+        "F06-P143",
+        "F08-P074",
+        "F08-P129",
+        "F09-P048",
+        "F09-P074",
+        "F10-P072",
+        "F10-P073",
+        "F12-P120",
+        "F13-P084",
+        "F14-P052",
+        "F15-P085",
+        "F15-P090",
+        "F15-P117",
+        "F15-P158"
+      ]
+    },
+    {
+      "finding_id": "B154",
+      "canonical_bundle": [
+        "CAS-03"
+      ],
+      "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B154",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B154",
+      "disposition": "partial; local element/batch controls pass; all-confirmations production publisher consumer remains missing; no global authority closure",
+      "baseline_cell_ids": [
+        "F02-P052",
+        "F08-P055",
+        "F13-P060"
+      ]
+    },
+    {
+      "finding_id": "B155",
+      "canonical_bundle": [
+        "CAS-03"
+      ],
+      "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B155",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B155",
+      "disposition": "partial; pending/lazy iterable tests pass; actual default filesystem name census remains eager and uninterruptible at cancellation",
+      "baseline_cell_ids": [
+        "F02-P052",
+        "F08-P055",
+        "F13-P060"
+      ]
+    }
+  ],
+  "authority_purpose": "Prevent silent reassignment of explicitly persisted authority-bearing tenant/cell profile during a new scoped durable publication. Preserve passive exact-profile custody and legitimate unbound reuse; do not infer authority from integrity.",
+  "rule_schema_version": "Existing ArtifactTenantContextInfo, ArtifactManifest and write contract schemas unchanged; handoff v1; no ownership schema migration",
+  "provenance": "Append-only topic branch; separate source/oracle/probe/README commits precede this receipt; real tiny filesystem fixtures, native consumers, exact immutable overlays and property-removal driver; complete output bytes with SHA256",
+  "time_roles": "Compare bound identity at admission before first new intent/claim, and again at retry/resume before historical intent mutation; signed/raw profile bytes retained; already wrong historical claims not retroactively repaired",
+  "pattern_pass": {
+    "P29_P38": "real property-removal reproduces real bad durable claims/read access while docstrings, helper signature, publication markers and callsites remain",
+    "P31_P40": "common invariant across put/resume/import; exact residual class boundaries disclosed",
+    "P35": "all 512 actual JUnit cases and 22 files enumerated; 295-case bounded selection retained, no summary exclusion",
+    "P41": "fresh exact slice-base attribution witnesses; full corpus input changed and remains red; full runtime/public fixture gate remains unresolved, never blanket inherited green"
+  },
+  "limitations_and_next_owner": [
+    "G must fetch exact remote topic head and independently review receipts/source and integrate; closure_ids deliberately empty.",
+    "Semantic CAS owner: untouched unbound cross-tenant import ownership assertion remains FAIL; legitimate independently owned selected-view physical dedup/cache contracts require an explicit policy decision rather than blanket byte-reuse refusal.",
+    "G/canonical promotion corpus owner: test_historical_receipt_corpus_replays_without_current_authority at tests/unit/runtime/quality/test_promotion_sequence.py:553 asserts 2870 over ALL tracked JSON; counts c40 2889, archive receipt base 2890, source candidate 2890. This new receipt/evidence JSON further changes the complete denominator; do not sync a counter solely for green. Decide complete current corpus/oracle contract and replay on exact integrated candidate.",
+    "A/canonical grounding owner + G: all 103 broad grounding failures occur constructing _cg2_contract_bind GroundingDecisionCertificate (grounding_admission_strangle_drift) before CAS. Exact fixed_time witness fails on slice base too; complete broad gate remains red and no blanket inherited classification applied.",
+    "Local G input candidate: 8 exact promotion MeasurementRoot substrate nodes listed in broad-denominator.json require production_data/manifest.json/catalog closure unavailable in cloud. Replay exact candidate with read-only full local inputs.",
+    "A/runtime HTTP fixture owner + G: seven public verifier route cases fail/error catalog_fetch_source_unreadable before startup; source-base whole-file reproduction retained. No run_lifecycle.py changes made here; public served custody remains unestablished.",
+    "G solver profile: four exact CP-SAT nodes skipped; missing ortools in shared environment not PASS. Run declared solver-enabled local profile if required.",
+    "Metadata-free explicit administrative owner admission and already wrong historical claims are not migrated/revoked; authority/SIK completeness, signature provenance and retrospective ownership integrity remain outside this declared bound-context comparison.",
+    "Canonical CAS01/03 all finding residuals remain as eight dispositions: full four-base historical matrix, wrong-size selected-view negative (B152), all-confirmations publisher consumer missing (B154), eager name-walk cancellation (B155).",
+    "Archive predecessor limitations unchanged: private staging orphan on SIGKILL, concurrent reading while archive swaps outside bounded snapshot, no power-loss/device-crash evidence; postreplace directory fsync is durability-unconfirmed.",
+    "Full source/legacy formatter FAIL and root architecture base gate exit2/no-verdict retained; architecture UNRUN/not_established, no per-leaf duplicate gate or weakened required suite.",
+    "Full static invocation raw is ignored/untransferred 170953977 bytes; committed summary cannot prove actual runtime invocation. Recompute recorded command if needed."
+  ],
+  "next_replay": {
+    "candidate_sha": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+    "native_command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_config.py tests/unit/core/artifacts/test_artifact_id_serialization_contract.py tests/unit/core/artifacts/test_artifact_store_protocol.py tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py tests/unit/core/artifacts/test_multi_tenant_shared_cas.py tests/unit/core/artifacts/test_ownership_history.py tests/unit/core/artifacts/test_transfer_publication.py tests/unit/core/phase0/test_artifact_export_import.py tests/unit/foundry/runtime/test_executor_snapshots.py tests/unit/ir/analytics/test_ncm.py tests/unit/remediation/test_cas_01.py tests/unit/remediation/test_cas_02.py tests/unit/remediation/test_cas_03.py tests/unit/runtime/quality/test_authority_reconciliation.py tests/unit/runtime/quality/test_multi_tenant_shared_cas.py tests/unit/runtime/quality/test_tenant_cas_approval_governance.py tests/unit/scientist/orchestration/engine/test_idempotency.py",
+    "broader_command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q -o addopts= --tb=short tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/backends/test_config.py tests/unit/core/artifacts/test_artifact_id_serialization_contract.py tests/unit/core/artifacts/test_artifact_store_protocol.py tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py tests/unit/core/artifacts/test_multi_tenant_shared_cas.py tests/unit/core/artifacts/test_ownership_history.py tests/unit/core/artifacts/test_transfer_publication.py tests/unit/core/phase0/test_artifact_export_import.py tests/unit/foundry/runtime/test_executor_snapshots.py tests/unit/ir/analytics/test_ncm.py tests/unit/remediation/test_cas_01.py tests/unit/remediation/test_cas_02.py tests/unit/remediation/test_cas_03.py tests/unit/runtime/quality/test_authority_reconciliation.py tests/unit/runtime/quality/test_multi_tenant_shared_cas.py tests/unit/runtime/quality/test_tenant_cas_approval_governance.py tests/unit/scientist/orchestration/engine/test_idempotency.py tests/unit/runtime/quality/test_data_forge_binding.py tests/unit/runtime/quality/test_promotion_sequence.py tests/unit/runtime/http/test_public_decision_verification_routes.py",
+    "cloud_limits": "production dataset absent; solver missing; runtime fixture/catalog and grounding oracles unresolved",
+    "source_frozen": true
+  },
+  "pull_request_attachment": "Root successfully attached existing PR14 via native tool; same artifact remains active; child does not repeat formerly hanging attachment.",
+  "publication_corpus_input_delta": {
+    "gate": "tests/unit/runtime/quality/test_promotion_sequence.py::test_historical_receipt_corpus_replays_without_current_authority",
+    "selector": "repository git ls-files -z -- *.json (all tracked JSON)",
+    "implementation_candidate_count": 2890,
+    "proposed_committed_receipt_count": 2896,
+    "new_receipt_json_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/broad-denominator.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/environment.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/final-matrix.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/json-census.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-logs/static-invocation-summary.json"
+    ],
+    "rule": "No canonical counter/oracle change; G/corpus owner must reconcile the complete candidate corpus. This receipt itself affects the input denominator."
+  },
+  "receipt_diff_verification": {
+    "source_docs_receipt_excluding_retained_complete_logs": "PASS (git diff --cached --check with cas-tenant-logs excluded)",
+    "complete_log_diff": "FAIL; retained pytest output contains trailing whitespace",
+    "normalization": "Complete logs deliberately retain all original stdout/JUnit bytes; no whole diff green claim."
+  }
+}

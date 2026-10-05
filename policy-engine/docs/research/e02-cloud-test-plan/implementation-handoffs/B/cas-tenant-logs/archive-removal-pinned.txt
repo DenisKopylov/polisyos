@@ -1,0 +1,41 @@
+{
+  "source": "9e8574b7c7afeec474e5a0e77c5142da4004d279",
+  "overlay_ref": "9e8574b7c7afeec474e5a0e77c5142da4004d279",
+  "mode": "archive-live",
+  "overlays": [],
+  "mutated_file": "src/polisyos/core/artifacts/_transfer_ops.py",
+  "mutated_sha256": "45052887c89774fb72c29a0ce258fad5e787c556d950d95b91a4f555bb841b9d",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "nodes": [
+    "tests/unit/core/artifacts/test_transfer_publication.py"
+  ],
+  "isolated_src": "/tmp/e02-cas-removal-rpm4j_0c/policy-engine/src"
+}
+FFF...                                                                   [100%]
+=================================== FAILURES ===================================
+___ test_failed_archive_replacement_keeps_previous_verified_package[member] ____
+tests/unit/core/artifacts/test_transfer_publication.py:80: in test_failed_archive_replacement_keeps_previous_verified_package
+    assert archive.read_bytes() == previous
+E   assert b"\x1f\x8b\x0...0\x04\x00\x00" == b'\x1f\x8b\x0...\x00(\x00\x00'
+E     
+E     At index 4 diff: b'T' != b'S'
+E     Use -v to get more diff
+___ test_failed_archive_replacement_keeps_previous_verified_package[replace] ___
+tests/unit/core/artifacts/test_transfer_publication.py:80: in test_failed_archive_replacement_keeps_previous_verified_package
+    assert archive.read_bytes() == previous
+E   AssertionError: assert b'\x1f\x8b\x0...\x00(\x00\x00' == b'\x1f\x8b\x0...\x00(\x00\x00'
+E     
+E     At index 25 diff: b's' != b'S'
+E     Use -v to get more diff
+____ test_failed_archive_replacement_keeps_previous_verified_package[fsync] ____
+tests/unit/core/artifacts/test_transfer_publication.py:80: in test_failed_archive_replacement_keeps_previous_verified_package
+    assert archive.read_bytes() == previous
+E   AssertionError: assert b'\x1f\x8b\x0...\x00(\x00\x00' == b'\x1f\x8b\x0...\x00(\x00\x00'
+E     
+E     At index 25 diff: b's' != b'S'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_transfer_publication.py::test_failed_archive_replacement_keeps_previous_verified_package[member]
+FAILED tests/unit/core/artifacts/test_transfer_publication.py::test_failed_archive_replacement_keeps_previous_verified_package[replace]
+FAILED tests/unit/core/artifacts/test_transfer_publication.py::test_failed_archive_replacement_keeps_previous_verified_package[fsync]
+3 failed, 3 passed, 1 deselected in 0.27s

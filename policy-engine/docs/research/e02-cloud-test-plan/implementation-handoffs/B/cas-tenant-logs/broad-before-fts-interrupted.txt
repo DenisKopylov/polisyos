@@ -1,0 +1,1454 @@
+........................................................................ [ 14%]
+........................................................................ [ 28%]
+......................................................F................. [ 42%]
+........................................................................ [ 56%]
+...........................................FFFFFFF.F.......F....FFFFFFFF [ 70%]
+FFFFFFFFFF.FFFFFFFFFFF.FFFFFFFFFFFFFFFFFFF......FF
+=================================== FAILURES ===================================
+________________ test_import_enforces_existing_tenant_ownership ________________
+tests/unit/remediation/test_cas_02.py:438: in test_import_enforces_existing_tenant_ownership
+    with pytest.raises(PermissionError, match="not owned by tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'PermissionError'>
+___ test_current_input_rejects_legacy_caller_gate_predicates[admissibility] ____
+tests/unit/runtime/quality/test_promotion_sequence.py:410: in test_current_input_rejects_legacy_caller_gate_predicates
+    _promotion_input(**{legacy_field: True})
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_ test_current_input_rejects_legacy_caller_gate_predicates[effective_independence] _
+tests/unit/runtime/quality/test_promotion_sequence.py:410: in test_current_input_rejects_legacy_caller_gate_predicates
+    _promotion_input(**{legacy_field: True})
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______ test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow _______
+tests/unit/runtime/quality/test_promotion_sequence.py:414: in test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_ test_canonical_promotion_freezes_on_open_world_risk[limited-deployment_scope_limited] _
+tests/unit/runtime/quality/test_promotion_sequence.py:466: in test_canonical_promotion_freezes_on_open_world_risk
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_ test_canonical_promotion_freezes_on_open_world_risk[not_established-deployment_scope_not_established] _
+tests/unit/runtime/quality/test_promotion_sequence.py:466: in test_canonical_promotion_freezes_on_open_world_risk
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+__________ test_canonical_promotion_freezes_on_scope_not_established ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:478: in test_canonical_promotion_freezes_on_scope_not_established
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______ test_owner_projection_round_trips_exact_open_world_vector_identity ______
+tests/unit/runtime/quality/test_promotion_sequence.py:493: in test_owner_projection_round_trips_exact_open_world_vector_identity
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_______ test_historical_receipt_corpus_replays_without_current_authority _______
+tests/unit/runtime/quality/test_promotion_sequence.py:553: in test_historical_receipt_corpus_replays_without_current_authority
+    assert len(tracked_json) == 2_870
+E   AssertionError: assert 2890 == 2870
+E    +  where 2890 = len((PosixPath('.github/renovate.json'), PosixPath('policy-engine/.devcontainer/devcontainer.json'), PosixPath('policy-eng...apps/runtime-dashboard/.prettierrc.json'), PosixPath('policy-engine/apps/runtime-dashboard/audit-allowlist.json'), ...))
+________ test_v4_v1_history_is_readable_but_cannot_be_current_authority ________
+tests/unit/runtime/quality/test_promotion_sequence.py:1255: in test_v4_v1_history_is_readable_but_cannot_be_current_authority
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_________ test_v1_scope_rows_cannot_be_restamped_as_current_authority __________
+tests/unit/runtime/quality/test_promotion_sequence.py:1380: in test_v1_scope_rows_cannot_be_restamped_as_current_authority
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______ test_current_owner_projection_requires_the_physical_open_world_key ______
+tests/unit/runtime/quality/test_promotion_sequence.py:1390: in test_current_owner_projection_requires_the_physical_open_world_key
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+____________ test_decision_front_rejects_unbound_open_world_receipt ____________
+tests/unit/runtime/quality/test_promotion_sequence.py:1411: in test_decision_front_rejects_unbound_open_world_receipt
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+____ test_decision_front_predicate_is_owned_by_canonical_promotion_sequence ____
+tests/unit/runtime/quality/test_promotion_sequence.py:1419: in test_decision_front_predicate_is_owned_by_canonical_promotion_sequence
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+____ test_n9_emits_additive_decisive_instances_with_deterministic_identity _____
+tests/unit/runtime/quality/test_promotion_sequence.py:1461: in test_n9_emits_additive_decisive_instances_with_deterministic_identity
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_ test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red _
+tests/unit/runtime/quality/test_promotion_sequence.py:1510: in test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_ test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution _
+tests/unit/runtime/quality/test_promotion_sequence.py:1540: in test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+___ test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused ___
+tests/unit/runtime/quality/test_promotion_sequence.py:1615: in test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_____ test_registered_non_calibration_route_cannot_be_omitted_from_ledger ______
+tests/unit/runtime/quality/test_promotion_sequence.py:1639: in test_registered_non_calibration_route_cannot_be_omitted_from_ledger
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+___ test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation ___
+tests/unit/runtime/quality/test_promotion_sequence.py:1663: in test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_________ test_caller_offer_cannot_substitute_for_owner_recomputation __________
+tests/unit/runtime/quality/test_promotion_sequence.py:1682: in test_caller_offer_cannot_substitute_for_owner_recomputation
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+___ test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows ____
+tests/unit/runtime/quality/test_promotion_sequence.py:1703: in test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+__ test_registered_promotion_route_without_owner_producer_fails_before_spend ___
+tests/unit/runtime/quality/test_promotion_sequence.py:1755: in test_registered_promotion_route_without_owner_producer_fails_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_________ test_removing_code_owned_data_trust_route_fails_before_spend _________
+tests/unit/runtime/quality/test_promotion_sequence.py:1796: in test_removing_code_owned_data_trust_route_fails_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_ test_relabelled_code_owned_owner_and_verifier_fail_before_spend[owner_ref-attacker.FakeOwner] _
+tests/unit/runtime/quality/test_promotion_sequence.py:1836: in test_relabelled_code_owned_owner_and_verifier_fail_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_ test_relabelled_code_owned_owner_and_verifier_fail_before_spend[verifier_ref-attacker.FakeVerifier] _
+tests/unit/runtime/quality/test_promotion_sequence.py:1836: in test_relabelled_code_owned_owner_and_verifier_fail_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_ test_relabelled_code_owned_owner_and_verifier_fail_before_spend[obligation_class-value] _
+tests/unit/runtime/quality/test_promotion_sequence.py:1836: in test_relabelled_code_owned_owner_and_verifier_fail_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______ test_same_class_unrelated_claim_cannot_satisfy_compiled_obligation ______
+tests/unit/runtime/quality/test_promotion_sequence.py:1903: in test_same_class_unrelated_claim_cannot_satisfy_compiled_obligation
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+____ test_supported_owner_bound_offer_round_trips_through_generic_validator ____
+tests/unit/runtime/quality/test_promotion_sequence.py:1991: in test_supported_owner_bound_offer_round_trips_through_generic_validator
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+____ test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable _____
+tests/unit/runtime/quality/test_promotion_sequence.py:2092: in test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable
+    original = _promotion_input()
+               ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_ test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable _
+tests/unit/runtime/quality/test_promotion_sequence.py:2143: in test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable
+    original = _promotion_input()
+               ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_________ test_unknown_non_calibration_offer_fail_closes_before_spend __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2177: in test_unknown_non_calibration_offer_fail_closes_before_spend
+    promotion_input = _promotion_input(certificate_offers=(offer,))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______ test_n9_receipt_authorizes_only_narrow_projection_and_current_head ______
+tests/unit/runtime/quality/test_promotion_sequence.py:2191: in test_n9_receipt_authorizes_only_narrow_projection_and_current_head
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+___________ test_n9_owner_replay_projection_round_trips_through_json ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:2203: in test_n9_owner_replay_projection_round_trips_through_json
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+________ test_ungrounded_candidate_stays_shadow_by_real_grounding_owner ________
+tests/unit/runtime/quality/test_promotion_sequence.py:2213: in test_ungrounded_candidate_stays_shadow_by_real_grounding_owner
+    _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+___________________ test_uncalibrated_candidate_stays_shadow ___________________
+tests/unit/runtime/quality/test_promotion_sequence.py:2224: in test_uncalibrated_candidate_stays_shadow
+    receipt = _run(_promotion_input(value_receipt=value))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_________________ test_untransportable_candidate_stays_shadow __________________
+tests/unit/runtime/quality/test_promotion_sequence.py:2232: in test_untransportable_candidate_stays_shadow
+    receipt = _run(_promotion_input(value_receipt=value))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+__________ test_timeout_knob_cannot_decide_effect_or_fabricate_block ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:2239: in test_timeout_knob_cannot_decide_effect_or_fabricate_block
+    receipt = _run(_promotion_input(force_proof_timeout=True))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_________ test_lower_boundary_wins_over_optimistic_declared_transform __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2252: in test_lower_boundary_wins_over_optimistic_declared_transform
+    _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_____________________ test_no_cg2_owner_grant_stays_shadow _____________________
+tests/unit/runtime/quality/test_promotion_sequence.py:2296: in test_no_cg2_owner_grant_stays_shadow
+    _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+__________ test_cg2_open_admissibility_obligation_keeps_promotion_red __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2316: in test_cg2_open_admissibility_obligation_keeps_promotion_red
+    cg1 = engine.certificate_for(
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______ test_contract_testing_bind_receipt_is_intrinsically_non_promotable ______
+tests/unit/runtime/quality/test_promotion_sequence.py:2351: in test_contract_testing_bind_receipt_is_intrinsically_non_promotable
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+__________ test_scope_insufficient_obligation_does_not_vacuously_pass __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2360: in test_scope_insufficient_obligation_does_not_vacuously_pass
+    receipt = _run(_promotion_input(g4_governed_promotion_ref=None))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+___________ test_scope_insufficient_cannot_mint_production_authority ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:2395: in test_scope_insufficient_cannot_mint_production_authority
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_____________ test_unseen_non_panel_value_receipt_flows_unchanged ______________
+tests/unit/runtime/quality/test_promotion_sequence.py:2413: in test_unseen_non_panel_value_receipt_flows_unchanged
+    receipt = _run(_promotion_input(value_receipt=value))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______________ test_forged_g4_ref_is_refused_by_owner_resolution _______________
+tests/unit/runtime/quality/test_promotion_sequence.py:2421: in test_forged_g4_ref_is_refused_by_owner_resolution
+    receipt = _run(_promotion_input(g4_governed_promotion_ref="pdc://fake/g4/not-resolved"))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______________ test_gyk_witness_pointer_is_not_a_supported_input _______________
+tests/unit/runtime/quality/test_promotion_sequence.py:2431: in test_gyk_witness_pointer_is_not_a_supported_input
+    _promotion_input(entailment_witness_ref="gyk://forged-witness")
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+__________ test_invented_measurement_marker_does_not_supply_authority __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2440: in test_invented_measurement_marker_does_not_supply_authority
+    _promotion_input(value_receipt=value.model_copy(update={"value_outer_set": marked_value}))
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+__________ test_real_dependent_independence_graph_refuses_legacy_true __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2566: in test_real_dependent_independence_graph_refuses_legacy_true
+    _promotion_input(effective_independence=True)
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______ test_empty_independence_graph_cannot_establish_promotion_evidence _______
+tests/unit/runtime/quality/test_promotion_sequence.py:2607: in test_empty_independence_graph_cannot_establish_promotion_evidence
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_____ test_n9_measurement_refuses_catalog_metadata_without_fabric_custody ______
+tests/unit/runtime/quality/test_promotion_sequence.py:2642: in test_n9_measurement_refuses_catalog_metadata_without_fabric_custody
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+______________ test_n9_measurement_refuses_all_null_observations _______________
+tests/unit/runtime/quality/test_promotion_sequence.py:2863: in test_n9_measurement_refuses_all_null_observations
+    _assert_invalid_recorded_observations_refused(owner, "all-null values")
+tests/unit/runtime/quality/test_promotion_sequence.py:2898: in _assert_invalid_recorded_observations_refused
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+___________ test_n9_measurement_refuses_out_of_contract_observations ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:2889: in test_n9_measurement_refuses_out_of_contract_observations
+    _assert_invalid_recorded_observations_refused(
+tests/unit/runtime/quality/test_promotion_sequence.py:2898: in _assert_invalid_recorded_observations_refused
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+________ test_n9_measurement_recomputes_full_authority_identity[phase] _________
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_______ test_n9_measurement_recomputes_full_authority_identity[profile] ________
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_______ test_n9_measurement_recomputes_full_authority_identity[problem] ________
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_________ test_n9_measurement_recomputes_full_authority_identity[time] _________
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+____ test_n9_measurement_recomputes_full_authority_identity[authority_role] ____
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+___ test_n9_measurement_rechecks_source_requirement_and_problem[requirement] ___
+tests/unit/runtime/quality/test_promotion_sequence.py:3093: in test_n9_measurement_rechecks_source_requirement_and_problem
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+_____ test_n9_measurement_rechecks_source_requirement_and_problem[problem] _____
+tests/unit/runtime/quality/test_promotion_sequence.py:3093: in test_n9_measurement_rechecks_source_requirement_and_problem
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6090: in _cg2_contract_bind
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:386: in certificate_for
+    candidates = self.retrieve_candidates(
+src/polisyos/runtime/quality/grounding_relation.py:507: in retrieve_candidates
+    lexical_hits = self._fts_index.search(query, limit=80)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/grounding_relation.py:894: in search
+    self._build()
+src/polisyos/runtime/quality/grounding_relation.py:942: in _build
+    con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+E   _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':
+E   Failed to download extension "fts" at URL "http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz"
+E   Extension "fts" is an existing extension.
+E   
+E   For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_current_input_rejects_legacy_caller_gate_predicates[admissibility]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_current_input_rejects_legacy_caller_gate_predicates[effective_independence]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_canonical_promotion_freezes_on_open_world_risk[limited-deployment_scope_limited]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_canonical_promotion_freezes_on_open_world_risk[not_established-deployment_scope_not_established]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_canonical_promotion_freezes_on_scope_not_established
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_owner_projection_round_trips_exact_open_world_vector_identity
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_historical_receipt_corpus_replays_without_current_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_v4_v1_history_is_readable_but_cannot_be_current_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_v1_scope_rows_cannot_be_restamped_as_current_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_current_owner_projection_requires_the_physical_open_world_key
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_decision_front_rejects_unbound_open_world_receipt
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_decision_front_predicate_is_owned_by_canonical_promotion_sequence
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_emits_additive_decisive_instances_with_deterministic_identity
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_registered_non_calibration_route_cannot_be_omitted_from_ledger
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_caller_offer_cannot_substitute_for_owner_recomputation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_registered_promotion_route_without_owner_producer_fails_before_spend
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_removing_code_owned_data_trust_route_fails_before_spend
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_relabelled_code_owned_owner_and_verifier_fail_before_spend[owner_ref-attacker.FakeOwner]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_relabelled_code_owned_owner_and_verifier_fail_before_spend[verifier_ref-attacker.FakeVerifier]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_relabelled_code_owned_owner_and_verifier_fail_before_spend[obligation_class-value]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_same_class_unrelated_claim_cannot_satisfy_compiled_obligation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_supported_owner_bound_offer_round_trips_through_generic_validator
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_unknown_non_calibration_offer_fail_closes_before_spend
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_receipt_authorizes_only_narrow_projection_and_current_head
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_owner_replay_projection_round_trips_through_json
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_ungrounded_candidate_stays_shadow_by_real_grounding_owner
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_uncalibrated_candidate_stays_shadow
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_untransportable_candidate_stays_shadow
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_timeout_knob_cannot_decide_effect_or_fabricate_block
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_lower_boundary_wins_over_optimistic_declared_transform
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_no_cg2_owner_grant_stays_shadow
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_cg2_open_admissibility_obligation_keeps_promotion_red
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_contract_testing_bind_receipt_is_intrinsically_non_promotable
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_scope_insufficient_obligation_does_not_vacuously_pass
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_scope_insufficient_cannot_mint_production_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_unseen_non_panel_value_receipt_flows_unchanged
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_forged_g4_ref_is_refused_by_owner_resolution
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_gyk_witness_pointer_is_not_a_supported_input
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_invented_measurement_marker_does_not_supply_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_real_dependent_independence_graph_refuses_legacy_true
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_empty_independence_graph_cannot_establish_promotion_evidence
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_catalog_metadata_without_fabric_custody
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_all_null_observations
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_out_of_contract_observations
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[phase]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[profile]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[problem]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[time]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[authority_role]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_rechecks_source_requirement_and_problem[requirement]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_rechecks_source_requirement_and_problem[problem]
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py:120: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+60 failed, 350 passed in 772.00s (0:12:52)

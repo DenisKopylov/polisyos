@@ -1,0 +1,782 @@
+{
+  "junit_suite": {
+    "name": "pytest",
+    "errors": "4",
+    "failures": "116",
+    "skipped": "4",
+    "tests": "512",
+    "time": "352.327",
+    "timestamp": "2026-10-05T14:49:06.194632+00:00",
+    "hostname": "b878f4efbdfc"
+  },
+  "test_file_denominator": [
+    "tests/unit/core/artifacts/backends/test_caching_store.py",
+    "tests/unit/core/artifacts/backends/test_config.py",
+    "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+    "tests/unit/core/artifacts/test_import_tenant_context.py",
+    "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+    "tests/unit/core/artifacts/test_ownership_history.py",
+    "tests/unit/core/artifacts/test_transfer_publication.py",
+    "tests/unit/core/phase0/test_artifact_export_import.py",
+    "tests/unit/foundry/runtime/test_executor_snapshots.py",
+    "tests/unit/ir/analytics/test_ncm.py",
+    "tests/unit/remediation/test_cas_01.py",
+    "tests/unit/remediation/test_cas_02.py",
+    "tests/unit/remediation/test_cas_03.py",
+    "tests/unit/runtime/http/test_public_decision_verification_routes.py",
+    "tests/unit/runtime/quality/test_authority_reconciliation.py",
+    "tests/unit/runtime/quality/test_data_forge_binding.py",
+    "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+    "tests/unit/runtime/quality/test_promotion_sequence.py",
+    "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py"
+  ],
+  "nonpass_nodes": [
+    {
+      "node": "tests.unit.remediation.test_cas_02::test_import_enforces_existing_tenant_ownership",
+      "outcome": "failure",
+      "label": "held_unbound",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_current_input_rejects_legacy_caller_gate_predicates[admissibility]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_current_input_rejects_legacy_caller_gate_predicates[effective_independence]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_canonical_promotion_freezes_on_open_world_risk[limited-deployment_scope_limited]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_canonical_promotion_freezes_on_open_world_risk[not_established-deployment_scope_not_established]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_canonical_promotion_freezes_on_scope_not_established",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_owner_projection_round_trips_exact_open_world_vector_identity",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_historical_receipt_corpus_replays_without_current_authority",
+      "outcome": "failure",
+      "label": "corpus_count",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_v4_v1_history_is_readable_but_cannot_be_current_authority",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_v1_scope_rows_cannot_be_restamped_as_current_authority",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_current_owner_projection_requires_the_physical_open_world_key",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_decision_front_rejects_unbound_open_world_receipt",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_decision_front_predicate_is_owned_by_canonical_promotion_sequence",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_emits_additive_decisive_instances_with_deterministic_identity",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_registered_non_calibration_route_cannot_be_omitted_from_ledger",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_caller_offer_cannot_substitute_for_owner_recomputation",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_registered_promotion_route_without_owner_producer_fails_before_spend",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_removing_code_owned_data_trust_route_fails_before_spend",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_relabelled_code_owned_owner_and_verifier_fail_before_spend[owner_ref-attacker.FakeOwner]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_relabelled_code_owned_owner_and_verifier_fail_before_spend[verifier_ref-attacker.FakeVerifier]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_relabelled_code_owned_owner_and_verifier_fail_before_spend[obligation_class-value]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_same_class_unrelated_claim_cannot_satisfy_compiled_obligation",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_supported_owner_bound_offer_round_trips_through_generic_validator",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_unknown_non_calibration_offer_fail_closes_before_spend",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_receipt_authorizes_only_narrow_projection_and_current_head",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_owner_replay_projection_round_trips_through_json",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_ungrounded_candidate_stays_shadow_by_real_grounding_owner",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_uncalibrated_candidate_stays_shadow",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_untransportable_candidate_stays_shadow",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_timeout_knob_cannot_decide_effect_or_fabricate_block",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_lower_boundary_wins_over_optimistic_declared_transform",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_no_cg2_owner_grant_stays_shadow",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_cg2_open_admissibility_obligation_keeps_promotion_red",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_contract_testing_bind_receipt_is_intrinsically_non_promotable",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_scope_insufficient_obligation_does_not_vacuously_pass",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_scope_insufficient_cannot_mint_production_authority",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_unseen_non_panel_value_receipt_flows_unchanged",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_forged_g4_ref_is_refused_by_owner_resolution",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_gyk_witness_pointer_is_not_a_supported_input",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_invented_measurement_marker_does_not_supply_authority",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_real_dependent_independence_graph_refuses_legacy_true",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_empty_independence_graph_cannot_establish_promotion_evidence",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_refuses_catalog_metadata_without_fabric_custody",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_refuses_all_null_observations",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_refuses_out_of_contract_observations",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_recomputes_full_authority_identity[phase]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_recomputes_full_authority_identity[profile]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_recomputes_full_authority_identity[problem]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_recomputes_full_authority_identity[time]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_recomputes_full_authority_identity[authority_role]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_rechecks_source_requirement_and_problem[requirement]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_measurement_rechecks_source_requirement_and_problem[problem]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_replays_current_measurement_source_at_admission[catalog_removed]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_replays_current_measurement_source_at_admission[source_changed]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_replays_current_measurement_source_at_admission[payload_missing]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_replays_current_measurement_source_at_admission[contract_changed]",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_measurement_root_evidence_replays_canonical_base_dataset_envelope",
+      "outcome": "failure",
+      "label": "substrate_catalog_missing",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[ref_shaped]",
+      "outcome": "failure",
+      "label": "substrate_catalog_missing",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[nonexistent_root]",
+      "outcome": "failure",
+      "label": "substrate_catalog_missing",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[wrong_content]",
+      "outcome": "failure",
+      "label": "substrate_catalog_missing",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_fetch]",
+      "outcome": "failure",
+      "label": "substrate_catalog_missing",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_catalog]",
+      "outcome": "failure",
+      "label": "substrate_catalog_missing",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[stale_baseline]",
+      "outcome": "failure",
+      "label": "substrate_catalog_missing",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[rebound_evidence]",
+      "outcome": "failure",
+      "label": "substrate_catalog_missing",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_real_measurement_root_resolves_and_binds_into_n9",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_cg1_derived_atom_cannot_satisfy_effect",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_ungrounded_effect_claim_fails_its_entailment_conjunct",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_effect_exact_or_bounded_entailment_satisfies_without_minting[False-effect_claim_entailed]",
+      "outcome": "skipped",
+      "label": "CP-SAT_unavailable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_effect_exact_or_bounded_entailment_satisfies_without_minting[True-effect_claim_bounded]",
+      "outcome": "skipped",
+      "label": "CP-SAT_unavailable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_production_n9_port_persists_effect_but_refuses_contract_only_cg2",
+      "outcome": "skipped",
+      "label": "CP-SAT_unavailable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_foreign_candidate_and_wrong_verifier_provenance_fail_closed",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n5_coupling_blocker_refuses_coupling",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_supported_n5_coupling_path_satisfies_coupling",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_effective_independence_missing_is_explicit_decisive_nonreceipt",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_data_trust_typed_fields_fail_data_obligation",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_s6_typed_posture_fails_implementation_obligation",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_hand_edited_confidence_projection_is_rejected",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_caller_cannot_supply_authoritative_risk_spends",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_rejects_session_bound_to_a_different_design_problem",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_value_receipt_candidate_mismatch_fails_closed_before_accounting",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_verification_ledger_session_cannot_run_n9_authority_path",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_private_verification_sequence_stamps_receipt_non_consumer_promotable",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_private_verification_boundary_rejects_alternate_registry",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_public_validator_rejects_verification_before_opening_authority_namespace",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_private_verification_revalidator_recomputes_current_head",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_private_verification_revalidator_requires_loaded_owner_repo",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_verification_projection_is_not_n9_authority_provenance",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_schedule_slot_is_reserved_before_obligation_outcomes",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_probabilistic_certificate_bypassing_ledger_is_rejected",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_non_calibration_probabilistic_certificate_bypass_is_rejected",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_rehashed_computed_boundary_is_rejected_by_owner_recomputation",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_rehashed_contract_lane_as_production_is_rejected_by_owner_recomputation",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_receipt_candidate_id_must_match_replayed_owner_input",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_rehashed_owner_projection_still_fails_live_candidate_binding",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_empty_ledger_projection_cannot_insure_forged_probabilistic_success",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_ledger_claim_scope_is_recomputed_from_candidate_owner",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_failed_obligation_cannot_be_relabelled_into_decision_front",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_promotion_history_remains_readable_after_exact_v3_to_v6_reissue",
+      "outcome": "skipped",
+      "label": "CP-SAT_unavailable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_n9_semantic_ledger_changes_with_governing_owner_input",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_promotion_comparison_repairs_current_v6_lineage_only_through_live_owner_proof",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.quality.test_promotion_sequence::test_promotion_comparison_refuses_v2_without_open_world_owner_fact",
+      "outcome": "failure",
+      "label": "grounding_admission_strangle_drift",
+      "failure_before_cas_fixture": true
+    },
+    {
+      "node": "tests.unit.runtime.http.test_public_decision_verification_routes::test_legacy_browser_token_receives_public_verifier_refusal",
+      "outcome": "failure",
+      "label": "catalog_fetch_source_unreadable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.http.test_public_decision_verification_routes::test_public_verification_does_not_make_private_run_routes_public",
+      "outcome": "failure",
+      "label": "catalog_fetch_source_unreadable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.http.test_public_decision_verification_routes::test_served_verifier_denies_signature_intent_and_counterfactual_tracks_gate",
+      "outcome": "failure",
+      "label": "catalog_fetch_source_unreadable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.http.test_public_decision_verification_routes::test_owned_run_packet_is_redacted_issued_and_publicly_verified",
+      "outcome": "error",
+      "label": "catalog_fetch_source_unreadable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.http.test_public_decision_verification_routes::test_foreign_run_and_client_document_cannot_issue",
+      "outcome": "error",
+      "label": "catalog_fetch_source_unreadable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.http.test_public_decision_verification_routes::test_public_export_refusal_prevents_record_and_link_issuance",
+      "outcome": "error",
+      "label": "catalog_fetch_source_unreadable",
+      "failure_before_cas_fixture": false
+    },
+    {
+      "node": "tests.unit.runtime.http.test_public_decision_verification_routes::test_changed_source_bytes_cannot_issue_under_unchanged_run_reference",
+      "outcome": "error",
+      "label": "catalog_fetch_source_unreadable",
+      "failure_before_cas_fixture": false
+    }
+  ]
+}

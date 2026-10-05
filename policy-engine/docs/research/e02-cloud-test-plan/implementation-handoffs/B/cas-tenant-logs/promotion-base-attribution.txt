@@ -1,0 +1,24 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+______ test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow _______
+tests/unit/runtime/quality/test_promotion_sequence.py:414: in test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_______ test_historical_receipt_corpus_replays_without_current_authority _______
+tests/unit/runtime/quality/test_promotion_sequence.py:553: in test_historical_receipt_corpus_replays_without_current_authority
+    assert len(tracked_json) == 2_870
+E   AssertionError: assert 2890 == 2870
+E    +  where 2890 = len((PosixPath('.github/renovate.json'), PosixPath('policy-engine/.devcontainer/devcontainer.json'), PosixPath('policy-eng...apps/runtime-dashboard/.prettierrc.json'), PosixPath('policy-engine/apps/runtime-dashboard/audit-allowlist.json'), ...))
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_historical_receipt_corpus_replays_without_current_authority
+2 failed in 20.12s

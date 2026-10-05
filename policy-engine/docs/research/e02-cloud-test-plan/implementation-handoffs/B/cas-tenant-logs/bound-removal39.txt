@@ -1,0 +1,179 @@
+{
+  "source": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+  "overlay_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+  "mode": "bound-removal",
+  "overlays": [],
+  "mutated_file": "src/polisyos/core/artifacts/store.py",
+  "mutated_sha256": "22fa2a04f89fa6ca77f45885929cb715ee7ad1ed8bd1e934788c8af192ffd5c8",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "nodes": [
+    "tests/unit/core/artifacts/test_import_tenant_context.py"
+  ],
+  "isolated_src": "/tmp/e02-cas-removal-d129ii6u/policy-engine/src"
+}
+FFFFFFFFFFFF............FFFFFFFFFFFFFFF                                  [100%]
+=================================== FAILURES ===================================
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-archive] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-directory] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-exact-view] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-archive] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-directory] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-exact-view] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-archive] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-directory] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-exact-view] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-archive] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-directory] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-exact-view] _
+tests/unit/core/artifacts/test_import_tenant_context.py:68: in test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_mixed_import_refuses_all_new_claims_before_publishing_a_valid_first_member[archive] _
+tests/unit/core/artifacts/test_import_tenant_context.py:166: in test_mixed_import_refuses_all_new_claims_before_publishing_a_valid_first_member
+    with pytest.raises(ArtifactOwnershipError, match="bound to a different tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_mixed_import_refuses_all_new_claims_before_publishing_a_valid_first_member[directory] _
+tests/unit/core/artifacts/test_import_tenant_context.py:166: in test_mixed_import_refuses_all_new_claims_before_publishing_a_valid_first_member
+    with pytest.raises(ArtifactOwnershipError, match="bound to a different tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+___________ test_ambient_scoped_import_refuses_foreign_bound_context ___________
+tests/unit/core/artifacts/test_import_tenant_context.py:182: in test_ambient_scoped_import_refuses_foreign_bound_context
+    with pytest.raises(ArtifactOwnershipError, match="bound to a different tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-bytes] _
+tests/unit/core/artifacts/test_import_tenant_context.py:211: in test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-json] _
+tests/unit/core/artifacts/test_import_tenant_context.py:211: in test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-bytes] _
+tests/unit/core/artifacts/test_import_tenant_context.py:211: in test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-json] _
+tests/unit/core/artifacts/test_import_tenant_context.py:211: in test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-bytes] _
+tests/unit/core/artifacts/test_import_tenant_context.py:211: in test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-json] _
+tests/unit/core/artifacts/test_import_tenant_context.py:211: in test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-bytes] _
+tests/unit/core/artifacts/test_import_tenant_context.py:211: in test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-json] _
+tests/unit/core/artifacts/test_import_tenant_context.py:211: in test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims
+    with pytest.raises(ArtifactOwnershipError, match=r"bound to a different (tenant|cell)"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_pending_legacy_bound_mismatch_is_refused_before_put_recovery_mutates_state _
+tests/unit/core/artifacts/test_import_tenant_context.py:245: in test_pending_legacy_bound_mismatch_is_refused_before_put_recovery_mutates_state
+    with pytest.raises(ArtifactOwnershipError, match="bound to a different tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_mixed_manifest_views_of_one_blob_are_all_checked_before_any_admission[archive] _
+tests/unit/core/artifacts/test_import_tenant_context.py:271: in test_mixed_manifest_views_of_one_blob_are_all_checked_before_any_admission
+    with pytest.raises(ArtifactOwnershipError, match="bound to a different tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_mixed_manifest_views_of_one_blob_are_all_checked_before_any_admission[directory] _
+tests/unit/core/artifacts/test_import_tenant_context.py:271: in test_mixed_manifest_views_of_one_blob_are_all_checked_before_any_admission
+    with pytest.raises(ArtifactOwnershipError, match="bound to a different tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_pending_legacy_bound_mismatch_is_refused_before_import_recovery_mutates_state _
+tests/unit/core/artifacts/test_import_tenant_context.py:298: in test_pending_legacy_bound_mismatch_is_refused_before_import_recovery_mutates_state
+    with pytest.raises(ArtifactOwnershipError, match="bound to a different tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-archive]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-directory]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-exact-view]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-archive]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-directory]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-exact-view]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-archive]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-directory]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-exact-view]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-archive]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-directory]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_import_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-exact-view]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_mixed_import_refuses_all_new_claims_before_publishing_a_valid_first_member[archive]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_mixed_import_refuses_all_new_claims_before_publishing_a_valid_first_member[directory]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_ambient_scoped_import_refuses_foreign_bound_context
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-bytes]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-tenant-json]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-bytes]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[foreign-cell-json]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-bytes]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[none-to-cell-json]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-bytes]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_scoped_put_refuses_bound_identity_mismatch_before_intent_or_claims[cell-to-none-json]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_pending_legacy_bound_mismatch_is_refused_before_put_recovery_mutates_state
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_mixed_manifest_views_of_one_blob_are_all_checked_before_any_admission[archive]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_mixed_manifest_views_of_one_blob_are_all_checked_before_any_admission[directory]
+FAILED tests/unit/core/artifacts/test_import_tenant_context.py::test_pending_legacy_bound_mismatch_is_refused_before_import_recovery_mutates_state
+27 failed, 12 passed in 1.17s

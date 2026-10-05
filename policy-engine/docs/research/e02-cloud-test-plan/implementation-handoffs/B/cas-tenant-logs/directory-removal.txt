@@ -1,0 +1,31 @@
+{
+  "source": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+  "overlay_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+  "mode": "directory-live",
+  "overlays": [],
+  "mutated_file": "src/polisyos/core/artifacts/_transfer_ops.py",
+  "mutated_sha256": "e28f61608e89a16dbbd1f0e592de264694fa84f6e98ddac1615fc39bd0f3398f",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "nodes": [
+    "tests/unit/remediation/test_cas_02.py::test_failed_reused_directory_export_preserves_prior_complete_generation"
+  ],
+  "isolated_src": "/tmp/e02-cas-removal-f4nwswhz/policy-engine/src"
+}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_failed_reused_directory_export_preserves_prior_complete_generation ____
+tests/unit/remediation/test_cas_02.py:223: in test_failed_reused_directory_export_preserves_prior_complete_generation
+    assert current_members == prior_members
+E   assert {PosixPath('a...sion":"2.0"}'} == {PosixPath('a...sion":"2.0"}'}
+E     
+E     Omitting 3 identical items, use -vv to show
+E     Left contains 1 more item:
+E     {PosixPath('artifacts/sha256/67/19/671943825e5f2074a47c06a8bf29d171d854a5264180380f2e5529929b447379.blob'): b'cas-'
+E                                                                                                                 b'02-g'
+E                                                                                                                 b'ener'
+E                                                                                                                 b'atio'...
+E     
+E     ...Full output truncated (2 lines hidden), use '-vv' to show
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cas_02.py::test_failed_reused_directory_export_preserves_prior_complete_generation
+1 failed in 0.11s

@@ -1,0 +1,23 @@
+{
+  "source": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+  "overlay_ref": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+  "mode": "import-unfenced",
+  "overlays": [],
+  "mutated_file": "src/polisyos/core/artifacts/ownership.py",
+  "mutated_sha256": "fdf8332c5ba47cef7cf24bc9b3104722bc9f9ab4cc66873cc9e6ae490e797ee1",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "nodes": [
+    "tests/unit/remediation/test_cas_02.py::test_import_refuses_pending_publication_and_recovers_exact_retry"
+  ],
+  "isolated_src": "/tmp/e02-cas-removal-_gouyo7c/policy-engine/src"
+}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_import_refuses_pending_publication_and_recovers_exact_retry _______
+tests/unit/remediation/test_cas_02.py:611: in test_import_refuses_pending_publication_and_recovers_exact_retry
+    with pytest.raises(ArtifactTransactionPendingError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactTransactionPendingError'>
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cas_02.py::test_import_refuses_pending_publication_and_recovers_exact_retry
+1 failed in 0.14s

@@ -1,0 +1,10 @@
+id = "2026-10-05-cas-archive-publication"
+title = "Preserve complete CAS archives during failed replacements"
+type = "fixed"
+component = "core-artifacts"
+owner = "team-policyos-runtime"
+summary = "CAS tar exports now finish and sync a private archive before replacing the published output, so interrupted writes preserve the previous verified package."
+evidence = ["src/polisyos/core/artifacts/_transfer_ops.py", "tests/unit/core/artifacts/test_transfer_publication.py"]
+compatibility = "The archive layout and inventory schema remain unchanged. Parent-directory sync failure after publication raises AtomicFileDurabilityError with replaced=true; the complete new archive is readable but its crash durability is unconfirmed."
+surface_classification = "public_stable: FileSystemCAS.export_subgraph; internal: archive publication helper"
+limitations = "Abrupt process termination may leave a private staging file beside the destination. Concurrent successful writers retain last-complete-publication semantics. Import authorization and full multi-artifact import atomicity are outside this change."

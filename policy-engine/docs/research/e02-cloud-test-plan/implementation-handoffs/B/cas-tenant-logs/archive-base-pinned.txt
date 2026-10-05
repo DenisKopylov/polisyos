@@ -1,0 +1,43 @@
+{
+  "source": "c40d4acae1ce58b597267255026d9356565828fd",
+  "overlay_ref": "9e8574b7c7afeec474e5a0e77c5142da4004d279",
+  "mode": "baseline",
+  "overlays": [
+    {
+      "path": "tests/unit/core/artifacts/test_transfer_publication.py",
+      "ref": "9e8574b7c7afeec474e5a0e77c5142da4004d279",
+      "sha256": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa"
+    }
+  ],
+  "mutated_file": null,
+  "mutated_sha256": null,
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "nodes": [
+    "tests/unit/core/artifacts/test_transfer_publication.py"
+  ],
+  "isolated_src": "/tmp/e02-cas-removal-l1ghdpyt/policy-engine/src"
+}
+FFF.                                                                     [100%]
+=================================== FAILURES ===================================
+___ test_failed_archive_replacement_keeps_previous_verified_package[member] ____
+tests/unit/core/artifacts/test_transfer_publication.py:80: in test_failed_archive_replacement_keeps_previous_verified_package
+    assert archive.read_bytes() == previous
+E   assert b"\x1f\x8b\x0...0\x04\x00\x00" == b'\x1f\x8b\x0...\x00(\x00\x00'
+E     
+E     At index 23 diff: b'\xcd' != b'\x97'
+E     Use -v to get more diff
+___ test_failed_archive_replacement_keeps_previous_verified_package[replace] ___
+tests/unit/core/artifacts/test_transfer_publication.py:77: in test_failed_archive_replacement_keeps_previous_verified_package
+    with pytest.raises(OSError, match="injected archive"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'OSError'>
+____ test_failed_archive_replacement_keeps_previous_verified_package[fsync] ____
+tests/unit/core/artifacts/test_transfer_publication.py:77: in test_failed_archive_replacement_keeps_previous_verified_package
+    with pytest.raises(OSError, match="injected archive"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'OSError'>
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_transfer_publication.py::test_failed_archive_replacement_keeps_previous_verified_package[member]
+FAILED tests/unit/core/artifacts/test_transfer_publication.py::test_failed_archive_replacement_keeps_previous_verified_package[replace]
+FAILED tests/unit/core/artifacts/test_transfer_publication.py::test_failed_archive_replacement_keeps_previous_verified_package[fsync]
+3 failed, 1 passed, 3 deselected in 0.15s

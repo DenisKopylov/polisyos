@@ -22,7 +22,16 @@ if TYPE_CHECKING:
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import contracts as core_contracts
-from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, InputRef, PutOptions, SchemaInfo
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    InputRef,
+    PutOptions,
+    SchemaInfo,
+)
+from polisyos.core.artifacts.protocol import (
+    FoundrySnapshotArtifactStore,
+    require_foundry_snapshot_artifact_store,
+)
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -333,7 +342,7 @@ def build_l5_family_binding_profile(
 
 
 def materialize_l4_data_state_snapshot(
-    store: FileSystemCAS,
+    store: FoundrySnapshotArtifactStore,
     *,
     repo_root: Path,
     workspace_dir: Path,
@@ -353,6 +362,7 @@ def materialize_l4_data_state_snapshot(
 
     if agent_limit is not None and agent_limit <= 0:
         raise DataStateSubstrateError("production_data_state_empty")
+    store = require_foundry_snapshot_artifact_store(store)
     root = repo_root.resolve()
     paths = _default_data_state_paths(root)
     _require_paths(paths)
@@ -476,7 +486,7 @@ def materialize_l4_data_state_snapshot(
 
 
 def build_production_data_state_world_model_record(
-    store: FileSystemCAS,
+    store: FoundrySnapshotArtifactStore,
     *,
     repo_root: Path,
     workspace_dir: Path,
@@ -489,6 +499,7 @@ def build_production_data_state_world_model_record(
 ) -> ProductionDataStateWorldBuildResult:
     """Build an N3 ``WorldModelRecord`` over the real S1 data-state substrate."""
 
+    store = require_foundry_snapshot_artifact_store(store)
     try:
         if substrate_registry_artifact_ref is None:
             materialized = materialize_l4_data_state_snapshot(

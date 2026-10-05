@@ -22,6 +22,11 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import (
+    ArtifactStore,
+    FoundrySnapshotArtifactStore,
+    require_foundry_snapshot_artifact_store,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import ValueOuterSet
@@ -517,7 +522,7 @@ def _load_verified_json_output(
 
 
 def build_input_bindings(
-    store: FileSystemCAS,
+    store: FoundrySnapshotArtifactStore,
     *,
     data_snapshot_ref: ArtifactRef,
     registry_bundle_ref: ArtifactRef,
@@ -570,6 +575,7 @@ def build_input_bindings(
         ```
     """
 
+    store = require_foundry_snapshot_artifact_store(store)
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
     registry = load_registry_bundle_content(store, registry_bundle_ref)
     binding_payload = _load_binding_payload(store, snapshot)
@@ -687,7 +693,7 @@ def build_input_bindings(
 
 
 def load_input_bindings(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> FoundryInputBindings:
     """Load a persisted `FoundryInputBindings` boundary artifact from CAS.
@@ -706,7 +712,7 @@ def load_input_bindings(
 
 
 def resolve_bound_state_snapshot_ref(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> StateSnapshotRef:
     """Resolve the bound `StateSnapshotRef` and validate referenced artifacts.
@@ -839,7 +845,7 @@ def inject_feedback_state(
     return updated_state.replace(feedback_state=feedback_state), overrides
 
 
-def _load_data_snapshot(store: FileSystemCAS, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
+def _load_data_snapshot(store: ArtifactStore, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
     _reconcile_artifact_ref(store, data_snapshot_ref, label="data snapshot")
     payload = from_canonical_bytes(store.get_bytes(data_snapshot_ref.artifact_id))
     return DataSnapshot.model_validate(payload)
@@ -930,7 +936,7 @@ def _coerce_feedback_target(value: float, target: Any) -> Any:
 
 
 def _reconcile_artifact_ref(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef,
     *,
     label: str,
@@ -957,7 +963,7 @@ def _decode_arrow_binding_payload(payload: bytes) -> dict[str, Any]:
         raise ValueError("invalid Arrow IPC payload") from exc
 
 
-def _load_binding_payload(store: FileSystemCAS, snapshot: DataSnapshot) -> Any:
+def _load_binding_payload(store: ArtifactStore, snapshot: DataSnapshot) -> Any:
     data_ref = snapshot.data_ref
     manifest = _reconcile_artifact_ref(store, data_ref, label="data snapshot payload")
     if data_ref.kind == "foundry.state_snapshot":
@@ -1028,7 +1034,7 @@ def _validate_rules(rules: list[FoundryInputBindingRule], slot_registry: SlotReg
 
 def _build_base_state(
     *,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     snapshot: DataSnapshot,
     payload: Any,
     slot_registry: SlotRegistry,
@@ -1396,5 +1402,5 @@ def _path_exists(payload: Any, path: str) -> bool:
     return _resolve_source_path(payload, path, missing=_MISSING) is not _MISSING
 
 
-def _ensure_artifact_readable(store: FileSystemCAS, ref: ArtifactRef) -> None:
+def _ensure_artifact_readable(store: ArtifactStore, ref: ArtifactRef) -> None:
     store.get_manifest(ref.artifact_id)

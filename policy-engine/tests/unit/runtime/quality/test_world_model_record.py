@@ -1,15 +1,28 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
+from contextlib import contextmanager
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import pytest
 
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactManifest,
+    ArtifactOwnershipError,
+    ArtifactRef,
+    ArtifactStore,
+    ArtifactWriteOptions,
+    VerificationReport,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.artifacts.protocol import FoundrySnapshotArtifactStore
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_default_registry_bundle
@@ -48,6 +61,10 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.registry.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.runtime.http.resilience import GuardedDependencyProxy, guard_runtime_cas
+from polisyos.runtime.quality.data_state_substrate import (
+    build_production_data_state_world_model_record,
+)
 from polisyos.runtime.quality.intervention_atom_binding import (
     build_intervention_atom_binding,
     intervention_atom_target_selector_ref,
@@ -75,6 +92,13 @@ from polisyos.runtime.quality.world_model_record import (
     consume_world_model_record_for_simulation,
     load_world_model_record,
     resolve_intervention_atom_world_binding,
+    world_model_record_content_hash,
+)
+from polisyos.core.security import (
+    AccessScope,
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
 )
 
 SNAPSHOT_ID = "snapshot-2026-05-24"
@@ -185,7 +209,7 @@ def _future_substrate_registration() -> SubstrateRegistration:
     )
 
 
-def _put_json(store: FileSystemCAS, payload: object, *, kind: str):
+def _put_json(store: ArtifactStore, payload: object, *, kind: str):
     return store.put_json(
         payload,
         PutOptions(kind=kind, media_type="application/json"),
@@ -336,7 +360,7 @@ def _write_fabric_world_snapshot(
     return snapshot_root
 
 
-def _data_snapshot_ref(store: FileSystemCAS, *, snapshot_id: str = SNAPSHOT_ID):
+def _data_snapshot_ref(store: ArtifactStore, *, snapshot_id: str = SNAPSHOT_ID):
     payload_ref = _put_json(store, FABRIC_PAYLOAD, kind="fabric.world_payload")
     return _put_json(
         store,
@@ -433,8 +457,9 @@ def _build_record_with_substrate_registry_ref(
     bound_registry: SubstrateRegistry | None = None,
     persisted_registry: SubstrateRegistry | None = None,
     supplied_ref: object | None = None,
+    store: ArtifactStore | None = None,
 ):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = store or FileSystemCAS(tmp_path / "cas")
     _write_fabric_world_snapshot(tmp_path)
     data_snapshot_ref = _data_snapshot_ref(store)
     registry_bundle = build_default_registry_bundle(store)
@@ -464,6 +489,206 @@ def _build_record_with_substrate_registry_ref(
         substrate_registry_artifact_ref=registry_ref,
     )
     return store, result, persisted_ref
+
+
+class _RecordingArtifactStore:
+    """Record operations crossing the exact store passed into WMR/Foundry."""
+
+    def __init__(self, delegate: ArtifactStore) -> None:
+        self._delegate = delegate
+        self.written_ids: set[str] = set()
+        self.byte_read_ids: set[str] = set()
+        self.manifest_read_ids: set[str] = set()
+        self.path_lookups: dict[str, tuple[Path, Path]] = {}
+
+    @staticmethod
+    def _key(artifact_id: ArtifactID | ArtifactRef | str) -> str:
+        return (
+            str(artifact_id.artifact_id)
+            if isinstance(artifact_id, ArtifactRef)
+            else str(artifact_id)
+        )
+
+    def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
+        return self._delegate.has(artifact_id)
+
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
+        result = self._delegate.get_bytes(artifact_id)
+        self.byte_read_ids.add(self._key(artifact_id))
+        return result
+
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
+        result = self._delegate.get_manifest(artifact_id)
+        self.manifest_read_ids.add(self._key(artifact_id))
+        return result
+
+    def put_bytes(self, data: bytes, opts: ArtifactWriteOptions) -> ArtifactRef:
+        ref = self._delegate.put_bytes(data, opts)
+        self.written_ids.add(self._key(ref))
+        return ref
+
+    def put_json(
+        self,
+        obj: object,
+        opts: ArtifactWriteOptions,
+        canon_spec: CanonSpec | None = None,
+    ) -> ArtifactRef:
+        ref = self._delegate.put_json(obj, opts, canon_spec=canon_spec)
+        self.written_ids.add(self._key(ref))
+        return ref
+
+    def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
+        return self._delegate.verify(artifact_id)
+
+    def iter_artifact_ids(self) -> list[ArtifactID]:
+        return self._delegate.iter_artifact_ids()
+
+    def __getattr__(self, name: str) -> Any:
+        if name == "root":
+            raise AttributeError(name)
+        operation = getattr(self._delegate, name)
+        if name != "get_paths":
+            return operation
+
+        def record(*args: Any, **kwargs: Any) -> Any:
+            result = operation(*args, **kwargs)
+            artifact_id = args[0]
+            self.path_lookups[self._key(artifact_id)] = result
+            return result
+
+        return record
+
+
+class _RecordingArtifactStoreWithoutPaths(_RecordingArtifactStore):
+    """Expose ArtifactStore operations but omit Foundry's optional path lookup."""
+
+    def __getattr__(self, name: str) -> Any:
+        if name == "get_paths":
+            raise AttributeError(name)
+        return super().__getattr__(name)
+
+
+@contextmanager
+def _authenticated_tenant_scope(*, tenant_id: str, cell_id: str) -> Iterator[None]:
+    access_scope = AccessScope.for_service(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        spiffe_id="spiffe://tests/policyos/n3-store-witness",
+    )
+    token = set_current_access_scope(access_scope)
+    try:
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            yield
+    finally:
+        reset_current_access_scope(token)
+
+
+def test_data_state_builder_rejects_store_without_snapshot_capability_before_writes(
+    tmp_path: Path,
+) -> None:
+    """N3 refuses a base ArtifactStore without Foundry snapshot path lookup."""
+
+    store = _RecordingArtifactStoreWithoutPaths(FileSystemCAS(tmp_path / "cas"))
+    assert isinstance(store, ArtifactStore)
+    assert not hasattr(store, "get_paths")
+
+    with pytest.raises(TypeError, match="foundry_snapshot_store_capability_missing"):
+        build_production_data_state_world_model_record(
+            store,
+            repo_root=tmp_path / "repo",
+            workspace_dir=tmp_path / "workspace",
+            agent_limit=1,
+        )
+
+    assert store.written_ids == set()
+
+
+def test_world_model_record_uses_exact_ambient_tenant_store(
+    tmp_path: Path,
+) -> None:
+    """N3/WMR inputs and outputs stay in one supplied tenant-guarded store."""
+
+    underlying_store = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
+    observed_store = _RecordingArtifactStore(underlying_store)
+    runtime_store = guard_runtime_cas(observed_store)
+    assert type(runtime_store) is GuardedDependencyProxy
+    assert isinstance(underlying_store, FoundrySnapshotArtifactStore)
+    assert callable(runtime_store.get_paths)
+    assert not isinstance(runtime_store, FileSystemCAS)
+    assert not hasattr(runtime_store, "root")
+
+    with _authenticated_tenant_scope(tenant_id="tenant-a", cell_id="cell-a"):
+        store, built, persisted_registry_ref = (
+            _build_record_with_substrate_registry_ref(
+                tmp_path,
+                store=runtime_store,
+            )
+        )
+        assert store is runtime_store
+        read_back = load_world_model_record(runtime_store, built.record_ref)
+        snapshot = DataSnapshot.model_validate(
+            from_canonical_bytes(runtime_store.get_bytes(built.data_snapshot_ref))
+        )
+        payload_id = str(snapshot.data_ref.artifact_id)
+        expected_ids = {
+            payload_id,
+            str(built.data_snapshot_ref.artifact_id),
+            str(persisted_registry_ref.artifact_id),
+            str(built.record.simulation_model_ref.registry_bundle_ref),
+            built.record.foundry_binding_ref.input_bindings_ref,
+            built.record.foundry_binding_ref.bound_state_snapshot_ref,
+            built.record.foundry_binding_ref.mapping_rules_ref,
+            built.record.simulation_model_ref.model_spec_ref,
+            str(built.record_ref.artifact_id),
+        }
+        assert expected_ids <= observed_store.written_ids
+        owner_read_ids = {
+            str(built.data_snapshot_ref.artifact_id),
+            str(persisted_registry_ref.artifact_id),
+            str(built.record.simulation_model_ref.registry_bundle_ref),
+            built.record.foundry_binding_ref.input_bindings_ref,
+            built.record.foundry_binding_ref.bound_state_snapshot_ref,
+            str(built.record_ref.artifact_id),
+        }
+        assert owner_read_ids <= observed_store.byte_read_ids
+        assert observed_store.path_lookups
+        assert all(
+            path.resolve().is_relative_to((tmp_path / "cas").resolve())
+            for paths in observed_store.path_lookups.values()
+            for path in paths
+        )
+        for artifact_id in expected_ids:
+            manifest = runtime_store.get_manifest(
+                ArtifactID.model_validate(artifact_id)
+            )
+            assert str(manifest.artifact_id) == artifact_id
+            assert runtime_store.get_bytes(ArtifactID.model_validate(artifact_id))
+        assert expected_ids <= observed_store.manifest_read_ids
+
+        assert read_back == built.record
+        assert built.record.schema_version == "policyos.runtime.world_model_record.v1"
+        assert world_model_record_content_hash(read_back) == read_back.content_hash
+        binding_path = Path(read_back.data_forge_binding_ref.binding_path or "")
+        fabric_snapshot_root = Path(read_back.fabric_world_ref.snapshot_root)
+        assert binding_path.is_relative_to(tmp_path.resolve())
+        assert fabric_snapshot_root.is_relative_to(tmp_path.resolve())
+
+    product_root = Path(__file__).resolve().parents[4]
+    production_data_root = (product_root / "production_data").resolve()
+    assert not (tmp_path / "cas").resolve().is_relative_to(product_root.resolve())
+    assert not tmp_path.resolve().is_relative_to(production_data_root)
+    assert all(
+        path.resolve().is_relative_to(tmp_path.resolve())
+        for path in tmp_path.rglob("*")
+        if path.is_file()
+    )
+
+    with _authenticated_tenant_scope(tenant_id="tenant-b", cell_id="cell-b"):
+        for artifact_id in expected_ids:
+            with pytest.raises(ArtifactOwnershipError):
+                runtime_store.get_bytes(ArtifactID.model_validate(artifact_id))
+        with pytest.raises(ArtifactOwnershipError):
+            load_world_model_record(runtime_store, built.record_ref)
 
 
 def _build_record_with_fabric_node(

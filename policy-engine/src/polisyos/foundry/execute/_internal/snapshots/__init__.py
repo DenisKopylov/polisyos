@@ -18,7 +18,12 @@ from pydantic import BaseModel
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
-from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import (
+    ArtifactStore,
+    FoundrySnapshotArtifactStore,
+    require_foundry_snapshot_artifact_store,
+)
+from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.foundry.contracts.state import GlobalState
@@ -55,7 +60,7 @@ class _SnapshotScalar:
 
 
 def load_state_snapshot(
-    store: FileSystemCAS, *, snapshot_ref: ArtifactRef | ArtifactID | str
+    store: ArtifactStore, *, snapshot_ref: ArtifactRef | ArtifactID | str
 ) -> GlobalState:
     """Load state snapshot."""
     snapshot = load_model(store, snapshot_ref, StateSnapshot)
@@ -83,7 +88,7 @@ def load_state_snapshot(
 
 
 def _validate_snapshot_lineage(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     snapshot_ref: ArtifactRef | ArtifactID | str,
     snapshot: StateSnapshot,
@@ -110,13 +115,14 @@ def _validate_snapshot_lineage(
 
 
 def put_state_snapshot(
-    store: FileSystemCAS,
+    store: FoundrySnapshotArtifactStore,
     *,
     state: Any,
     step: int | None = None,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a GlobalState-compatible object as a checksummed NPZ snapshot."""
+    store = require_foundry_snapshot_artifact_store(store)
     flat = dict(_flatten_state(state))
     buf = BytesIO()
     np.savez(buf, **flat)
@@ -378,7 +384,7 @@ def _validate_snapshot_blob(snapshot: StateSnapshot, data: bytes) -> None:
 
 
 def _put_snapshot_blob_two_phase(
-    store: FileSystemCAS,
+    store: FoundrySnapshotArtifactStore,
     data: bytes,
     options: PutOptions,
 ) -> ArtifactRef:
@@ -391,7 +397,7 @@ def _put_snapshot_blob_two_phase(
 
 
 def _reuse_legacy_snapshot_blob(
-    store: FileSystemCAS,
+    store: FoundrySnapshotArtifactStore,
     data: bytes,
     options: PutOptions,
 ) -> ArtifactRef | None:

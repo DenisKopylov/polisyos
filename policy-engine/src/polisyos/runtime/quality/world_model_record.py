@@ -24,10 +24,14 @@ from pydantic import (
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
-    FileSystemCAS,
+    ArtifactStore,
     InputRef,
     PutOptions,
     SchemaInfo,
+)
+from polisyos.core.artifacts.protocol import (
+    FoundrySnapshotArtifactStore,
+    require_foundry_snapshot_artifact_store,
 )
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import (
@@ -177,7 +181,7 @@ class _FabricQueryFrame(Protocol):
 
 
 def build_world_model_record(
-    store: FileSystemCAS,
+    store: FoundrySnapshotArtifactStore,
     *,
     fabric_world_ref: FabricWorldRef,
     data_forge_snapshot_binding_path: str | Path,
@@ -255,6 +259,7 @@ def build_world_model_record(
         bound ``GlobalState`` emitted by Foundry input bindings.
     """
 
+    store = require_foundry_snapshot_artifact_store(store)
     if not model_spec.registry_bundle_ref:
         raise WorldModelRecordError(
             "model_spec_registry_bundle_missing",
@@ -508,7 +513,7 @@ def resolve_intervention_atom_world_binding(
 
 
 def persist_world_model_record(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     record: WorldModelRecord,
     *,
     inputs: Sequence[InputRef] | None = None,
@@ -531,7 +536,9 @@ def persist_world_model_record(
     )
 
 
-def load_world_model_record(store: FileSystemCAS, ref: ArtifactRef | str) -> WorldModelRecord:
+def load_world_model_record(
+    store: ArtifactStore, ref: ArtifactRef | str
+) -> WorldModelRecord:
     """Load a persisted ``WorldModelRecord`` from CAS and verify its hash."""
 
     artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
@@ -539,7 +546,7 @@ def load_world_model_record(store: FileSystemCAS, ref: ArtifactRef | str) -> Wor
     return WorldModelRecord.model_validate(payload)
 
 
-def _load_data_snapshot(store: FileSystemCAS, ref: ArtifactRef) -> DataSnapshot:
+def _load_data_snapshot(store: ArtifactStore, ref: ArtifactRef) -> DataSnapshot:
     from polisyos.core.contracts import DataSnapshot
 
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
@@ -836,7 +843,7 @@ def _resolve_skg_causal_prior_ref(skg_causal_prior_ref: SkgCausalPriorRef) -> No
 
 
 def _load_substrate_registry_artifact_ref(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef | str,
     *,
     loaded_registry: SubstrateRegistry | None = None,
@@ -892,7 +899,7 @@ def _substrate_registry_entries_for_comparison(
 
 
 def _resolve_substrate_registry_ref(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     substrate_registry: SubstrateRegistry,
     *,
     required_sources: Sequence[str],

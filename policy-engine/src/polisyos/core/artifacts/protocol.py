@@ -13,7 +13,7 @@ excluded — they belong to separate, optional protocols if needed.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, cast, runtime_checkable
 
 if TYPE_CHECKING:
     from polisyos.core.canon.canon_json import CanonSpec
@@ -84,6 +84,33 @@ class ArtifactStore(Protocol):
     def iter_artifact_ids(self) -> list[ArtifactID]:  # pragma: no cover - protocol
         """List artifact IDs known to the backend."""
         ...
+
+
+@runtime_checkable
+class FoundrySnapshotArtifactStore(ArtifactStore, Protocol):
+    """Optional capability required by Foundry's state-snapshot writer.
+
+    The Foundry snapshot owner uses deterministic manifest-path lookup when
+    reconciling a legacy raw snapshot. This scoped capability does not make
+    ``get_paths`` part of the backend-agnostic ``ArtifactStore`` contract and
+    does not establish tenant custody or expose a store root.
+    """
+
+    def get_paths(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+    ) -> tuple[Path, Path]:  # pragma: no cover - protocol
+        """Return the blob and manifest paths for one artifact ID."""
+        ...
+
+
+def require_foundry_snapshot_artifact_store(
+    store: object,
+) -> FoundrySnapshotArtifactStore:
+    """Reject stores that cannot support Foundry's legacy snapshot boundary."""
+    if not callable(getattr(store, "get_paths", None)):
+        raise TypeError("foundry_snapshot_store_capability_missing")
+    return cast("FoundrySnapshotArtifactStore", store)
 
 
 @runtime_checkable

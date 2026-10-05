@@ -40,6 +40,144 @@ def _no_lifecycle(ref):
     raise AssertionError(f"A population negative cannot emit lifecycle authority: {ref}")
 
 
+def _selected_view_pair(store, *, data: bytes, kind: str, anchor_ref):
+    """Persist identical bytes under same-kind profiles with distinct lineages."""
+
+    def options(role: str) -> core_artifacts.ArtifactWriteOptions:
+        return core_artifacts.ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/json",
+            inputs=[core_artifacts.InputRef(artifact_id=anchor_ref.artifact_id, role=role)],
+        )
+
+    default_ref = store.put_bytes(data, options("default_lineage"))
+    selected_ref = store.put_bytes(data, options("selected_lineage"))
+    assert default_ref.artifact_id == selected_ref.artifact_id
+    assert default_ref.manifest_profile_sha256 is None
+    assert selected_ref.manifest_profile_sha256 is not None
+    return selected_ref
+
+
+def test_population_and_scan_preserve_selected_view_lineage_inputs(tmp_path: Path):
+    """Both persisted custody owners keep member and event manifest selectors."""
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+    anchor_ref = store.put_bytes(
+        b"selected-view fixture lineage anchor",
+        core_artifacts.ArtifactWriteOptions(
+            kind="fixture.selected_view_anchor", media_type="text/plain"
+        ),
+    )
+    signature_ref = _selected_view_pair(
+        store,
+        data=b'{"record":"signed public record bytes"}',
+        kind="polisyos.governed_public_record",
+        anchor_ref=anchor_ref,
+    )
+    packet_ref = _selected_view_pair(
+        store,
+        data=b'{"packet":"decision packet bytes"}',
+        kind="scientist.decision_packet",
+        anchor_ref=anchor_ref,
+    )
+    signer_pair = core_artifacts.KeyPair.generate()
+    store.sign_artifact(
+        signature_ref,
+        core_artifacts.Ed25519Signer(signer_pair.private_key),
+        signer_identity="synthetic-selected-view-publisher",
+    )
+    captured_at = datetime(2026, 9, 27, tzinfo=UTC)
+    member = custody.PublicSignaturePopulationMember(
+        signature_ref=signature_ref,
+        decision_packet_ref=packet_ref,
+        affected_claim_ids=("selected-view-claim",),
+        published_at=captured_at,
+        staleness_after_seconds=3600,
+    )
+
+    # Preseed the same population bytes under another lineage, then let the owner
+    # persist its canonical member-input view as the selected profile.
+    snapshot = custody.PublicSignaturePopulationSnapshot(
+        population_id="selected-view-custody",
+        population_provenance="synthetic_test",
+        members=(member,),
+        captured_at=captured_at,
+    )
+    store.put_json(
+        snapshot,
+        core_artifacts.PutOptions(
+            kind=custody.PUBLIC_SIGNATURE_POPULATION_KIND,
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name=custody.PUBLIC_SIGNATURE_POPULATION_SCHEMA_NAME,
+                version="1.0",
+            ),
+            inputs=[
+                core_artifacts.InputRef(
+                    artifact_id=anchor_ref.artifact_id,
+                    role="alternate_population_lineage",
+                )
+            ],
+        ),
+        canon_spec=custody._CANON,
+    )
+    population = custody.persist_public_signature_population(
+        store,
+        population_id=snapshot.population_id,
+        population_provenance="synthetic_test",
+        members=(member,),
+        captured_at=captured_at,
+    )
+    assert population.population_ref.manifest_profile_sha256 is not None
+    assert population.snapshot.members == (member,)
+    population_inputs = {
+        item.role: item for item in store.get_manifest(population.population_ref).inputs
+    }
+    assert population_inputs["signature[0]"].manifest_profile_sha256 == (
+        signature_ref.manifest_profile_sha256
+    )
+    assert population_inputs["decision_packet[0]"].manifest_profile_sha256 == (
+        packet_ref.manifest_profile_sha256
+    )
+
+    event_ref = _selected_view_pair(
+        store,
+        data=b'{"event":"custody monitor event"}',
+        kind="scientist.governance_monitor_event",
+        anchor_ref=anchor_ref,
+    )
+    lifecycle_ref = _selected_view_pair(
+        store,
+        data=b'{"lifecycle":"synthetic custody bridge result"}',
+        kind="fixture.lifecycle_bridge_result",
+        anchor_ref=anchor_ref,
+    )
+    scan = custody.PublishedSignatureCustodyScan(
+        status="watched",
+        scanned_at=captured_at,
+        predicate_provenance="synthetic_test",
+        population_ref=population.population_ref,
+        population_content_hash=population.population_content_hash,
+        population_provenance="synthetic_test",
+        member_count=1,
+        monitor_event_refs=(event_ref,),
+        lifecycle_bridge_result_refs=(lifecycle_ref,),
+        reason="synthetic selected-view custody witness",
+    )
+    persisted_scan = custody.persist_published_signature_custody_scan(store, scan)
+    scan_inputs = {
+        item.role: item for item in store.get_manifest(persisted_scan.scan_receipt_ref).inputs
+    }
+    assert scan_inputs["public_signature_population"].manifest_profile_sha256 == (
+        population.population_ref.manifest_profile_sha256
+    )
+    assert scan_inputs["monitor_event[0]"].manifest_profile_sha256 == (
+        event_ref.manifest_profile_sha256
+    )
+    assert scan_inputs["lifecycle_bridge_result[0]"].manifest_profile_sha256 == (
+        lifecycle_ref.manifest_profile_sha256
+    )
+
+
 def test_missing_population_persists_blocked_without_inventing_resolved_refs(tmp_path: Path):
     store = core_artifacts.FileSystemCAS(tmp_path / "cas")
     population = _population(store)

@@ -1,0 +1,197 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "dfi-emb",
+  "closure_ids": [
+    "DFI-02",
+    "DFI-03",
+    "EMB-02",
+    "EMB-03"
+  ],
+  "bundle_ids": [
+    "DFI-01",
+    "DFI-02",
+    "DFI-03",
+    "EMB-01",
+    "EMB-02",
+    "EMB-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "1c875e5ba9f161ba8c103794b85ebc2a03feea42",
+    "a25fac606b9b9cdbd15fb6c79e03dddd60855248",
+    "215c5f102eed26eb8079ed224b42d918dea1e8d4"
+  ],
+  "candidate_tree_sha": "4d226f4e597ba9bb520c8e62e317ccf5d0030293",
+  "branch": "codex/e02-C-dfi-emb",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+    "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+    "policy-engine/tests/unit/remediation/test_dfi_02.py",
+    "policy-engine/tests/unit/remediation/test_emb_02.py"
+  ],
+  "baseline_cells": [
+    "F01-P079",
+    "F01-P108",
+    "F01-P122",
+    "F02-P091",
+    "F02-P116",
+    "F02-P123",
+    "F03-P007",
+    "F03-P122",
+    "F03-P137",
+    "F04-P079",
+    "F04-P122",
+    "F04-P130",
+    "F04-P137",
+    "F05-P015",
+    "F05-P136",
+    "F06-P135",
+    "F06-P136",
+    "F06-P141",
+    "F07-P005",
+    "F07-P071",
+    "F07-P115",
+    "F08-P123",
+    "F09-P079",
+    "F09-P092",
+    "F09-P110",
+    "F09-P116",
+    "F09-P123",
+    "F09-P127",
+    "F10-P106",
+    "F10-P112",
+    "F11-P011",
+    "F11-P110",
+    "F12-P110",
+    "F13-P126",
+    "F13-P143",
+    "F13-P151",
+    "F14-P091",
+    "F14-P105",
+    "F14-P135",
+    "F14-P145",
+    "F15-P008",
+    "F15-P091",
+    "F15-P145"
+  ],
+  "checks": [
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -p no:cacheprovider --basetemp=.tmp/e02-c-w04/receipt-test-output/dfi-01-02-70-tests tests/unit/remediation/test_dfi_02.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_validators.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_api.py tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py -q",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "macOS local; CPython 3.14.0; read-only shared policy-engine .venv; tests PYTHONPATH=src:. and PYTHONDONTWRITEBYTECODE=1; installed-wheel replay uses -I and a worktree-local --target; no package/dependency installation into shared .venv.",
+      "input_closure": "DFI-01/02 unit/importer tests; temporary synthetic DuckDB/source fixtures only; no live external source requests or production data.",
+      "outcome": "PASS",
+      "output": "70 passed. Pytest warns: Unknown config option cache_dir. Complete stdout: dfi-emb-adjacent.txt, section DFI-01/02."
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -p no:cacheprovider --basetemp=.tmp/e02-c-w04/receipt-test-output/dfi-03-15-tests tests/unit/remediation/test_dfi_03.py tests/unit/data_forge/domains/catalog/batch/test_pipeline.py tests/unit/data_forge/kernel/io/test_generation_basis.py -q",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "macOS local; CPython 3.14.0; read-only shared policy-engine .venv; tests PYTHONPATH=src:. and PYTHONDONTWRITEBYTECODE=1; installed-wheel replay uses -I and a worktree-local --target; no package/dependency installation into shared .venv.",
+      "input_closure": "DFI-03 batch resume/generation-basis fixtures; local temporary files/DB only.",
+      "outcome": "PASS",
+      "output": "15 passed. Pytest warns: Unknown config option cache_dir. Complete stdout: dfi-emb-adjacent.txt, section DFI-03."
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -p no:cacheprovider --basetemp=.tmp/e02-c-w04/receipt-test-output/emb-01-02-16-tests tests/unit/remediation/test_emb_02.py tests/unit/data_forge/kernel/test_embeddings.py -q",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "macOS local; CPython 3.14.0; read-only shared policy-engine .venv; tests PYTHONPATH=src:. and PYTHONDONTWRITEBYTECODE=1; installed-wheel replay uses -I and a worktree-local --target; no package/dependency installation into shared .venv.",
+      "input_closure": "EMB-01/02 small Academic/Catalog DuckDB fixtures; actual NumPy/HNSW; deterministic fake SentenceTransformer; no model download.",
+      "outcome": "PASS",
+      "output": "16 passed. Includes late alias failure, selected-generation consumer readback and retry. Complete stdout: dfi-emb-adjacent.txt, section EMB-01/02."
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -p no:cacheprovider --basetemp=.tmp/e02-c-w04/receipt-test-output/emb-03-9-tests tests/unit/remediation/test_emb_03.py tests/unit/data_forge/legal_batch/test_embed_local.py -q",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "macOS local; CPython 3.14.0; read-only shared policy-engine .venv; tests PYTHONPATH=src:. and PYTHONDONTWRITEBYTECODE=1; installed-wheel replay uses -I and a worktree-local --target; no package/dependency installation into shared .venv.",
+      "input_closure": "EMB-03 local synthetic legal embedding fixtures; no production corpus/model.",
+      "outcome": "PASS",
+      "output": "9 passed. Known entity-only cases and unresolved same-dimension revision/facts/provisions limitations remain. Complete stdout: dfi-emb-adjacent.txt, section EMB-03."
+    },
+    {
+      "command": "cd policy-engine && uv build --wheel --out-dir <worktree .tmp wheelhouse> --cache-dir <worktree .tmp uv-cache>; uv pip install --python <shared read-only venv Python> --no-deps --target <worktree .tmp installed>; run dfi-emb-testscript.py --site <installed target>",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "macOS local; CPython 3.14.0; read-only shared policy-engine .venv; tests PYTHONPATH=src:. and PYTHONDONTWRITEBYTECODE=1; installed-wheel replay uses -I and a worktree-local --target; no package/dependency installation into shared .venv.",
+      "input_closure": "Wheel built from candidate; all four imported production modules are asserted to resolve under isolated target. Synthetic DuckDB ds-1->ds-2 corpus, actual HNSW and CatalogStore, fake deterministic encoder. No full environment or production data.",
+      "outcome": "PASS",
+      "output": "Wheel SHA256 44e574d8dc7282091e503536a1343d4c099354e99ba87cf6a24af35ee0e6724f (matches independent review). Installed `embedder`, `store`, `kernel.embeddings`, `graph_builder` imports all came from isolated target. Early HNSW fault preserved/search-read ds-1; late alias-index copy fault selected inventory/content-bound v2 and CatalogStore returned ds-2 at 1.0 while aliases remained mixed; retry restored byte-identical aliases. Complete stdout and exact commands: dfi-emb-adjacent.txt, Installed wheel section."
+    },
+    {
+      "command": "cd policy-engine && PYTHONDONTWRITEBYTECODE=1 <shared read-only venv Python> -I docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-testscript.py --site <isolated wheel target> --removal-control",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "macOS local; CPython 3.14.0; read-only shared policy-engine .venv; tests PYTHONPATH=src:. and PYTHONDONTWRITEBYTECODE=1; installed-wheel replay uses -I and a worktree-local --target; no package/dependency installation into shared .venv.",
+      "input_closure": "Behavioral removal probe: suppress selector JSON write #2 while retaining v2 candidate inventory and legacy NPZ alias, then run the actual candidate EMB-02 test/consumer readback on installed package imports.",
+      "outcome": "PASS",
+      "output": "Expected red (pytest exit 1) at test_emb_02.py:776: CatalogStore returned [] instead of [\"ds-2\"]; wrapper asserts exact property failure and returns 0. Complete output in dfi-emb-adjacent.txt, selector-write removal section."
+    },
+    {
+      "command": "cd policy-engine && /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check <all 10 changed Python paths>",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "macOS local; CPython 3.14.0; read-only shared policy-engine .venv; tests PYTHONPATH=src:. and PYTHONDONTWRITEBYTECODE=1; installed-wheel replay uses -I and a worktree-local --target; no package/dependency installation into shared .venv.",
+      "input_closure": "Full changed-Python-path set in changed_paths (complete scan output is retained locally under raw/).",
+      "outcome": "FAIL",
+      "output": "Found 649 errors. Complete output: raw/ruff-full-changed-python-215c.stdout.txt@sha256:1377d8d0dc82441464f3b2794f4632e392144e672d708362f14bcb5580d0e606. Baseline origin is not_established; do not infer a broad Ruff pass."
+    },
+    {
+      "command": "cd policy-engine && /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check --select I,E4,E7,E9 <all 10 changed Python paths>",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "macOS local; CPython 3.14.0; read-only shared policy-engine .venv; tests PYTHONPATH=src:. and PYTHONDONTWRITEBYTECODE=1; installed-wheel replay uses -I and a worktree-local --target; no package/dependency installation into shared .venv.",
+      "input_closure": "Selected style/syntax subset only; exact full checker is the preceding failing check.",
+      "outcome": "PASS",
+      "output": "No diagnostics. This is not a full Ruff pass; complete command result is summarized in dfi-emb-adjacent.txt."
+    },
+    {
+      "command": "git diff --check c40d4acae1ce58b597267255026d9356565828fd 215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "Local Git; pinned slice base and candidate commit.",
+      "input_closure": "Implementation diff only (10 implementation/test paths).",
+      "outcome": "PASS",
+      "output": "No whitespace errors; dfi-emb-adjacent.txt."
+    },
+    {
+      "command": "cd policy-engine && /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-testscript.py",
+      "target_sha": "215c5f102eed26eb8079ed224b42d918dea1e8d4",
+      "environment": "macOS local; CPython 3.14.0; repository Ruff config.",
+      "input_closure": "Portable wheel/readback and selector-removal handoff script only.",
+      "outcome": "PASS",
+      "output": "All checks passed. Final script SHA256 is recorded in dfi-emb-adjacent.txt."
+    }
+  ],
+  "property": {
+    "statement": "DFI: compatibility dependency overrides apply only to their named leaf/current invocation and batch resume retains input/output content-basis behavior. EMB: after a complete immutable generation is committed, its selector is the publication boundary and is written before non-atomic legacy aliases; a late alias failure still exposes the new generation through the real consumer, and suppressing selector publication cannot pass the semantic readback oracle. DFI-03 has no new production implementation in this slice; its passing suite is bounded verification of the existing basis/resume path.",
+    "runtime_path": [
+      "DFI-01/02 facade -> owner-aware ContextVar overrides -> canonical core_sources leaves -> core_sources_ingest/pipeline and persisted synthetic DuckDB counts.",
+      "DFI-03 existing batch-stage producer computes input_basis/output_inventory -> persisted stage state -> resume/skip logic -> pipeline/generation-basis consumers.",
+      "EMB-01/02 Academic/Catalog producer -> staged NPZ/HNSW/IDs/basis/inventory -> atomic generation selector -> resolve_embedding_generation -> ScholarKnowledgeStore/DatasetCatalogStore and publish manifest.",
+      "EMB-03 legal producer and compatibility wrapper -> content/projection basis and index artifacts -> legal embedding consumers."
+    ],
+    "proxy_divergence": "For EMB, v2 metadata/IDs and a refreshed NPZ alias can coexist with an old selector and old HNSW alias; metadata or file-presence checks would agree while CatalogStore cannot read the new ds-2. The discriminator is the actual selected-generation search. Suppressing selector write #2 preserves the v2 inventory and alias but makes the test fail at the ds-2 consumer readback. For DFI, absence of a marker/global broadcast alone is not the property; tests exercise isolated dependency resolution across supported calls.",
+    "negative_controls": [
+      "DFI tests call neighboring leaf operations with distinct facade overrides and assert the canonical leaf dependency remains isolated; synthetic pipeline/loader/writer/validator imports are exercised.",
+      "EMB early HNSW-save fault occurs after staged NPZ but before selector publication; the prior selected generation remains byte-bound and CatalogStore still reads ds-1.",
+      "EMB late compatibility HNSW-alias-copy fault occurs after selector publication; flat aliases are mixed but the selected v2 inventory and actual CatalogStore query resolve ds-2; retry restores both aliases byte-identically.",
+      "Removal control suppresses selector publication #2 while keeping v2 metadata/files and aliases; actual CatalogStore readback returns [] and the test fails at test_emb_02.py:776."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "LA-038, LA-039, LA-040, LA-041, and LA-042 remain partial/candidate_unverified. Bounded properties above are implemented and behaviorally demonstrated; no finding closure is claimed. Selector/inventory/member hashes are recomputed, but completeness of caller-supplied source membership is not independently reconciled.",
+  "limitations_and_next_owner": [
+    "LA-038 / DFI-01/02: cross-leaf dependency and monkeypatch-target inventory is incomplete; remaining real callers and full sync/async, budget/lease/profile, errors/counters parity are not established. G should finish the full FQN/source and request/profile census and rerun relevant callers.",
+    "LA-039 / EMB-01/02: a self-consistent inventory does not prove no source row was omitted; source-membership completeness remains not_established. Encoder is deterministic fake; real model quality, ANN recall and accelerator/hardware behavior are untested. Historical flat-file fallback as a separate reader contract is not claimed.",
+    "LA-040 / EMB-03: same-dimension encoder-weight revision changes are not distinguished by verified weight digest. Existing remediation tests do not populate facts/provisions or prove change/withdrawal/reuse across all legal projections.",
+    "LA-041 / DFI-03: no direct harvest-stage resume test, malformed JSON state test, explicit None-versus-empty required-output comparison, or JSON-byte compatibility regression. Full production/history/data behavior is untested.",
+    "LA-042 / EMB-03: full FQN/config/notebook/external-caller census and legacy backend API retirement decision remain with G/semantic owner.",
+    "All DFI/EMB test inputs are bounded local fixtures; production data remained read-only and no full production dataset, model download, full environment setup or numerical/JAX wave was run.",
+    "No global finding ledger, shared registry/config/parser/harvest path, generator, lockfile, or source_registry.yaml was changed. Catalog coordinator paths batch/config.py, batch/harvest.py and batch/source_registry.yaml are released/unmodified.",
+    "Workspace admission/resume gate exited 2 for an unrelated stale obs_udf registration referencing a missing path. User authorized continued tracked work on this clean attached C worktree; no unrelated registration was changed. This limitation does not establish product status.",
+    "Full Ruff is FAIL at 649 diagnostics with complete current output retained by path@sha; slice-base provenance/input-closure is not established in this receipt. Selected Ruff and diff-check do not broaden that result; G must run its exact full Ruff gate.",
+    "Independent reviewer fault_oracle accepted commit 215c5f1. Its local receipt and six stdout hashes are copied into dfi-emb-adjacent.txt as corroboration; independent portable rerun uses the committed testscript and commands above. The test-only corrective commit a25fac..215c5f1 changes only tests/unit/remediation/test_emb_02.py; wheel SHA matches the independent build."
+  ]
+}

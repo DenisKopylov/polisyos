@@ -1,0 +1,179 @@
+C-W04 deciding outputs
+candidate=215c5f102eed26eb8079ed224b42d918dea1e8d4 tree=4d226f4e597ba9bb520c8e62e317ccf5d0030293
+slice_base=c40d4acae1ce58b597267255026d9356565828fd
+python=/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python
+PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1
+
+=== DFI-01/02 (70 tests) ===
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -p no:cacheprovider --basetemp /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/.tmp/e02-c-w04/receipt-test-output/dfi-01-02-70-tests tests/unit/remediation/test_dfi_02.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_validators.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_api.py tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py -q
+......................................................................   [100%]
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+exit=0
+
+=== DFI-03 (15 tests) ===
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -p no:cacheprovider --basetemp /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/.tmp/e02-c-w04/receipt-test-output/dfi-03-15-tests tests/unit/remediation/test_dfi_03.py tests/unit/data_forge/domains/catalog/batch/test_pipeline.py tests/unit/data_forge/kernel/io/test_generation_basis.py -q
+...............                                                          [100%]
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+exit=0
+
+=== EMB-01/02 (16 tests) ===
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -p no:cacheprovider --basetemp /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/.tmp/e02-c-w04/receipt-test-output/emb-01-02-16-tests tests/unit/remediation/test_emb_02.py tests/unit/data_forge/kernel/test_embeddings.py -q
+................                                                         [100%]
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+exit=0
+
+=== EMB-03 (9 tests) ===
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -p no:cacheprovider --basetemp /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/.tmp/e02-c-w04/receipt-test-output/emb-03-9-tests tests/unit/remediation/test_emb_03.py tests/unit/data_forge/legal_batch/test_embed_local.py -q
+.........                                                                [100%]
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+exit=0
+
+=== Installed wheel and selector removal control ===
+--- uv build candidate wheel ---
+$ uv build --wheel --out-dir .tmp/e02-c-w04/receipt-wheel-215c/g-replay-wheelhouse --cache-dir .tmp/e02-c-w04/receipt-wheel-215c/uv-cache
+Building wheel...
+Successfully built .tmp/e02-c-w04/receipt-wheel-215c/g-replay-wheelhouse/policy_engine-0.1.0-py3-none-any.whl
+exit=0
+wheel_sha256=44e574d8dc7282091e503536a1343d4c099354e99ba87cf6a24af35ee0e6724f
+wheel_sha256_matches_independent_review=True
+
+--- uv pip install isolated target ---
+$ uv pip install --python /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python --no-deps --target .tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed .tmp/e02-c-w04/receipt-wheel-215c/g-replay-wheelhouse/policy_engine-0.1.0-py3-none-any.whl
+Using CPython 3.14.0 interpreter at: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python
+Resolved 1 package in 4ms
+Prepared 1 package in 155ms
+Installed 1 package in 57ms
+ + policy-engine==0.1.0 (from file:///Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/policy-engine/.tmp/e02-c-w04/receipt-wheel-215c/g-replay-wheelhouse/policy_engine-0.1.0-py3-none-any.whl)
+exit=0
+
+--- installed-wheel publication/readback ---
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -I docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-testscript.py --site .tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed
+installed import: polisyos.data_forge.domains.catalog.batch.embedder -> /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/policy-engine/.tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed/polisyos/data_forge/domains/catalog/batch/embedder.py
+installed import: polisyos.data_forge.domains.catalog.knowledge.store -> /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/policy-engine/.tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed/polisyos/data_forge/domains/catalog/knowledge/store.py
+installed import: polisyos.data_forge.kernel.embeddings -> /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/policy-engine/.tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed/polisyos/data_forge/kernel/embeddings.py
+installed import: polisyos.data_forge.domains.catalog.batch.graph_builder -> /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/policy-engine/.tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed/polisyos/data_forge/domains/catalog/batch/graph_builder.py
+CatalogStore.search_by_vector selected ds-1 at 1.000000
+early HNSW fault preserved the old selected/readable ds-1 generation
+CatalogStore.search_by_vector selected ds-2 at 1.000000
+late alias fault selected v2/ds-2 with content-bound inventory; legacy alias remains mixed; old/new cosine=0.987034
+CatalogStore.search_by_vector selected ds-2 at 1.000000
+retry restored byte-identical aliases for generation 89252de83fca48fb8b7542f2fb221fe5
+exit=0
+
+--- selector-write removal control ---
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -I docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-testscript.py --site .tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed --removal-control
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_catalog_copy_failure_keeps_one_readable_generation_and_recovers _____
+tests/unit/remediation/test_emb_02.py:776: in test_catalog_copy_failure_keeps_one_readable_generation_and_recovers
+    assert [result.id for result in results] == ["ds-2"]
+E   AssertionError: assert [] == ['ds-2']
+E
+E     Right contains one more item: 'ds-2'
+E     Use -v to get more diff
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_emb_02.py::test_catalog_copy_failure_keeps_one_readable_generation_and_recovers
+REMOVAL CONTROL EXPECTED RED: second selector write suppressed while staged generation and legacy aliases remain; CatalogStore's ds-2 readback assertion fails.
+tests/unit/remediation/test_emb_02.py:776: in test_catalog_copy_failure_keeps_one_readable_generation_and_recovers
+    assert [result.id for result in results] == ["ds-2"]
+E   AssertionError: assert [] == ['ds-2']
+E
+E     Right contains one more item: 'ds-2'
+E     Use -v to get more diff
+exit=0
+
+=== Ruff and whitespace evidence ===
+Full changed-Python Ruff command: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check <all 10 changed Python paths>
+Full Ruff exit=1; Found 649 errors. Complete output: raw/ruff-full-changed-python-215c.stdout.txt@sha256:1377d8d0dc82441464f3b2794f4632e392144e672d708362f14bcb5580d0e606. P41 origin not_established; this receipt does not claim a broad Ruff pass or a base count comparison.
+Selected Ruff command: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check --select I,E4,E7,E9 <all 10 changed Python paths>; exit=0; no diagnostics. This selected subset does not establish full Ruff pass.
+git diff --check c40d4acae1ce58b597267255026d9356565828fd 215c5f102eed26eb8079ed224b42d918dea1e8d4; exit=0; no whitespace errors.
+The new handoff testscript itself was checked separately: Ruff exit=0; All checks passed! Final script SHA256 is recorded below.
+
+=== Baseline routes and reviewer receipt ===
+Complete scan of policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv: 2524 data rows plus header (file type TSV); 48 Unit C routes match LA-038/039/040/041/042; 43 unique cell IDs; all matching rows are partial/candidate_unverified. IDs below are route associations, not reproduced baseline verdicts. Raw baseline archives received: 0 (per results metadata).
+Cells: F01-P079, F01-P108, F01-P122, F02-P091, F02-P116, F02-P123, F03-P007, F03-P122, F03-P137, F04-P079, F04-P122, F04-P130, F04-P137, F05-P015, F05-P136, F06-P135, F06-P136, F06-P141, F07-P005, F07-P071, F07-P115, F08-P123, F09-P079, F09-P092, F09-P110, F09-P116, F09-P123, F09-P127, F10-P106, F10-P112, F11-P011, F11-P110, F12-P110, F13-P126, F13-P143, F13-P151, F14-P091, F14-P105, F14-P135, F14-P145, F15-P008, F15-P091, F15-P145
+DFI corrective-test delta a25fac606b9b9cdbd15fb6c79e03dddd60855248..215c5f102eed26eb8079ed224b42d918dea1e8d4 (git diff --name-only): policy-engine/tests/unit/remediation/test_emb_02.py
+Independent reviewer: fault_oracle ACCEPT at candidate 215c5f102eed26eb8079ed224b42d918dea1e8d4 / tree 4d226f4e597ba9bb520c8e62e317ccf5d0030293; same selector-publication class distinguished by ds-2/New XYZ, v2 fake vectors and actual CatalogStore ds-2 query at .99; selector-write #2 suppression leaves v2 inventory/NPZ but old selector and makes actual ds-2 readback fail at test_emb_02.py:776. Independent wheel SHA256=44e574d8dc7282091e503536a1343d4c099354e99ba87cf6a24af35ee0e6724f; equals our candidate wheel.
+Reviewer receipt (local corroboration): /Users/deniskopylov/.codex/scratch/e02-c-dfi-emb-wheel-review-215c5f102eed26eb/INDEPENDENT_REVIEW.txt@sha256:cb8e65ae976436604b6cb0e7caf829fe2d07d0f4fb5acd18683810a7f00a5e89. Its six raw stdout SHA256s: wheel-build fb14b18fcdea4539efb0b9397091d3a076647b10362d9c34000f0ef53240cdda; wheel-install 152d8b3dc0fde7b355b88065ddc5fc4c7e0ec06abd4f5d8a8129b6b3f1853617; wheel-import-hashes acf15371ba82db8c16d8994c887cf3f7feffb135efa1973bc027d29293fc04b0; dfi-wheel-import-hashes 08133a1281cc8e2fcd1a4d04ea4bb8000523475e93957456b086c7eabe985c2b; pytest-installed 3193700d0ab9fff6c652ea89cf43f5e54166b7bef3e74733454115f333fe11a8; selector-removal-control 76036e09a5a9838acbe0aafdf0ef46b89152053b8a0df84878cf36b31fcec968. This external scratch is corroboration; portable replay is the committed adjacent log and script.
+Admission limitation: workspace resume/admission exited 2 because an unrelated stale obs_udf registration references a missing path. User explicitly authorized continued tracked edits on this clean attached C worktree; no unrelated registration was removed/repaired.
+
+=== Final handoff-script replay ===
+testscript_sha256=9972f3e3c3ae7066d76696737786f96c878c460b76a742be02ba7b708fbc8d93
+--- final committed script installed publication/readback ---
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -I docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-testscript.py --site .tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed
+installed import: polisyos.data_forge.domains.catalog.batch.embedder -> /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/policy-engine/.tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed/polisyos/data_forge/domains/catalog/batch/embedder.py
+installed import: polisyos.data_forge.domains.catalog.knowledge.store -> /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/policy-engine/.tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed/polisyos/data_forge/domains/catalog/knowledge/store.py
+installed import: polisyos.data_forge.kernel.embeddings -> /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/policy-engine/.tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed/polisyos/data_forge/kernel/embeddings.py
+installed import: polisyos.data_forge.domains.catalog.batch.graph_builder -> /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb/polisyos/policy-engine/.tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed/polisyos/data_forge/domains/catalog/batch/graph_builder.py
+CatalogStore.search_by_vector selected ds-1 at 1.000000
+early HNSW fault preserved the old selected/readable ds-1 generation
+CatalogStore.search_by_vector selected ds-2 at 1.000000
+late alias fault selected v2/ds-2 with content-bound inventory; legacy alias remains mixed; old/new cosine=0.987034
+CatalogStore.search_by_vector selected ds-2 at 1.000000
+retry restored byte-identical aliases for generation 04c7cc9e398c46a69a5866f6a5f99be2
+exit=0
+
+--- final committed script selector-removal control ---
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -I docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-testscript.py --site .tmp/e02-c-w04/receipt-wheel-215c/g-replay-installed --removal-control
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_catalog_copy_failure_keeps_one_readable_generation_and_recovers _____
+tests/unit/remediation/test_emb_02.py:776: in test_catalog_copy_failure_keeps_one_readable_generation_and_recovers
+    assert [result.id for result in results] == ["ds-2"]
+E   AssertionError: assert [] == ['ds-2']
+E
+E     Right contains one more item: 'ds-2'
+E     Use -v to get more diff
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_emb_02.py::test_catalog_copy_failure_keeps_one_readable_generation_and_recovers
+REMOVAL CONTROL EXPECTED RED: second selector write suppressed while staged generation and legacy aliases remain; CatalogStore's ds-2 readback assertion fails.
+tests/unit/remediation/test_emb_02.py:776: in test_catalog_copy_failure_keeps_one_readable_generation_and_recovers
+    assert [result.id for result in results] == ["ds-2"]
+E   AssertionError: assert [] == ['ds-2']
+E
+E     Right contains one more item: 'ds-2'
+E     Use -v to get more diff
+exit=0
+
+--- Ruff handoff testscript ---
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-testscript.py
+All checks passed!
+exit=0

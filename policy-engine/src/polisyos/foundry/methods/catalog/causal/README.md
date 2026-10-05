@@ -58,9 +58,10 @@ broader `polisyos.foundry.methods` facade.
 - `protocols.py`, `_common.py`, and helper contract modules define shared input
   and result shapes. Keep cross-method payloads here only when multiple causal
   families consume them.
-- `causal_engine.py`, `id_engine.py`, `constraint_discovery.py`,
-  `interference.py`, and `invariance_tests.py` are high-complexity modules
-  tracked in `architecture/module_size_budget.toml`.
+- `causal_engine/`, `id_engine/`, and `interference/` are split packages. Their
+  public entrypoints remain package imports; implementation helpers belong to
+  the corresponding leaf modules. `constraint_discovery.py` and
+  `invariance_tests.py` remain modules tracked in `architecture/module_size_budget.toml`.
 - Method modules are grouped by concept: identification, estimation,
   diagnostics, discovery, transportability, fairness, policy learning,
   recourse, strategic response, and space-time DSCM.
@@ -68,6 +69,40 @@ broader `polisyos.foundry.methods` facade.
   `_sklearn_compat.py` must degrade by explicit capability contract.
 
 ## Extension Points
+
+### Causal engine and interference compatibility surface (LA-020)
+
+The existing `causal_engine` package explicitly exports `CausalEngine` and
+`DataReadinessBlockedError`. The engine class is defined in `causal_engine.api`;
+the exception belongs to `_causal_engine_contracts`. Direct and star imports
+keep those object identities and serialized module addresses.
+
+The `interference` package explicitly exports `BipartiteInterferenceEstimator`,
+`NetworkAIPWEstimator`, `PartialInterferenceEstimator`,
+`SpatialInterferenceEstimator`, `InterferenceAugmentedGraph`,
+`InterferenceIdentificationResult`, `build_block_stratified_network_causal_data`,
+`build_interference_topology_contracts`, and `identify_interference_effect`.
+Estimator implementations belong to `interference.api`, graph/result contracts
+to `_interference_contracts`, and identification helpers to
+`interference.identification`.
+
+Historical test callers still use `causal_engine._make_dummy_identification_result`
+and patch `causal_engine.mz_id_algorithm`, `id_with_oracle_fallback`,
+`id_star_algorithm`, and `idc_star_algorithm`. These bindings remain addressable
+outside `__all__`; the identification mixin consumes the patch targets at runtime.
+The interference facade similarly retains `_ReductionErrorBoundPlan`,
+`_SimplicialSupportGate`, and `_TopologyCertificatePlan` for existing test callers.
+New internal tests should import helpers from their leaf owners. Retiring these
+compatibility names requires an API-owner decision and a consumer migration;
+adding a service import to a leaf does not extend the package API.
+
+The native `test_api_01.py` checks imports, explicit exports, incidental names,
+and reload cleanup. `test_facade_consumers.py` exercises a real Scientist
+identification consumer, engine/result serialization, supported patch execution
+and restoration, leaf FQNs, and runtime documentation generation. These are
+bounded ABI witnesses, not DoWhy/EconML backend or real-data validity receipts.
+
+### Method registration
 
 - External causal methods use the parent `polisyos.foundry_methods` extension
   point declared in

@@ -543,8 +543,9 @@ def _batch_schedule_predicate(
     del axis_size
     if in_batched[0]:
         # JAX batches a cond with mapped predicates into select, evaluating
-        # the emitter even for inactive rows. Reject before tracing it. The
-        # Boolean admission is independent of differentiable state/parameters.
+        # the emitter even for inactive rows. Refuse mapped numerical execution.
+        # A scalar jitted call may already have been traced before this rule
+        # runs. Boolean admission is independent of differentiable state/parameters.
         raise ValueError(
             "apply_nodes does not support mapped schedule predicates; "
             "use scalar schedules with vmap or jax.lax.map for per-row schedules"

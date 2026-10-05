@@ -1,0 +1,88 @@
+...............FFF.                                                      [100%]
+=================================== FAILURES ===================================
+_____ test_conditional_kernel_request_is_not_registered_as_marginal_kernel _____
+
+    def test_conditional_kernel_request_is_not_registered_as_marginal_kernel() -> None:
+        bundle = ExplanationOrchestrator().explain(
+            _CountingModel(),
+            _request(methods=("kernel_shap_conditional",)),
+        )
+
+        method = bundle.methods[0]
+
+        assert method.method_id == "kernel_shap_conditional"
+        assert method.requested_method_id == "kernel_shap_conditional"
+>       assert method.scope == "diagnostic"
+E       AssertionError: assert 'local' == 'diagnostic'
+E
+E         - diagnostic
+E         + local
+
+tests/unit/remediation/test_ber_01.py:562: AssertionError
+_ test_orchestrator_rejects_adapter_reported_identity_not_bound_to_registry[False] _
+
+report_identity_in_params = False
+
+    @pytest.mark.parametrize("report_identity_in_params", [False, True])
+    def test_orchestrator_rejects_adapter_reported_identity_not_bound_to_registry(
+        report_identity_in_params: bool,
+    ) -> None:
+        adapter = _IdentityMismatchAdapter(
+            method_id="forged_method",
+            report_identity_in_params=report_identity_in_params,
+        )
+        bundle = ExplanationOrchestrator(adapters={"forged_method": adapter}).explain(
+            _CountingModel(),
+            _request(methods=("forged_method",)),
+        )
+
+        method = bundle.methods[0]
+
+        assert method.method_id == "forged_method"
+        assert method.requested_method_id == "forged_method"
+>       assert method.scope == "diagnostic"
+E       AssertionError: assert 'local' == 'diagnostic'
+E
+E         - diagnostic
+E         + local
+
+tests/unit/remediation/test_ber_01.py:585: AssertionError
+_ test_orchestrator_rejects_adapter_reported_identity_not_bound_to_registry[True] _
+
+report_identity_in_params = True
+
+    @pytest.mark.parametrize("report_identity_in_params", [False, True])
+    def test_orchestrator_rejects_adapter_reported_identity_not_bound_to_registry(
+        report_identity_in_params: bool,
+    ) -> None:
+        adapter = _IdentityMismatchAdapter(
+            method_id="forged_method",
+            report_identity_in_params=report_identity_in_params,
+        )
+        bundle = ExplanationOrchestrator(adapters={"forged_method": adapter}).explain(
+            _CountingModel(),
+            _request(methods=("forged_method",)),
+        )
+
+        method = bundle.methods[0]
+
+        assert method.method_id == "forged_method"
+        assert method.requested_method_id == "forged_method"
+>       assert method.scope == "diagnostic"
+E       AssertionError: assert 'local' == 'diagnostic'
+E
+E         - diagnostic
+E         + local
+
+tests/unit/remediation/test_ber_01.py:585: AssertionError
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_ber_01.py::test_conditional_kernel_request_is_not_registered_as_marginal_kernel
+FAILED tests/unit/remediation/test_ber_01.py::test_orchestrator_rejects_adapter_reported_identity_not_bound_to_registry[False]
+FAILED tests/unit/remediation/test_ber_01.py::test_orchestrator_rejects_adapter_reported_identity_not_bound_to_registry[True]

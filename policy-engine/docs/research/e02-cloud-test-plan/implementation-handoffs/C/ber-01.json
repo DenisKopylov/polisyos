@@ -1,0 +1,214 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "ber-01",
+  "closure_ids": [
+    "LA-034",
+    "LA-036"
+  ],
+  "bundle_ids": [
+    "BER-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "bd845dd2264277344fccc6e2a8f716838ea1c626",
+    "13946765e32ebd3a5da0f6a4eda5d90d74a8ad1e"
+  ],
+  "candidate_tree_sha": "664231a3542f17768a7cc2cea61748ea16156668",
+  "branch": "codex/e02-C-berl",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/pyproject.toml",
+    "policy-engine/src/polisyos/berl/contracts/schema.py",
+    "policy-engine/src/polisyos/berl/service.py",
+    "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py",
+    "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+    "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+    "policy-engine/tests/unit/remediation/test_ber_01.py",
+    "policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py",
+    "policy-engine/uv.lock"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F01-P104",
+      "finding_ids": [
+        "LA-034",
+        "LA-036"
+      ],
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/berl/test_contracts.py",
+      "source_reported_outcome": "PASS",
+      "evidence_class": "source-reported baseline; not candidate verification",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_reported_collected_and_calls": "5",
+      "receipt_status": "valid_bound"
+    },
+    {
+      "cell_id": "F03-P056",
+      "finding_ids": [
+        "LA-034",
+        "LA-036"
+      ],
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+      "source_reported_outcome": "PASS",
+      "evidence_class": "source-reported baseline; not candidate verification",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_reported_collected_and_calls": "15",
+      "receipt_status": "valid_bound"
+    },
+    {
+      "cell_id": "F03-P129",
+      "finding_ids": [
+        "LA-034",
+        "LA-036"
+      ],
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/berl/test_service.py",
+      "source_reported_outcome": "PASS",
+      "evidence_class": "source-reported baseline; not candidate verification",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_reported_collected_and_calls": "2",
+      "receipt_status": "valid_bound"
+    },
+    {
+      "cell_id": "F09-P060",
+      "finding_ids": [
+        "LA-034",
+        "LA-036"
+      ],
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+      "source_reported_outcome": "PASS",
+      "evidence_class": "source-reported baseline; not candidate verification",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_reported_collected_and_calls": "15",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "cell_id": "F13-P065",
+      "finding_ids": [
+        "LA-034",
+        "LA-036"
+      ],
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+      "source_reported_outcome": "PASS",
+      "evidence_class": "source-reported baseline; not candidate verification",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_reported_collected_and_calls": "15",
+      "receipt_status": "valid_reconciled"
+    }
+  ],
+  "baseline_limitations": [
+    "The five routed cells were queried individually; raw source archives received: 0.",
+    "The source-reported PASS values locate prior evidence but do not establish semantic adequacy or close either finding."
+  ],
+  "checks": [
+    {
+      "command": "pytest tests/unit/remediation/test_ber_01.py at exact slice base c40d4acae1ce58b597267255026d9356565828fd (CLI flags were not retained in the raw log)",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "macOS local scratch checkout; repository Python 3.14 .venv, PYTHONPATH=src",
+      "input_closure": "BER-01 identity controls and conditional-kernel contract in tests/unit/remediation/test_ber_01.py",
+      "outcome": "FAIL",
+      "disposition": "Expected defect reproduction at the exact slice base.",
+      "output": "19 cases total: 16 passed, 3 failed. The ordered progress line had 15 passes, three failures, then one pass. Failures show local/executable scope where diagnostic-only/unavailable is required: conditional SHAP claim and adapter identity forged in the typed field or params.",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-base-red.txt",
+      "log_sha256": "3d0f23737f5d7035667243f58d65f39221513ecd891a381052412ff4d56d7594"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -o 'addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks' -q tests/unit/remediation/test_ber_01.py tests/unit/berl/test_contracts.py tests/unit/berl/test_service.py tests/unit/berl/test_adapters.py tests/unit/runtime/quality/test_berl_warrant_reliability.py tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+      "target_sha": "13946765e32ebd3a5da0f6a4eda5d90d74a8ad1e",
+      "environment": "macOS BERL worktree; shared original policy-engine/.venv read-only; PYTHONPATH=src; Python 3.14",
+      "input_closure": "BER-01 adapter identity/contract/service, Runtime reliability consumer, Scientist Phase5 consumer and serialized-artifact integration tests",
+      "outcome": "PASS",
+      "output": "43 passed, 1 warning in 22.36s. The warning is PytestConfigWarning: Unknown config option: cache_dir.",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-focused-tests.txt",
+      "log_sha256": "e88a5e1530e70899648e020b29e09f17fb57d97ce77ba97da292f031727695fc",
+      "raw_output_local_path": "/Users/deniskopylov/.codex/scratch/e02-c-berl-patch-20261005/receipts/final-berl-focused-with-summary.log",
+      "raw_output_sha256": "290f559947f7de9d19ba17bbfe219f72098e438815ee958f53964646c55ba5d5"
+    },
+    {
+      "command": "ruff check on all seven modified Python source/test files via repository .venv",
+      "target_sha": "13946765e32ebd3a5da0f6a4eda5d90d74a8ad1e",
+      "environment": "repository policy-engine/.venv, no dependency installation",
+      "input_closure": "all changed Python source and test paths",
+      "outcome": "PASS",
+      "output": "All checks passed!",
+      "log": "local scratch /Users/deniskopylov/.codex/scratch/e02-c-berl-patch-20261005/receipts/final-ruff-check.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "command": "ruff format --check policy-engine/src/polisyos/berl/contracts/schema.py policy-engine/tests/unit/remediation/test_ber_01.py",
+      "target_sha": "13946765e32ebd3a5da0f6a4eda5d90d74a8ad1e",
+      "environment": "repository policy-engine/.venv",
+      "input_closure": "shared persisted-schema validator and BER-01 contract tests",
+      "outcome": "PASS",
+      "output": "2 files already formatted.",
+      "log": "local scratch /Users/deniskopylov/.codex/scratch/e02-c-berl-patch-20261005/receipts/final-ruff-format-test.log",
+      "log_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "command": "uv lock --check",
+      "target_sha": "13946765e32ebd3a5da0f6a4eda5d90d74a8ad1e",
+      "environment": "uv canonical lock check; no shared environment sync/install",
+      "input_closure": "policy-engine/pyproject.toml and policy-engine/uv.lock",
+      "outcome": "PASS",
+      "output": "Resolved 418 packages in 1ms; lockfile is up to date."
+    },
+    {
+      "command": "corepack pnpm install --frozen-lockfile",
+      "target_sha": "13946765e32ebd3a5da0f6a4eda5d90d74a8ad1e",
+      "environment": "fresh BERL worktree; generated node_modules links ignored; no tracked tree changes",
+      "input_closure": "workspace TypeScript scanner dependencies required by architecture guardrails",
+      "outcome": "PASS",
+      "output": "Completed successfully."
+    },
+    {
+      "command": "uv run polisyos-tools architecture guardrails check",
+      "target_sha": "13946765e32ebd3a5da0f6a4eda5d90d74a8ad1e",
+      "environment": "macOS BERL worktree after frozen pnpm install; local architecture tooling",
+      "input_closure": "repository-wide architecture guardrails; a complete slice-base replay and complete-input changed-path overlap calculation were not captured",
+      "outcome": "FAIL",
+      "attribution": "not_established",
+      "output": "Command exited 1; output includes deep-import baseline drift and generated Runtime OpenAPI/Atlas artifact mismatch. No inherited/unrelated or BERL product-defect attribution is made.",
+      "full_output": "ignored local raw/ber-01-architecture-guardrails.log; SHA256 a3d6ad8264c3ece884a3a597a1264326ae0dd38115bb2c6b1b1e37f78e65e8ac (1991 lines, 115240 bytes)"
+    }
+  ],
+  "property": {
+    "statement": "A persisted ExplanationBundle accepted by BERL consumers must satisfy the entire current canonical persisted schema profile, while a computation's effective method identity must be the registry-bound method and every unimplemented requested method remains diagnostic-only.",
+    "producer": "ExplanationOrchestrator.explain",
+    "artifact": "ExplanationBundle serialized as JSON and written/read back through a temporary file; schema_version current canonical 1.0.0; authority purpose is bounded local explanation/display, not policy authority promotion; created_at is artifact creation time, not publication validity; model/code provenance and random-seed fields remain part of the artifact.",
+    "bridge": "Persisted JSON is independently presented to Runtime quality warrant-reliability intake and Scientist Phase5 BERL preflight intake.",
+    "consumers": [
+      "polisyos.runtime.quality.explanation_reliability._validate_bundle_record",
+      "polisyos.scientist.validation.phase5_preflight._run_berl_validation"
+    ],
+    "verification": "Both consumers call the same cached Draft 2020-12 validator built from generated_explanation_bundle_schema(), including FormatChecker, before Pydantic model construction. Runtime emits a bundle-invalid reliability issue on rejection; Phase5 returns passed=false and diagnostic_only rather than None.",
+    "surface": {
+      "generated_schema": "policy-engine/src/polisyos/berl/contracts/explanation_bundle.schema.json; generated by the canonical schema owner and parity-checked; no generated schema file was directly edited.",
+      "external_saved_json_api_or_audit_reader": "not_established"
+    },
+    "proxy_divergence": "Pydantic candidate construction accepts semver-shaped schema_version 9.9.9 and fills a defaulted omitted validity field; the full current persisted schema has schema_version const 1.0.0 and requires persisted fields. Therefore DTO construction alone is a cheap proxy that disagrees with persisted-profile validity. Adapter-reported method_id in result fields or params is also a proxy: a fake adapter can report a forged identity while the registry binds a different effective method.",
+    "negative_controls": [
+      "An actual orchestrator-produced serialized record with schema_version 9.9.9 is rejected by both persisted consumers while the DTO construction control remains permissive.",
+      "An actual serialized record omitting persisted required/defaulted validity is rejected by both consumers while DTO construction fills its default.",
+      "An actual serialized record containing a nested unexpected field is rejected by both consumers.",
+      "An adapter lying through its typed method identity field or params receives no attribution under the forged identity; registry identity is retained.",
+      "kernel_shap_conditional is diagnostic-only because the existing implementation is marginal SHAP, not a conditional estimator.",
+      "Marginal aliases continue sharing kernel_shap_marginal computation and its marginal confidence policy."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_detail": "Persisted-record admission is recomputed from the canonical generated schema at both actual consumers. Runtime adapter identity is derived from the orchestrator's adapter registry; architecture gate attribution remains not_established.",
+  "capability_state_or_finding_state": "Internal BER-01 producer→serialized artifact→two persisted consumers and negative semantic tests are implemented on the candidate. LA-034 and LA-036 remain partial/candidate_unverified pending independent review; overall external saved-JSON/API/audit surface is not_established, and semantic adequacy beyond these discriminators is not_established.",
+  "limitations_and_next_owner": [
+    "Independent reviewer/G should review both implementation commits and exact-base defect reproductions; do not treat this handoff as closure.",
+    "External persisted-JSON API/audit readers were not established by this bounded consumer slice.",
+    "No full numerical SHAP benchmark was run; the conditional-adapter control proves only that the unsupported method is not mislabeled as conditional.",
+    "Architecture guardrail command completed with exit 1, but its finding origin is not_established because no exact slice-base replay plus complete input-denominator changed-path intersection was captured. Do not attribute this to the BERL slice or call it inherited.",
+    "The candidate contains a core jsonschema dependency promotion after frozen upstream entrypoint commit 38c833079414a561bad7ec0a2fb9a68fad45b887 (tree prefix 8c52551e). Integration must preserve SHA/order and combine the disjoint Ukraine entrypoint changes with this dependency requirement; do not cherry-pick the entire Ukraine branch.",
+    "Pattern pass: P01/P02 producer-artifact-bridge-consumer, P31/P32 content-bound persisted admission, P33 adversarial controls, P37 recomputed canonical schema predicate, P38 DTO/identity proxy divergence, P40 same class widened once to both persisted consumers, P41 architecture-check origin not_established.",
+    "Whole-file ruff format verification was limited to schema.py and test_ber_01.py; changed Python files all pass ruff check, and unrelated existing formatter diffs were left untouched."
+  ]
+}

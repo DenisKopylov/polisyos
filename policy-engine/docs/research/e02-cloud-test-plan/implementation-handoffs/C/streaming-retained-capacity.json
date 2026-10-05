@@ -1,0 +1,127 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "streaming-retained-capacity",
+  "closure_ids": [],
+  "bundle_ids": [
+    "ING-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "789e9e906cc52ff544fb05d4faa5db13359fee84"
+  ],
+  "candidate_tree_sha": "bc9e32dd74ad094c24c6012d161f7a669fb4f115",
+  "branch": "codex/e02-C-streaming",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_streaming_capacity.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py"
+  ],
+  "baseline_cells": [
+    "F01-P061",
+    "F04-P009",
+    "F05-P085",
+    "F06-P020",
+    "F07-P008",
+    "F09-P065",
+    "F11-P015",
+    "F12-P068",
+    "F13-P010",
+    "F13-P073"
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts='' -q -c pytest.ini tests/unit/fabric/data_plane/test_streaming_runtime.py tests/unit/fabric/data_plane/test_streaming_capacity.py tests/unit/fabric/data_plane/test_streaming_windowed.py tests/unit/fabric/data_plane/test_cursor_store.py tests/unit/fabric/data_plane/test_processing_guarantees.py",
+      "target_sha": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "environment": "macOS CPython 3.14; original dependency venv, source from frozen worktree; cwd policy-engine; isolated pytest fixtures; no production inputs",
+      "input_closure": "Five named runtime/capacity/windowed/cursor/processing-guarantee test modules and their imported owners. Includes the runtime removal control and 33 capacity cases.",
+      "outcome": "PASS",
+      "output": "streaming-focused-tests.txt: complete stdout; 117 passed in 16.06s."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/fabric/data_plane/streaming.py tests/unit/fabric/data_plane/test_streaming_runtime.py tests/unit/fabric/data_plane/test_streaming_capacity.py",
+      "target_sha": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "environment": "macOS; original venv; cwd policy-engine",
+      "input_closure": "All three changed Python paths",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "git diff --check c40d4acae1ce58b597267255026d9356565828fd 789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "target_sha": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "environment": "attached isolated worktree",
+      "input_closure": "Complete implementation diff",
+      "outcome": "PASS",
+      "output": "Exit 0, empty output."
+    },
+    {
+      "command": "Independent read-only streaming review: exact-SHA runtime/windowed/capacity pytest, direct sliding and timestamp-free tumbling probes, Ruff and diff check",
+      "target_sha": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "environment": "Separate direct reviewer using frozen worktree and original dependency venv",
+      "input_closure": "Actual process_stream_dataset admission, FileSystemCAS/CursorStore readback; retained state preview; sliding count/time eviction and tumbling count fallback across all four strategies",
+      "outcome": "PASS",
+      "output": "Independent reviewer accepted bounded retained-state property. Three-module pytest exit 0 in 18.42s; narrow capacity/runtime controls exit 0 in 10.68s; direct operator probes passed. Review narrative is supplementary; portable deciding pytest output is streaming-focused-tests.txt."
+    },
+    {
+      "command": "git archive <implementation> policy-engine; UV_CACHE_DIR=<private-cache> uv build --wheel --no-sources; uv pip install --no-deps --python <private-venv>/bin/python <wheel>; env -u PYTHONPATH <private-venv>/bin/python <fresh-scratch>/streaming-installed-probe.py",
+      "target_sha": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "environment": "macOS CPython 3.14; wheel installed in private venv. Dependency site-packages appended directly read-only without processing editable pth. Consumer cwd /tmp, no pytest/conftest, source checkout absent from sys.path. Exact commands in streaming-installed-receipt.md.",
+      "input_closure": "Complete policy-engine package subtree 3bc5c0ff3f556ae8340a9fc16fd965b211ae8152; installed streaming/cursor_store/event_stream/CAS modules; generated bounded JSONL per isolated run",
+      "outcome": "PASS",
+      "output": "streaming-installed-build.txt and streaming-installed-consumer.txt are complete outputs. Wheel SHA256 b7ecd5302a9839a4c76b728a11996fad429eb9b7fd4635f8dfe3f656a61c3eb3; exact installed streaming.py matches frozen source SHA256 f096387f19db865674b653a9d76849589d26b3370f089b9839a2a0c63bc39367. Actual refusal/frontier/restart/window readback passed four strategies, 12 exact-cap closing combinations, and UTF-8 byte case."
+    },
+    {
+      "command": "PYTHONPATH=policy-engine/src:policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli workspace doctor --worktree-admission resume --branch codex/e02-C-coordinator --path /Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "Local managed worktree registry; registration records unchanged",
+      "input_closure": "Workspace-admission registration inventory",
+      "outcome": "UNRUN",
+      "output": "Tool exited 2/status unrun with findings=[] because stale registered path /Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos is absent. Complete ignored raw receipt .tmp/e02-C-root/raw/admission-resume.json SHA256 d19e55b97b13be0f906f8d7617781e7a34dd6ad1c846e1570663362912063367. User explicitly authorized continuation in verified C worktrees, leaving stale registrations unchanged."
+    },
+    {
+      "command": "Broad backend verification / CI parity / integrated C+B pool and streaming consumer tests",
+      "target_sha": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "environment": "Reserved for stabilized G integration checkpoint",
+      "input_closure": "Integrated source after all accepted slices; full relevant architecture/build/backend inputs",
+      "outcome": "UNRUN",
+      "output": "Not a full-repository or C+B integration verdict. G must pin the integrated candidate and run the broad wave once."
+    }
+  ],
+  "property": {
+    "statement": "Every incoming ordered row is admitted only if the actual post-transition retained window state fits the declared row and JSON UTF-8 byte capacities. A refusal happens before CDC/chunk/window/frontier publication, preserves the committed state, and permits a restart from the refused source chunk; a row that closes a window at the exact capacity remains admissible.",
+    "runtime_path": [
+      "JSONL connector DataChunk -> sanitization and ordering",
+      "StreamWindowAccumulator snapshot/restore preview using the same _add_row transitions",
+      "retained rows and json.dumps(sort_keys=True, default=str).encode(utf-8) byte measurement",
+      "process_stream_dataset admission before CDC/chunk/window/cursor checkpoint writes",
+      "FileSystemCAS + CursorStore retained-state checkpoint -> restart -> actual window readback"
+    ],
+    "proxy_divergence": "Prior SPILL/source-count sum rejected a closing row even when actual retained state dropped within the cap; pause/throttle/fail handling could instead admit an oversized retained state. The candidate simulates the real transition and measures its resulting retained rows. The removal canary disables preview _add_row while keeping markers, then proves real retained rows exceed cap and catches the specific capacity witness.",
+    "negative_controls": [
+      "Four strategy row/byte overflow cases preserve prior cursor, checkpoint, row refs and absence of refused raw chunk in CAS.",
+      "COUNT/SESSION/TUMBLING exact-cap closing transitions admit and read back the complete emitted set across all four strategies.",
+      "Escapes, Unicode and nested JSON values produce exact byte sizes [119,115,104,86]; equality cap234 commits, the next retained row is refused.",
+      "Runtime removal canary observes actual oversized retained state after deleting preview behavior while retaining its names.",
+      "Restart with an adequate declared capacity reuses the prior frontier and reads each message exactly once."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B84 remains partial / candidate_unverified / semantic_adequacy not_established. This repairs and verifies bounded retained operator-state admission, not total process memory or spill processing.",
+  "limitations_and_next_owner": [
+    "Materialized source chunk.data, clean_rows, duplicated preview rows and completed emissions/windows are outside this cap. No spill consumer exists; true spill processing remains consumer_missing. Do not close B84 or claim a total RSS bound.",
+    "Quarantine sanitization may persist diagnostics before preview; the refusal property covers offending raw chunks, window effects and committed frontier.",
+    "The standalone installed probe uses no-deps plus original dependencies and a pass-through sanitizer. It proves installed streaming behavior, not hermetic dependency installation or production sanitization quality. Copy streaming-installed-probe.py into fresh ignored scratch before executing; it refuses reuse of existing run-data.",
+    "The replay result.rows_emitted counts newly consumed rows (2) while CAS window readback contains all 4 rows. The receipt tests readback and does not treat the per-run counter as cumulative.",
+    "G must combine this branch with codex/e02-C-ing-support (a29c183... separate incremental-test slice) and B pool implementation 2540c3247a5ff60d9880d8eb9869b10e1a229112. Rerun pool deadline/cleanup tests and these streaming consumer tests on the integrated SHA; B net receipt58b04116... predates this retained-state correction.",
+    "Development red output remains local ignored policy-engine/.tmp/e02-C-root/raw/stream-capacity-red.log@sha256:d7774b268988ed5be2b5765a296af1e533baa012f9f0765fd953694b9f60d549; those original deciding bytes are not portable. Current committed removal control is reproducible; no historical red receipt is admitted as independent G evidence.",
+    "Baseline source-reported cells have no raw archives. Ledger/results/route statuses were not changed. User-authorized admission exception is limited to verified isolated C worktrees; stale registrations remain untouched."
+  ],
+  "evidence_files": {
+    "streaming-installed-build.txt": "3f3486c23ebe1a3229e3a027e31b8cbe9bac77917890363b15f5699e21c9b80f",
+    "streaming-installed-receipt.md": "113667e89a16d282fe059bec4b2553599b0025ec0ca715326e12bc1749c9b4dd",
+    "streaming-installed-probe.py": "4a1863de027a9a6c863d83c374adcae911b6f4d083a1d521b13004c6b72173a2",
+    "streaming-focused-tests.txt": "19b27f10666874404748c9a3c4e7c1579f239a9599eb13b3e0f0969174194c55",
+    "streaming-installed-consumer.txt": "e10283c648d37e8a779ab946a0f8e8bfe8386b716468f0a6ac54bfd1369e1db1"
+  }
+}

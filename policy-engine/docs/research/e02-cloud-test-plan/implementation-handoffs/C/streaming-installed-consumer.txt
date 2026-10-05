@@ -1,0 +1,34 @@
+IMPORT polisyos.fabric.data_plane.streaming=/Users/deniskopylov/.codex/scratch/e02-c-streaming-installed-probe-20261005-789e9e906cc52ff544fb05d4faa5db13359fee84/venv-clean/lib/python3.14/site-packages/polisyos/fabric/data_plane/streaming.py
+IMPORT polisyos.fabric.data_plane.cursor_store=/Users/deniskopylov/.codex/scratch/e02-c-streaming-installed-probe-20261005-789e9e906cc52ff544fb05d4faa5db13359fee84/venv-clean/lib/python3.14/site-packages/polisyos/fabric/data_plane/cursor_store.py
+IMPORT polisyos.fabric.connectors.sources.event_stream=/Users/deniskopylov/.codex/scratch/e02-c-streaming-installed-probe-20261005-789e9e906cc52ff544fb05d4faa5db13359fee84/venv-clean/lib/python3.14/site-packages/polisyos/fabric/connectors/sources/event_stream.py
+IMPORT polisyos.core.artifacts.store=/Users/deniskopylov/.codex/scratch/e02-c-streaming-installed-probe-20261005-789e9e906cc52ff544fb05d4faa5db13359fee84/venv-clean/lib/python3.14/site-packages/polisyos/core/artifacts/store.py
+IMPORT_TARGET /Users/deniskopylov/.codex/scratch/e02-c-streaming-installed-probe-20261005-789e9e906cc52ff544fb05d4faa5db13359fee84/venv-clean/lib/python3.14/site-packages
+SOURCE_CHECKOUT_PATHS none; PYTHONPATH unset
+STRATEGIES pause,throttle,spill_to_disk,fail_closed
+OVERFLOW pause=refused (stream backpressure capacity exceeded; refusing retained window rows=4 bytes=372 beyond max_buffered_rows=3 max_buffered_bytes=100000)
+FRONTIER pause=cursor:0,checkpoint:0/paused,observed:1,retained:m0,m1,refs:sha256:ab8eb38473b0f3a9510e74b10e2c85198908391ac64fb1c123d20e9e12dd5a65,chunks:0
+RESTART pause=chunks:0,1,emitted:m0,m1,m2,m3,run_rows_emitted:2,cursor:1,checkpoint:1/closed
+OVERFLOW throttle=refused (stream backpressure capacity exceeded; refusing retained window rows=4 bytes=372 beyond max_buffered_rows=3 max_buffered_bytes=100000)
+FRONTIER throttle=cursor:0,checkpoint:0/paused,observed:1,retained:m0,m1,refs:sha256:3f135aa41d7f62ef74239299633f4356e884ed75b4b821c3fdbe2ea6ab2e1bcd,chunks:0
+RESTART throttle=chunks:0,1,emitted:m0,m1,m2,m3,run_rows_emitted:2,cursor:1,checkpoint:1/closed
+OVERFLOW spill_to_disk=refused (spill_to_disk backpressure is unsupported without a spill consumer; refusing retained window rows=4 bytes=372 beyond max_buffered_rows=3 max_buffered_bytes=100000)
+FRONTIER spill_to_disk=cursor:0,checkpoint:0/paused,observed:1,retained:m0,m1,refs:sha256:73802a8dd76daade361b5283c5f89f20d587337a691e367d0040ce2dc0d1acf1,chunks:0
+RESTART spill_to_disk=chunks:0,1,emitted:m0,m1,m2,m3,run_rows_emitted:2,cursor:1,checkpoint:1/closed
+OVERFLOW fail_closed=refused (stream backpressure capacity exceeded; refusing retained window rows=4 bytes=372 beyond max_buffered_rows=3 max_buffered_bytes=100000)
+FRONTIER fail_closed=cursor:0,checkpoint:0/paused,observed:1,retained:m0,m1,refs:sha256:58bf13a5416ee1e36f1d7591cc74861ae5bc6c42ffccf948cea9ede4926fe15a,chunks:0
+RESTART fail_closed=chunks:0,1,emitted:m0,m1,m2,m3,run_rows_emitted:2,cursor:1,checkpoint:1/closed
+EXACT pause/session=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT pause/count=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT pause/tumbling=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT throttle/session=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT throttle/count=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT throttle/tumbling=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT spill_to_disk/session=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT spill_to_disk/count=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT spill_to_disk/tumbling=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT fail_closed/session=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT fail_closed/count=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+EXACT fail_closed/tumbling=cap_rows:2,rows:4,window_readback:m0,m1,m2,m3,cursor:1,closed
+BYTE_CAP pause=refused exact_json_bytes:234 row_sizes:[119, 115, 104, 86]
+BYTE_RESTART exact_cap:234,retained_readback_bytes:234,emitted:m0,m1,m2,m3,cursor_offset:1,closed
+RESULT PASS installed-wheel JSONL -> process_stream_dataset -> CAS/CursorStore

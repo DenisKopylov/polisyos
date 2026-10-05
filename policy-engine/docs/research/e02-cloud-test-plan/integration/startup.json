@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.integration_startup_receipt.v1",
+  "recorded_date": "2026-10-05",
+  "publisher": "G",
+  "published_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "base_tree_sha": "897662caf73bd4487f798d66938b74d7abfe753e",
+  "integration_branch": "codex/e02-integration",
+  "research_source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.0"
+  },
+  "checks": [
+    {
+      "name": "import-check",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "exit": 0,
+      "expected_exit": 0,
+      "wall_seconds": 0.181,
+      "stdout": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}\n",
+      "stderr": "",
+      "outcome": "expected_result_observed"
+    },
+    {
+      "name": "failures-query",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--failures-only",
+        "--limit",
+        "30"
+      ],
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "exit": 0,
+      "expected_exit": 0,
+      "wall_seconds": 0.116,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/raw/startup/failures-query.log@sha256:1e3b6ea0517a7d030d1c80efafd0fc9183ab7b7feb99846d9323baf632158d51",
+      "outcome": "navigation_only"
+    },
+    {
+      "name": "reject-index-corruption",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--root",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-integration-g/startup/corruption-copy/results",
+        "--check"
+      ],
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "exit": 1,
+      "expected_exit": 1,
+      "wall_seconds": 0.168,
+      "stdout": "",
+      "stderr": "index verification failed: derived artifact drift: cells.tsv\n",
+      "outcome": "expected_result_observed",
+      "input_control": "isolated copy of tracked results plus full-run allocation/routes and finding-owner TSV; no product/source checkout edited",
+      "mutation": "first literal tab-PASS-tab changed to tab-FAILED-tab in copied cells.tsv"
+    },
+    {
+      "name": "reject-source-corruption",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--root",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-integration-g/startup/corruption-copy/results",
+        "--check"
+      ],
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "exit": 1,
+      "expected_exit": 1,
+      "wall_seconds": 0.066,
+      "stdout": "",
+      "stderr": "index verification failed: transferred source hash drift\n",
+      "outcome": "expected_result_observed",
+      "input_control": "isolated copy of tracked results plus full-run allocation/routes and finding-owner TSV; no product/source checkout edited",
+      "mutation": "append newline-CORRUPTION CONTROL-newline to copied received/F01.txt"
+    },
+    {
+      "name": "restored-copy-check",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--root",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-integration-g/startup/corruption-copy/results",
+        "--check"
+      ],
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "exit": 0,
+      "expected_exit": 0,
+      "wall_seconds": 0.161,
+      "stdout": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}\n",
+      "stderr": "",
+      "outcome": "expected_result_observed"
+    }
+  ],
+  "accepted_implementation_commits": [],
+  "finding_closure_decisions": [],
+  "freeze_state": "awaiting_owner_slices",
+  "limitations": [
+    "Input acceptance covers transferred text/index binding only; no VM archive or product closure.",
+    "No implementation handoff existed in fetched codex/e02-D-orchestration at c40d4acae1ce58b597267255026d9356565828fd.",
+    "Broad regression and data-dependent closeout deferred until integration source freeze.",
+    "Native checkout created before published AGENTS workspace-admission rule was discovered; post-create admission must be recorded separately.",
+    "No main publication authorized."
+  ],
+  "workspace_admission": {
+    "mode": "retrospective_resume",
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "-m",
+      "tools.devx.workspace.doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-integration",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+    "env_added": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit": 2,
+    "status": "unrun",
+    "complete_verdict": false,
+    "unresolved_inputs": [
+      {
+        "code": "observation_incomplete",
+        "detail": "registered_path_not_directory: /Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos"
+      }
+    ],
+    "stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/raw/startup/admission.stdout.json@sha256:720a31ea1b4dcee89332b9cd888dfcbf2b41525eb8a150ba6306f982d1e24257",
+    "stdout_bytes": 838671,
+    "stderr": "",
+    "predicate_basis": "not_established",
+    "next_action": "User directed investigation of likely deleted old checkout without interrupting independent work; resolve exact stale registration, never blanket prune."
+  }
+}

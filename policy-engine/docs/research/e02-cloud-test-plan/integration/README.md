@@ -1,0 +1,114 @@
+# Непрерывная интеграция E02
+
+G ведёт `codex/e02-integration` от опубликованного `origin/main`:
+`c40d4acae1ce58b597267255026d9356565828fd`, tree
+`897662caf73bd4487f798d66938b74d7abfe753e`. Этот checkpoint фиксирует входы
+и подготовку приёмки. Принятых implementation commits и новых finding closure
+decisions пока нет. Исследовательский source `6978076…` не является новым
+кандидатом. Протокол исполнения — [HANDOFF](../execution-prompts/HANDOFF.md).
+
+## Проверка входов
+
+[Startup receipt](startup.json) сохраняет свежий `import_results.py --check`,
+полные outputs двух corruption controls и восстановленной копии. Importer
+прошёл на опубликованной базе; изменение `PASS` на `FAILED` в первом
+совпадении `cells.tsv` и добавление bytes к `received/F01.txt` отвергнуты.
+После восстановления копии проверка снова прошла. Это проверка transferred
+text и index binding; product closure и VM receipt custody остаются
+`not_established`.
+
+Полный denominator `results/cells.tsv` — Python test file × source-cut:
+2 074 строки (1 673 PASS, 307 FAILED, 88 ERROR, 5 COLLECTION_SKIP,
+1 COLLECTION_ERROR). Query `--failures-only --limit 30` имеет 401 совпадение;
+лимит показа не задаёт множество и не определяет владельцев. Владельцы
+берутся из [bundle owners](../execution-organization/bundle-owners.tsv) и
+[finding owners](../execution-organization/finding-owners.tsv). Полный
+transferred source pack F01–F15 читается независимыми helpers по раздельным
+партициям; locator summaries служат навигацией.
+
+## Состояние рабочей среды
+
+Новый checkout создан native worktree tool и прикреплён к этому чату. G
+именовал ветку на том же base. Дополнительное правило workspace admission
+было обнаружено в опубликованном `AGENTS.md` после создания checkout.
+Retrospective resume-проверка точных branch/path вернула `UNRUN`, exit 2:
+старая регистрация
+`/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos`
+недоступна. Admission не установлен; регистрации автоматически не очищаются.
+Read-only reviews и журнал кандидата могут продолжаться, интеграция product
+commits ждёт разрешения этой границы. Полный deciding output хранится локально
+в ignored `raw/`, его identity записана в receipt.
+
+`corepack pnpm install --frozen-lockfile` выполнен до доверия TypeScript
+scanner. Первый push остановился на отсутствующем `lefthook`; после установки
+ветка опубликована и remote SHA прочитан обратно. Pre-push typecheck на
+checkpoint без новых файлов был `skip: no matching push files`, не PASS.
+
+## Приёмка поступающих slices
+
+Git — обязательный канал. G fetch-ит exact topic/PR head, читает committed
+`implementation-handoffs/<unit>/<slice>.json`, связывает slice base,
+implementation commits, candidate tree и полный diff с tests/companions.
+На observed `codex/e02-D-orchestration@c40d4aca…` handoff отсутствует;
+эта ветка пока не implementation delivery. Отсутствие относится только
+к перечисленным fetched refs и их tracked handoff subtree, не к чужим
+локальным checkout, unpublished commits или inaccessible PR.
+
+В независимую очередь идут отдельные вопросы:
+
+| Вопрос | Сигнал приёмки |
+| --- | --- |
+| Ancestry, receipt, input identity | Git/content binding независимо пересчитан; deciding bytes доступны |
+| Owner, diff, companions | Канонический writer и весь footprint сверены с критерием |
+| Runtime property | Реальный producer → persisted artifact/event → bridge → consumer |
+| Oracle и adversarial discriminator | Независимый expected result и proxy-divergent negative control |
+| Consumer, API, surface | Readback, status/authority/time/provenance не теряются на границе |
+| Outputs и limitations | Полные deciding outputs, точный scope, skipped backends и следующий owner |
+
+Review выполняется на immutable SHA/tree. Автор не является независимым
+reviewer своего кода. Helpers не пишут в integration branch и не делегируют.
+G добавляет только принятые commits последовательно и append-only, сохраняя
+upstream history. Конфликт возвращается canonical owner. Новый head требует
+delta review, dependency reconciliation и свежего affected evidence.
+
+Code acceptance и finding closure записываются отдельно. Неустановленные
+predicates (`consumer_asserted`, `institutionally_supplied`, `not_established`)
+не включают authority gate. Inherited red требует exact-command replay на
+slice-base и полного disjointness proof; пока это не выполнено, источник
+красного — `not_established`.
+
+## Зависимости и вычисления
+
+Четыре declared edges из organisation plan исследуются отдельно:
+`CYC-01→FRC-01`, `EMP-01→FRC-02`, `CYC-02→RES-03`, `NET-01→ING-02`.
+Общие writers: A — `runtime/quality/generation_cycle.py` и HTTP
+`run_lifecycle.py`; C — `fabric/data_plane/streaming.py`. Supplier передаёт
+contract/artifact и discriminator; consumer bridge меняет его owner.
+CAS/schema/history/UQ/graph consumers получают targeted recheck после
+изменения соответствующего upstream contract.
+
+Локальные A/C/G делят один тяжёлый numerical/data slot и начинают с одного
+численного потока. DB, fixed port, mutable scratch/cache и governed artifact
+writer сериализуются отдельно. Лёгкие checks и reviews идут параллельно.
+На B/D/E/F cloud VM этот лимит не переносится. Production inputs остаются
+локальными и read-only; полный dataset требуется только по самому criterion.
+
+Broad backend/CI/replay wave и data-dependent closeout ещё не запускались:
+они выполняются один раз после source freeze и завершения reviews. До freeze
+применяются defining-property, negative и affected consumer checks.
+DoWhy/EconML/Temporal или другие недоступные backends записываются как
+SKIP/UNRUN с границей вывода. Push в `main` требует новой явной авторизации.
+
+## Pattern pass
+
+P01/P02/P03: принимать demonstrated chain и surface, сохранять точную
+missing-capability label. P05/P09/P15: не повышать diagnostic/LLM/package
+результат до authority. P27/P31: canonical writer и общий invariant.
+P29/P32/P33/P37/P38: runtime property, content binding, independent oracle
+и falsify-the-declaration controls. P35: полный source/path denominator.
+P40: второй escape того же класса требует расширения механизма либо
+declared bounded residual с falsifier. P41: красный атрибутируется только
+на slice-base. Существующие риски — отсутствующие VM deciding bytes,
+незамкнутые served producers, held public-IR decisions и UNRUN workspace
+admission. Acceptance signal — проверенный конкретный slice и consumed
+artifact/readback, не число jobs или цвет baseline.

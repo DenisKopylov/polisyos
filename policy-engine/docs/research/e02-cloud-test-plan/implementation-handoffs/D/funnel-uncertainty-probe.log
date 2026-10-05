@@ -1,0 +1,18 @@
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+{
+  "runtime_path": "native L0 -> real SimpleLoopEngine estimate -> native L4 -> FunnelOrchestrator.get_outcome",
+  "history_statistical": 1.0,
+  "final_statistical": 0.1,
+  "current_feedback_statistical": 0.1,
+  "independent_risk_fixture": 0.8,
+  "merge_final_with_independent": 0.8,
+  "estimate_fields": [
+    "is_reducible",
+    "level",
+    "quantification_method",
+    "recommended_action",
+    "source"
+  ],
+  "scope_admission": "not established: no subject/value/input/rule/time discriminator on estimate; current feedback is only last stage envelope"
+}

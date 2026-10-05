@@ -1,0 +1,50 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/ci_invalid_zero/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_real_workflow_ci_width_and_optional_stage_verdict_do_not_grant_promotion _
+
+    def test_real_workflow_ci_width_and_optional_stage_verdict_do_not_grant_promotion():
+        from polisyos.ir import UncertaintyType
+        from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+        from polisyos.scientist.orchestration.workflows import SimpleLoopEngine
+    
+        for width, method in (
+            (None, "ci_width_missing"),
+            ("broken", "ci_width_invalid"),
+            (0.0, "full_fidelity_bootstrap"),
+            (0.4, "full_fidelity_bootstrap"),
+        ):
+            for supplied_verdict in (True, False):
+    
+                def estimate(state, width=width, supplied_verdict=supplied_verdict):
+                    feedback = {"verdict": "APPROVE"} if supplied_verdict else {}
+                    # ExpensiveStage itself requires APPROVE to mark a stage promising.
+                    # Keep the numerical evidence fixed when the optional field changes.
+                    return {
+                        **state,
+                        "simulation_results": {
+                            "ate": 2.0,
+                            "gdp_change": 2.0,
+                            "bootstrap": {"ci_width": width},
+                        },
+                        "feedback": feedback,
+                    }
+    
+                engine = SimpleLoopEngine([("estimate", estimate)], terminal_node="estimate")
+                stage = Level4FullFidelity(engine)
+                result = stage.evaluate({}, {})
+                estimate_value = result.uncertainty_envelope.uncertainties[UncertaintyType.STATISTICAL]
+                assert estimate_value.quantification_method == method
+                assert result.simulation_results["ate"] == 2.0
+>               assert estimate_value.level == (
+                    1.0 if width is None or width == "broken" else width / 4
+                )
+E               AssertionError: assert 0.0 == 1.0
+E                +  where 0.0 = UncertaintyEstimate(level=0.0, source='full bootstrap/full estimator stack; confidence-interval width invalid', quanti...method='ci_width_invalid', is_reducible=True, recommended_action='Run refutation and holdout checks before promotion.').level
+
+tests/unit/scientist/search/funnel/test_orchestrator.py:946: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_workflow_ci_width_and_optional_stage_verdict_do_not_grant_promotion
+1 failed in 0.86s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

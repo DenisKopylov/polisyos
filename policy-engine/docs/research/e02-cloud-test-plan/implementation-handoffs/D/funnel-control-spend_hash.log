@@ -1,0 +1,29 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/spend_hash/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ TestFunnelOrchestrator.test_spend_does_not_authorize_skipping_a_deferred_stage _
+
+self = <search.funnel.test_orchestrator.TestFunnelOrchestrator object at 0x7f035dfc5d10>
+
+    def test_spend_does_not_authorize_skipping_a_deferred_stage(self):
+        stages = [_make_stage(0, "L0"), _make_stage(1, "L1"), _make_stage(2, "L2")]
+        stages[1].evaluate.return_value.terminal_action = "defer"
+        budget = BudgetState(spent={"run": Decimal("0")})
+        orch = FunnelOrchestrator(stages, budget_state=budget)
+        candidate = {"candidate_id": "deferred-owner"}
+        ticket = orch.submit(candidate, {})
+        orch.advance(ticket, policy="full")
+    
+        budget.record_spend("run", Decimal("0.01"))
+        retried = orch.submit(candidate, {})
+        outcome = orch.advance(retried, policy="full")
+    
+>       assert retried is ticket
+E       AssertionError: assert FunnelTicket(ticket_id='1c9f7501-ac23-49d1-9d08-d1d37f68c681', candidate_hash='32e281e2c7fef68a', candidate={'candidat...ation_reason='budget_basis_changed', terminal_basis=None, terminal_budget_remaining={}, terminal_degradation_mode=None) is FunnelTicket(ticket_id='112f09ae-0ca2-4889-b5a1-8f47c2cf5c43', candidate_hash='32e281e2c7fef68a', candidate={'candidat...ation_reason=None, terminal_basis='1c6ec4b1833a3493', terminal_budget_remaining={}, terminal_degradation_mode='normal')
+
+tests/unit/scientist/search/funnel/test_orchestrator.py:91: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_spend_does_not_authorize_skipping_a_deferred_stage
+1 failed in 0.79s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

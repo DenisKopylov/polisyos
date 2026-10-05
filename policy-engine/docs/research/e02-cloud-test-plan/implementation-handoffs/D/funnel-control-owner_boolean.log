@@ -1,0 +1,40 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/owner_boolean/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_generic_effectful_callback_requires_explicit_boolean_owner_permission __
+
+    def test_generic_effectful_callback_requires_explicit_boolean_owner_permission():
+        for owner_return in (
+            None,
+            False,
+            {"allowed": False},
+            {"allowed": True},
+            "allowed",
+            1,
+            object(),
+        ):
+            effects = []
+    
+            def runner(candidate, context, effects=effects):
+                effects.append(candidate["id"])
+                return {"decision": "complete"}
+    
+            check = (
+                None if owner_return is None else lambda candidate, context, value=owner_return: value
+            )
+            result = Level6PromotionStage(
+                promotion_runner=runner, promotion_owner_recheck=check
+            ).evaluate({"id": "fixture-subject"}, {})
+>           assert effects == [], repr(owner_return)
+E           AssertionError: {'allowed': False}
+E           assert ['fixture-subject'] == []
+E             
+E             Left contains one more item: 'fixture-subject'
+E             Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:35: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_generic_effectful_callback_requires_explicit_boolean_owner_permission
+1 failed in 11.15s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

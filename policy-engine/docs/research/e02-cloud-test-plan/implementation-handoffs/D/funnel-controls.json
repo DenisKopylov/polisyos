@@ -1,0 +1,734 @@
+{
+  "schema": "policyos.e02.funnel_removal_evidence.v1",
+  "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+  "scope": "explicit12negative controls over separate candidate src/tests/architecture copies; origin asserted before tests",
+  "controls": [
+    {
+      "name": "spend_hash",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_spend_does_not_authorize_skipping_a_deferred_stage",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_spend_does_not_authorize_skipping_a_deferred_stage -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/spend_hash/src",
+      "exit_code": 1,
+      "wall_s": 71.77,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Replace _has_new_continuation_basis body after its docstring with return ticket.terminal_basis != self._continuation_basis(ticket, routing_mode=routing_mode). Ticket fields, lineage and trace remain.",
+      "original_module_sha256": "778468bc616d46579460249c27bb097cdc917d42303a08d3b9691fd847225ad7",
+      "mutated_module_sha256": "898db5011d84130e561f3e4808eef585aa323dbdd07d8dc88ffa583533f465ab",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-spend_hash.log",
+        "sha256": "bb2cebad8a15556c81b24b76f16681235e0da847677f69f8325fb124fb427735"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "config_alias",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_bootstrap_l3_then_l4_matches_direct_full_config_and_audit_readback",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_bootstrap_l3_then_l4_matches_direct_full_config_and_audit_readback -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/config_alias/src",
+      "exit_code": 1,
+      "wall_s": 54.97,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Replace state[config_key] = dict(config) with state[config_key] = config in native L3. Fidelity/config markers remain.",
+      "original_module_sha256": "5d59459e50babcfb74b5b6349cd2244a511231ebaef325be70a2d88aa4c9e923",
+      "mutated_module_sha256": "28e9ca88f40a5b812554f3bb80764b6448f67258eb674ed3671a88883c4397b6",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-config_alias.log",
+        "sha256": "835478189e8ae994dece0b13e3e07719466daa45697c25a206a247d6e0b9b733"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "semantic_time",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/semantic_time/src",
+      "exit_code": 1,
+      "wall_s": 59.09,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Restore broad _at/_ts/_timestamp suffix exclusion in _is_volatile_cache_key. Semantic rule/time markers remain in context.",
+      "original_module_sha256": "778468bc616d46579460249c27bb097cdc917d42303a08d3b9691fd847225ad7",
+      "mutated_module_sha256": "ce350729c01da9f4d87fa6bbddf2146b17c6a9a2b13bc33e34649da9ce50c161",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-semantic_time.log",
+        "sha256": "564af68b7b7f4432db9ca49953b1f329e80f6660c750be788bc69ba3c0a78672"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "typed_time",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/typed_time/src",
+      "exit_code": 1,
+      "wall_s": 71.38,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Remove datetime/date from supported unknown-key scalar admission and disable the typed datetime/date serializer. Context and result markers remain.",
+      "original_module_sha256": "778468bc616d46579460249c27bb097cdc917d42303a08d3b9691fd847225ad7",
+      "mutated_module_sha256": "a81ba86a199e341457afbdeda81ee486625d0ccc01e9493af2ec1dd3f0193c81",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-typed_time.log",
+        "sha256": "cce4208b385727c67bf76d1fd551ab9b40411ad105a342f833c03e14960993c4"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "owner_presence",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "selector": "tests/unit/scientist/search/funnel/test_level6_promotion.py::test_generic_effectful_callback_requires_explicit_boolean_owner_permission",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_level6_promotion.py::test_generic_effectful_callback_requires_explicit_boolean_owner_permission -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/owner_presence/src",
+      "exit_code": 1,
+      "wall_s": 91.23,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Remove only the missing-owner callback guard branch, retaining owner failure-card machinery, preflight and existing callback normalizer.",
+      "original_module_sha256": "e4f1553610304970b0eb18c09b94ae9d0176f1e5906f41e4d1d849d479673d51",
+      "mutated_module_sha256": "6633807fc76b36b18742b6b4f093b6c06858574de02bdf22244526bd5e66c9e8",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-owner_presence.log",
+        "sha256": "754d675a4d761f0e3dc6a26090439649827de6e63f07b5c9f81cf15f16f5110b"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "owner_boolean",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "selector": "tests/unit/scientist/search/funnel/test_level6_promotion.py::test_generic_effectful_callback_requires_explicit_boolean_owner_permission",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_level6_promotion.py::test_generic_effectful_callback_requires_explicit_boolean_owner_permission -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/owner_boolean/src",
+      "exit_code": 1,
+      "wall_s": 61.9,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Replace return value is True with return bool(value); explicit owner callback and markers remain.",
+      "original_module_sha256": "e4f1553610304970b0eb18c09b94ae9d0176f1e5906f41e4d1d849d479673d51",
+      "mutated_module_sha256": "21935ea9a9e60f0411c402bdadb10c948b5b2ee3868236d0d293606840ebc98a",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-owner_boolean.log",
+        "sha256": "337b52bd26b459848247a1cb58933f2c3fc294c20dc5366197d11009f5ca5356"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "candidate_binding",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "selector": "tests/unit/scientist/search/funnel/test_level6_promotion.py::test_actual_policy_node_rechecks_missing_wrong_and_malformed_candidate_binding",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_level6_promotion.py::test_actual_policy_node_rechecks_missing_wrong_and_malformed_candidate_binding -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/candidate_binding/src",
+      "exit_code": 1,
+      "wall_s": 80.09,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Restore isinstance(context_candidate_ref, ArtifactRef) and context_candidate_ref != candidate_ref; inner recheck, run/evidence checks and permission markers remain.",
+      "original_module_sha256": "5956c0266475cb4b5d1e1a73f2449b27ef49b59bbd253212139bda3496b3087a",
+      "mutated_module_sha256": "a954f097718647a20b2589777ee3efc46df90c22bf7bc1c62e00fc03b193bdcd",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-candidate_binding.log",
+        "sha256": "01c2e7eba5698ce3c1c5823ea3921a997d2970a1fc99d4f3fbec69fdd765c6a1"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "owner_commit",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "selector": "tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/owner_commit/src",
+      "exit_code": 1,
+      "wall_s": 87.67,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Disable only the inner native owner recheck by if False and not _policy_promotion_owner_recheck(...). L6 preflight and permission/candidate/evidence markers remain.",
+      "original_module_sha256": "5956c0266475cb4b5d1e1a73f2449b27ef49b59bbd253212139bda3496b3087a",
+      "mutated_module_sha256": "5f0202574fb9a68d7f97b1c5bd475e6a8b7ea0e1fc544318cf17d774e5e0a449",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-owner_commit.log",
+        "sha256": "4d9ad54c606fabeae6630941292869f2cc0f12f8880cc75b8ef0bab5f64bdefc"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "aggregate_verdict",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_l2_defer_projection_is_independent_of_optional_stage_verdict",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_l2_defer_projection_is_independent_of_optional_stage_verdict -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/aggregate_verdict/src",
+      "exit_code": 1,
+      "wall_s": 63.8,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Replace feedback[\"verdict\"] = compatibility_verdict with feedback.setdefault(\"verdict\", compatibility_verdict); aggregate ticket decision remains.",
+      "original_module_sha256": "778468bc616d46579460249c27bb097cdc917d42303a08d3b9691fd847225ad7",
+      "mutated_module_sha256": "1bd07260b3a1b0e0879d82b2dba38ff5702f0fa7d175eef47de1d0032f690d18",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-aggregate_verdict.log",
+        "sha256": "80f019dc07102fbf23bd6427c1bf573876d7b817e6679530c527a05af5954afd"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "empty_approval",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_workflow_zero_empty_and_capped_aggregate_projection",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_workflow_zero_empty_and_capped_aggregate_projection -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/empty_approval/src",
+      "exit_code": 1,
+      "wall_s": 67.76,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Change only funnel_empty numeric objective from inf to0 and promising False toTrue; not_evaluated markers remain.",
+      "original_module_sha256": "778468bc616d46579460249c27bb097cdc917d42303a08d3b9691fd847225ad7",
+      "mutated_module_sha256": "98e91e82e95315c28ef319628118aab2981798e48b5c989439cf7c136e94144b",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-empty_approval.log",
+        "sha256": "064435387191d78682c74083faf12bb664b75cf39b148d1f63a94cc932af1ab0"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "ci_invalid_zero",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/types.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_workflow_ci_width_and_optional_stage_verdict_do_not_grant_promotion",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_workflow_ci_width_and_optional_stage_verdict_do_not_grant_promotion -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/ci_invalid_zero/src",
+      "exit_code": 1,
+      "wall_s": 54.92,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Change invalid-ci-width exception result level1 to0; ci_width_invalid method marker remains.",
+      "original_module_sha256": "fae559ad55851344d17fb80e259716f79aa68544e33f2d1fdc8bd57ba23bdb1b",
+      "mutated_module_sha256": "3e9fb39d8e2b1edb538b11ab9eece1e0555a0022447efc90426804c7e52709f6",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-ci_invalid_zero.log",
+        "sha256": "6139ebb6aa11dee7433a37130ccfecab38288c973163f3ea64e13b707d57fad2"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "empty_tracker_normal",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/stages.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/empty_tracker_normal/src",
+      "exit_code": 1,
+      "wall_s": 73.87,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Change only routing_mode empty-corpus return no_promotion to normal; empty observation count and metrics remain.",
+      "original_module_sha256": "5ff7a8503c278e2c3b6a3aee96389f518b4ae623be7f85e7f0bd3cae8ba55e0d",
+      "mutated_module_sha256": "b2bab034728894ac2a075c13e4351babd8b5cd3568946b7b7247b8c51afd92f4",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-empty_tracker_normal.log",
+        "sha256": "ba20cdf3080b045c34e47623e87721db57e32672d64b72172d225a680255dd60"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    }
+  ],
+  "discarded_harness_attempts": [
+    "Initial src-only PYTHONPATH copy was overridden by tests/conftest.py; all-green mutation result discarded.",
+    "Cross-device hardlink test copying failed; no property verdict.",
+    "Isolated src+tests copy lacked tracked architecture dependency TOML; FileNotFound failures discarded.",
+    "One attempted directory named config did not exist; copy error discarded."
+  ],
+  "verification": "Only final isolated source origin + AssertionError outputs at the frozen candidate are deciding evidence."
+}

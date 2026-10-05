@@ -1,0 +1,74 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/empty_tracker_normal/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-86/test_real_workflow_calibration0')
+
+    def test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap(
+        tmp_path,
+    ):
+        from polisyos.scientist.methods.search.calibration_report import (
+            FunnelCalibrationReport,
+            load_funnel_calibration_report,
+            persist_funnel_calibration_report,
+        )
+        from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+        from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+        from polisyos.scientist.methods.search.stages import CorrelationTracker
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            _resolve_runtime_correlation_tracker,
+        )
+    
+        for relation in ("empty", "aligned", "opposite"):
+            store = FileSystemCAS(tmp_path / relation)
+            tracker = CorrelationTracker()
+            if relation != "empty":
+                for index in range(3):
+                    observations = []
+                    engine = _bootstrap_workflow(observations)
+                    cheap_context = {
+                        **_bootstrap_context(),
+                        "data": list(range(1 + index, 121 + index)),
+                    }
+                    expensive_index = index if relation == "aligned" else 2 - index
+                    full_context = {
+                        **_bootstrap_context(),
+                        "data": list(range(1 + expensive_index, 121 + expensive_index)),
+                    }
+                    candidate = {"candidate_id": f"paired-{index}"}
+                    cheap = Level3MediumFidelity(engine).evaluate(candidate, cheap_context)
+                    full = Level4FullFidelity(engine).evaluate(candidate, full_context)
+                    tracker.record(cheap, full, f"paired-{index}")
+            expected = tracker.compute_metrics()
+            report = FunnelCalibrationReport(
+                current_mode=tracker.routing_mode(),
+                routing_health=expected,
+                metadata={
+                    "correlation_tracker_snapshot": tracker.to_snapshot().model_dump(mode="json")
+                },
+            )
+            report_ref = persist_funnel_calibration_report(store, report)
+            reopened_store = FileSystemCAS(tmp_path / relation)
+            restored = _resolve_runtime_correlation_tracker(
+                load_funnel_calibration_report(reopened_store, report_ref)
+            )
+            assert restored is not None
+            assert restored.compute_metrics() == expected
+            assert restored.routing_mode() == expected["routing_mode"]
+            assert expected["sample_count"] == (0 if relation == "empty" else 3)
+            assert expected["calibration_state"] == (
+                "not_established" if relation == "empty" else "observed"
+            )
+>           assert expected["routing_mode"] == ("normal" if relation == "aligned" else "no_promotion")
+E           AssertionError: assert 'normal' == 'no_promotion'
+E             
+E             - no_promotion
+E             + normal
+
+tests/unit/scientist/search/funnel/test_orchestrator.py:1096: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap
+1 failed in 25.69s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

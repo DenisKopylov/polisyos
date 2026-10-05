@@ -1,0 +1,38 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/semantic_time/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty __
+
+    def test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty():
+        from datetime import UTC, date, datetime
+    
+        from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+    
+        for key in (
+            "subject_id",
+            "value_slot",
+            "input_signature",
+            "procedure_id",
+            "rule_version",
+            "population_scope",
+            "valid_at",
+            "rule_effective_at",
+            "observation_timestamp",
+        ):
+            observations = []
+            orch = FunnelOrchestrator([Level3MediumFidelity(_bootstrap_workflow(observations))])
+            candidate = {"candidate_id": "scope-time-control"}
+            context = {**_bootstrap_context(), key: "basis-a"}
+            first = orch.submit(candidate, context)
+            initial = orch.advance(first, policy="full")
+            changed = orch.submit(candidate, {**context, key: "basis-b"})
+>           assert changed is not first, key
+E           AssertionError: valid_at
+E           assert FunnelTicket(ticket_id='a1134e0f-7bf3-4783-bd6d-941871251c49', candidate_hash='e3f4332f460c2b2f', candidate={'candidat...251c49',), continuation_reason=None, terminal_basis=None, terminal_budget_remaining={}, terminal_degradation_mode=None) is not FunnelTicket(ticket_id='a1134e0f-7bf3-4783-bd6d-941871251c49', candidate_hash='e3f4332f460c2b2f', candidate={'candidat...251c49',), continuation_reason=None, terminal_basis=None, terminal_budget_remaining={}, terminal_degradation_mode=None)
+
+tests/unit/scientist/search/funnel/test_orchestrator.py:1010: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_orchestrator.py::test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty
+1 failed in 0.27s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

@@ -107,6 +107,8 @@ def verify(index: dict[str, Any]) -> dict[str, Any]:
             require(row["candidate_semantic_state"] == "held", "B219 remains held")
     require(index["accepted_finding_closures"] == [], "finding closure not authorized")
     require(index["integration_acceptance"] == "pending_G", "integration not accepted")
+    index_raw: list[dict[str, str]] = []
+    index_refs = content_refs(index, git("rev-parse", "HEAD").decode().strip(), index_raw)
     seen_branches: set[str] = set()
     product_footprints: list[set[str]] = []
     evidence = []
@@ -175,6 +177,8 @@ def verify(index: dict[str, Any]) -> dict[str, Any]:
         "F_findings": 35,
         "slices": evidence,
         "accepted_finding_closures": [],
+        "bound_index_companion_refs": index_refs,
+        "unadmitted_index_raw_refs": index_raw,
     }
 
 
@@ -206,6 +210,9 @@ def main() -> None:
         closed_row = json.loads(json.dumps(index))
         closed_row["finding_residuals"][0]["candidate_semantic_state"] = "closed"
         mutants.append(("empty closure list hiding a closed finding row", closed_row))
+        wrong_companion = json.loads(json.dumps(index))
+        wrong_companion["independent_companions"][0]["sha256"] = "0" * 64
+        mutants.append(("right slices with an unbound index companion", wrong_companion))
         stale_receipt = json.loads(json.dumps(index))
         for item in stale_receipt["slices"]:
             if item["branch"] == "codex/e02-F-lex":

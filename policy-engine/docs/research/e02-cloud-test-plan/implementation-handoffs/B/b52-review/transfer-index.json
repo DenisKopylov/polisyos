@@ -1,0 +1,27 @@
+{
+  "source_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/receipt.json",
+      "sha256": "77745f7b0de9b9a2f53a80561326a42aa4d5bda99ed1f8f01d596a17b9f70611",
+      "bytes": 15198
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/oracle.txt",
+      "sha256": "d08f31bf43a8426d9b9b5c08a91b261f78de815147b1ab3a02a471c516033f92",
+      "bytes": 6679
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/probe.py",
+      "sha256": "e9e9a430563e25e6b018c348f58c774a9e01ae2a514bd60041b015fa17b4362d",
+      "bytes": 9717
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/native.txt",
+      "sha256": "c6f411f974ca78d971fb9e31c30c3be6a9a1e2c1b39ef5faee6492c762373907",
+      "bytes": 3480
+    }
+  ],
+  "runtime_verdict": "14 native PASS plus separate real trace/checkpoint6-case oracle PASS; no fullfindingclosure",
+  "replay_boundary": "Driver ROOT pins admitted candidate checkout; change isolation ROOT only for external rerun and bind changed script hash. Interpreter/dependencies unchanged, inputs bounded real CAS/temp FS."
+}

@@ -7,6 +7,7 @@ import re
 from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
 from enum import Enum
+from hashlib import sha256
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
@@ -511,7 +512,7 @@ class LessonRegistry:
                     run_id=entry.origin_run_id or entry.lesson_id,
                     tenant_hash=namespace_context.tenant_hash,
                 )
-                card = load_lesson_card(self._store, entry.artifact_ref)
+                card = self._materialize_query_card(entry, now=target_context.timestamp)
                 weight = compute_provenance_weight(
                     source_context,
                     target_context,
@@ -526,6 +527,15 @@ class LessonRegistry:
                     card.model_copy(update={"provenance_weight": weight}),
                     target_context=source_context,
                 )
+                projected = normalized.model_copy(
+                    update={
+                        "task_family": target_context.task_family,
+                        "domain": target_context.domain,
+                        "trust_level": self._transfer_trust(weight),
+                    }
+                )
+                if not self._matches_query(projected, context):
+                    continue
                 matches.append((weight, entry.last_seen, normalized))
 
         matches.sort(key=lambda item: (item[0], item[1].timestamp()), reverse=True)
@@ -540,6 +550,9 @@ class LessonRegistry:
         policy: TransferPolicy | None = None,
     ) -> LessonCard | None:
         active_policy = policy or self._transfer_policy
+        card = self._apply_evidence_age(
+            card, evidence_anchor=card.created_at, now=target_context.timestamp
+        )
         source_context = TransferContext(
             task_family=card.task_family,
             domain=card.domain,
@@ -572,11 +585,7 @@ class LessonRegistry:
                     "lesson_id": uuid4().hex,
                     "task_family": target_context.task_family,
                     "domain": target_context.domain,
-                    "trust_level": (
-                        LessonTrustLevel.TRANSFERRED
-                        if weight >= 0.5
-                        else LessonTrustLevel.LOW_CONFIDENCE
-                    ),
+                    "trust_level": self._transfer_trust(weight),
                     "provenance_weight": weight,
                     "last_accessed_at": target_context.timestamp,
                     "transfer_chain": [*card.transfer_chain, transfer_hop],
@@ -680,7 +689,7 @@ class LessonRegistry:
                 task_family=active_context.task_family,
                 domain=active_context.domain,
             )
-        return LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        return self._load_index_file(path)
 
     def _query_local(
         self,
@@ -691,7 +700,6 @@ class LessonRegistry:
         snapshot = self.index_snapshot(context=target_context)
         results: list[LessonCard] = []
         now = datetime.now(UTC)
-        mutated = False
         for entry in self._sorted_entries(snapshot):
             if entry.invalidated:
                 continue
@@ -701,12 +709,11 @@ class LessonRegistry:
             if not self._matches_query(card, query):
                 continue
             results.append(card)
-            entry.last_accessed_at = now
-            mutated = True
+            self._record_access(
+                entry, index_path=self._index_path_for_context(target_context), now=now
+            )
             if len(results) >= query.limit:
                 break
-        if mutated:
-            self._persist_index(snapshot, context=target_context)
         return results
 
     def _query_local_aggregated(self, query: LessonQuery) -> list[LessonCard]:
@@ -741,27 +748,16 @@ class LessonRegistry:
                 )
 
         results: list[LessonCard] = []
-        mutated_snapshots: dict[
-            tuple[str, str, str], tuple[LessonIndexSnapshot, TransferContext]
-        ] = {}
         for _, entry, snapshot, namespace_context in sorted(candidates, key=lambda item: item[0]):
             card = self._materialize_query_card(entry, now=now)
             if not self._matches_query(card, query):
                 continue
             results.append(card)
-            entry.last_accessed_at = now
-            mutated_snapshots[
-                (
-                    namespace_context.tenant_partition,
-                    namespace_context.task_family,
-                    namespace_context.domain,
-                )
-            ] = (snapshot, namespace_context)
+            self._record_access(
+                entry, index_path=self._index_path_for_context(namespace_context), now=now
+            )
             if len(results) >= query.limit:
                 break
-
-        for snapshot, namespace_context in mutated_snapshots.values():
-            self._persist_index(snapshot, context=namespace_context)
         return results
 
     def _aggregate_local_snapshot(self) -> LessonIndexSnapshot:
@@ -839,8 +835,10 @@ class LessonRegistry:
         if query.source_run_id and isinstance(record, LessonCard):
             if record.source_run_id != query.source_run_id:
                 return False
-        if include_trust and query.trust_levels and record.trust_level not in set(
-            query.trust_levels
+        if (
+            include_trust
+            and query.trust_levels
+            and record.trust_level not in set(query.trust_levels)
         ):
             return False
         if float(record.confidence) < float(query.min_confidence):
@@ -861,20 +859,41 @@ class LessonRegistry:
         card = load_lesson_card(self._store, entry.artifact_ref)
         normalized = self._normalize_card(card)
         evidence_anchor = self._evidence_anchor(entry, normalized)
+        return self._apply_evidence_age(
+            normalized, evidence_anchor=evidence_anchor, now=now
+        ).model_copy(update={"last_accessed_at": now, "provenance_weight": entry.provenance_weight})
+
+    def _apply_evidence_age(
+        self, card: LessonCard, *, evidence_anchor: datetime, now: datetime
+    ) -> LessonCard:
+        """Apply the same evidence freshness policy to every retrieval route."""
         age = max(timedelta(), now - evidence_anchor)
-        trust_level = normalized.trust_level
-        confidence = normalized.confidence
+        trust_level = card.trust_level
+        confidence = card.confidence
         if age > timedelta(days=self._transfer_policy.ttl_days):
             trust_level = LessonTrustLevel.LOW_CONFIDENCE
             confidence = min(confidence, 0.5)
-        return normalized.model_copy(
-            update={
-                "trust_level": trust_level,
-                "confidence": confidence,
-                "last_accessed_at": now,
-                "provenance_weight": entry.provenance_weight,
-            }
+        return card.model_copy(update={"trust_level": trust_level, "confidence": confidence})
+
+    @staticmethod
+    def _transfer_trust(weight: float) -> LessonTrustLevel:
+        return LessonTrustLevel.TRANSFERRED if weight >= 0.5 else LessonTrustLevel.LOW_CONFIDENCE
+
+    @staticmethod
+    def _access_path(index_path: Path, lesson_id: str) -> Path:
+        # The producer's lesson id is data, never part of a filesystem path.
+        return (
+            index_path.parent / "access" / (sha256(lesson_id.encode("utf-8")).hexdigest() + ".txt")
         )
+
+    @classmethod
+    def _record_access(cls, entry: LessonIndexEntry, *, index_path: Path, now: datetime) -> None:
+        """Persist a retention hint at most daily without publishing an evidence snapshot."""
+        if entry.last_accessed_at is None or now - entry.last_accessed_at >= timedelta(days=1):
+            cls._write_bytes(
+                now.isoformat().encode("utf-8"), path=cls._access_path(index_path, entry.lesson_id)
+            )
+        entry.last_accessed_at = now
 
     def _normalize_card(
         self,
@@ -1002,6 +1021,10 @@ class LessonRegistry:
     @staticmethod
     def _write_index_file(snapshot: LessonIndexSnapshot, *, path: Path) -> None:
         payload = snapshot.model_dump_json(indent=2, exclude_none=True).encode("utf-8")
+        LessonRegistry._write_bytes(payload, path=path)
+
+    @staticmethod
+    def _write_bytes(payload: bytes, *, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with NamedTemporaryFile(
             mode="wb",
@@ -1016,9 +1039,18 @@ class LessonRegistry:
             tmp_path = Path(tmp.name)
         os.replace(tmp_path, path)
 
-    @staticmethod
-    def _load_index_file(path: Path) -> LessonIndexSnapshot:
-        return LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+    @classmethod
+    def _load_index_file(cls, path: Path) -> LessonIndexSnapshot:
+        snapshot = LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        for entry in snapshot.entries:
+            access_path = cls._access_path(path, entry.lesson_id)
+            try:
+                accessed_at = datetime.fromisoformat(access_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue  # A retention hint cannot change the evidence status.
+            if accessed_at.tzinfo is not None:
+                entry.last_accessed_at = max(entry.last_accessed_at or accessed_at, accessed_at)
+        return snapshot
 
     @classmethod
     def load_snapshot(

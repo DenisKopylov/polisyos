@@ -1,0 +1,350 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "W07-federation",
+  "closure_ids": [
+    "B138",
+    "B139",
+    "B140",
+    "B141",
+    "B142",
+    "B143",
+    "B144",
+    "B145"
+  ],
+  "bundle_ids": [
+    "FED-01",
+    "FED-02"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "52f66689ebd29f0420bb0b4847c169a41d85a47c",
+    "c7ba52baa193d60c53dc07e3a09fb1889ddb0671",
+    "66a929f4c9422dbfaad7c8dfb80299daab1c71dd"
+  ],
+  "candidate_tree_sha": "ac60f327fee1c12706ee3ef52082fe0738067a94",
+  "branch": "codex/e02-C-federation",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+    "policy-engine/tests/unit/remediation/test_fed_02.py"
+  ],
+  "diff_summary": {
+    "insertions": 454,
+    "deletions": 77,
+    "runtime_paths_changed": false,
+    "source_freeze": "Test-only; no production defect reproduced in the exercised component paths.",
+    "exact_diff": "git diff --no-renames c40d4acae1ce58b597267255026d9356565828fd..66a929f4c9422dbfaad7c8dfb80299daab1c71dd"
+  },
+  "baseline_cells": [
+    {
+      "cell_id": "F03-P041",
+      "finding_ids": ["B138", "B140", "B141", "B145"],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "outcome": "PASS",
+      "receipt_status": "valid_bound",
+      "source_ref": "research_main",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F05-P061",
+      "finding_ids": ["B138", "B140", "B141", "B145"],
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "outcome": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "e02_execution_base",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F09-P046",
+      "finding_ids": ["B138", "B140", "B141", "B145"],
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "outcome": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "e02_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F11-P049",
+      "finding_ids": ["B138", "B140", "B141", "B145"],
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "outcome": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "main",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F14-P049",
+      "finding_ids": ["B138", "B140", "B141", "B145"],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "outcome": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "integration_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F04-P109",
+      "finding_ids": ["B139", "B142", "B143", "B144"],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "outcome": "PASS",
+      "receipt_status": "valid_reconciled_parent",
+      "source_ref": "research_main",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F08-P111",
+      "finding_ids": ["B139", "B142", "B143", "B144"],
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "outcome": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "e02_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F13-P127",
+      "finding_ids": ["B139", "B142", "B143", "B144"],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "outcome": "PASS",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "integration_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-fed/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q -c pytest.ini tests/unit/remediation/test_fed_02.py tests/unit/fabric/connectors/test_federation.py",
+      "target_sha": "66a929f4c9422dbfaad7c8dfb80299daab1c71dd",
+      "environment": "macOS; original policy-engine/.venv Python 3.14.0; pandas 2.3.3; DuckDB 1.4.3; pytest 9.0.2; explicit candidate PYTHONPATH",
+      "input_closure": "Two focused unit modules; synthetic bounded DataFrames; DuckDB files isolated by pytest tmp_path; no production data read.",
+      "outcome": "PASS",
+      "output": "............................. [100%] (29 test dots; exit_code=0)"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/remediation/test_fed_02.py tests/unit/fabric/connectors/test_federation.py",
+      "target_sha": "66a929f4c9422dbfaad7c8dfb80299daab1c71dd",
+      "environment": "Original policy-engine/.venv; Ruff Python module invocation.",
+      "input_closure": "Both changed Python test files.",
+      "outcome": "PASS",
+      "output": "All checks passed! (exit_code=0)"
+    },
+    {
+      "command": "git diff --check HEAD^ HEAD",
+      "target_sha": "66a929f4c9422dbfaad7c8dfb80299daab1c71dd",
+      "environment": "Assigned C worktree.",
+      "input_closure": "Complete latest implementation commit diff; the whole base-to-candidate diff was also checked.",
+      "outcome": "PASS",
+      "output": "No whitespace errors; exit_code=0."
+    },
+    {
+      "command": "git commit -m 'test: exercise federation semantic safeguards' (repository pre-commit hook)",
+      "target_sha": "52f66689ebd29f0420bb0b4847c169a41d85a47c",
+      "environment": "Assigned C worktree; isolated frozen-lockfile pnpm dependencies; lefthook 2.1.6.",
+      "input_closure": "Staged federation and FED-02 test files; Prettier/ESLint skipped no matching files, contrast/motion checks skipped no matching files.",
+      "outcome": "PASS",
+      "output": "lefthook v2.1.6 pre-commit summary: done in 0.43 seconds; commit created; exit_code=0."
+    },
+    {
+      "command": "git commit -m 'test: measure federation audit peak retention' (repository pre-commit hook)",
+      "target_sha": "c7ba52baa193d60c53dc07e3a09fb1889ddb0671",
+      "environment": "Assigned C worktree; lefthook 2.1.6.",
+      "input_closure": "FED-02 peak-live detail census correction.",
+      "outcome": "PASS",
+      "output": "lefthook v2.1.6 pre-commit summary: done in 0.27 seconds; commit created; exit_code=0."
+    },
+    {
+      "command": "git commit -m 'test: model transient federation detail retention' (repository pre-commit hook)",
+      "target_sha": "66a929f4c9422dbfaad7c8dfb80299daab1c71dd",
+      "environment": "Assigned C worktree; lefthook 2.1.6.",
+      "input_closure": "FED-02 return-frame transient-local retention control.",
+      "outcome": "PASS",
+      "output": "lefthook v2.1.6 pre-commit summary: done in 0.21 seconds; commit created; exit_code=0."
+    },
+    {
+      "command": "Bounded B143 peak-live oracle matching test_fed_02.py::test_union_summary_bounds_peak_live_details_and_counts_every_conflict",
+      "target_sha": "66a929f4c9422dbfaad7c8dfb80299daab1c71dd",
+      "environment": "Original .venv Python 3.14.0; DuckDB/pandas environment unchanged; synthetic 80-row UNION fixture.",
+      "input_closure": "Real ConflictResolver and DataComposer UNION path; observer traces active canonical _union frame; negative control holds real details in a transient local through the override return frame.",
+      "outcome": "PASS",
+      "output": "2026-10-05 17:24:10.270 | INFO | Composing sources\n2026-10-05 17:24:10.664 | INFO | Composition complete\n2026-10-05 17:24:10.706 | INFO | Composing sources\n2026-10-05 17:24:11.105 | INFO | Composition complete\ntransient_retention=False conflicts=80 produced=80 peak_live_inside_union=2 live_after_compose=1 visible_sample=1\ntransient_retention=True conflicts=80 produced=80 peak_live_inside_union=80 live_after_compose=1 visible_sample=1\nexit_code=0"
+    },
+    {
+      "command": "PYTHONPATH=policy-engine/src:policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli workspace doctor --worktree-admission resume --branch codex/e02-C-coordinator --path /Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "Coordinator-reported admission command; original policy-engine/.venv.",
+      "input_closure": "Admission attempt for verified C worktrees; coordinator supplied the raw ignored receipt at `.tmp/e02-C-root/raw/admission-resume.json` (sha256 d19e55b97b13be0f906f8d7617781e7a34dd6ad1c846e1570663362912063367).",
+      "outcome": "ERROR",
+      "output": "exit 2; status unrun; findings=[]; unresolved_input registered_path_not_directory:/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos. Stale registration was not changed. User authorization exception: `Продолжить в проверенных C worktrees; stale registrations не менять`."
+    },
+    {
+      "command": "UV_NO_SYNC=1 UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/policy-engine/.venv VIRTUAL_ENV=/Users/deniskopylov/polisyos/policy-engine/.venv PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-fed/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-fed/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+      "target_sha": "52f66689ebd29f0420bb0b4847c169a41d85a47c",
+      "environment": "Original .venv forced with UV_PROJECT_ENVIRONMENT and VIRTUAL_ENV; UV_NO_SYNC=1; no worktree .venv created. This attempt predates the final B143 temporal-control refinement.",
+      "input_closure": "Architecture guardrails; generated runtime OpenAPI subcheck selected `tools/ops_runners/runtime/export_runtime_openapi.py`.",
+      "outcome": "ERROR",
+      "output": "No stdout/stderr. After 2m45s the process remained in `uv run --extra runtime --extra ml ...export_runtime_openapi.py`; operator terminated it, exit 143. Gate incomplete/interrupted, not a product failure; root/G must queue the exact-candidate check."
+    },
+    {
+      "command": "uv run polisyos-tools architecture guardrails check",
+      "target_sha": "66a929f4c9422dbfaad7c8dfb80299daab1c71dd",
+      "environment": "Not run on final candidate at leaf; root/G serialized candidate-check queue.",
+      "input_closure": "Final implementation tree after B143 return-frame control; prior interrupted attempt targeted 52f6668.",
+      "outcome": "UNRUN",
+      "output": "Queued for root/G exact-candidate verification; no final architecture verdict is claimed."
+    },
+    {
+      "command": "python3 -m tools.cli workspace verify --backend-only",
+      "target_sha": "66a929f4c9422dbfaad7c8dfb80299daab1c71dd",
+      "environment": "Not run at leaf; broad closeout suite reserved for root/coordinator.",
+      "input_closure": "Full backend verification scope.",
+      "outcome": "UNRUN",
+      "output": "Not run; focused candidate checks are not full backend closure."
+    },
+    {
+      "command": "python3 -m tools.cli workspace ci-parity --skip-browser",
+      "target_sha": "66a929f4c9422dbfaad7c8dfb80299daab1c71dd",
+      "environment": "Not run at leaf; broad closeout suite reserved for root/coordinator.",
+      "input_closure": "CI parity scope excluding browser checks.",
+      "outcome": "UNRUN",
+      "output": "Not run; no full repository or CI-parity closure is claimed."
+    }
+  ],
+  "property": {
+    "statement": "Federation runtime composition must preserve per-cell winner selection and audit attribution through repeated JOIN, retain bounded detail independently of exact conflict counts, preserve declared cardinality and user schema, keep valid empty schemas typed, distinguish CONSENSUS participants from excluded candidates, and avoid repeated OVERLAY indexing or NONE audit-detail construction.",
+    "runtime_path": [
+      "DuckDB-backed synthetic source tables or bounded in-memory source DataFrames",
+      "canonical DataComposer.compose JOIN/UNION/OVERLAY/CONSENSUS and MergeLogCollector runtime",
+      "composed DataFrame and in-memory merge summary/detail output",
+      "for JOIN/typed-empty UNION/OVERLAY, isolated DuckDB persisted output reopened read-only and asserted"
+    ],
+    "proxy_divergence": "The former B143 witness inspected whether `_union` had a local named `merge_log`; the first replacement counted weak references only after compose returned and could miss a transient 80-entry local released at return. The final witness samples live objects inside the canonical `_union` frame and at return-frame boundaries. A transient local control yields peak 80 while post-compose liveness and visible sample both equal one.",
+    "negative_controls": [
+      "Default undeclared many-to-many JOIN still rejects duplicate keys; explicit many-to-many over join_max_rows rejects before materialization.",
+      "Equal stable-hash entries with distinct values repeat in a stable sample order without comparing MergeLogEntry payloads.",
+      "An absent source set raises FederationError while a valid zero-row DuckDB table remains an empty typed UNION.",
+      "A return-frame transient local holds all 80 real B143 details, then releases them: the census observes peak 80 although post-compose liveness and visible sample both equal one.",
+      "Existing strict CONSENSUS tests reject nonnumeric and infinite candidates; new non-strict test reports each exclusion separately."
+    ],
+    "authority_purpose": "Candidate-grade component verification only; no policy recommendation, authority, publication, or consensus rule is signed by this test change.",
+    "provenance": "Synthetic fixtures, DuckDB temp databases, canonical DataComposer code at candidate commit.",
+    "rule_schema_version": "CompositionRequest and MergeLogSummary contracts at candidate commit; no schema or rule change.",
+    "time_roles": "Fixture SourceMetadata uses fixed fetched_at timestamps; no production temporal validity or revalidation claim."
+  },
+  "capability_chain": {
+    "producer": "Canonical DataComposer.compose and MergeLogCollector runtime exercised by focused tests.",
+    "artifact": "Returned pandas DataFrame and in-memory MergeLogSummary/MergeLogEntry details; selected outputs are persisted to isolated DuckDB test tables.",
+    "bridge": "No product orchestration or durable lineage bridge exercised or claimed in this slice.",
+    "consumer": "Tests reopen isolated DuckDB files read-only and assert values/schema; no production API or workflow consumer exercised.",
+    "verification": "29 focused pytest cases including negative/adversarial controls; targeted Ruff check; repository pre-commit hook passed.",
+    "surface": "External audit/API/dashboard surface is out of scope for the component verification slice."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Focused semantic verification added and passing for the tested component properties. End-to-end orchestration/consumer/API/audit-surface closure is not established; retain implemented_but_not_orchestrated and surface_out_of_scope for this slice. All eight residual ledger rows remain partial / candidate_unverified.",
+  "independent_review": {
+    "reviewed_sha": "66a929f4c9422dbfaad7c8dfb80299daab1c71dd",
+    "outcome": "ACCEPT",
+    "review_bucket": "Same bounded-detail class at deeper temporal scope (P38/P40), not a new class.",
+    "deciding_oracle": "Normal peak live detail count is two versus transient return-frame local control peak of 80; both end with one visible sample after compose returns.",
+    "review_result": "One corrected oracle passed; no further escape was found within the declared class."
+  },
+  "finding_dispositions": [
+    {
+      "id": "B138",
+      "bundle_id": "FED-01",
+      "recorded_ledger_status": "partial",
+      "disposition": "Bounded runtime witness: three-source per-cell JOIN chooses source B then C for row 2, and composed values persist/read back through DuckDB. Audit lineage remains an in-memory merge log; durable lineage and bridge/consumer custody are not established."
+    },
+    {
+      "id": "B139",
+      "bundle_id": "FED-02",
+      "recorded_ledger_status": "partial",
+      "disposition": "Bounded collector witness: equal stable-hash conflicts with different payloads preserve both details, exact counter, and repeatable sample order. No source-report archive was independently replayed."
+    },
+    {
+      "id": "B140",
+      "bundle_id": "FED-01",
+      "recorded_ledger_status": "partial",
+      "disposition": "Bounded JOIN witness: explicit 2×2 many-to-many is admitted at limit four; limit three is refused before materialization; undeclared many-to-many negative remains. No production grain decision is encoded."
+    },
+    {
+      "id": "B141",
+      "bundle_id": "FED-01",
+      "recorded_ledger_status": "partial",
+      "disposition": "Bounded schema witness: user columns colliding with lineage/right-key/right-column/join-key alias families survive JOIN. External schema consumers were not tested."
+    },
+    {
+      "id": "B142",
+      "bundle_id": "FED-02",
+      "recorded_ledger_status": "partial",
+      "disposition": "DuckDB witness: valid zero-row UNION preserves BIGINT/DOUBLE schema through persisted-table readback; absent-source negative remains. This does not establish every optional source backend."
+    },
+    {
+      "id": "B143",
+      "bundle_id": "FED-02",
+      "recorded_ledger_status": "partial",
+      "disposition": "Peak-live census replaces both the local-variable-name and post-return proxies: normal peak is two details (one sample plus active resolution) for 80 conflicts; adversarial transient local peak is 80, while both cases end with one live sample after compose returns. The source-report archive remains unavailable."
+    },
+    {
+      "id": "B144",
+      "bundle_id": "FED-02",
+      "recorded_ledger_status": "partial",
+      "disposition": "DuckDB OVERLAY witness: each of two input frames is indexed once, NONE creates no merge details, and readback matches expected values. This is operation-count evidence, not a production throughput benchmark."
+    },
+    {
+      "id": "B145",
+      "bundle_id": "FED-01",
+      "recorded_ledger_status": "partial",
+      "disposition": "Bounded CONSENSUS witness: non-strict mean uses the numeric candidate and reports the nonnumeric and nonfinite exclusions with participant source identity; existing strict refusals remain. No new scientific consensus admissibility rule is asserted."
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P10",
+      "P14",
+      "P29",
+      "P31",
+      "P32",
+      "P33",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "existing_antipattern": "The prior B143 test observed a local name instead of the live-detail bound; baseline PASS cells were source-reported and semantic_adequacy=not_established.",
+    "review_repair_bucket": "Same bounded-detail class one level deeper in temporal scope (P38/P40), not a new class: the first weakref replacement observed only after compose returned; the final witness measures the active union peak and a transient local released at the return frame.",
+    "target_pattern": "Run canonical runtime operations, read persisted DuckDB outputs, assert property and negative controls, and directly count live detail objects; do not infer closure from field/local names or source-reported baseline state.",
+    "missing_capability_labels": [
+      "implemented_but_not_orchestrated",
+      "surface_out_of_scope"
+    ],
+    "acceptance_signal": "Focused 29-test federation/remediation gate, Ruff, and independent review pass on final candidate SHA; the direct B143 temporal falsifier distinguishes peak 2 from transient peak 80; root/G architecture and broad repository checks remain unrun."
+  },
+  "admission_exception": {
+    "status": "UNRUN",
+    "exit_code": 2,
+    "unresolved_input": "registered_path_not_directory:/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos",
+    "authorization": "Продолжить в проверенных C worktrees; stale registrations не менять",
+    "stale_registration_modified": false,
+    "raw_receipt": "coordinator ignored scratch `.tmp/e02-C-root/raw/admission-resume.json`@sha256:d19e55b97b13be0f906f8d7617781e7a34dd6ad1c846e1570663362912063367"
+  },
+  "limitations_and_next_owner": [
+    "The source result pack contains zero raw archives. All cited cloud baseline cells are PASS observations, while the route table records candidate_unverified and semantic_adequacy=not_established; this patch is the bounded candidate rerun, not a source-archive replay.",
+    "B138/B140/B141/B145 remain ledger-partial with the external-institution appointment pending; B139/B142/B143/B144 also remain partial pending finding-specific receipts and independent acceptance.",
+    "This slice proves canonical component behavior only. It does not establish a persisted per-cell lineage artifact, an orchestration bridge, a consuming API/dashboard/audit surface, production-source custody, or an external institutional owner decision.",
+    "Consensus policy/scientific admissibility questions remain unresolved and were not converted into code contracts.",
+    "Architecture guardrails did not complete: the interrupted attempt targeted the earlier 52f6668 candidate before the final B143 temporal-control refinement. Root/G must run the gate on the exact final reviewed candidate under the serialized queue.",
+    "The admission resume command returned exit 2 on the unrelated stale missing registration. User-authorized exception allowed work to continue in the verified C worktree; the registration was left untouched.",
+    "Full backend verification and CI parity are unrun; this handoff does not claim full closure. The exact candidate still requires the root/G architecture check.",
+    "Implementation and handoff commits are not pushed; root owns any push decision."
+  ]
+}

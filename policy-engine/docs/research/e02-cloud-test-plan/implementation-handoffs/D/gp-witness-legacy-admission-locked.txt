@@ -1,0 +1,29 @@
+{"source_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db", "test_sha": "eadbc690ede2c3e183c8c781550d6f682e5323b3", "argv": ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py", "--confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies", "-k", "future_refit_clock", "-vv", "--tb=short", "--log-cli-level=WARNING"], "cwd": "/workspace/e02-D-gp-witness/policy-engine", "PYTHONPATH": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src", "input_closure": "real fitted8 GP fixture; future999999 clock, changed policy, absent/None acquisition basis and obsolete checkpoint0; refusal must preserve same model object, Python/localTorch RNG, iteration and learned posterior/params"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'default'
+rootdir: /workspace/e02-D-gp-witness/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 13 items / 9 deselected / 4 selected
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_future_refit_clock_and_old_acquisition_policy_refuse_atomically[last_refit_iteration-999999] 
+-------------------------------- live log setup --------------------------------
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:138 initial_real_fit {"ask": [0.4163437332242366], "botorch": "0.16.1", "device": "cpu", "gpytorch": "1.15.1", "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "posterior_mean": [-0.06393070914848814, -0.04446150806484305, -0.017555692347058047, -0.10904944916736348, -0.27652352863112256], "posterior_variance": [5.381221202866907e-05, 5.2163944150346794e-05, 4.9778600522353636e-05, 0.00014600089650465065, 0.00014846829555921983], "source": "bayesian_acquisition", "torch": "2.10.0+cu128", "train_rows": 8}
+PASSED                                                                   [ 25%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_future_refit_clock_and_old_acquisition_policy_refuse_atomically[acquisition_replay_policy-old_unconfined_policy] PASSED [ 50%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_future_refit_clock_and_old_acquisition_policy_refuse_atomically[acquisition_replay_policy-None] PASSED [ 75%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_future_refit_clock_and_old_acquisition_policy_refuse_atomically[gp_checkpoint_version-0] PASSED [100%]
+
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 4 passed, 9 deselected, 2 warnings in 6.71s ==================
+{"exit_code": 0, "wall_s": 9.65368663900017}

@@ -8,14 +8,18 @@
     "B115"
   ],
   "bundle_ids": [
-    "OPT-03"
+    "OPT-03",
+    "CTL-02"
   ],
   "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
   "implementation_commits": [
     "c961ba89f127964559ac5c71ab0130243f5cb4bf",
-    "052e763253580519d5913a92ad5ccc9a1989e7e3"
+    "052e763253580519d5913a92ad5ccc9a1989e7e3",
+    "26c049225d0bff0ff3a9922a7363818011d6324a",
+    "eadbc690ede2c3e183c8c781550d6f682e5323b3",
+    "b672ea64022f5713338f015b4b530cf65e17241c"
   ],
-  "candidate_tree_sha": "82c0436281e4e21f46f8112d6b75679792cf7362",
+  "candidate_tree_sha": "2be3c296b4825c85c7e05c6a0da1c92d14bd563b",
   "branch": "codex/e02-D-gp-witness",
   "pull_request": null,
   "changed_paths": [
@@ -24,7 +28,17 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-candidate-latest.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-candidate-locked.txt",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-admission-review.txt"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-admission-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-replay-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-legacy-admission-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-replay-latest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-legacy-admission-latest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-latest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-corruption-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-latest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-corruption-latest.txt"
   ],
   "baseline_cells": [
     "F02-P095",
@@ -130,26 +144,308 @@
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-admission-review.txt",
       "output_sha256": "511b6cadd05dfece8829c99c61402fe97ad70c0053b39cfe7cdfb71f828ea873",
       "result": "7 rejected without partial mutation; future last_refit_iteration999999 accepted for saved iteration8"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -vv --tb=short --log-cli-level=WARNING --durations=10",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db",
+      "test_sha": "26c049225d0bff0ff3a9922a7363818011d6324a",
+      "environment": {
+        "python": "3.14.7",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "input_closure": "exact git archive fce2a4c source; original7 unchanged tests plus actual next single/qEIbatch/single without external torch reseed, globalstate unchanged and localstate progressed; unrelated global draws; remove-local-seed control; future counter and obsolete policy atomicrefusal",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 61.86,
+      "wall_s": 76.19177120900031,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-replay-locked.txt",
+      "output_sha256": "84096d8e89623e85d673cb5ee4773881cc2c745a0e296c5b7d693a67c7130335"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -k future_refit_clock -vv --tb=short --log-cli-level=WARNING",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db",
+      "test_sha": "eadbc690ede2c3e183c8c781550d6f682e5323b3",
+      "environment": {
+        "python": "3.14.7",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "input_closure": "real fitted8 GP fixture; future999999 clock, changed policy, absent/None acquisition basis and obsolete checkpoint0; refusal must preserve same model object, Python/localTorch RNG, iteration and learned posterior/params",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 6.71,
+      "wall_s": 9.65368663900017,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-legacy-admission-locked.txt",
+      "output_sha256": "92822adbf7748063e753b32531611f9109894e23cd04abddc797ad4c675139cf"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -vv --tb=short --log-cli-level=WARNING --durations=10",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db",
+      "test_sha": "26c049225d0bff0ff3a9922a7363818011d6324a",
+      "environment": {
+        "python": "3.14.2",
+        "torch": "2.14.1+cu130",
+        "botorch": "0.18.1",
+        "gpytorch": "1.15.2"
+      },
+      "input_closure": "exact git archive fce2a4c source; original7 unchanged tests plus actual next single/qEIbatch/single without external torch reseed, globalstate unchanged and localstate progressed; unrelated global draws; remove-local-seed control; future counter and obsolete policy atomicrefusal",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 69.29,
+      "wall_s": 83.58455522900022,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-replay-latest.txt",
+      "output_sha256": "f3520914a798eb0b4c52450873437d3028624e4a9b7ca8758e934bb4d5de9f09"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -k future_refit_clock -vv --tb=short --log-cli-level=WARNING",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db",
+      "test_sha": "eadbc690ede2c3e183c8c781550d6f682e5323b3",
+      "environment": {
+        "python": "3.14.2",
+        "torch": "2.14.1+cu130",
+        "botorch": "0.18.1",
+        "gpytorch": "1.15.2"
+      },
+      "input_closure": "real fitted8 GP fixture; future999999 clock, changed policy, absent/None acquisition basis and obsolete checkpoint0; refusal must preserve same model object, Python/localTorch RNG, iteration and learned posterior/params",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 7.09,
+      "wall_s": 10.956147542000053,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-legacy-admission-latest.txt",
+      "output_sha256": "da9e30735868bef392f9f0787270771159d63998bfd29aadbc288046fd5fe157"
+    },
+    {
+      "command": "/workspace/e02-D-locked-env/bin/python -m ruff format --check <owned witness>; /workspace/e02-D-locked-env/bin/python -m ruff check <owned witness>",
+      "target_sha": "eadbc690ede2c3e183c8c781550d6f682e5323b3",
+      "environment": "locked Python3.14.7",
+      "input_closure": "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "1 file already formatted\nAll checks passed!"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -k future_refit_clock -vv --tb=short --log-cli-level=WARNING",
+      "target_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.7",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "input_closure": "real fitted8 GP fixture; previous4 refusal variants plus positive last_train_size1 incompatible with8row corpus; no claim marker equality suffices; prior direct trap probe shows admitted continuation full-refits",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "passed": 4,
+      "failed": 1,
+      "deselected": 9,
+      "skipped": 0,
+      "pytest_wall_s": 6.39,
+      "wall_s": 9.548540089000198,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-locked.txt",
+      "output_sha256": "f5f6767afc0f357be91d3e3c0d22332b670d43076ec95572d4c6b9d6e727c6ac"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -k future_refit_clock -vv --tb=short --log-cli-level=WARNING",
+      "target_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.2",
+        "torch": "2.14.1+cu130",
+        "botorch": "0.18.1",
+        "gpytorch": "1.15.2"
+      },
+      "input_closure": "real fitted8 GP fixture; previous4 refusal variants plus positive last_train_size1 incompatible with8row corpus; no claim marker equality suffices; prior direct trap probe shows admitted continuation full-refits",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "passed": 4,
+      "failed": 1,
+      "deselected": 9,
+      "skipped": 0,
+      "pytest_wall_s": 6.62,
+      "wall_s": 10.607255672000065,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-latest.txt",
+      "output_sha256": "49e9fa03a78f6b4acd3d96b36b696a9989af699e2a20b676eee7c592b5ec37c8"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-4030275/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -vv --tb=short --log-cli-level=WARNING --durations=10",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.7",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "input_closure": "exact git archive4030275 source; unchanged full14 witness; warm9/cold8/current1, real posterior/weight/transform/corpus roundtrip inclconditioned9/full8, no-refit traps, intrinsic single/qEIbatch/single, local/global RNG discriminators, all5 future/version/policy/growth atomic-refusal variants",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 39.39619341700018,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-locked.txt",
+      "output_sha256": "697cec7cc1d2d5e5dfd1f54397c355dc61d74b6368a43423a1d576a3ecc968ee",
+      "collected": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 32.57
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-4030275/policy-engine/src /workspace/e02-D-locked-env/bin/python /workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-corruption403.py",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.7",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "input_closure": "3 enumerated actual full-refit basis tensor/count controls on real fitted8 GP; finite X prefix change, finite Y prefix change, missing full-refit X row; atomic live model/Python/own/global Torch RNG/iteration/refit counter schedule",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 8.18495762800012,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-corruption-locked.txt",
+      "output_sha256": "d1c205d62ab2271a0581165b7d0444e0c1cf1fb9f4976d125eaa40543b01883f",
+      "actual_fitted_rows": 8,
+      "corruption_controls": [
+        {
+          "case": "refit_X_finite_prefix_change",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        },
+        {
+          "case": "refit_Y_finite_prefix_change",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        },
+        {
+          "case": "refit_X_missing_row",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        }
+      ],
+      "probe_source": "import json, runpy, copy\nfrom pathlib import Path\nroot=Path('/workspace/e02-D-gp-witness/policy-engine')\nns=runpy.run_path(str(root/'tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py'))\nscene=ns['fitted_scene'].__wrapped__()\ntorch=ns['require_torch']()\nstrategy=ns['_new'](scene.space)\nstrategy.set_state(ns['StrategyState'].from_artifact(scene.artifact))\nfor name in ('refit_X_finite_prefix_change','refit_Y_finite_prefix_change','refit_X_missing_row'):\n state=ns['StrategyState'].from_artifact(scene.artifact)\n if name=='refit_X_finite_prefix_change': state.metadata['refit_train_X'][0][0]+=0.01\n elif name=='refit_Y_finite_prefix_change': state.metadata['refit_train_y_bo'][0][0]+=0.01\n else: state.metadata['refit_train_X'].pop()\n before=(strategy._model,strategy._rng.getstate(),strategy._torch_rng.get_state().clone(),strategy._iteration,strategy._last_refit_iteration,strategy._last_train_size)\n global_before=torch.random.get_rng_state().clone()\n try: strategy.set_state(state)\n except ValueError as exc: error=str(exc)\n else: raise AssertionError(name+' was admitted')\n assert strategy._model is before[0]\n assert strategy._rng.getstate()==before[1]\n assert torch.equal(strategy._torch_rng.get_state(),before[2])\n assert (strategy._iteration,strategy._last_refit_iteration,strategy._last_train_size)==before[3:]\n assert torch.equal(torch.random.get_rng_state(),global_before)\n ns['_assert_same_model'](scene.fitted._model,strategy._model)\n print(json.dumps({'case':name,'status':'REJECTED','atomic_live_model_rng_iteration_schedule':True,'global_rng_unchanged':True,'error':error}))\nprint(json.dumps({'candidate':'4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a','actual_fitted_rows':8,'corruption_controls':3,'outcome':'PASS'}))\n",
+      "probe_source_sha256": "2ac0e21f3fe67232a3fecd33d52ff8a65168ac336c33ed635c845570f45805b1",
+      "probe_source_purpose": "Complete bounded probe source embedded so an independent receiver can rerun without ignored raw scratch."
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-4030275/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -vv --tb=short --log-cli-level=WARNING --durations=10",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.2",
+        "torch": "2.14.1+cu130",
+        "botorch": "0.18.1",
+        "gpytorch": "1.15.2"
+      },
+      "input_closure": "exact git archive4030275 source; unchanged full14 witness; warm9/cold8/current1, real posterior/weight/transform/corpus roundtrip inclconditioned9/full8, no-refit traps, intrinsic single/qEIbatch/single, local/global RNG discriminators, all5 future/version/policy/growth atomic-refusal variants",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 53.386024774999896,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-latest.txt",
+      "output_sha256": "f3421a72b03b28be7a96b32a243cd84a2afa8736b51bf88a70c3d4f1906c7149",
+      "collected": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 47.13
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-4030275/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-corruption403.py",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.2",
+        "torch": "2.14.1+cu130",
+        "botorch": "0.18.1",
+        "gpytorch": "1.15.2"
+      },
+      "input_closure": "3 enumerated actual full-refit basis tensor/count controls on real fitted8 GP; finite X prefix change, finite Y prefix change, missing full-refit X row; atomic live model/Python/own/global Torch RNG/iteration/refit counter schedule",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 8.508676791000198,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-corruption-latest.txt",
+      "output_sha256": "51903fbb1d6b2f75f9805c7fd52a5bca846e3df7b0d88827f45810af94e03a27",
+      "actual_fitted_rows": 8,
+      "corruption_controls": [
+        {
+          "case": "refit_X_finite_prefix_change",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        },
+        {
+          "case": "refit_Y_finite_prefix_change",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        },
+        {
+          "case": "refit_X_missing_row",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        }
+      ],
+      "probe_source": "import json, runpy, copy\nfrom pathlib import Path\nroot=Path('/workspace/e02-D-gp-witness/policy-engine')\nns=runpy.run_path(str(root/'tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py'))\nscene=ns['fitted_scene'].__wrapped__()\ntorch=ns['require_torch']()\nstrategy=ns['_new'](scene.space)\nstrategy.set_state(ns['StrategyState'].from_artifact(scene.artifact))\nfor name in ('refit_X_finite_prefix_change','refit_Y_finite_prefix_change','refit_X_missing_row'):\n state=ns['StrategyState'].from_artifact(scene.artifact)\n if name=='refit_X_finite_prefix_change': state.metadata['refit_train_X'][0][0]+=0.01\n elif name=='refit_Y_finite_prefix_change': state.metadata['refit_train_y_bo'][0][0]+=0.01\n else: state.metadata['refit_train_X'].pop()\n before=(strategy._model,strategy._rng.getstate(),strategy._torch_rng.get_state().clone(),strategy._iteration,strategy._last_refit_iteration,strategy._last_train_size)\n global_before=torch.random.get_rng_state().clone()\n try: strategy.set_state(state)\n except ValueError as exc: error=str(exc)\n else: raise AssertionError(name+' was admitted')\n assert strategy._model is before[0]\n assert strategy._rng.getstate()==before[1]\n assert torch.equal(strategy._torch_rng.get_state(),before[2])\n assert (strategy._iteration,strategy._last_refit_iteration,strategy._last_train_size)==before[3:]\n assert torch.equal(torch.random.get_rng_state(),global_before)\n ns['_assert_same_model'](scene.fitted._model,strategy._model)\n print(json.dumps({'case':name,'status':'REJECTED','atomic_live_model_rng_iteration_schedule':True,'global_rng_unchanged':True,'error':error}))\nprint(json.dumps({'candidate':'4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a','actual_fitted_rows':8,'corruption_controls':3,'outcome':'PASS'}))\n",
+      "probe_source_sha256": "2ac0e21f3fe67232a3fecd33d52ff8a65168ac336c33ed635c845570f45805b1",
+      "probe_source_purpose": "Complete bounded probe source embedded so an independent receiver can rerun without ignored raw scratch."
     }
   ],
   "property": {
-    "statement": "Compatible warm observations reach the actual GP corpus; serialized learned GP continues with equivalent posterior and ask without forbidden refitting, including append conditioning and persisted warm history.",
+    "statement": "Compatible warm observations reach the actual GP corpus; serialized learned GP continues with equivalent posterior and ask without forbidden refitting, including append conditioning and persisted warm history. Intrinsic persisted-stream continuation also produces equivalent next single/qEI-batch/single asks without caller reseeding and leaves the global Torch RNG unchanged.",
     "runtime_path": [
       "Evaluation -> BayesianOptimizer.warm_start/_effective_training_corpus",
       "suggest -> _prepare_training_data -> SingleTaskGP/fit_gpytorch_mll",
       "get_state -> StrategyState.to_artifact/from_artifact -> set_state",
-      "restored suggest -> condition_on_observations/real optimize_acqf -> PolicyCandidate"
+      "restored suggest -> condition_on_observations/real optimize_acqf -> PolicyCandidate",
+      "checkpointed local torch.Generator -> locally seeded Sobol pool/stable ranked explicit restart conditions; qEI seeded SobolQMCNormalSampler -> real optimize_acqf"
     ],
     "proxy_divergence": "Saved model_state bytes and train_X/train_y markers survive, while omitted weight loading changes real learned parameters/posterior; restored weights also coexist with warm-history loss or forbidden refit.",
     "negative_controls": [
       "Accepted _warm_evals and compatibility/provenance markers intact; bypass effective warm ingestion; real-GP corpus oracle rejects.",
       "Saved model bytes and train rows intact; bypass SingleTaskGP.load_state_dict; real numerical model oracle rejects.",
-      "Loaded real GP/model_state intact; reset _last_train_size; no-refit trap rejects the resulting full-fit call."
+      "Loaded real GP/model_state intact; reset _last_train_size; no-refit trap rejects the resulting full-fit call.",
+      "Keep saved real model/corpus/policy markers, replace _next_acquisition_seed with a global Torch random draw; actual acquisition runs and numerical model remains equivalent, but intrinsic global-RNG oracle rejects."
     ],
-    "property_preserving_control": "9-row warm+current+independent-replica corpus gives identical actual GP parameters/transforms/posterior and ask to the same unsplit observations."
+    "property_preserving_control": "9-row warm+current+independent-replica corpus gives identical actual GP parameters/transforms/posterior and ask to the same unsplit observations.",
+    "intrinsic_replay": "No caller torch.manual_seed or fork_rng surrounds the intrinsic asks. Perturb global Torch RNG with137 float64 draws between paired single/batch2/single asks; assert own state advances and remains equal, global state stays unchanged per ask, actual GP corpus/parameters/posterior and candidate coordinates/predictions agree.",
+    "refusal_basis": "Future refit_iteration999999, changed acquisition policy, absent/None acquisition basis and checkpoint_version0 all refuse before model/Python RNG/localTorch RNG/iteration mutate. Positive growth-counter1/fitted8 and actual full-refit X/Y prefix/count corruption refuse atomically on final4030275.",
+    "refit_basis": "Persisted actual full-refit X/Y and counts match an exact finite prefix of current fitted X/Y; schedule and growth must be feasible. Conditioned9/full8 and warm8/current1 remain admissible and numerically equivalent without full refit."
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "PARTIAL: numerical B114/B115 continuation PASS on immutable4b01 in both real backends; future-refit-clock validation finding open; intrinsic optimizer RNG replay unverified; no closure",
+  "capability_state_or_finding_state": "BOUNDED PASS on exact4030275: unchanged full14 real-GP numerical/intrinsic/admission tests PASS in each CPU backend, no skips; actualfullfit tensor/count3 corruption controls each refused atomically. No production-history/origin-authenticity authority or full finding closure claimed.",
   "findings": [
     {
       "ids": [
@@ -173,17 +469,40 @@
       ],
       "bucket": "same GP state-completeness class P40",
       "actual": "last_refit_iteration999999 in checkpointiteration8 admitted; schedule can suppress refit until that future count",
-      "next_owner": "search_owner; reject counters beyond recorded iteration atomically"
+      "next_owner": "search_owner; reject counters beyond recorded iteration atomically",
+      "verification": "Resolved on exact fce2a4c in both backends: future clock999999 refused atomically; model pointer/Python/localTorch RNG/iteration and learned parameters/posterior unchanged."
+    },
+    {
+      "ids": [
+        "B114",
+        "B115"
+      ],
+      "bucket": "same persisted next-action state-completeness class P40, intersects CTL-02",
+      "actual": "Earlier numerical asks were compared under caller reseeding; default BoTorch initializer consumes global randomness beyond options.seed, so saved instance Torch RNG alone did not establish actual replay.",
+      "verification": "Exact fce2a4c own seeded/stably ranked restart policy and seeded qEI sampler exercise single/batch/single actual asks without external reseed; external global draws ignored, own state consumed/preserved, global state unchanged, removal negative discriminates."
+    },
+    {
+      "ids": [
+        "B114",
+        "B115"
+      ],
+      "bucket": "same refit schedule/corpus state-completeness class P40 widened during admission review",
+      "actual": "Real fitted8 checkpoint admits positive last_train_size1; same-corpus continuation sees8>1*1.2 and calls forbidden full GP refit despite saved numerical model/corpus markers.",
+      "verification": "Resolved on exact4030275 full14PASS both actual backends. Lastfullfit actual X/Y rowcount/exactfiniteprefix and current growth/refit schedule are reconciled; oldpositive1 counter refuses while conditioned9/full8 and warm8/current1 continue without fullrefit. Three actual X/Y/count mutations rejected atomically both.",
+      "next_owner": "root; exact-source integration and final broad frozen-environment regression"
     }
   ],
-  "reviewer": "gp_witness independent real-backend and state-admission reviewer",
+  "reviewer": "gp_witness independent numerical, intrinsic replay and state-admission reviewer; production GP authored by search_owner",
   "limitations_and_next_owner": [
-    "Rerun future-clock admission and unchanged numerical witnesses on search_owner correction SHA; intrinsic RNG replay needs direct next-ask sequence without external reseeding.",
-    "Bounded CPU 1D 8-9-point numerical witness only. Production history source admission/context semantics and transfer bridge not established here; transfer_owner owns bridge workflow witness.",
-    "GPU execution and other backend versions unrun; optional backend absence is never PASS.",
-    "Four-base source-card replay remains UNRUN, historical package PASS does not close B114/B115.",
-    "Direct strategy consumer witness; API/dashboard/long-running search workflow surfaces out of this test scope.",
-    "Ask equivalence in this numerical witness deliberately controls caller torch RNG; it does not establish intrinsic optimizer RNG replay. Default BoTorch initializer uses global random draws beyond its options.seed Sobol raw-pool seed."
+    "Final exact4030275 full14 unchanged witness ran once per backend with14PASS and no skips. Earlier baseline/intermediate FAIL/PASS logs are retained as history and are superseded for the final-source decision.",
+    "Bounded sequential CPU1D8-9-point numerical and batch2 witness only. Saved tensors/counts establish internal consistency relative to the captured state, not historical origin authenticity or scientific evidence authority. Production history/source admission/transfer bridge handled by transfer_owner.",
+    "GPU execution, other backend versions, and concurrent external-thread RNG interference unrun. Missing optional backend never means PASS; mismatching backend identity and obsolete/absent replay basis intentionally refuse.",
+    "Original7 numeric comparator tests retain caller RNG controls; separate intrinsic test establishes persisted-stream single/batch/single asks without caller manual_seed/fork_rng, despite unrelated global Torch draws.",
+    "Ask oracle compares normalized coordinates, predictions, strategy source and learned GP/RNG basis. PolicyCandidate UUID and wall-clock timestamp are newly allocated; no byte-identical candidate DTO or audit artifact replay claim.",
+    "Acquisition policy change sobol_ranked_restarts_v1 is intentional and versioned. BoTorch emits its existing qExpectedImprovement numerics warning; no optimization-quality improvement or qEI replacement claimed.",
+    "Four-base source-card replay remains UNRUN; historical package PASS does not close findings. Direct strategy witness does not establish API/dashboard/long-running search lifecycle surfaces.",
+    "Parent/root independently reads immutable4030275 source and final receipt, integrates via Git, and owns final broad frozen-environment gate and closure decisions."
   ],
-  "verified_candidate_sha": "4b01ba7342915cad1cb251d5bb7e6963b0285f2d"
+  "verified_candidate_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+  "verified_candidate_tree_sha": "e8538e10a7ac13030966721f463a395757f3b301"
 }

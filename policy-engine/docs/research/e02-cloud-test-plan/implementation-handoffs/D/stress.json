@@ -471,7 +471,7 @@
       "environment": {
         "kind": "root_independent_immutable_archive_locked_env",
         "interpreter": "/workspace/e02-D-locked-env/bin/python",
-        "python": "3.14.2",
+        "python": "3.14.7",
         "full_distribution_inventory": "not supplied in this transferred receipt",
         "source_receipt": {
           "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/independent-c6.json",

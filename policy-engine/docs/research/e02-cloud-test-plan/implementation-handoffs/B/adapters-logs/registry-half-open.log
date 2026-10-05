@@ -1,0 +1,36 @@
+2026-10-05 14:21:54.732 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.732 | DEBUG    | polisyos.common.logger:_call:120 - Failure recorded
+2026-10-05 14:21:54.733 | CRITICAL | polisyos.common.logger:_call:120 - Circuit opened (tripped)
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit half-opened
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.733 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-05 14:21:54.734 | DEBUG    | polisyos.common.logger:_call:120 - Failure recorded
+2026-10-05 14:21:54.734 | CRITICAL | polisyos.common.logger:_call:120 - Circuit opened (tripped)
+2026-10-05 14:21:54.734 | DEBUG    | polisyos.common.logger:_call:120 - Half-open success
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit closed (recovered)
+2026-10-05 14:21:54.734 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+PASS B93 active HALF_OPEN lease survives TTL and 24-key pressure; extra protected key receives typed refusal; same-key second lease denied; quiescent state is reclaimed and real replacement acquires
+runtime modules: /workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py /workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py

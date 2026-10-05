@@ -1,0 +1,70 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-adapters/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-adapters/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 55 items
+
+tests/unit/remediation/test_llm_01.py::test_duplicate_prompt_is_normalized_to_one_provider_argument PASSED [  1%]
+tests/unit/remediation/test_llm_01.py::test_gateway_prompt_form_maps_to_supported_user_message_once PASSED [  3%]
+tests/unit/remediation/test_llm_01.py::test_conflicting_prompt_forms_are_rejected_before_provider_call PASSED [  5%]
+tests/unit/remediation/test_llm_01.py::test_optional_metrics_failure_preserves_provider_result_and_no_retry PASSED [  7%]
+tests/unit/remediation/test_llm_01.py::test_provider_raw_cache_marker_cannot_forge_reuse_billing PASSED [  9%]
+tests/unit/remediation/test_llm_01.py::test_mandatory_accounting_failure_exposes_received_response PASSED [ 10%]
+tests/unit/remediation/test_llm_01.py::test_cache_hits_emit_reuse_without_duplicate_provider_usage PASSED [ 12%]
+tests/unit/remediation/test_llm_01.py::test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry PASSED [ 14%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey::test_deterministic PASSED [ 16%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey::test_different_params_different_keys PASSED [ 18%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey::test_temperature_affects_key PASSED [ 20%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey::test_messages_and_positional_prompt_affect_key PASSED [ 21%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestComputeCacheKey::test_volatile_metadata_is_excluded_from_key PASSED [ 23%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache::test_hit PASSED [ 25%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache::test_put_stores_isolated_snapshot PASSED [ 27%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache::test_cached_tool_calls_and_raw_payloads_are_clone_isolated PASSED [ 29%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache::test_miss PASSED [ 30%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache::test_ttl_expiry PASSED [ 32%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache::test_maxsize_eviction PASSED [ 34%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache::test_size_property PASSED [ 36%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestInMemoryPromptCache::test_stats_track_hits_misses_puts_and_skips PASSED [ 38%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_caches_deterministic_positional_prompt_calls PASSED [ 40%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_cache_hits_do_not_share_mutable_response_state PASSED [ 41%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_skips_cache_for_tool_calls_and_freshness_sensitive_inputs PASSED [ 43%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_frozen_snapshot_with_url_reuses PASSED [ 45%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_changed_snapshot_bytes_or_hash_cannot_hit PASSED [ 47%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_lost_permission_and_model_change_cannot_hit PASSED [ 49%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_live_url_without_snapshot_skips PASSED [ 50%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_four_identical_allowed_misses_single_flight PASSED [ 52%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_different_seed_and_tenant_are_separate_flights PASSED [ 54%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_cancelled_follower_does_not_cancel_owner PASSED [ 56%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_failed_owner_clears_inflight_entry PASSED [ 58%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_reuse_requires_same_packet_and_substantive_context[version] PASSED [ 60%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_reuse_requires_same_packet_and_substantive_context[scope] PASSED [ 61%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_reuse_requires_same_packet_and_substantive_context[permission] PASSED [ 63%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_reuse_requires_same_packet_and_substantive_context[seed] PASSED [ 65%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_reuse_requires_same_packet_and_substantive_context[params] PASSED [ 67%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_reuse_requires_same_packet_and_substantive_context[model] PASSED [ 69%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_singleflight_deadline_clears_task_and_permits_real_retry PASSED [ 70%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_preserves_follower_and_clears_owner_task PASSED [ 72%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_failure_retry_and_reuse_charge_received_usage_once PASSED [ 74%]
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_cannot_erase_actual_provider_cost XFAIL [ 76%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestPostRecordEmitsCostHistogram::test_cost_histogram_recorded PASSED [ 78%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestPostRecordEmitsCostHistogram::test_post_record_returns_cost PASSED [ 80%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestPostRecordEmitsTokenCounts::test_token_recording_does_not_crash PASSED [ 81%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestLatencyMeasured::test_invoke_measures_latency PASSED [ 83%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestLatencyMeasured::test_generate_measures_latency PASSED [ 85%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestBudgetUtilizationGauge::test_utilization_updated_after_spend PASSED [ 87%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestBudgetUtilizationGauge::test_utilization_none_for_unknown_key PASSED [ 89%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestCostAnomalyDetectorNormal::test_no_anomaly_on_uniform_costs PASSED [ 90%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestCostAnomalyDetectorSpike::test_detects_large_spike PASSED [ 92%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestCostAnomalyDetectorEmptyWindow::test_first_call_not_anomaly PASSED [ 94%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestCostAnomalyDetectorEmptyWindow::test_second_call_not_anomaly PASSED [ 96%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestMetricsGracefulWithoutRegistry::test_post_record_works_when_get_metrics_raises PASSED [ 98%]
+tests/unit/scientist/orchestration/llm/test_cost_metrics.py::TestGrafanaDashboard::test_dashboard_json_valid PASSED [100%]
+
+======================== 54 passed, 1 xfailed in 0.64s =========================
+E02_MEASUREMENT {'returncode': 0, 'wall_s': 2.9570495870000286, 'rss_kib': 98264}

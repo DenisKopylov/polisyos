@@ -1,0 +1,76 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-adapters/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-adapters/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 61 items
+
+tests/unit/remediation/test_jit_01.py::test_dynamic_defaults_bind_per_handle_without_rebuilding_kernel PASSED [  1%]
+tests/unit/remediation/test_jit_01.py::test_native_jax_dynamic_defaults_rebind_without_recompile PASSED [  3%]
+tests/unit/remediation/test_jit_01.py::test_single_flight_publishes_before_followers_are_notified PASSED [  4%]
+tests/unit/remediation/test_jit_01.py::test_single_flight_is_shared_by_compiler_instances PASSED [  6%]
+tests/unit/remediation/test_jit_01.py::test_single_flight_follower_honors_deadline_and_cancellation PASSED [  8%]
+tests/unit/remediation/test_jit_01.py::test_single_flight_retries_when_invalidation_wins_result_delivery PASSED [  9%]
+tests/unit/remediation/test_jit_01.py::test_single_flight_error_releases_all_followers PASSED [ 11%]
+tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_uses_declared_shapes_without_pure_step PASSED [ 13%]
+tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape PASSED [ 14%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_from_array_1d PASSED [ 16%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_from_array_2d PASSED [ 18%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_hash_determinism PASSED [ 19%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_hash_different_shape PASSED [ 21%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_hash_different_dtype PASSED [ 22%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_canonical_str PASSED [ 24%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_ndim_and_size PASSED [ 26%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_current_defaults_to_cpu_in_tests PASSED [ 27%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_custom_precision PASSED [ 29%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_hash_determinism PASSED [ 31%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_canonical_str PASSED [ 32%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_xla_flags_in_canonical_str PASSED [ 34%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_same_dict_same_hash PASSED [ 36%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_different_key_order_same_hash PASSED [ 37%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_different_values_different_hash PASSED [ 39%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_nested_dict_order_invariant PASSED [ 40%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_float_handling PASSED [ 42%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_array_handling PASSED [ 44%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_array_nan_inf_handling PASSED [ 45%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_hash_is_32_chars PASSED [ 47%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_build_specialization_basic PASSED [ 49%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_cache_key_determinism PASSED [ 50%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_fqn_different_key PASSED [ 52%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_static_params_different_key PASSED [ 54%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_shapes_different_key PASSED [ 55%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_dtypes_different_key PASSED [ 57%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_jit_setting_different_key PASSED [ 59%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_signature_summary PASSED [ 60%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_cache_miss_then_hit PASSED [ 62%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_lru_eviction PASSED [ 63%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_contains PASSED [ 65%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_invalidate PASSED [ 67%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_clear PASSED [ 68%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_reset_stats PASSED [ 70%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_invalidate_all_advances_generation_and_blocks_stale_publication PASSED [ 72%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_reset_global_cache_preserves_singleton_identity PASSED [ 73%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_compile_basic PASSED [ 75%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_compile_cache_hit PASSED [ 77%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_compile_retries_after_generation_invalidation PASSED [ 78%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_compile_cache_miss_different_static PASSED [ 80%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_jit_execution_correctness PASSED [ 81%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_no_jit_execution PASSED [ 83%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_static_param_changes_result PASSED [ 85%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_dynamic_param_changes_without_recompile PASSED [ 86%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_dynamic_param_unknown_key_raises PASSED [ 88%]
+tests/unit/foundry/methods/test_compiler.py::TestSingleFlight::test_single_flight_compilation PASSED [ 90%]
+tests/unit/foundry/methods/test_compiler.py::TestCompiledChainExecutor::test_chain_shape_inference_eager PASSED [ 91%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_invocation_preserves_warm_kernel_and_invalidates_each_axis[static] PASSED [ 93%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_invocation_preserves_warm_kernel_and_invalidates_each_axis[shape] PASSED [ 95%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_invocation_preserves_warm_kernel_and_invalidates_each_axis[dtype] PASSED [ 96%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_invocation_preserves_warm_kernel_and_invalidates_each_axis[backend] PASSED [ 98%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_failed_publication_unblocks_followers_and_next_build PASSED [100%]
+
+============================== 61 passed in 2.56s ==============================
+E02_MEASUREMENT {'returncode': 0, 'wall_s': 6.722283701999913, 'rss_kib': 261544}

@@ -1,0 +1,47 @@
+................................................F.........               [100%]
+=================================== FAILURES ===================================
+_ test_identified_graph_outranks_pag_ambiguous_candidate_with_real_identification _
+
+    def test_identified_graph_outranks_pag_ambiguous_candidate_with_real_identification() -> None:
+        identified = _hypothesis(
+            hypothesis_id="identified",
+            graph=_dag_graph(metadata={"structural_fit": 0.20}),
+            method=DiscoveryMethod.DAGMA,
+            algorithm_family=DiscoveryAlgorithmFamily.SCORE_BASED,
+        )
+        ambiguous = _hypothesis(
+            hypothesis_id="ambiguous",
+            graph=_pag_ambiguous_graph(metadata={"structural_fit": 0.99}),
+            method=DiscoveryMethod.FCI,
+            algorithm_family=DiscoveryAlgorithmFamily.CONSTRAINT_BASED,
+        )
+        stability_report = _stability_report(
+            HypothesisStabilitySummary(
+                hypothesis_id="identified",
+                mean_edge_stability=0.0,
+                completed_resamples=5,
+            ),
+            HypothesisStabilitySummary(
+                hypothesis_id="ambiguous",
+                mean_edge_stability=1.0,
+                completed_resamples=5,
+            ),
+        )
+    
+        report = DownstreamUtilityJudge().evaluate(
+            UtilityJudgeInput(
+                hypotheses=[ambiguous, identified],
+                stability_report=stability_report,
+                causal_query=_query(),
+            )
+        )
+    
+>       assert [score.hypothesis_id for score in report.scores] == ["identified", "ambiguous"]
+E       AssertionError: assert ['ambiguous', 'identified'] == ['identified', 'ambiguous']
+E         
+E         At index 0 diff: 'ambiguous' != 'identified'
+E         Use -v to get more diff
+
+tests/unit/scientist/discovery/test_utility_judge.py:154: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/discovery/test_utility_judge.py::test_identified_graph_outranks_pag_ambiguous_candidate_with_real_identification

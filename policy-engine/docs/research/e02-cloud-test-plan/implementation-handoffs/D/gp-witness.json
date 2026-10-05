@@ -34,7 +34,11 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-replay-latest.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-legacy-admission-latest.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-locked.txt",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-latest.txt"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-latest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-corruption-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-latest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-corruption-latest.txt"
   ],
   "baseline_cells": [
     "F02-P095",
@@ -281,6 +285,142 @@
       "wall_s": 10.607255672000065,
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-latest.txt",
       "output_sha256": "49e9fa03a78f6b4acd3d96b36b696a9989af699e2a20b676eee7c592b5ec37c8"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-4030275/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -vv --tb=short --log-cli-level=WARNING --durations=10",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.7",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "input_closure": "exact git archive4030275 source; unchanged full14 witness; warm9/cold8/current1, real posterior/weight/transform/corpus roundtrip inclconditioned9/full8, no-refit traps, intrinsic single/qEIbatch/single, local/global RNG discriminators, all5 future/version/policy/growth atomic-refusal variants",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 39.39619341700018,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-locked.txt",
+      "output_sha256": "697cec7cc1d2d5e5dfd1f54397c355dc61d74b6368a43423a1d576a3ecc968ee",
+      "collected": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 32.57
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-4030275/policy-engine/src /workspace/e02-D-locked-env/bin/python /workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-corruption403.py",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.7",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "input_closure": "3 enumerated actual full-refit basis tensor/count controls on real fitted8 GP; finite X prefix change, finite Y prefix change, missing full-refit X row; atomic live model/Python/own/global Torch RNG/iteration/refit counter schedule",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 8.18495762800012,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-corruption-locked.txt",
+      "output_sha256": "d1c205d62ab2271a0581165b7d0444e0c1cf1fb9f4976d125eaa40543b01883f",
+      "actual_fitted_rows": 8,
+      "corruption_controls": [
+        {
+          "case": "refit_X_finite_prefix_change",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        },
+        {
+          "case": "refit_Y_finite_prefix_change",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        },
+        {
+          "case": "refit_X_missing_row",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        }
+      ],
+      "probe_source": "import json, runpy, copy\nfrom pathlib import Path\nroot=Path('/workspace/e02-D-gp-witness/policy-engine')\nns=runpy.run_path(str(root/'tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py'))\nscene=ns['fitted_scene'].__wrapped__()\ntorch=ns['require_torch']()\nstrategy=ns['_new'](scene.space)\nstrategy.set_state(ns['StrategyState'].from_artifact(scene.artifact))\nfor name in ('refit_X_finite_prefix_change','refit_Y_finite_prefix_change','refit_X_missing_row'):\n state=ns['StrategyState'].from_artifact(scene.artifact)\n if name=='refit_X_finite_prefix_change': state.metadata['refit_train_X'][0][0]+=0.01\n elif name=='refit_Y_finite_prefix_change': state.metadata['refit_train_y_bo'][0][0]+=0.01\n else: state.metadata['refit_train_X'].pop()\n before=(strategy._model,strategy._rng.getstate(),strategy._torch_rng.get_state().clone(),strategy._iteration,strategy._last_refit_iteration,strategy._last_train_size)\n global_before=torch.random.get_rng_state().clone()\n try: strategy.set_state(state)\n except ValueError as exc: error=str(exc)\n else: raise AssertionError(name+' was admitted')\n assert strategy._model is before[0]\n assert strategy._rng.getstate()==before[1]\n assert torch.equal(strategy._torch_rng.get_state(),before[2])\n assert (strategy._iteration,strategy._last_refit_iteration,strategy._last_train_size)==before[3:]\n assert torch.equal(torch.random.get_rng_state(),global_before)\n ns['_assert_same_model'](scene.fitted._model,strategy._model)\n print(json.dumps({'case':name,'status':'REJECTED','atomic_live_model_rng_iteration_schedule':True,'global_rng_unchanged':True,'error':error}))\nprint(json.dumps({'candidate':'4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a','actual_fitted_rows':8,'corruption_controls':3,'outcome':'PASS'}))\n",
+      "probe_source_sha256": "2ac0e21f3fe67232a3fecd33d52ff8a65168ac336c33ed635c845570f45805b1",
+      "probe_source_purpose": "Complete bounded probe source embedded so an independent receiver can rerun without ignored raw scratch."
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-4030275/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -vv --tb=short --log-cli-level=WARNING --durations=10",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.2",
+        "torch": "2.14.1+cu130",
+        "botorch": "0.18.1",
+        "gpytorch": "1.15.2"
+      },
+      "input_closure": "exact git archive4030275 source; unchanged full14 witness; warm9/cold8/current1, real posterior/weight/transform/corpus roundtrip inclconditioned9/full8, no-refit traps, intrinsic single/qEIbatch/single, local/global RNG discriminators, all5 future/version/policy/growth atomic-refusal variants",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 53.386024774999896,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-latest.txt",
+      "output_sha256": "f3421a72b03b28be7a96b32a243cd84a2afa8736b51bf88a70c3d4f1906c7149",
+      "collected": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 47.13
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-4030275/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-corruption403.py",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.2",
+        "torch": "2.14.1+cu130",
+        "botorch": "0.18.1",
+        "gpytorch": "1.15.2"
+      },
+      "input_closure": "3 enumerated actual full-refit basis tensor/count controls on real fitted8 GP; finite X prefix change, finite Y prefix change, missing full-refit X row; atomic live model/Python/own/global Torch RNG/iteration/refit counter schedule",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 8.508676791000198,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-final-corruption-latest.txt",
+      "output_sha256": "51903fbb1d6b2f75f9805c7fd52a5bca846e3df7b0d88827f45810af94e03a27",
+      "actual_fitted_rows": 8,
+      "corruption_controls": [
+        {
+          "case": "refit_X_finite_prefix_change",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        },
+        {
+          "case": "refit_Y_finite_prefix_change",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        },
+        {
+          "case": "refit_X_missing_row",
+          "status": "REJECTED",
+          "atomic_live_model_rng_iteration_schedule": true,
+          "global_rng_unchanged": true,
+          "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+        }
+      ],
+      "probe_source": "import json, runpy, copy\nfrom pathlib import Path\nroot=Path('/workspace/e02-D-gp-witness/policy-engine')\nns=runpy.run_path(str(root/'tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py'))\nscene=ns['fitted_scene'].__wrapped__()\ntorch=ns['require_torch']()\nstrategy=ns['_new'](scene.space)\nstrategy.set_state(ns['StrategyState'].from_artifact(scene.artifact))\nfor name in ('refit_X_finite_prefix_change','refit_Y_finite_prefix_change','refit_X_missing_row'):\n state=ns['StrategyState'].from_artifact(scene.artifact)\n if name=='refit_X_finite_prefix_change': state.metadata['refit_train_X'][0][0]+=0.01\n elif name=='refit_Y_finite_prefix_change': state.metadata['refit_train_y_bo'][0][0]+=0.01\n else: state.metadata['refit_train_X'].pop()\n before=(strategy._model,strategy._rng.getstate(),strategy._torch_rng.get_state().clone(),strategy._iteration,strategy._last_refit_iteration,strategy._last_train_size)\n global_before=torch.random.get_rng_state().clone()\n try: strategy.set_state(state)\n except ValueError as exc: error=str(exc)\n else: raise AssertionError(name+' was admitted')\n assert strategy._model is before[0]\n assert strategy._rng.getstate()==before[1]\n assert torch.equal(strategy._torch_rng.get_state(),before[2])\n assert (strategy._iteration,strategy._last_refit_iteration,strategy._last_train_size)==before[3:]\n assert torch.equal(torch.random.get_rng_state(),global_before)\n ns['_assert_same_model'](scene.fitted._model,strategy._model)\n print(json.dumps({'case':name,'status':'REJECTED','atomic_live_model_rng_iteration_schedule':True,'global_rng_unchanged':True,'error':error}))\nprint(json.dumps({'candidate':'4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a','actual_fitted_rows':8,'corruption_controls':3,'outcome':'PASS'}))\n",
+      "probe_source_sha256": "2ac0e21f3fe67232a3fecd33d52ff8a65168ac336c33ed635c845570f45805b1",
+      "probe_source_purpose": "Complete bounded probe source embedded so an independent receiver can rerun without ignored raw scratch."
     }
   ],
   "property": {
@@ -301,10 +441,11 @@
     ],
     "property_preserving_control": "9-row warm+current+independent-replica corpus gives identical actual GP parameters/transforms/posterior and ask to the same unsplit observations.",
     "intrinsic_replay": "No caller torch.manual_seed or fork_rng surrounds the intrinsic asks. Perturb global Torch RNG with137 float64 draws between paired single/batch2/single asks; assert own state advances and remains equal, global state stays unchanged per ask, actual GP corpus/parameters/posterior and candidate coordinates/predictions agree.",
-    "refusal_basis": "Future refit_iteration999999, changed acquisition policy, absent/None acquisition basis and checkpoint_version0 all refuse before model/Python RNG/localTorch RNG/iteration mutate."
+    "refusal_basis": "Future refit_iteration999999, changed acquisition policy, absent/None acquisition basis and checkpoint_version0 all refuse before model/Python RNG/localTorch RNG/iteration mutate. Positive growth-counter1/fitted8 and actual full-refit X/Y prefix/count corruption refuse atomically on final4030275.",
+    "refit_basis": "Persisted actual full-refit X/Y and counts match an exact finite prefix of current fitted X/Y; schedule and growth must be feasible. Conditioned9/full8 and warm8/current1 remain admissible and numerically equivalent without full refit."
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "PARTIAL on exactfce2a4c: bounded numerical/intrinsic replay and4 atomic legacy/future refusals PASS in both backends; positive growth-counter corruption last_train_size1/fitted8 still admitted (focused4PASS1FAIL both). No finding closure.",
+  "capability_state_or_finding_state": "BOUNDED PASS on exact4030275: unchanged full14 real-GP numerical/intrinsic/admission tests PASS in each CPU backend, no skips; actualfullfit tensor/count3 corruption controls each refused atomically. No production-history/origin-authenticity authority or full finding closure claimed.",
   "findings": [
     {
       "ids": [
@@ -347,21 +488,21 @@
       ],
       "bucket": "same refit schedule/corpus state-completeness class P40 widened during admission review",
       "actual": "Real fitted8 checkpoint admits positive last_train_size1; same-corpus continuation sees8>1*1.2 and calls forbidden full GP refit despite saved numerical model/corpus markers.",
-      "verification": "Both actual backends focused5 admission tests4PASS1FAIL; direct actual no-refit trap confirms continuation consequence.",
-      "next_owner": "search_owner; admit only feasible last-full-fit size relative to fitted corpus under current growth refit schedule; preserve legitimate conditioned9/full8 checkpoint."
+      "verification": "Resolved on exact4030275 full14PASS both actual backends. Lastfullfit actual X/Y rowcount/exactfiniteprefix and current growth/refit schedule are reconciled; oldpositive1 counter refuses while conditioned9/full8 and warm8/current1 continue without fullrefit. Three actual X/Y/count mutations rejected atomically both.",
+      "next_owner": "root; exact-source integration and final broad frozen-environment regression"
     }
   ],
   "reviewer": "gp_witness independent numerical, intrinsic replay and state-admission reviewer; production GP authored by search_owner",
   "limitations_and_next_owner": [
-    "Await exact search_owner correction SHA for positive growth-counter/corpus invariant, then rerun unchanged full14 witness in both actual backends. Earlier13 unique PASS union remains bounded evidence, not global admission closure.",
-    "Full11 tests ran at26c049225; focused4 atomic-refusal cases ran at eadbc690 (two extra legacy variants only). Their union13 unique tests passed in each backend; no claim of one full13 pytest execution.",
-    "Bounded sequential CPU1D8-9-point numerical and batch2 witness only. Production history source admission/context semantics and transfer bridge not established here; transfer_owner owns bridge workflow.",
-    "GPU execution and other backend versions unrun; missing optional backend is never PASS. Cross-version backend identity mismatch is intentionally refused, not migrated.",
-    "Four-base source-card replay remains UNRUN; historical package PASS does not close findings.",
-    "Direct strategy consumer witness; API/dashboard/long-running search workflow surfaces and multi-thread process-global RNG interference outside test scope.",
-    "Original7 numerical comparator tests retain caller RNG controls; separate intrinsic replay test establishes persisted-stream next asks on this candidate. Acquisition policy change is intentional, versioned sobol_ranked_restarts_v1 and old/absent basis checkpoints refuse.",
-    "BoTorch emits its existing qExpectedImprovement numerics warning; equivalence/replay checks passed but this witness does not assess optimization quality or replace qEI policy.",
-    "Parent/root must independently read exact source and receipt, integrate by Git, and run final broad frozen-environment gate."
+    "Final exact4030275 full14 unchanged witness ran once per backend with14PASS and no skips. Earlier baseline/intermediate FAIL/PASS logs are retained as history and are superseded for the final-source decision.",
+    "Bounded sequential CPU1D8-9-point numerical and batch2 witness only. Saved tensors/counts establish internal consistency relative to the captured state, not historical origin authenticity or scientific evidence authority. Production history/source admission/transfer bridge handled by transfer_owner.",
+    "GPU execution, other backend versions, and concurrent external-thread RNG interference unrun. Missing optional backend never means PASS; mismatching backend identity and obsolete/absent replay basis intentionally refuse.",
+    "Original7 numeric comparator tests retain caller RNG controls; separate intrinsic test establishes persisted-stream single/batch/single asks without caller manual_seed/fork_rng, despite unrelated global Torch draws.",
+    "Ask oracle compares normalized coordinates, predictions, strategy source and learned GP/RNG basis. PolicyCandidate UUID and wall-clock timestamp are newly allocated; no byte-identical candidate DTO or audit artifact replay claim.",
+    "Acquisition policy change sobol_ranked_restarts_v1 is intentional and versioned. BoTorch emits its existing qExpectedImprovement numerics warning; no optimization-quality improvement or qEI replacement claimed.",
+    "Four-base source-card replay remains UNRUN; historical package PASS does not close findings. Direct strategy witness does not establish API/dashboard/long-running search lifecycle surfaces.",
+    "Parent/root independently reads immutable4030275 source and final receipt, integrates via Git, and owns final broad frozen-environment gate and closure decisions."
   ],
-  "verified_candidate_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db"
+  "verified_candidate_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+  "verified_candidate_tree_sha": "e8538e10a7ac13030966721f463a395757f3b301"
 }

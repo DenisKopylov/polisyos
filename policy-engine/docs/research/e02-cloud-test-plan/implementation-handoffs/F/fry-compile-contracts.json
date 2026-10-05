@@ -1,0 +1,413 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "fry-compile-contracts",
+  "closure_ids": [
+    "LA-001",
+    "LA-002",
+    "LA-037"
+  ],
+  "bundle_ids": [
+    "FRY-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2"
+  ],
+  "candidate_tree_sha": "465c255a4022c2506fb21d41c0bc0fc10ed774b6",
+  "branch": "codex/e02-F-foundry",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+    "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+    "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P063",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "skip": "0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "180"
+    },
+    {
+      "id": "F03-P032",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "skip": "0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "162"
+    },
+    {
+      "id": "F03-P068",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "skip": "0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "198"
+    },
+    {
+      "id": "F03-P069",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "skip": "0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "199"
+    },
+    {
+      "id": "F03-P076",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "skip": "0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "206"
+    },
+    {
+      "id": "F04-P060",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_treasury.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "skip": "0",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "270"
+    },
+    {
+      "id": "F06-P052",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "skip": "0",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "236"
+    },
+    {
+      "id": "F06-P087",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "skip": "0",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "271"
+    },
+    {
+      "id": "F07-P069",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "skip": "0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "75"
+    },
+    {
+      "id": "F08-P039",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "skip": "0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "162"
+    },
+    {
+      "id": "F08-P066",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "skip": "0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "189"
+    },
+    {
+      "id": "F08-P070",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "skip": "0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "193"
+    },
+    {
+      "id": "F10-P066",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "skip": "0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "186"
+    },
+    {
+      "id": "F11-P040",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "skip": "0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "169"
+    },
+    {
+      "id": "F13-P079",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "skip": "0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "206"
+    },
+    {
+      "id": "F14-P039",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "skip": "0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "389"
+    },
+    {
+      "id": "F14-P076",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "skip": "0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "426"
+    },
+    {
+      "id": "F14-P089",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "skip": "0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "439"
+    }
+  ],
+  "baseline_identity": {
+    "same_routed_set_for": [
+      "LA-001",
+      "LA-002",
+      "LA-037"
+    ],
+    "matching_cells": 18,
+    "states": {
+      "PASS": 18
+    },
+    "raw_archives_received": 0,
+    "evidence_grade": "source-reported navigation only; historical file PASS does not establish finding closure",
+    "finding_owner": "FRY-01 / F-W05; supplied ledger partial records",
+    "source_refs": [
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRY-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd"
+    ]
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. JAX_PLATFORMS=cpu /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/compile/test_compile_artifact_contracts.py tests/unit/foundry/compile/test_randomization.py tests/unit/foundry/contracts/test_layout.py tests/unit/foundry/methods/catalog/mechanism/test_families.py tests/unit/foundry/compile/test_compile_determinism.py tests/unit/foundry/compile/test_trinity_compiler.py tests/unit/foundry/facade/test_compile_facade.py tests/unit/foundry/mechanisms/test_treasury.py tests/unit/foundry/mechanisms/test_mechanism_design.py tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py -o cache_dir=/workspace/e02-F-receipts/foundry-candidate-cache --basetemp=/workspace/e02-F-receipts/foundry-candidate-tmp",
+      "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+      "environment": "environment_identity",
+      "input_closure": "10 named source/test files at candidate; synthetic income_tax Trinity/default registry, isolated CAS and RunContext; synthetic monotone/nonmonotone tax schedule with explicit prior_weights and native float-prior canon profile; no production data",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt#AUTHOR-PYTEST",
+      "exit_code": 0,
+      "pytest_summary": "45 passed in 28.35s; no skip/error",
+      "wall_s": 41.43762562400002,
+      "child_peak_rss_kib": 517096
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/compile/test_compile_artifact_contracts.py tests/unit/foundry/contracts/test_layout.py tests/unit/foundry/methods/catalog/mechanism/test_families.py -o addopts= -q -ra -p no:cacheprovider --basetemp=/workspace/e02-F-receipts/foundry-root-review-tmp",
+      "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+      "environment": "same read-only Python 3.14.2; cwd /workspace/e02-F-foundry/policy-engine; PYTHONPATH=src:.; cacheprovider explicitly disabled",
+      "input_closure": "changed native compiler artifacts, layout and mechanism-family files; isolated root review basetemp",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt#ROOT-INDEPENDENT-PYTEST",
+      "pytest_summary": "14 passed, 1 PytestConfigWarning Unknown config option cache_dir in 11.95s",
+      "review_owner": "F root; source/diff independently reviewed GO"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/foundry/compile/test_compile_artifact_contracts.py tests/unit/foundry/compile/test_randomization.py tests/unit/foundry/contracts/test_layout.py tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+      "environment": "environment_identity",
+      "input_closure": "four changed test files or exact base/candidate diff",
+      "outcome": "PASS",
+      "output": "All checks passed!\n",
+      "exit_code": 0
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check tests/unit/foundry/compile/test_compile_artifact_contracts.py tests/unit/foundry/compile/test_randomization.py tests/unit/foundry/contracts/test_layout.py tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+      "environment": "environment_identity",
+      "input_closure": "four changed test files or exact base/candidate diff",
+      "outcome": "PASS",
+      "output": "4 files already formatted\n",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check c40d4acae1ce58b597267255026d9356565828fd cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+      "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+      "environment": "environment_identity",
+      "input_closure": "four changed test files or exact base/candidate diff",
+      "outcome": "PASS",
+      "output": "",
+      "exit_code": 0
+    }
+  ],
+  "property": {
+    "statement": "The existing canonical randomization/family/layout owners preserve their supported contracts through real compile/CAS/Scientist and IC verification paths; compatibility evidence remains bounded to the exercised source and synthetic inputs.",
+    "runtime_path": [
+      "TreasuryPlan builder / IR SlotLayout builder / mechanism-family declarations",
+      "Trinity compiler persists treasury_plan, slot_layout, ProgramGraph and CompileReport in FileSystemCAS; IC service persists certificate/report/IR sidecars",
+      "CompileFoundryNode routes real Foundry derived_refs into ExperimentState; IC service selects the declared family and runs the IR certificate implementation",
+      "fresh CAS instance reads the persisted artifacts/inputs; both Foundry layout addresses expose identical IR objects; IC consumer distinguishes positive and nonmonotone negative schedules"
+    ],
+    "proxy_divergence": "A real compiler still returns ok and a correctly shaped/kinded artifact if its builder returns an empty TreasuryPlan or SlotLayout, but the content/lineage discriminator fails. Identical family catalog membership gives positive and negative native IC results for two schedules.",
+    "negative_controls": [
+      "replace treasury builder with same-shape empty plan while retaining compile success/kind; content oracle rejects",
+      "replace layout builder with same-shape empty layout while retaining compile success/kind; content oracle rejects",
+      "malformed supplied Trinity persists a failure report and cannot create successful derived state",
+      "registered nonmonotone earnings schedule produces a persisted negative native IC certificate",
+      "state_path absent slot is inventory member but excluded from executable layout; unknown family ID is refused"
+    ],
+    "authority_purpose": "Compiler reproducibility/layout and synthetic mechanism-certificate verification only; no admitted real-data causal/economic conclusion.",
+    "provenance": "Actual canonical runtime and default registry at implementation SHA; independent SHA256 salt oracle and explicit synthetic schedules; CAS input lineage checked.",
+    "rule_schema_versions": [
+      "TreasuryPlan 1.0",
+      "SlotLayout 1.0",
+      "historical artifact kinds and schema owner names preserved",
+      "MechanismFamilySpec / IC certificate implementations remain IR-owned"
+    ],
+    "time_roles": "Recompile/reopen replay on fixed inputs; no production epoch/currentness or time transport claim."
+  },
+  "predicate_basis": "recomputed",
+  "source_census": {
+    "executed_by": "F/foundry",
+    "predicate_basis": "recomputed",
+    "source_code_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+    "path_denominator": "complete git ls-files policy-engine/src",
+    "file_type_denominator": "tracked .py files",
+    "files_examined": 2697,
+    "selection_boundaries": "literal tokens and module paths in tracked Python source only",
+    "unresolved_by_construction": [
+      "dynamic access that does not spell the fields/module paths",
+      "external packages or plugins",
+      "untracked source and production data"
+    ],
+    "operations": {
+      "treasury_salts": "\\b(node_salts|stream_salts)\\b",
+      "layout_addresses": "polisyos\\.foundry\\.methods\\.(?:compiler\\.)?layout",
+      "families_addresses": "polisyos\\.foundry\\.(?:mechanisms\\.design|methods\\.catalog\\.mechanism\\.families)"
+    },
+    "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt#SOURCE-CENSUS"
+  },
+  "capability_state_or_finding_state": "bounded verification slice; no full finding closure promotion. LA-001 full execution salt binding remains bridge_missing; LA-002 native synthetic IC/catalog witness established; LA-037 native ABI/layout/compiler witness established with distribution/docs limitations.",
+  "finding_dispositions": {
+    "LA-001": "partial/limited: seed laws, v1 envelope replay and persisted compiler/Scientist artifact readback established; runtime salt-consumer binding not established",
+    "LA-002": "bounded native verification evidence available; no catalog-as-authority claim; final closure belongs to G after receipt acceptance",
+    "LA-037": "bounded native layout/family/public identity/compile evidence available; docs build and package distribution not exercised in this slice"
+  },
+  "limitations_and_next_owner": [
+    "F/G: Treasury compiler historically uses root_seed=0 independently of ExecPlan.random_seed; do not change historical PRNG/digests without a semantic-owner decision. Literal source census finds salt fields only in their producer/DTO; dynamic/external access remains unresolved by construction. A declared complete runtime salt binding is not supplied by this receipt.",
+    "G/C: LA-037 docs build and package distribution compatibility remain UNRUN; tests prove current source ABI at both historical/intermediate addresses, not an installed wheel or every external client. No production mechanism code moved in this slice.",
+    "G/C: plugin registration/discovery and installed-package method ABI stay with C; this slice exercises actual Scientist IC family consumer, not every plugin.",
+    "G: Full production inputs remain local. This generic synthetic fixture slice has no real-data conclusion; any real-history/evaluator/source-law dependent criterion needs a local candidate-SHA run.",
+    "Baseline raw stdout/longrepr/archive bytes were not transferred (0 raw archives); baseline PASS observations are not deciding receipts for this candidate.",
+    "No causal estimator, DoWhy/EconML backend, model law, slot ID, certificate implementation, CAS digest rule or public export was changed."
+  ],
+  "development_observations": [
+    "Initial resource wrapper attempted /usr/bin/time but command unavailable (ERROR, no pytest executed); replaced only the observer wrapper with stdlib wall/RSS capture.",
+    "Initial authored IC fixture omitted native float canon profile, then revenue prior_weights; observed failures were test-input errors and corrected before implementation freeze. They are not classified as product failures or candidate PASS."
+  ],
+  "pattern_pass": [
+    "P01/P02 actual producer/artifact/bridge/consumer readback; absent execution salt bridge is retained",
+    "P10/P29/P33 semantic negative controls preserve cheap proxy while removing content",
+    "P27/P31 existing canonical owners unchanged; no new registry/shim",
+    "P35 complete tracked Python source census with executing party and selector limitations",
+    "P37/P38 checked content/lineage and classified literal source boundary; no authority from field names/catalog membership",
+    "P40 no semantic gap repaired through invented seed semantics",
+    "P41 no inherited-red attribution made"
+  ],
+  "environment_identity": {
+    "python": "3.14.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "jax": "0.8.2",
+      "ruff": "0.14.10"
+    },
+    "source_import_root": "/workspace/e02-F-foundry/policy-engine/src",
+    "PYTHONPATH": "src:.",
+    "JAX_PLATFORMS": "cpu",
+    "dependency_install": "read-only pre-provisioned interpreter; no sync/install",
+    "optional_backend_witness": "DoWhy/EconML not exercised and their availability is not a positive witness"
+  },
+  "source_files_sha256": {
+    "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+  }
+}

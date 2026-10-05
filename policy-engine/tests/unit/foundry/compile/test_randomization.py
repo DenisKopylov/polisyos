@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+from hashlib import sha256
 
 import pytest
 
@@ -68,3 +69,34 @@ def test_randomization_owner_preserves_treasury_plan_bytes_and_seed_laws() -> No
     assert seeded_plan.stream_salts["default"] != zero_plan.stream_salts["default"]
     assert to_canonical_bytes(seeded_plan) == to_canonical_bytes(repeated_plan)
     assert to_canonical_bytes(seeded_plan) == to_canonical_bytes(reordered_plan)
+
+
+@pytest.mark.parametrize("seed", [0, 17, -3])
+def test_randomization_salts_match_historical_hash_oracle_and_round_trip(seed: int) -> None:
+    """A facade sharing the builder cannot serve as its independent salt oracle."""
+    randomization = _canonical_randomization_module()
+    plan = randomization.build_treasury_plan(_program_graph(), root_seed=seed)
+
+    def expected_salt(label: str) -> int:
+        value = label if seed == 0 else f"{seed}:{label}"
+        return int(sha256(value.encode("utf-8")).hexdigest()[:16], 16)
+
+    assert plan.node_salts == {
+        "tax": expected_salt("node:tax"),
+        "labor": expected_salt("node:labor"),
+    }
+    assert plan.stream_salts == {"default": expected_salt("stream:default")}
+    serialized = to_canonical_bytes(plan)
+    replayed = randomization.TreasuryPlan.model_validate_json(serialized)
+    assert to_canonical_bytes(replayed) == serialized
+
+
+def test_v1_plan_bytes_remain_readable() -> None:
+    """Read a literal v1 envelope, independently of either facade."""
+    randomization = _canonical_randomization_module()
+    historical = (
+        b'{"node_salts":{"tax":10360152147152765542},"notes":[],'
+        b'"root_seed":0,"schema_version":"1.0","stream_salts":{"default":0}}'
+    )
+    plan = randomization.TreasuryPlan.model_validate_json(historical)
+    assert to_canonical_bytes(plan) == historical

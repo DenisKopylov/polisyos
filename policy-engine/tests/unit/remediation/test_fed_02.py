@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import gc
+import sys
 import weakref
 from datetime import UTC, datetime
 from pathlib import Path
@@ -187,8 +188,8 @@ def test_union_without_sources_is_not_typed_empty() -> None:
         _composer().compose(sources=[], strategy=request.strategy, request=request)
 
 
-def test_union_summary_bounds_live_detail_objects_and_counts_every_conflict() -> None:
-    """SUMMARY retains only sampled detail objects while counting all conflicts."""
+def test_union_summary_bounds_peak_live_details_and_counts_every_conflict() -> None:
+    """SUMMARY bounds peak live details inside UNION, not only after return."""
     row_count = 80
     source_a = pd.DataFrame({"id": range(row_count), "value": [10] * row_count})
     source_b = pd.DataFrame({"id": range(row_count), "value": [11] * row_count})
@@ -216,20 +217,43 @@ def test_union_summary_bounds_live_detail_objects_and_counts_every_conflict() ->
                     self.retained_entries.append(resolution.log_entry)
             return resolution
 
-    def run_census(*, retain_all: bool) -> tuple[int, int, int]:
-        resolver = TrackingResolver(retain_all=retain_all)
+    def run_census(*, transient_retention: bool) -> tuple[int, int, int, int]:
+        resolver = TrackingResolver(retain_all=transient_retention)
         composer = DataComposer(conflict_resolver=resolver)
-        result, merge_log = composer.compose(
-            sources=[
-                (source_a, _source_metadata("source_a")),
-                (
-                    source_b,
-                    _source_metadata("source_b", trust_level=TrustLevel.MEDIUM),
-                ),
-            ],
-            strategy=request.strategy,
-            request=request,
-        )
+        peak_live_details = 0
+        union_code = DataComposer._union.__code__
+        previous_trace = sys.gettrace()
+
+        def trace(frame, event, arg):  # type: ignore[no-untyped-def]
+            nonlocal peak_live_details
+            if frame.f_code is union_code and event in {"line", "return"}:
+                live_details = sum(
+                    reference() is not None for reference in resolver.entry_refs
+                )
+                peak_live_details = max(peak_live_details, live_details)
+                if transient_retention and event == "return":
+                    # Model a transient detail sink that keeps each real entry
+                    # until the UNION return frame, then drops all references.
+                    resolver.retained_entries.clear()
+            del arg
+            return trace
+
+        sys.settrace(trace)
+        try:
+            result, merge_log = composer.compose(
+                sources=[
+                    (source_a, _source_metadata("source_a")),
+                    (
+                        source_b,
+                        _source_metadata("source_b", trust_level=TrustLevel.MEDIUM),
+                    ),
+                ],
+                strategy=request.strategy,
+                request=request,
+            )
+        finally:
+            sys.settrace(previous_trace)
+
         summary = composer.get_last_merge_summary()
         assert summary is not None
         assert summary.total_conflicts == row_count
@@ -239,13 +263,31 @@ def test_union_summary_bounds_live_detail_objects_and_counts_every_conflict() ->
         assert len(summary.sample_entries) == 1
 
         gc.collect()
-        live_details = sum(reference() is not None for reference in resolver.entry_refs)
-        return summary.total_conflicts, len(resolver.entry_refs), live_details
+        live_after_return = sum(
+            reference() is not None for reference in resolver.entry_refs
+        )
+        if transient_retention:
+            assert resolver.retained_entries == []
+        return (
+            summary.total_conflicts,
+            len(resolver.entry_refs),
+            peak_live_details,
+            live_after_return,
+        )
 
-    assert run_census(retain_all=False) == (row_count, row_count, 1)
-    # Control: the same observer sees unbounded detail when a consumer holds
-    # every returned entry, so the test measures live objects, not a local name.
-    assert run_census(retain_all=True) == (row_count, row_count, row_count)
+    bounded = run_census(transient_retention=False)
+    assert bounded[:2] == (row_count, row_count)
+    assert bounded[2] <= 2  # one sample plus the active resolution detail
+    assert bounded[3] == 1
+
+    # Control: all 80 real entries stay live inside _union, then the sink drops
+    # them at its return event. A post-compose-only census would report one.
+    assert run_census(transient_retention=True) == (
+        row_count,
+        row_count,
+        row_count,
+        1,
+    )
 
 
 def test_overlay_prepares_each_secondary_once_and_skips_none_audit_entries(

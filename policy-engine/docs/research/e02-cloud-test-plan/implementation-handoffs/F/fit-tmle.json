@@ -132,7 +132,7 @@
       "outcome": "FAIL",
       "exit_code": 1,
       "interpretation": "Expected defining-property falsifier: same explicit namespace gives stale hit for changed X/T/Y and cached nested diagnostic policy remains stale; auto-key positive controls pass. No test/backend skip or error.",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/base-probes.log"
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/base-probes.txt"
     },
     {
       "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q -ra tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py tests/unit/remediation/test_fit_01.py",
@@ -158,7 +158,7 @@
       "tests_passed": 33,
       "wall_s": 23.519015,
       "max_rss_kib": 494572,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/native-frozen.log"
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/native-frozen.txt"
     },
     {
       "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q -ra tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py tests/unit/remediation/test_fit_01.py tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py tests/unit/foundry/methods/catalog/causal/test_nuisance_layer.py tests/unit/foundry/methods/catalog/causal/test_nuisance_resolver_wiring.py tests/unit/foundry/hygiene/test_purity_boundaries.py",
@@ -184,7 +184,7 @@
       "tests_passed": 63,
       "wall_s": 596.144795,
       "max_rss_kib": 502060,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/consumer-regression.log"
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/consumer-regression.txt"
     },
     {
       "command": "Execute removal_probe_replay_python below once for source_identity, current_diagnostic_policy, immutable_bytes in separate Python processes with PYTHONPATH=src:. from policy-engine",
@@ -208,7 +208,7 @@
       "outcome": "PASS",
       "exit_code": 0,
       "assertion": "All three mutants produce pytest exit1 at the intended semantic assertion; normal exact target passes. Marker/docstrings/field names retained.",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/removal-controls.log"
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/removal-controls.txt"
     },
     {
       "command": "Independent reviewer argv and complete native stdout in independent-native.json; real AIPW adversaries in independent-adversarial.json",

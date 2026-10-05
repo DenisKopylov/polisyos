@@ -1,0 +1,16 @@
+{"argv": ["python", "/tmp/e02-final-artifact50cb/policy-engine/tests/repo_quality/tools/test_e02_final_artifacts.py"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+test_available_filename_is_hashed_as_bytes_before_true_inline_text (__main__.ArtifactControls.test_available_filename_is_hashed_as_bytes_before_true_inline_text) ... ok
+test_census_uses_complete_routes_and_arbitrary_ids_without_fixed_campaign_counts (__main__.ArtifactControls.test_census_uses_complete_routes_and_arbitrary_ids_without_fixed_campaign_counts) ... ok
+test_git_tree_and_empty_path_cannot_supply_file_payload_bytes (__main__.ArtifactControls.test_git_tree_and_empty_path_cannot_supply_file_payload_bytes) ... ok
+test_json_pointer_hash_uses_decoded_string_bytes_and_rejects_bad_pointer (__main__.ArtifactControls.test_json_pointer_hash_uses_decoded_string_bytes_and_rejects_bad_pointer) ... ok
+test_line_and_byte_locators_reject_shifted_payload (__main__.ArtifactControls.test_line_and_byte_locators_reject_shifted_payload) ... ok
+test_malformed_new_json_and_release_fragment_fail_without_marker_checks (__main__.ArtifactControls.test_malformed_new_json_and_release_fragment_fail_without_marker_checks) ... ok
+test_old_module_pin_and_old_test_hash_map_survive_later_edits (__main__.ArtifactControls.test_old_module_pin_and_old_test_hash_map_survive_later_edits) ... ok
+test_payload_corruption_is_rejected_with_unchanged_labels_and_declared_hash (__main__.ArtifactControls.test_payload_corruption_is_rejected_with_unchanged_labels_and_declared_hash) ... ok
+test_raw_absence_is_a_limitation_and_missing_local_artifact_is_an_error (__main__.ArtifactControls.test_raw_absence_is_a_limitation_and_missing_local_artifact_is_an_error) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.014s
+
+OK
+{"exit_code": 0, "elapsed_s": 0.123, "max_rss_kib": 16328}

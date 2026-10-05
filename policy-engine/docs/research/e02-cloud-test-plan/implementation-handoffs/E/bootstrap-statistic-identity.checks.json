@@ -1,0 +1,74 @@
+[
+  {
+    "label": "candidate-relevant-tests",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "tests/unit/scientist/methods/backtesting/test_cv.py",
+      "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "tests/unit/scientist/methods/backtesting/test_masking.py",
+      "tests/unit/remediation/test_bkt_02.py",
+      "tests/unit/remediation/test_bkt_03.py"
+    ],
+    "expected_exit": 0,
+    "exit": 0,
+    "wall_seconds": 11.587693,
+    "rss_kib": 529076,
+    "output": "........................................................................ [ 79%]\n...................                                                      [100%]\n"
+  },
+  {
+    "label": "base-source-new-regressions",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-c",
+      "import subprocess,sys,types\nimport pytest\nname='polisyos.scientist.methods.backtesting.bootstrap'\nsource=subprocess.check_output(['git','show','c40d4acae1ce58b597267255026d9356565828fd:policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py'],text=True)\nmodule=types.ModuleType(name); module.__file__='git:c40d4aca/bootstrap.py'; sys.modules[name]=module\nexec(compile(source,module.__file__,'exec'),module.__dict__)\nraise SystemExit(pytest.main(['-q','--tb=short','tests/unit/scientist/methods/backtesting/test_bootstrap.py','-k','identity or readback or relabelled']))\n"
+    ],
+    "expected_exit": 1,
+    "exit": 1,
+    "wall_seconds": 1.731386,
+    "rss_kib": 529076,
+    "output": "FFFFFFF                                                                  [100%]\n=================================== FAILURES ===================================\n_ TestBootstrapMetric.test_executed_named_statistic_survives_consumer_readback[mean-3.0] _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:108: in test_executed_named_statistic_survives_consumer_readback\n    assert reopened.statistic == statistic\n           ^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BootstrapCI' object has no attribute 'statistic'\n_ TestBootstrapMetric.test_executed_named_statistic_survives_consumer_readback[median-0.0] _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:108: in test_executed_named_statistic_survives_consumer_readback\n    assert reopened.statistic == statistic\n           ^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BootstrapCI' object has no attribute 'statistic'\n_ TestBootstrapMetric.test_same_named_callables_keep_declared_identity_and_its_limit _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:122: in test_same_named_callables_keep_declared_identity_and_its_limit\n    bootstrap_metric(\nE   TypeError: bootstrap_metric() got an unexpected keyword argument 'statistic_id'. Did you mean 'statistic'?\n_ TestBootstrapMetric.test_invalid_callable_identity_is_rejected_before_statistic_execution[] _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:170: in test_invalid_callable_identity_is_rejected_before_statistic_execution\n    bootstrap_metric(\nE   TypeError: bootstrap_metric() got an unexpected keyword argument 'statistic_id'. Did you mean 'statistic'?\n_ TestBootstrapMetric.test_invalid_callable_identity_is_rejected_before_statistic_execution[  ] _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:170: in test_invalid_callable_identity_is_rejected_before_statistic_execution\n    bootstrap_metric(\nE   TypeError: bootstrap_metric() got an unexpected keyword argument 'statistic_id'. Did you mean 'statistic'?\n_ TestBootstrapMetric.test_invalid_callable_identity_is_rejected_before_statistic_execution[7] _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:170: in test_invalid_callable_identity_is_rejected_before_statistic_execution\n    bootstrap_metric(\nE   TypeError: bootstrap_metric() got an unexpected keyword argument 'statistic_id'. Did you mean 'statistic'?\n_ TestBootstrapMetric.test_named_statistic_cannot_be_relabelled_by_callable_identity _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:176: in test_named_statistic_cannot_be_relabelled_by_callable_identity\n    bootstrap_metric(\nE   TypeError: bootstrap_metric() got an unexpected keyword argument 'statistic_id'. Did you mean 'statistic'?\n=========================== short test summary info ============================\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_executed_named_statistic_survives_consumer_readback[mean-3.0]\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_executed_named_statistic_survives_consumer_readback[median-0.0]\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_same_named_callables_keep_declared_identity_and_its_limit\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_invalid_callable_identity_is_rejected_before_statistic_execution[]\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_invalid_callable_identity_is_rejected_before_statistic_execution[  ]\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_invalid_callable_identity_is_rejected_before_statistic_execution[7]\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_named_statistic_cannot_be_relabelled_by_callable_identity\n"
+  },
+  {
+    "label": "remove-output-identity-keep-markers",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-c",
+      "import dataclasses\nimport pytest\nimport polisyos.scientist.methods.backtesting.bootstrap as owner\noriginal=owner.bootstrap_metric\ndef stripped(*args,**kwargs):\n    return dataclasses.replace(original(*args,**kwargs), statistic=None, statistic_identity_basis='not_established')\nowner.bootstrap_metric=stripped\nraise SystemExit(pytest.main(['-q','--tb=short','tests/unit/scientist/methods/backtesting/test_bootstrap.py','-k','readback or same_named_callables']))\n"
+    ],
+    "expected_exit": 1,
+    "exit": 1,
+    "wall_seconds": 9.345403,
+    "rss_kib": 529076,
+    "output": "FFF                                                                      [100%]\n=================================== FAILURES ===================================\n_ TestBootstrapMetric.test_executed_named_statistic_survives_consumer_readback[mean-3.0] _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:108: in test_executed_named_statistic_survives_consumer_readback\n    assert reopened.statistic == statistic\nE   AssertionError: assert None == 'mean'\nE    +  where None = BootstrapCI(metric='same_display_name', point_estimate=3.0, lower=0.0, upper=9.0, confidence_level=0.95, n_bootstrap=20, statistic=None, statistic_identity_basis='not_established').statistic\n_ TestBootstrapMetric.test_executed_named_statistic_survives_consumer_readback[median-0.0] _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:108: in test_executed_named_statistic_survives_consumer_readback\n    assert reopened.statistic == statistic\nE   AssertionError: assert None == 'median'\nE    +  where None = BootstrapCI(metric='same_display_name', point_estimate=0.0, lower=0.0, upper=9.0, confidence_level=0.95, n_bootstrap=20, statistic=None, statistic_identity_basis='not_established').statistic\n_ TestBootstrapMetric.test_same_named_callables_keep_declared_identity_and_its_limit _\ntests/unit/scientist/methods/backtesting/test_bootstrap.py:139: in test_same_named_callables_keep_declared_identity_and_its_limit\n    assert [ci.statistic for ci in reopened] == [\"quantile:0.5\", \"quantile:1.0\"]\nE   AssertionError: assert [None, None] == ['quantile:0....quantile:1.0']\nE     \nE     At index 0 diff: None != 'quantile:0.5'\nE     Use -v to get more diff\n=============================== warnings summary ===============================\n../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping\n    self._mark_plugins_for_rewrite(hook, disable_autoload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_executed_named_statistic_survives_consumer_readback[mean-3.0]\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_executed_named_statistic_survives_consumer_readback[median-0.0]\nFAILED tests/unit/scientist/methods/backtesting/test_bootstrap.py::TestBootstrapMetric::test_same_named_callables_keep_declared_identity_and_its_limit\n"
+  },
+  {
+    "label": "frozen-implementation-bkt-pcl",
+    "target_sha": "dafe95e15cff5992b5b9133a35e1e1297de03e87",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=-ra --import-mode=importlib --strict-markers",
+      "-q",
+      "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "tests/unit/scientist/methods/backtesting/test_cv.py",
+      "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "tests/unit/scientist/methods/backtesting/test_masking.py",
+      "tests/unit/remediation/test_bkt_02.py",
+      "tests/unit/remediation/test_bkt_03.py",
+      "tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "tests/unit/calibration/test_continuous.py",
+      "tests/unit/ir/analytics/test_calibration_diagnostics_report.py"
+    ],
+    "expected_exit": 0,
+    "exit": 0,
+    "wall_seconds": 12.050028,
+    "rss_kib": 536304,
+    "output": "........................................................................ [ 64%]\n.......................................                                  [100%]\n111 passed in 7.39s\n"
+  }
+]

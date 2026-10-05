@@ -10,6 +10,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.scientist.methods.search.strategies.errors import StrategyError
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,
 )
@@ -221,6 +222,10 @@ class BayesianCandidateGenerator:
         try:
             candidate = self._optimizer.suggest(evals)
             return candidate.to_dict()
+        except StrategyError:
+            # A known proposal failure cannot become a new evaluation of the
+            # previous best. Let the lifecycle preserve a bounded result.
+            raise
         except Exception as exc:
             logger.warning("BayesianCandidateGenerator: suggest failed: %s", exc)
             return self._fallback_generate(history, current_best, context)

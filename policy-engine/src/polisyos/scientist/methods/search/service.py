@@ -27,6 +27,7 @@ from polisyos.scientist.methods.search.run_state import (
     GenerationTransition,
     _EvaluationDisposition,
 )
+from polisyos.scientist.methods.search.strategies.errors import StrategyError
 
 logger = get_logger(__name__)
 
@@ -196,10 +197,15 @@ class _NativeSearchServiceDriver:
                 self._stop(stopping_reason)
                 break
 
-            batch, generated, stopping_reason = self._prepare_batch(
-                initial_context=initial_context,
-                initial_candidate=candidate_to_seed,
-            )
+            try:
+                batch, generated, stopping_reason = self._prepare_batch(
+                    initial_context=initial_context,
+                    initial_candidate=candidate_to_seed,
+                )
+            except StrategyError as exc:
+                stopping_reason = f"candidate_generation_unavailable: {exc}"
+                self._stop(stopping_reason)
+                break
             candidate_to_seed = None
             if stopping_reason is not None:
                 self._stop(stopping_reason)

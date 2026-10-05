@@ -14,6 +14,8 @@ Bayesian и multi-objective контуров.
 
 - **SearchStrategy** — базовый protocol для генераторов кандидатов.
 - **SearchSpace + codecs** — описание параметров и их приведение к runtime форме.
+  `SearchSpace.candidate_from_vector` keeps canonical executed coordinates for
+  integer/category actions and retains the relaxed proposal in candidate metadata.
 - **Deterministic baselines** — `RandomSearchStrategy`, `GridSearchStrategy`.
 - **Advanced optimizers** — optional Bayesian и multi-objective backends.
 - **WS-3C policy toolkit** — offline-gated BOHB/ASHA, CMA-ES, learned VOI,

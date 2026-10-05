@@ -30,7 +30,10 @@ from polisyos.scientist.methods.search.strategies._deps import (
     require_torch,
 )
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
-from polisyos.scientist.methods.search.strategies.errors import OptionalDependencyUnavailableError
+from polisyos.scientist.methods.search.strategies.errors import (
+    OptionalDependencyUnavailableError,
+    StrategyError,
+)
 from polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter
 from polisyos.scientist.methods.search.strategies.runtime import apply_torch_runtime_settings
 from polisyos.scientist.methods.search.strategies.types import (
@@ -163,22 +166,32 @@ class BayesianOptimizer(BaseSearchStrategy):
     ) -> PolicyCandidate:
         self._iteration = len(evaluations)
         pending = pending or []
+        occupied = [
+            *pending,
+            *self._completed_candidates(evaluations),
+        ]
         training_corpus = self._effective_training_corpus(evaluations)
 
         if len(training_corpus) < self._config.n_initial:
-            return self._sobol_candidate(len(evaluations), source="sobol_init")
+            for _ in range(20):
+                result = self._sobol_candidate(
+                    max(len(evaluations), self._sobol_cursor), source="sobol_init"
+                )
+                if not self._is_duplicate(result, occupied):
+                    return result
+            return self._non_duplicate_random(occupied, source="random_initial_duplicate_avoidance")
 
         if not self._botorch_ready:
-            return self._non_duplicate_random(pending, source="random_no_botorch")
+            return self._non_duplicate_random(occupied, source="random_no_botorch")
 
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
-                return self._non_duplicate_random(pending, source="random_hard_limit")
+                return self._non_duplicate_random(occupied, source="random_hard_limit")
 
             train_set = self._select_training_subset(evaluations)
             if len(train_set) < 3:
-                return self._non_duplicate_random(pending, source="random_insufficient_data")
+                return self._non_duplicate_random(occupied, source="random_insufficient_data")
 
             try:
                 X, y_bo = self._prepare_training_data(train_set)
@@ -197,10 +210,10 @@ class BayesianOptimizer(BaseSearchStrategy):
                 logger.warning("BayesianOptimizer failed; fallback to random: {}", exc)
                 if not self._config.fallback_on_failure:
                     raise
-                result = self._non_duplicate_random(pending, source="random_fallback")
+                result = self._non_duplicate_random(occupied, source="random_fallback")
 
-        if self._is_duplicate(result, pending):
-            return self._non_duplicate_random(pending, source="random_duplicate_avoidance")
+        if self._is_duplicate(result, occupied):
+            return self._non_duplicate_random(occupied, source="random_duplicate_avoidance")
         return result
 
     def suggest_batch(
@@ -208,34 +221,26 @@ class BayesianOptimizer(BaseSearchStrategy):
     ) -> list[PolicyCandidate]:
         if batch_size < 1:
             return []
+        self._iteration = len(evaluations)
 
         training_corpus = self._effective_training_corpus(evaluations)
         if len(training_corpus) < self._config.n_initial:
-            return [
-                self._sobol_candidate(len(evaluations) + idx, source="sobol_init")
-                for idx in range(batch_size)
-            ]
+            candidates: list[PolicyCandidate] = []
+            for _ in range(batch_size):
+                candidates.append(self.suggest(evaluations, pending=candidates))
+            return candidates
 
         if not self._botorch_ready:
-            return [
-                self._non_duplicate_random([], source="random_no_botorch")
-                for _ in range(batch_size)
-            ]
+            return self._random_batch(evaluations, batch_size, "random_no_botorch")
 
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
-                return [
-                    self._non_duplicate_random([], source="random_hard_limit")
-                    for _ in range(batch_size)
-                ]
+                return self._random_batch(evaluations, batch_size, "random_hard_limit")
 
             train_set = self._select_training_subset(evaluations)
             if len(train_set) < 3:
-                return [
-                    self._non_duplicate_random([], source="random_insufficient_data")
-                    for _ in range(batch_size)
-                ]
+                return self._random_batch(evaluations, batch_size, "random_insufficient_data")
 
             try:
                 X, y_bo = self._prepare_training_data(train_set)
@@ -251,20 +256,36 @@ class BayesianOptimizer(BaseSearchStrategy):
                     raw_samples=raw_samples,
                 )
                 output: list[PolicyCandidate] = []
+                occupied = self._completed_candidates(evaluations)
                 for idx in range(batch_size):
-                    output.append(
-                        self._tensor_to_candidate(
-                            candidates[idx],
-                            source="batch_qei",
+                    candidate = self._tensor_to_candidate(candidates[idx], source="batch_qei")
+                    if self._is_duplicate(candidate, [*occupied, *output]):
+                        candidate = self._non_duplicate_random(
+                            [*occupied, *output], source="random_batch_duplicate_avoidance"
                         )
-                    )
+                    output.append(candidate)
                 return output
             except Exception as exc:
                 logger.warning("Bayesian batch optimization failed; random fallback: {}", exc)
-                return [
-                    self._non_duplicate_random([], source="random_batch_fallback")
-                    for _ in range(batch_size)
-                ]
+                if not self._config.fallback_on_failure:
+                    raise
+                return self._random_batch(evaluations, batch_size, "random_batch_fallback")
+
+    def _completed_candidates(self, evaluations: list[Evaluation]) -> list[PolicyCandidate]:
+        return [
+            PolicyCandidate(params=e.params, metadata=e.metadata)
+            for e in [*self._warm_evals, *evaluations]
+            if e.params
+        ]
+
+    def _random_batch(
+        self, evaluations: list[Evaluation], batch_size: int, source: str
+    ) -> list[PolicyCandidate]:
+        occupied = self._completed_candidates(evaluations)
+        output: list[PolicyCandidate] = []
+        for _ in range(batch_size):
+            output.append(self._non_duplicate_random([*occupied, *output], source=source))
+        return output
 
     def get_state(self) -> StrategyState:
         """Persist the numerical model and the corpus/refit basis of its next ask."""
@@ -327,6 +348,8 @@ class BayesianOptimizer(BaseSearchStrategy):
             isinstance(last_refit, bool)
             or not isinstance(last_refit, int)
             or last_refit < -1
+            or not isinstance(state.iteration, int)
+            or last_refit > state.iteration
             or isinstance(last_size, bool)
             or not isinstance(last_size, int)
             or last_size < 0
@@ -377,16 +400,19 @@ class BayesianOptimizer(BaseSearchStrategy):
                 or last_refit < 0
             ):
                 raise ValueError("GP checkpoint is incompatible: fitted corpus shape/basis changed")
-            model = SingleTaskGP(
-                train_X=train_X,
-                train_Y=train_y,
-                input_transform=Normalize(d=train_X.shape[-1]),
-                outcome_transform=Standardize(m=1),
-            )
-            buffer = io.BytesIO(state.model_state)
-            model.load_state_dict(
-                self._torch.load(buffer, weights_only=True, map_location=self._device)
-            )
+            try:
+                model = SingleTaskGP(
+                    train_X=train_X,
+                    train_Y=train_y,
+                    input_transform=Normalize(d=train_X.shape[-1]),
+                    outcome_transform=Standardize(m=1),
+                )
+                buffer = io.BytesIO(state.model_state)
+                model.load_state_dict(
+                    self._torch.load(buffer, weights_only=True, map_location=self._device)
+                )
+            except Exception as exc:
+                raise ValueError("GP checkpoint is incompatible: numerical model is invalid") from exc
         elif (
             last_size != 0 or last_refit != -1 or "train_X" in metadata or "train_y_bo" in metadata
         ):
@@ -497,8 +523,24 @@ class BayesianOptimizer(BaseSearchStrategy):
             normalized = tuple(float(value) for value in evaluation.params_normalized)
         except (TypeError, ValueError, OverflowError):
             return False
-        return len(normalized) == self._space.dim and all(
-            math.isfinite(value) and 0.0 <= value <= 1.0 for value in normalized
+        if not (
+            len(normalized) == self._space.dim
+            and all(math.isfinite(value) and 0.0 <= value <= 1.0 for value in normalized)
+        ):
+            return False
+        if not isinstance(evaluation.params, Mapping) or not all(
+            bound.name in evaluation.params for bound in self._space.bounds
+        ):
+            return False
+        try:
+            actual = self._space.normalize(dict(evaluation.params))
+        except (TypeError, ValueError, OverflowError):
+            return False
+        # This is encoding roundoff tolerance, not an action deduplication
+        # tolerance. Physical continuous inputs still compare without rounding.
+        return all(
+            math.isclose(left, right, rel_tol=0.0, abs_tol=1e-12)
+            for left, right in zip(normalized, actual, strict=True)
         )
 
     def _warm_compatibility(self, evaluation: Evaluation) -> tuple[str, ...] | None:
@@ -755,7 +797,9 @@ class BayesianOptimizer(BaseSearchStrategy):
             candidate = self._random_candidate(source=source)
             if not self._is_duplicate(candidate, pending):
                 return candidate
-        return self._random_candidate(source=source)
+        raise StrategyError(
+            f"Unable to propose an unoccupied execution after {attempts} random attempts"
+        )
 
     def _is_duplicate(self, candidate: PolicyCandidate, pending: list[PolicyCandidate]) -> bool:
         candidate_execution = self._effective_execution(candidate)
@@ -773,13 +817,13 @@ class BayesianOptimizer(BaseSearchStrategy):
 
     def _effective_execution(self, candidate: PolicyCandidate) -> dict[str, Any] | None:
         """Resolve a proposal to the typed parameters that will actually run."""
+        if candidate.params:
+            return dict(candidate.params)
         if candidate.params_normalized is not None:
             try:
                 return self._space.denormalize(candidate.params_normalized)
             except (TypeError, ValueError):
                 return None
-        if candidate.params:
-            return dict(candidate.params)
         return None
 
     @staticmethod
@@ -803,18 +847,19 @@ class BayesianOptimizer(BaseSearchStrategy):
     ) -> PolicyCandidate:
         vector = tuple(float(value) for value in tensor.detach().cpu().tolist())
         params = self._space.denormalize(vector)
+        normalized = self._space.normalize(params)
         predicted_mean: float | None = None
         predicted_std: float | None = None
         if self._model is not None:
             with self._torch.no_grad():
-                posterior = self._model.posterior(tensor.unsqueeze(0))
+                executed = self._torch.tensor(normalized, dtype=tensor.dtype, device=tensor.device)
+                posterior = self._model.posterior(executed.unsqueeze(0))
                 mean_bo = float(posterior.mean.squeeze().item())
                 std_bo = float(posterior.variance.sqrt().squeeze().item())
                 predicted_mean = -mean_bo
                 predicted_std = abs(std_bo)
-        return PolicyCandidate(
-            params=params,
-            params_normalized=vector,
+        return self._space.candidate_from_vector(
+            vector,
             acquisition_value=acquisition_value,
             predicted_mean=predicted_mean,
             predicted_std=predicted_std,

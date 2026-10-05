@@ -14,6 +14,7 @@ from polisyos.scientist.methods.search.strategies.types import (
     NormalizedVector,
     ParameterBounds,
     ParameterType,
+    PolicyCandidate,
 )
 
 
@@ -134,10 +135,37 @@ class SearchSpace:
         if torch is not None:  # pragma: no cover - environment dependent
             return "torch"
         try:
-            from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]  # noqa: F401
+            from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]
         except Exception:
             return "python"
         return "scipy"
+
+    def candidate_from_vector(
+        self,
+        vector: NormalizedVector,
+        *,
+        source_strategy: str,
+        acquisition_value: float | None = None,
+        predicted_mean: float | None = None,
+        predicted_std: float | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> PolicyCandidate:
+        """Bind training coordinates to the typed action and retain its proposal.
+
+        Integer rounding and categorical decoding can map many relaxed vectors
+        to one execution. The normalized action is the scientific coordinate;
+        the optimizer's original vector remains a diagnostic.
+        """
+        params = self.denormalize(vector)
+        return PolicyCandidate(
+            params=params,
+            params_normalized=self.normalize(params),
+            source_strategy=source_strategy,
+            acquisition_value=acquisition_value,
+            predicted_mean=predicted_mean,
+            predicted_std=predicted_std,
+            metadata={**(metadata or {}), "proposal_normalized": vector},
+        )
 
     def sobol_space_fingerprint(self) -> str:
         """Return an identity for the bounds used by the Sobol stream."""
@@ -187,13 +215,9 @@ class SearchSpace:
         actual_identity = self.last_sobol_sampler_identity
         actual_version = self.last_sobol_sampler_version
         if actual_identity != expected_identity or actual_version != expected_version:
-            raise ValueError(
-                "Sobol checkpoint is incompatible: effective sampler identity changed"
-            )
+            raise ValueError("Sobol checkpoint is incompatible: effective sampler identity changed")
         if generated != expected_prefix:
-            raise ValueError(
-                "Sobol checkpoint is incompatible: cached prefix diverges"
-            )
+            raise ValueError("Sobol checkpoint is incompatible: cached prefix diverges")
 
     def sample_sobol(self, n_samples: int, seed: int = 42) -> list[NormalizedVector]:
         if n_samples <= 0:

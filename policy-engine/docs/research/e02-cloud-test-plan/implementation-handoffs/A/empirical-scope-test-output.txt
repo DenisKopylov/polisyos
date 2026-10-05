@@ -1,0 +1,248 @@
+EMP-01 B16 bounded scope test receipt
+Worktree: /Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos
+Base: c40d4acae1ce58b597267255026d9356565828fd
+Initial code candidate: cac06d96191297332ad57e6fa5a564621bba83a8
+Initial code tree: 5973feeb8d62cc2a819c30c07dff02479f318ee8
+Final code candidate: 36721d8f6c3aa11379d2a049a9aadbaa75bf677c
+Final code tree: 6a4324893e22ed3d7969fc7ddd4a69b1fb573766
+Runtime: /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python (Python 3.14.3)
+All runtime commands used PYTHONPATH=src:. (the removal probe also added tests/unit/runtime/quality), OPENBLAS_NUM_THREADS=1, OMP_NUM_THREADS=1, and MKL_NUM_THREADS=1.
+
+SOURCE IDENTITY + RUFF
+Command: native Python import proof from policy-engine, then `-m ruff check tests/unit/runtime/quality/test_empirical_profile_scope.py`.
+
+loader_file=/Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+expected_source_root=/Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine/src
+All checks passed!
+
+INITIAL NATIVE TARGET TEST (before the omitted-scope case was added)
+Command:
+PYTHONPATH=src:. OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest --basetemp=_build/e02-A-empirical-scope/pytest-tmp-receipt -o cache_dir=_build/e02-A-empirical-scope/pytest-cache-receipt -vv --disable-warnings tests/unit/runtime/quality/test_empirical_profile_scope.py
+
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python
+cachedir: _build/e02-A-empirical-scope/pytest-cache-receipt
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 5 items
+
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_supported_country_scope_filters_foreign_rows_before_profile_limit PASSED [ 20%]
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_non_country_scope_is_a_typed_refusal PASSED [ 40%]
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_untyped_mixed_unit_and_multi_dataset_profiles_refuse[unit-missing-units0-dataset_ids0-do not carry] PASSED [ 60%]
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_untyped_mixed_unit_and_multi_dataset_profiles_refuse[unit-mixed-units1-dataset_ids1-multiple condition_json.unit] PASSED [ 80%]
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_untyped_mixed_unit_and_multi_dataset_profiles_refuse[dataset-mixed-units2-dataset_ids2-multiple or missing dataset/source identities] PASSED [100%]
+
+============================== 5 passed in 15.09s ==============================
+
+ACTUAL DUCKDB SCOPE-PREDICATE REMOVAL PROBE
+The probe wrapped the actual catalog DuckDB connection only for the real row-select query, removed its country/WDI scope clause and corresponding three parameters, and left ORDER BY and LIMIT active. It used 20,001 AF rows sorting before four UA rows, then called RealValueOwnerGateway.load_value_data_profile for UA.
+
+Exact probe source:
+```python
+import importlib.util
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import pytest
+from polisyos.runtime.quality import generation_cycle
+spec = importlib.util.spec_from_file_location("scope_test", Path("tests/unit/runtime/quality/test_empirical_profile_scope.py"))
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+print(f"loader_file={Path(generation_cycle.__file__).resolve()}")
+rows = [("AF", 1900 + i, float(i), "foreign-source", f"foreign-{i}", "ratio") for i in range(20_001)]
+rows += [("UA", 2020 + i, float(i), "scoped-source", f"ua-{i}", "ratio") for i in range(4)]
+with TemporaryDirectory(prefix="e02-a-scope-removal-") as tmp, pytest.MonkeyPatch.context() as monkeypatch:
+    gateway = module._catalog_gateway(Path(tmp), monkeypatch, rows)
+    catalog = generation_cycle.data_forge_read_api.catalog
+    actual_open = catalog.open_catalog_read_session
+    class ConnectionWithoutScope:
+        def __init__(self, connection): self.connection = connection
+        def execute(self, query, parameters):
+            if "COALESCE(NULLIF(country_code" not in query:
+                return self.connection.execute(query, parameters)
+            start = query.index("AND (\n")
+            end = query.index("\n            ORDER BY", start)
+            return self.connection.execute(query[:start] + query[end:], (parameters[0], parameters[-1]))
+        def close(self): self.connection.close()
+    monkeypatch.setattr(catalog, "open_catalog_read_session", lambda *args, **kwargs: ConnectionWithoutScope(actual_open(*args, **kwargs)))
+    with pytest.raises(module.ValueOwnerAccessError) as raised:
+        module._profile(gateway, "UA")
+    assert raised.value.code == "acquire_data:value_owner_rows_truncated"
+    print("PASS remove-scope-predicate probe: actual DuckDB selected 20,001 earlier AF rows; the real gateway refused the truncated profile with acquire_data:value_owner_rows_truncated; ORDER/LIMIT remain executable.")
+```
+
+loader_file=/Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+PASS remove-scope-predicate probe: actual DuckDB selected 20,001 earlier AF rows; the real gateway refused the truncated profile with acquire_data:value_owner_rows_truncated; ORDER/LIMIT remain executable.
+
+READ-ONLY PYTHON-SOURCE CENSUS
+Recipe walked every `*.py` beneath `policy-engine/src/polisyos` and `policy-engine/tests`; denominator: 5,453 Python files. It checked exact tokens `ValueDataProfile`, `value_data_profile`, `SelectionDiagram(`, `solve_transportability(`, `build_selection_diagram(`, and `CausalGraphModelRef`.
+
+Exact census source:
+```python
+from pathlib import Path
+root = Path.cwd()
+roots = (root / "policy-engine/src/polisyos", root / "policy-engine/tests")
+files = sorted(path for base in roots for path in base.rglob("*.py"))
+print(f"denominator_python_files={len(files)}")
+for key in ("ValueDataProfile", "value_data_profile", "SelectionDiagram(", "solve_transportability(", "build_selection_diagram(", "CausalGraphModelRef"):
+    hits = [path.relative_to(root).as_posix() for path in files if key in path.read_text(encoding="utf-8", errors="replace")]
+    print(f"{key}: {len(hits)} files")
+    for path in hits:
+        print(f"  {path}")
+```
+
+denominator_python_files=5453
+ValueDataProfile: 2 files
+  policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+  policy-engine/tests/unit/runtime/quality/test_value_gate.py
+value_data_profile: 11 files
+  policy-engine/src/polisyos/foundry/methods/selection/advisor.py
+  policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py
+  policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+  policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py
+  policy-engine/tests/unit/foundry/methods/test_selection_advisor.py
+  policy-engine/tests/unit/remediation/test_emp_01.py
+  policy-engine/tests/unit/runtime/quality/test_acquisition_overlay_visibility.py
+  policy-engine/tests/unit/runtime/quality/test_empirical_profile_scope.py
+  policy-engine/tests/unit/runtime/quality/test_generation_cycle.py
+  policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py
+  policy-engine/tests/unit/runtime/quality/test_value_gate.py
+SelectionDiagram(: 18 files
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_transport.py
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/data_fusion.py
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py
+  policy-engine/src/polisyos/ir/analytics/transportability.py
+  policy-engine/src/polisyos/scientist/methods/causal/readiness.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py
+  policy-engine/tests/property/foundry/methods/catalog/causal/test_transport_properties.py
+  policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py
+  policy-engine/tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py
+  policy-engine/tests/unit/foundry/methods/catalog/causal/test_tr_algorithm_s_trim.py
+  policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_bounds.py
+  policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check.py
+  policy-engine/tests/unit/foundry/methods/test_sl5_fixture_coverage.py
+  policy-engine/tests/unit/ir/analytics/test_selection_diagram_builder.py
+  policy-engine/tests/unit/ir/test_transportability_contract.py
+  policy-engine/tests/unit/scientist/discovery/test_utility_judge.py
+solve_transportability(: 6 files
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py
+  policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py
+  policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+  policy-engine/src/polisyos/scientist/methods/discovery/utility_judge.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py
+build_selection_diagram(: 5 files
+  policy-engine/src/polisyos/data_forge/domains/academic/knowledge/parameter_selector.py
+  policy-engine/src/polisyos/ir/analytics/transportability.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py
+  policy-engine/tests/unit/foundry/methods/catalog/causal/test_symbolic_gold_suite.py
+  policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check.py
+CausalGraphModelRef: 19 files
+  policy-engine/src/polisyos/core/contracts/__init__.py
+  policy-engine/src/polisyos/core/contracts/causal.py
+  policy-engine/src/polisyos/ir/analytics/causal_graph.py
+  policy-engine/src/polisyos/ir/analytics/invariance.py
+  policy-engine/src/polisyos/ir/registry/refs.py
+  policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+  policy-engine/src/polisyos/scientist/governance/passes/human_review_pass.py
+  policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py
+  policy-engine/src/polisyos/scientist/methods/causal/validity.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py
+  policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py
+  policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py
+  policy-engine/tests/unit/core/contracts/test_ir_ref_facades.py
+  policy-engine/tests/unit/ir/test_causal_graph_contract.py
+  policy-engine/tests/unit/scientist/methods/causal/test_run_causal_ensemble_node.py
+
+Earlier, unscoped removal-wrapper diagnostic (not a deciding probe):
+loader_file=/Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+observed_exception=ValueOwnerAccessError; code=acquire_data:value_panel_data_missing; message=substrate owner access failed for cells.distress_score: substring not found owner_access_ref=substrate_owner://l1_dcat_access_failed
+The wrapper had intercepted the availability-count queries as well as the target row query. The final probe above was narrowed to the target row-select query and passed.
+
+FIRST-STAGE NATIVE COMMIT HOOK OUTPUT
+Transcript trims terminal display-padding spaces at line ends; the printed hook messages are preserved.
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  check-contrast (skip) no matching staged files
+│  prettier (skip) no files for inspection
+│  eslint (skip) no files for inspection
+│  check-reduced-motion (skip) no matching staged files
+
+  ────────────────────────────────────
+summary: (done in 0.38 seconds)
+[codex/e02-A-empirical-scope cac06d961] test: exercise empirical profile scope in DuckDB
+ 1 file changed, 191 insertions(+)
+ create mode 100644 policy-engine/tests/unit/runtime/quality/test_empirical_profile_scope.py
+
+FIRST-STAGE BRANCH READBACK
+## codex/e02-A-empirical-scope
+refs/heads/codex/e02-A-empirical-scope
+cac06d96191297332ad57e6fa5a564621bba83a8
+5973feeb8d62cc2a819c30c07dff02479f318ee8
+
+SECOND TEST COMMIT HOOK OUTPUT
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  check-reduced-motion (skip) no matching staged files
+│  prettier (skip) no files for inspection
+│  check-contrast (skip) no matching staged files
+│  eslint (skip) no files for inspection
+
+  ────────────────────────────────────
+summary: (done in 0.22 seconds)
+[codex/e02-A-empirical-scope 36721d8f6] test: reject missing empirical profile scope
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+FINAL NATIVE TARGET TEST (supported country, foreign/missing scope, unit, and dataset cases)
+Command:
+PYTHONPATH=src:. OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest --basetemp=_build/e02-A-empirical-scope/pytest-tmp-absence -o cache_dir=_build/e02-A-empirical-scope/pytest-cache-absence -vv --disable-warnings tests/unit/runtime/quality/test_empirical_profile_scope.py
+
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python
+cachedir: _build/e02-A-empirical-scope/pytest-cache-absence
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 6 items
+
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_supported_country_scope_filters_foreign_rows_before_profile_limit PASSED [ 16%]
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_unsupported_or_missing_scope_is_a_typed_refusal[Dniester basin-acquire_data:value_scope_binding_missing] PASSED [ 33%]
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_unsupported_or_missing_scope_is_a_typed_refusal[None-acquire_data:value_scope_unbound] PASSED [ 50%]
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_untyped_mixed_unit_and_multi_dataset_profiles_refuse[unit-missing-units0-dataset_ids0-do not carry] PASSED [ 66%]
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_untyped_mixed_unit_and_multi_dataset_profiles_refuse[unit-mixed-units1-dataset_ids1-multiple condition_json.unit] PASSED [ 83%]
+tests/unit/runtime/quality/test_empirical_profile_scope.py::test_untyped_mixed_unit_and_multi_dataset_profiles_refuse[dataset-mixed-units2-dataset_ids2-multiple or missing dataset/source identities] PASSED [100%]
+
+============================== 6 passed in 16.86s ==============================
+
+FINAL NATIVE RUFF OUTPUT
+All checks passed!
+
+FINAL SOURCE IDENTITY
+loader_file=/Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+expected_source_root=/Users/deniskopylov/.codex/worktrees/e02-a-empirical-scope/polisyos/policy-engine/src
+
+FINAL CODE-STAGE BRANCH READBACK
+## codex/e02-A-empirical-scope
+refs/heads/codex/e02-A-empirical-scope
+36721d8f6c3aa11379d2a049a9aadbaa75bf677c
+6a4324893e22ed3d7969fc7ddd4a69b1fb573766
+
+REVIEW
+served_n4n5_trace: GO for the bounded real DuckDB scope/unit slice at 36721d8f6c3aa11379d2a049a9aadbaa75bf677c; removal probe arity reconciled and executable. The reviewer explicitly made no CAS, selector, time, population, or source-authority claim.

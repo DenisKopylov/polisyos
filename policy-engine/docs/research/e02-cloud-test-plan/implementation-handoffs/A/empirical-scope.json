@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "empirical-scope",
+  "closure_ids": [
+    "B16",
+    "B33"
+  ],
+  "bundle_ids": [
+    "EMP-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "cac06d96191297332ad57e6fa5a564621bba83a8",
+    "36721d8f6c3aa11379d2a049a9aadbaa75bf677c"
+  ],
+  "candidate_tree_sha": "6a4324893e22ed3d7969fc7ddd4a69b1fb573766",
+  "branch": "codex/e02-A-empirical-scope",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/runtime/quality/test_empirical_profile_scope.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest --basetemp=_build/e02-A-empirical-scope/pytest-tmp-absence -o cache_dir=_build/e02-A-empirical-scope/pytest-cache-absence -vv --disable-warnings tests/unit/runtime/quality/test_empirical_profile_scope.py",
+      "target_sha": "36721d8f6c3aa11379d2a049a9aadbaa75bf677c",
+      "environment": "macOS; Python 3.14.3 native executable from rootA venv; pytest 9.0.2; DuckDB fixture database per pytest tmp_path; OPENBLAS_NUM_THREADS=1, OMP_NUM_THREADS=1, MKL_NUM_THREADS=1; PYTHONPATH=src:.",
+      "input_closure": "Pinned worktree source at 36721d8; each test creates its own temporary DuckDB catalog with ds_observations, ds_metric_bindings, ds_datasets; missing overlay forces baseline-only reader; no production data is read or written.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-scope-test-output.txt (section: FINAL NATIVE TARGET TEST)"
+    },
+    {
+      "command": "PYTHONPATH=src:. OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/runtime/quality/test_empirical_profile_scope.py",
+      "target_sha": "36721d8f6c3aa11379d2a049a9aadbaa75bf677c",
+      "environment": "macOS; Python 3.14.3 native executable from rootA venv; one numeric thread; explicit source PYTHONPATH.",
+      "input_closure": "Only the changed test file at the final code candidate.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-scope-test-output.txt (section: FINAL NATIVE RUFF OUTPUT)"
+    },
+    {
+      "command": "Run import proof for polisyos.runtime.quality.generation_cycle.__file__ and assert it resolves under this worktree's policy-engine/src.",
+      "target_sha": "36721d8f6c3aa11379d2a049a9aadbaa75bf677c",
+      "environment": "macOS; Python 3.14.3 native executable from rootA venv; PYTHONPATH=src:.; OPENBLAS_NUM_THREADS=1, OMP_NUM_THREADS=1, MKL_NUM_THREADS=1.",
+      "input_closure": "Final code-stage checkout; source file is unchanged by the second test-only commit.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-scope-test-output.txt (section: FINAL SOURCE IDENTITY)"
+    },
+    {
+      "command": "Mutation probe: wrap only the actual DuckDB row-select query, remove the scope AND (...) predicate and its three bind parameters, retain outcome and limit+1 parameters, ORDER BY, LIMIT, and call RealValueOwnerGateway.load_value_data_profile for UA.",
+      "target_sha": "cac06d96191297332ad57e6fa5a564621bba83a8",
+      "environment": "macOS; Python 3.14.3 native executable from rootA venv; one numeric thread; worktree source. The subsequent 36721d8 commit changes only the omitted-scope negative; supported-country mutation case is identical.",
+      "input_closure": "Temporary actual DuckDB: 20,001 earlier-sorting AF rows plus four UA rows; mutation leaves ORDER BY and LIMIT active. Exact probe source and output are adjacent in the .txt receipt.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-scope-test-output.txt (section: ACTUAL DUCKDB SCOPE-PREDICATE REMOVAL PROBE)"
+    },
+    {
+      "command": "git commit -m 'test: reject missing empirical profile scope' (native pre-commit hooks enabled)",
+      "target_sha": "36721d8f6c3aa11379d2a049a9aadbaa75bf677c",
+      "environment": "macOS worktree; Lefthook 2.1.6; dependency install used corepack pnpm install --frozen-lockfile.",
+      "input_closure": "The only staged path was policy-engine/tests/unit/runtime/quality/test_empirical_profile_scope.py.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-scope-test-output.txt (section: SECOND TEST COMMIT HOOK OUTPUT)"
+    }
+  ],
+  "property": {
+    "statement": "Rows outside the explicitly requested, supported country scope cannot consume the bounded empirical-profile prefix before sorting and LIMIT; missing or unsupported scopes must refuse before row selection.",
+    "runtime_path": [
+      "FoundryValuePort owner gateway call: generation_cycle.py::FoundryValuePort.__call__",
+      "RealValueOwnerGateway.load_value_data_profile",
+      "_resolve_owner_scope_region",
+      "_load_value_data_profile_from_l1_dcat",
+      "data_forge_read_api.catalog.open_catalog_read_session",
+      "actual DuckDB row selection and ValueDataProfile validation"
+    ],
+    "proxy_divergence": "The existing _RowsConnection test double can pass when expected SQL text and parameters remain but the actual country predicate is removed or moved after LIMIT. In the actual-query probe, removing the predicate while preserving ORDER/LIMIT selects 20,001 earlier-sorting AF rows and the runtime refuses as truncated; the new positive test also requires four UA rows and a scope-dependent profile hash.",
+    "negative_controls": [
+      "Actual-query removal probe, retaining ORDER BY and LIMIT, reaches typed acquire_data:value_owner_rows_truncated rather than a binder error.",
+      "Unsupported region Dniester basin refuses with acquire_data:value_scope_binding_missing.",
+      "Omitted region None refuses with acquire_data:value_scope_unbound.",
+      "Missing unit, mixed condition_json.unit values, and multiple datasets across periods refuse with acquire_data:value_owner_unit_binding_ambiguous."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_predicate": {
+    "requested jurisdiction_time.region": "consumer_asserted",
+    "normalization to supported country code": "recomputed",
+    "country/WDI row predicate, ordering, and row-cap result in the test fixture": "recomputed",
+    "country code represents intended policy population": "not_established",
+    "source corpus and selected catalog release are complete/current": "not_established",
+    "year, survey_year, and wave share equivalent temporal roles": "not_established",
+    "causal graph structure is supported by a named model/identification plan": "not_established"
+  },
+  "capability_state_or_finding_state": "Bounded real-query verification supplied for B16 scope and unit refusals; B16 remains partial and the shared ledger's finding behavior remains UNRUN until its owner records/adjudicates this evidence. B33 remains partial/UNRUN; positive CAS graph bridge is missing. No B31 uncertainty semantics are changed.",
+  "empirical_basis_path": {
+    "producer": "RealValueOwnerGateway.load_value_data_profile resolves candidate/problem outcome, checks L1 variable counts, and calls _load_value_data_profile_from_l1_dcat.",
+    "availability_and_ref": "l1_dcat_variable_availability counts ds_datasets, ds_metric_bindings, ds_observations; coverage_ref is currently a fixed repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/{variable} URI, not a selected-row digest.",
+    "scope_admission": "Explicit problem.jurisdiction_time.region must normalize to a country code. Optional active WDI observations require verified passport content/identity/admitted status, projection binding and live source authorization; this test does not exercise that branch.",
+    "query_order": "Filter canonical variable, non-null value and COALESCE(year,survey_year,wave), then exact country or admitted selected observation IDs, ORDER BY unit_id/period_id/dataset_id/observation_id/value, LIMIT 20,001; refuse results over 20,000.",
+    "artifact": "ValueDataProfile schema policyos.runtime.value_data_profile.v1 self-validates counts/modalities and row/profile content hashes. ValueOwnerRow source hashes include dataset ID, observation ID, and unit but expose those source identities only as hashes.",
+    "consumer": "FoundryValuePort projects n_obs/n_units/n_periods/modalities and profile content hash into the actual method selector context and verifies the selector receipt; current port then blocks at treatment_assignment_not_owner_derived. This slice does not exercise selector integration or issue a value/effect receipt.",
+    "version_and_time": "Profile schema version is in the payload. VALUE_DATA_SHAPE_RULE_VERSION is declared but is not part of the profile payload/hash. The integer period coordinate coalesces year, survey_year, wave without preserving which field supplied it. Data/time/population completeness are not established."
+  },
+  "selection_diagram_admission": {
+    "current_generation_cycle_path": "RealValueOwnerGateway.build_transport_inputs calls _build_candidate_selection_diagram, revalidates CycleSubstrateContext and its DesignProblem/WorldModelRecord binding, then typed-refuses with acquire_data:causal_graph_artifact_unresolved because there is no ArtifactStore/CausalGraphModelRef verifier bridge at this boundary.",
+    "consumer_status": "_run_value_transport can validate a supplied SelectionDiagram and call the solver, but source/test census finds only its definition in generation_cycle.py; production generation-cycle code does not call it. Other causal/Scientist diagram constructors are separate paths, not admission to this N8 consumer.",
+    "source_test_discrepancy": "Checked-in test_value_gate.py tests around lines 2150-2250 still expect positive generation-cycle diagrams/transport receipts from measured covariates; current helper source ends in typed refusal. This bounded slice did not run those tests and records no test verdict.",
+    "status": "B33 partial/UNRUN; no positive scoped CAS graph certificate or universal transport authority is claimed."
+  },
+  "source_census": {
+    "roots": [
+      "policy-engine/src/polisyos",
+      "policy-engine/tests"
+    ],
+    "file_type_denominator": "*.py",
+    "denominator_count": 5453,
+    "recipe_and_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-scope-test-output.txt#READ-ONLY-PYTHON-SOURCE-CENSUS",
+    "ValueDataProfile_token_files": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+    ]
+  },
+  "independent_review": {
+    "reviewer": "served_n4n5_trace",
+    "candidate_sha": "36721d8f6c3aa11379d2a049a9aadbaa75bf677c",
+    "verdict": "GO",
+    "bounded_scope": "Actual DuckDB scope/unit behavior; removal probe arity reconciled and executable. No CAS, selector, time, population, or source-authority claim."
+  },
+  "limitations_and_next_owner": [
+    "Do not update B16/B33 ledger status in this test-author handoff; finding owner must reconcile this bounded evidence against all ledger discriminators. B16 remains partial/UNRUN in the base record; positive CAS graph bridge remains untested.",
+    "Source scope is consumer_asserted and normalized to country codes only; population identity/completeness and source-catalog release identity are not established by the fixed coverage_ref or profile hashes.",
+    "The selected temporal integer coalesces year, survey_year, and wave; temporal role equivalence/completeness is not established. B31 uncertainty work remains with its semantic owner.",
+    "The optional FoundryValuePort-to-registry selector positive experiment was interrupted after 84.44 seconds without a result; no positive selector claim is made.",
+    "Existing test-only ValueDataProfile model_validate fixtures and injected ValueOwnerGateway support do not establish source authority; this slice does not harden those separate boundaries.",
+    "Relevant patterns: P29/P38 behavioral property vs lexical proxy; P31 class-level closure remains incomplete; P32 internal self-hash does not verify source; P37 predicate labels are recorded above. No runtime authority changed."
+  ]
+}

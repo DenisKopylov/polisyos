@@ -521,7 +521,7 @@
           }
         }
       },
-      "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared.",
+      "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared. Execution overlay: isolated in-memory method mutation performed by complete committed e02-pool-deadline-removal.py SHA2563068af15d56d6eb43e247c456ae9b3a1f0ecbb7d7fed5dabc1b730893efea738; original on-disk pool module remains88/40182. Actual mutated behavior is observed by the retained real-path negative, not a pristine execution claim.",
       "log": {
         "path": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/removal-deadline.log",
         "bytes": 6798,
@@ -608,7 +608,7 @@
           }
         }
       },
-      "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared.",
+      "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared. Execution overlay: isolated in-memory method mutation performed by complete committed e02-pool-deadline-removal.py SHA2563068af15d56d6eb43e247c456ae9b3a1f0ecbb7d7fed5dabc1b730893efea738; original on-disk pool module remains88/40182. Actual mutated behavior is observed by the retained real-path negative, not a pristine execution claim.",
       "log": {
         "path": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/removal-successful-registration.log",
         "bytes": 1580,
@@ -741,48 +741,17 @@
       "target_sha": "242437452f07e74be81584cfc332f91bd07d282a",
       "environment": {
         "PYTHONPATH": "src:product",
-        "POLISYOS_METRICS_PORT": "0",
+        "cwd": "/workspace/e02-B-adapters/policy-engine",
         "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
         "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
         "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
-        "versions": {
-          "pytest": "9.0.2",
-          "numpy": "2.3.5",
-          "orjson": "3.11.5",
-          "pydantic": "2.12.5",
-          "jax": "0.8.2",
-          "duckdb": "1.4.3"
+        "actual_pool_module_origin": {
+          "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+          "git_blob": "48fa66bbf804a01f18c33ad12d321aecb2889053",
+          "sha256": "4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7"
         },
-        "module_origins": {
-          "polisyos.fabric.connectors.pool": {
-            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
-            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
-          },
-          "pytest": {
-            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
-            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
-          },
-          "numpy": {
-            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
-            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
-          },
-          "orjson": {
-            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
-            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
-          },
-          "pydantic": {
-            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
-            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
-          },
-          "jax": {
-            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
-            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
-          },
-          "duckdb": {
-            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
-            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
-          }
-        }
+        "identity_scope": "242 is test-only: actual pool source is unchanged exact d0eb/base blob, corroborated by prior real base module readback. Installed-venv full versions/origins snapshot belongs the later separate final-native-full15 receipt, not an earlier executed-origin claim.",
+        "later_shared_venv_snapshot_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.json"
       },
       "input_closure": "Exact clean242 test-only tree; pool production blob remains exact slice-base d0eb, committed14case regression tests, repository conftest/pytest.ini/shared venv; no production data/live transport.",
       "outcome": "FAIL",

@@ -1,0 +1,405 @@
+{
+  "schema": "policyos.e02.bounded_checks.v1",
+  "unit": "E",
+  "slice": "bias-statistical-support",
+  "created_at_utc": "2026-10-05T14:22:54.740120+00:00",
+  "environment": {
+    "python": "3.14.2",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "versions": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "ruff": "0.14.10"
+    },
+    "origins": {
+      "numpy": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+      "scipy.stats": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/scipy/stats/__init__.py"
+    },
+    "numerical_environment": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "JAX_PLATFORMS": null
+    },
+    "configuration_sha256": {
+      "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+    },
+    "node": "22.23.3",
+    "pnpm": "10.33.2",
+    "shared_venv": "read_only_existing_environment",
+    "cloud_compute_limit": "no artificial orchestration numerical process/thread limit",
+    "cpu.max": "400000 100000",
+    "cpuset.cpus.effective": "0-4",
+    "memory.max": "17179869184"
+  },
+  "checks": [
+    {
+      "name": "frozen_candidate_tests_on_unmodified_slice_base_owner",
+      "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/remediation/test_bkt_03.py"
+      ],
+      "exit_code": 1,
+      "wall_s": 16.527471076999973,
+      "child_maxrss_kib": 493984,
+      "stdout": ".....FFFFFF...                                                           [100%]\n=================================== FAILURES ===================================\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[balanced-unavailable-backend] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_9ddf3e079220', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[balanced-insufficient-n] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_9c7040a3228e', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[near-zero-mean-unavailable-backend] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_43eceaeaaf62', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-constant-nonzero] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_9d79550a6a4d', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-balanced-nonzero] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_38af1f74c469', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-single-nonzero] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_a621af06bd8c', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n=========================== short test summary info ============================\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[balanced-unavailable-backend]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[balanced-insufficient-n]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[near-zero-mean-unavailable-backend]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-constant-nonzero]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-balanced-nonzero]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-single-nonzero]\n",
+      "stderr": "",
+      "expected_exit_code": 1,
+      "test_fixture_git_blob": "08ee59c3fe61ae625863055f7e6845e54a6d36ae",
+      "owner_git_blob": "8916ac347f9b95b3c7df261cb0b4f4d5437dd1f0",
+      "source_binding": "The owner is the exact unchanged slice-base blob, candidate test fixture is the subsequently frozen implementation blob. Six failures are a discriminating negative control, not inherited-red attribution."
+    },
+    {
+      "name": "candidate_bkt03_defining_property",
+      "target_sha": "5d8c9849be66562dba782763e7fc36d399e7daed",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/remediation/test_bkt_03.py"
+      ],
+      "exit_code": 0,
+      "wall_s": 11.536778184000013,
+      "child_maxrss_kib": 532996,
+      "stdout": "..............                                                           [100%]\n",
+      "stderr": "",
+      "source_binding": "Ran before commit on identical final source/test bytes; both blobs reconcile to this implementation SHA."
+    },
+    {
+      "name": "frozen_candidate_native_backtesting_consumers",
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "-o",
+        "cache_dir=/tmp/e02-E-bkt03-native-isolated-cache",
+        "--junitxml=/tmp/e02-E-bkt03-native-isolated.xml",
+        "tests/unit/scientist/methods/backtesting",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/ir/mirror_contracts/test_backtest.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py"
+      ],
+      "exit_code": 1,
+      "wall_s": 15.073215641999923,
+      "child_maxrss_kib": 621888,
+      "stdout": "....................................................FFFF................ [ 48%]\n........................................................................ [ 96%]\n......                                                                   [100%]\n=================================== FAILURES ===================================\n_ test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status _\ntests/unit/scientist/methods/backtesting/test_composition_bridge.py:97: in test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status\n    result = replay_fragment_composition_case(\nsrc/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case\n    CompositionCertificateRef.model_validate(\nE   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef\nE     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]\nE       For further information visit https://errors.pydantic.dev/2.12/v/model_type\n_____ test_replay_fragment_composition_case_surfaces_deferred_proxy_review _____\ntests/unit/scientist/methods/backtesting/test_composition_bridge.py:130: in test_replay_fragment_composition_case_surfaces_deferred_proxy_review\n    result = replay_fragment_composition_case(\nsrc/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case\n    CompositionCertificateRef.model_validate(\nE   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef\nE     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]\nE       For further information visit https://errors.pydantic.dev/2.12/v/model_type\n_____ test_replay_fragment_composition_case_detects_disconnected_topology ______\ntests/unit/scientist/methods/backtesting/test_composition_bridge.py:161: in test_replay_fragment_composition_case_detects_disconnected_topology\n    result = replay_fragment_composition_case(\nsrc/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case\n    CompositionCertificateRef.model_validate(\nE   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef\nE     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]\nE       For further information visit https://errors.pydantic.dev/2.12/v/model_type\n_____ test_replay_fragment_composition_case_accepts_injected_store_factory _____\ntests/unit/scientist/methods/backtesting/test_composition_bridge.py:222: in test_replay_fragment_composition_case_accepts_injected_store_factory\n    result = replay_fragment_composition_case(\nsrc/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case\n    CompositionCertificateRef.model_validate(\nE   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef\nE     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]\nE       For further information visit https://errors.pydantic.dev/2.12/v/model_type\n=========================== short test summary info ============================\nFAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status\nFAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_surfaces_deferred_proxy_review\nFAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_detects_disconnected_topology\nFAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_accepts_injected_store_factory\n",
+      "stderr": "",
+      "attribution": "not_established under P41; no exact full-denominator command on slice-base before edits",
+      "observed_counts": {
+        "collected": 150,
+        "passed": 146,
+        "failed": 4,
+        "skipped": 0,
+        "basis": "direct pytest progress and four enumerated failures"
+      },
+      "junit_counts": {
+        "tests": 150,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "runner_boundary": "Isolated pytest cache. Supersedes prior run sharing a pytest cache with negative probe; the prior deciding FAIL remains reproduced."
+    },
+    {
+      "name": "negative_removal_of_degraded_reason_keeps_metrics_and_p_none",
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "import pytest\nfrom polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator\noriginal=BacktestOrchestrator._detect_systematic_biases\ndef remove_unsupported_test_limitation(self, scenarios):\n    biases, reasons=original(self, scenarios)\n    return biases, []\nBacktestOrchestrator._detect_systematic_biases=remove_unsupported_test_limitation\nraise SystemExit(pytest.main(['-q','--tb=short','-o','cache_dir=/tmp/e02-E-bkt03-removal-isolated-cache','--junitxml=/tmp/e02-E-bkt03-removal-isolated.xml','tests/unit/remediation/test_bkt_03.py','-k','untestable_nonzero']))\n"
+      ],
+      "exit_code": 1,
+      "wall_s": 11.642726332000166,
+      "child_maxrss_kib": 496728,
+      "stdout": "FFFFFF                                                                   [100%]\n=================================== FAILURES ===================================\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[balanced-unavailable-backend] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_731cae5accd4', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[balanced-insufficient-n] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_eb5520264ae7', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[near-zero-mean-unavailable-backend] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_d436ccff0c1d', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-constant-nonzero] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_072447496fc1', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-balanced-nonzero] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_81308415e0e6', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n_ test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-single-nonzero] _\ntests/unit/remediation/test_bkt_03.py:201: in test_untestable_nonzero_errors_withhold_trust_after_cas_readback\n    assert observed.degraded is True\nE   AssertionError: assert False is True\nE    +  where False = BacktestReport(schema_version='1.0', report_id='BT_26cb6c5c8792', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).degraded\n=============================== warnings summary ===============================\n../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping\n    self._mark_plugins_for_rewrite(hook, disable_autoload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[balanced-unavailable-backend]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[balanced-insufficient-n]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[near-zero-mean-unavailable-backend]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-constant-nonzero]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-balanced-nonzero]\nFAILED tests/unit/remediation/test_bkt_03.py::test_untestable_nonzero_errors_withhold_trust_after_cas_readback[tiny-single-nonzero]\n",
+      "stderr": "",
+      "expected_exit_code": 1,
+      "junit_counts": {
+        "tests": 6,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "runner_boundary": "Isolated pytest cache. Supersedes prior run sharing a cache with native broad check."
+    },
+    {
+      "name": "ruff_check",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py"
+      ],
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "exit_code": 0,
+      "wall_s": 0.054655768999964494,
+      "child_maxrss_kib": 17152,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "name": "ruff_format_check",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py"
+      ],
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "exit_code": 0,
+      "wall_s": 0.04975206899962359,
+      "child_maxrss_kib": 17152,
+      "stdout": "2 files already formatted\n",
+      "stderr": ""
+    },
+    {
+      "name": "git_diff_check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "exit_code": 0,
+      "wall_s": 0.0152161480000359,
+      "child_maxrss_kib": 17152,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "independent_root_defining_and_native_consumer",
+      "target_sha": "5d8c9849be66562dba782763e7fc36d399e7daed",
+      "executor": "E root, independent from author",
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-bias/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_bkt_03.py tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "exit_code": 0,
+      "observed_counts": {
+        "passed": 39
+      },
+      "stdout": ".......................................                                  [100%]\n",
+      "source_log_sha256": "07c2eef926162e0090994bc913805aa08a8b2cbb5b21d2c933b937a10300713f",
+      "review": "Independent root source review reported no blocker; PCL reviewer separate review pending at receipt creation."
+    },
+    {
+      "name": "release_fragment_policy_parse_and_evidence",
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "command": "python3: tomllib.loads(new fragment), compare required_fields/allowed_types/generated_client_compatibility_values from ops/release/release-fragment-policy.toml; pathlib existence for each evidence path",
+      "exit_code": 0,
+      "stdout": "PASS: new release fragment parses, required policy fields/type and evidence paths reconcile\n",
+      "stderr": ""
+    },
+    {
+      "name": "independent_PCL_backend_CAS_and_student_t_controls",
+      "target_sha": "5d8c9849be66562dba782763e7fc36d399e7daed",
+      "execution_head_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "executor": "E/PCL independent leaf",
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-bias/policy-engine/src .venv/bin/python /workspace/e02-runtime/bkt03-independent/oracle.py > /workspace/e02-runtime/bkt03-independent/stdout.txt 2>&1",
+      "exit_code": 0,
+      "wall_s": 0.45966181899984804,
+      "child_maxrss_kib": 494108,
+      "stdout": "See independent_PCL_review.stdout_verbatim; full exact oracle source/review JSON and hashes are also retained.",
+      "observed_counts": {
+        "native_provided_report_CAS_cases": 13,
+        "independent_Student_t_oracle": 1
+      },
+      "source_binding": "Exact implementation source bytes checked before and after; only release companion changed between target and execution head."
+    }
+  ],
+  "actual_cas_readbacks": {
+    "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+    "procedure": "BacktestOrchestrator.run on one PROVIDED plan with each explicit predictions/truths array, history bytes {\"metric\":[0.0,0.0,0.0]}, deterministic report_id BKT03_<fixture>, isolated filesystem CAS; rebuild store and BacktestReport.model_validate(get_json_artifact(store, returned cas_artifact_id)). Importer denial changes only orchestrator.import_module to raising ModuleNotFoundError; no p-value or diagnostic injected.",
+    "observations": [
+      {
+        "fixture": "balanced-real-scipy",
+        "predictions": [
+          0.99,
+          1.0,
+          1.01
+        ],
+        "truths": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "history_sha256": "e623826b4a92643f93b7f477d707fa0a0f4ce96afbb316996e24842a06b8601a",
+        "mean_error": 0.0,
+        "any_nonzero_error": true,
+        "backend_control": "real",
+        "test_result": {
+          "p_value": 1.0,
+          "test_name": "one-sample t-test H0(mean_error=0)",
+          "status": "available",
+          "reason": null
+        },
+        "artifact_id": "sha256:963cf97a95b890d81119a42832a0b55e29d2feefd17ef849deaead4153435957",
+        "cas_readback": {
+          "overall_mae": 0.006666666666666672,
+          "overall_rmse": 0.008164965809277268,
+          "degraded": false,
+          "degraded_reasons": [],
+          "trust_eligible": true,
+          "trust_score": 0.9933,
+          "trust_grade": "A",
+          "overall_bias_direction": "neutral"
+        },
+        "cas_ref_is_fixture_artifact_not_production_evidence": true
+      },
+      {
+        "fixture": "balanced-importer-denied",
+        "predictions": [
+          0.99,
+          1.0,
+          1.01
+        ],
+        "truths": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "history_sha256": "e623826b4a92643f93b7f477d707fa0a0f4ce96afbb316996e24842a06b8601a",
+        "mean_error": 0.0,
+        "any_nonzero_error": true,
+        "backend_control": "denied",
+        "test_result": {
+          "p_value": null,
+          "test_name": null,
+          "status": "unavailable",
+          "reason": "scipy_ttest_1samp_error:ModuleNotFoundError"
+        },
+        "artifact_id": "sha256:644bbcb8b415203e23e1756289652c19d176ad6f7e6972b37e19cba5bab0004d",
+        "cas_readback": {
+          "overall_mae": 0.006666666666666672,
+          "overall_rmse": 0.008164965809277268,
+          "degraded": true,
+          "degraded_reasons": [
+            "bias_statistical_test_unavailable:metric:scipy_ttest_1samp_error:ModuleNotFoundError"
+          ],
+          "trust_eligible": false,
+          "trust_score": null,
+          "trust_grade": null,
+          "overall_bias_direction": "neutral"
+        },
+        "cas_ref_is_fixture_artifact_not_production_evidence": true
+      },
+      {
+        "fixture": "exact-zero-importer-denied",
+        "predictions": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "truths": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "history_sha256": "e623826b4a92643f93b7f477d707fa0a0f4ce96afbb316996e24842a06b8601a",
+        "mean_error": 0.0,
+        "any_nonzero_error": false,
+        "backend_control": "denied",
+        "test_result": {
+          "p_value": null,
+          "test_name": null,
+          "status": "not_computable",
+          "reason": "zero_variance"
+        },
+        "artifact_id": "sha256:30e2310f6942c152d739933cd0a9c92400699979044fc068b897e6ae2a0875e6",
+        "cas_readback": {
+          "overall_mae": 0.0,
+          "overall_rmse": 0.0,
+          "degraded": false,
+          "degraded_reasons": [],
+          "trust_eligible": true,
+          "trust_score": 1.0,
+          "trust_grade": "A",
+          "overall_bias_direction": "neutral"
+        },
+        "cas_ref_is_fixture_artifact_not_production_evidence": true
+      },
+      {
+        "fixture": "tiny-nonzero-zero-variance",
+        "predictions": [
+          1e-14,
+          1e-14,
+          1e-14
+        ],
+        "truths": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "history_sha256": "e623826b4a92643f93b7f477d707fa0a0f4ce96afbb316996e24842a06b8601a",
+        "mean_error": 1e-14,
+        "any_nonzero_error": true,
+        "backend_control": "real",
+        "test_result": {
+          "p_value": null,
+          "test_name": null,
+          "status": "not_computable",
+          "reason": "zero_variance"
+        },
+        "artifact_id": "sha256:453faf9da51bf18a6d3a637464b37bca87d8e5bc06fbe57510a0a5d286ed458c",
+        "cas_readback": {
+          "overall_mae": 1e-14,
+          "overall_rmse": 1e-14,
+          "degraded": true,
+          "degraded_reasons": [
+            "bias_statistical_test_not_computable:metric:zero_variance"
+          ],
+          "trust_eligible": false,
+          "trust_score": null,
+          "trust_grade": null,
+          "overall_bias_direction": "optimistic"
+        },
+        "cas_ref_is_fixture_artifact_not_production_evidence": true
+      }
+    ]
+  },
+  "setup_notes": [
+    "Initial root-directory pnpm invocation generated three untracked setup files; those exact generated files were removed. No tracked files changed.",
+    "First commit hook refused absent own-worktree lefthook; corrected frozen offline install in policy-engine using portable Node22.23.3/pnpm10.33.2, then ordinary commit/pre-push hooks ran without bypass.",
+    "No shared venv mutation or numerical thread/process cap.",
+    "Frozen red receipt supersedes preliminary test run whose test file was formatted while running; preliminary output is not evidence."
+  ],
+  "source_blob_identity": {
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py": {
+      "5d8c9849be66562dba782763e7fc36d399e7daed": "e949618799124abbbd80f1dc486fd6a7d5188802",
+      "a4781aef87e9b3c8c44eedb51fc88119567afc59": "e949618799124abbbd80f1dc486fd6a7d5188802"
+    },
+    "policy-engine/tests/unit/remediation/test_bkt_03.py": {
+      "5d8c9849be66562dba782763e7fc36d399e7daed": "08ee59c3fe61ae625863055f7e6845e54a6d36ae",
+      "a4781aef87e9b3c8c44eedb51fc88119567afc59": "08ee59c3fe61ae625863055f7e6845e54a6d36ae"
+    }
+  },
+  "independent_PCL_review": {
+    "review_json_verbatim": "{\n  \"reviewer\": \"E/PCL independent leaf\",\n  \"target_implementation_sha\": \"5d8c9849be66562dba782763e7fc36d399e7daed\",\n  \"base_sha\": \"c40d4acae1ce58b597267255026d9356565828fd\",\n  \"execution_head_sha\": \"a4781aef87e9b3c8c44eedb51fc88119567afc59\",\n  \"source_blob\": \"e949618799124abbbd80f1dc486fd6a7d5188802\",\n  \"source_sha256\": \"e2e32913bf99510ae99d27a3cd456dd54693d77a051c17012101b4402adf1f98\",\n  \"verdict\": \"PASS bounded independent numerical/backend/CAS/admissibility controls; no blocking finding in reviewed property\",\n  \"native_report_and_CAS_cases\": 13,\n  \"independent_student_t_oracle\": 1,\n  \"exit_code\": 0,\n  \"wall_seconds\": 0.45966181899984804,\n  \"max_rss_kib\": 494108,\n  \"backend\": {\n    \"numpy\": \"2.3.5\",\n    \"scipy\": \"1.16.3\",\n    \"denial\": \"patch only owner.import_module for scipy.stats; real backend positive control retained\"\n  },\n  \"data_identity\": \"synthetic explicit PROVIDED predictions/truths, isolated per-case history [0,0,0] and native CAS; exact inputs in oracle.py/stdout.txt\",\n  \"production_history_source_law\": \"not_established\",\n  \"statistical_independence\": \"not_established\",\n  \"population_calibration\": \"not_established\",\n  \"output_digests\": {\n    \"oracle.py\": \"263f509122f27eeabffca33fe09911629a20c9513a8daaf459bc965aeb409dc0\",\n    \"stdout.txt\": \"0ed87d4a415b79c94a19d75999f34565e3091c4d40831a4dc359008d1734b218\",\n    \"review.md\": \"d569517fc2e1faa7195cd7a39a454eed829267fca269926fcf25eae5c9a4383b\"\n  }\n}\n",
+    "stdout_verbatim": "{\"target\": \"5d8c9849be66562dba782763e7fc36d399e7daed\", \"actual_head\": \"a4781aef87e9b3c8c44eedb51fc88119567afc59\", \"source_sha256\": \"e2e32913bf99510ae99d27a3cd456dd54693d77a051c17012101b4402adf1f98\", \"source_origin\": \"/workspace/e02-E-backtest-bias/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py\", \"head_delta\": [\"policy-engine/release-fragments/unreleased/2026-10-05-e02-bkt03-statistical-support.toml\"], \"python\": \"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\", \"platform\": \"Linux-6.18.44-x86_64-with-glibc2.41\", \"numpy\": \"2.3.5\", \"scipy\": \"1.16.3\", \"numeric_controls\": {\"OMP_NUM_THREADS\": null, \"MKL_NUM_THREADS\": null, \"OPENBLAS_NUM_THREADS\": null, \"JAX_PLATFORMS\": null}}\n{\"case\": \"balanced-denied\", \"backend_denied\": true, \"residuals\": [-0.010000000000000009, 0.0, 0.010000000000000009], \"test\": {\"p_value\": null, \"test_name\": null, \"status\": \"unavailable\", \"reason\": \"scipy_ttest_1samp_error:ModuleNotFoundError\"}, \"mae\": 0.006666666666666672, \"direction\": \"neutral\", \"biases\": [], \"degraded\": true, \"reasons\": [\"bias_statistical_test_unavailable:metric:scipy_ttest_1samp_error:ModuleNotFoundError\"], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 3, \"compared\": 3, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"balanced-two-denied\", \"backend_denied\": true, \"residuals\": [-0.010000000000000009, 0.010000000000000009], \"test\": {\"p_value\": null, \"test_name\": null, \"status\": \"not_computable\", \"reason\": \"insufficient_observations\"}, \"mae\": 0.010000000000000009, \"direction\": \"neutral\", \"biases\": [], \"degraded\": true, \"reasons\": [\"bias_statistical_test_not_computable:metric:insufficient_observations\"], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 2, \"compared\": 2, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"nearzero-denied\", \"backend_denied\": true, \"residuals\": [-0.010000000000000009, 0.0, 0.010000000000299991], \"test\": {\"p_value\": null, \"test_name\": null, \"status\": \"unavailable\", \"reason\": \"scipy_ttest_1samp_error:ModuleNotFoundError\"}, \"mae\": 0.006666666666766667, \"direction\": \"optimistic\", \"biases\": [{\"bias_type\": \"directional\", \"direction\": \"optimistic\", \"magnitude\": 9.999408708457243e-14, \"affected_metrics\": [\"metric\"], \"description\": \"Model systematically overestimates metric 'metric'\", \"statistical_test\": \"\", \"p_value\": null, \"metadata\": {\"diagnostic\": \"descriptive_residual\", \"test_status\": \"unavailable\", \"test_reason\": \"scipy_ttest_1samp_error:ModuleNotFoundError\"}}], \"degraded\": true, \"reasons\": [\"bias_statistical_test_unavailable:metric:scipy_ttest_1samp_error:ModuleNotFoundError\"], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 3, \"compared\": 3, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"constant-tiny-denied\", \"backend_denied\": true, \"residuals\": [1e-14, 1e-14, 1e-14], \"test\": {\"p_value\": null, \"test_name\": null, \"status\": \"not_computable\", \"reason\": \"zero_variance\"}, \"mae\": 1e-14, \"direction\": \"optimistic\", \"biases\": [{\"bias_type\": \"directional\", \"direction\": \"optimistic\", \"magnitude\": 1e-14, \"affected_metrics\": [\"metric\"], \"description\": \"Model systematically overestimates metric 'metric'\", \"statistical_test\": \"\", \"p_value\": null, \"metadata\": {\"diagnostic\": \"descriptive_residual\", \"test_status\": \"not_computable\", \"test_reason\": \"zero_variance\"}}], \"degraded\": true, \"reasons\": [\"bias_statistical_test_not_computable:metric:zero_variance\"], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 3, \"compared\": 3, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"balanced-tiny-denied\", \"backend_denied\": true, \"residuals\": [-1e-14, 0.0, 1e-14], \"test\": {\"p_value\": null, \"test_name\": null, \"status\": \"not_computable\", \"reason\": \"zero_variance\"}, \"mae\": 6.6666666666666664e-15, \"direction\": \"neutral\", \"biases\": [], \"degraded\": true, \"reasons\": [\"bias_statistical_test_not_computable:metric:zero_variance\"], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 3, \"compared\": 3, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"single-tiny-denied\", \"backend_denied\": true, \"residuals\": [1e-14], \"test\": {\"p_value\": null, \"test_name\": null, \"status\": \"not_computable\", \"reason\": \"insufficient_observations\"}, \"mae\": 1e-14, \"direction\": \"optimistic\", \"biases\": [{\"bias_type\": \"directional\", \"direction\": \"optimistic\", \"magnitude\": 1e-14, \"affected_metrics\": [\"metric\"], \"description\": \"Model systematically overestimates metric 'metric'\", \"statistical_test\": \"\", \"p_value\": null, \"metadata\": {\"diagnostic\": \"descriptive_residual\", \"test_status\": \"not_computable\", \"test_reason\": \"insufficient_observations\"}}], \"degraded\": true, \"reasons\": [\"bias_statistical_test_not_computable:metric:insufficient_observations\"], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 1, \"compared\": 1, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"constant-nonzero\", \"backend_denied\": true, \"residuals\": [10.0, 10.0, 10.0], \"test\": {\"p_value\": null, \"test_name\": null, \"status\": \"not_computable\", \"reason\": \"zero_variance\"}, \"mae\": 10.0, \"direction\": \"optimistic\", \"biases\": [{\"bias_type\": \"directional\", \"direction\": \"optimistic\", \"magnitude\": 10.0, \"affected_metrics\": [\"metric\"], \"description\": \"Model systematically overestimates metric 'metric'\", \"statistical_test\": \"\", \"p_value\": null, \"metadata\": {\"diagnostic\": \"descriptive_residual\", \"test_status\": \"not_computable\", \"test_reason\": \"zero_variance\"}}], \"degraded\": true, \"reasons\": [\"bias_statistical_test_not_computable:metric:zero_variance\"], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 3, \"compared\": 3, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"balanced-real\", \"backend_denied\": false, \"residuals\": [-0.010000000000000009, 0.0, 0.010000000000000009], \"test\": {\"p_value\": 1.0, \"test_name\": \"one-sample t-test H0(mean_error=0)\", \"status\": \"available\", \"reason\": null}, \"mae\": 0.006666666666666672, \"direction\": \"neutral\", \"biases\": [], \"degraded\": false, \"reasons\": [], \"trust\": true, \"grade\": \"A\", \"counts\": {\"requested\": 3, \"compared\": 3, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"small_n_independent_student_t_oracle\": {\"n\": 3, \"t\": 2.5980762113533156, \"df\": 2, \"p\": 0.12168993434632015}, \"observed\": {\"p_value\": 0.1216899343463201, \"test_name\": \"one-sample t-test H0(mean_error=0)\", \"status\": \"available\", \"reason\": null}}\n{\"case\": \"exactzero-1\", \"backend_denied\": true, \"residuals\": [0.0], \"test\": {\"p_value\": null, \"test_name\": null, \"status\": \"not_computable\", \"reason\": \"insufficient_observations\"}, \"mae\": 0.0, \"direction\": \"neutral\", \"biases\": [], \"degraded\": false, \"reasons\": [], \"trust\": true, \"grade\": \"A\", \"counts\": {\"requested\": 1, \"compared\": 1, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"exactzero-3\", \"backend_denied\": true, \"residuals\": [0.0, 0.0, 0.0], \"test\": {\"p_value\": null, \"test_name\": null, \"status\": \"not_computable\", \"reason\": \"zero_variance\"}, \"mae\": 0.0, \"direction\": \"neutral\", \"biases\": [], \"degraded\": false, \"reasons\": [], \"trust\": true, \"grade\": \"A\", \"counts\": {\"requested\": 3, \"compared\": 3, \"missing\": 0, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"source-missing-points\", \"backend_denied\": true, \"residuals\": null, \"test\": null, \"mae\": 0.0, \"direction\": \"neutral\", \"biases\": [], \"degraded\": false, \"reasons\": [], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 3, \"compared\": 1, \"missing\": 2, \"invalid\": 0}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"source-invalid-prediction\", \"backend_denied\": true, \"residuals\": [0.0, NaN, 0.0], \"test\": null, \"mae\": 0.0, \"direction\": \"neutral\", \"biases\": [], \"degraded\": false, \"reasons\": [], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 3, \"compared\": 2, \"missing\": 0, \"invalid\": 1}, \"cas_readback\": \"MATCH\"}\n{\"case\": \"source-invalid-observation\", \"backend_denied\": true, \"residuals\": [0.0, -Infinity, 0.0], \"test\": null, \"mae\": 0.0, \"direction\": \"neutral\", \"biases\": [], \"degraded\": false, \"reasons\": [], \"trust\": false, \"grade\": null, \"counts\": {\"requested\": 3, \"compared\": 2, \"missing\": 0, \"invalid\": 1}, \"cas_readback\": \"MATCH\"}\n{\"verdict\": \"PASS bounded independent numerical/backend/CAS/admissibility controls\", \"wall_s\": 0.45966181899984804, \"max_rss_kib\": 494108, \"production_history_source_law\": \"not_established\", \"runtime_import_source_matches_target\": true}\n",
+    "review_markdown_verbatim": "# Independent BKT-03 review\n\nNo blocking finding in the reviewed bounded property. The source preserves a descriptive direction separately from statistical availability and aggregate trust. A balanced nonzero residual vector can have `overall_bias_direction=neutral`, but an unavailable or not-computable test records degradation and withholds the trust score and grade.\n\nReviewed implementation: `5d8c9849be66562dba782763e7fc36d399e7daed`, based on `c40d4acae1ce58b597267255026d9356565828fd`. Actual execution HEAD: `a4781aef87e9b3c8c44eedb51fc88119567afc59`. The tracked difference between target and execution HEAD is only `policy-engine/release-fragments/unreleased/2026-10-05-e02-bkt03-statistical-support.toml`. Runtime `orchestrator.py` was checked byte for byte against the target before and after execution: Git blob `e949618799124abbbd80f1dc486fd6a7d5188802`, SHA-256 `e2e32913bf99510ae99d27a3cd456dd54693d77a051c17012101b4402adf1f98`. The author's source and tests were not edited.\n\nDeciding checks: `/workspace/e02-runtime/bkt03-independent/oracle.py`, stdout `/workspace/e02-runtime/bkt03-independent/stdout.txt`. Command, from `/workspace/e02-E-backtest-bias/policy-engine`:\n\n```sh\nPYTHONPATH=/workspace/e02-E-backtest-bias/policy-engine/src .venv/bin/python /workspace/e02-runtime/bkt03-independent/oracle.py > /workspace/e02-runtime/bkt03-independent/stdout.txt 2>&1\n```\n\nExit 0. Thirteen fresh native PROVIDED-report runs were reopened through the native CAS and matched report fields; the separate small-n Student-t oracle also passed. Wall time inside the oracle was 0.460 s, process peak RSS 494108 KiB. Runtime: Python 3.14.2, NumPy 2.3.5, SciPy 1.16.3, Linux 6.18.44 x86_64/glibc 2.41. No OMP/MKL/OpenBLAS/JAX thread/platform override was present.\n\n| Control | Result |\n| --- | --- |\n| Real SciPy on balanced varying errors `[-.01, 0, .01]` | Available test, p=1; normal eligible empirical report. |\n| Same errors with a controlled `scipy.stats` import denial | Test unavailable, p absent, degraded, trust false, score/grade absent. Direction remains descriptive neutral. |\n| Near-zero mean, constant tiny, balanced tiny, single tiny, constant nonzero, and n=2 balanced errors | Seven total nonzero controls, including the denied case above: positive MAE never bypassed withheld statistical support. Nonzero mean retained descriptive bias with absent p; zero mean retained absent bias with degradation. Degenerate/n<3 inputs are not-computable before any backend import. |\n| Independent Student-t reference on `[.5, 1.5, 2.5]` | t=2.5980762113533156, df=2, p=0.12168993434632015; producer p=0.1216899343463201. This checks the real small-n law rather than a normal-tail approximation. |\n| Exact-zero errors, n=1 and n=3, backend denied | Existing explicit observed-identity exception: zero MAE/RMSE, no fabricated p, eligible empirical report. |\n| Missing predictions, NaN prediction, infinite observation | Source support counters record missing/invalid points; surviving exact-zero comparisons do not make the report trust-eligible. CAS readback preserves refusal. |\n\nThe exact-zero exception is confined to observed identity (`np.all(arr == 0.0)` at orchestrator lines 955–967), not an epsilon test. Complete point support is separately required before trust computation (lines 890–909). Statistical independence, population calibration, production history, and the production source law remain `not_established`; synthetic PROVIDED fixtures do not establish them. The direction and grade are interpreted within the existing empirical report semantics. This review does not claim production backtest closure, repo-wide validation, or proof that all possible consumers interpret those fields correctly.\n",
+    "oracle_python_verbatim": "\"\"\"Read-only independent BKT-03 oracle on the fixed implementation source.\"\"\"\nimport contextlib\nimport hashlib\nimport json\nimport math\nimport os\nimport platform\nimport resource\nimport subprocess\nimport sys\nimport time\nfrom pathlib import Path\nfrom unittest.mock import patch\nimport numpy as np\nimport scipy\nfrom scipy.stats import t\nimport polisyos.scientist.methods.backtesting.orchestrator as owner\nfrom polisyos.core.artifacts.ir_adapter import build_ir_artifact_store\nfrom polisyos.ir.analytics.backtest import BacktestReport\nfrom polisyos.ir.artifacts import get_json_artifact\nfrom polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan,PredictionSource\n\nTARGET='5d8c9849be66562dba782763e7fc36d399e7daed'\nSRC='policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py'\nroot=Path('/workspace/e02-runtime/bkt03-independent')\nstarted=time.perf_counter()\nexpected=subprocess.check_output(['git','show',TARGET+':'+SRC])\nactual=Path(owner.__file__).read_bytes()\nassert actual==expected\nhead=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()\ndelta=subprocess.check_output(['git','diff','--name-only',TARGET,head],text=True).splitlines()\nassert delta==['policy-engine/release-fragments/unreleased/2026-10-05-e02-bkt03-statistical-support.toml']\nprint(json.dumps({'target':TARGET,'actual_head':head,'source_sha256':hashlib.sha256(actual).hexdigest(),'source_origin':owner.__file__,'head_delta':delta,'python':sys.version,'platform':platform.platform(),'numpy':np.__version__,'scipy':scipy.__version__,'numeric_controls':{key:os.environ.get(key) for key in ['OMP_NUM_THREADS','MKL_NUM_THREADS','OPENBLAS_NUM_THREADS','JAX_PLATFORMS']}}))\n\ndef deny(name):\n    assert name=='scipy.stats'\n    raise ModuleNotFoundError('independent controlled scipy.stats denial')\n\ndef run(case,pred,truth,denied=False):\n    d=root/case\n    d.mkdir(exist_ok=True)\n    history=d/'history.json'\n    history.write_text(json.dumps({'metric':[0.,0.,0.]}))\n    plan=HistoricalValidationPlan(plan_id=case,historical_data_path=str(history),ground_truth_outcomes={'metric':truth},target_metrics=['metric'],prediction_source=PredictionSource.PROVIDED,predicted_outcomes={'metric':pred})\n    manager=patch.object(owner,'import_module',deny) if denied else contextlib.nullcontext()\n    with manager:\n        report=owner.BacktestOrchestrator(cas_root=str(d/'cas')).run([plan])\n        residual=np.array(pred,dtype=float)-np.array(truth,dtype=float) if len(pred)==len(truth) else None\n        diag=owner.BacktestOrchestrator._two_sided_ttest(residual) if residual is not None and np.all(np.isfinite(residual)) else None\n    assert report.cas_artifact_id\n    store=build_ir_artifact_store(d/'cas')\n    reopened=BacktestReport.model_validate(get_json_artifact(store,report.cas_artifact_id))\n    for field in ['degraded','degraded_reasons','trust_eligible','trust_score','trust_grade','overall_mae','overall_bias_direction','detected_biases','n_metrics_evaluated']:\n        assert getattr(reopened,field)==getattr(report,field),(case,field)\n    point={'case':case,'backend_denied':denied,'residuals':None if residual is None else residual.tolist(),'test':None if diag is None else vars(diag),'mae':report.overall_mae,'direction':report.overall_bias_direction,'biases':[b.model_dump() for b in report.detected_biases],'degraded':report.degraded,'reasons':report.degraded_reasons,'trust':report.trust_eligible,'grade':report.trust_grade,'counts':{'requested':report.scenarios[0].requested_count,'compared':report.scenarios[0].compared_count,'missing':report.scenarios[0].missing_count,'invalid':report.scenarios[0].invalid_count},'cas_readback':'MATCH'}\n    print(json.dumps(point,allow_nan=True))\n    return report,diag\n\nfor case,pred,truth in [\n ('balanced-denied',[.99,1.,1.01],[1.,1.,1.]),\n ('balanced-two-denied',[.99,1.01],[1.,1.]),\n ('nearzero-denied',[.99,1.,1.0100000000003],[1.,1.,1.]),\n ('constant-tiny-denied',[1e-14]*3,[0.]*3),\n ('balanced-tiny-denied',[-1e-14,0.,1e-14],[0.]*3),\n ('single-tiny-denied',[1e-14],[0.]),\n ('constant-nonzero',[10.]*3,[0.]*3),\n]:\n    r,d=run(case,pred,truth,True)\n    assert r.overall_mae>0 and d.p_value is None\n    assert r.degraded and not r.trust_eligible and r.trust_score is None and r.trust_grade is None\n    assert any(x.startswith('bias_statistical_test_') for x in r.degraded_reasons)\n    if float(np.mean(np.array(pred)-np.array(truth)))==0:\n        assert not r.detected_biases and r.overall_bias_direction.value=='neutral'\n    else:\n        assert len(r.detected_biases)==1 and r.detected_biases[0].p_value is None\n\nr,d=run('balanced-real',[.99,1.,1.01],[1.,1.,1.])\nassert d.status=='available' and d.p_value==1. and not r.degraded and r.trust_eligible\nerrors=np.array([.5,1.5,2.5])\nstat=float(np.mean(errors))/(float(np.std(errors,ddof=1))/math.sqrt(len(errors)))\nindependent_p=2*t.sf(abs(stat),df=len(errors)-1)\nobserved=owner.BacktestOrchestrator._two_sided_ttest(errors)\nassert math.isclose(independent_p,.12168993434632013,rel_tol=1e-12)\nassert math.isclose(observed.p_value,independent_p,rel_tol=1e-12)\nprint(json.dumps({'small_n_independent_student_t_oracle':{'n':3,'t':stat,'df':2,'p':float(independent_p)},'observed':vars(observed)}))\n\nfor n in [1,3]:\n    r,d=run('exactzero-'+str(n),[1.]*n,[1.]*n,True)\n    assert d.status=='not_computable' and d.p_value is None\n    assert r.overall_mae==0. and r.overall_rmse==0. and not r.degraded\n    assert not r.detected_biases and r.trust_eligible\n\nfor case,pred,truth in [\n ('source-missing-points',[1.],[1.,1.,1.]),\n ('source-invalid-prediction',[1.,float('nan'),1.],[1.,1.,1.]),\n ('source-invalid-observation',[1.,1.,1.],[1.,float('inf'),1.]),\n]:\n    r,d=run(case,pred,truth,True)\n    assert not r.trust_eligible and r.trust_score is None and r.trust_grade is None\n    assert r.scenarios[0].compared_count<r.scenarios[0].requested_count\n\nassert Path(owner.__file__).read_bytes()==expected\nprint(json.dumps({'verdict':'PASS bounded independent numerical/backend/CAS/admissibility controls','wall_s':time.perf_counter()-started,'max_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,'production_history_source_law':'not_established','runtime_import_source_matches_target':True}))\n",
+    "serialization_note": "Deciding stdout is retained verbatim as a JSON string, including intentional NaN/Infinity adversarial input displays; the enclosing receipt remains strict JSON.",
+    "execution_head_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+    "runtime_source_blob": "e949618799124abbbd80f1dc486fd6a7d5188802",
+    "runtime_source_sha256": "e2e32913bf99510ae99d27a3cd456dd54693d77a051c17012101b4402adf1f98"
+  }
+}

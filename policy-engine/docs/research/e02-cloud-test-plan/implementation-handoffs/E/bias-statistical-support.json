@@ -1,0 +1,563 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "bias-statistical-support",
+  "closure_ids": [
+    "B172",
+    "B173"
+  ],
+  "bundle_ids": [
+    "BKT-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "5d8c9849be66562dba782763e7fc36d399e7daed",
+    "a4781aef87e9b3c8c44eedb51fc88119567afc59"
+  ],
+  "candidate_tree_sha": "13a4c7ec6c9ae5be23fdf4942e6faeb80e3e0aab",
+  "branch": "codex/e02-E-backtest-bias",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/28",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-bkt03-statistical-support.toml",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/tests/unit/remediation/test_bkt_03.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P108",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_03.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "17.65",
+      "rss_kib": "1192664",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "236",
+      "extra_json": "{}",
+      "finding_ids": [
+        "B172",
+        "B173"
+      ],
+      "source_ref": "research_main",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F09-P109",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_03.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "33.48",
+      "rss_kib": "1328536",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "225",
+      "extra_json": "{}",
+      "finding_ids": [
+        "B172",
+        "B173"
+      ],
+      "source_ref": "e02_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F13-P125",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_03.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.34",
+      "rss_kib": "1353324",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "252",
+      "extra_json": "{}",
+      "finding_ids": [
+        "B172",
+        "B173"
+      ],
+      "source_ref": "integration_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    }
+  ],
+  "baseline_source_context": [
+    {
+      "job": "F02",
+      "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt:5-126",
+      "compact_receipt_sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+      "source_reported_environment": {
+        "os": "Linux Debian 13",
+        "arch": "x86_64",
+        "python": "3.14.2",
+        "uv": "0.9.21",
+        "node": "22.23.3",
+        "corepack": "0.36.0",
+        "pnpm": "10.33.2",
+        "cpu_max": "400000 100000",
+        "cpu_quota_cores": 4,
+        "cpuset": "0-4",
+        "memory_limit_bytes": 17179869184,
+        "installed_distributions": 241,
+        "distribution_profile_unchanged_after_series": true,
+        "numerical_threads": 1,
+        "JAX_PLATFORMS": "cpu",
+        "free_disk_before_every_install_build_ge_20_GiB": true,
+        "profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "causal-discovery-scale",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "frozen_base_sync": {
+          "exit": 0,
+          "wall_s": 37.203
+        },
+        "frozen_union_sync": {
+          "exit": 0,
+          "wall_s": 49.124
+        },
+        "frozen_pnpm_install": {
+          "exit": 0,
+          "wall_s": 2.062
+        },
+        "property_controls_absent_in_all_140_primary_children": true,
+        "effective_hypothesis_database": "/workspace/polisyos/policy-engine/_cache/hypothesis",
+        "hypothesis_boundary": "Native conftest overrides nominal per-attempt storage; shared effective database preserved and recorded."
+      },
+      "selected_profile": [
+        "lint",
+        "test",
+        "runtime",
+        "ml",
+        "analytics",
+        "bayesian",
+        "optimization-advanced",
+        "sensitivity",
+        "causal-discovery",
+        "causal-discovery-scale",
+        "search_bo",
+        "solvers",
+        "vector-search"
+      ],
+      "configuration_hashes": {
+        "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+        "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+      },
+      "archive_identity": {
+        "name": "raw.tar.gz",
+        "sha256": "8eb85ce277b1216ee578fd259b6d934fbf1f9aa87748036f1391689c4ac9c4d8",
+        "bytes": 17594199,
+        "members": 2602,
+        "member_sha256_readback_verified": true,
+        "all_142_attempts_including_nonpass_present": true
+      },
+      "raw_archive_received": false,
+      "source_input_catalog": {
+        "sha256": "ae50bed66283d88cdae4696f94416274be835359335dbbbed07f0c45743ba054",
+        "raw_bytes_received": false
+      },
+      "data_identity": "policy-engine/tests/unit/remediation/test_bkt_03.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b bounded unit fixtures; source-inputs.json raw bytes unavailable",
+      "backend": {
+        "declared_procedure": "scipy.stats.ttest_1samp; genuine SciPy reference plus explicit unavailable controls",
+        "baseline_state": "PASS",
+        "baseline_calls": "5",
+        "baseline_skips": "0",
+        "exact_loaded_distribution_origin_and_version": "not_established from transported compact receipt"
+      },
+      "environment_catalog": {
+        "sha256": "d6887d5e2b1a8ba0d5b0f259a884d1db3fc5b606eb2d9bd3bef2136234e2954c",
+        "raw_bytes_received": false
+      }
+    },
+    {
+      "job": "F09",
+      "source_commit": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt:5-113",
+      "compact_receipt_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "source_reported_environment": {
+        "python": "3.14.2",
+        "uv": "0.9.21",
+        "node": "22.16.0",
+        "pnpm": "10.33.2",
+        "gnu_time": "1.9",
+        "platform": "Linux x86_64",
+        "cpu_quota_equivalents": 4,
+        "memory_limit_bytes": 17179869184
+      },
+      "selected_profile": [
+        "lint",
+        "test",
+        "runtime",
+        "ml",
+        "analytics",
+        "bayesian",
+        "optimization-advanced",
+        "sensitivity",
+        "causal-discovery",
+        "agent-sim",
+        "causal-discovery-scale",
+        "search_bo",
+        "solvers",
+        "vector-search"
+      ],
+      "configuration_hashes": {
+        "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+        "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+        "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+        "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+      },
+      "archive_identity": {
+        "sha256": "f6fc699097312c85f9e931a168db4e973fbcad21475beaf06b3e661e4b0bf14b",
+        "bytes": 17996757,
+        "members": 2992,
+        "member_manifest_sha256": "6a0c12a3f1520ef42fc9f67cc3a99cae2908a7477ab9dd4cf0dd0cfedb354325",
+        "all_attempt_deciding_outputs_present": true,
+        "independent_tar_readback": true,
+        "recipient_download_verified": false
+      },
+      "raw_archive_received": false,
+      "source_input_catalog": {
+        "sha256": "not_established from transported compact receipt",
+        "raw_bytes_received": false
+      },
+      "data_identity": "policy-engine/tests/unit/remediation/test_bkt_03.py@00d946c2b7d052522be092f9c70eb9902f6521c2 bounded unit fixtures; source-inputs.json raw bytes unavailable",
+      "backend": {
+        "declared_procedure": "scipy.stats.ttest_1samp; genuine SciPy reference plus explicit unavailable controls",
+        "baseline_state": "PASS",
+        "baseline_calls": "5",
+        "baseline_skips": "0",
+        "exact_loaded_distribution_origin_and_version": "not_established from transported compact receipt"
+      },
+      "source_reported_numerical_threads": {
+        "source_locator": "received/F09.txt:277-281",
+        "OMP/OPENBLAS/MKL/NUMEXPR/VECLIB": "1",
+        "JAX_PLATFORMS": "cpu"
+      }
+    },
+    {
+      "job": "F13",
+      "source_commit": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt:5-125",
+      "compact_receipt_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "source_reported_environment": {
+        "python": "3.14.2",
+        "uv": "0.9.21",
+        "node": "22.22.0",
+        "pnpm": "10.33.2",
+        "installed_distributions": 241,
+        "installed_version_changes": 0,
+        "numeric_threads": 1,
+        "JAX_PLATFORMS": "cpu"
+      },
+      "selected_profile": [
+        "lint",
+        "test",
+        "runtime",
+        "ml",
+        "analytics",
+        "bayesian",
+        "optimization-advanced",
+        "sensitivity",
+        "causal-discovery",
+        "causal-discovery-scale",
+        "search_bo",
+        "solvers",
+        "vector-search"
+      ],
+      "configuration_hashes": {
+        "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+      },
+      "archive_identity": {
+        "file": "raw.tar.gz",
+        "sha256": "4d85e65b8f55c8cbba71b1c796059210e1ce8a2d73b0b2bbda091f12aacf7bc8",
+        "bytes": 13886248,
+        "regular_members": 2678,
+        "all_member_hashes_read_back": true,
+        "all_attempts_included": true
+      },
+      "raw_archive_received": false,
+      "source_input_catalog": {
+        "sha256": "c56c4e49264c9dc9339bc606205b4f2715f9538f6916db6b1221f7674f868780",
+        "bytes": 63228
+      },
+      "data_identity": "policy-engine/tests/unit/remediation/test_bkt_03.py@0213101b6d124e6f855b1aff7c442bb0912a61c2 bounded unit fixtures; source-inputs.json raw bytes unavailable",
+      "backend": {
+        "declared_procedure": "scipy.stats.ttest_1samp; genuine SciPy reference plus explicit unavailable controls",
+        "baseline_state": "PASS",
+        "baseline_calls": "5",
+        "baseline_skips": "0",
+        "exact_loaded_distribution_origin_and_version": "not_established from transported compact receipt"
+      },
+      "environment_catalog": {
+        "sha256": "af7eba7028baabd008516f94c1b5a9f44c452c3fdb0a796a2c0265e28fde100b",
+        "bytes": 76684,
+        "raw_bytes_received": false
+      }
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/remediation/test_bkt_03.py"
+      ],
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "bias-statistical-support.checks.json#environment",
+      "input_closure": "frozen source/test blobs and explicit unit fixture arrays; no production data",
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "output": "bias-statistical-support.checks.json#checks/frozen_candidate_tests_on_unmodified_slice_base_owner"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/remediation/test_bkt_03.py"
+      ],
+      "target_sha": "5d8c9849be66562dba782763e7fc36d399e7daed",
+      "environment": "bias-statistical-support.checks.json#environment",
+      "input_closure": "frozen source/test blobs and explicit unit fixture arrays; no production data",
+      "outcome": "PASS",
+      "expected_negative": false,
+      "output": "bias-statistical-support.checks.json#checks/candidate_bkt03_defining_property"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "-o",
+        "cache_dir=/tmp/e02-E-bkt03-native-isolated-cache",
+        "--junitxml=/tmp/e02-E-bkt03-native-isolated.xml",
+        "tests/unit/scientist/methods/backtesting",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/ir/mirror_contracts/test_backtest.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py"
+      ],
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "environment": "bias-statistical-support.checks.json#environment",
+      "input_closure": "frozen source/test blobs and explicit unit fixture arrays; no production data",
+      "outcome": "FAIL",
+      "expected_negative": false,
+      "output": "bias-statistical-support.checks.json#checks/frozen_candidate_native_backtesting_consumers"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "import pytest\nfrom polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator\noriginal=BacktestOrchestrator._detect_systematic_biases\ndef remove_unsupported_test_limitation(self, scenarios):\n    biases, reasons=original(self, scenarios)\n    return biases, []\nBacktestOrchestrator._detect_systematic_biases=remove_unsupported_test_limitation\nraise SystemExit(pytest.main(['-q','--tb=short','-o','cache_dir=/tmp/e02-E-bkt03-removal-isolated-cache','--junitxml=/tmp/e02-E-bkt03-removal-isolated.xml','tests/unit/remediation/test_bkt_03.py','-k','untestable_nonzero']))\n"
+      ],
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "environment": "bias-statistical-support.checks.json#environment",
+      "input_closure": "frozen source/test blobs and explicit unit fixture arrays; no production data",
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "output": "bias-statistical-support.checks.json#checks/negative_removal_of_degraded_reason_keeps_metrics_and_p_none"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py"
+      ],
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "environment": "bias-statistical-support.checks.json#environment",
+      "input_closure": "frozen source/test blobs and explicit unit fixture arrays; no production data",
+      "outcome": "PASS",
+      "expected_negative": false,
+      "output": "bias-statistical-support.checks.json#checks/ruff_check"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py"
+      ],
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "environment": "bias-statistical-support.checks.json#environment",
+      "input_closure": "frozen source/test blobs and explicit unit fixture arrays; no production data",
+      "outcome": "PASS",
+      "expected_negative": false,
+      "output": "bias-statistical-support.checks.json#checks/ruff_format_check"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "environment": "bias-statistical-support.checks.json#environment",
+      "input_closure": "frozen source/test blobs and explicit unit fixture arrays; no production data",
+      "outcome": "PASS",
+      "expected_negative": false,
+      "output": "bias-statistical-support.checks.json#checks/git_diff_check"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-bias/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_bkt_03.py tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "target_sha": "5d8c9849be66562dba782763e7fc36d399e7daed",
+      "environment": "bias-statistical-support.checks.json#environment",
+      "input_closure": "frozen source/test blobs and explicit unit fixture arrays; no production data",
+      "outcome": "PASS",
+      "expected_negative": false,
+      "output": "bias-statistical-support.checks.json#checks/independent_root_defining_and_native_consumer"
+    },
+    {
+      "command": "python3: tomllib.loads(new fragment), compare required_fields/allowed_types/generated_client_compatibility_values from ops/release/release-fragment-policy.toml; pathlib existence for each evidence path",
+      "target_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "environment": "bias-statistical-support.checks.json#environment",
+      "input_closure": "frozen source/test blobs and explicit unit fixture arrays; no production data",
+      "outcome": "PASS",
+      "expected_negative": false,
+      "output": "bias-statistical-support.checks.json#checks/release_fragment_policy_parse_and_evidence"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-bias/policy-engine/src .venv/bin/python /workspace/e02-runtime/bkt03-independent/oracle.py > /workspace/e02-runtime/bkt03-independent/stdout.txt 2>&1",
+      "target_sha": "5d8c9849be66562dba782763e7fc36d399e7daed",
+      "environment": "bias-statistical-support.checks.json#independent_PCL_review/review_json_verbatim",
+      "input_closure": "13 explicit synthetic PROVIDED-plan/CAS fixtures plus separate Student-t n3 reference; exact source checked against implementation SHA",
+      "outcome": "PASS",
+      "output": "bias-statistical-support.checks.json#independent_PCL_review (verbatim stdout/review JSON/oracle code)"
+    }
+  ],
+  "property": {
+    "statement": "When the defined bias test has p_value=None and any per-observation residual is nonzero, preserve the precise unavailable/not_computable reason, set report.degraded, and withhold trust eligibility/score/grade, including exactly balanced and tiny nonzero errors. Exact all-zero errors remain a separate observed mathematical identity; no significance or backend availability is manufactured.",
+    "runtime_path": [
+      "PROVIDED HistoricalValidationPlan",
+      "PredictionEvaluator real outcome comparisons",
+      "BacktestOrchestrator._detect_systematic_biases and genuine scipy.stats.ttest_1samp or controlled importer denial",
+      "BacktestOrchestrator._aggregate degraded/trust admission",
+      "persist_backtest_report filesystem CAS",
+      "public get_json_artifact readback into BacktestReport",
+      "consumed trust_eligible/trust_score/trust_grade and exact degraded reason"
+    ],
+    "proxy_divergence": "Zero mean is compatible with nonzero errors and an unavailable test: [0.99,1,1.01]-[1,1,1] has mean0 and MAE0.006666666666666672. Baseline accepted GradeA; candidate importer denial persists unavailable with no grade. Real SciPy returns p1 and GradeA on the same observations.",
+    "negative_controls": [
+      "Candidate six adversarial fixtures on exact slice-base owner: six expected FAIL, eight PASS",
+      "Runtime removal of degraded reasons while keeping numerical metrics and p=None: six expected FAIL",
+      "Insufficient n2 balanced errors, unavailable real importer n3, nearzero mean, tiny constant/balanced/single errors",
+      "Exact allzero errors at n1/n3 retain no-bias control without claiming computable p or available backend",
+      "Real scipy.stats.ttest_1samp p1 on balanced errors and p0.121690 on small-n unequal errors",
+      "CAS serialization and consumer readback retain correct metrics, precise limitation and denied GradeA"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_generic_statistical_support_defect_fixed; B172/B173 broader ledger states remain partial pending G admission and semantic/data-dependent closure",
+  "authority_purpose": "Admissibility of this backtest diagnostic for existing producer-owned trust scoring; no scientific independence, population bias, source-law or served evaluator authority supplied",
+  "rule_and_schema_identity": {
+    "backtest_report_schema": "1.0 unchanged",
+    "test_procedure": "one-sample two-sided Student t via scipy.stats.ttest_1samp",
+    "exact_zero_exception": "all observed residuals exactly equal0.0; abs(mean) tolerance is not an eligibility predicate",
+    "descriptive_direction": "Existing BiasDirection.NEUTRAL remains a descriptive mean direction only. In unsupported balanced cases the explicit degraded reason and trust denial carry not-established statistical support; UNKNOWN/MIXED is not invented."
+  },
+  "independent_review": {
+    "root_source_review": "No blockers reported on implementation5d8c9849be66562dba782763e7fc36d399e7daed",
+    "independent_root_tests": "39PASS exact implementation source; full moderate log in checks companion",
+    "other_reviewer": "Independent E/PCL leaf PASS:13 native PROVIDED-report/CAS cases and an independent Student-t oracle. Exact source blob and byte digest reconciled before and after; verbatim deciding outputs, review JSON and oracle code in checks companion."
+  },
+  "limitations_and_next_owner": [
+    "Extended native suite150 tests has4 composition_bridge failures. Exact failures/command/output retained; inheritance/causality not_established under P41. Root/G assign that distinct owner, no composition changes in this slice.",
+    "No source-reported PASS is candidate proof. Raw baseline archives and source-inputs.json/environment.json were not transferred; exact historical loaded backend bytes not_established.",
+    "Residual independence, effective sample size, multiple comparisons and domain meaning of optimistic/pessimistic require scientific owner input; this producer fix establishes none.",
+    "Full production history/source law were not requested or uploaded. The generic per-error/test/trust invariant uses sufficient bounded fixtures; any history-specific claim remains not_established until G/local production owner reruns actual governed plans at the implementation SHA.",
+    "Descriptive NEUTRAL alone is not statistical neutrality; downstream consumers must read degraded/trust fields. This change does not introduce a new IR UNKNOWN semantic or a different trust profile.",
+    "No shared generation_cycle, served bridge, PCL/calibrator, bootstrap or forecast_owner edit. A retains shared generation-cycle writer authority.",
+    "G must fetch exact remote head, review receipt and apply append-only integration; default branch and main merge untouched.",
+    "Full platform verify/CI and local data-dependent checks remain G/CI admission work; author scoped tests and root independent consumer checks are bounded evidence."
+  ],
+  "reproduce_recipe_for_G": {
+    "implementation_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+    "generic_check_command": "PYTHONPATH=policy-engine/src <frozen-python-with-numpy-and-scipy> -m pytest -q policy-engine/tests/unit/remediation/test_bkt_03.py policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+    "cwd": "isolated repository worktree at implementation SHA",
+    "backend": "Real SciPy required for numerical oracle; importer-denial controls must execute rather than be substituted with synthetic statistical results. Missing SciPy oracle is SKIP, not PASS.",
+    "production_if_required": "Use only local read-only production plan/history refs. Run existing BacktestOrchestrator.run on actual HistoricalValidationPlan(s), record plan/history/source identities and dependency versions, reopen returned CAS report through canonical reader and retain p availability/precise degradation/metrics/trust. Do not convert fixture artifact IDs into production provenance."
+  },
+  "transport": {
+    "published_implementation_checkpoint": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+    "remote_branch": "refs/heads/codex/e02-E-backtest-bias",
+    "verified_by": "git ls-remote --heads origin codex/e02-E-backtest-bias",
+    "receipt_metadata_commit": "separate subsequent commit; implementation/tree references never point to future receipt SHA"
+  },
+  "pull_request_labels": [
+    "kind:runtime-behavior",
+    "compat:internal",
+    "release:fix"
+  ],
+  "artifact_attachment": {
+    "tool_invoked_after_PR_creation": true,
+    "leaf_call_status": "terminated waiting for root host RPC; E root notified and confirmed it will attach PR28",
+    "root_attachment_status": "not_established in this leaf receipt; final root-host attachment receipt authoritative"
+  }
+}

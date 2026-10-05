@@ -8,7 +8,9 @@ import numpy as np
 import pytest
 
 import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
+from polisyos.core.artifacts.ir_adapter import build_ir_artifact_store
 from polisyos.ir.analytics.backtest import BacktestReport, BiasDirection
+from polisyos.ir.artifacts import get_json_artifact
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.methods.backtesting.plan import (
     HistoricalValidationPlan,
@@ -143,3 +145,108 @@ def test_scipy_unavailability_preserves_metrics_and_withholds_trust(
     assert bias.magnitude == pytest.approx(1.5)
     assert bias.p_value is None
     assert "t-test" not in bias.statistical_test.lower()
+
+
+@pytest.mark.parametrize(
+    ("predictions", "truths", "reason"),
+    [
+        ([0.99, 1.0, 1.01], [1.0, 1.0, 1.0], "scipy_ttest_1samp_error:ModuleNotFoundError"),
+        ([0.99, 1.01], [1.0, 1.0], "insufficient_observations"),
+        (
+            [0.99, 1.0, 1.0100000000003],
+            [1.0, 1.0, 1.0],
+            "scipy_ttest_1samp_error:ModuleNotFoundError",
+        ),
+        ([1e-14, 1e-14, 1e-14], [0.0, 0.0, 0.0], "zero_variance"),
+        ([-1e-14, 0.0, 1e-14], [0.0, 0.0, 0.0], "zero_variance"),
+        ([1e-14], [0.0], "insufficient_observations"),
+    ],
+    ids=[
+        "balanced-unavailable-backend",
+        "balanced-insufficient-n",
+        "near-zero-mean-unavailable-backend",
+        "tiny-constant-nonzero",
+        "tiny-balanced-nonzero",
+        "tiny-single-nonzero",
+    ],
+)
+def test_untestable_nonzero_errors_withhold_trust_after_cas_readback(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    predictions: list[float],
+    truths: list[float],
+    reason: str,
+) -> None:
+    """Mean cancellation and numerical tolerances cannot stand in for a test."""
+
+    def _unavailable(_module_name: str) -> object:
+        raise ModuleNotFoundError("controlled scipy.stats importer denial")
+
+    monkeypatch.setattr(orchestrator_module, "import_module", _unavailable)
+    report = _run_provided_report(tmp_path, predictions=predictions, truths=truths)
+    assert report.cas_artifact_id is not None
+    store = build_ir_artifact_store(tmp_path / ".polisyos")
+    stored_report = BacktestReport.model_validate(get_json_artifact(store, report.cas_artifact_id))
+
+    errors = np.asarray(predictions) - np.asarray(truths)
+    assert np.any(errors != 0.0)
+    assert abs(float(np.mean(errors))) < 1e-12
+    test_result = BacktestOrchestrator._two_sided_ttest(errors)
+    assert test_result.p_value is None
+    assert test_result.reason == reason
+    for observed in (report, stored_report):
+        assert observed.n_metrics_evaluated == len(errors)
+        assert observed.overall_mae == pytest.approx(float(np.mean(np.abs(errors))))
+        assert observed.overall_mae > 0.0
+        assert observed.degraded is True
+        assert any(reason in item for item in observed.degraded_reasons)
+        assert observed.trust_eligible is False
+        assert observed.trust_score is None
+        assert observed.trust_grade is None
+
+
+def test_balanced_nonzero_errors_use_real_scipy_before_trust(
+    tmp_path: Path,
+) -> None:
+    """Available Student's t evidence differs from merely zero mean error."""
+    scipy_stats = pytest.importorskip("scipy.stats")
+    predictions = [0.99, 1.0, 1.01]
+    truths = [1.0, 1.0, 1.0]
+    errors = np.asarray(predictions) - np.asarray(truths)
+    expected = float(scipy_stats.ttest_1samp(errors, popmean=0.0).pvalue)
+    test_result = BacktestOrchestrator._two_sided_ttest(errors)
+
+    assert test_result.p_value == pytest.approx(expected)
+    assert test_result.p_value == pytest.approx(1.0)
+    assert test_result.status == "available"
+    assert test_result.test_name == "one-sample t-test H0(mean_error=0)"
+    report = _run_provided_report(tmp_path, predictions=predictions, truths=truths)
+    assert report.overall_mae > 0.0
+    assert report.degraded is False
+    assert report.trust_eligible is True
+    assert report.trust_grade == "A"
+
+
+@pytest.mark.parametrize("truths", [[1.0], [1.0, 1.0, 1.0]])
+def test_exact_zero_error_control_does_not_claim_backend_availability(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    truths: list[float],
+) -> None:
+    """Exactly equal observations need no significance claim to retain zero error."""
+
+    def _unavailable(_module_name: str) -> object:
+        raise ModuleNotFoundError("controlled scipy.stats importer denial")
+
+    monkeypatch.setattr(orchestrator_module, "import_module", _unavailable)
+    errors = np.zeros(len(truths), dtype=float)
+    assert BacktestOrchestrator._two_sided_ttest(errors).p_value is None
+    assert BacktestOrchestrator._two_sided_ttest(errors).status == "not_computable"
+    report = _run_provided_report(tmp_path, predictions=truths, truths=truths)
+    assert report.overall_mae == 0.0
+    assert report.overall_rmse == 0.0
+    assert report.detected_biases == []
+    assert report.degraded is False
+    assert report.degraded_reasons == []
+    assert report.trust_eligible is True
+    assert report.trust_grade == "A"

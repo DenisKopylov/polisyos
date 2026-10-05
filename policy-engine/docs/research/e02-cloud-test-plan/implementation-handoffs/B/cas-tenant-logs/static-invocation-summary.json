@@ -1,0 +1,22 @@
+{
+  "base": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+  "regressions": [],
+  "new_unresolved_by_construction": [],
+  "coverage": "partial",
+  "runtime_invocation_established": false,
+  "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+  "limitations": [
+    "Static paths do not prove execution, persisted receipts, or gate substance.",
+    "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+    "Concrete public source callables are candidates; helpers are traversed.",
+    "No HTTP route is assumed runnable merely because it has a decorator."
+  ],
+  "denominator": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5899,
+    "base_files": 5898,
+    "source_files": 2697,
+    "current_sha256": "4dac89daeef1be03615f0fed57a40959fba4ca333edbbe8a70d011940a9c81d7",
+    "base_sha256": "95d99f54299d8e66cb1c4a5b9d5a81ec514557d28d3e54df7b0a5f13ab93f0d3"
+  }
+}

@@ -461,12 +461,13 @@
         "fixture_isolation": "pytest tmp_path per check; archive writers share only intentionally contested archive output"
       },
       "input_closure": {
-        "tests_and_source": "tracked source and tests at c40d4acae1ce58b597267255026d9356565828fd; tiny synthetic bytes persisted by FileSystemCAS; real filesystem + Ed25519 controls where relevant",
-        "log_sha256": "bec6528222ad0f40e360c7a712f6f39d4259b81a7d311c8fbeaf048f913eb565"
+        "tests_and_source": "Source c40d4acae1ce58b597267255026d9356565828fd with early untracked four-test overlay; exact early overlay bytes were not retained, so this historical overlay is unpinned exploratory evidence, not independent exact replay proof.",
+        "log_sha256": "bec6528222ad0f40e360c7a712f6f39d4259b81a7d311c8fbeaf048f913eb565",
+        "superseded_by": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json#checks/archive-base-pinned.txt; source c40 + immutable final overlay 9e8574b7c7afeec474e5a0e77c5142da4004d279 blob b2ae6a1bb03c25ad249ea4bb339f7dd0c8dcf9ed"
       },
       "outcome": "FAIL",
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-logs/archive-base-negative.txt",
-      "notes": "Test overlay before production changes; member-write fault alters already verified prior archive. fsync/replace checks were not reached at base; their DID NOT RAISE is additional unsupported-boundary evidence, not product closure."
+      "notes": "Test overlay before production changes; member-write fault alters already verified prior archive. fsync/replace checks were not reached at base; their DID NOT RAISE is additional unsupported-boundary evidence, not product closure. Audit correction: early test overlay was not tracked at c40, and was not byte-identical to the final seven-test file. New pinned replay reproduces 3 FAIL/1 PASS against real source; this original record alone is not_established for exact input replay."
     },
     {
       "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/core/artifacts/test_transfer_publication.py tests/unit/core/phase0/test_artifact_export_import.py tests/unit/remediation/test_cas_01.py tests/unit/remediation/test_cas_03.py tests/unit/core/artifacts/test_artifact_store_protocol.py tests/unit/core/artifacts/test_multi_tenant_shared_cas.py tests/unit/runtime/quality/test_tenant_cas_approval_governance.py -q --tb=short",
@@ -531,11 +532,15 @@
       },
       "input_closure": {
         "tests_and_source": "tracked source and tests at 9e8574b7c7afeec474e5a0e77c5142da4004d279; tiny synthetic bytes persisted by FileSystemCAS; real filesystem + Ed25519 controls where relevant",
-        "log_sha256": "1abdbf12de878bbc22e52aab2099df8fd5702c2ad22d1829a594efe5307f5f0d"
+        "log_sha256": "1abdbf12de878bbc22e52aab2099df8fd5702c2ad22d1829a594efe5307f5f0d",
+        "mutation_driver_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py@bc52270ef2ff65e15faf6f407c569432a765fbf4#archive-live",
+        "mutated_transfer_sha256": "45052887c89774fb72c29a0ce258fad5e787c556d950d95b91a4f555bb841b9d",
+        "test_overlay_blob": "b2ae6a1bb03c25ad249ea4bb339f7dd0c8dcf9ed",
+        "test_overlay_sha256": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa"
       },
       "outcome": "FAIL",
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-logs/archive-removal.txt",
-      "notes": "Expected 3 real byte-preservation failures, 3 property-preserving controls PASS. Source schema/inventory/fsync/staging helper markers retained. Child control is measured on normal candidate; copied namespace spawn was an invalid harness attempt and excluded from this distinct removal probe."
+      "notes": "Expected 3 real byte-preservation failures, 3 property-preserving controls PASS. Source schema/inventory/fsync/staging helper markers retained. Child control is measured on normal candidate; copied namespace spawn was an invalid harness attempt and excluded from this distinct removal probe. Audit correction: retained original mutant source hash and copied test bytes were compared with the immutable committed driver replay and match exactly. New complete replay is cas-tenant-logs/archive-removal-pinned.txt."
     },
     {
       "command": "python -m ruff check src/polisyos/core/artifacts/_transfer_ops.py tests/unit/core/artifacts/test_transfer_publication.py; python -m ruff format --check tests/unit/core/artifacts/test_transfer_publication.py",

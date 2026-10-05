@@ -1,0 +1,707 @@
+{
+  "source_sha": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+  "python": "3.14.2",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "store_source_sha256": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+  "matrix": [
+    {
+      "case": "same-tenant-none-cell",
+      "route": "archive",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": true,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      }
+    },
+    {
+      "case": "same-tenant-none-cell",
+      "route": "directory",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": true,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      }
+    },
+    {
+      "case": "same-tenant-none-cell",
+      "route": "exact-view",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": false,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      }
+    },
+    {
+      "case": "same-tenant-same-cell",
+      "route": "archive",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": true,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      }
+    },
+    {
+      "case": "same-tenant-same-cell",
+      "route": "directory",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": true,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      }
+    },
+    {
+      "case": "same-tenant-same-cell",
+      "route": "exact-view",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": false,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      }
+    },
+    {
+      "case": "foreign-tenant",
+      "route": "archive",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-b",
+        "cell_id": null
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different tenant",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "foreign-tenant",
+      "route": "directory",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-b",
+        "cell_id": null
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different tenant",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "foreign-tenant",
+      "route": "exact-view",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-b",
+        "cell_id": null
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different tenant",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "foreign-cell",
+      "route": "archive",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-b"
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "foreign-cell",
+      "route": "directory",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-b"
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "foreign-cell",
+      "route": "exact-view",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-b"
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "none-cell-to-scoped-cell",
+      "route": "archive",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "none-cell-to-scoped-cell",
+      "route": "directory",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "none-cell-to-scoped-cell",
+      "route": "exact-view",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "scoped-cell-to-none-cell",
+      "route": "archive",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "scoped-cell-to-none-cell",
+      "route": "directory",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "scoped-cell-to-none-cell",
+      "route": "exact-view",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": false
+    },
+    {
+      "case": "bound-to-passive-custody",
+      "route": "archive",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": null,
+      "outcome": "accepted",
+      "claims": null,
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      }
+    },
+    {
+      "case": "bound-to-passive-custody",
+      "route": "directory",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": null,
+      "outcome": "accepted",
+      "claims": null,
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      }
+    },
+    {
+      "case": "bound-to-passive-custody",
+      "route": "exact-view",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": null,
+      "outcome": "accepted",
+      "claims": null,
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      }
+    },
+    {
+      "case": "unbound-to-scoped-owner",
+      "route": "archive",
+      "bound": null,
+      "write_owner": {
+        "tenant_id": "tenant-b",
+        "cell_id": "cell-b"
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": true,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": null
+    },
+    {
+      "case": "unbound-to-scoped-owner",
+      "route": "directory",
+      "bound": null,
+      "write_owner": {
+        "tenant_id": "tenant-b",
+        "cell_id": "cell-b"
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": true,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": null
+    },
+    {
+      "case": "unbound-to-scoped-owner",
+      "route": "exact-view",
+      "bound": null,
+      "write_owner": {
+        "tenant_id": "tenant-b",
+        "cell_id": "cell-b"
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": false,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": null
+    }
+  ],
+  "sibling_generic_put": [
+    {
+      "case": "same-tenant-none-cell",
+      "route": "generic-put",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": true,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      }
+    },
+    {
+      "case": "same-tenant-same-cell",
+      "route": "generic-put",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": true,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      }
+    },
+    {
+      "case": "foreign-tenant",
+      "route": "generic-put",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-b",
+        "cell_id": null
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different tenant",
+      "inventory": []
+    },
+    {
+      "case": "foreign-cell",
+      "route": "generic-put",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-b"
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "inventory": []
+    },
+    {
+      "case": "none-cell-to-scoped-cell",
+      "route": "generic-put",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "inventory": []
+    },
+    {
+      "case": "scoped-cell-to-none-cell",
+      "route": "generic-put",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "outcome": "refused",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "inventory": []
+    },
+    {
+      "case": "bound-to-passive-custody",
+      "route": "generic-put",
+      "bound": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "write_owner": null,
+      "outcome": "accepted",
+      "claims": null,
+      "any_claim": false,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      }
+    },
+    {
+      "case": "unbound-to-scoped-owner",
+      "route": "generic-put",
+      "bound": null,
+      "write_owner": {
+        "tenant_id": "tenant-b",
+        "cell_id": "cell-b"
+      },
+      "outcome": "accepted",
+      "claims": {
+        "default": true,
+        "blob": true,
+        "exact_view": true
+      },
+      "any_claim": true,
+      "pending_intent": false,
+      "has_selected": true,
+      "reopened_bytes_equal": true,
+      "manifest_preserved": true,
+      "manifest_context": null
+    }
+  ],
+  "actual_node_result_cache_consumer": [
+    {
+      "case": "same-tenant-none-cell",
+      "intake": "accepted",
+      "consumer": "loaded"
+    },
+    {
+      "case": "same-tenant-same-cell",
+      "intake": "accepted",
+      "consumer": "loaded"
+    },
+    {
+      "case": "foreign-tenant",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different tenant",
+      "intake_claim": false
+    },
+    {
+      "case": "foreign-cell",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "intake_claim": false
+    },
+    {
+      "case": "none-cell-to-scoped-cell",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "intake_claim": false
+    },
+    {
+      "case": "scoped-cell-to-none-cell",
+      "exception": "ArtifactOwnershipError",
+      "message": "Artifact manifest is bound to a different cell",
+      "intake_claim": false
+    }
+  ],
+  "limitations": "Local temporary real filesystem; no remote service, production dataset, signature-required profile or new policy asserted."
+}

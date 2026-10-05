@@ -1,0 +1,18 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow _______
+tests/unit/runtime/quality/test_promotion_sequence.py:414: in test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow
+1 failed in 21.21s

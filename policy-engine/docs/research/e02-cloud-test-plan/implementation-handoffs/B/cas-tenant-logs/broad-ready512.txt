@@ -1,0 +1,2216 @@
+........................................................................ [ 14%]
+........................................................................ [ 28%]
+......................................................F................. [ 42%]
+........................................................................ [ 56%]
+...........................................FFFFFFF.F.......F....FFFFFFFF [ 70%]
+FFFFFFFFFF.FFFFFFFFFFF.FFFFFFFFFFFFFFFFFFF......FFFFFF...F.....FFFFFFFF. [ 84%]
+....FFFFFFss...sFFFFFFF.FF.FFFFF.FFFFF...........FFFFFFFFFFsFFFFFFFFEEEE [ 98%]
+........                                                                 [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_owned_run_packet_is_redacted_issued_and_publicly_verified _
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: in identify
+    raise ValueError("catalog_fetch_source_unreadable")
+E   ValueError: catalog_fetch_source_unreadable
+_____ ERROR at setup of test_foreign_run_and_client_document_cannot_issue ______
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: in identify
+    raise ValueError("catalog_fetch_source_unreadable")
+E   ValueError: catalog_fetch_source_unreadable
+_ ERROR at setup of test_public_export_refusal_prevents_record_and_link_issuance _
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: in identify
+    raise ValueError("catalog_fetch_source_unreadable")
+E   ValueError: catalog_fetch_source_unreadable
+_ ERROR at setup of test_changed_source_bytes_cannot_issue_under_unchanged_run_reference _
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests/_helpers/runtime_http.py:1486: in runtime_api_env
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/runtime_http.py:1394: in build_runtime_api_env
+    else ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: in identify
+    raise ValueError("catalog_fetch_source_unreadable")
+E   ValueError: catalog_fetch_source_unreadable
+=================================== FAILURES ===================================
+________________ test_import_enforces_existing_tenant_ownership ________________
+tests/unit/remediation/test_cas_02.py:438: in test_import_enforces_existing_tenant_ownership
+    with pytest.raises(PermissionError, match="not owned by tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'PermissionError'>
+___ test_current_input_rejects_legacy_caller_gate_predicates[admissibility] ____
+tests/unit/runtime/quality/test_promotion_sequence.py:410: in test_current_input_rejects_legacy_caller_gate_predicates
+    _promotion_input(**{legacy_field: True})
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+During handling of the above exception, another exception occurred:
+tests/unit/runtime/quality/test_promotion_sequence.py:409: in test_current_input_rejects_legacy_caller_gate_predicates
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'Extra inputs are not permitted'
+E     Actual message: "1 validation error for GroundingDecisionCertificate\n  Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+_ test_current_input_rejects_legacy_caller_gate_predicates[effective_independence] _
+tests/unit/runtime/quality/test_promotion_sequence.py:410: in test_current_input_rejects_legacy_caller_gate_predicates
+    _promotion_input(**{legacy_field: True})
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+During handling of the above exception, another exception occurred:
+tests/unit/runtime/quality/test_promotion_sequence.py:409: in test_current_input_rejects_legacy_caller_gate_predicates
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'Extra inputs are not permitted'
+E     Actual message: "1 validation error for GroundingDecisionCertificate\n  Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+______ test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow _______
+tests/unit/runtime/quality/test_promotion_sequence.py:414: in test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_canonical_promotion_freezes_on_open_world_risk[limited-deployment_scope_limited] _
+tests/unit/runtime/quality/test_promotion_sequence.py:466: in test_canonical_promotion_freezes_on_open_world_risk
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_canonical_promotion_freezes_on_open_world_risk[not_established-deployment_scope_not_established] _
+tests/unit/runtime/quality/test_promotion_sequence.py:466: in test_canonical_promotion_freezes_on_open_world_risk
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_canonical_promotion_freezes_on_scope_not_established ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:478: in test_canonical_promotion_freezes_on_scope_not_established
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______ test_owner_projection_round_trips_exact_open_world_vector_identity ______
+tests/unit/runtime/quality/test_promotion_sequence.py:493: in test_owner_projection_round_trips_exact_open_world_vector_identity
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_______ test_historical_receipt_corpus_replays_without_current_authority _______
+tests/unit/runtime/quality/test_promotion_sequence.py:553: in test_historical_receipt_corpus_replays_without_current_authority
+    assert len(tracked_json) == 2_870
+E   AssertionError: assert 2890 == 2870
+E    +  where 2890 = len((PosixPath('.github/renovate.json'), PosixPath('policy-engine/.devcontainer/devcontainer.json'), PosixPath('policy-eng...apps/runtime-dashboard/.prettierrc.json'), PosixPath('policy-engine/apps/runtime-dashboard/audit-allowlist.json'), ...))
+________ test_v4_v1_history_is_readable_but_cannot_be_current_authority ________
+tests/unit/runtime/quality/test_promotion_sequence.py:1255: in test_v4_v1_history_is_readable_but_cannot_be_current_authority
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________ test_v1_scope_rows_cannot_be_restamped_as_current_authority __________
+tests/unit/runtime/quality/test_promotion_sequence.py:1380: in test_v1_scope_rows_cannot_be_restamped_as_current_authority
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______ test_current_owner_projection_requires_the_physical_open_world_key ______
+tests/unit/runtime/quality/test_promotion_sequence.py:1390: in test_current_owner_projection_requires_the_physical_open_world_key
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____________ test_decision_front_rejects_unbound_open_world_receipt ____________
+tests/unit/runtime/quality/test_promotion_sequence.py:1411: in test_decision_front_rejects_unbound_open_world_receipt
+    receipt = _run(_promotion_input(open_world_gate=gate))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_decision_front_predicate_is_owned_by_canonical_promotion_sequence ____
+tests/unit/runtime/quality/test_promotion_sequence.py:1419: in test_decision_front_predicate_is_owned_by_canonical_promotion_sequence
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_n9_emits_additive_decisive_instances_with_deterministic_identity _____
+tests/unit/runtime/quality/test_promotion_sequence.py:1461: in test_n9_emits_additive_decisive_instances_with_deterministic_identity
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red _
+tests/unit/runtime/quality/test_promotion_sequence.py:1510: in test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution _
+tests/unit/runtime/quality/test_promotion_sequence.py:1540: in test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused ___
+tests/unit/runtime/quality/test_promotion_sequence.py:1615: in test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_____ test_registered_non_calibration_route_cannot_be_omitted_from_ledger ______
+tests/unit/runtime/quality/test_promotion_sequence.py:1639: in test_registered_non_calibration_route_cannot_be_omitted_from_ledger
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation ___
+tests/unit/runtime/quality/test_promotion_sequence.py:1663: in test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________ test_caller_offer_cannot_substitute_for_owner_recomputation __________
+tests/unit/runtime/quality/test_promotion_sequence.py:1682: in test_caller_offer_cannot_substitute_for_owner_recomputation
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows ____
+tests/unit/runtime/quality/test_promotion_sequence.py:1703: in test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__ test_registered_promotion_route_without_owner_producer_fails_before_spend ___
+tests/unit/runtime/quality/test_promotion_sequence.py:1755: in test_registered_promotion_route_without_owner_producer_fails_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________ test_removing_code_owned_data_trust_route_fails_before_spend _________
+tests/unit/runtime/quality/test_promotion_sequence.py:1796: in test_removing_code_owned_data_trust_route_fails_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_relabelled_code_owned_owner_and_verifier_fail_before_spend[owner_ref-attacker.FakeOwner] _
+tests/unit/runtime/quality/test_promotion_sequence.py:1836: in test_relabelled_code_owned_owner_and_verifier_fail_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_relabelled_code_owned_owner_and_verifier_fail_before_spend[verifier_ref-attacker.FakeVerifier] _
+tests/unit/runtime/quality/test_promotion_sequence.py:1836: in test_relabelled_code_owned_owner_and_verifier_fail_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_relabelled_code_owned_owner_and_verifier_fail_before_spend[obligation_class-value] _
+tests/unit/runtime/quality/test_promotion_sequence.py:1836: in test_relabelled_code_owned_owner_and_verifier_fail_before_spend
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______ test_same_class_unrelated_claim_cannot_satisfy_compiled_obligation ______
+tests/unit/runtime/quality/test_promotion_sequence.py:1903: in test_same_class_unrelated_claim_cannot_satisfy_compiled_obligation
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_supported_owner_bound_offer_round_trips_through_generic_validator ____
+tests/unit/runtime/quality/test_promotion_sequence.py:1991: in test_supported_owner_bound_offer_round_trips_through_generic_validator
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable _____
+tests/unit/runtime/quality/test_promotion_sequence.py:2092: in test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable
+    original = _promotion_input()
+               ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable _
+tests/unit/runtime/quality/test_promotion_sequence.py:2143: in test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable
+    original = _promotion_input()
+               ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________ test_unknown_non_calibration_offer_fail_closes_before_spend __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2177: in test_unknown_non_calibration_offer_fail_closes_before_spend
+    promotion_input = _promotion_input(certificate_offers=(offer,))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______ test_n9_receipt_authorizes_only_narrow_projection_and_current_head ______
+tests/unit/runtime/quality/test_promotion_sequence.py:2191: in test_n9_receipt_authorizes_only_narrow_projection_and_current_head
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___________ test_n9_owner_replay_projection_round_trips_through_json ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:2203: in test_n9_owner_replay_projection_round_trips_through_json
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+________ test_ungrounded_candidate_stays_shadow_by_real_grounding_owner ________
+tests/unit/runtime/quality/test_promotion_sequence.py:2213: in test_ungrounded_candidate_stays_shadow_by_real_grounding_owner
+    _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___________________ test_uncalibrated_candidate_stays_shadow ___________________
+tests/unit/runtime/quality/test_promotion_sequence.py:2224: in test_uncalibrated_candidate_stays_shadow
+    receipt = _run(_promotion_input(value_receipt=value))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________________ test_untransportable_candidate_stays_shadow __________________
+tests/unit/runtime/quality/test_promotion_sequence.py:2232: in test_untransportable_candidate_stays_shadow
+    receipt = _run(_promotion_input(value_receipt=value))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_timeout_knob_cannot_decide_effect_or_fabricate_block ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:2239: in test_timeout_knob_cannot_decide_effect_or_fabricate_block
+    receipt = _run(_promotion_input(force_proof_timeout=True))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________ test_lower_boundary_wins_over_optimistic_declared_transform __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2252: in test_lower_boundary_wins_over_optimistic_declared_transform
+    _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_____________________ test_no_cg2_owner_grant_stays_shadow _____________________
+tests/unit/runtime/quality/test_promotion_sequence.py:2296: in test_no_cg2_owner_grant_stays_shadow
+    _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_cg2_open_admissibility_obligation_keeps_promotion_red __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2335: in test_cg2_open_admissibility_obligation_keeps_promotion_red
+    _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______ test_contract_testing_bind_receipt_is_intrinsically_non_promotable ______
+tests/unit/runtime/quality/test_promotion_sequence.py:2351: in test_contract_testing_bind_receipt_is_intrinsically_non_promotable
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_scope_insufficient_obligation_does_not_vacuously_pass __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2360: in test_scope_insufficient_obligation_does_not_vacuously_pass
+    receipt = _run(_promotion_input(g4_governed_promotion_ref=None))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___________ test_scope_insufficient_cannot_mint_production_authority ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:2395: in test_scope_insufficient_cannot_mint_production_authority
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_____________ test_unseen_non_panel_value_receipt_flows_unchanged ______________
+tests/unit/runtime/quality/test_promotion_sequence.py:2413: in test_unseen_non_panel_value_receipt_flows_unchanged
+    receipt = _run(_promotion_input(value_receipt=value))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______________ test_forged_g4_ref_is_refused_by_owner_resolution _______________
+tests/unit/runtime/quality/test_promotion_sequence.py:2421: in test_forged_g4_ref_is_refused_by_owner_resolution
+    receipt = _run(_promotion_input(g4_governed_promotion_ref="pdc://fake/g4/not-resolved"))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______________ test_gyk_witness_pointer_is_not_a_supported_input _______________
+tests/unit/runtime/quality/test_promotion_sequence.py:2431: in test_gyk_witness_pointer_is_not_a_supported_input
+    _promotion_input(entailment_witness_ref="gyk://forged-witness")
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+During handling of the above exception, another exception occurred:
+tests/unit/runtime/quality/test_promotion_sequence.py:2430: in test_gyk_witness_pointer_is_not_a_supported_input
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'Extra inputs are not permitted'
+E     Actual message: "1 validation error for GroundingDecisionCertificate\n  Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+__________ test_invented_measurement_marker_does_not_supply_authority __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2440: in test_invented_measurement_marker_does_not_supply_authority
+    _promotion_input(value_receipt=value.model_copy(update={"value_outer_set": marked_value}))
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_real_dependent_independence_graph_refuses_legacy_true __________
+tests/unit/runtime/quality/test_promotion_sequence.py:2566: in test_real_dependent_independence_graph_refuses_legacy_true
+    _promotion_input(effective_independence=True)
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+During handling of the above exception, another exception occurred:
+tests/unit/runtime/quality/test_promotion_sequence.py:2565: in test_real_dependent_independence_graph_refuses_legacy_true
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'Extra inputs are not permitted'
+E     Actual message: "1 validation error for GroundingDecisionCertificate\n  Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+______ test_empty_independence_graph_cannot_establish_promotion_evidence _______
+tests/unit/runtime/quality/test_promotion_sequence.py:2607: in test_empty_independence_graph_cannot_establish_promotion_evidence
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_____ test_n9_measurement_refuses_catalog_metadata_without_fabric_custody ______
+tests/unit/runtime/quality/test_promotion_sequence.py:2642: in test_n9_measurement_refuses_catalog_metadata_without_fabric_custody
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______________ test_n9_measurement_refuses_all_null_observations _______________
+tests/unit/runtime/quality/test_promotion_sequence.py:2863: in test_n9_measurement_refuses_all_null_observations
+    _assert_invalid_recorded_observations_refused(owner, "all-null values")
+tests/unit/runtime/quality/test_promotion_sequence.py:2898: in _assert_invalid_recorded_observations_refused
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___________ test_n9_measurement_refuses_out_of_contract_observations ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:2889: in test_n9_measurement_refuses_out_of_contract_observations
+    _assert_invalid_recorded_observations_refused(
+tests/unit/runtime/quality/test_promotion_sequence.py:2898: in _assert_invalid_recorded_observations_refused
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+________ test_n9_measurement_recomputes_full_authority_identity[phase] _________
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_______ test_n9_measurement_recomputes_full_authority_identity[profile] ________
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_______ test_n9_measurement_recomputes_full_authority_identity[problem] ________
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________ test_n9_measurement_recomputes_full_authority_identity[time] _________
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_n9_measurement_recomputes_full_authority_identity[authority_role] ____
+tests/unit/runtime/quality/test_promotion_sequence.py:2956: in test_n9_measurement_recomputes_full_authority_identity
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_n9_measurement_rechecks_source_requirement_and_problem[requirement] ___
+tests/unit/runtime/quality/test_promotion_sequence.py:3093: in test_n9_measurement_rechecks_source_requirement_and_problem
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_____ test_n9_measurement_rechecks_source_requirement_and_problem[problem] _____
+tests/unit/runtime/quality/test_promotion_sequence.py:3093: in test_n9_measurement_rechecks_source_requirement_and_problem
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_n9_replays_current_measurement_source_at_admission[catalog_removed] ___
+tests/unit/runtime/quality/test_promotion_sequence.py:3136: in test_n9_replays_current_measurement_source_at_admission
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_n9_replays_current_measurement_source_at_admission[source_changed] ____
+tests/unit/runtime/quality/test_promotion_sequence.py:3136: in test_n9_replays_current_measurement_source_at_admission
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_n9_replays_current_measurement_source_at_admission[payload_missing] ___
+tests/unit/runtime/quality/test_promotion_sequence.py:3136: in test_n9_replays_current_measurement_source_at_admission
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__ test_n9_replays_current_measurement_source_at_admission[contract_changed] ___
+tests/unit/runtime/quality/test_promotion_sequence.py:3136: in test_n9_replays_current_measurement_source_at_admission
+    initial = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_measurement_root_evidence_replays_canonical_base_dataset_envelope ____
+tests/unit/runtime/quality/test_promotion_sequence.py:3244: in test_measurement_root_evidence_replays_canonical_base_dataset_envelope
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/substrate_registry.py:919: in build_substrate_registry_from_existing_catalogs
+    raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
+E   polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/e02-B-cas/policy-engine/production_data/manifest.json
+_ test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[ref_shaped] _
+tests/unit/runtime/quality/test_promotion_sequence.py:3561: in test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/substrate_registry.py:919: in build_substrate_registry_from_existing_catalogs
+    raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
+E   polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/e02-B-cas/policy-engine/production_data/manifest.json
+_ test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[nonexistent_root] _
+tests/unit/runtime/quality/test_promotion_sequence.py:3561: in test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/substrate_registry.py:919: in build_substrate_registry_from_existing_catalogs
+    raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
+E   polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/e02-B-cas/policy-engine/production_data/manifest.json
+_ test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[wrong_content] _
+tests/unit/runtime/quality/test_promotion_sequence.py:3561: in test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/substrate_registry.py:919: in build_substrate_registry_from_existing_catalogs
+    raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
+E   polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/e02-B-cas/policy-engine/production_data/manifest.json
+_ test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_fetch] _
+tests/unit/runtime/quality/test_promotion_sequence.py:3561: in test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/substrate_registry.py:919: in build_substrate_registry_from_existing_catalogs
+    raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
+E   polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/e02-B-cas/policy-engine/production_data/manifest.json
+_ test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_catalog] _
+tests/unit/runtime/quality/test_promotion_sequence.py:3561: in test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/substrate_registry.py:919: in build_substrate_registry_from_existing_catalogs
+    raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
+E   polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/e02-B-cas/policy-engine/production_data/manifest.json
+_ test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[stale_baseline] _
+tests/unit/runtime/quality/test_promotion_sequence.py:3561: in test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/substrate_registry.py:919: in build_substrate_registry_from_existing_catalogs
+    raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
+E   polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/e02-B-cas/policy-engine/production_data/manifest.json
+_ test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[rebound_evidence] _
+tests/unit/runtime/quality/test_promotion_sequence.py:3561: in test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/substrate_registry.py:919: in build_substrate_registry_from_existing_catalogs
+    raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
+E   polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/e02-B-cas/policy-engine/production_data/manifest.json
+____________ test_real_measurement_root_resolves_and_binds_into_n9 _____________
+tests/unit/runtime/quality/test_promotion_sequence.py:3660: in test_real_measurement_root_resolves_and_binds_into_n9
+    promotion_input = _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient _____
+tests/unit/runtime/quality/test_promotion_sequence.py:3922: in test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient
+    receipt = _run(_promotion_input(value_receipt=pilot_value))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+________ test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect _________
+tests/unit/runtime/quality/test_promotion_sequence.py:3942: in test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________________ test_cg1_derived_atom_cannot_satisfy_effect __________________
+tests/unit/runtime/quality/test_promotion_sequence.py:3976: in test_cg1_derived_atom_cannot_satisfy_effect
+    row = _run_effect_case(tmp_path, atom_source="cg1_shadow")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6539: in _run_effect_case
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct ___
+tests/unit/runtime/quality/test_promotion_sequence.py:3985: in test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct
+    row = _run_effect_case(tmp_path, declared_estimand=None)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6539: in _run_effect_case
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct ____
+tests/unit/runtime/quality/test_promotion_sequence.py:3994: in test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct
+    row = _run_effect_case(tmp_path, causal_mechanism_ref=None, remove_effect_path=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6539: in _run_effect_case
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_ungrounded_effect_claim_fails_its_entailment_conjunct __________
+tests/unit/runtime/quality/test_promotion_sequence.py:4001: in test_ungrounded_effect_claim_fails_its_entailment_conjunct
+    row = _run_effect_case(tmp_path, ungrounded=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6539: in _run_effect_case
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_______ test_foreign_candidate_and_wrong_verifier_provenance_fail_closed _______
+tests/unit/runtime/quality/test_promotion_sequence.py:4347: in test_foreign_candidate_and_wrong_verifier_provenance_fail_closed
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__ test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0 ___
+tests/unit/runtime/quality/test_promotion_sequence.py:4414: in test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0
+    data_only = _run(_promotion_input())
+                     ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________________ test_n5_coupling_blocker_refuses_coupling ___________________
+tests/unit/runtime/quality/test_promotion_sequence.py:4430: in test_n5_coupling_blocker_refuses_coupling
+    _promotion_input(
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______________ test_supported_n5_coupling_path_satisfies_coupling ______________
+tests/unit/runtime/quality/test_promotion_sequence.py:4447: in test_supported_n5_coupling_path_satisfies_coupling
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_____ test_effective_independence_missing_is_explicit_decisive_nonreceipt ______
+tests/unit/runtime/quality/test_promotion_sequence.py:4456: in test_effective_independence_missing_is_explicit_decisive_nonreceipt
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______________ test_data_trust_typed_fields_fail_data_obligation _______________
+tests/unit/runtime/quality/test_promotion_sequence.py:4491: in test_data_trust_typed_fields_fail_data_obligation
+    _promotion_input(value_receipt=value.model_copy(update={"value_outer_set": data_bad}))
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____________ test_s6_typed_posture_fails_implementation_obligation _____________
+tests/unit/runtime/quality/test_promotion_sequence.py:4505: in test_s6_typed_posture_fails_implementation_obligation
+    receipt = _run(_promotion_input(s6_blind_spot_posture=s6_bad))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______________ test_hand_edited_confidence_projection_is_rejected ______________
+tests/unit/runtime/quality/test_promotion_sequence.py:4519: in test_hand_edited_confidence_projection_is_rejected
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_____________ test_caller_cannot_supply_authoritative_risk_spends ______________
+tests/unit/runtime/quality/test_promotion_sequence.py:4542: in test_caller_cannot_supply_authoritative_risk_spends
+    _promotion_input(risk_spends=(supplied,))
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+During handling of the above exception, another exception occurred:
+tests/unit/runtime/quality/test_promotion_sequence.py:4541: in test_caller_cannot_supply_authoritative_risk_spends
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'Extra inputs are not permitted'
+E     Actual message: "1 validation error for GroundingDecisionCertificate\n  Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+_________ test_n9_rejects_session_bound_to_a_different_design_problem __________
+tests/unit/runtime/quality/test_promotion_sequence.py:4556: in test_n9_rejects_session_bound_to_a_different_design_problem
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_____ test_value_receipt_candidate_mismatch_fails_closed_before_accounting _____
+tests/unit/runtime/quality/test_promotion_sequence.py:4572: in test_value_receipt_candidate_mismatch_fails_closed_before_accounting
+    _promotion_input(value_receipt=value)
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+During handling of the above exception, another exception occurred:
+tests/unit/runtime/quality/test_promotion_sequence.py:4571: in test_value_receipt_candidate_mismatch_fails_closed_before_accounting
+    with pytest.raises(ValueError, match="promotion_value_candidate_binding_mismatch"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'promotion_value_candidate_binding_mismatch'
+E     Actual message: "1 validation error for GroundingDecisionCertificate\n  Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+________ test_verification_ledger_session_cannot_run_n9_authority_path _________
+tests/unit/runtime/quality/test_promotion_sequence.py:4578: in test_verification_ledger_session_cannot_run_n9_authority_path
+    _promotion_input(),
+    ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+During handling of the above exception, another exception occurred:
+tests/unit/runtime/quality/test_promotion_sequence.py:4576: in test_verification_ledger_session_cannot_run_n9_authority_path
+    with pytest.raises(ValueError, match="confidence_ledger_authority_session_required"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'confidence_ledger_authority_session_required'
+E     Actual message: "1 validation error for GroundingDecisionCertificate\n  Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+__ test_private_verification_sequence_stamps_receipt_non_consumer_promotable ___
+tests/unit/runtime/quality/test_promotion_sequence.py:4584: in test_private_verification_sequence_stamps_receipt_non_consumer_promotable
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+________ test_private_verification_boundary_rejects_alternate_registry _________
+tests/unit/runtime/quality/test_promotion_sequence.py:4598: in test_private_verification_boundary_rejects_alternate_registry
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_public_validator_rejects_verification_before_opening_authority_namespace _
+tests/unit/runtime/quality/test_promotion_sequence.py:4645: in test_public_validator_rejects_verification_before_opening_authority_namespace
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+________ test_private_verification_revalidator_recomputes_current_head _________
+tests/unit/runtime/quality/test_promotion_sequence.py:4668: in test_private_verification_revalidator_recomputes_current_head
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_______ test_private_verification_revalidator_requires_loaded_owner_repo _______
+tests/unit/runtime/quality/test_promotion_sequence.py:4689: in test_private_verification_revalidator_requires_loaded_owner_repo
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________ test_verification_projection_is_not_n9_authority_provenance __________
+tests/unit/runtime/quality/test_promotion_sequence.py:4706: in test_verification_projection_is_not_n9_authority_provenance
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_schedule_slot_is_reserved_before_obligation_outcomes ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:4721: in test_schedule_slot_is_reserved_before_obligation_outcomes
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_________ test_probabilistic_certificate_bypassing_ledger_is_rejected __________
+tests/unit/runtime/quality/test_promotion_sequence.py:5023: in test_probabilistic_certificate_bypassing_ledger_is_rejected
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______ test_non_calibration_probabilistic_certificate_bypass_is_rejected _______
+tests/unit/runtime/quality/test_promotion_sequence.py:5052: in test_non_calibration_probabilistic_certificate_bypass_is_rejected
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation ____
+tests/unit/runtime/quality/test_promotion_sequence.py:5081: in test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation
+    receipt = _run(_promotion_input(g4_governed_promotion_ref="pdc://forged/g4/not-resolved"))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______ test_rehashed_computed_boundary_is_rejected_by_owner_recomputation ______
+tests/unit/runtime/quality/test_promotion_sequence.py:5111: in test_rehashed_computed_boundary_is_rejected_by_owner_recomputation
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_rehashed_contract_lane_as_production_is_rejected_by_owner_recomputation _
+tests/unit/runtime/quality/test_promotion_sequence.py:5123: in test_rehashed_contract_lane_as_production_is_rejected_by_owner_recomputation
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_receipt_candidate_id_must_match_replayed_owner_input ___________
+tests/unit/runtime/quality/test_promotion_sequence.py:5142: in test_receipt_candidate_id_must_match_replayed_owner_input
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______ test_rehashed_owner_projection_still_fails_live_candidate_binding _______
+tests/unit/runtime/quality/test_promotion_sequence.py:5151: in test_rehashed_owner_projection_still_fails_live_candidate_binding
+    receipt = _run(_promotion_input())
+                   ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_empty_ledger_projection_cannot_insure_forged_probabilistic_success ____
+tests/unit/runtime/quality/test_promotion_sequence.py:5181: in test_empty_ledger_projection_cannot_insure_forged_probabilistic_success
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_ledger_claim_scope_is_recomputed_from_candidate_owner __________
+tests/unit/runtime/quality/test_promotion_sequence.py:5252: in test_ledger_claim_scope_is_recomputed_from_candidate_owner
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_______ test_failed_obligation_cannot_be_relabelled_into_decision_front ________
+tests/unit/runtime/quality/test_promotion_sequence.py:5313: in test_failed_obligation_cannot_be_relabelled_into_decision_front
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__ test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission __
+tests/unit/runtime/quality/test_promotion_sequence.py:5453: in test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_n9_semantic_ledger_changes_with_governing_owner_input __________
+tests/unit/runtime/quality/test_promotion_sequence.py:5519: in test_n9_semantic_ledger_changes_with_governing_owner_input
+    baseline_input = _promotion_input()
+                     ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+___ test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage ____
+tests/unit/runtime/quality/test_promotion_sequence.py:5581: in test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_promotion_comparison_repairs_current_v6_lineage_only_through_live_owner_proof _
+tests/unit/runtime/quality/test_promotion_sequence.py:5612: in test_promotion_comparison_repairs_current_v6_lineage_only_through_live_owner_proof
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+______ test_promotion_comparison_refuses_v2_without_open_world_owner_fact ______
+tests/unit/runtime/quality/test_promotion_sequence.py:5646: in test_promotion_comparison_refuses_v2_without_open_world_owner_fact
+    promotion_input = _promotion_input()
+                      ^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:5762: in _promotion_input
+    reference, decision = _cg2_contract_bind()
+                          ^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_promotion_sequence.py:6134: in _cg2_contract_bind
+    return reference, GroundingDecisionCertificate.model_validate(payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for GroundingDecisionCertificate
+E     Value error, grounding_admission_strangle_drift [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__________ test_legacy_browser_token_receives_public_verifier_refusal __________
+tests/unit/runtime/http/test_public_decision_verification_routes.py:20: in test_legacy_browser_token_receives_public_verifier_refusal
+    with TestClient(app) as client:
+         ^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:688: in __enter__
+    portal.call(self.wait_startup)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:326: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:723: in wait_startup
+    await receive()
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:714: in receive
+    self.task.result()
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:443: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:704: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/applications.py:1138: in __call__
+    await super().__call__(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/applications.py:107: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py:151: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+src/polisyos/runtime/http/authz_middleware.py:568: in __call__
+    await self._app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/gzip.py:19: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py:49: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:725: in app
+    await self.lifespan(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:694: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/app.py:261: in _runtime_lifespan
+    await runtime_container.startup(app)
+src/polisyos/runtime/http/container.py:387: in startup
+    control_service = ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: in identify
+    raise ValueError("catalog_fetch_source_unreadable")
+E   ValueError: catalog_fetch_source_unreadable
+_______ test_public_verification_does_not_make_private_run_routes_public _______
+tests/unit/runtime/http/test_public_decision_verification_routes.py:36: in test_public_verification_does_not_make_private_run_routes_public
+    with TestClient(app) as client:
+         ^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:688: in __enter__
+    portal.call(self.wait_startup)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:326: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:723: in wait_startup
+    await receive()
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:714: in receive
+    self.task.result()
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:443: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:704: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/applications.py:1138: in __call__
+    await super().__call__(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/applications.py:107: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py:151: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+src/polisyos/runtime/http/authz_middleware.py:568: in __call__
+    await self._app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/gzip.py:19: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py:49: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:725: in app
+    await self.lifespan(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:694: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/app.py:261: in _runtime_lifespan
+    await runtime_container.startup(app)
+src/polisyos/runtime/http/container.py:387: in startup
+    control_service = ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: in identify
+    raise ValueError("catalog_fetch_source_unreadable")
+E   ValueError: catalog_fetch_source_unreadable
+_ test_served_verifier_denies_signature_intent_and_counterfactual_tracks_gate __
+tests/unit/runtime/http/test_public_decision_verification_routes.py:140: in test_served_verifier_denies_signature_intent_and_counterfactual_tracks_gate
+    with TestClient(app) as client:
+         ^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:688: in __enter__
+    portal.call(self.wait_startup)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:326: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:723: in wait_startup
+    await receive()
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:714: in receive
+    self.task.result()
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:443: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/testclient.py:704: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/applications.py:1138: in __call__
+    await super().__call__(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/applications.py:107: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py:151: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+src/polisyos/runtime/http/authz_middleware.py:568: in __call__
+    await self._app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/gzip.py:19: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py:49: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:725: in app
+    await self.lifespan(scope, receive, send)
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/starlette/routing.py:694: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/app.py:261: in _runtime_lifespan
+    await runtime_container.startup(app)
+src/polisyos/runtime/http/container.py:387: in startup
+    control_service = ControlPlaneService(
+src/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__
+    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+src/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__
+    self._store = DatasetCatalogStore(
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__
+    self._session_source_identities = self._fetch_source_identities()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities
+    identify(self._db_path),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: in identify
+    raise ValueError("catalog_fetch_source_unreadable")
+E   ValueError: catalog_fetch_source_unreadable
+=============================== warnings summary ===============================
+tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters
+  tests/unit/remediation/test_cas_01.py:772: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_lock_registry_is_bounded_without_evicting_active_waiters(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_current_input_rejects_legacy_caller_gate_predicates[admissibility]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_current_input_rejects_legacy_caller_gate_predicates[effective_independence]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_canonical_promotion_freezes_on_open_world_risk[limited-deployment_scope_limited]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_canonical_promotion_freezes_on_open_world_risk[not_established-deployment_scope_not_established]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_canonical_promotion_freezes_on_scope_not_established
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_owner_projection_round_trips_exact_open_world_vector_identity
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_historical_receipt_corpus_replays_without_current_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_v4_v1_history_is_readable_but_cannot_be_current_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_v1_scope_rows_cannot_be_restamped_as_current_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_current_owner_projection_requires_the_physical_open_world_key
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_decision_front_rejects_unbound_open_world_receipt
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_decision_front_predicate_is_owned_by_canonical_promotion_sequence
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_emits_additive_decisive_instances_with_deterministic_identity
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_registered_non_calibration_route_cannot_be_omitted_from_ledger
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_caller_offer_cannot_substitute_for_owner_recomputation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_registered_promotion_route_without_owner_producer_fails_before_spend
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_removing_code_owned_data_trust_route_fails_before_spend
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_relabelled_code_owned_owner_and_verifier_fail_before_spend[owner_ref-attacker.FakeOwner]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_relabelled_code_owned_owner_and_verifier_fail_before_spend[verifier_ref-attacker.FakeVerifier]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_relabelled_code_owned_owner_and_verifier_fail_before_spend[obligation_class-value]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_same_class_unrelated_claim_cannot_satisfy_compiled_obligation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_supported_owner_bound_offer_round_trips_through_generic_validator
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_unknown_non_calibration_offer_fail_closes_before_spend
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_receipt_authorizes_only_narrow_projection_and_current_head
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_owner_replay_projection_round_trips_through_json
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_ungrounded_candidate_stays_shadow_by_real_grounding_owner
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_uncalibrated_candidate_stays_shadow
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_untransportable_candidate_stays_shadow
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_timeout_knob_cannot_decide_effect_or_fabricate_block
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_lower_boundary_wins_over_optimistic_declared_transform
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_no_cg2_owner_grant_stays_shadow
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_cg2_open_admissibility_obligation_keeps_promotion_red
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_contract_testing_bind_receipt_is_intrinsically_non_promotable
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_scope_insufficient_obligation_does_not_vacuously_pass
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_scope_insufficient_cannot_mint_production_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_unseen_non_panel_value_receipt_flows_unchanged
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_forged_g4_ref_is_refused_by_owner_resolution
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_gyk_witness_pointer_is_not_a_supported_input
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_invented_measurement_marker_does_not_supply_authority
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_real_dependent_independence_graph_refuses_legacy_true
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_empty_independence_graph_cannot_establish_promotion_evidence
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_catalog_metadata_without_fabric_custody
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_all_null_observations
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_out_of_contract_observations
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[phase]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[profile]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[problem]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[time]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[authority_role]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_rechecks_source_requirement_and_problem[requirement]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_rechecks_source_requirement_and_problem[problem]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_replays_current_measurement_source_at_admission[catalog_removed]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_replays_current_measurement_source_at_admission[source_changed]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_replays_current_measurement_source_at_admission[payload_missing]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_replays_current_measurement_source_at_admission[contract_changed]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_root_evidence_replays_canonical_base_dataset_envelope
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[ref_shaped]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[nonexistent_root]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[wrong_content]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_fetch]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_catalog]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[stale_baseline]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[rebound_evidence]
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_cg1_derived_atom_cannot_satisfy_effect
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_ungrounded_effect_claim_fails_its_entailment_conjunct
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_foreign_candidate_and_wrong_verifier_provenance_fail_closed
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n5_coupling_blocker_refuses_coupling
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_supported_n5_coupling_path_satisfies_coupling
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_effective_independence_missing_is_explicit_decisive_nonreceipt
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_data_trust_typed_fields_fail_data_obligation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_s6_typed_posture_fails_implementation_obligation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_hand_edited_confidence_projection_is_rejected
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_caller_cannot_supply_authoritative_risk_spends
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_rejects_session_bound_to_a_different_design_problem
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_value_receipt_candidate_mismatch_fails_closed_before_accounting
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_verification_ledger_session_cannot_run_n9_authority_path
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_private_verification_sequence_stamps_receipt_non_consumer_promotable
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_private_verification_boundary_rejects_alternate_registry
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_public_validator_rejects_verification_before_opening_authority_namespace
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_private_verification_revalidator_recomputes_current_head
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_private_verification_revalidator_requires_loaded_owner_repo
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_verification_projection_is_not_n9_authority_provenance
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_schedule_slot_is_reserved_before_obligation_outcomes
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_probabilistic_certificate_bypassing_ledger_is_rejected
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_non_calibration_probabilistic_certificate_bypass_is_rejected
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_rehashed_computed_boundary_is_rejected_by_owner_recomputation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_rehashed_contract_lane_as_production_is_rejected_by_owner_recomputation
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_receipt_candidate_id_must_match_replayed_owner_input
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_rehashed_owner_projection_still_fails_live_candidate_binding
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_empty_ledger_projection_cannot_insure_forged_probabilistic_success
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_ledger_claim_scope_is_recomputed_from_candidate_owner
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_failed_obligation_cannot_be_relabelled_into_decision_front
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_semantic_ledger_changes_with_governing_owner_input
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_promotion_comparison_repairs_current_v6_lineage_only_through_live_owner_proof
+FAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_promotion_comparison_refuses_v2_without_open_world_owner_fact
+FAILED tests/unit/runtime/http/test_public_decision_verification_routes.py::test_legacy_browser_token_receives_public_verifier_refusal
+FAILED tests/unit/runtime/http/test_public_decision_verification_routes.py::test_public_verification_does_not_make_private_run_routes_public
+FAILED tests/unit/runtime/http/test_public_decision_verification_routes.py::test_served_verifier_denies_signature_intent_and_counterfactual_tracks_gate
+ERROR tests/unit/runtime/http/test_public_decision_verification_routes.py::test_owned_run_packet_is_redacted_issued_and_publicly_verified
+ERROR tests/unit/runtime/http/test_public_decision_verification_routes.py::test_foreign_run_and_client_document_cannot_issue
+ERROR tests/unit/runtime/http/test_public_decision_verification_routes.py::test_public_export_refusal_prevents_record_and_link_issuance
+ERROR tests/unit/runtime/http/test_public_decision_verification_routes.py::test_changed_source_bytes_cannot_issue_under_unchanged_run_reference
+116 failed, 388 passed, 4 skipped, 1 warning, 4 errors in 352.36s (0:05:52)

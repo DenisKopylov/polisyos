@@ -1,0 +1,6 @@
+duckdb 1.4.3
+allow_unsigned_extensions=False
+httpfs gzip_sha256 786b8e1aea9b49bb3072dba9f553d84c1a9aa042e9351124bb3ec2753b221227 binary_sha256 2dca95b258267f5b5285294b59cd80fd58794f8020c24a541ce5b7569d713921
+fts gzip_sha256 ed5e639aee5070dee0b58f60322393c1861c5c82d57164192065ef758f1371b5 binary_sha256 dc1e96493bd03a240c90a08236b66af27a499266dfa2f55729dcf9dbab592a20
+[('fts', True, True, '/home/agent/.duckdb/extensions/v1.4.3/linux_amd64/fts.duckdb_extension', '3937662'), ('httpfs', True, True, '/home/agent/.duckdb/extensions/v1.4.3/linux_amd64/httpfs.duckdb_extension', '9c7d349')]
+real_fts_query [(1,)]

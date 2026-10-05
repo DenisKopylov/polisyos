@@ -48,8 +48,10 @@ print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':pl
     started = datetime.now(timezone.utc).isoformat()
     clock = time.monotonic()
     with (args.output / "native.txt").open("wb") as stream:
-        run = subprocess.run(["/usr/bin/time", "-v", *argv], cwd=repo / "policy-engine",
-                             env=env, stdout=stream, stderr=subprocess.STDOUT)
+        run = subprocess.Popen(argv, cwd=repo / "policy-engine", env=env,
+                               stdout=stream, stderr=subprocess.STDOUT)
+        _pid, status, usage = os.wait4(run.pid, 0)
+        run.returncode = os.waitstatus_to_exitcode(status)
     elapsed = time.monotonic() - clock
     after = {"sha": git("rev-parse", "HEAD"), "tree": git("rev-parse", "HEAD^{tree}"),
              "branch": git("symbolic-ref", "HEAD"), "status": git("status", "--porcelain")}
@@ -61,7 +63,9 @@ print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':pl
             outputs[name] = {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
     receipt = {"schema": "policyos.e02.B_native_execution.v1", "started_utc": started,
                "finished_utc": datetime.now(timezone.utc).isoformat(), "wall_s": elapsed,
-               "command_argv": argv, "measurement_argv_prefix": ["/usr/bin/time", "-v"],
+               "command_argv": argv, "resource_measurement": "os.wait4 on the actual pytest child PID",
+               "max_rss_kib": usage.ru_maxrss / 1024 if sys.platform == "darwin" else usage.ru_maxrss,
+               "user_cpu_s": usage.ru_utime, "system_cpu_s": usage.ru_stime,
                "cwd": str(repo / "policy-engine"), "environment":
                {"PYTHONPATH": env["PYTHONPATH"], "POLISYOS_METRICS_PORT": "0"},
                "interpreter": identity, "source_before": before, "source_after": after,

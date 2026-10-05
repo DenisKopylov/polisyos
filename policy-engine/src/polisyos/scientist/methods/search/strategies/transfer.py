@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core import canon
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies.types import Evaluation, EvaluationStatus
@@ -145,7 +146,6 @@ class TransferLearningManager:
         run fingerprint for similarity search.
         """
         from polisyos.core.artifacts.store import PutOptions
-        from polisyos.core.canon.canon_json import CanonSpec
 
         if not evaluations:
             return None
@@ -175,7 +175,7 @@ class TransferLearningManager:
                 kind="search.transfer.history",
                 media_type="application/json",
             ),
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
         )
 
         # Index the run in vector memory
@@ -458,14 +458,12 @@ class TransferLearningManager:
         if not evaluation.provenance_ref:
             return "missing original evaluation reference"
         try:
-            from polisyos.core.canon import from_canonical_bytes
-
             candidate_ref = ArtifactRef(
                 artifact_id=evaluation.candidate_id,
                 kind="search.candidate",
                 media_type="application/json",
             )
-            candidate_payload = from_canonical_bytes(
+            candidate_payload = canon.from_canonical_bytes(
                 self._store.get_bytes(candidate_ref.artifact_id)
             )
             ref = ArtifactRef(
@@ -473,7 +471,7 @@ class TransferLearningManager:
                 kind="search.evaluation",
                 media_type="application/json",
             )
-            payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
+            payload = canon.from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
         except (TypeError, ValueError, OSError, KeyError) as exc:
             return f"original evaluation unavailable or corrupt: {exc}"
         rejection = self._candidate_parameter_rejection(candidate_payload, evaluation.params)
@@ -817,14 +815,12 @@ class TransferLearningManager:
         self, ref: ArtifactRef, source: RunFingerprint | None = None
     ) -> list[dict[str, Any]]:
         """Read one validated JSON history payload from its exact CAS ref."""
-        from polisyos.core.canon import from_canonical_bytes
-
         try:
             raw = self._store.get_bytes(ref.artifact_id)
         except (OSError, KeyError) as exc:
             raise TransferHistoryError("snapshot unavailable", str(ref.artifact_id)) from exc
         try:
-            data = from_canonical_bytes(raw)
+            data = canon.from_canonical_bytes(raw)
         except (TypeError, ValueError) as exc:
             raise TransferHistoryError("snapshot corrupt", str(ref.artifact_id)) from exc
         if not isinstance(data, dict):

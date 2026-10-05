@@ -1067,7 +1067,7 @@
       "state": "bounded_process_and_queued_thread_refusal_verified_with_served_worker_residual",
       "scope_and_limitations": "Linux owned descendants/grandchildren/new-session tree are killed and reaped; unstarted async-thread job is synchronously cancelled on timeout or caller cancellation and cannot execute a raw file write after same-turn pool release. Already running arbitrary thread/coroutine/served-worker effects and completed external effects remain outside the bounded contract.",
       "next_owner": "B runtime worker owner; A served lifecycle consumer",
-      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"late or timeout\"",
+      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"late or timeout or queued\"",
       "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
     },
     {

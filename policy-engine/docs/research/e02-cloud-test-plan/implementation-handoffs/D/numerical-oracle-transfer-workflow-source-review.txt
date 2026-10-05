@@ -1,0 +1,17 @@
+review_type=SOURCE_REVIEW_ONLY; runtime not independently duplicated
+review_target_sha=dabdd83fe235155a91dc6c7b1d85c7cfa5db6346
+review_target_tree_sha=de7d4f0a4e67f32dc26cb7182f8f1469a982094a
+test_source_sha=efe999fb143e05b501368d46d3109714e23760f8
+path=policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py
+source_sha256=54f4b2af8fa1ef942318d153a0597492163b87239564ff75b76457652773c56c
+test_source_identical_to_efe=True
+review_observation=Real FileSystemCAS source candidates and original BenchmarkEvaluations; configured TransferLearningManager/WarmStartBridge -> BayesianCandidateGenerator -> SearchLoopRunner -> real SingleTaskGP. No mock GP.
+corpus_assertion=All8 physical input rows; actual model._original_train_inputs or train_inputs; inverse outcome_transform.untransform of actual train_targets versus negative raw measured minimize scores; strict full torch.testing.assert_close.
+execution_assertion=Read actual receiving candidate CAS and actual measured evaluation; matching candidate ref and raw100*x*x; target loop; original source bytes unchanged; no invented holdout and no champion.
+negative_control_changed_origin=0 admitted rows, no model/warm corpus, visible discovery issue, actual Sobol initialization.
+negative_control_malformed_outcome=String false cannot become true; exact7 real GP rows, accepted7 rejected1, exact candidate ID and controlled boolean diagnostic.
+independent_source_review_verdict=PASS_BOUNDED_SOURCE_REVIEW; no additional blocker; no statistical acceleration or production historical equivalence claim.
+runtime_provenance=Transfer owner reported3PASS at exact4097a0174164564d5feb1f93c11fa137468a6d77; parent stable95-file run atdabdd83fe235155a91dc6c7b1d85c7cfa5db6346 includes test and reports6 different failing selectors. This is external runtime evidence, not leaf execution.
+parent_broad_log_path=/workspace/e02-D-receipts/final-regression.log
+parent_broad_log_sha256=20cda897c60275a103d5096fdeb59083ded2737fed82fbb9b2526c18df3f7080
+parent_overall_gate=FAIL; six failures separately replayed by leaf at both base/final.

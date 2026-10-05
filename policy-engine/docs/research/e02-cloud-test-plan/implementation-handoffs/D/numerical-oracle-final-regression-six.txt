@@ -1,0 +1,130 @@
+python=/workspace/e02-D-locked-env/bin/python
+python_version=3.14.7
+archive_scope=complete tracked policy-engine, including source/tests/tools/config/architecture
+command=python -m pytest tests/unit/scientist/methods/autotune/test_calibration_autotune.py::test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence tests/unit/scientist/methods/autotune/test_reflexion_autotune.py::test_reflexion_replay_benchmark_promotes_better_recoverable_route tests/unit/scientist/search/test_cheap_stage_autotune.py::test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_persists_readiness_and_updates_champion tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_missing_prior_knowledge_caps_readiness_below_recommendation_ready tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler --tb=short -ra
+
+cell=slice_base
+source_sha=c40d4acae1ce58b597267255026d9356565828fd
+source_tree_sha=897662caf73bd4487f798d66938b74d7abfe753e
+archive=/tmp/e02-numerical-six-slice_base.g0icmzay
+PYTHONPATH=/tmp/e02-numerical-six-slice_base.g0icmzay/policy-engine/src
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+____ test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence ____
+tests/unit/scientist/methods/autotune/test_calibration_autotune.py:199: in test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence
+    assert good_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='calibration_meta', promoted=False, reason='suite_ref_required', champion=None, previous_champion=None).promoted
+______ test_reflexion_replay_benchmark_promotes_better_recoverable_route _______
+tests/unit/scientist/methods/autotune/test_reflexion_autotune.py:140: in test_reflexion_replay_benchmark_promotes_better_recoverable_route
+    assert decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='reflexion_routing', promoted=False, reason='suite_ref_required', champion=None, previous_champion=None).promoted
+____ test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold ____
+tests/unit/scientist/search/test_cheap_stage_autotune.py:118: in test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold
+    assert good_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='cheap_stage', promoted=False, reason='suite_ref_required', champion=None, previous_champion=None).promoted
+______ test_promotion_coordinator_persists_readiness_and_updates_champion ______
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:1200: in test_promotion_coordinator_persists_readiness_and_updates_champion
+    assert result.promotion_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E    +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+____ test_missing_prior_knowledge_caps_readiness_below_recommendation_ready ____
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:1290: in test_missing_prior_knowledge_caps_readiness_below_recommendation_ready
+    assert result.promotion_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E    +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+___ test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler ____
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:2285: in test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler
+    assert result.promotion_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E    +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_calibration_autotune.py::test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence
+FAILED tests/unit/scientist/methods/autotune/test_reflexion_autotune.py::test_reflexion_replay_benchmark_promotes_better_recoverable_route
+FAILED tests/unit/scientist/search/test_cheap_stage_autotune.py::test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_persists_readiness_and_updates_champion
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_missing_prior_knowledge_caps_readiness_below_recommendation_ready
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler
+6 failed, 2 warnings in 13.04s
+slice_base_exit=1
+
+cell=frozen_final
+source_sha=dabdd83fe235155a91dc6c7b1d85c7cfa5db6346
+source_tree_sha=de7d4f0a4e67f32dc26cb7182f8f1469a982094a
+archive=/tmp/e02-numerical-six-frozen_final.bkjlkmqi
+PYTHONPATH=/tmp/e02-numerical-six-frozen_final.bkjlkmqi/policy-engine/src
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+____ test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence ____
+tests/unit/scientist/methods/autotune/test_calibration_autotune.py:199: in test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence
+    assert good_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='calibration_meta', promoted=False, reason='suite_ref_required', champion=None, previous_champion=None).promoted
+______ test_reflexion_replay_benchmark_promotes_better_recoverable_route _______
+tests/unit/scientist/methods/autotune/test_reflexion_autotune.py:140: in test_reflexion_replay_benchmark_promotes_better_recoverable_route
+    assert decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='reflexion_routing', promoted=False, reason='suite_ref_required', champion=None, previous_champion=None).promoted
+____ test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold ____
+tests/unit/scientist/search/test_cheap_stage_autotune.py:118: in test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold
+    assert good_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='cheap_stage', promoted=False, reason='suite_ref_required', champion=None, previous_champion=None).promoted
+______ test_promotion_coordinator_persists_readiness_and_updates_champion ______
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:1200: in test_promotion_coordinator_persists_readiness_and_updates_champion
+    assert result.promotion_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E    +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+____ test_missing_prior_knowledge_caps_readiness_below_recommendation_ready ____
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:1290: in test_missing_prior_knowledge_caps_readiness_below_recommendation_ready
+    assert result.promotion_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E    +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+___ test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler ____
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:2285: in test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler
+    assert result.promotion_decision.promoted is True
+E   AssertionError: assert False is True
+E    +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E    +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_calibration_autotune.py::test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence
+FAILED tests/unit/scientist/methods/autotune/test_reflexion_autotune.py::test_reflexion_replay_benchmark_promotes_better_recoverable_route
+FAILED tests/unit/scientist/search/test_cheap_stage_autotune.py::test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_persists_readiness_and_updates_champion
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_missing_prior_knowledge_caps_readiness_below_recommendation_ready
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler
+6 failed, 2 warnings in 12.99s
+frozen_final_exit=1
+
+source_failure_mechanism_identity
+{"path": "policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py", "base_blob": "59b9ac517d74676abd6ad12022fccb6d79bc02db", "final_blob": "59b9ac517d74676abd6ad12022fccb6d79bc02db", "same": true}
+{"path": "policy-engine/tests/unit/scientist/methods/autotune/test_reflexion_autotune.py", "base_blob": "a628409e4b37acd5df2398ffb72395ec0dea3720", "final_blob": "a628409e4b37acd5df2398ffb72395ec0dea3720", "same": true}
+{"path": "policy-engine/tests/unit/scientist/search/test_cheap_stage_autotune.py", "base_blob": "8abbaafa1016af79603ff44b943496347dc8379f", "final_blob": "8abbaafa1016af79603ff44b943496347dc8379f", "same": true}
+{"path": "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py", "base_blob": "72714f78c14adcff1f5ec83f570eb188cccfd1bf", "final_blob": "72714f78c14adcff1f5ec83f570eb188cccfd1bf", "same": true}
+{"path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py", "base_blob": "596ce03c9dd59972e5754b4f3a9ff9be960c2470", "final_blob": "596ce03c9dd59972e5754b4f3a9ff9be960c2470", "same": true}
+{"path": "policy-engine/src/polisyos/scientist/methods/search/judge_stack.py", "base_blob": "85e51430799715e630d2a53a05f6dd92ee800964", "final_blob": "85e51430799715e630d2a53a05f6dd92ee800964", "same": true}
+listed_failure_mechanism_artifact_denominator=6
+changed_listed_failure_mechanism_artifacts=0
+not_a_full_transitive_callgraph_denominator=true
+root_gate_verdict=FAIL

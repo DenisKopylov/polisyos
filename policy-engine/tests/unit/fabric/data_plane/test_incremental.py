@@ -43,6 +43,110 @@ def _make_evidence_bundle(store: FileSystemCAS):
 
 
 class TestBatchIncremental:
+    def test_builtin_rest_uses_persisted_cursor_without_promoting_new_watermark(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        """A real REST request uses its cursor while evidence stays unacknowledged."""
+        import json
+        import threading
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        from urllib.parse import parse_qs, urlsplit
+
+        from polisyos.core.canon import from_canonical_bytes
+        from polisyos.core.contracts.fabric import EvidenceBundle
+        from polisyos.fabric.connectors.base import ConnectionConfig
+        from polisyos.fabric.connectors.cache._store_serialization import ResultSerializer
+        from polisyos.fabric.connectors.registry import ConnectorRegistry
+        from polisyos.fabric.data_plane.modes import run_batch_incremental
+        from polisyos.fabric.ingestion import resolve_ingestion_dependencies
+
+        server_calls: list[tuple[str, str, dict[str, list[str]]]] = []
+
+        class _Handler(BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                parsed = urlsplit(self.path)
+                server_calls.append((self.command, parsed.path, parse_qs(parsed.query)))
+                body = json.dumps({"data": [{"id": "row-1", "value": 7}]}).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("ETag", '"etag-next"')
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, format: str, *args: object) -> None:
+                del format, args
+
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        cursor_store = CursorStore(store)
+        cursor_store.save_cursor(
+            CursorState(
+                cursor_id="rest.json:dataset",
+                connector_id="rest.json",
+                dataset_id="dataset",
+                watermark_type=WatermarkType.ETAG,
+                watermark_value='"etag-prior"',
+                created_at=datetime(2026, 10, 1, tzinfo=UTC),
+            )
+        )
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        registry: ConnectorRegistry | None = None
+        thread.start()
+        try:
+            registry = ConnectorRegistry.get_instance()
+            result = run_batch_incremental(
+                connector_manifest={
+                    "datasets": [{"connector_id": "rest.json", "dataset_id": "dataset"}]
+                },
+                source="test",
+                license_name="fixture-only",
+                cas_root=cas_root,
+                connection_config=ConnectionConfig(
+                    url=f"http://127.0.0.1:{server.server_port}/records"
+                ),
+                produce_snapshot=False,
+                ingestion_dependencies=resolve_ingestion_dependencies(registry=registry),
+            )
+
+            assert result.datasets_fetched == 1
+            assert result.evidence_bundle_ref is not None
+            assert result.cursor_ref is None
+            assert len(server_calls) == 2
+            assert all(
+                method == "GET" and path == "/records"
+                for method, path, _query in server_calls
+            )
+            assert [query for _method, _path, query in server_calls if "since" in query] == [
+                {"limit": ["100"], "page": ["1"], "since": ['"etag-prior"']}
+            ]
+            assert [query for _method, _path, query in server_calls if "since" not in query] == [
+                {}
+            ]
+
+            evidence_payload = from_canonical_bytes(
+                store.get_bytes(result.evidence_bundle_ref.artifact_id)
+            )
+            evidence_bundle = EvidenceBundle.model_validate(evidence_payload)
+            assert len(evidence_bundle.sources) == 1
+            persisted_result = ResultSerializer.deserialize(
+                store.get_bytes(evidence_bundle.sources[0])
+            )
+            assert persisted_result.data == [{"id": "row-1", "value": 7}]
+
+            stored_cursor = cursor_store.find_latest_cursor("rest.json", "dataset")
+            assert stored_cursor is not None
+            assert stored_cursor.watermark_value == '"etag-prior"'
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+            if registry is not None:
+                registry.shutdown()
+
     def test_incremental_with_no_prior_cursor_stays_full_without_evidence_binding(
         self,
         tmp_path: Path,

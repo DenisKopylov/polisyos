@@ -1,0 +1,845 @@
+{
+  "base": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "coverage": "partial",
+  "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+  "unmeasured": [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance"
+  ],
+  "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+  "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+  "root_count": 401,
+  "predicate_provenance": "recomputed",
+  "runtime_invocation_established": false,
+  "limitations": [
+    "Static paths do not prove execution, persisted receipts, or gate substance.",
+    "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+    "Concrete public source callables are candidates; helpers are traversed.",
+    "No HTTP route is assumed runnable merely because it has a decorator."
+  ],
+  "regressions": [],
+  "new_unresolved_by_construction": [
+    "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache.recover",
+    "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor.execute",
+    "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.load_entry",
+    "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.seed_from_entry_refs",
+    "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.seed_from_trace"
+  ],
+  "status": "UNRESOLVED",
+  "unresolved_by_construction_count": 9192,
+  "unresolved_receiver_call_count": 139729,
+  "changed_unresolved_mechanisms": {
+    "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache.recover": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache.recover",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1461,
+          "column": 16,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache",
+          "reason": "callable_value_escape",
+          "expression": "recover"
+        }
+      ]
+    },
+    "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor.execute": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [
+        "polisyos.scientist.orchestration.engine.runner.local_runner.LocalWorkflowRunner.execute_workflow"
+      ],
+      "test_callers": [
+        "tests.integration.scientist.test_async_cache_recovery.test_cold_seed_yields_and_never_admits_late_worker",
+        "tests.integration.scientist.test_async_cache_recovery.test_expired_startup_never_starts_recovery_or_producer",
+        "tests.integration.scientist.test_async_cache_recovery.test_workflow_body_receives_only_deadline_remaining_after_startup",
+        "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor.test_async_executor_persists_via_async_artifact_store_adapter",
+        "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor.test_failed_node_blocks_downstream",
+        "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor.test_max_parallelism_one_degrades_to_sequential",
+        "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor.test_metrics_tier_completed_called",
+        "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor.test_no_metrics_no_crash",
+        "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor.test_parallel_tier",
+        "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor.test_simple_linear_dag",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestBackwardCompat.test_new_params_have_defaults",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestBudgetIntegration.test_budget_exhausted_fails_node",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestParallelStateIsolation.test_bind_failure_becomes_typed_node_error",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestParallelStateIsolation.test_parallel_nodes_get_independent_copies",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestParallelStateIsolation.test_runtime_lookup_failure_becomes_typed_node_error",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints.test_failed_single_node_does_not_commit_state_in_continue_mode",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints.test_parallel_merge_conflict_rolls_back_whole_tier",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints.test_parallel_merge_policy_can_resolve_conflict",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints.test_rollback_compensation_hook_receives_fail_fast_event",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints.test_tier_rollback_on_failure",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestWorkflowTimeout.test_no_timeout_by_default",
+        "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestWorkflowTimeout.test_workflow_timeout_raises",
+        "tests.unit.scientist.orchestration.engine.test_conditional_workflow.TestAsyncConditionalNodes.test_branching_in_parallel_tier",
+        "tests.unit.scientist.orchestration.engine.test_conditional_workflow.TestAsyncConditionalNodes.test_condition_fail_triggers_abort_fail_fast",
+        "tests.unit.scientist.orchestration.engine.test_conditional_workflow.TestAsyncConditionalNodes.test_condition_skip_in_tier"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor.execute",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 167,
+          "column": 4,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor",
+          "reason": "deferred_callable_body",
+          "expression": "execute"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 185,
+          "column": 15,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor.execute",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 184,
+          "column": 31,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor.execute",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 590,
+          "column": 56,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor.execute._execute_readiness",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 613,
+          "column": 67,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor.execute._execute_readiness",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 677,
+          "column": 61,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor.execute",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 682,
+          "column": 34,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor.execute",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 842,
+          "column": 68,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_ancestors",
+          "reason": "callable_value_escape",
+          "expression": "invocations"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 844,
+          "column": 25,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_ancestors",
+          "reason": "callable_value_escape",
+          "expression": "invocations"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 850,
+          "column": 29,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_ancestors",
+          "reason": "callable_value_escape",
+          "expression": "invocations"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 856,
+          "column": 27,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_paths_overlap",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 864,
+          "column": 41,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_launch_pair",
+          "reason": "callable_value_escape",
+          "expression": "state"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 873,
+          "column": 27,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_launch_pair",
+          "reason": "callable_value_escape",
+          "expression": "state"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 939,
+          "column": 45,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_merge_journal",
+          "reason": "callable_value_escape",
+          "expression": "outcome_state"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1030,
+          "column": 28,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_normalize_paths",
+          "reason": "callable_value_escape",
+          "expression": "write_specs"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1046,
+          "column": 18,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_get_path",
+          "reason": "callable_value_escape",
+          "expression": "root"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1048,
+          "column": 26,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_get_path",
+          "reason": "callable_value_escape",
+          "expression": "current"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1049,
+          "column": 31,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_get_path",
+          "reason": "callable_value_escape",
+          "expression": "current"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1069,
+          "column": 22,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_target_kind",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1071,
+          "column": 22,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_target_kind",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1073,
+          "column": 22,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_target_kind",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1075,
+          "column": 22,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_target_kind",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1081,
+          "column": 68,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_first_difference",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1098,
+          "column": 22,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_difference_path",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1099,
+          "column": 34,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_difference_path",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1104,
+          "column": 20,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_difference_path",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1111,
+          "column": 22,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_difference_path",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1112,
+          "column": 64,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_difference_path",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1120,
+          "column": 19,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_difference_path",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1121,
+          "column": 41,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_difference_path",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1122,
+          "column": 28,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._readiness_difference_path",
+          "reason": "callable_value_escape",
+          "expression": "left"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1229,
+          "column": 38,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._run_parallel_tier",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1261,
+          "column": 32,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._run_parallel_tier._run_with_sem",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1271,
+          "column": 42,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._run_parallel_tier._run_with_sem",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1383,
+          "column": 32,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._run_parallel_tier",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1395,
+          "column": 39,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._run_parallel_tier",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1417,
+          "column": 20,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._run_parallel_tier",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1424,
+          "column": 14,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._run_tenant_context",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1444,
+          "column": 16,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1446,
+          "column": 21,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1448,
+          "column": 19,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1468,
+          "column": 66,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1500,
+          "column": 29,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._cache_deadline",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1502,
+          "column": 39,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._cache_deadline",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1509,
+          "column": 26,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._remaining_deadline_seconds",
+          "reason": "callable_value_escape",
+          "expression": "deadline"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1552,
+          "column": 16,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._put_cache_entry",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1713,
+          "column": 20,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._execute_node",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1794,
+          "column": 20,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._execute_node",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1967,
+          "column": 25,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._execute_node",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 2022,
+          "column": 35,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._handle_tier_checkpoint",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 2023,
+          "column": 34,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._handle_tier_checkpoint",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 2094,
+          "column": 28,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._require_atomic_tier_checkpoint",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 2096,
+          "column": 28,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._require_atomic_tier_checkpoint",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 2112,
+          "column": 35,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._handle_checkpoint",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 2125,
+          "column": 16,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._handle_checkpoint",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 2178,
+          "column": 37,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._persist_parallel_merge_conflict",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        }
+      ]
+    },
+    "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.load_entry": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [
+        "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.seed_from_entry_refs",
+        "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.seed_from_trace"
+      ],
+      "test_callers": [
+        "tests.integration.scientist.orchestration.engine.test_skg_prepared_read_cache.test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes",
+        "tests.unit.remediation.test_res_01.test_cache_seed_revalidates_full_ref_identity",
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_node_result_cache_does_not_replay_status_blind_epoch_two_entries",
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_node_result_cache_rejects_legacy_and_foreign_scope_for_bound_cache",
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_node_result_cache_rejects_legacy_empty_unproven_contract",
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_node_result_cache_rejects_tampered_embedded_outcome",
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_node_result_cache_rejects_unknown_replay_versions",
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_node_result_cache_reloads_legacy_v1_entry",
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_output_aware_cache_refuses_loading_base_epoch_entry",
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_output_aware_cache_refuses_old_entry_epoch"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.load_entry",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1482,
+          "column": 22,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache",
+          "reason": "callable_value_escape",
+          "expression": "cache"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 348,
+          "column": 23,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.size",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 373,
+          "column": 29,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.prune",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 377,
+          "column": 38,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.prune",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 622,
+          "column": 23,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 625,
+          "column": 31,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 659,
+          "column": 35,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 688,
+          "column": 27,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 736,
+          "column": 27,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.load_entry",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        }
+      ]
+    },
+    "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.seed_from_entry_refs": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [
+        "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache.recover",
+        "polisyos.scientist.orchestration.engine.runner.distributed_tier.seed_runner_cache"
+      ],
+      "test_callers": [
+        "tests.integration.scientist.test_async_cache_recovery.test_cold_seed_preserves_real_read_and_custody_checks",
+        "tests.integration.scientist.test_checkpoint_resume._assert_tier_cache_entries_bind_node_identity_and_content",
+        "tests.unit.remediation.test_res_01.test_cache_seed_deduplicates_exact_refs_and_does_not_mark_failed_load",
+        "tests.unit.remediation.test_res_01.test_cache_seed_does_not_mix_different_content_under_same_key",
+        "tests.unit.remediation.test_res_01.test_duplicate_cache_ref_is_not_independent_coverage"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.seed_from_entry_refs",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1482,
+          "column": 22,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache",
+          "reason": "callable_value_escape",
+          "expression": "cache"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 348,
+          "column": 23,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.size",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 373,
+          "column": 29,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.prune",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 377,
+          "column": 38,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.prune",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 622,
+          "column": 23,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 625,
+          "column": 31,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 659,
+          "column": 35,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 688,
+          "column": 27,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 736,
+          "column": 27,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.load_entry",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        }
+      ]
+    },
+    "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.seed_from_trace": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [
+        "polisyos.scientist.nodes.builtins.data.enrich_knowledge.EnrichKnowledgeNode._resolve_existing_bundle_ref",
+        "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache.recover"
+      ],
+      "test_callers": [
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_node_result_cache_seed_from_trace",
+        "tests.unit.scientist.orchestration.engine.test_idempotency.test_node_result_cache_seed_ignores_other_runs"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.seed_from_trace",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "line": 1482,
+          "column": 22,
+          "scope": "polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor._seed_cache",
+          "reason": "callable_value_escape",
+          "expression": "cache"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 348,
+          "column": 23,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.size",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 373,
+          "column": 29,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.prune",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 377,
+          "column": 38,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.prune",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 622,
+          "column": 23,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 625,
+          "column": 31,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 659,
+          "column": 35,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 688,
+          "column": 27,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.put",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "line": 736,
+          "column": 27,
+          "scope": "polisyos.scientist.orchestration.engine.idempotency.NodeResultCache.load_entry",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        }
+      ]
+    }
+  },
+  "denominator": {
+    "current_files": 5899,
+    "base_files": 5898,
+    "source_files": 2697,
+    "current_sha256": "174730f6536977d26e8486e0a89e1f15a1c280757e4bc086143f93a8c55bf784",
+    "base_sha256": "d8b33d2a80db81537374869e772ba7abba7e50069fcf7c081973fa9990aef58d"
+  },
+  "raw_ignored": {
+    "path": "/workspace/polisyos/.polisyos/e02-B-cold-seed/production-invocation.json",
+    "bytes": 170902920,
+    "sha256": "89cb731900490dd8d142cefaff41ef0647ffea4b91e7ba98958299f490805cd1",
+    "transfer": "nottransferred, compact selectedfields from actualraw; stdout/wrappercommitted"
+  }
+}

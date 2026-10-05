@@ -1,0 +1,27 @@
+{
+  "source_sha": "c52c2e584444d712ded7f9349b537527dad02824",
+  "source_tree": "4f84461b85773147cdebb2ca6e30bd24a5c2e0e3",
+  "production_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "-v",
+    "-s",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "--basetemp",
+    "/workspace/polisyos/.polisyos/e02-B-cold-seed/selection-positive-pytest",
+    "--junitxml=/workspace/polisyos/.polisyos/e02-B-cold-seed/selection-positive.xml"
+  ],
+  "cwd": "/workspace/e02-B-exe-state/policy-engine",
+  "PYTHONPATH": "/workspace/e02-B-exe-state/policy-engine/src:/workspace/e02-B-exe-state/policy-engine",
+  "exit_code": 1,
+  "wall_s": 13.056882542000494,
+  "rss_kib": 586420,
+  "stdout_sha256": "42475729a1aa522934468d7eaa4e40d8b0ce22672c4768234b861f1bd8a4a3c5",
+  "xml_sha256": "fe855dce88df143ff210c9e6cc953bcfb58fa125390f1211236f617e34464672",
+  "input_closure": "realtempDuckDB/CAS/configuredsource selector/directproducer; currentread guard negatives and changedcontext/domain/graph/source preserved; over1second betweenmatchinginputs provesfreshproducedtime and fullDTO equalityotherfields"
+}

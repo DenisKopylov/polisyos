@@ -20,6 +20,8 @@ commits filtered out.
 
 ### Changed
 
+- Recover async workflow caches off the event loop, preserving the remaining
+  workflow deadline and isolating late recovery after cancellation or timeout.
 - Change packaging extras by adding umbrella `all` and MkDocs tooling to the `dev` extra.
 - Change the `polisyos` CLI to expose `--version` for installation verification.
 

@@ -1,0 +1,30 @@
+{
+  "source_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "test_source": "policy-engine/tests/integration/scientist/test_async_cache_recovery.py@515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+  "test_sha256": "f716ae71571fbf07b0eb90b373c03549e08974f6f1e9fc4aa728b43750cc0023",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "/workspace/polisyos/.polisyos/e02-B-cold-seed/test_async_cache_recovery.py",
+    "-c",
+    "/workspace/e02-B-b52-oracle/policy-engine/pytest.ini",
+    "--confcutdir",
+    "/workspace/polisyos/.polisyos/e02-B-cold-seed",
+    "-k",
+    "not bounded_read_timeout_without_workflow_deadline and not superseded_recovery",
+    "-v",
+    "-s",
+    "--tb=short",
+    "-o",
+    "addopts=",
+    "--basetemp",
+    "/workspace/polisyos/.polisyos/e02-B-cold-seed/final-base-pytest"
+  ],
+  "cwd": "/workspace/e02-B-b52-oracle/policy-engine",
+  "PYTHONPATH": "/workspace/e02-B-b52-oracle/policy-engine/src:/workspace/e02-B-b52-oracle/policy-engine/product",
+  "exit_code": 1,
+  "wall_s": 17.465721264000422,
+  "rss_kib": 586412,
+  "input_closure": "source+dependencies exact0f24 immutabletree; test bytecopy515054e7. External copied standalone test avoids candidateconftest sourcepath override. Builtinpytest/asyncio plugin used. Two newprivatehelper specific controls excluded onbase; twelve source independentrealpath conditions retained."
+}

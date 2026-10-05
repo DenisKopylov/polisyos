@@ -11,6 +11,7 @@ from .models import BenchmarkEvaluation, BenchmarkSplit
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.scientist.methods.search.strategies.transfer import (
         RunFingerprint,
         TransferLearningManager,
@@ -44,7 +45,6 @@ class WarmStartBridge:
         similar = self._manager.find_similar_runs(fingerprint, top_k=self._top_k_runs)
         if not similar:
             logger.info("WarmStartBridge: no similar runs found for %s", fingerprint.run_id)
-            return []
 
         evals = self._manager.get_warm_start_evaluations(
             similar,
@@ -65,25 +65,52 @@ class WarmStartBridge:
         loop_id: str,
         suite_id: str = "warm_start",
         primary_metric: str = "score",
+        store: ArtifactStore | None = None,
     ) -> list[BenchmarkEvaluation]:
-        """Convert search-strategy Evaluations to BenchmarkEvaluations."""
-        from polisyos.core.artifacts.manifest import ArtifactRef
+        """Return resolved original selection benchmarks as limited historical views.
+
+        The target loop is recorded as intent. Original loop/suite identity and
+        measurements remain attached to their source; no copied score creates a
+        new benchmark. An absent source lineage is an explicit refusal.
+        """
+        from polisyos.core.canon import from_canonical_bytes
+        from polisyos.scientist.methods.search.strategies.transfer import (
+            TransferHistoryError,
+            TransferLearningManager,
+        )
 
         results: list[BenchmarkEvaluation] = []
         for ev in evaluations:
+            if store is None or not ev.provenance_ref:
+                raise TransferHistoryError("Original benchmark store/reference required")
             try:
-                ref = ArtifactRef(
-                    artifact_id=ev.candidate_id,
-                    kind="search.candidate",
-                    media_type="application/json",
+                original = BenchmarkEvaluation.model_validate(
+                    from_canonical_bytes(store.get_bytes(ev.provenance_ref))
                 )
-            except (TypeError, ValueError) as exc:
-                logger.warning(
-                    "WarmStartBridge: skipping candidate without an artifact reference %s: %s",
-                    ev.candidate_id,
-                    exc,
+                candidate_payload = from_canonical_bytes(
+                    store.get_bytes(original.candidate_ref.artifact_id)
                 )
-                continue
+            except (TypeError, ValueError, OSError, KeyError) as exc:
+                raise TransferHistoryError(
+                    "Original benchmark/candidate unavailable or schema-incompatible",
+                    ev.provenance_ref,
+                ) from exc
+            rejection = TransferLearningManager._candidate_parameter_rejection(
+                candidate_payload, ev.params
+            )
+            if rejection is not None:
+                raise TransferHistoryError(rejection, str(original.candidate_ref.artifact_id))
+            if (
+                not ev.is_valid
+                or original.metadata.get("warm_start")
+                or not original.matches_runtime_split(BenchmarkSplit.SELECTION)
+                or str(original.candidate_ref.artifact_id) != ev.candidate_id
+                or primary_metric not in original.selection_metrics
+                or original.metadata.get("params") != ev.params
+            ):
+                raise TransferHistoryError(
+                    "Original benchmark identity, split or parameters differ", ev.provenance_ref
+                )
 
             metrics: dict[str, float] = {}
             directions: dict[str, str] = {}
@@ -93,16 +120,31 @@ class WarmStartBridge:
                 metrics[objective.name] = objective.raw_value
                 directions[objective.name] = objective.direction.value
             if primary_metric not in metrics:
-                logger.warning(
-                    "WarmStartBridge: skipping candidate %s without measured %s",
-                    ev.candidate_id,
-                    primary_metric,
+                raise TransferHistoryError(
+                    "Transferred record lacks the measured primary objective", ev.provenance_ref
                 )
-                continue
+            if any(
+                original.selection_metrics.get(name) != value for name, value in metrics.items()
+            ):
+                raise TransferHistoryError(
+                    "Original benchmark measurements differ", ev.provenance_ref
+                )
+            source_directions = original.metadata.get("directions")
+            if not isinstance(source_directions, dict) or any(
+                source_directions.get(name) != direction
+                for name, direction in directions.items()
+            ):
+                raise TransferHistoryError(
+                    "Original benchmark directions differ", ev.provenance_ref
+                )
 
             source_run_id = ev.metadata.get("source_run_id", "unknown")
             metadata = {
+                **original.metadata,
                 "warm_start": True,
+                "target_loop_id": loop_id,
+                "requested_suite_id": suite_id,
+                "source_benchmark_ref": ev.provenance_ref,
                 "source_candidate_id": ev.candidate_id,
                 "params": dict(ev.params),
                 "directions": directions,
@@ -114,17 +156,14 @@ class WarmStartBridge:
                 metadata["provenance_ref"] = ev.provenance_ref
 
             results.append(
-                BenchmarkEvaluation(
-                    loop_id=loop_id,
-                    suite_id=suite_id,
-                    candidate_ref=ref,
-                    selection_metrics=metrics,
-                    holdout_metrics={},
-                    promotable=False,
-                    status="warm_start_limited",
-                    notes=[f"transferred from {source_run_id}"],
-                    runtime_split_type=BenchmarkSplit.SELECTION,
-                    metadata=metadata,
+                original.model_copy(
+                    update={
+                        "promotable": False,
+                        "status": "warm_start_limited",
+                        "notes": [*original.notes, f"historical view from {source_run_id}"],
+                        "metadata": metadata,
+                    },
+                    deep=True,
                 )
             )
         return results

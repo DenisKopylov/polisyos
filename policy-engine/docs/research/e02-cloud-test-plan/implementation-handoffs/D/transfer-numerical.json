@@ -1,0 +1,276 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-numerical",
+  "closure_ids": [],
+  "covered_finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134"
+  ],
+  "bundle_ids": [
+    "TRN-01",
+    "TRN-02"
+  ],
+  "slice_base_sha": "91f45ad8024554656238b67f6d32719a953d01e7",
+  "entry_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "2189414171c433f9a1ee1fc45f6c3ad90fc8d038",
+    "64e81a43ac509cfdaa0ae8c578462785474c2f35",
+    "f87c6a6177aaef24caef6f26274c5387be4b7197",
+    "b7730b6323e4b5c13f0fb0816b277bc42c7aeb2f"
+  ],
+  "candidate_tree_sha": "0062cf1bb02eeaf3cf1a27d370d39b50acf60841",
+  "branch": "codex/e02-D-transfer",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+    "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P081",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "source_locator": "results/received/F02.txt:209",
+      "source_reported_state": "PASS",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F02-P111",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "source_locator": "results/received/F02.txt:239",
+      "source_reported_state": "PASS",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F04-P088",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/search/test_warm_start.py",
+      "source_locator": "results/received/F04.txt:298",
+      "source_reported_state": "PASS",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F06-P102",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "source_locator": "results/received/F06.txt:286",
+      "source_reported_state": "PASS",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F08-P082",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "source_locator": "results/received/F08.txt:205",
+      "source_reported_state": "PASS",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F08-P113",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "source_locator": "results/received/F08.txt:236",
+      "source_reported_state": "PASS",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F11-P082",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "source_locator": "results/received/F11.txt:211",
+      "source_reported_state": "PASS",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F13-P093",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "source_locator": "results/received/F13.txt:220",
+      "source_reported_state": "PASS",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F13-P129",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "source_locator": "results/received/F13.txt:256",
+      "source_reported_state": "PASS",
+      "semantic_adequacy": "not_established"
+    }
+  ],
+  "environment": {
+    "python": "3.14.2",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "source": "PYTHONPATH=/workspace/e02-D-transfer/policy-engine/src",
+    "platform": "Linux 6.18.44 x86_64 glibc2.41",
+    "hnswlib": "0.8.0",
+    "torch": "2.14.1+cu130",
+    "botorch": "0.18.1",
+    "gpytorch": "1.15.2",
+    "node_for_final_hooks": "npm exec --yes --package=node@22 (22.23.3)",
+    "production_data": "absent; no production benchmark or acceleration conclusion"
+  },
+  "source_and_input_identity": {
+    "source_bundles": [
+      "PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+      "PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md"
+    ],
+    "residual_rows": "PolicyOS_E02R2/residual_ledger.json#B128-B134",
+    "baseline_raw_archives": "not received; imported compact source reports are contextual only",
+    "fixture": "four measured analytic x values0.1/0.4/0.7/0.9, score100*x*x, isolated real FileSystemCAS and native HNSW; these are bounded semantic inputs, not representative production history",
+    "full_test_input_denominator": [
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "tests/unit/remediation/test_trn_02.py",
+      "tests/unit/scientist/agent/test_vector_memory.py"
+    ]
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-transfer/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/agent/test_vector_memory.py -q -rA",
+      "target_sha": "b7730b6323e4b5c13f0fb0816b277bc42c7aeb2f",
+      "environment": "shared Python venv; native hnswlib0.8; isolated CAS",
+      "input_closure": "complete four named Python test files;47 executed node receipts; no production dataset",
+      "outcome": "PASS",
+      "output": "47 PASSED nodes; complete moderate deciding log transfer-numerical-checks.txt@sha256:7ef9624b61ed7d26d9d08c43c63d3be9b91de293701696ac4064115d633cda62"
+    },
+    {
+      "command": "AST-select unchanged bodies test_real_cas_history_registration_preserves_finite_numeric_values and test_reverse_benchmark_view_requires_resolvable_original_lineage; run outside checkout conftest.py against git archive c40d4aca/policy-engine/src",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "same venv and native backend",
+      "input_closure": "two exact test function bodies; old imports only, new TransferHistoryError import excluded because it did not exist on base",
+      "outcome": "FAIL",
+      "output": "2 failed in3.60s: real CAS registration rejects finite floats with CanonViolation; reverse bridge returns copied BenchmarkEvaluation without an original reference instead of refusing."
+    },
+    {
+      "command": "copy complete current test_transfer.py outside checkout conftest; PYTHONPATH=<git archive218941417>/policy-engine/src python -m pytest ... -k rewritten_history_basis -q",
+      "target_sha": "2189414171c433f9a1ee1fc45f6c3ad90fc8d038",
+      "environment": "same venv; exact intermediate source authored in this slice",
+      "input_closure": "one same-body original-context falsifier using realCAS/HNSW",
+      "outcome": "FAIL",
+      "output": "1 failed in5.86s: all rewritten-history records remained valid while original immutable model/context basis differed. This was this slice own incomplete first repair, not inherited debt;64e81a43a closes it."
+    },
+    {
+      "command": "python -m ruff check <all six changed Python paths>; git diff --check",
+      "target_sha": "b7730b6323e4b5c13f0fb0816b277bc42c7aeb2f",
+      "environment": "shared venv",
+      "input_closure": "all six changed Python paths",
+      "outcome": "PASS",
+      "output": "All checks passed; no whitespace errors"
+    },
+    {
+      "command": "configured WarmStartBridge -> BayesianCandidateGenerator -> SearchLoopRunner -> actual SingleTaskGP/acquisition -> persisted benchmark readback",
+      "target_sha": "b7730b6323e4b5c13f0fb0816b277bc42c7aeb2f",
+      "environment": "requires merged search dependency5d8aaaa13ad04fe89b762ff5a772a956beddbf44",
+      "input_closure": "independent workflow witness to be run on exact root combined candidate",
+      "outcome": "UNRUN",
+      "output": "Lean publisher does not contain search-owned configured constructor bridge. Root to merge dependency and provide immutable SHA; next transfer workflow receipt will bind that candidate."
+    }
+  ],
+  "property": {
+    "statement": "A numerical observation has a complete compatible target basis, exact history snapshot, original candidate and evaluation bytes, faithful typed objectives/timestamp, persisted original model/context identity and an admissible scalar convention. Rejected rows cannot starve numeric quota and retain record-level diagnostics even when response quota is full. Historical benchmark views preserve the actual source loop/suite/split/metrics and are always nonpromotable.",
+    "runtime_path": [
+      "source Evaluation and original native/BenchmarkEvaluation + actual candidate CAS refs",
+      "TransferLearningManager.register_run -> canonical tagged-float CAS history -> native HNSW metadata",
+      "find_similar_runs -> exact immutable ArtifactRef -> _read_history with canonical decoder",
+      "_validate_history_binding + _numeric_rejection -> bounded accepted records and independent rejection diagnostics",
+      "WarmStartBridge.load_warm_start -> receiving Evaluation consumer; configured GP bridge awaits combined exact candidate",
+      "evaluations_to_benchmarks(store=...) -> original benchmark read + candidate resolution -> nonpromotable historical view retaining source_benchmark_ref"
+    ],
+    "proxy_divergence": "Matching ANN and history declarations plus identical metric values do not establish an unchanged original experiment: rewrite source/history origin and context fingerprint while keeping original measurement bytes unchanged. The original-context falsifier fails on218941417 and now rejects all four rows. Separately, an ArtifactID-shaped candidate string alone previously minted a benchmark; reverse conversion now resolves original benchmark and candidate or explicitly refuses.",
+    "negative_controls": [
+      "change each space/bounds/split/units/origin/tenant/direction field",
+      "matching forged discovery metadata vs actual stored envelope",
+      "rewrite entire history basis vs unchanged original fingerprint",
+      "mutate raw metric or scalar against actual original benchmark",
+      "unavailable/corrupt/schema-incompatible exact ref stays addressed failure",
+      "native catalog1002 records with two discoverytop_k values: no secondary zero-vector ANN read",
+      "rejected first source cannot spend available valid-source quota",
+      "rejection run/candidate/ref/reason survive a full valid quota",
+      "missing lineage cannot mint benchmark and measured source identity survives reverse view",
+      "canonical floating-point metadata survives vector bundle roundtrip"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_bases": {
+    "CAS byte identity/schema/content reconciliation": "recomputed",
+    "target-vs-source numeric/context identity": "recomputed from complete supplied basis and original immutable records",
+    "receiving GP transform/noise contract": "consumer check pending combined witness",
+    "tenant authorization and truth of data issuer declarations": "not_established; no authority or rights claim emitted"
+  },
+  "authority_purpose_and_versions": {
+    "purpose": "candidate numerical seeding and bounded historical views; no publication/promotion evidence created",
+    "source_artifact_kinds": [
+      "search.transfer.history",
+      "search.candidate",
+      "original BenchmarkEvaluation/native Evaluation"
+    ],
+    "original_benchmark_suite_version": "preserved from original DTO, fixture1.0",
+    "model_rule": "persisted Normalize[0,1]/Standardize[m=1]/GaussianLikelihood fingerprints are carried, not fabricated; BenchmarkEvaluation direct scalarization is unweighted normalized minimization; opaque native scalarization requires exact original native record",
+    "time_roles": "original Evaluation.timestamp restored; source evaluation evaluated_at preserved; new target loop is intent metadata only, not a new measurement time"
+  },
+  "capability_state_or_finding_state": "generic code and bounded native/CAS verification complete; actual GP workflow pending combined candidate; all covered finding closures remain unadjudicated",
+  "finding_classification": {
+    "B128": {
+      "mechanism": "typed faithful restore, canonical CAS encoder/decoder, original timestamp and record diagnostics",
+      "oracle": "realCAS roundtrip and malformed/absent controls",
+      "missing_input": "representative live history not supplied",
+      "owner": "transfer runtime; G decides closure after combined/local evidence"
+    },
+    "B129": {
+      "mechanism": "exact discoveryArtifactRef retained; typed unavailable/corrupt/schema reasons and discovered-ref issues",
+      "oracle": "realHNSW1002-record catalog, one ANN per discovery, exact refs across two top_k; failing addressed-ref controls",
+      "missing_input": "no live history availability receipt",
+      "owner": "transfer runtime"
+    },
+    "B130": {
+      "mechanism": "normalized ascending ranking, valid-source round-robin quota, rejected diagnostics outside numeric capacity",
+      "oracle": "minimize/maximize ranking reversal and rejected-source quota control",
+      "missing_input": "production acceleration/solution-quality benchmark absent and unclaimed",
+      "owner": "transfer runtime"
+    },
+    "B131": {
+      "mechanism": "full target/source basis, CAS-envelope reconciliation, resolve-and-content-bind original record/context",
+      "oracle": "field changes, forged source metadata, unchanged-original-context falsifier",
+      "missing_input": "actual execution-owner tenant authorization and live source metadata/provenance validation remain unestablished",
+      "owner": "transfer compatibility runtime plus institutional data/execution owners"
+    },
+    "B132": {
+      "mechanism": "reverse path resolves original benchmark and candidate; source loop/suite/split/values retained; historical view nonpromotable",
+      "oracle": "actualDTO/candidate CAS roundtrip and missing/fabricated-lineage refusals",
+      "missing_input": "real-source benchmark/evaluator validation remains localG queue",
+      "owner": "transfer lineage runtime"
+    },
+    "B133": {
+      "mechanism": "immutable snapshot cache and privately owned consumer data verified in prior slice",
+      "oracle": "warm/cold and changed snapshot tests, mutation controls",
+      "missing_input": "distributed guarantee/principal ruling remains held",
+      "owner": "Principal (Denis) for distributed guarantee; transfer runtime for local cache"
+    },
+    "B134": {
+      "mechanism": "native/Python generation integrity plus complete canonical metadata roundtrip",
+      "oracle": "native rollback, invalid generation, concurrent publication and numeric metadata reopen",
+      "missing_input": "owner-issued live transfer metadata remains pending",
+      "owner": "Transfer metadata issuer/data owner"
+    }
+  },
+  "limitations_and_next_owner": [
+    "G: combine this candidate with search5d8aaaa13 then run configured generator/SearchLoopRunner/realGP workflow; receipt on exact merged SHA forthcoming.",
+    "G/local data owner: rerun any real history/evaluator-dependent criterion on exact merged candidate, source law, tenant authorization, production split and source dataset identity. Bounded analytic scores do not prove production acceleration or superiority.",
+    "B133 remains principal-held distributed atomicity/compatibility decision; B134 remains live data_record obligation.",
+    "Approximate HNSW discovery recall is outside exact addressed-history guarantee. An initial degenerate identical-vector fixture did not discover the source; the passing fixture uses distinct directions and confirms actual discovery before checking addressability.",
+    "No broad gate claim. Static production_invocation prior slice exit3 UNRESOLVED/no regressions is a source-derived diagnostic, with dynamic receiver/container paths outside its selector.",
+    "Native binary hostile-input safety and independent HNSW native dimension attestation remain bounded as in transfer-generation receipt."
+  ]
+}

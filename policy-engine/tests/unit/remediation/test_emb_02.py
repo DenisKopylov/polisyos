@@ -550,3 +550,190 @@ def test_academic_publish_manifest_binds_to_selected_generation(
         f"embedding_generations/{generation_id}/inventory.json" in item["path"]
         for item in manifest["artifacts"]
     )
+
+
+def test_catalog_copy_failure_keeps_one_readable_generation_and_recovers(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """A failed legacy copy must not make readers combine two generations."""
+    _install_fake_sentence_transformer(monkeypatch)
+    from polisyos.data_forge.kernel import embeddings as kernel_embeddings
+
+    db_path = tmp_path / "catalog.duckdb"
+    index_dir = tmp_path / "catalog"
+    index_dir.mkdir()
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="ds-1",
+                    title="Dataset",
+                    description="Description",
+                    source="worldbank",
+                    dataset_id="ds-1",
+                    source_dataset_id="ds-1",
+                    execution_tier="transport_ready",
+                    distributions=[
+                        DistributionRecord(
+                            id="dist-1",
+                            connector_type="worldbank.wdi",
+                            source_locator="ds-1",
+                            parser_supported=True,
+                            machine_readable=True,
+                        )
+                    ],
+                )
+            ]
+        ),
+        db_path=db_path,
+    )
+
+    legacy_embeddings = index_dir / "ds_dataset_embeddings.npz"
+    legacy_index = index_dir / "ds_dataset_index.hnsw"
+    previous_vectors = np.asarray([[1.0, 0.0, 0.0, 0.0]], dtype=np.float32)
+    np.savez(legacy_embeddings, ids=np.array(["old-id"], dtype=object), vectors=previous_vectors)
+    import hnswlib
+
+    previous_index = hnswlib.Index(space="cosine", dim=4)
+    previous_index.init_index(max_elements=1, ef_construction=200, M=16)
+    previous_index.add_items(previous_vectors, np.array([0]))
+    previous_index.save_index(str(legacy_index))
+    previous_index_bytes = legacy_index.read_bytes()
+
+    previous = kernel_embeddings.resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=legacy_embeddings,
+        legacy_index_path=legacy_index,
+    )
+    assert previous is not None
+    assert previous.status == "legacy"
+    assert previous.ids == ("old-id",)
+
+    assert (
+        build_catalog_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fake-model@v1",
+            embedding_device="cpu",
+        )
+        == 1
+    )
+    selected_previous = kernel_embeddings.resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=legacy_embeddings,
+        legacy_index_path=legacy_index,
+    )
+    assert selected_previous is not None
+    assert selected_previous.selected is True
+    assert selected_previous.status == "complete"
+    previous_selector = (index_dir / kernel_embeddings.GENERATION_SELECTOR_FILENAME).read_bytes()
+    previous_index_bytes = legacy_index.read_bytes()
+
+    import hnswlib
+
+    real_index = hnswlib.Index
+
+    class _FailingIndex:
+        def __init__(self, *, space: str, dim: int) -> None:
+            self._index = real_index(space=space, dim=dim)
+
+        def init_index(self, **kwargs: object) -> None:
+            self._index.init_index(**kwargs)
+
+        def add_items(self, vectors: np.ndarray, labels: np.ndarray) -> None:
+            self._index.add_items(vectors, labels)
+
+        def save_index(self, path: str) -> None:
+            assert Path(path).with_name("embeddings.npz").is_file()
+            raise RuntimeError("synthetic catalog HNSW publication failure")
+
+    monkeypatch.setattr(hnswlib, "Index", _FailingIndex)
+    with pytest.raises(RuntimeError, match="catalog HNSW publication failure"):
+        build_catalog_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fake-model@v2",
+            embedding_device="cpu",
+        )
+    monkeypatch.setattr(hnswlib, "Index", real_index)
+    assert (index_dir / kernel_embeddings.GENERATION_SELECTOR_FILENAME).read_bytes() == (
+        previous_selector
+    )
+    after_early_failure = kernel_embeddings.resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=legacy_embeddings,
+        legacy_index_path=legacy_index,
+    )
+    assert after_early_failure is not None
+    assert after_early_failure.generation_id == selected_previous.generation_id
+    assert legacy_index.read_bytes() == previous_index_bytes
+    old_store = DatasetCatalogStore(db_path, index_dir)
+    try:
+        assert old_store.has_vector_index() is True
+        with np.load(selected_previous.embeddings_path, allow_pickle=True) as payload:
+            old_query_vector = np.asarray(payload["vectors"][0], dtype=np.float32)
+        old_results = old_store.search_by_vector(old_query_vector, top_k=1, min_similarity=0.0)
+        assert [result.id for result in old_results] == ["ds-1"]
+        assert old_results[0].similarity == pytest.approx(1.0, abs=1e-5)
+    finally:
+        old_store.close()
+
+    real_atomic_copy_file = kernel_embeddings._atomic_copy_file
+
+    def fail_legacy_index_copy(source: Path, target: Path) -> None:
+        if target == legacy_index:
+            raise OSError("synthetic compatibility index-copy failure")
+        real_atomic_copy_file(source, target)
+
+    monkeypatch.setattr(kernel_embeddings, "_atomic_copy_file", fail_legacy_index_copy)
+    with pytest.raises(OSError, match="compatibility index-copy failure"):
+        build_catalog_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fake-model@v2",
+            embedding_device="cpu",
+        )
+
+    selected = kernel_embeddings.resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=legacy_embeddings,
+        legacy_index_path=legacy_index,
+    )
+    assert selected is not None
+    assert selected.selected is True
+    assert selected.status == "complete"
+    assert selected.ids == ("ds-1",)
+    with np.load(legacy_embeddings, allow_pickle=True) as payload:
+        assert payload["ids"].tolist() == ["ds-1"]
+    assert legacy_index.read_bytes() == previous_index_bytes
+
+    store = DatasetCatalogStore(db_path, index_dir)
+    try:
+        assert store.has_vector_index() is True
+        with np.load(selected.embeddings_path, allow_pickle=True) as payload:
+            query_vector = np.asarray(payload["vectors"][0], dtype=np.float32)
+        results = store.search_by_vector(query_vector, top_k=1, min_similarity=0.0)
+        assert [result.id for result in results] == ["ds-1"]
+        assert results[0].similarity == pytest.approx(1.0, abs=1e-5)
+    finally:
+        store.close()
+
+    monkeypatch.setattr(kernel_embeddings, "_atomic_copy_file", real_atomic_copy_file)
+    assert (
+        build_catalog_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fake-model@v2",
+            embedding_device="cpu",
+        )
+        == 1
+    )
+    recovered = kernel_embeddings.resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=legacy_embeddings,
+        legacy_index_path=legacy_index,
+    )
+    assert recovered is not None
+    assert recovered.selected is True
+    assert legacy_embeddings.read_bytes() == recovered.embeddings_path.read_bytes()
+    assert legacy_index.read_bytes() == recovered.index_path.read_bytes()

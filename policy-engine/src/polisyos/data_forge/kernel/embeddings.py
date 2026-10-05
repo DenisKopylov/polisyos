@@ -317,12 +317,16 @@ def _publish_embedding_generation(
             "inventory_sha256": sha256_file(inventory_path),
         }
 
+        # The selector is the publication boundary for every reader that
+        # understands generations.  Commit it before refreshing flat legacy
+        # aliases: those two compatibility files cannot be replaced as one
+        # atomic pair, so they must never decide which generation is current.
+        atomic_write_json(index_dir / GENERATION_SELECTOR_FILENAME, selector)
         if status == "complete":
             if legacy_embeddings_path is not None:
                 _atomic_copy_file(final_dir / "embeddings.npz", legacy_embeddings_path)
             if legacy_index_path is not None:
                 _atomic_copy_file(final_dir / "index.hnsw", legacy_index_path)
-        atomic_write_json(index_dir / GENERATION_SELECTOR_FILENAME, selector)
         return count, actual_dimension
     finally:
         if staging is not None and staging.exists():

@@ -234,6 +234,26 @@ def test_changed_scalar_cannot_relabel_an_unchanged_benchmark(tmp_path):
     assert "scalarization" in rejected[0].metadata["transfer_error"]
 
 
+def test_rejected_source_does_not_consume_a_valid_sources_numeric_quota(tmp_path):
+    store, index, _, source, evaluations, _ = _measured_history(tmp_path)
+    rejected_source = source.model_copy(update={"run_id": "rejected-source"})
+    for evaluation in evaluations:
+        evaluation.metadata["source_run_id"] = "rejected-source"
+        evaluation.provenance_ref = None
+    rejected_source.history_ref = TransferLearningManager(store, index).register_run(
+        rejected_source, evaluations
+    )
+    target = source.model_copy(update={"run_id": "target"})
+    reader = TransferLearningManager(store, index)
+    result = reader.get_warm_start_evaluations(
+        [rejected_source, source], max_evals=1, target_fingerprint=target
+    )
+    assert len(result) == 1 and result[0].is_valid
+    assert result[0].metadata["source_run_id"] == "source"
+    assert reader.last_restore_report.accepted_rows == 4
+    assert reader.last_restore_report.rejected_rows == 4
+
+
 def test_reverse_transfer_resolves_original_benchmark_and_refuses_fabrication(tmp_path):
     store, index, _, source, _, originals = _measured_history(tmp_path)
     target = source.model_copy(update={"run_id": "target"})

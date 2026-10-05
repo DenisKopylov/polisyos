@@ -285,6 +285,7 @@ class TransferLearningManager:
             return []
 
         prepared: list[list[Evaluation]] = []
+        rejected_evaluations: list[Evaluation] = []
         loaded_rows = rejected_rows = accepted_rows = 0
         excluded_runs: list[str] = []
         for fp in similar_runs:
@@ -317,8 +318,12 @@ class TransferLearningManager:
                 evaluations.append(evaluation)
             loaded_rows += len(rows)
             evaluations.sort(key=self._evaluation_sort_key)
-            if evaluations:
-                prepared.append(evaluations)
+            valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
+            rejected_evaluations.extend(
+                evaluation for evaluation in evaluations if not evaluation.is_valid
+            )
+            if valid:
+                prepared.append(valid)
 
         # Give every compatible source its first observation, then redistribute
         # the remaining capacity round-robin.  This avoids the old floor quota
@@ -339,6 +344,11 @@ class TransferLearningManager:
                     break
             if not progressed:
                 break
+
+        # Rejections stay visible, but never consume capacity while another
+        # source has an admissible numeric observation available.
+        rejected_evaluations.sort(key=self._evaluation_sort_key)
+        all_evals.extend(rejected_evaluations[: max_evals - len(all_evals)])
 
         self.last_restore_report = TransferRestoreReport(
             loaded_rows, accepted_rows, rejected_rows, len(all_evals), tuple(excluded_runs)

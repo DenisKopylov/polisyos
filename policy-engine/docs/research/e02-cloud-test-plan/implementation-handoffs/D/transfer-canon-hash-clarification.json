@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "unit": "D",
+  "slice": "transfer-canon-hash-quantity-clarification",
+  "closure_ids": [],
+  "source_implementation_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302",
+  "reviewed_report": "/workspace/e02-D-receipts/final-artifact-reconciliation.json",
+  "reviewed_report_sha256": "ee2b85c1a7bc3dd30a05da18e72662d1f6dd8636cc254ead7e1c323610aeb27d",
+  "reviewed_root_sha": "6f8a6108a44fa80ade581a7b70fb54be78fe6b02",
+  "reviewed_root_tree": "a97fcf2067d2ec784ae1d7ce9dff771c286d16c3",
+  "reported_owned_errors": [
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-canon-facade.json",
+      "locator": "$.AST_equivalence.source_paths[0].sha256",
+      "detail": "policy-engine/src/polisyos/scientist/agent/vector_memory.py@1366d17870dfc6ed800e71cfeadb4a50bba1c302: declared a8bb64b25180a63163b1a9219258124a88c94bc2fe1d7f101642d0e66d883669; actual 9a5215f3f05a0464bf268b0cf8904b396eb46d084dbe2dd67be64858003593d6"
+    },
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-canon-facade.json",
+      "locator": "$.AST_equivalence.source_paths[1].sha256",
+      "detail": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py@1366d17870dfc6ed800e71cfeadb4a50bba1c302: declared e4b72cf309ea2ffcba8ddc0bb3a8f36f0e469ff836995747084a0a5834effcd5; actual fca5f1bcde9212d9c8e914ea93d26cee51977fa5969294bec18dc5b4d8445495"
+    },
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-canon-facade.json",
+      "locator": "$.AST_equivalence.source_paths[2].sha256",
+      "detail": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py@1366d17870dfc6ed800e71cfeadb4a50bba1c302: declared 4791b55d7525db10003b4cf8016e6e3901a119f2f438c5f4bbf2125bd60785ab; actual e85d800b7c20ddd084ff1f1eeca3f871ba618ee78c271a46c70b08360e37877c"
+    }
+  ],
+  "correction": "Rename three derived sha256 fields to normalized_ast_sha256 and explicitly declare normalized AST quantity. Preserve their exact values. Add separate rawfile_sha256 from git show1366 for each source path.",
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "normalized_ast_sha256": "a8bb64b25180a63163b1a9219258124a88c94bc2fe1d7f101642d0e66d883669",
+      "rawfile_sha256": "9a5215f3f05a0464bf268b0cf8904b396eb46d084dbe2dd67be64858003593d6",
+      "rawfile_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "normalized_ast_sha256": "e4b72cf309ea2ffcba8ddc0bb3a8f36f0e469ff836995747084a0a5834effcd5",
+      "rawfile_sha256": "fca5f1bcde9212d9c8e914ea93d26cee51977fa5969294bec18dc5b4d8445495",
+      "rawfile_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "normalized_ast_sha256": "4791b55d7525db10003b4cf8016e6e3901a119f2f438c5f4bbf2125bd60785ab",
+      "rawfile_sha256": "e85d800b7c20ddd084ff1f1eeca3f871ba618ee78c271a46c70b08360e37877c",
+      "rawfile_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
+    }
+  ],
+  "verification": {
+    "original_normalized_AST_digests_preserved": true,
+    "normalized_AST_digests_independently_recomputed": true,
+    "rawfile_hashes_recomputed_from_immutable_Git": true,
+    "source_or_test_changes": false
+  },
+  "scope": "Receipt metadata only; prior75 focused source tests and actual receiving-model property checks are unchanged. Root reruns generic artifact reconciliation after merging this append-only correction."
+}

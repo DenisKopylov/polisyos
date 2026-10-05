@@ -38,17 +38,26 @@
       {
         "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
         "normalized_AST_equal": true,
-        "sha256": "a8bb64b25180a63163b1a9219258124a88c94bc2fe1d7f101642d0e66d883669"
+        "normalized_ast_sha256": "a8bb64b25180a63163b1a9219258124a88c94bc2fe1d7f101642d0e66d883669",
+        "normalized_ast_quantity": "UTF-8 bytes of the normalized ast.dump(..., include_attributes=False) representation under the recorded import/attribute substitution method",
+        "rawfile_sha256": "9a5215f3f05a0464bf268b0cf8904b396eb46d084dbe2dd67be64858003593d6",
+        "rawfile_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
       },
       {
         "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
         "normalized_AST_equal": true,
-        "sha256": "e4b72cf309ea2ffcba8ddc0bb3a8f36f0e469ff836995747084a0a5834effcd5"
+        "normalized_ast_sha256": "e4b72cf309ea2ffcba8ddc0bb3a8f36f0e469ff836995747084a0a5834effcd5",
+        "normalized_ast_quantity": "UTF-8 bytes of the normalized ast.dump(..., include_attributes=False) representation under the recorded import/attribute substitution method",
+        "rawfile_sha256": "fca5f1bcde9212d9c8e914ea93d26cee51977fa5969294bec18dc5b4d8445495",
+        "rawfile_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
       },
       {
         "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
         "normalized_AST_equal": true,
-        "sha256": "4791b55d7525db10003b4cf8016e6e3901a119f2f438c5f4bbf2125bd60785ab"
+        "normalized_ast_sha256": "4791b55d7525db10003b4cf8016e6e3901a119f2f438c5f4bbf2125bd60785ab",
+        "normalized_ast_quantity": "UTF-8 bytes of the normalized ast.dump(..., include_attributes=False) representation under the recorded import/attribute substitution method",
+        "rawfile_sha256": "e85d800b7c20ddd084ff1f1eeca3f871ba618ee78c271a46c70b08360e37877c",
+        "rawfile_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
       }
     ]
   },

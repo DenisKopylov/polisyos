@@ -48,7 +48,6 @@ repos:
             schemas/.*\.pyi?$|
             examples/.*\.pyi?$|
             ops/cloud/gcp/.*\.pyi?$|
-            jax_bootstrap\.py$|
             migrate\.py$
           )
       - id: ruff-format
@@ -62,7 +61,6 @@ repos:
             schemas/.*\.pyi?$|
             examples/.*\.pyi?$|
             ops/cloud/gcp/.*\.pyi?$|
-            jax_bootstrap\.py$|
             migrate\.py$
           )
 

@@ -44,17 +44,6 @@ sunset_date = "2026-08-01"
 issue = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline"
 
 [[shim]]
-id = "product-jax-bootstrap-to-workspace-vendor"
-source_path = "jax_bootstrap.py"
-target_path = "src/polisyos/common/jax_env.py"
-type = "wrapper_only"
-reason = "Move JAX/toolchain bootstrap into workspace tooling"
-owner = "team-devx"
-created = "2026-04-18"
-sunset_date = "2026-08-01"
-issue = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline"
-
-[[shim]]
 id = "repo-filter-topics-to-tools-research"
 source_path = "../filter_topics.py"
 target_path = "tools/research/experiments/filter_topics.py"

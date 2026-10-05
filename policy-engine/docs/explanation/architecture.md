@@ -299,7 +299,7 @@ policy-engine/
 ├── package.json, pnpm-lock.yaml, pnpm-workspace.yaml
 ├── uv.lock, uv.toml               # uv як менеджер залежностей
 ├── Dockerfile.reproducible        # reproducible build
-├── install.sh, migrate.py, jax_bootstrap.py
+├── install.sh, migrate.py
 └── README.md, CHANGELOG.md, CHANGELOG-DESIGN.md, LICENSE, CONTRIBUTING.md
 ```
 
@@ -1258,7 +1258,6 @@ src/polisyos/lex/
 ├── common.py
 ├── errors.py
 ├── extensions/
-├── factlog.py                   # лог фактів
 ├── intervention_artifacts.py    # типи інтервенцій
 ├── interventions.py             # компіляція інтервенцій
 ├── knowledge/                   # knowledge graph operations

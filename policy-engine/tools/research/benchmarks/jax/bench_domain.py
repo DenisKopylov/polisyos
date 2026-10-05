@@ -16,7 +16,14 @@ sys.path.insert(0, str(repo_root_from(__file__)))
 
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
 
-import jax_bootstrap  # noqa: F401
+def _apply_jax_environment_defaults() -> None:
+    from polisyos.common.jax_env import apply_jax_env_defaults
+
+    apply_jax_env_defaults()
+
+
+_apply_jax_environment_defaults()
+
 import numpy as np
 from polisyos.foundry.methods.catalog.bayesian.regression import BayesianLinearRegressionEstimator
 from polisyos.foundry.methods.catalog.ml.protocols import TabularData

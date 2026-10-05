@@ -334,7 +334,6 @@ allow = [
   "Dockerfile.reproducible",
   "install.sh",
   "migrate.py",
-  "jax_bootstrap.py",
   "mkdocs.yml",
   "basedpyright.toml",
   "mutmut.cfg",

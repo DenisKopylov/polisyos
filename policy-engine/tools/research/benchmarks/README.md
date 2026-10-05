@@ -1,7 +1,7 @@
 # tools/research/benchmarks
 
-Canonical benchmark entry points live under `tools/research/benchmarks/`; the root
-`benchmarks/` package remains a backend library plus compatibility wrappers.
+The suite-registry owners live under `benchmarks/`. Research entry points and
+domain probes live under `tools/research/benchmarks/`.
 
 ## Скрипты
 
@@ -23,7 +23,7 @@ Canonical benchmark entry points live under `tools/research/benchmarks/`; the ro
 ## Ограничения
 
 - canonical suite execution идет через `run_all.py`, `run_all_benchmarks.sh` и `polisyos-tools benchmarks run-all` внутри `tools/research/benchmarks/`;
-- root `benchmarks/` остается backend library/reporting layer и compatibility layer, а не пользовательской точкой входа;
+- root `benchmarks/` owns the suite registry and shared benchmark library;
 - замеры чувствительны к CPU/GPU backend, поэтому для регрессионных сравнений лучше хранить JSON-вывод рядом с окружением, на котором он был получен.
 
 ## Примеры

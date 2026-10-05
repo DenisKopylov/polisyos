@@ -6,21 +6,37 @@ import subprocess
 import sys
 from pathlib import Path
 
-from tests._helpers.mirror_contracts import assert_source_stem_has_static_contract
-
-
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
-def test_factlog_source_modules_have_static_contracts() -> None:
-    assert_source_stem_has_static_contract('lex', 'factlog')
+def test_retired_lex_factlog_module_fails_in_a_fresh_interpreter() -> None:
+    """The removed Lex facade cannot shadow the Fabric reader owner."""
 
+    module_name = "polisyos.lex." + "factlog"
+    probe = """
+import importlib
+import sys
 
-def test_lex_factlog_facade_preserves_fabric_reader_identity() -> None:
-    from polisyos.fabric.world import load_world_facts as fabric_load_world_facts
-    from polisyos.lex.factlog import load_world_facts as legacy_load_world_facts
+name = sys.argv[1]
+try:
+    importlib.import_module(name)
+except ModuleNotFoundError as exc:
+    assert exc.name == name
+else:
+    raise AssertionError(f"retired module still resolves: {name}")
+"""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src")
+    result = subprocess.run(
+        [sys.executable, "-c", probe, module_name],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
 
-    assert legacy_load_world_facts is fabric_load_world_facts
+    assert result.returncode == 0, result.stderr
 
 
 def test_normpack_reader_imports_fabric_owner_without_legacy_factlog() -> None:

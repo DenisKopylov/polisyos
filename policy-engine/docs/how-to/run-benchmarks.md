@@ -36,8 +36,9 @@ uv run polisyos-tools benchmarks run-parallel --help
 uv run polisyos-tools benchmarks run-local-sota-profile --help
 ```
 
-Compatibility module paths still exist, but the `polisyos-tools benchmarks ...`
-surface is the command boundary to document.
+The benchmark wrapper modules under `tools/research/benchmarks/` have been
+retired. Use the `polisyos-tools benchmarks ...` command surface or import the
+canonical `benchmarks` package directly.
 
 ## Smoke Runs
 
@@ -132,6 +133,6 @@ For TEE/CVM overhead methodology and the current command pointers, see
 
 ## Troubleshooting
 
-- If a suite id is unclear, resolve it from `benchmarks/suite_registry.py` before running wrappers ad hoc.
+- If a suite id is unclear, resolve it from `benchmarks/suite_registry.py` before running a circuit.
 - If heavy paths are unstable, start with `--mode smoke` and then move to targeted suites.
 - If JAX-sensitive probes behave differently across machines, capture the exact env/profile and keep CPU-vs-accelerator comparisons explicit in the report.

@@ -172,7 +172,7 @@ reason = "Foundry registry facade is blueprint-approved root helper pending meth
 path = "src/polisyos/lex/artifacts.py"
 owner = "team-lex"
 sunset = "2026-07-31"
-reason = "Lex artifact public helpers remain root-level during normpack and factlog grouping."
+reason = "Lex artifact public helpers remain root-level while other normpack helpers are grouped."
 
 [[root_file_exception]]
 path = "src/polisyos/lex/common.py"
@@ -185,12 +185,6 @@ path = "src/polisyos/lex/errors.py"
 owner = "team-lex"
 sunset = "2026-07-31"
 reason = "Lex public error types remain root-level until canonical error taxonomy migration."
-
-[[root_file_exception]]
-path = "src/polisyos/lex/factlog.py"
-owner = "team-lex"
-sunset = "2026-07-31"
-reason = "Factlog remains root-level as a public Lex facade until factlog package extraction."
 
 [[root_file_exception]]
 path = "src/polisyos/lex/intervention_artifacts.py"

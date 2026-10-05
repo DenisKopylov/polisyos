@@ -1864,18 +1864,6 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-f23c4af758d2"
-pattern = "canonical_module"
-source_file = "src/polisyos/scientist/evidence/_shim.py"
-line = 22
-call = "importlib.import_module"
-owner = "team-scientist"
-target = "canonical_module"
-verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
-allowed_targets = []
-notes = "Dynamic pattern has no static in-repo target."
-
-[[pattern]]
 id = "dynamic-750bd4847235"
 pattern = "module_name"
 source_file = "src/polisyos/scientist/feedback/__init__.py"

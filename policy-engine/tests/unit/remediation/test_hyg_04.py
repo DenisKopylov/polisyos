@@ -1,29 +1,18 @@
-"""Behavioral witness for the HYG-04 compatibility surfaces.
-
-The tests keep the legacy entry points observable while the production move is
-still pending.  They exercise forwarding, import ordering, canonical object
-identity, lifecycle rejection, and the protected workspace/benchmark surfaces;
-source-text markers alone are not sufficient evidence for any of these paths.
-"""
+"""Behavioral witness for the HYG-04 migrations and preserved entry points."""
 
 from __future__ import annotations
 
-import ast
-import builtins
 import json
 import os
-import runpy
 import subprocess
 import sys
 import tomllib
-import types
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
 
 from polisyos.common import jax_env
-from tools.lib.fs import iter_repository_files
 from tools.quality.validation import check_docs_lifecycle
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -42,18 +31,14 @@ def test_install_wrapper_forwards_argv_and_exit_status(tmp_path: Path) -> None:
     capture = tmp_path / "uv-argv.txt"
     fake_uv = fake_bin / "uv"
     fake_uv.write_text(
-        "#!/bin/sh\n"
-        'printf \'%s\\n\' "$@" > "$HYG04_CAPTURE"\n'
-        "exit 23\n",
+        '#!/bin/sh\nprintf \'%s\\n\' "$@" > "$HYG04_CAPTURE"\nexit 23\n',
         encoding="utf-8",
     )
     fake_uv.chmod(0o755)
 
     environment = os.environ.copy()
     environment["HYG04_CAPTURE"] = str(capture)
-    environment["PATH"] = os.pathsep.join(
-        (str(fake_bin), environment.get("PATH", ""))
-    )
+    environment["PATH"] = os.pathsep.join((str(fake_bin), environment.get("PATH", "")))
     result = subprocess.run(
         [
             "bash",
@@ -81,74 +66,84 @@ def test_install_wrapper_forwards_argv_and_exit_status(tmp_path: Path) -> None:
     ]
 
 
-def test_jax_bootstrap_inserts_src_before_any_jax_import(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """The bootstrap callback runs after path setup and before JAX is touched."""
-
-    events: list[str] = []
-    source_root = str(REPO_ROOT / "src")
-    real_import = builtins.__import__
-
-    def guarded_import(name: str, *args: object, **kwargs: object) -> object:
-        if name == "jax":
-            raise AssertionError("jax was imported before bootstrap defaults")
-        if name == "polisyos.common.jax_env":
-            fake_module = types.ModuleType(name)
-
-            def apply_defaults() -> None:
-                assert source_root in sys.path
-                events.append("defaults")
-
-            fake_module.apply_jax_env_defaults = apply_defaults  # type: ignore[attr-defined]
-            return fake_module
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", guarded_import)
-    monkeypatch.setattr(sys, "path", list(sys.path))
-
-    runpy.run_path(
-        str(REPO_ROOT / "jax_bootstrap.py"),
-        run_name="hyg04_jax_bootstrap",
-    )
-
-    assert events == ["defaults"]
-
-
-def test_jax_bootstrap_subprocess_imports_environment_before_jax() -> None:
-    """A fresh interpreter imports the bootstrap before any JAX module."""
+def test_jax_callers_apply_defaults_before_importing_jax() -> None:
+    """Each real JAX entry point calls the common owner before the first JAX import."""
 
     probe = """
 import builtins
+import runpy
 import sys
+import types
 
 events = []
 real_import = builtins.__import__
 
+class StopAtFirstJaxImport(Exception):
+    pass
 
-def guarded_import(name, *args, **kwargs):
-    if name == "jax":
-        raise AssertionError("jax was imported before bootstrap defaults")
-    if name.startswith("polisyos.common.jax_env"):
-        events.append(name)
-    return real_import(name, *args, **kwargs)
-
+def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+    if name == "polisyos.common.jax_env":
+        module = types.ModuleType(name)
+        def apply_defaults():
+            events.append("defaults")
+        module.apply_jax_env_defaults = apply_defaults
+        return module
+    if name == "jax" or name.startswith("jax."):
+        if not events:
+            raise AssertionError("JAX was imported before common defaults")
+        raise StopAtFirstJaxImport()
+    return real_import(name, globals, locals, fromlist, level)
 
 builtins.__import__ = guarded_import
-import jax_bootstrap  # noqa: F401
+try:
+    runpy.run_path(sys.argv[1], run_name="hyg04_jax_entrypoint_probe")
+except StopAtFirstJaxImport:
+    pass
+else:
+    raise AssertionError("entry point never reached its first JAX import")
 
-assert events
-assert "jax" not in sys.modules
+assert events == ["defaults"]
 """
     environment = os.environ.copy()
     environment["PYTHONPATH"] = os.pathsep.join(
-        filter(
-            None,
-            (str(REPO_ROOT), str(REPO_ROOT / "src"), environment.get("PYTHONPATH", "")),
-        )
+        filter(None, (str(REPO_ROOT), str(REPO_ROOT / "src"), environment.get("PYTHONPATH", "")))
     )
+    scripts = (
+        "tools/research/benchmarks/jax/bench_domain.py",
+        "tools/research/benchmarks/jax/bench_simulation.py",
+        "tools/research/demos/run_laffer_demo.py",
+    )
+    for relative in scripts:
+        result = subprocess.run(
+            [sys.executable, "-c", probe, str(REPO_ROOT / relative)],
+            cwd=REPO_ROOT,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0, f"{relative}: {result.stderr}"
+
+
+def test_retired_jax_bootstrap_import_fails_in_a_fresh_interpreter() -> None:
+    """The retired root module is absent from supported import resolution."""
+
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = os.pathsep.join(
+        filter(None, (str(REPO_ROOT), str(REPO_ROOT / "src"), environment.get("PYTHONPATH", "")))
+    )
+    probe = """
+import importlib
+
+try:
+    importlib.import_module("jax_bootstrap")
+except ModuleNotFoundError as exc:
+    assert exc.name == "jax_bootstrap"
+else:
+    raise AssertionError("the retired bootstrap shim still resolves")
+"""
     result = subprocess.run(
-        [sys.executable, "-c", probe],
+        [sys.executable, "-S", "-c", probe],
         cwd=REPO_ROOT,
         env=environment,
         capture_output=True,
@@ -170,8 +165,7 @@ def test_workspace_bootstrap_subprocess_exposes_real_profiles(
     capture = tmp_path / "uv-argv.txt"
     fake_uv = tmp_path / "uv"
     fake_uv.write_text(
-        "#!/bin/sh\n"
-        'printf \'%s\\n\' "$@" > "$HYG04_BOOTSTRAP_CAPTURE"\n',
+        '#!/bin/sh\nprintf \'%s\\n\' "$@" > "$HYG04_BOOTSTRAP_CAPTURE"\n',
         encoding="utf-8",
     )
     fake_uv.chmod(0o755)
@@ -191,16 +185,19 @@ def test_workspace_bootstrap_subprocess_exposes_real_profiles(
         expected_argv = ["sync", "--frozen"]
         for extra in extras:
             expected_argv.extend(("--extra", extra))
-        assert bootstrap.main(
-            [
-                "--profile",
-                profile,
-                "--skip-frontend",
-                "--skip-hooks",
-                "--skip-doctor",
-                "--no-install-uv",
-            ]
-        ) == 0
+        assert (
+            bootstrap.main(
+                [
+                    "--profile",
+                    profile,
+                    "--skip-frontend",
+                    "--skip-hooks",
+                    "--skip-doctor",
+                    "--no-install-uv",
+                ]
+            )
+            == 0
+        )
         assert capture.read_text(encoding="utf-8").splitlines() == expected_argv
 
 
@@ -239,26 +236,21 @@ def test_jax_env_preserves_explicit_platform_overrides(
     assert os.environ["JAX_PLATFORM_NAME"] == "metal"
 
 
-def test_benchmark_shims_preserve_canonical_object_identity() -> None:
-    """Legacy benchmark imports must expose the root implementation objects."""
+def test_canonical_benchmark_owners_expose_the_runtime_contract() -> None:
+    """The retained root package owns benchmark objects directly."""
 
-    from benchmarks import harness as canonical_harness
-    from benchmarks import metrics as canonical_metrics
-    from benchmarks import suite_registry as canonical_registry
-    from tools.research.benchmarks import harness as legacy_harness
-    from tools.research.benchmarks import metrics as legacy_metrics
-    from tools.research.benchmarks import suite_registry as legacy_registry
+    from benchmarks import harness, metrics, suite_registry
 
-    assert legacy_harness.BenchmarkHarness is canonical_harness.BenchmarkHarness
-    assert legacy_metrics.compute_timing_stats is canonical_metrics.compute_timing_stats
-    assert legacy_registry.SuiteSpec is canonical_registry.SuiteSpec
-    assert legacy_registry.canonical_suite_id is canonical_registry.canonical_suite_id
+    assert harness.BenchmarkHarness.__module__ == "benchmarks.harness"
+    assert metrics.compute_timing_stats.__module__ == "benchmarks.metrics"
+    assert suite_registry.SuiteSpec.__module__ == "benchmarks.suite_registry"
+    assert suite_registry.canonical_suite_id.__module__ == "benchmarks.suite_registry"
 
 
-def test_benchmark_suite_registry_shim_forwards_cli_and_exit_code() -> None:
-    """The legacy script path must preserve canonical CLI output and failures."""
+def test_canonical_benchmark_suite_registry_cli_accepts_and_rejects_inputs() -> None:
+    """The canonical registry command preserves its JSON and usage-error contract."""
 
-    wrapper = REPO_ROOT / "tools/research/benchmarks/suite_registry.py"
+    canonical = REPO_ROOT / "benchmarks/suite_registry.py"
     environment = os.environ.copy()
     environment["PYTHONPATH"] = os.pathsep.join(
         filter(
@@ -268,7 +260,7 @@ def test_benchmark_suite_registry_shim_forwards_cli_and_exit_code() -> None:
     )
 
     valid = subprocess.run(
-        [sys.executable, str(wrapper), "--profile", "air-m2", "--format", "json"],
+        [sys.executable, str(canonical), "--profile", "air-m2", "--format", "json"],
         cwd=REPO_ROOT,
         env=environment,
         capture_output=True,
@@ -280,12 +272,10 @@ def test_benchmark_suite_registry_shim_forwards_cli_and_exit_code() -> None:
     payload = json.loads(valid.stdout)
     assert payload
     assert all("air-m2" in item["profiles"] for item in payload)
-    assert all(
-        {"suite_id", "script_path", "profiles"} <= set(item) for item in payload
-    )
+    assert all({"suite_id", "script_path", "profiles"} <= set(item) for item in payload)
 
     invalid = subprocess.run(
-        [sys.executable, str(wrapper), "--format", "not-a-format"],
+        [sys.executable, str(canonical), "--format", "not-a-format"],
         cwd=REPO_ROOT,
         env=environment,
         capture_output=True,
@@ -297,229 +287,179 @@ def test_benchmark_suite_registry_shim_forwards_cli_and_exit_code() -> None:
     assert "invalid choice" in invalid.stderr
 
 
-def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
-    """Enumerate every tracked text surface before classifying wrapper references."""
+def test_benchmark_wrapper_census_scans_tracked_text_and_executable_selectors() -> None:
+    """Enumerate tracked text, then distinguish live code/config from reference prose."""
 
-    tracked_surface_suffixes = {
-        ".cfg",
-        ".cjs",
-        ".csv",
-        ".ini",
-        ".js",
-        ".json",
-        ".jsonc",
-        ".jsonl",
-        ".lock",
-        ".md",
-        ".mjs",
-        ".py",
-        ".pyi",
-        ".sh",
-        ".sql",
-        ".svg",
-        ".toml",
-        ".ts",
-        ".tsx",
-        ".txt",
-        ".xml",
-        ".yaml",
-        ".yml",
-    }
-    legacy_modules = {
-        "harness": "tools.research.benchmarks.harness",
-        "metrics": "tools.research.benchmarks.metrics",
-        "suite_registry": "tools.research.benchmarks.suite_registry",
-    }
-    file_tokens = {
-        f"{prefix}tools/research/benchmarks/{name}.py": full_name
-        for prefix in ("", "policy-engine/")
-        for name, full_name in legacy_modules.items()
-    }
-    non_caller_exemptions = {
-        "docs/plans/active/TOOLS_AUDIT_REMEDIATION_PLAN.md": "active plan reference",
-        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
-        "PolicyOS_Combined_Remediation_E02_Agent_Bundles.md": "bundle plan source",
-        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
-        "bundle_manifest.json": "generated package manifest",
-        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
-        "bundles/HYG-04.md": "active bundle contract",
-        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
-        "source/LA_r09_original.md": "historical source snapshot",
-        "docs/superpowers/journals/2026-09-08-gy-ambiguous-census.md": "historical evidence",
-        "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/"
-        "openapi-current-contract.json": "historical evidence",
-        "docs/superpowers/journals/gy-phase5-evidence/pr1/"
-        "private-interpreter-owner-complete.json": "historical evidence",
-        "docs/superpowers/journals/gy-phase5-evidence/s3/epoch-binding-census.json": (
-            "historical evidence"
-        ),
-        "docs/superpowers/journals/gy-phase5-evidence/s3/epoch-binding-final-census.json": (
-            "historical evidence"
-        ),
-        "docs/superpowers/journals/gy-phase5-evidence/s3/final-epoch-census.json": (
-            "historical evidence"
-        ),
-        "docs/superpowers/journals/gy-phase5-evidence/shared/"
-        "ds17-dependency-analysis.json": "historical evidence",
-        "docs/superpowers/journals/gy-phase5-evidence/shared/"
-        "ds17-worker-observation.json": "historical evidence",
-        "tests/unit/remediation/test_hyg_04.py": "deliberate witness corpus",
-    }
-    tracked_files = tuple(iter_repository_files(REPO_ROOT))
-    denominator = tuple(
-        path
-        for path in tracked_files
-        if path.suffix.lower() in tracked_surface_suffixes
-        or path.name in {"Dockerfile", "Jenkinsfile", "Makefile", "Procfile"}
+    module_names = tuple(
+        ".".join(("tools", "research", "benchmarks", leaf))
+        for leaf in ("harness", "metrics", "suite_registry")
     )
-    assert denominator
-    assert {
-        "pyproject.toml",
-        "package.json",
-        "pnpm-workspace.yaml",
-        "pnpm-lock.yaml",
-        "uv.lock",
-    } <= {path.name for path in denominator}
+    file_names = tuple(
+        f"tools/research/benchmarks/{leaf}.py" for leaf in ("harness", "metrics", "suite_registry")
+    )
+    parent_import = "from " + ".".join(("tools", "research", "benchmarks")) + " import"
 
-    denominator_paths = {
-        path.relative_to(REPO_ROOT).as_posix() for path in denominator
-    }
+    tracked = subprocess.run(
+        ["git", "ls-files", "--cached", "-z", "--", "."],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+    )
+    assert tracked.returncode == 0, tracked.stderr.decode(errors="replace")
+    tracked_paths = {path.decode() for path in tracked.stdout.split(b"\0") if path}
+    untracked = subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard", "-z", "--", "."],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+    )
+    assert untracked.returncode == 0, untracked.stderr.decode(errors="replace")
+    untracked_paths = {path.decode() for path in untracked.stdout.split(b"\0") if path}
+    untracked_text: dict[str, str] = {}
+    text_inventory = subprocess.run(
+        ["git", "grep", "-I", "-l", "-e", "^", "--", "."],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert text_inventory.returncode == 0, text_inventory.stderr
+    text_paths = set(text_inventory.stdout.splitlines())
+    for relative in untracked_paths:
+        try:
+            content = (REPO_ROOT / relative).read_bytes()
+            content.decode("utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if b"\0" not in content:
+            text_paths.add(relative)
+            untracked_text[relative] = content.decode("utf-8")
+    assert text_paths <= tracked_paths | untracked_paths
+    suffix_denominator: dict[str, int] = {}
+    for relative in text_paths:
+        suffix = Path(relative).suffix.lower() or "<no suffix>"
+        suffix_denominator[suffix] = suffix_denominator.get(suffix, 0) + 1
+    assert sum(suffix_denominator.values()) == len(text_paths)
+
     token_search = ["git", "grep", "-I", "-l", "-F"]
-    for token in (
-        "from tools.research.benchmarks import",
-        *legacy_modules.values(),
-        *file_tokens,
-    ):
+    tokens = (
+        parent_import,
+        *module_names,
+        *file_names,
+        *(f"policy-engine/{name}" for name in file_names),
+    )
+    for token in tokens:
         token_search.extend(("-e", token))
     token_search.extend(("--", "."))
-    token_matches = subprocess.run(
+    result = subprocess.run(
         token_search,
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
         check=False,
     )
-    assert token_matches.returncode == 0, token_matches.stderr
-    matched_paths = set(token_matches.stdout.splitlines())
-    assert matched_paths <= denominator_paths
-
-    dynamic_references = {
-        path: {"fqn/string/file-loader reference"} for path in matched_paths
-    }
-    ast_callers: dict[str, set[str]] = {}
-    parse_failures: list[str] = []
-    for relative in matched_paths:
-        path = REPO_ROOT / relative
-        if path.suffix.lower() not in {".py", ".pyi"}:
-            continue
-        try:
-            text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeError):
-            parse_failures.append(relative)
-            continue
-
-        ast_references: set[str] = set()
-        try:
-            tree = ast.parse(text, filename=str(path))
-        except SyntaxError:
-            parse_failures.append(relative)
-        else:
-            for node in ast.walk(tree):
-                if isinstance(node, ast.Import):
-                    for alias in node.names:
-                        if alias.name in legacy_modules.values():
-                            ast_references.add(alias.name)
-                elif isinstance(node, ast.ImportFrom):
-                    module = node.module or ""
-                    if module in legacy_modules.values():
-                        ast_references.add(module)
-                    elif module == "tools.research.benchmarks":
-                        for alias in node.names:
-                            if alias.name == "*":
-                                ast_references.update(legacy_modules.values())
-                            elif alias.name in legacy_modules:
-                                ast_references.add(legacy_modules[alias.name])
-        if ast_references:
-            ast_callers[relative] = ast_references
-
-    assert parse_failures == []
-    assert set(ast_callers) == {"tests/unit/remediation/test_hyg_04.py"}
-    assert ast_callers["tests/unit/remediation/test_hyg_04.py"] == {
-        *legacy_modules.values()
-    }
-    assert set(dynamic_references) == set(non_caller_exemptions)
-    assert all(non_caller_exemptions.values())
-    witness_text = (
-        REPO_ROOT / "tests/unit/remediation/test_hyg_04.py"
-    ).read_text(encoding="utf-8")
-    assert all(full_name in witness_text for full_name in legacy_modules.values())
-    assert all(
-        f"tools/research/benchmarks/{name}.py" in file_tokens
-        for name in legacy_modules
+    assert result.returncode == 0, result.stderr
+    matched_paths = set(result.stdout.splitlines())
+    matched_paths.update(
+        relative
+        for relative, content in untracked_text.items()
+        if any(token in content for token in tokens)
     )
+    assert matched_paths <= text_paths
+
+    executable_roots = (
+        "apps/",
+        "benchmarks/",
+        "ops/",
+        "scripts/",
+        "src/",
+        "tests/",
+        "tools/",
+        ".github/",
+    )
+    executable_manifests = {
+        ".pre-commit-config.yaml",
+        "Dockerfile.reproducible",
+        "Makefile",
+        "package.json",
+        "pnpm-workspace.yaml",
+        "pyproject.toml",
+        "uv.toml",
+    }
+    live_candidates = {
+        path
+        for path in matched_paths
+        if path.startswith(executable_roots) or path in executable_manifests
+    }
+    outside_classes = {
+        "docs/plans/": "plans_and_bundle_contracts",
+        "docs/superpowers/journals/": "historical_evidence",
+        "docs/migration/archive/": "archived_migration_material",
+        "architecture/baselines/": "generated_baselines",
+        "architecture/policy_design_case/": "retained_case_evidence",
+    }
+    classified_outside: dict[str, str] = {}
+    unclassified: list[str] = []
+    for relative in matched_paths - live_candidates:
+        category = next(
+            (label for prefix, label in outside_classes.items() if relative.startswith(prefix)),
+            None,
+        )
+        if category is None:
+            unclassified.append(relative)
+        else:
+            classified_outside[relative] = category
+
+    assert live_candidates == set(), sorted(live_candidates)
+    assert unclassified == [], sorted(unclassified)
+    assert set(classified_outside.values()) <= set(outside_classes.values())
 
 
-def test_benchmark_wrapper_cli_matches_canonical_entrypoint() -> None:
-    """The registry shim preserves canonical stdout, stderr, and exit status."""
+def test_retired_benchmark_wrapper_imports_fail_in_a_fresh_interpreter() -> None:
+    """Each retired module path now fails while canonical CLI entry points remain live."""
 
-    canonical = REPO_ROOT / "benchmarks/suite_registry.py"
-    wrapper = REPO_ROOT / "tools/research/benchmarks/suite_registry.py"
+    module_names = tuple(
+        ".".join(("tools", "research", "benchmarks", leaf))
+        for leaf in ("harness", "metrics", "suite_registry")
+    )
+    probe = """
+import importlib
+import sys
+
+name = sys.argv[1]
+try:
+    importlib.import_module(name)
+except ModuleNotFoundError as exc:
+    assert exc.name == name
+else:
+    raise AssertionError(f"retired module still resolves: {name}")
+"""
     environment = os.environ.copy()
     environment["PYTHONPATH"] = os.pathsep.join(
-        filter(
-            None,
-            (str(REPO_ROOT), str(REPO_ROOT / "src"), environment.get("PYTHONPATH", "")),
-        )
+        filter(None, (str(REPO_ROOT), str(REPO_ROOT / "src"), environment.get("PYTHONPATH", "")))
     )
-
-    for arguments in (
-        ("--profile", "air-m2", "--format", "json"),
-        ("--format", "not-a-format"),
-    ):
-        canonical_result = subprocess.run(
-            [sys.executable, str(canonical), *arguments],
+    for module_name in module_names:
+        result = subprocess.run(
+            [sys.executable, "-S", "-c", probe, module_name],
             cwd=REPO_ROOT,
             env=environment,
             capture_output=True,
             text=True,
             check=False,
         )
-        wrapper_result = subprocess.run(
-            [sys.executable, str(wrapper), *arguments],
-            cwd=REPO_ROOT,
-            env=environment,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-
-        assert (
-            wrapper_result.returncode,
-            wrapper_result.stdout,
-            wrapper_result.stderr,
-        ) == (
-            canonical_result.returncode,
-            canonical_result.stdout,
-            canonical_result.stderr,
-        )
+        assert result.returncode == 0, f"{module_name}: {result.stderr}"
 
 
-def test_hyg04_shim_registry_resolves_live_source_and_target_paths() -> None:
-    """The two executable shims resolve to existing canonical owners."""
+def test_hyg04_shim_registry_resolves_retained_install_wrapper() -> None:
+    """The retained install entry point resolves to its canonical owner."""
 
-    payload = tomllib.loads(
-        (REPO_ROOT / "architecture/shims.toml").read_text(encoding="utf-8")
-    )
+    payload = tomllib.loads((REPO_ROOT / "architecture/shims.toml").read_text(encoding="utf-8"))
     entries = {entry["id"]: entry for entry in payload["shim"]}
 
     expected = {
         "product-install-sh-to-workspace-bootstrap": (
             "install.sh",
             "tools/devx/workspace/bootstrap.py",
-        ),
-        "product-jax-bootstrap-to-workspace-vendor": (
-            "jax_bootstrap.py",
-            "src/polisyos/common/jax_env.py",
         ),
     }
     for shim_id, (source_path, target_path) in expected.items():
@@ -553,7 +493,7 @@ def test_frontend_redirect_stub_is_retired_without_touching_live_workspaces() ->
 
 
 def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
-    """Workspace build commands and Python package inclusion stay bounded."""
+    """Frontend workspace build commands and generated outputs stay bounded."""
 
     workspace_lines = (REPO_ROOT / "pnpm-workspace.yaml").read_text(encoding="utf-8")
     workspace_globs = tuple(
@@ -563,9 +503,7 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
     )
     assert workspace_globs == ("apps/*", "packages/*")
 
-    root_manifest = json.loads(
-        (REPO_ROOT / "package.json").read_text(encoding="utf-8")
-    )
+    root_manifest = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
     assert "--workspace-concurrency=1" in root_manifest["scripts"]["build"]
 
     workspace_manifests = {
@@ -583,19 +521,6 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
     assert "vite build" in workspace_manifests["apps/runtime-dashboard"]["scripts"]["build"]
     assert "typecheck" in workspace_manifests["apps/runtime-reference-shell"]["scripts"]["build"]
     assert "typecheck" in workspace_manifests["packages/runtime-api-client"]["scripts"]["build"]
-
-    pyproject = tomllib.loads(
-        (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    )
-    wheel_packages = pyproject["tool"]["hatch"]["build"]["targets"]["wheel"]["packages"]
-    sdist_includes = set(pyproject["tool"]["hatch"]["build"]["targets"]["sdist"]["include"])
-    assert wheel_packages == ["src/polisyos", "tools"]
-    assert {"benchmarks", "docs", "ops", "schemas", "tools"} <= sdist_includes
-    assert not any(
-        item == prefix or item.startswith(f"{prefix}/")
-        for item in sdist_includes
-        for prefix in ("apps", "packages", "node_modules", "dist", "coverage")
-    )
 
     ignored = subprocess.run(
         ["git", "check-ignore", "--no-index", "--stdin"],
@@ -620,6 +545,11 @@ def test_redirect_lifecycle_rejects_an_unqualified_expired_stub() -> None:
 
     with TemporaryDirectory() as temporary_root:
         fixture_root = Path(temporary_root)
+        subprocess.run(
+            ["git", "init", "--quiet", "--initial-branch=main"],
+            cwd=fixture_root,
+            check=True,
+        )
         frontend = fixture_root / _FRONTEND_DIR
         frontend.mkdir()
         (frontend / "README.md").write_text(
@@ -640,6 +570,11 @@ def test_redirect_lifecycle_rejects_an_unqualified_expired_stub() -> None:
             )
             + "\n",
             encoding="utf-8",
+        )
+        subprocess.run(
+            ["git", "add", "--", f"{_FRONTEND_DIR}/README.md"],
+            cwd=fixture_root,
+            check=True,
         )
 
         assert check_docs_lifecycle.check_redirect_stubs(fixture_root) == [

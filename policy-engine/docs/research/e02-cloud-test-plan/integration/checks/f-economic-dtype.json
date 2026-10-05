@@ -1,0 +1,207 @@
+{
+  "candidate": {
+    "base": "c40d4acae1ce58b597267255026d9356565828fd",
+    "branch": "codex/e02-G-check-f-eco",
+    "head": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+    "source_bindings": [
+      {
+        "git_blob": "4bb5664d4275986a6f25e1d5214cfafd414351ee",
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+        "sha256_worktree_bytes": "2b8a2471da8542e5f6d5f5652072ed04cea897720fc594fa57feccffe33aa7ee"
+      },
+      {
+        "git_blob": "ee5b613dff2807accca1faa3ee940322b8dbc760",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+        "sha256_worktree_bytes": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da"
+      },
+      {
+        "git_blob": "24eb3a6d273927d522cb6b673f14924a24322f06",
+        "path": "policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py",
+        "sha256_worktree_bytes": "13b1879f4e86108e9916db419170f9af886548697f227de2923244c1db99365c"
+      }
+    ],
+    "tree": "9dcc163a864635004408ddd449bab105762e1726",
+    "working_tree_readback": {
+      "branch_after": "codex/e02-G-check-f-eco",
+      "branch_before": "codex/e02-G-check-f-eco",
+      "head_after": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "head_before": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "receipt_dir": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/_build/e02-g-check/economics-dtype60",
+      "status_after": "",
+      "status_before": "",
+      "tree_after": "9dcc163a864635004408ddd449bab105762e1726",
+      "tree_before": "9dcc163a864635004408ddd449bab105762e1726"
+    }
+  },
+  "deciding_output": {
+    "module_origin_probe": {
+      "exit_code_text": "0\n",
+      "module_origin_bindings": {
+        "jax": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+        "jax.numpy": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/numpy/__init__.py",
+        "jaxlib": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jaxlib/__init__.py",
+        "numpy": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+        "polisyos": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/__init__.py",
+        "polisyos.foundry.agent_sim.distributions": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+        "polisyos.foundry.plugins.core": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/foundry/plugins/core.py",
+        "polisyos.foundry.plugins.economics": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/foundry/plugins/economics/__init__.py",
+        "polisyos.foundry.plugins.economics.state": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/foundry/plugins/economics/state.py"
+      },
+      "stderr": "",
+      "stdout": "{\n  \"python\": \"3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]\",\n  \"executable\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/bin/python\",\n  \"cwd\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine\",\n  \"sys_path\": [\n    \"\",\n    \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src\",\n    \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine\",\n    \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python314.zip\",\n    \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14\",\n    \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload\",\n    \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/lib/python3.14/site-packages\",\n    \"/Users/deniskopylov/polisyos/.worktrees/integration/policy-engine\",\n    \"/Users/deniskopylov/polisyos/.worktrees/integration/policy-engine/src\"\n  ],\n  \"environment\": {\n    \"PYTHONPATH\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine\",\n    \"PYTHONDONTWRITEBYTECODE\": \"1\",\n    \"JAX_PLATFORMS\": \"cpu\",\n    \"JAX_ENABLE_X64\": \"0\",\n    \"OMP_NUM_THREADS\": \"1\",\n    \"OPENBLAS_NUM_THREADS\": \"1\",\n    \"MKL_NUM_THREADS\": \"1\",\n    \"NUMEXPR_NUM_THREADS\": \"1\"\n  },\n  \"packages\": {\n    \"pytest\": \"9.0.2\",\n    \"jax\": \"0.8.2\",\n    \"jaxlib\": \"0.8.2\",\n    \"numpy\": \"2.3.5\",\n    \"chex\": \"0.1.91\",\n    \"pydantic\": \"2.12.5\",\n    \"ruff\": \"0.14.10\"\n  },\n  \"backend\": \"cpu\",\n  \"devices\": [\n    \"TFRT_CPU_0\"\n  ],\n  \"jax_enable_x64_default\": false,\n  \"jax_enable_x64_context_modes\": [\n    {\n      \"requested\": false,\n      \"effective\": false\n    },\n    {\n      \"requested\": true,\n      \"effective\": true\n    }\n  ],\n  \"module_origins\": {\n    \"jax\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py\",\n    \"jax.numpy\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/numpy/__init__.py\",\n    \"jaxlib\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jaxlib/__init__.py\",\n    \"numpy\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py\",\n    \"polisyos\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/__init__.py\",\n    \"polisyos.foundry.agent_sim.distributions\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/foundry/agent_sim/distributions.py\",\n    \"polisyos.foundry.plugins.economics.state\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/foundry/plugins/economics/state.py\",\n    \"polisyos.foundry.plugins.economics\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/foundry/plugins/economics/__init__.py\",\n    \"polisyos.foundry.plugins.core\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src/polisyos/foundry/plugins/core.py\"\n  }\n}\n",
+      "sys_path_note": "The integration checkout is present later in sys.path; the listed tested polisyos modules resolve to the candidate checkout paths."
+    },
+    "pytest": {
+      "exit_code_text": "0\n",
+      "interpretation": "Exactly 60 progress dots; quiet mode emits no summary table. No skip/warning summary appears; the output has no reported skips or warnings.",
+      "stderr": "",
+      "stdout": "............................................................             [100%]\n"
+    }
+  },
+  "environment": {
+    "backend": "cpu",
+    "devices": [
+      "TFRT_CPU_0"
+    ],
+    "jax_enable_x64_context_modes": [
+      {
+        "effective": false,
+        "requested": false
+      },
+      {
+        "effective": true,
+        "requested": true
+      }
+    ],
+    "jax_enable_x64_default": false,
+    "packages": {
+      "chex": "0.1.91",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10"
+    }
+  },
+  "lane": "F economics dtype",
+  "limitations": [
+    "Only tests/unit/foundry/plugins/test_economics_dtype.py ran; no broad package suite or production dataset run is represented.",
+    "The plugin consumer cases use a seeded synthetic initial state (PRNGKey(913), n_agents=20, max_agents=24).",
+    "RSS values are child high-water snapshots before/after the combined origin probe and test process sequence; they are not an isolated pytest peak measurement.",
+    "The recorded NumPy reference is algorithmically separate from the JAX implementation, but lives in the same test file; it is not an independent external validation dataset."
+  ],
+  "oracle_and_behavioral_scope": {
+    "case_count": 60,
+    "consumer_classification": "The plugin objective and observation builder are invoked from the real EconomicsPlugin instance in the test. This is a seeded local plugin-level consumer check, not a production-data or deployment receipt.",
+    "properties_exercised": [
+      "Scalar output shape, expected dtype, and numerical result across 7 input dtype configurations, JAX x64 false/true contexts, eager/JIT, active/all-inactive masks, and Gini/median (56 parameter cases).",
+      "Inactive-value and inactive-position invariance by changing an inactive value and permuting values and mask together.",
+      "Float64 lower median remains exactly 2**24+1 on a set containing values beyond float32 integer precision, in eager and JIT modes (2 cases).",
+      "Actual EconomicsPlugin initial-state creation, JIT aggregate refresh, registered Gini objective, and observation builder; checks compare objective/median to the NumPy reference and validate observation shape, wealth projection, and finiteness under both x64 modes (2 cases)."
+    ],
+    "reference_calculations": [
+      "Gini is compared with a NumPy pairwise absolute-difference calculation: sum(abs(x_i-x_j)) / (2*n*sum(x)); this exercises a separate NumPy path from the JAX function under test, but is authored in the same test module and is not an external scientific reference dataset.",
+      "Median is compared with NumPy sorting and lower-median index (n-1)//2; empty active sets expect 0."
+    ]
+  },
+  "raw_files": [
+    {
+      "bytes": 2504,
+      "path": "policy-engine/_build/e02-g-check/f-eco/run.json",
+      "sha256": "75bcd4d019f48c03041560fc460e94a8016c1f7b48d710b8b110a0efa34e5180"
+    },
+    {
+      "bytes": 3377,
+      "path": "policy-engine/_build/e02-g-check/f-eco/module-origins.stdout",
+      "sha256": "86a4b9f5ce9065318be8f49d19a6ca518e647d6c24cd9e331ddaa78871f8821d"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/_build/e02-g-check/f-eco/module-origins.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2,
+      "path": "policy-engine/_build/e02-g-check/f-eco/module-origins.exit_code",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 80,
+      "path": "policy-engine/_build/e02-g-check/f-eco/pytest.stdout",
+      "sha256": "9352925e5e271773731e7ca3a390daf15479f6b144d2d059ca8d677d62821619"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/_build/e02-g-check/f-eco/pytest.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2,
+      "path": "policy-engine/_build/e02-g-check/f-eco/pytest.exit_code",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 254,
+      "path": "policy-engine/_build/e02-g-check/f-eco/pytest.metrics.json",
+      "sha256": "6c84e9ed5790b6c45243a6cf161770a9727793107fbf02db9be952ff81af1703"
+    },
+    {
+      "bytes": 516,
+      "path": "policy-engine/_build/e02-g-check/f-eco/readback.json",
+      "sha256": "4a109043be18a0d50e9086dd3fc6c175fdef45fd85c0ae19493f304873ccd29f"
+    }
+  ],
+  "receipt_type": "policyos.e02.g-independent-local-check.v1",
+  "related_topic_commit_supplied_by_parent": {
+    "commit": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+    "parent": "3acccc27c862a311b9dab596719eeafd67458de7",
+    "relationship": "Fetched exact remote topic head; candidate48a5 is its ancestor, with only receipt companions added afterward. The test ran at candidate48a5 rather than topic headbfc5; source/test Git blobs reconcile.",
+    "subject": "docs(e02): bind independent dtype review to normalized log bytes",
+    "tree": "f80d2aabdadb85c2a8c44e13205811f217be8ae5"
+  },
+  "run": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/foundry/plugins/test_economics_dtype.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/_build/e02-g-check/economics-dtype60/pytest-cache",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/_build/e02-g-check/economics-dtype60/pytest-tmp",
+      "-q",
+      "-ra"
+    ],
+    "child_peak_rss_raw_after": 968916992,
+    "child_peak_rss_raw_before": 518537216,
+    "child_peak_rss_units": "bytes on macOS; KiB on Linux",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine",
+    "environment_overrides": {
+      "JAX_ENABLE_X64": "0",
+      "JAX_PLATFORMS": "cpu",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine"
+    },
+    "exit_code": 0,
+    "origin_probe_exit_code": 0,
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "suite_scope_as_recorded": "7 combined dtype/x64 configurations ×2 compile modes ×2 active/inactive modes ×2 statistics =56; plus2 precision and2 plugin consumer cases =60. The original raw run description incorrectly multiplied by an additional x64 axis; raw metadata is preserved.",
+    "wall_seconds": 12.05511708400445
+  },
+  "source_receipt_path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos/policy-engine/_build/e02-g-check/economics-dtype60",
+  "root_decision": {
+    "code": "GO_bounded_native_scalar_dtype_repair",
+    "finding_closure": "none",
+    "topic_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+    "topic_tree": "f80d2aabdadb85c2a8c44e13205811f217be8ae5",
+    "root_raw_hashes_recomputed": true,
+    "readback_source_git_blobs_verified": true,
+    "affected_consumer_recheck": "queued once after economic-profile test slice joins, before closeout",
+    "authority_limits": "LA-003 limited; LA-004/LA-035 held. No dataset, normative inequality convention, DoWhy/EconML or architecture completeness claim."
+  }
+}

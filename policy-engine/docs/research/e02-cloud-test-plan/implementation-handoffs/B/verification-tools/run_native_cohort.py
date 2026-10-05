@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
 import time
@@ -57,7 +58,10 @@ print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':pl
             measurement_error = {"type": type(error).__name__, "message": str(error)}
             # Reap this measured child before writing a terminal harness receipt.
             # This does not claim containment of arbitrary descendant sessions.
-            run.kill()
+            try:
+                os.kill(run.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
             _pid, status, usage = os.wait4(run.pid, 0)
         run.returncode = os.waitstatus_to_exitcode(status)
     elapsed = time.monotonic() - clock

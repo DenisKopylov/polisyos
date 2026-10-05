@@ -847,3 +847,136 @@ def test_real_workflow_context_roles_do_not_reuse_or_mutate_ordinary_attempt():
     assert not ordinary.context.get("is_sentinel")
     assert ordinary.context["evaluation_role"] == "ordinary"
     assert orch.get_outcome(ordinary).trace == first.trace
+
+
+def test_real_bootstrap_l3_then_l4_matches_direct_full_config_and_audit_readback(tmp_path):
+    from copy import deepcopy
+
+    from polisyos.scientist.methods.search.actionable_side_information import (
+        load_actionable_side_information,
+    )
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+
+    context = _bootstrap_context()
+    original = deepcopy(context)
+    store = FileSystemCAS(tmp_path / "audit")
+    candidate = {"candidate_id": "full-config"}
+    direct_observations, chained_observations = [], []
+    direct = Level4FullFidelity(_bootstrap_workflow(direct_observations)).evaluate(
+        candidate, context
+    )
+    orch = FunnelOrchestrator(
+        [
+            Level3MediumFidelity(_bootstrap_workflow(chained_observations)),
+            Level4FullFidelity(_bootstrap_workflow(chained_observations)),
+        ]
+    )
+    output = orch.as_stage_b_callable()(candidate, {**context, "store": store})
+    full = output["_funnel_outcome"].stage_results[4]
+    medium = output["_funnel_outcome"].stage_results[3]
+    assert context == original
+    assert direct_observations == [chained_observations[1]]
+    assert [(n, draws) for n, draws, _, _ in chained_observations] == [(24, 50), (120, 120)]
+    assert medium.simulation_results != full.simulation_results
+    assert full.simulation_results == direct.simulation_results
+    assert output["objective_value"] == direct.objective_value
+    assert output["feedback"]["verdict"] == "APPROVE"
+    assert output["_funnel_outcome"].final_action == "complete"
+    audit = load_actionable_side_information(store, full.actionable_side_information_ref)
+    assert audit.candidate_id == candidate["candidate_id"]
+    assert audit.metadata["approved"] is True
+
+
+def test_real_workflow_zero_empty_and_capped_aggregate_projection():
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+
+    observations = []
+    stage = Level4FullFidelity(_bootstrap_workflow(observations))
+    context = {**_bootstrap_context(), "data": [0.0] * 120}
+    candidate = {"candidate_id": "true-zero"}
+    evaluated = FunnelOrchestrator([stage]).as_stage_b_callable()(candidate, context)
+    assert evaluated["objective_value"] == 0.0
+    assert evaluated["feedback"]["verdict"] == "APPROVE"
+    for orch in (FunnelOrchestrator([]), FunnelOrchestrator([stage], max_level=2)):
+        output = orch.as_stage_b_callable()(candidate, context)
+        assert output["feedback"]["verdict"] == "NOT_EVALUATED"
+        assert not output["is_promising"]
+        assert output["objective_value"] != 0.0
+        assert output["_funnel_outcome"].stage_results == {}
+        assert output["_funnel_outcome"].evaluation_status == "not_evaluated"
+    assert len(observations) == 1
+
+
+def test_real_workflow_ci_width_and_optional_stage_verdict_do_not_grant_promotion():
+    from polisyos.ir import UncertaintyType
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+    from polisyos.scientist.orchestration.workflows import SimpleLoopEngine
+
+    for width, method in (
+        (None, "ci_width_missing"),
+        ("broken", "ci_width_invalid"),
+        (0.0, "full_fidelity_bootstrap"),
+        (0.4, "full_fidelity_bootstrap"),
+    ):
+        for supplied_verdict in (True, False):
+
+            def estimate(state, width=width, supplied_verdict=supplied_verdict):
+                feedback = {"verdict": "APPROVE"} if supplied_verdict else {}
+                # ExpensiveStage itself requires APPROVE to mark a stage promising.
+                # Keep the numerical evidence fixed when the optional field changes.
+                return {
+                    **state,
+                    "simulation_results": {
+                        "ate": 2.0,
+                        "gdp_change": 2.0,
+                        "bootstrap": {"ci_width": width},
+                    },
+                    "feedback": feedback,
+                }
+
+            engine = SimpleLoopEngine([("estimate", estimate)], terminal_node="estimate")
+            stage = Level4FullFidelity(engine)
+            result = stage.evaluate({}, {})
+            estimate_value = result.uncertainty_envelope.uncertainties[UncertaintyType.STATISTICAL]
+            assert estimate_value.quantification_method == method
+            assert result.simulation_results["ate"] == 2.0
+            assert estimate_value.level == (
+                1.0 if width is None or width == "broken" else width / 4
+            )
+
+
+def test_real_l2_defer_projection_is_independent_of_optional_stage_verdict():
+    from dataclasses import replace
+
+    from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+
+    projections = []
+    for verdict in (None, "APPROVE"):
+
+        class StageWithOptionalVerdict(Level2CausalPlausibility):
+            def evaluate(self, candidate, context, verdict=verdict):
+                result = super().evaluate(candidate, context)
+                feedback = dict(result.feedback)
+                if verdict is not None:
+                    feedback["verdict"] = verdict
+                return replace(result, feedback=feedback)
+
+        observations = []
+        budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.001"))})
+        orch = FunnelOrchestrator(
+            [StageWithOptionalVerdict(), Level3MediumFidelity(_bootstrap_workflow(observations))],
+            budget_state=budget,
+        )
+        output = orch.as_stage_b_callable()(
+            {"candidate_id": "optional-verdict"}, _bootstrap_context()
+        )
+        assert output["feedback"]["stage_verdict"] == verdict
+        assert output["_funnel_result"].is_promising
+        assert output["feedback"]["verdict"] == "DEFER"
+        assert not output["is_promising"]
+        assert output["_funnel_outcome"].final_action == "defer"
+        assert observations == []
+        projections.append((output["objective_value"], output["feedback"]["verdict"]))
+    assert projections[0] == projections[1]

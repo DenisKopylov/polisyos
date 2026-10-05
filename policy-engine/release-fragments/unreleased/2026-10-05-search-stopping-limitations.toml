@@ -1,0 +1,12 @@
+id = "2026-10-05-search-stopping-limitations"
+title = "Retain unavailable plateau diagnostics through search results"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Non-finite objective histories and overflowed derived improvements produce an explicit unavailable plateau predicate. Composite criteria and native search results retain the limitation while other stop conditions continue to operate."
+evidence = ["tests/unit/scientist/methods/search/test_stopping_limitations.py", "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py"]
+compatibility = "Existing finite-input plateau thresholds and stop behavior are preserved. Non-finite plateau inputs still do not stop a run, and now carry a diagnostic."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.methods.search"
+migration = "Consumers may inspect SearchResult.telemetry.stopping_limitations to distinguish an unavailable predicate from an evaluated non-stopping predicate."
+limitations = "This diagnostic does not select an accepted scientific near-zero scale or non-finite stopping policy; those decisions remain held by the semantic owner."

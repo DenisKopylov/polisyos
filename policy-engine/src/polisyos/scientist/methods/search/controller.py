@@ -569,6 +569,8 @@ class SearchController:
                 self._diversity_tracker.unique_mechanisms_total
             )
             telemetry["diversity_ratio"] = self._diversity_tracker.diversity_ratio
+        if snapshot.stopping_limitations:
+            telemetry["stopping_limitations"] = deepcopy(snapshot.stopping_limitations)
         transition_payload = snapshot.generation_transition_payload()
         if transition_payload is not None:
             telemetry["generation_transition"] = transition_payload

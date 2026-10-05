@@ -27,6 +27,7 @@ from polisyos.scientist.methods.search.run_state import (
     GenerationTransition,
     _EvaluationDisposition,
 )
+from polisyos.scientist.methods.search.stopping import _stopping_limitations
 from polisyos.scientist.methods.search.strategies.errors import StrategyError
 
 logger = get_logger(__name__)
@@ -237,6 +238,9 @@ class _NativeSearchServiceDriver:
             [self.controller._to_history_dict(item) for item in self.controller._history],
             self.controller._stopping_state(),
         )
+        for limitation in _stopping_limitations(self.controller._config.stopping.name, stop_check):
+            if limitation not in self.controller._run_state.stopping_limitations:
+                self.controller._run_state.stopping_limitations.append(deepcopy(limitation))
         return stop_check.reason if stop_check.should_stop else None
 
     def _prepare_batch(

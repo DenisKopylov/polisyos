@@ -1,0 +1,10 @@
+id = "2026-10-05-cas-archive-output-entry"
+title = "Reject alias and nonregular CAS archive outputs"
+type = "fixed"
+component = "core-artifacts"
+owner = "team-policyos-runtime"
+summary = "Compressed CAS exports now reject symlink and nonregular output entries before staging, preserving the alias, referent package and existing filesystem entry on refusal."
+evidence = ["src/polisyos/core/artifacts/_transfer_ops.py", "tests/unit/core/artifacts/test_transfer_output_paths.py"]
+compatibility = "Missing and regular archive outputs retain complete-generation replacement and existing mode behavior. Alias and nonregular targets now raise ValueError before writing an archive."
+surface_classification = "public_stable: FileSystemCAS.export_subgraph; internal: archive output admission"
+limitations = "The check admits the final normalized output entry; it does not establish hostile parent-path isolation, concurrent path-swap protection, or owner/ACL custody. Existing special mode bits retain current behavior without a new permission policy."

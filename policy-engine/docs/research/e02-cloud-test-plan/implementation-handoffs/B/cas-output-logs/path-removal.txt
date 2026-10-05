@@ -1,0 +1,56 @@
+{
+  "source": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+  "overlay_ref": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+  "mode": "archive-path-unchecked",
+  "overlays": [],
+  "mutated_file": "src/polisyos/core/artifacts/_transfer_ops.py",
+  "mutated_sha256": "5db1a78b44e181b9c26875aaa88ac3a02fabde2dc8774a0700504ef2636f8272",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "nodes": [
+    "tests/unit/core/artifacts/test_transfer_output_paths.py"
+  ],
+  "isolated_src": "/tmp/e02-cas-removal-v9eoj5dg/policy-engine/src"
+}
+FFFF...                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_archive_refuses_output_alias_or_nonregular_entry_before_writing[regular-symlink] _
+tests/unit/core/artifacts/test_transfer_output_paths.py:100: in test_archive_refuses_output_alias_or_nonregular_entry_before_writing
+    assert output.lstat().st_ino == prior_entry.st_ino, observed
+E   AssertionError: {'exported_artifacts': 1, 'tar_opens': 1}
+E   assert 467795 == 467792
+E    +  where 467795 = os.stat_result(st_mode=33279, st_ino=467795, st_dev=33, st_nlink=1, st_uid=1000, st_gid=1000, st_size=695, st_atime=1791213936, st_mtime=1791213936, st_ctime=1791213936).st_ino
+E    +    where os.stat_result(st_mode=33279, st_ino=467795, st_dev=33, st_nlink=1, st_uid=1000, st_gid=1000, st_size=695, st_atime=1791213936, st_mtime=1791213936, st_ctime=1791213936) = lstat()
+E    +      where lstat = PosixPath('/tmp/pytest-of-agent/pytest-110/test_archive_refuses_output_al0/alias.tar.gz').lstat
+E    +  and   467792 = os.stat_result(st_mode=41471, st_ino=467792, st_dev=33, st_nlink=1, st_uid=1000, st_gid=1000, st_size=16, st_atime=1791213935, st_mtime=1791213935, st_ctime=1791213935).st_ino
+_ test_archive_refuses_output_alias_or_nonregular_entry_before_writing[dangling-symlink] _
+tests/unit/core/artifacts/test_transfer_output_paths.py:100: in test_archive_refuses_output_alias_or_nonregular_entry_before_writing
+    assert output.lstat().st_ino == prior_entry.st_ino, observed
+E   AssertionError: {'exported_artifacts': 1, 'tar_opens': 1}
+E   assert 467878 == 467876
+E    +  where 467878 = os.stat_result(st_mode=33279, st_ino=467878, st_dev=33, st_nlink=1, st_uid=1000, st_gid=1000, st_size=694, st_atime=1791213936, st_mtime=1791213936, st_ctime=1791213936).st_ino
+E    +    where os.stat_result(st_mode=33279, st_ino=467878, st_dev=33, st_nlink=1, st_uid=1000, st_gid=1000, st_size=694, st_atime=1791213936, st_mtime=1791213936, st_ctime=1791213936) = lstat()
+E    +      where lstat = PosixPath('/tmp/pytest-of-agent/pytest-110/test_archive_refuses_output_al1/alias.tar.gz').lstat
+E    +  and   467876 = os.stat_result(st_mode=41471, st_ino=467876, st_dev=33, st_nlink=1, st_uid=1000, st_gid=1000, st_size=14, st_atime=1791213936, st_mtime=1791213936, st_ctime=1791213936).st_ino
+__ test_archive_refuses_output_alias_or_nonregular_entry_before_writing[fifo] __
+tests/unit/core/artifacts/test_transfer_output_paths.py:100: in test_archive_refuses_output_alias_or_nonregular_entry_before_writing
+    assert output.lstat().st_ino == prior_entry.st_ino, observed
+E   AssertionError: {'exported_artifacts': 1, 'tar_opens': 1}
+E   assert 467961 == 467959
+E    +  where 467961 = os.stat_result(st_mode=33152, st_ino=467961, st_dev=33, st_nlink=1, st_uid=1000, st_gid=1000, st_size=694, st_atime=1791213937, st_mtime=1791213937, st_ctime=1791213937).st_ino
+E    +    where os.stat_result(st_mode=33152, st_ino=467961, st_dev=33, st_nlink=1, st_uid=1000, st_gid=1000, st_size=694, st_atime=1791213937, st_mtime=1791213937, st_ctime=1791213937) = lstat()
+E    +      where lstat = PosixPath('/tmp/pytest-of-agent/pytest-110/test_archive_refuses_output_al2/alias.tar.gz').lstat
+E    +  and   467959 = os.stat_result(st_mode=4480, st_ino=467959, st_dev=33, st_nlink=1, st_uid=1000, st_gid=1000, st_size=0, st_atime=1791213936, st_mtime=1791213936, st_ctime=1791213936).st_ino
+_ test_archive_refuses_output_alias_or_nonregular_entry_before_writing[directory] _
+tests/unit/core/artifacts/test_transfer_output_paths.py:108: in test_archive_refuses_output_alias_or_nonregular_entry_before_writing
+    assert observed["exception"] == "ValueError", observed
+E   AssertionError: {'exception': 'IsADirectoryError', 'message': "[Errno 21] Is a directory: '/tmp/pytest-of-agent/pytest-110/test_archiv...066/archive.tar.gz' -> '/tmp/pytest-of-agent/pytest-110/test_archive_refuses_output_al3/alias.tar.gz'", 'tar_opens': 1}
+E   assert 'IsADirectoryError' == 'ValueError'
+E     
+E     - ValueError
+E     + IsADirectoryError
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_transfer_output_paths.py::test_archive_refuses_output_alias_or_nonregular_entry_before_writing[regular-symlink]
+FAILED tests/unit/core/artifacts/test_transfer_output_paths.py::test_archive_refuses_output_alias_or_nonregular_entry_before_writing[dangling-symlink]
+FAILED tests/unit/core/artifacts/test_transfer_output_paths.py::test_archive_refuses_output_alias_or_nonregular_entry_before_writing[fifo]
+FAILED tests/unit/core/artifacts/test_transfer_output_paths.py::test_archive_refuses_output_alias_or_nonregular_entry_before_writing[directory]
+4 failed, 3 passed in 1.94s

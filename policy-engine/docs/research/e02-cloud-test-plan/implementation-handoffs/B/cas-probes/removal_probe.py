@@ -55,7 +55,14 @@ def main() -> int:
     parser.add_argument("--overlay-test", action="append", default=[])
     parser.add_argument(
         "--mode",
-        choices=("baseline", "bound-removal", "archive-live", "directory-live", "import-unfenced"),
+        choices=(
+            "baseline",
+            "bound-removal",
+            "archive-live",
+            "directory-live",
+            "import-unfenced",
+            "archive-path-unchecked",
+        ),
         required=True,
     )
     parser.add_argument("--python", default=sys.executable)
@@ -137,6 +144,17 @@ def main() -> int:
         elif arguments.mode == "import-unfenced":
             changed = artifact_root / "ownership.py"
             remove_body(changed, "require_no_pending_transaction")
+        elif arguments.mode == "archive-path-unchecked":
+            changed = artifact_root / "_transfer_ops.py"
+            substitute(
+                changed,
+                (
+                    (
+                        "if not stat.S_ISREG(status.st_mode):",
+                        "if False and not stat.S_ISREG(status.st_mode):",
+                    ),
+                ),
+            )
         metadata = {
             "source": source,
             "overlay_ref": overlay_ref,

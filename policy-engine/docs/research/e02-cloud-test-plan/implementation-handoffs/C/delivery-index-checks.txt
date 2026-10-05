@@ -1,0 +1,28 @@
+C delivery inventory verification
+target_sha=a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae
+target_tree=3ef7ea8a870c5b29750f8ab518fdf7da752146f5
+python=3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]
+assertions_enabled=False
+scope=complete pinned inventory/Git identities; no finding closure
+branch_byte_identity policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/README.md sha256=01ccca442f61ca9e48a22b15ceeeb8e58b8698fcac6e6305937344121392e828
+branch_byte_identity policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index.json sha256=a9691fa37f46bc9ecfcd33b81aacf564e40fa979d6031a1fed72e4c3a8097020
+branch_byte_identity policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/check_delivery_index.py sha256=ea867ff4df628cb5717ba3f08d4336287c85fd98c903ea5de3ed884a50462476
+command=python3 -O policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/check_delivery_index.py --remote
+exit=0
+stdout:
+{"denominator": {"C_bundles": 33, "C_cell_states": {"FAILED": 9, "PASS": 183}, "C_distinct_cells": 192, "C_findings": 54, "C_ledger_states": {"closed": 4, "held": 5, "partial": 45}, "C_route_links": 402, "bundle_owner_rows": 127, "finding_owner_rows": 282, "ledger_rows": 282, "result_cells_rows": 2074, "result_routes_rows": 2524}, "implementation_slices": 15, "outcome": "PASS", "remote_checked": true, "scope": "inventory and pinned Git identities only"}
+stderr:
+
+NEGATIVE_REJECTED denominator: delivery index drift: denominator differs from complete source walk
+NEGATIVE_REJECTED missing_finding: delivery index drift: finding cardinality differs
+NEGATIVE_REJECTED ledger_status: delivery index drift: B17
+NEGATIVE_REJECTED source_status: delivery index drift: B17
+NEGATIVE_REJECTED finding_slice_refs: delivery index drift: B17
+NEGATIVE_REJECTED slice_base: delivery index drift: ('catalog', 'C slice source cut differs')
+NEGATIVE_REJECTED receipt_slice: delivery index drift: ('catalog', 'receipt slice differs')
+NEGATIVE_REJECTED candidate_tree: delivery index drift: catalog
+NEGATIVE_REJECTED failed_cell_set: delivery index drift: baseline failed cell set differs
+NEGATIVE_REJECTED route_grade: delivery index drift: baseline route grades differ
+NEGATIVE_REJECTED semantic_adequacy: delivery index drift: baseline semantic adequacy differs
+NEGATIVE_REJECTED coherently_omitted_implementation_branch: delivery index drift: remote head differs
+RESULT=PASS positive complete33/54+15remoteheads and12independent corrupt-index controls rejected under Python-O; semantic closure outside scope

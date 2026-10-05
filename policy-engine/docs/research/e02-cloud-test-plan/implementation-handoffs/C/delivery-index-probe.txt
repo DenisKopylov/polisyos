@@ -1,0 +1,84 @@
+"""Run from an attached checkout of the frozen report implementation SHA."""
+
+import copy
+import hashlib
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+from unittest.mock import patch
+
+root = Path.cwd()
+p = root / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index.json'
+script = p.with_name('check_delivery_index.py')
+sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+if sha != 'a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae':
+    raise ValueError('unexpected frozen HEAD; use an attached worktree at the recorded implementation')
+lines = [
+    'C delivery inventory verification',
+    'target_sha=' + sha,
+    'target_tree=' + subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip(),
+    'python=' + sys.version.replace('\n', ' '),
+    'assertions_enabled=' + str(__debug__),
+    'scope=complete pinned inventory/Git identities; no finding closure',
+]
+for name in ('README.md', 'delivery-index.json', 'check_delivery_index.py'):
+    q = p.with_name(name)
+    rel = q.relative_to(root).as_posix()
+    blob = subprocess.check_output(['git', 'show', sha + ':' + rel])
+    if blob != q.read_bytes():
+        raise ValueError('branch/source drift ' + rel)
+    lines.append('branch_byte_identity ' + rel + ' sha256=' + hashlib.sha256(blob).hexdigest())
+positive = subprocess.run([sys.executable, '-O', str(script), '--remote'], capture_output=True, text=True)
+lines.extend([
+    'command=python3 -O ' + script.relative_to(root).as_posix() + ' --remote',
+    'exit=' + str(positive.returncode), 'stdout:', positive.stdout.rstrip(),
+    'stderr:', positive.stderr.rstrip(),
+])
+if positive.returncode:
+    raise ValueError('positive gate failed')
+spec = importlib.util.spec_from_file_location('frozen_inventory', script)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+baseline = json.loads(p.read_text())
+
+
+def check_mutant(name, mutate, needle):
+    data = copy.deepcopy(baseline)
+    mutate(data)
+    with patch.object(Path, 'read_text', return_value=json.dumps(data)):
+        try:
+            module.check(p, remote=True)
+        except ValueError as exc:
+            if needle not in str(exc):
+                raise ValueError((name, 'wrong rejection', str(exc))) from exc
+            lines.append('NEGATIVE_REJECTED ' + name + ': ' + str(exc))
+        else:
+            raise ValueError('mutant incorrectly accepted ' + name)
+
+
+check_mutant('denominator', lambda d: d['denominator'].__setitem__('C_findings', 53), 'denominator differs')
+check_mutant('missing_finding', lambda d: d['findings'].pop(), 'finding cardinality')
+check_mutant('ledger_status', lambda d: d['findings'][0].__setitem__('ledger_status', 'closed'), 'B17')
+check_mutant('source_status', lambda d: d['findings'][0].__setitem__('source_status', 'closed'), 'B17')
+check_mutant('finding_slice_refs', lambda d: d['findings'][0].__setitem__('slice_refs', ['bogus']), 'B17')
+check_mutant('slice_base', lambda d: d['slices']['catalog'].__setitem__('slice_base_sha', '401fe6864c00b70417c3d63bee96a292718dead7'), 'C slice source cut differs')
+check_mutant('receipt_slice', lambda d: d['slices']['catalog'].__setitem__('receipt_slice', 'fake'), 'receipt slice differs')
+check_mutant('candidate_tree', lambda d: d['slices']['catalog'].__setitem__('candidate_tree_sha', '0' * 40), 'catalog')
+check_mutant('failed_cell_set', lambda d: d['baseline_limits']['original_failed_cells'].pop(), 'baseline failed cell set differs')
+check_mutant('route_grade', lambda d: d['baseline_limits'].__setitem__('route_grades', ['verified']), 'baseline route grades differ')
+check_mutant('semantic_adequacy', lambda d: d['baseline_limits'].__setitem__('semantic_adequacy', ['established']), 'baseline semantic adequacy differs')
+
+
+def omit_slice(data):
+    del data['slices']['streaming']
+    for bundle in data['bundle_dispositions'].values():
+        bundle['slice_refs'] = [key for key in bundle['slice_refs'] if key != 'streaming']
+    for finding in data['findings']:
+        finding['slice_refs'] = [key for key in finding['slice_refs'] if key != 'streaming']
+
+
+check_mutant('coherently_omitted_implementation_branch', omit_slice, 'remote head differs')
+lines.append('RESULT=PASS positive complete33/54+15remoteheads and12independent corrupt-index controls rejected under Python-O; semantic closure outside scope')
+sys.stdout.write('\n'.join(lines) + '\n')

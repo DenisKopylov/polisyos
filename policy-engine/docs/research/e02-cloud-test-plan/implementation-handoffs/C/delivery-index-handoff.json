@@ -1,0 +1,247 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "delivery-index",
+  "closure_ids": [],
+  "bundle_ids": [
+    "BER-01",
+    "CAN-01",
+    "CLI-01",
+    "DFI-01",
+    "DFI-02",
+    "DFI-03",
+    "DFK-01",
+    "DFK-02",
+    "EMB-01",
+    "EMB-02",
+    "EMB-03",
+    "FED-01",
+    "FED-02",
+    "HYG-02",
+    "HYG-04",
+    "ING-01",
+    "ING-02",
+    "ING-03",
+    "MIG-01",
+    "MIG-02",
+    "MIG-04",
+    "MIG-05",
+    "OBS-01",
+    "OBS-02",
+    "PLG-01",
+    "PLG-02",
+    "PLG-03",
+    "SCL-01",
+    "SCL-03",
+    "UDF-01",
+    "UDF-02",
+    "UDF-04",
+    "UDF-05"
+  ],
+  "slice_base_sha": "3178752cc2ce065a0758efecf1d967201c0815e5",
+  "implementation_commits": [
+    "a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae"
+  ],
+  "candidate_tree_sha": "3ef7ea8a870c5b29750f8ab518fdf7da752146f5",
+  "branch": "codex/e02-C-handoff",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/check_delivery_index.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P065",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+      "state": "FAILED",
+      "receipt_status": "reconciled"
+    },
+    {
+      "id": "F03-P063",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "state": "FAILED",
+      "receipt_status": "valid_bound"
+    },
+    {
+      "id": "F05-P075",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+      "state": "FAILED",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "id": "F08-P065",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "state": "FAILED",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "id": "F09-P057",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+      "state": "FAILED",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "id": "F10-P055",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+      "state": "FAILED",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "id": "F13-P062",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+      "state": "FAILED",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "id": "F14-P075",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "state": "FAILED",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "id": "F15-P076",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+      "state": "FAILED",
+      "receipt_status": "valid"
+    }
+  ],
+  "checks": [
+    {
+      "target_sha": "a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae",
+      "environment": "Local macOS isolated attached C report worktree; CPython 3.14.0; read-only Git object/remote ref reads; no production inputs",
+      "input_closure": "Five complete source blobs pinned at c40d4acae1ce58b597267255026d9356565828fd, full owner/cell/route/ledger joins, all 15 implementation receipts and whole refs/heads/codex/e02-C-* namespace; excludes only this report branch",
+      "command": "python3 -O policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/check_delivery_index.py --remote",
+      "outcome": "PASS",
+      "output": "Complete pinned inventory and Git identity check passed: 33 C bundles, 54 C findings, 15 remote implementation heads; original source/ledger states and baseline limits preserved. Scope is inventory only.",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index-checks.txt",
+        "sha256": "b5ec8510f799efd79d35d445b935259f91294965d5ffec66056643b9c3cda69f",
+        "bytes": 2602
+      }
+    },
+    {
+      "target_sha": "a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae",
+      "environment": "Local macOS isolated attached C report worktree; CPython 3.14.0; read-only Git object/remote ref reads; no production inputs",
+      "input_closure": "Five complete source blobs pinned at c40d4acae1ce58b597267255026d9356565828fd, full owner/cell/route/ledger joins, all 15 implementation receipts and whole refs/heads/codex/e02-C-* namespace; excludes only this report branch",
+      "command": "python3 -O policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index-probe.txt",
+      "outcome": "PASS",
+      "output": "The same actual checker accepted the frozen index and rejected all 12 independent corrupt-index controls under Python -O. All three implementation files matched git show at the frozen implementation SHA.",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index-checks.txt",
+        "sha256": "b5ec8510f799efd79d35d445b935259f91294965d5ffec66056643b9c3cda69f",
+        "bytes": 2602
+      },
+      "witness_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index-probe.txt",
+        "sha256": "f394ca142a7cd5faedbead8571cb09fa34f85db7a7cfd23feb9515495a2d2c13",
+        "bytes": 4461
+      },
+      "rerun_precondition": "Use an attached checkout at a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae; materialize this adjacent witness from the separately published receipt commit. The witness deliberately rejects a different HEAD. Fetch all pinned slice heads first."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/check_delivery_index.py; /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/check_delivery_index.py; git diff --check",
+      "target_sha": "a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae",
+      "environment": "Local read-only repo dependency venv; isolated report checkout",
+      "input_closure": "The one new Python checker and current report diff; individual commands executed separately without shell chaining",
+      "outcome": "PASS",
+      "output": "All checks passed; 1 file already formatted; git diff --check exit 0.",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index-style-checks.txt",
+        "sha256": "2f62d3d462299ab387f57d279280a68542e0b7bb520f1d4d5880ce5dd40aec1f",
+        "bytes": 563
+      }
+    },
+    {
+      "target_sha": "a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae",
+      "environment": "Local macOS isolated attached C report worktree; CPython 3.14.0; read-only Git object/remote ref reads; no production inputs",
+      "input_closure": "Five complete source blobs pinned at c40d4acae1ce58b597267255026d9356565828fd, full owner/cell/route/ledger joins, all 15 implementation receipts and whole refs/heads/codex/e02-C-* namespace; excludes only this report branch",
+      "command": "Independent /root/client_writer read-only review; exact commands and corrupt controls in adjacent report",
+      "outcome": "PASS",
+      "output": "ACCEPT exact implementation/tree. Independently reconciled all five source blob hashes and full joins, all 15 remote/receipt identities and source footprints; seven corrupt-index variants plus missing client remote ref rejected. No broad suite run.",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index-review.txt",
+        "sha256": "2b1b56360f64840ba7a3086514628e59ef003a9416e59f5e5260f2f5560eef2a",
+        "bytes": 3317
+      }
+    }
+  ],
+  "property": {
+    "statement": "The published C navigation index covers exactly the complete C-owned bundle and finding sets, preserves each pinned source/ledger status and baseline limitation, and resolves every declared implementation slice to its actual published Git head, owner receipt, slice base, implementation tree and complete changed source footprint. It does not close findings or admit a combined candidate.",
+    "runtime_path": [
+      "Five pinned canonical owner/result/ledger Git blobs -> full TSV/JSON joins",
+      "delivery-index.json@a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae -> check_delivery_index.py",
+      "Checker resolves all declared slice receipts and Git implementation trees/ancestry/changed paths -> whole published C branch namespace",
+      "G reads README/index and separate slice receipts -> immutable integration review and required owner/input reruns"
+    ],
+    "proxy_divergence": "A counter-only check can still show 33 bundles and 54 findings after a source/ledger status is forged. A declared-slices-only remote check can pass after the streaming slice and all its navigation refs are coherently omitted. Complete status joins and the whole C branch namespace reject those cases.",
+    "negative_controls": [
+      "Denominator changed",
+      "Finding removed",
+      "Ledger status forged",
+      "Source status forged",
+      "Finding slice ref invalid",
+      "Catalog slice base changed to a nearer implementation",
+      "Receipt slice identity changed",
+      "Candidate tree forged",
+      "Original failed-cell set truncated",
+      "Route grade promoted",
+      "Semantic adequacy promoted",
+      "Streaming slice and all corresponding navigation refs coherently omitted while its remote branch remains"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "independent_review_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Bounded inventory/Git identity property verified; all original finding statuses preserved. Semantic acceptance and combined integration outcome are not_established; closure_ids is empty.",
+  "limitations_and_next_owner": [
+    "G: fetch the 15 exact slice heads from delivery-index.json and this separate report branch; review and integrate on an append-only frozen candidate before broad backend/CI/architecture verification. No combined PASS is claimed by the slice receipts.",
+    "B/G: pool cancellation-suppression discriminator remains HOLD at the pinned dependency check; require B accepted correction or an explicit narrower contract, then combined pool/streaming deadline, cleanup and restart controls.",
+    "A/G: catalog-to-HTTP consumer stopped at runtime construction before either request because its selected default catalog DB is absent. Bind approved input and A lifecycle prerequisite before replay; consumer property is not_established.",
+    "G/local owners: full source history, Ukraine member/layout/schema basis, FQN/schema, registered stages, producer and verification decisions remain typed blockers or held. Full production inputs remain local/read-only and were not read or transferred by C.",
+    "G: full DFI/EMB Ruff and BERL architecture gates remain non-green with origin not_established; no blanket inherited-red claim. Other bounded/unrun checks and exact reruns are in each slice receipt and index.",
+    "Workspace admission exited 2 for a stale missing registration. The user explicitly authorized verified isolated C worktrees while leaving stale registrations untouched. This is an admission exception, not a PASS; main was not modified.",
+    "The local source/input census is navigation only and not independent G admission evidence. The baseline result package contains zero raw archives; candidate_unverified route grade and not_established semantic adequacy are preserved."
+  ],
+  "recorded_at_utc": "2026-10-05T16:40:17.390103+00:00",
+  "source_navigation": {
+    "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index.json",
+    "index_sha": "a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae",
+    "source_cut": "c40d4acae1ce58b597267255026d9356565828fd",
+    "report_base": "3178752cc2ce065a0758efecf1d967201c0815e5",
+    "observed_G_checkpoint": "46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+    "source_identities_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/delivery-index.json@a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae#source_paths"
+  },
+  "receipt_boundary": "Implementation a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae is already committed. This handoff and its moderate deciding outputs are separate receipt additions; no reference to a future handoff commit SHA.",
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P29",
+      "P32",
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "Actual complete-source/Git reconciliation with corruption controls; no status promotion by package PASS; bounded owner/input residuals retained",
+    "acceptance_signal": "Positive complete index plus rejected divergent corruptions and independent exact-SHA ACCEPT"
+  }
+}

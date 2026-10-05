@@ -1,0 +1,15 @@
+Независимый review: ACCEPT
+Reviewer: /root/client_writer
+Объект: a86600a0b2d88bf4d3dcd5103a15ec8a32f125ae, tree 3ef7ea8a870c5b29750f8ab518fdf7da752146f5. Проверял frozen report в чистой ветке codex/e02-C-handoff; файлы не менял.
+
+Проверки и результаты
+
+- git status -sb, git rev-parse HEAD, git rev-parse HEAD^{tree}, git branch --show-current, git ls-remote --heads origin 'refs/heads/codex/e02-C-*': ветка чистая; HEAD и tree совпали с указанными; опубликованы все 15 ожидаемых C slice refs.
+- python3 -O policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/check_delivery_index.py --remote: PASS; 33 C bundles, 54 C findings, 15 implementation slices, remote refs проверены. Полный знаменатель: 127 bundle-owner rows, 282 finding-owner rows, 282 ledger rows, 2,074 cells, 2,524 routes; 402 C route links и 192 C cells — 183 PASS, 9 FAILED; ledger — 45 partial, 5 held, 4 closed.
+- Независимо прочитал все пять source blobs через git show <c40>:<path> и сверил SHA-256 с индексом: bundle owners f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75; finding owners b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722; cells afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152; routes 30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2; ledger 610255c2c8718b997b114357c93df7fd6001e83de209f079a481d16768b357f1. Все совпали. Полный join подтвердил 54 ID, их source/ledger statuses и bundle IDs; C route grades — candidate_unverified, semantic adequacy — not_established, failed-cell set совпадает с девятью ID в индексе.
+- Для всех 15 slices сверил base c40, receipt identity, implementation/tree и diff footprint от c40 до последнего implementation commit. Необъявленных mechanism paths: 0 у каждого slice; в частности, Catalog — 17 путей, Hygiene — 34.
+- Запустил checker из точного frozen script под python3 -O, подавляя только содержимое index в памяти. Он отверг ledger-status corruption, удаление finding, неверный существующий slice ref, base mismatch, receipt-slice mismatch, drift списка failed cells и route-grade drift. Дополнительно удаление опубликованного client ref из ответа ls-remote завершилось ожидаемой ошибкой remote head differs. Изменений файлов не было.
+
+Пределы вывода
+
+Индекс не заявляет semantic acceptance, combined-candidate PASS или finding closure: он сохраняет исходные статусы и сообщает только inventory и pinned Git identities. Local source/input census явно не является независимыми G acceptance bytes; production inputs остаются локальными. G reruns и перечисленные owner/input blockers остаются pending. Я не запускал широкие test suites.

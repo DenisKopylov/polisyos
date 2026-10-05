@@ -1,0 +1,3 @@
+argv=[".venv/bin/python", "-m", "polisyos.runtime.quality.production_invocation", "--base", "c40d4acae1ce58b597267255026d9356565828fd", "--receipt", "/workspace/e02-runtime/pcl/production-invocation-final.json"]
+
+wall_s=183.329 max_rss_kib=6615936 exit=-9

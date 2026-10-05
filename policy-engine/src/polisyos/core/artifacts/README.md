@@ -37,6 +37,25 @@ environment fingerprints.
 - integrity proofs: `CASIntegrityReport`, `build_cas_integrity_report`
 - registry/environment: `RegistryBundle`, `RegistryBundlePayload`, `capture_environment`, `compare_environments`
 
+## Scoped writes and transfer admission
+
+When ownership enforcement resolves a tenant write owner, a declared manifest
+`tenant_context` must match that owner's tenant and cell before CAS publishes an
+intent or grants a new claim. `cell_id=None` identifies a tenant without a scoped
+cell; it does not authorize a different cell. This check applies to `put_bytes`,
+`put_json`, exact retry, archive/directory imports, and `import_exact_view`.
+Imports check every carried manifest view before beginning member publication.
+
+An absent `tenant_context` remains an unbound byte/view write. An unscoped local
+cache can retain the original bound manifest without issuing tenant claims;
+runtime cache reads still require the durable owner's admission. Imports keep
+the original manifest and detached-signature bytes and never rebind them to the
+recipient. Existing claims are not migrated or revoked by this intake check.
+
+Interrupted publication uses a durable pending intent. Affected reads raise
+`ArtifactTransactionPendingError` until an exact retry reconciles bytes and
+claims; the importer does not promise one transaction for an entire archive.
+
 ## Current State
 
 - Last updated: 2026-06-16

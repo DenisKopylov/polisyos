@@ -1,0 +1,142 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "6aec5346c6e16f123e93cc354df9f942e96b3b55"
+  ],
+  "candidate_tree_sha": "20b8d0ee096005724f7ad50e88c2a54b1abdadcc",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "closure_ids": [],
+  "review_target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "review_target_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+  "production_files_written": [],
+  "slice": "numerical-oracle-final-regression-triage",
+  "verdict": "FAIL_CURRENT_REGRESSION_GATE",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-final-regression-six.txt"
+  ],
+  "observed_ids": [],
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pytest": "9.0.2",
+    "source_mode": "Each SHA git archive complete tracked policy-engine (source/tests/tools/config/architecture included), distinct temporary directory, PYTHONPATH=<archive>/policy-engine/src. Original tests unmodified; no copied oracle or guard monkeypatch."
+  },
+  "log_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-final-regression-six.txt@6aec5346c6e16f123e93cc354df9f942e96b3b55",
+  "log_sha256": "bd66084b05444f6bb78aa817f850b3b42c2a7f50e0fe42aecbff9255465af703",
+  "verification": [
+    {
+      "id": "REGRESSION-six-slice_base",
+      "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "source_tree_sha": "897662caf73bd4487f798d66938b74d7abfe753e",
+      "command": "/workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/autotune/test_calibration_autotune.py::test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence tests/unit/scientist/methods/autotune/test_reflexion_autotune.py::test_reflexion_replay_benchmark_promotes_better_recoverable_route tests/unit/scientist/search/test_cheap_stage_autotune.py::test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_persists_readiness_and_updates_champion tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_missing_prior_knowledge_caps_readiness_below_recommendation_ready tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler --tb=short -ra",
+      "input_closure": "Exactly six named existing consumer selectors, complete product archive, real FileSystemCAS/suite/evaluator/judge/registry paths; test-local fixtures unchanged. Base executes first before final archive.",
+      "status": "FAIL",
+      "exit_code": 1,
+      "output": "6failed,2warnings in13.04s; same three suite_ref_required and three canonical_n9_promotion_sequence_required refusals."
+    },
+    {
+      "id": "REGRESSION-six-frozen_final",
+      "source_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "source_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+      "command": "/workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/autotune/test_calibration_autotune.py::test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence tests/unit/scientist/methods/autotune/test_reflexion_autotune.py::test_reflexion_replay_benchmark_promotes_better_recoverable_route tests/unit/scientist/search/test_cheap_stage_autotune.py::test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_persists_readiness_and_updates_champion tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_missing_prior_knowledge_caps_readiness_below_recommendation_ready tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler --tb=short -ra",
+      "input_closure": "Exactly six named existing consumer selectors, complete product archive, real FileSystemCAS/suite/evaluator/judge/registry paths; test-local fixtures unchanged. Base executes first before final archive.",
+      "status": "FAIL",
+      "exit_code": 1,
+      "output": "6failed,2warnings in12.99s; same three suite_ref_required and three canonical_n9_promotion_sequence_required refusals."
+    }
+  ],
+  "failure_groups": [
+    {
+      "id": "A-authoritative-suite-binding",
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_calibration_autotune.py::test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence",
+        "tests/unit/scientist/methods/autotune/test_reflexion_autotune.py::test_reflexion_replay_benchmark_promotes_better_recoverable_route",
+        "tests/unit/scientist/search/test_cheap_stage_autotune.py::test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold"
+      ],
+      "source": "ChampionRegistry.consider_promotion -> _promotion_binding_failure",
+      "actual_inputs": [
+        "calibration_meta: actual suite_ref persisted/evaluator receives it; direct consider_promotion omits suite_ref",
+        "reflexion_routing: actual recorded replay suite_ref persisted/evaluator receives it; direct consider_promotion omits suite_ref",
+        "cheap_stage: actual 250-row correlation suite_ref persisted/evaluator receives it; both direct consider_promotion calls omit suite_ref"
+      ],
+      "result": "promoted=False reason=suite_ref_required at both exact sources; positive assertions expect True",
+      "contract": "For ordinary loop IDs, absent suite_ref is refused before compare/pointer write. Only explicit preexisting claim_adjudication compatibility exception exists; none of these fixture loops uses it.",
+      "classification": "Consumer fixture authority/basis gap reproduced on slice base. No new production guard introduced by D. Not excluded from current gate.",
+      "next_owner": "Root/consumer fixture owner: supply actual authoritative suite and replay split/candidate/policy bindings through canonical admission; no guard weakening or claim-adjudication exception expansion."
+    },
+    {
+      "id": "B-canonical-promotion-producer",
+      "selectors": [
+        "tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_persists_readiness_and_updates_champion",
+        "tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_missing_prior_knowledge_caps_readiness_below_recommendation_ready",
+        "tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler"
+      ],
+      "source": "PolicyPromotionCoordinator.coordinate_promotion in methods/search/judge_stack.py",
+      "actual_inputs": [
+        "policy_loop with actual CAS candidate/selection evaluation/replay support, judge bundle, expected champion write",
+        "policy_loop missing prior knowledge: readiness expected simulation_ready, still expects champion write",
+        "policy_loop with _Scheduler side-effect observer expects promoted=True"
+      ],
+      "result": "judge/readiness output persists but promoted=False reason=canonical_n9_promotion_sequence_required at both exact sources; assertions expect True",
+      "contract": "Coordinator refuses direct promotion even after promote judge verdict and promotable source. Canonical N9 promotion sequence is required; fabricated complete-looking bundle does not discharge it.",
+      "classification": "Consumer fixture path/contract gap reproduced on slice base. No D change to coordinator. Not excluded from current gate.",
+      "next_owner": "Root/canonical promotion consumer owner: distinguish legitimate persisted readiness/VOI denial observations from authorized canonical N9 champion update; demonstrate real canonical authority before any positive write assertion."
+    }
+  ],
+  "failure_mechanism_changed_artifact_denominator": {
+    "listed_artifacts": [
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+        "base_blob": "59b9ac517d74676abd6ad12022fccb6d79bc02db",
+        "final_blob": "59b9ac517d74676abd6ad12022fccb6d79bc02db",
+        "changed": false
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_reflexion_autotune.py",
+        "base_blob": "a628409e4b37acd5df2398ffb72395ec0dea3720",
+        "final_blob": "a628409e4b37acd5df2398ffb72395ec0dea3720",
+        "changed": false
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_cheap_stage_autotune.py",
+        "base_blob": "8abbaafa1016af79603ff44b943496347dc8379f",
+        "final_blob": "8abbaafa1016af79603ff44b943496347dc8379f",
+        "changed": false
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+        "base_blob": "72714f78c14adcff1f5ec83f570eb188cccfd1bf",
+        "final_blob": "72714f78c14adcff1f5ec83f570eb188cccfd1bf",
+        "changed": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "base_blob": "596ce03c9dd59972e5754b4f3a9ff9be960c2470",
+        "final_blob": "596ce03c9dd59972e5754b4f3a9ff9be960c2470",
+        "changed": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/judge_stack.py",
+        "base_blob": "85e51430799715e630d2a53a05f6dd92ee800964",
+        "final_blob": "85e51430799715e630d2a53a05f6dd92ee800964",
+        "changed": false
+      }
+    ],
+    "denominator": 6,
+    "changed": 0,
+    "scope": "Exact four fixture files plus both failing guard implementations. Byte identities are recomputed Git blob IDs. This is not a census of every transitive imported module.",
+    "interpretation": "No broad inherited waiver. Same six base/final failures and unchanged direct call/guard basis establish existing fixture contract mismatch only; entire95-file current gate remains FAIL."
+  },
+  "limitations": [
+    "Only exact six selectors replayed independently; no reclassification of parent broad suite remaining outcomes.",
+    "No repository source/test changes and no attempted admission bypass.",
+    "No new finding/closure IDs invented; current failures remain explicit.",
+    "Parent broad whole-file run source is frozen final, root owns final counts/reconciliation and gate disposition."
+  ]
+}

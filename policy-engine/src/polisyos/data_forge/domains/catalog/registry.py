@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -9,13 +10,13 @@ from pydantic import Field
 
 from polisyos.data_forge.kernel._base import DataForgeModel
 
+from .selection import resolve_catalog_source_dependencies
 from .source_modules import (
     CatalogExecutionTier,
     CatalogHistoryPolicy,
     CatalogRunLane,
     CatalogRunProfile,
     CatalogSourceModuleSpec,
-    _resolve_catalog_source_dependencies,
 )
 
 
@@ -112,11 +113,19 @@ class CatalogSourceRegistrySpec(DataForgeModel):
             and (wave is None or source.wave.upper() == wave.upper())
             and source.included_in_run_profile(run_profile)
         ]
-        return _resolve_catalog_source_dependencies(self.sources, selected)
+        return resolve_catalog_source_dependencies(self.sources, selected)
 
     def to_module_specs(self) -> tuple[CatalogSourceModuleSpec, ...]:
         """Return source-module specs for all registry entries."""
         return tuple(source.to_module_spec() for source in self.sources)
+
+
+_REGISTRY_ROOT_KEYS = frozenset(CatalogSourceRegistrySpec.model_fields)
+_REGISTRY_SOURCE_KEYS = frozenset(
+    "name" if field_name == "source_id" else field_name
+    for field_name in CatalogSourceRegistryEntry.model_fields
+)
+
 
 def default_catalog_source_registry_path() -> Path:
     """Return the checked-in Data Forge source registry file."""
@@ -125,22 +134,61 @@ def default_catalog_source_registry_path() -> Path:
 
 def load_catalog_source_registry(path: str | Path | None = None) -> CatalogSourceRegistrySpec:
     """Load a source registry file through the Data Forge canonical registry."""
+    registry_path = Path(path) if path is not None else default_catalog_source_registry_path()
+    return _load_catalog_source_registry(registry_path)
+
+
+@lru_cache(maxsize=1)
+def _default_catalog_source_registry_view() -> CatalogSourceRegistrySpec:
+    """Cache the checked-in registry for static compatibility views."""
+    return _load_catalog_source_registry(default_catalog_source_registry_path())
+
+
+def _load_catalog_source_registry(registry_path: Path) -> CatalogSourceRegistrySpec:
+    """Parse one explicit YAML file into the canonical typed projection."""
     import yaml
 
-    registry_path = Path(path) if path is not None else default_catalog_source_registry_path()
-    payload = yaml.safe_load(registry_path.read_text(encoding="utf-8")) or {}
+    payload = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+    if payload is None:
+        payload = {}
     if not isinstance(payload, dict):
         raise ValueError(f"source registry must be a mapping: {registry_path}")
+    unexpected_root_keys = set(payload) - _REGISTRY_ROOT_KEYS
+    if unexpected_root_keys:
+        raise ValueError(
+            f"source registry has unsupported keys: {sorted(unexpected_root_keys)}: "
+            f"{registry_path}"
+        )
+    version = payload.get("version", 1)
+    if isinstance(version, bool) or not isinstance(version, int):
+        raise ValueError(f"source registry version must be an integer: {registry_path}")
     raw_sources = payload.get("sources", [])
     if not isinstance(raw_sources, list):
         raise ValueError(f"source registry 'sources' must be a list: {registry_path}")
+
+    entries: list[CatalogSourceRegistryEntry] = []
+    for index, row in enumerate(raw_sources):
+        if not isinstance(row, dict):
+            raise ValueError(f"source registry row {index} must be a mapping: {registry_path}")
+        source_name = row.get("name")
+        if not isinstance(source_name, str) or not source_name.strip():
+            raise ValueError(
+                f"source registry row {index} must have a non-empty name: {registry_path}"
+            )
+        unexpected_source_keys = set(row) - _REGISTRY_SOURCE_KEYS
+        if unexpected_source_keys:
+            raise ValueError(
+                f"source registry row {index} has unsupported keys: "
+                f"{sorted(unexpected_source_keys)}: {registry_path}"
+            )
+        entries.append(_entry_from_mapping(row))
+
+    source_ids = tuple(entry.source_id for entry in entries)
+    if len(source_ids) != len(set(source_ids)):
+        raise ValueError(f"source registry contains duplicate source names: {registry_path}")
     return CatalogSourceRegistrySpec(
-        version=int(payload.get("version", 1)),
-        sources=tuple(
-            _entry_from_mapping(row)
-            for row in raw_sources
-            if isinstance(row, dict) and str(row.get("name") or "").strip()
-        ),
+        version=version,
+        sources=tuple(entries),
     )
 
 
@@ -151,6 +199,14 @@ def catalog_source_modules_from_registry(
     return registry.to_module_specs()
 
 
+def _catalog_source_module(source_id: str) -> CatalogSourceModuleSpec:
+    """Return one compatibility-view module from the canonical YAML source."""
+    source = _default_catalog_source_registry_view().source_by_id(source_id)
+    if source is None:
+        raise ValueError(f"catalog source is not registered: {source_id}")
+    return source.to_module_spec()
+
+
 def _entry_from_mapping(row: dict[str, Any]) -> CatalogSourceRegistryEntry:
     execution_tier = _execution_tier(row.get("execution_tier"))
     run_lane = _run_lane(row.get("run_lane"), execution_tier)
@@ -159,21 +215,21 @@ def _entry_from_mapping(row: dict[str, Any]) -> CatalogSourceRegistryEntry:
         family=str(row.get("family") or "").strip(),
         wave=str(row.get("wave") or "").strip().upper(),
         endpoint=str(row.get("endpoint") or "").strip(),
-        enabled=bool(row.get("enabled", True)),
+        enabled=_bool(row, "enabled", True),
         connector_id=str(row.get("connector_id") or "").strip(),
         profile_id=str(row.get("profile_id") or "").strip(),
         execution_tier=execution_tier,
         run_lane=run_lane,
-        publish_blocking=bool(row.get("publish_blocking", execution_tier != "catalog")),
+        publish_blocking=_bool(row, "publish_blocking", execution_tier != "catalog"),
         update_frequency=str(row.get("update_frequency") or "").strip(),
-        metrics_required=bool(row.get("metrics_required", False)),
+        metrics_required=_bool(row, "metrics_required", False),
         history_policy=_history_policy(row.get("history_policy")),
         default_lookback_days=_int_or_none(row.get("default_lookback_days")),
         max_rows_per_snapshot=_int_or_none(row.get("max_rows_per_snapshot")),
         max_bytes_per_snapshot=_int_or_none(row.get("max_bytes_per_snapshot")),
-        allow_manual_backfill=bool(row.get("allow_manual_backfill", False)),
+        allow_manual_backfill=_bool(row, "allow_manual_backfill", False),
         seed_from=_optional_str(row.get("seed_from")),
-        require_curated_resources=bool(row.get("require_curated_resources", False)),
+        require_curated_resources=_bool(row, "require_curated_resources", False),
         agency_prefix=str(row.get("agency_prefix") or "").strip(),
         agency_allowlist=_string_tuple(row.get("agency_allowlist")),
         exclude_agencies=_string_tuple(row.get("exclude_agencies")),
@@ -214,6 +270,13 @@ def _int_or_none(value: object) -> int | None:
     if value in (None, ""):
         return None
     return int(value)
+
+
+def _bool(row: dict[str, Any], field_name: str, default: bool) -> bool:
+    value = row.get(field_name, default)
+    if not isinstance(value, bool):
+        raise ValueError(f"catalog source {field_name} must be a boolean")
+    return value
 
 
 def _string_tuple(value: object) -> tuple[str, ...]:

@@ -2,19 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, Protocol, TypeVar
+from typing import Literal
 
 from pydantic import Field
 
-from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
-    CatalogSelectionError,
-)
 from polisyos.data_forge.kernel._base import DataForgeModel
 from polisyos.data_forge.kernel.artifacts import RetentionClass
 from polisyos.data_forge.kernel.pipeline import AssetGroup, AssetKey, AssetSpec
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
+from .selection import resolve_catalog_source_dependencies
 
 CatalogExecutionTier = Literal["catalog", "fetchable", "transport_ready"]
 CatalogHistoryPolicy = Literal["full_snapshot", "rolling_window"]
@@ -30,15 +26,6 @@ CatalogRunProfile = Literal[
 CatalogSourceStage = Literal["harvest", "normalize", "observations", "publish"]
 
 SOURCE_ID_PATTERN = r"^[a-z][a-z0-9_]*$"
-
-
-class _CatalogSeedSource(Protocol):
-    source_id: str
-    enabled: bool
-    seed_from: str | None
-
-
-_CatalogSeedSourceT = TypeVar("_CatalogSeedSourceT", bound=_CatalogSeedSource)
 
 
 class CatalogSourceAssetKeys(DataForgeModel):
@@ -221,14 +208,14 @@ def select_catalog_source_modules(
     run_profile: CatalogRunProfile = "prod_full",
 ) -> tuple[CatalogSourceModuleSpec, ...]:
     """Select source modules and include any seed dependencies."""
-    selected_modules = CORE_CATALOG_SOURCE_MODULES if modules is None else modules
+    selected_modules = _default_catalog_source_modules() if modules is None else modules
     selected = [
         module
         for module in selected_modules
         if (wave is None or module.wave.upper() == wave.upper())
         and module.included_in_run_profile(run_profile)
     ]
-    return _resolve_catalog_source_dependencies(selected_modules, selected)
+    return resolve_catalog_source_dependencies(selected_modules, selected)
 
 
 def plan_catalog_source_modules(
@@ -290,41 +277,30 @@ def build_catalog_source_asset_group(
     return AssetGroup.from_specs(name, specs)
 
 
-def _resolve_catalog_source_dependencies(
-    modules: tuple[_CatalogSeedSourceT, ...],
-    selected: Sequence[_CatalogSeedSourceT],
-) -> tuple[_CatalogSeedSourceT, ...]:
-    """Resolve seed dependencies with one typed fail-closed policy."""
-    selected_ids = {module.source_id for module in selected}
-    by_id = {module.source_id: module for module in modules}
+def _default_catalog_source_modules() -> tuple[CatalogSourceModuleSpec, ...]:
+    """Return the default source-module view from the canonical YAML registry."""
+    from .registry import (
+        _default_catalog_source_registry_view,
+        catalog_source_modules_from_registry,
+    )
 
-    def resolve_seed(module: _CatalogSeedSourceT, path: tuple[str, ...]) -> None:
-        seed_id = module.seed_from
-        if seed_id is None:
-            return
-        if seed_id in path:
-            cycle = " -> ".join((*path, seed_id))
-            raise CatalogSelectionError("dependency_cycle", cycle)
-        seed_module = by_id.get(seed_id)
-        if seed_module is None:
-            raise CatalogSelectionError(
-                "dependency_missing",
-                f"source={module.source_id}/seed={seed_id}",
-            )
-        if not seed_module.enabled:
-            raise CatalogSelectionError(
-                "dependency_disabled",
-                f"source={module.source_id}/seed={seed_id}",
-            )
-        selected_ids.add(seed_module.source_id)
-        resolve_seed(seed_module, (*path, seed_id))
-
-    for module in selected:
-        resolve_seed(module, (module.source_id,))
-    return tuple(module for module in modules if module.source_id in selected_ids)
+    return catalog_source_modules_from_registry(_default_catalog_source_registry_view())
 
 
-from .sources import ALL_CATALOG_SOURCE_MODULES as CORE_CATALOG_SOURCE_MODULES  # noqa: E402
+def __getattr__(name: str) -> object:
+    """Expose the historical default tuple as a lazy YAML-derived view."""
+    if name == "CORE_CATALOG_SOURCE_MODULES":
+        return _default_catalog_source_modules()
+    raise AttributeError(name)
+
+
+def __dir__() -> list[str]:
+    """Include compatibility exports in module introspection."""
+    return sorted((*globals(), "CORE_CATALOG_SOURCE_MODULES"))
+
+
+CORE_CATALOG_SOURCE_MODULES: tuple[CatalogSourceModuleSpec, ...]
+
 
 __all__ = [
     "CORE_CATALOG_SOURCE_MODULES",

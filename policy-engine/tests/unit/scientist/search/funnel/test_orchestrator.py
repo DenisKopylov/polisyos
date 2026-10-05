@@ -605,6 +605,8 @@ class TestFunnelOrchestrator:
                     "decision": "complete",
                     "reason": "promoted_for_test",
                 },
+                # Test-local callback ordering; this fixture grants no publication authority.
+                promotion_owner_recheck=lambda _candidate, _context: True,
             ),
         ]
         orch = FunnelOrchestrator(stages)

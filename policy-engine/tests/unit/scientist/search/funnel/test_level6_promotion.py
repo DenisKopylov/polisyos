@@ -5,8 +5,56 @@ It retains the node, workflow adapter, funnel, Level 6 and inner owner recheck;
 its effect recorder establishes ordering, never production publication.
 """
 
+from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
 from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
 from tests.unit.remediation.test_fun_03 import _install_actual_runtime_node_dependencies
+
+
+def test_generic_effectful_callback_requires_explicit_boolean_owner_permission():
+    for owner_return in (
+        None,
+        False,
+        {"allowed": False},
+        {"allowed": True},
+        "allowed",
+        1,
+        object(),
+    ):
+        effects = []
+
+        def runner(candidate, context, effects=effects):
+            effects.append(candidate["id"])
+            return {"decision": "complete"}
+
+        check = (
+            None if owner_return is None else lambda candidate, context, value=owner_return: value
+        )
+        result = Level6PromotionStage(
+            promotion_runner=runner, promotion_owner_recheck=check
+        ).evaluate({"id": "fixture-subject"}, {})
+        assert effects == [], repr(owner_return)
+        assert result.terminal_action == "defer_to_human"
+        assert any(
+            card.failure_type == "promotion_owner_recheck_failed" for card in result.failure_cards
+        )
+
+
+def test_generic_boolean_allow_is_callback_ordering_without_typed_admission_claim():
+    events = []
+
+    def owner(candidate, context):
+        events.append("owner")
+        return True
+
+    def runner(candidate, context):
+        events.append("runner")
+        return {"decision": "complete"}
+
+    result = Level6PromotionStage(promotion_runner=runner, promotion_owner_recheck=owner).evaluate(
+        {"id": "fixture-subject"}, {}
+    )
+    assert events == ["owner", "runner"]
+    assert result.terminal_action == "complete"
 
 
 def test_actual_policy_node_normal_path_calls_owner_and_effect_once(tmp_path, monkeypatch):

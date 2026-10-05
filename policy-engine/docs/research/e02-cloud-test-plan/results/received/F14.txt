@@ -1,0 +1,734 @@
+Запущены все 161 назначенных полных файла: 131 PASS, 19 FAILED, 10 ERROR, 1 COLLECTION_SKIP. Сохранены 162 попытки, включая разрешённый recovery F14-P004, и 611 nonpass events. Source и исходный HEAD сохранены; архив перечитан, все hashes проверены.
+calls ниже означает call-phase reports. В P041 есть 8 unittest.subTest: поэтому 6 collected/JUnit cases дают 14 reports. Всего — 2412 уникальных call node IDs и 2420 call reports.
+Экспорт attachments недоступен: transfer_status=compact_text_only, raw_archive_transfer=missing. Полные traceback остаются в VM. E02 не закрыт; причины и ownership падений не установлены.
+{
+  "job":"F14",
+  "run_id":"20261005T074752Z",
+  "source_sha":"0213101b6d124e6f855b1aff7c442bb0912a61c2",
+  "tree":"5e890bcb23dfa20db77be486e7296e36f3382576",
+  "source_role":"integration_head",
+  "manifest_sha256":"6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+  "start":"2026-10-05T07:47:52Z",
+  "start_precision":"first explicitly recorded UTC clock; user request receipt time unavailable",
+  "series_first_start":"2026-10-05T08:06:20.720957+00:00",
+  "native_loop_end":"2026-10-05T10:47:05.026404+00:00",
+  "end":"2026-10-05T11:15:19.319586+00:00",
+  "assigned_total":161,
+  "attempts":162,
+  "states":{"PASS":131,"FAILED":19,"ERROR":10,"COLLECTION_SKIP":1},
+  "counts":{
+    "collected":2685,"calls":2420,"unique_call_nodes":2412,
+    "call_pass":2199,"call_failed":221,
+    "setup_error":273,"teardown_error":0,
+    "skip":0,"xfail":0,"xpass":0,
+    "collection_skip":1,"collection_error":1,"unknown_cell_counts":0
+  },
+  "counts_scope":"public call-phase reports, including unittest.subTest; P041 has 6 collected cases, 14 reports, 6 unique call node IDs",
+  "receipts":{
+    "valid_reconciled":157,
+    "canonical_workload_receipt_missing":2,
+    "invalid_or_missing_canonical":2
+  },
+  "receipt_notes":{
+    "F14-P001":"assigned observer_fallback exception",
+    "F14-P004":"attempt-001 canonical selection mismatch: serialized 1 node versus parent 168; attempt-002 observer_fallback; both retained",
+    "F14-P047":"collection error; canonical receipt unavailable",
+    "F14-P116":"Temporal importorskip, 0 calls; canonical receipt unavailable"
+  },
+  "timings":{
+    "primary_supervisor_wall_s":9601.081169888992,
+    "all_attempts_supervisor_wall_s":11287.614412620993,
+    "pytest_user_s":7543.87,
+    "pytest_system_s":579.8,
+    "pytest_cpu_missing_primary_attempts":0,
+    "max_pytest_rss_kib":1862124,
+    "cpu_boundary":"primary direct pytest subprocess-tree CPU; wrapper CPU not added",
+    "rss_boundary":"maximum of per-file GNU time peaks; not VM peak"
+  },
+  "environment":{
+    "python":"3.14.2","uv":"0.9.21","node":"22.16.0","corepack_pnpm":"10.33.2",
+    "cpu_max":"400000 100000","cpu_quota":4,"cpuset_effective":"0-4",
+    "memory_max_bytes":17179869184,
+    "numerical_threads":1,"JAX_PLATFORMS":"cpu",
+    "profile_segment":"frozen-union-1",
+    "selected_extras":["lint","test","runtime","ml","analytics","bayesian","optimization-advanced","sensitivity","causal-discovery","vector-search","solvers","search_bo","agent-sim","causal-discovery-scale"],
+    "native_property_controls":"all three removal controls absent in actual children",
+    "distribution_origins_ref":"environment.json",
+    "raw_transfer_missing":true
+  },
+  "lock_hashes":{
+    "policy-engine/pyproject.toml":"b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "policy-engine/uv.lock":"e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "policy-engine/pytest.ini":"61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "policy-engine/pnpm-lock.yaml":"436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "policy-engine/tools/quality/testing/run_timed_suite.py":"9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+  },
+  "setup_segment_columns":["name","exit_code","state"],
+  "setup_segments":[
+    ["uv-0.9.21-install",0,"completed"],
+    ["python-3.14-install",0,"completed"],
+    ["apt-time-download",100,"failed"],
+    ["apt-local-index",0,"completed"],
+    ["apt-time-download-local",0,"completed"],
+    ["time-extract",0,"completed"],
+    ["time-version",0,"completed"],
+    ["time-exit7-probe",7,"expected probe exit"],
+    ["node-version",0,"completed"],
+    ["corepack-pnpm-version",0,"completed"],
+    ["pnpm-frozen-install",0,"completed"],
+    ["uv-frozen-union-sync",null,"interrupted: exec-server transport disconnected; process absent on readback"],
+    ["uv-frozen-union-sync-attempt-2",1,"failed: No route to host"],
+    ["uv-frozen-union-sync-attempt-3",0,"completed with same lock and lower concurrency"],
+    ["frozen-profile-dry-readback",0,"audited; no changes"],
+    ["python-version",0,"completed"],
+    ["uv-version",0,"completed"],
+    ["distribution-origins",0,"completed"],
+    ["final-tool-paths",0,"completed"]
+  ],
+  "setup_full_ref":"environment.json / setup-segments.json",
+  "gates":[],
+  "property_rows":[],
+  "native_unrun":[],
+  "harness_recovery":{
+    "cell_id":"F14-P004","attempt":"attempt-002","receipt_mode":"observer_fallback",
+    "start":"2026-10-05T10:47:06.335395+00:00",
+    "end":"2026-10-05T11:15:18.607507+00:00",
+    "state":"FAILED","collected":168,"calls":168,"call_pass":53,"call_failed":115,
+    "no_profile_changes":true,"not_independent_evidence":true
+  },
+  "source_checks_without_issues":329,
+  "original_head_preserved":"69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+  "archive":{
+    "name":"F14-raw.tar.gz",
+    "sha256":"3f867b37716b2151b86106fa716535faefb060af740ddef8e7007fd4e7bb2df2",
+    "bytes":12867269,"members":3029,"complete_attempts":162,
+    "readback_all_hashes_verified":true,
+    "verified_at":"2026-10-05T11:25:25.502102+00:00"
+  },
+  "nonpass_events_all_attempts":611,
+  "transfer_status":"compact_text_only",
+  "raw_archive_transfer":"missing",
+  "cause_status":"not_established",
+  "raw_transfer_missing":true
+}
+Полные строки cells.tsv:
+id	path	state	collected	calls	call_pass	call_failed	setup_error	teardown_error	skip	xfail	xpass	collection_skip	collection_error	wall_s	rss_kib	receipt_status
+F14-P001	policy-engine/tests/repo_quality/tools/test_debt_ledger_checker.py	FAILED	76	76	71	5	0	0	0	0	0	0	0	1152.905273291	1702996	canonical_workload_receipt_missing
+F14-P002	policy-engine/tests/unit/foundry/methods/test_selection_advisor.py	PASS	66	66	66	0	0	0	0	0	0	0	0	527.7273229290001	710556	valid_reconciled
+F14-P003	policy-engine/tests/unit/fabric/connectors/test_schema_system.py	PASS	90	90	90	0	0	0	0	0	0	0	0	8.01662314400005	367572	valid_reconciled
+F14-P004	policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py	FAILED	168	168	53	115	0	0	0	0	0	0	0	1692.271987869999	1760592	canonical_workload_receipt_missing
+F14-P005	policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py	FAILED	73	73	70	3	0	0	0	0	0	0	0	303.09834918199977	1774500	valid_reconciled
+F14-P006	policy-engine/tests/unit/runtime/http/test_human_decision_service.py	PASS	78	78	78	0	0	0	0	0	0	0	0	346.47383589099945	1699664	valid_reconciled
+F14-P007	policy-engine/tests/unit/runtime/http/test_control_api.py	ERROR	68	2	1	1	66	0	0	0	0	0	0	156.20852715799992	1813188	valid_reconciled
+F14-P008	policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py	ERROR	175	6	6	0	169	0	0	0	0	0	0	323.2895373520005	1862124	valid_reconciled
+F14-P009	policy-engine/tests/unit/foundry/methods/catalog/causal/test_interference.py	PASS	31	31	31	0	0	0	0	0	0	0	0	155.75927972699992	1701440	valid_reconciled
+F14-P010	policy-engine/tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py	PASS	29	29	29	0	0	0	0	0	0	0	0	72.09988825100027	723020	valid_reconciled
+F14-P011	policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py	PASS	27	27	27	0	0	0	0	0	0	0	0	21.114857277999363	656844	valid_reconciled
+F14-P012	policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py	PASS	46	46	46	0	0	0	0	0	0	0	0	112.27097581700036	1659368	valid_reconciled
+F14-P013	policy-engine/tests/repo_quality/tools/test_p41_baseline_harness_process_cleanup.py	PASS	22	22	22	0	0	0	0	0	0	0	0	10.069024407000143	121948	valid_reconciled
+F14-P014	policy-engine/tests/repo_quality/tools/test_docs_lifecycle.py	FAILED	19	19	9	10	0	0	0	0	0	0	0	12.955844470000557	267412	valid_reconciled
+F14-P015	policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py	FAILED	39	39	36	3	0	0	0	0	0	0	0	34.902480536999974	1579252	valid_reconciled
+F14-P016	policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py	PASS	19	19	19	0	0	0	0	0	0	0	0	21.159428836999723	658216	valid_reconciled
+F14-P017	policy-engine/tests/unit/runtime/http/test_control_service_di.py	ERROR	43	39	34	5	4	0	0	0	0	0	0	64.13938493899968	1789272	valid_reconciled
+F14-P018	policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py	ERROR	16	5	5	0	11	0	0	0	0	0	0	58.3161999619997	1775508	valid_reconciled
+F14-P019	policy-engine/tests/repo_quality/tools/test_docs_gate.py	PASS	14	14	14	0	0	0	0	0	0	0	0	7.4600611019995995	140796	valid_reconciled
+F14-P020	policy-engine/tests/unit/runtime/quality/test_open_world_risk.py	PASS	37	37	37	0	0	0	0	0	0	0	0	71.61026661100004	1622804	valid_reconciled
+F14-P021	policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py	ERROR	54	53	37	16	1	0	0	0	0	0	0	77.21802584800025	1775060	valid_reconciled
+F14-P022	policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py	PASS	35	35	35	0	0	0	0	0	0	0	0	26.210346336999464	1353500	valid_reconciled
+F14-P023	policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py	PASS	17	17	17	0	0	0	0	0	0	0	0	10.978388225999879	361888	valid_reconciled
+F14-P024	policy-engine/tests/unit/foundry/validation/test_legal_correspondence.py	PASS	22	22	22	0	0	0	0	0	0	0	0	22.312822285999573	658860	valid_reconciled
+F14-P025	policy-engine/tests/repo_quality/architecture/test_last_mile_cross_cutting_concerns.py	PASS	11	11	11	0	0	0	0	0	0	0	0	20.99215586199989	157600	valid_reconciled
+F14-P026	policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py	PASS	12	12	12	0	0	0	0	0	0	0	0	7.5503780250001	263624	valid_reconciled
+F14-P027	policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py	PASS	28	28	28	0	0	0	0	0	0	0	0	104.57422458300061	1641604	valid_reconciled
+F14-P028	policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py	FAILED	7	7	6	1	0	0	0	0	0	0	0	54.76288458899944	1567488	valid_reconciled
+F14-P029	policy-engine/tests/repo_quality/architecture/test_repository_structure_station_inputs.py	PASS	11	11	11	0	0	0	0	0	0	0	0	10.555816685999162	109364	valid_reconciled
+F14-P030	policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py	PASS	26	26	26	0	0	0	0	0	0	0	0	33.633128985999974	1427176	valid_reconciled
+F14-P031	policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py	PASS	28	28	28	0	0	0	0	0	0	0	0	10.523789169000338	272836	valid_reconciled
+F14-P032	policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py	PASS	33	33	33	0	0	0	0	0	0	0	0	136.19294511800035	1652660	valid_reconciled
+F14-P033	policy-engine/tests/repo_quality/tools/test_gy_acquisition_assurance.py	PASS	11	11	11	0	0	0	0	0	0	0	0	61.03437395199944	222192	valid_reconciled
+F14-P034	policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py	PASS	10	10	10	0	0	0	0	0	0	0	0	20.163054617000853	645628	valid_reconciled
+F14-P035	policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py	PASS	10	10	10	0	0	0	0	0	0	0	0	14.473439809999945	548580	valid_reconciled
+F14-P036	policy-engine/tests/repo_quality/tools/test_mutation.py	FAILED	15	15	0	15	0	0	0	0	0	0	0	4.750206368999898	109940	valid_reconciled
+F14-P037	policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py	PASS	35	35	35	0	0	0	0	0	0	0	0	21.6326447069996	368432	valid_reconciled
+F14-P038	policy-engine/tests/unit/runtime/quality/test_authority.py	PASS	36	36	36	0	0	0	0	0	0	0	0	49.93259102000047	1627268	valid_reconciled
+F14-P039	policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py	PASS	9	9	9	0	0	0	0	0	0	0	0	24.08703529400009	667704	valid_reconciled
+F14-P040	policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py	PASS	6	6	6	0	0	0	0	0	0	0	0	4.956098186000418	110304	valid_reconciled
+F14-P041	policy-engine/tests/repo_quality/tools/test_p41_baseline_harness_checkout_lease.py	PASS	6	14	14	0	0	0	0	0	0	0	0	5.030682130000059	120108	valid_reconciled
+F14-P042	policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py	PASS	8	8	8	0	0	0	0	0	0	0	0	23.042857077000008	773144	valid_reconciled
+F14-P043	policy-engine/tests/unit/ddm/test_full_acceptance.py	PASS	28	28	28	0	0	0	0	0	0	0	0	4.68595690300026	111232	valid_reconciled
+F14-P044	policy-engine/tests/unit/remediation/test_acq_01.py	FAILED	23	23	6	17	0	0	0	0	0	0	0	74.301137251	1740500	valid_reconciled
+F14-P045	policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py	PASS	25	25	25	0	0	0	0	0	0	0	0	29.59419168600016	1358796	valid_reconciled
+F14-P046	policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py	FAILED	5	5	1	4	0	0	0	0	0	0	0	5.782304127999851	112832	valid_reconciled
+F14-P047	policy-engine/tests/repo_quality/tools/test_hatch_packaging.py	ERROR	0	0	0	0	0	0	0	0	0	0	1	4.7679131439999765	109600	invalid_or_missing_canonical
+F14-P048	policy-engine/tests/repo_quality/tools/test_runtime_contract_measurement.py	PASS	5	5	5	0	0	0	0	0	0	0	0	4.616686915000173	110152	valid_reconciled
+F14-P049	policy-engine/tests/unit/fabric/connectors/test_federation.py	PASS	19	19	19	0	0	0	0	0	0	0	0	9.122322719000294	229256	valid_reconciled
+F14-P050	policy-engine/tests/unit/fabric/data_plane/test_orchestrator.py	PASS	19	19	19	0	0	0	0	0	0	0	0	9.868613339999683	235088	valid_reconciled
+F14-P051	policy-engine/tests/unit/runtime/quality/test_production_invocation.py	PASS	19	19	19	0	0	0	0	0	0	0	0	7.07593229000031	140536	valid_reconciled
+F14-P052	policy-engine/tests/unit/remediation/test_cas_01.py	PASS	18	18	18	0	0	0	0	0	0	0	0	5.523906370000077	116596	valid_reconciled
+F14-P053	policy-engine/tests/unit/remediation/test_uqp_02.py	PASS	18	18	18	0	0	0	0	0	0	0	0	14.710791577000236	576832	valid_reconciled
+F14-P054	policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py	PASS	6	6	6	0	0	0	0	0	0	0	0	7.704198632000043	271952	valid_reconciled
+F14-P055	policy-engine/tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py	PASS	6	6	6	0	0	0	0	0	0	0	0	50.22892870499982	732000	valid_reconciled
+F14-P056	policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_wiring.py	FAILED	4	4	1	3	0	0	0	0	0	0	0	77.21911458900013	1724532	valid_reconciled
+F14-P057	policy-engine/tests/unit/fabric/connectors/reference/test_rest_json.py	PASS	36	36	36	0	0	0	0	0	0	0	0	7.666367094999259	225936	valid_reconciled
+F14-P058	policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py	FAILED	25	25	23	2	0	0	0	0	0	0	0	49.80915518799975	1063792	valid_reconciled
+F14-P059	policy-engine/tests/repo_quality/tools/test_fabric_exception_baseline.py	PASS	3	3	3	0	0	0	0	0	0	0	0	4.251848977000009	109452	valid_reconciled
+F14-P060	policy-engine/tests/unit/core/artifacts/backends/test_config.py	PASS	16	16	16	0	0	0	0	0	0	0	0	4.034305247000702	110140	valid_reconciled
+F14-P061	policy-engine/tests/unit/remediation/test_cas_02.py	FAILED	18	18	14	4	0	0	0	0	0	0	0	5.249224717000288	112824	valid_reconciled
+F14-P062	policy-engine/tests/unit/runtime/quality/test_design_problem.py	PASS	16	16	16	0	0	0	0	0	0	0	0	50.936968471	1644524	valid_reconciled
+F14-P063	policy-engine/tests/integration/core_runtime/test_config_security_startup_bridge.py	FAILED	1	1	0	1	0	0	0	0	0	0	0	54.520906845000354	1710824	valid_reconciled
+F14-P064	policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py	PASS	1	1	1	0	0	0	0	0	0	0	0	23.235391237999465	662516	valid_reconciled
+F14-P065	policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py	FAILED	1	1	0	1	0	0	0	0	0	0	0	89.28555755199977	1796700	valid_reconciled
+F14-P066	policy-engine/tests/unit/ir/test_public_surface.py	FAILED	15	15	14	1	0	0	0	0	0	0	0	15.244169366999813	299484	valid_reconciled
+F14-P067	policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py	FAILED	15	15	14	1	0	0	0	0	0	0	0	141.39798680100012	1747956	valid_reconciled
+F14-P068	policy-engine/tests/unit/runtime/quality/test_operator_comprehension.py	PASS	17	17	17	0	0	0	0	0	0	0	0	48.431253827000546	1626104	valid_reconciled
+F14-P069	policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py	PASS	24	24	24	0	0	0	0	0	0	0	0	62.50475511700006	1608196	valid_reconciled
+F14-P070	policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py	PASS	15	15	15	0	0	0	0	0	0	0	0	32.58072829900084	1426756	valid_reconciled
+F14-P071	policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py	PASS	4	4	4	0	0	0	0	0	0	0	0	19.756564841	659980	valid_reconciled
+F14-P072	policy-engine/tests/repo_quality/architecture/test_owner_residual_exceptions.py	PASS	2	2	2	0	0	0	0	0	0	0	0	8.801409490999504	131488	valid_reconciled
+F14-P073	policy-engine/tests/repo_quality/tools/test_file_read_measurement.py	PASS	3	3	3	0	0	0	0	0	0	0	0	4.092358070000046	109336	valid_reconciled
+F14-P074	policy-engine/tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py	PASS	15	15	15	0	0	0	0	0	0	0	0	23.923480042999472	584348	valid_reconciled
+F14-P075	policy-engine/tests/unit/remediation/test_hyg_04.py	FAILED	14	14	11	3	0	0	0	0	0	0	0	5.787514263999583	133324	valid_reconciled
+F14-P076	policy-engine/tests/unit/foundry/contracts/test_layout.py	PASS	3	3	3	0	0	0	0	0	0	0	0	6.934683014999791	264652	valid_reconciled
+F14-P077	policy-engine/tests/unit/remediation/test_res_04.py	PASS	16	16	16	0	0	0	0	0	0	0	0	7.841175300000032	269232	valid_reconciled
+F14-P078	policy-engine/tests/unit/runtime/quality/test_promotion_safety.py	PASS	22	22	22	0	0	0	0	0	0	0	0	54.08595324399994	1663048	valid_reconciled
+F14-P079	policy-engine/tests/unit/foundry/compile/test_program_graph_ops.py	PASS	2	2	2	0	0	0	0	0	0	0	0	23.1622406460001	673336	valid_reconciled
+F14-P080	policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py	PASS	7	7	7	0	0	0	0	0	0	0	0	5.245085108000239	117064	valid_reconciled
+F14-P081	policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py	PASS	12	12	12	0	0	0	0	0	0	0	0	48.64160142500077	1619920	valid_reconciled
+F14-P082	policy-engine/tests/unit/remediation/test_cau_03.py	PASS	25	25	25	0	0	0	0	0	0	0	0	21.485590309000145	644784	valid_reconciled
+F14-P083	policy-engine/tests/unit/runtime/http/test_decision_validity_api.py	ERROR	12	5	4	1	7	0	0	0	0	0	0	63.189422718999595	1741444	valid_reconciled
+F14-P084	policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py	PASS	13	13	13	0	0	0	0	0	0	0	0	26.599415205000696	1351720	valid_reconciled
+F14-P085	policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py	PASS	12	12	12	0	0	0	0	0	0	0	0	27.613235370999973	1365696	valid_reconciled
+F14-P086	policy-engine/tests/unit/remediation/test_doe_03.py	PASS	12	12	12	0	0	0	0	0	0	0	0	8.744565576999776	280844	valid_reconciled
+F14-P087	policy-engine/tests/unit/runtime/http/test_scenarios_api.py	ERROR	11	5	4	1	6	0	0	0	0	0	0	63.77694081300069	1738768	valid_reconciled
+F14-P088	policy-engine/tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py	PASS	14	14	14	0	0	0	0	0	0	0	0	33.22825509700033	1444316	valid_reconciled
+F14-P089	policy-engine/tests/unit/foundry/compile/test_randomization.py	PASS	1	1	1	0	0	0	0	0	0	0	0	20.798029245999714	654132	valid_reconciled
+F14-P090	policy-engine/tests/unit/data_forge/domains/catalog/batch/test_benchmark.py	PASS	10	10	10	0	0	0	0	0	0	0	0	15.495563747999768	330808	valid_reconciled
+F14-P091	policy-engine/tests/unit/remediation/test_emb_02.py	PASS	11	11	11	0	0	0	0	0	0	0	0	15.135771742000543	527952	valid_reconciled
+F14-P092	policy-engine/tests/unit/remediation/test_obs_01.py	PASS	18	18	18	0	0	0	0	0	0	0	0	8.655772742999943	302716	valid_reconciled
+F14-P093	policy-engine/tests/unit/runtime/quality/test_global_case_index.py	PASS	15	15	15	0	0	0	0	0	0	0	0	51.77287494600023	1624700	valid_reconciled
+F14-P094	policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py	PASS	10	10	10	0
+
+
+
+
+
+
+Выполнены все 161 назначенный файл: 131 PASS, 19 FAILED, 10 ERROR, 1 COLLECTION_SKIP. Сохранены 162 попытки, включая один полный recovery F14-P004. UNRUN по бюджету нет.
+Сверены все 611 nonpass events и 3029 членов raw-архива. Source, lockfiles и исходный HEAD сохранены. Canonical receipts сверены для 157 файлов; P001/P004 используют разрешённый observer fallback, P047/P116 имеют отсутствующий или невалидный canonical receipt.
+calls ниже — call-phase reports. F14-P041 содержит 6 уникальных test nodes и 8 дополнительных unittest.subTest reports, поэтому там calls=14. Всего уникальных call node IDs — 2412.
+Экспорт attachments недоступен: transfer_status=compact_text_only, raw_archive_transfer=missing. Полный longrepr остаётся в VM. Эти результаты не устанавливают semantic capability completion и не закрывают E02.
+{
+  "job": "F14",
+  "run_id": "20261005T074752Z",
+  "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+  "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+  "source_role": "integration_head",
+  "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+  "start": "2026-10-05T07:47:52Z",
+  "start_precision": "first explicitly recorded UTC clock; user request receipt time unavailable",
+  "series_first_start": "2026-10-05T08:06:20.720957+00:00",
+  "native_loop_end": "2026-10-05T10:47:05.026404+00:00",
+  "end": "2026-10-05T11:15:19.319586+00:00",
+  "assigned_total": 161,
+  "attempts": 162,
+  "states": {"PASS":131,"FAILED":19,"ERROR":10,"COLLECTION_SKIP":1},
+  "counts": {
+    "collected":2685,
+    "calls":2420,
+    "call_pass":2199,
+    "call_failed":221,
+    "setup_error":273,
+    "teardown_error":0,
+    "skip":0,
+    "xfail":0,
+    "xpass":0,
+    "collection_skip":1,
+    "collection_error":1,
+    "unknown_cell_counts":0
+  },
+  "counts_scope": {
+    "calls":"observed public call-phase reports, including unittest subTest reports",
+    "unique_call_nodes":2412,
+    "P041":{"collected":6,"junit_cases":6,"call_reports":14,"unique_call_nodes":6,"additional_subtest_reports":8}
+  },
+  "receipts": {
+    "valid_reconciled":157,
+    "canonical_workload_receipt_missing":2,
+    "invalid_or_missing_canonical":2
+  },
+  "timings": {
+    "primary_supervisor_wall_s":9601.081169888992,
+    "all_attempts_supervisor_wall_s":11287.614412620993,
+    "pytest_user_s":7543.87,
+    "pytest_system_s":579.8,
+    "pytest_cpu_missing_primary_attempts":0,
+    "cpu_sum_scope":"known primary direct pytest subprocess-tree CPU only",
+    "max_pytest_rss_kib":1862124,
+    "rss_boundary":"maximum per-file GNU time peak; not VM peak; wrapper/direct peaks not added"
+  },
+  "environment": {
+    "python":"3.14.2",
+    "uv":"0.9.21",
+    "node":"22.16.0",
+    "corepack_pnpm":"10.33.2",
+    "cpu_max":"400000 100000",
+    "cpu_quota":4,
+    "cpuset_effective":"0-4",
+    "memory_max_bytes":17179869184,
+    "OMP_NUM_THREADS":"1",
+    "OPENBLAS_NUM_THREADS":"1",
+    "MKL_NUM_THREADS":"1",
+    "NUMEXPR_NUM_THREADS":"1",
+    "VECLIB_MAXIMUM_THREADS":"1",
+    "JAX_PLATFORMS":"cpu",
+    "UV_NO_BUILD_PACKAGE":"pillow",
+    "profile_segment":"frozen-union-1",
+    "native_property_removal_controls":"absent in actual child processes"
+  },
+  "selected_extras":["lint","test","runtime","ml","analytics","bayesian","optimization-advanced","sensitivity","causal-discovery","vector-search","solvers","search_bo","agent-sim","causal-discovery-scale"],
+  "source_hashes": {
+    "policy-engine/pyproject.toml":"b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "policy-engine/uv.lock":"e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "policy-engine/pytest.ini":"61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "policy-engine/pnpm-lock.yaml":"436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "policy-engine/tools/quality/testing/run_timed_suite.py":"9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+  },
+  "setup_segments": [
+    {"name":"uv-0.9.21-install","exit_code":0,"disk_free_bytes_before":31548964864},
+    {"name":"python-3.14-install","exit_code":0,"disk_free_bytes_before":31491547136},
+    {"name":"apt-time-download","exit_code":100,"disk_free_bytes_before":31382933504},
+    {"name":"apt-local-index","exit_code":0,"disk_free_bytes_before":31382896640},
+    {"name":"apt-time-download-local","exit_code":0,"disk_free_bytes_before":31197396992},
+    {"name":"time-extract","exit_code":0,"disk_free_bytes_before":31197335552},
+    {"name":"time-version","exit_code":0,"disk_free_bytes_before":31197155328},
+    {"name":"time-exit7-probe","exit_code":7,"expected_exit":7,"disk_free_bytes_before":31197147136},
+    {"name":"node-version","exit_code":0,"disk_free_bytes_before":30966644736},
+    {"name":"corepack-pnpm-version","exit_code":0,"disk_free_bytes_before":30966640640},
+    {"name":"pnpm-frozen-install","exit_code":0,"disk_free_bytes_before":30943735808},
+    {"name":"uv-frozen-union-sync","state":"interrupted","exit_code":null,"reason":"exec-server transport disconnected; process absent on readback"},
+    {"name":"uv-frozen-union-sync-attempt-2","exit_code":1,"disk_free_bytes_before":29259284480,"observation":"No route to host"},
+    {"name":"uv-frozen-union-sync-attempt-3","state":"completed","exit_code":0,"disk_free_bytes_before":29063520256,"same_lock":true,"lower_concurrency":true},
+    {"name":"frozen-profile-dry-readback","exit_code":0,"disk_free_bytes_before":20659605504,"observation":"Audited 253 distributions; would make no changes"},
+    {"name":"python-version","exit_code":0,"disk_free_bytes_before":20659597312},
+    {"name":"uv-version","exit_code":0,"disk_free_bytes_before":20659593216},
+    {"name":"distribution-origins","exit_code":0,"disk_free_bytes_before":20659589120},
+    {"name":"final-tool-paths","exit_code":0,"disk_free_bytes_before":20659490816}
+  ],
+  "harness_recovery": {
+    "cell_id":"F14-P004",
+    "attempt":"attempt-002",
+    "receipt_mode":"observer_fallback",
+    "state":"executed",
+    "receipt_status":"canonical_workload_receipt_missing",
+    "start":"2026-10-05T10:47:06.335395+00:00",
+    "end":"2026-10-05T11:15:18.607507+00:00",
+    "no_profile_changes":true,
+    "all_attempts_preserved":true,
+    "not_independent_evidence":true
+  },
+  "source_checks_without_issues":329,
+  "native_unrun":[],
+  "excluded_missing":[],
+  "excluded_unrun_safety":[],
+  "gates":[],
+  "property_rows":[],
+  "nonpass_events_all_attempts":611,
+  "cause_status":"not_established",
+  "transfer_status":"compact_text_only",
+  "raw_archive_transfer":"missing",
+  "archive": {
+    "name":"F14-raw.tar.gz",
+    "sha256":"3f867b37716b2151b86106fa716535faefb060af740ddef8e7007fd4e7bb2df2",
+    "bytes":12867269,
+    "member_count":3029,
+    "complete_attempts":162,
+    "readback_all_hashes_verified":true,
+    "verified_at":"2026-10-05T11:25:25.502102+00:00"
+  }
+}
+Все строки cells.tsv. wall_s — wall time supervisor вокруг полного вызова; rss_kib — прямой pytest subprocess-tree peak GNU time.
+id	path	state	collected	calls	call_pass	call_failed	setup_error	teardown_error	skip	xfail	xpass	collection_skip	collection_error	wall_s	rss_kib	receipt_status
+F14-P001	policy-engine/tests/repo_quality/tools/test_debt_ledger_checker.py	FAILED	76	76	71	5	0	0	0	0	0	0	0	1152.905273291	1702996	canonical_workload_receipt_missing
+F14-P002	policy-engine/tests/unit/foundry/methods/test_selection_advisor.py	PASS	66	66	66	0	0	0	0	0	0	0	0	527.7273229290001	710556	valid_reconciled
+F14-P003	policy-engine/tests/unit/fabric/connectors/test_schema_system.py	PASS	90	90	90	0	0	0	0	0	0	0	0	8.01662314400005	367572	valid_reconciled
+F14-P004	policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py	FAILED	168	168	53	115	0	0	0	0	0	0	0	1692.271987869999	1760592	canonical_workload_receipt_missing
+F14-P005	policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py	FAILED	73	73	70	3	0	0	0	0	0	0	0	303.09834918199977	1774500	valid_reconciled
+F14-P006	policy-engine/tests/unit/runtime/http/test_human_decision_service.py	PASS	78	78	78	0	0	0	0	0	0	0	0	346.47383589099945	1699664	valid_reconciled
+F14-P007	policy-engine/tests/unit/runtime/http/test_control_api.py	ERROR	68	2	1	1	66	0	0	0	0	0	0	156.20852715799992	1813188	valid_reconciled
+F14-P008	policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py	ERROR	175	6	6	0	169	0	0	0	0	0	0	323.2895373520005	1862124	valid_reconciled
+F14-P009	policy-engine/tests/unit/foundry/methods/catalog/causal/test_interference.py	PASS	31	31	31	0	0	0	0	0	0	0	0	155.75927972699992	1701440	valid_reconciled
+F14-P010	policy-engine/tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py	PASS	29	29	29	0	0	0	0	0	0	0	0	72.09988825100027	723020	valid_reconciled
+F14-P011	policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py	PASS	27	27	27	0	0	0	0	0	0	0	0	21.114857277999363	656844	valid_reconciled
+F14-P012	policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py	PASS	46	46	46	0	0	0	0	0	0	0	0	112.27097581700036	1659368	valid_reconciled
+F14-P013	policy-engine/tests/repo_quality/tools/test_p41_baseline_harness_process_cleanup.py	PASS	22	22	22	0	0	0	0	0	0	0	0	10.069024407000143	121948	valid_reconciled
+F14-P014	policy-engine/tests/repo_quality/tools/test_docs_lifecycle.py	FAILED	19	19	9	10	0	0	0	0	0	0	0	12.955844470000557	267412	valid_reconciled
+F14-P015	policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py	FAILED	39	39	36	3	0	0	0	0	0	0	0	34.902480536999974	1579252	valid_reconciled
+F14-P016	policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py	PASS	19	19	19	0	0	0	0	0	0	0	0	21.159428836999723	658216	valid_reconciled
+F14-P017	policy-engine/tests/unit/runtime/http/test_control_service_di.py	ERROR	43	39	34	5	4	0	0	0	0	0	0	64.13938493899968	1789272	valid_reconciled
+F14-P018	policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py	ERROR	16	5	5	0	11	0	0	0	0	0	0	58.3161999619997	1775508	valid_reconciled
+F14-P019	policy-engine/tests/repo_quality/tools/test_docs_gate.py	PASS	14	14	14	0	0	0	0	0	0	0	0	7.4600611019995995	140796	valid_reconciled
+F14-P020	policy-engine/tests/unit/runtime/quality/test_open_world_risk.py	PASS	37	37	37	0	0	0	0	0	0	0	0	71.61026661100004	1622804	valid_reconciled
+F14-P021	policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py	ERROR	54	53	37	16	1	0	0	0	0	0	0	77.21802584800025	1775060	valid_reconciled
+F14-P022	policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py	PASS	35	35	35	0	0	0	0	0	0	0	0	26.210346336999464	1353500	valid_reconciled
+F14-P023	policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py	PASS	17	17	17	0	0	0	0	0	0	0	0	10.978388225999879	361888	valid_reconciled
+F14-P024	policy-engine/tests/unit/foundry/validation/test_legal_correspondence.py	PASS	22	22	22	0	0	0	0	0	0	0	0	22.312822285999573	658860	valid_reconciled
+F14-P025	policy-engine/tests/repo_quality/architecture/test_last_mile_cross_cutting_concerns.py	PASS	11	11	11	0	0	0	0	0	0	0	0	20.99215586199989	157600	valid_reconciled
+F14-P026	policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py	PASS	12	12	12	0	0	0	0	0	0	0	0	7.5503780250001	263624	valid_reconciled
+F14-P027	policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py	PASS	28	28	28	0	0	0	0	0	0	0	0	104.57422458300061	1641604	valid_reconciled
+F14-P028	policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py	FAILED	7	7	6	1	0	0	0	0	0	0	0	54.76288458899944	1567488	valid_reconciled
+F14-P029	policy-engine/tests/repo_quality/architecture/test_repository_structure_station_inputs.py	PASS	11	11	11	0	0	0	0	0	0	0	0	10.555816685999162	109364	valid_reconciled
+F14-P030	policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py	PASS	26	26	26	0	0	0	0	0	0	0	0	33.633128985999974	1427176	valid_reconciled
+F14-P031	policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py	PASS	28	28	28	0	0	0	0	0	0	0	0	10.523789169000338	272836	valid_reconciled
+F14-P032	policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py	PASS	33	33	33	0	0	0	0	0	0	0	0	136.19294511800035	1652660	valid_reconciled
+F14-P033	policy-engine/tests/repo_quality/tools/test_gy_acquisition_assurance.py	PASS	11	11	11	0	0	0	0	0	0	0	0	61.03437395199944	222192	valid_reconciled
+F14-P034	policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py	PASS	10	10	10	0	0	0	0	0	0	0	0	20.163054617000853	645628	valid_reconciled
+F14-P035	policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py	PASS	10	10	10	0	0	0	0	0	0	0	0	14.473439809999945	548580	valid_reconciled
+F14-P036	policy-engine/tests/repo_quality/tools/test_mutation.py	FAILED	15	15	0	15	0	0	0	0	0	0	0	4.750206368999898	109940	valid_reconciled
+F14-P037	policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py	PASS	35	35	35	0	0	0	0	0	0	0	0	21.6326447069996	368432	valid_reconciled
+F14-P038	policy-engine/tests/unit/runtime/quality/test_authority.py	PASS	36	36	36	0	0	0	0	0	0	0	0	49.93259102000047	1627268	valid_reconciled
+F14-P039	policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py	PASS	9	9	9	0	0	0	0	0	0	0	0	24.08703529400009	667704	valid_reconciled
+F14-P040	policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py	PASS	6	6	6	0	0	0	0	0	0	0	0	4.956098186000418	110304	valid_reconciled
+F14-P041	policy-engine/tests/repo_quality/tools/test_p41_baseline_harness_checkout_lease.py	PASS	6	14	14	0	0	0	0	0	0	0	0	5.030682130000059	120108	valid_reconciled
+F14-P042	policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py	PASS	8	8	8	0	0	0	0	0	0	0	0	23.042857077000008	773144	valid_reconciled
+F14-P043	policy-engine/tests/unit/ddm/test_full_acceptance.py	PASS	28	28	28	0	0	0	0	0	0	0	0	4.68595690300026	111232	valid_reconciled
+F14-P044	policy-engine/tests/unit/remediation/test_acq_01.py	FAILED	23	23	6	17	0	0	0	0	0	0	0	74.301137251	1740500	valid_reconciled
+F14-P045	policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py	PASS	25	25	25	0	0	0	0	0	0	0	0	29.59419168600016	1358796	valid_reconciled
+F14-P046	policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py	FAILED	5	5	1	4	0	0	0	0	0	0	0	5.782304127999851	112832	valid_reconciled
+F14-P047	policy-engine/tests/repo_quality/tools/test_hatch_packaging.py	ERROR	0	0	0	0	0	0	0	0	0	0	1	4.7679131439999765	109600	invalid_or_missing_canonical
+F14-P048	policy-engine/tests/repo_quality/tools/test_runtime_contract_measurement.py	PASS	5	5	5	0	0	0	0	0	0	0	0	4.616686915000173	110152	valid_reconciled
+F14-P049	policy-engine/tests/unit/fabric/connectors/test_federation.py	PASS	19	19	19	0	0	0	0	0	0	0	0	9.122322719000294	229256	valid_reconciled
+F14-P050	policy-engine/tests/unit/fabric/data_plane/test_orchestrator.py	PASS	19	19	19	0	0	0	0	0	0	0	0	9.868613339999683	235088	valid_reconciled
+F14-P051	policy-engine/tests/unit/runtime/quality/test_production_invocation.py	PASS	19	19	19	0	0	0	0	0	0	0	0	7.07593229000031	140536	valid_reconciled
+F14-P052	policy-engine/tests/unit/remediation/test_cas_01.py	PASS	18	18	18	0	0	0	0	0	0	0	0	5.523906370000077	116596	valid_reconciled
+F14-P053	policy-engine/tests/unit/remediation/test_uqp_02.py	PASS	18	18	18	0	0	0	0	0	0	0	0	14.710791577000236	576832	valid_reconciled
+F14-P054	policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py	PASS	6	6	6	0	0	0	0	0	0	0	0	7.704198632000043	271952	valid_reconciled
+F14-P055	policy-engine/tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py	PASS	6	6	6	0	0	0	0	0	0	0	0	50.22892870499982	732000	valid_reconciled
+F14-P056	policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_wiring.py	FAILED	4	4	1	3	0	0	0	0	0	0	0	77.21911458900013	1724532	valid_reconciled
+F14-P057	policy-engine/tests/unit/fabric/connectors/reference/test_rest_json.py	PASS	36	36	36	0	0	0	0	0	0	0	0	7.666367094999259	225936	valid_reconciled
+F14-P058	policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py	FAILED	25	25	23	2	0	0	0	0	0	0	0	49.80915518799975	1063792	valid_reconciled
+F14-P059	policy-engine/tests/repo_quality/tools/test_fabric_exception_baseline.py	PASS	3	3	3	0	0	0	0	0	0	0	0	4.251848977000009	109452	valid_reconciled
+F14-P060	policy-engine/tests/unit/core/artifacts/backends/test_config.py	PASS	16	16	16	0	0	0	0	0	0	0	0	4.034305247000702	110140	valid_reconciled
+F14-P061	policy-engine/tests/unit/remediation/test_cas_02.py	FAILED	18	18	14	4	0	0	0	0	0	0	0	5.249224717000288	112824	valid_reconciled
+F14-P062	policy-engine/tests/unit/runtime/quality/test_design_problem.py	PASS	16	16	16	0	0	0	0	0	0	0	0	50.936968471	1644524	valid_reconciled
+F14-P063	policy-engine/tests/integration/core_runtime/test_config_security_startup_bridge.py	FAILED	1	1	0	1	0	0	0	0	0	0	0	54.520906845000354	1710824	valid_reconciled
+F14-P064	policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py	PASS	1	1	1	0	0	0	0	0	0	0	0	23.235391237999465	662516	valid_reconciled
+F14-P065	policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py	FAILED	1	1	0	1	0	0	0	0	0	0	0	89.28555755199977	1796700	valid_reconciled
+F14-P066	policy-engine/tests/unit/ir/test_public_surface.py	FAILED	15	15	14	1	0	0	0	0	0	0	0	15.244169366999813	299484	valid_reconciled
+F14-P067	policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py	FAILED	15	15	14	1	0	0	0	0	0	0	0	141.39798680100012	1747956	valid_reconciled
+F14-P068	policy-engine/tests/unit/runtime/quality/test_operator_comprehension.py	PASS	17	17	17	0	0	0	0	0	0	0	0	48.431253827000546	1626104	valid_reconciled
+F14-P069	policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py	PASS	24	24	24	0	0	0	0	0	0	0	0	62.50475511700006	1608196	valid_reconciled
+F14-P070	policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py	PASS	15	15	15	0	0	0	0	0	0	0	0	32.58072829900084	1426756	valid_reconciled
+F14-P071	policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py	PASS	4	4	4	0	0	0	0	0	0	0	0	19.756564841	659980	valid_reconciled
+F14-P072	policy-engine/tests/repo_quality/architecture/test_owner_residual_exceptions.py	PASS	2	2	2	0	0	0	0	0	0	0	0	8.801409490999504	131488	valid_reconciled
+F14-P073	policy-engine/tests/repo_quality/tools/test_file_read_measurement.py	PASS	3	3	3	0	0	0	0	0	0	0	0	4.092358070000046	109336	valid_reconciled
+F14-P074	policy-engine/tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py	PASS	15	15	15	0	0	0	0	0	0	0	0	23.923480042999472	584348	valid_reconciled
+F14-P075	policy-engine/tests/unit/remediation/test_hyg_04.py	FAILED	14	14	11	3	0	0	0	0	0	0	0	5.787514263999583	133324	valid_reconciled
+F14-P076	policy-engine/tests/unit/foundry/contracts/test_layout.py	PASS	3	3	3	0	0	0	0	0	0	0	0	6.934683014999791	264652	valid_reconciled
+F14-P077	policy-engine/tests/unit/remediation/test_res_04.py	PASS	16	16	16	0	0	0	0	0	0	0	0	7.841175300000032	269232	valid_reconciled
+F14-P078	policy-engine/tests/unit/runtime/quality/test_promotion_safety.py	PASS	22	22	22	0	0	0	0	0	0	0	0	54.08595324399994	1663048	valid_reconciled
+F14-P079	policy-engine/tests/unit/foundry/compile/test_program_graph_ops.py	PASS	2	2	2	0	0	0	0	0	0	0	0	23.1622406460001	673336	valid_reconciled
+F14-P080	policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py	PASS	7	7	7	0	0	0	0	0	0	0	0	5.245085108000239	117064	valid_reconciled
+F14-P081	policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py	PASS	12	12	12	0	0	0	0	0	0	0	0	48.64160142500077	1619920	valid_reconciled
+F14-P082	policy-engine/tests/unit/remediation/test_cau_03.py	PASS	25	25	25	0	0	0	0	0	0	0	0	21.485590309000145	644784	valid_reconciled
+F14-P083	policy-engine/tests/unit/runtime/http/test_decision_validity_api.py	ERROR	12	5	4	1	7	0	0	0	0	0	0	63.189422718999595	1741444	valid_reconciled
+F14-P084	policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py	PASS	13	13	13	0	0	0	0	0	0	0	0	26.599415205000696	1351720	valid_reconciled
+F14-P085	policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py	PASS	12	12	12	0	0	0	0	0	0	0	0	27.613235370999973	1365696	valid_reconciled
+F14-P086	policy-engine/tests/unit/remediation/test_doe_03.py	PASS	12	12	12	0	0	0	0	0	0	0	0	8.744565576999776	280844	valid_reconciled
+F14-P087	policy-engine/tests/unit/runtime/http/test_scenarios_api.py	ERROR	11	5	4	1	6	0	0	0	0	0	0	63.77694081300069	1738768	valid_reconciled
+F14-P088	policy-engine/tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py	PASS	14	14	14	0	0	0	0	0	0	0	0	33.22825509700033	1444316	valid_reconciled
+F14-P089	policy-engine/tests/unit/foundry/compile/test_randomization.py	PASS	1	1	1	0	0	0	0	0	0	0	0	20.798029245999714	654132	valid_reconciled
+F14-P090	policy-engine/tests/unit/data_forge/domains/catalog/batch/test_benchmark.py	PASS	10	10	10	0	0	0	0	0	0	0	0	15.495563747999768	330808	valid_reconciled
+F14-P091	policy-engine/tests/unit/remediation/test_emb_02.py	PASS	11	11	11	0	0	0	0	0	0	0	0	15.135771742000543	527952	valid_reconciled
+F14-P092	policy-engine/tests/unit/remediation/test_obs_01.py	PASS	18	18	18	0	0	0	0	0	0	0	0	8.655772742999943	302716	valid_reconciled
+F14-P093	policy-engine/tests/unit/runtime/quality/test_global_case_index.py	PASS	15	15	15	0	0	0	0	0	0	0	0	51.77287494600023	1624700	valid_reconciled
+F14-P094	policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py	PASS	10	10	10	0	0	0	0	0	0	0	0	32.12453839199952	1568836	valid_reconciled
+F14-P095	policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py	PASS	10	10	10	0	0	0	0	0	0	0	0	35.988532086000305	1478788	valid_reconciled
+F14-P096	policy-engine/tests/unit/fabric/test_root_facade.py	PASS	9	9	9	0	0	0	0	0	0	0	0	12.277260000000751	223916	valid_reconciled
+F14-P097	policy-engine/tests/unit/remediation/test_frc_02_owner.py	PASS	12	12	12	0	0	0	0	0	0	0	0	32.5863679590002	1356536	valid_reconciled
+F14-P098	policy-engine/tests/unit/remediation/test_mig_01.py	PASS	14	14	14	0	0	0	0	0	0	0	0	5.440454778999992	119012	valid_reconciled
+F14-P099	policy-engine/tests/unit/remediation/test_scl_03.py	PASS	9	9	9	0	0	0	0	0	0	0	0	9.627427585000078	273752	valid_reconciled
+F14-P100	policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py	ERROR	9	2	2	0	7	0	0	0	0	0	0	66.43906193800012	1737972	valid_reconciled
+F14-P101	policy-engine/tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py	PASS	9	9	9	0	0	0	0	0	0	0	0	30.55946520499947	1360772	valid_reconciled
+F14-P102	policy-engine/tests/unit/fabric/test_acquisition_assurance.py	PASS	25	25	25	0	0	0	0	0	0	0	0	16.546342921999894	210244	valid_reconciled
+F14-P103	policy-engine/tests/unit/fabric/test_ceiling_relations.py	PASS	24	24	24	0	0	0	0	0	0	0	0	6.545533769000031	210664	valid_reconciled
+F14-P104	policy-engine/tests/unit/remediation/test_api_01.py	PASS	11	11	11	0	0	0	0	0	0	0	0	20.7901945349995	649280	valid_reconciled
+F14-P105	policy-engine/tests/unit/remediation/test_emb_03.py	PASS	8	8	8	0	0	0	0	0	0	0	0	7.9036500719994365	245596	valid_reconciled
+F14-P106	policy-engine/tests/unit/remediation/test_mig_02.py	PASS	8	8	8	0	0	0	0	0	0	0	0	5.162128090999431	116468	valid_reconciled
+F14-P107	policy-engine/tests/unit/remediation/test_run_03.py	PASS	9	9	9	0	0	0	0	0	0	0	0	7.119340536999516	134908	valid_reconciled
+F14-P108	policy-engine/tests/unit/runtime/http/test_runtime_service_container.py	FAILED	8	8	1	7	0	0	0	0	0	0	0	66.20819966099953	1657184	valid_reconciled
+F14-P109	policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py	PASS	8	8	8	0	0	0	0	0	0	0	0	30.356226433999836	1423024	valid_reconciled
+F14-P110	policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py	PASS	7	7	7	0	0	0	0	0	0	0	0	27.197826867000003	1359988	valid_reconciled
+F14-P111	policy-engine/tests/unit/remediation/test_fun_02.py	PASS	11	11	11	0	0	0	0	0	0	0	0	26.200274147000528	1360076	valid_reconciled
+F14-P112	policy-engine/tests/unit/remediation/test_udf_04.py	PASS	9	9	9	0	0	0	0	0	0	0	0	8.634014178000143	300820	valid_reconciled
+F14-P113	policy-engine/tests/unit/runtime/quality/test_acquisition_source_replay.py	PASS	16	16	16	0	0	0	0	0	0	0	0	64.90634694399978	1639644	valid_reconciled
+F14-P114	policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py	PASS	7	7	7	0	0	0	0	0	0	0	0	73.4901436120008	1688668	valid_reconciled
+F14-P115	policy-engine/tests/unit/scientist/governance/test_confidence_pass.py	PASS	7	7	7	0	0	0	0	0	0	0	0	8.097090362000017	158376	valid_reconciled
+F14-P116	policy-engine/tests/unit/scientist/orchestration/engine/runner/test_temporal_runner.py	COLLECTION_SKIP	0	0	0	0	0	0	0	0	0	1	0	4.823906902998715	109260	invalid_or_missing_canonical
+F14-P117	policy-engine/tests/unit/common/test_llm_json.py	PASS	6	6	6	0	0	0	0	0	0	0	0	4.82479791500009	109140	valid_reconciled
+F14-P118	policy-engine/tests/unit/remediation/test_cal_02.py	PASS	6	6	6	0	0	0	0	0	0	0	0	23.979265738000322	752712	valid_reconciled
+F14-P119	policy-engine/tests/unit/remediation/test_doe_01.py	PASS	6	6	6	0	0	0	0	0	0	0	0	8.178130091999265	266820	valid_reconciled
+F14-P120	policy-engine/tests/unit/runtime/http/test_acquisition_route_authority_sink.py	PASS	7	7	7	0	0	0	0	0	0	0	0	58.82706190800127	1685972	valid_reconciled
+F14-P121	policy-engine/tests/unit/runtime/quality/test_vocabulary_crosswalk.py	PASS	6	6	6	0	0	0	0	0	0	0	0	49.83878384899981	1620516	valid_reconciled
+F14-P122	policy-engine/tests/unit/scientist/governance/continuous/test_monitors.py	PASS	11	11	11	0	0	0	0	0	0	0	0	48.905294341000626	1622892	valid_reconciled
+F14-P123	policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py	PASS	7	7	7	0	0	0	0	0	0	0	0	30.901992692999556	1427016	valid_reconciled
+F14-P124	policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py	PASS	5	5	5	0	0	0	0	0	0	0	0	8.8149180599994	317716	valid_reconciled
+F14-P125	policy-engine/tests/unit/lex/knowledge/test_locale_census.py	PASS	12	12	12	0	0	0	0	0	0	0	0	4.15121991200067	109732	valid_reconciled
+F14-P126	policy-engine/tests/unit/remediation/test_cal_06.py	PASS	6	6	6	0	0	0	0	0	0	0	0	21.466639688000214	682624	valid_reconciled
+F14-P127	policy-engine/tests/unit/remediation/test_dfk_01.py	PASS	7	7	7	0	0	0	0	0	0	0	0	6.454156417999911	242372	valid_reconciled
+F14-P128	policy-engine/tests/unit/remediation/test_fit_01.py	PASS	6	6	6	0	0	0	0	0	0	0	0	20.065420744998846	645892	valid_reconciled
+F14-P129	policy-engine/tests/unit/remediation/test_sim_02.py	PASS	10	10	10	0	0	0	0	0	0	0	0	98.18324946999928	1586484	valid_reconciled
+F14-P130	policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py	PASS	7	7	7	0	0	0	0	0	0	0	0	64.76356931100054	1748232	valid_reconciled
+F14-P131	policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py	PASS	7	7	7	0	0	0	0	0	0	0	0	112.27410437199978	1661104	valid_reconciled
+F14-P132	policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py	PASS	9	9	9	0	0	0	0	0	0	0	0	53.266351426000256	1625008	valid_reconciled
+F14-P133	policy-engine/tests/unit/scientist/governance/continuous/test_reissue.py	PASS	7	7	7	0	0	0	0	0	0	0	0	48.90905099599877	1625164	valid_reconciled
+F14-P134	policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py	PASS	5	5	5	0	0	0	0	0	0	0	0	27.148860493998654	1359280	valid_reconciled
+F14-P135	policy-engine/tests/unit/data_forge/kernel/test_embeddings.py	PASS	4	4	4	0	0	0	0	0	0	0	0	9.874437140000737	296520	valid_reconciled
+F14-P136	policy-engine/tests/unit/remediation/test_cau_05.py	PASS	4	4	4	0	0	0	0	0	0	0	0	22.14862304000053	656800	valid_reconciled
+F14-P137	policy-engine/tests/unit/remediation/test_lex_01.py	PASS	4	4	4	0	0	0	0	0	0	0	0	48.63518115499937	1619660	valid_reconciled
+F14-P138	policy-engine/tests/unit/remediation/test_udf_01.py	PASS	4	4	4	0	0	0	0	0	0	0	0	32.19340248399931	1436488	valid_reconciled
+F14-P139	policy-engine/tests/unit/runtime/http/test_non_data_acquisition_projection.py	PASS	8	8	8	0	0	0	0	0	0	0	0	62.42851332600003	1718760	valid_reconciled
+F14-P140	policy-engine/tests/unit/runtime/quality/test_acquisition_owner_store_requirement.py	PASS	4	4	4	0	0	0	0	0	0	0	0	52.108688623999114	1625316	valid_reconciled
+F14-P141	policy-engine/tests/unit/scientist/governance/test_pii_check_pass.py	PASS	4	4	4	0	0	0	0	0	0	0	0	6.638303400999575	156576	valid_reconciled
+F14-P142	policy-engine/tests/unit/scientist/search/strategies/test_adapter.py	PASS	4	4	4	0	0	0	0	0	0	0	0	30.247986774998935	1359748	valid_reconciled
+F14-P143	policy-engine/tests/unit/core/artifacts/test_async_store.py	PASS	3	3	3	0	0	0	0	0	0	0	0	5.615440248000596	110196	valid_reconciled
+F14-P144	policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py	FAILED	3	3	2	1	0	0	0	0	0	0	0	5.323383382999964	120132	valid_reconciled
+F14-P145	policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_validators.py	PASS	3	3	3	0	0	0	0	0	0	0	0	9.275525900000503	293604	valid_reconciled
+F14-P146	policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py	PASS	3	3	3	0	0	0	0	0	0	0	0	10.49770249500034	241036	valid_reconciled
+F14-P147	policy-engine/tests/unit/runtime/quality/test_acquisition_movement_positive.py	PASS	3	3	3	0	0	0	0	0	0	0	0	93.27447131999907	1796348	valid_reconciled
+F14-P148	policy-engine/tests/unit/runtime/quality/test_agent_action_authority_replay.py	PASS	4	4	4	0	0	0	0	0	0	0	0	55.70688796799914	1650272	valid_reconciled
+F14-P149	policy-engine/tests/unit/runtime/quality/test_evaluation_safety.py	PASS	3	3	3	0	0	0	0	0	0	0	0	55.122680600999956	1672384	valid_reconciled
+F14-P150	policy-engine/tests/unit/scientist/evidence/claims/test_posture_markdown.py	PASS	19	19	19	0	0	0	0	0	0	0	0	34.636171076999744	1437508	valid_reconciled
+F14-P151	policy-engine/tests/unit/scientist/search/test_frontier.py	PASS	3	3	3	0	0	0	0	0	0	0	0	27.00141599699964	1358068	valid_reconciled
+F14-P152	policy-engine/tests/unit/fabric/test_r13_ingestion_sidecars.py	PASS	2	2	2	0	0	0	0	0	0	0	0	7.131886557999678	220048	valid_reconciled
+F14-P153	policy-engine/tests/unit/remediation/test_uqp_03.py	PASS	2	2	2	0	0	0	0	0	0	0	0	8.396739428999354	376900	valid_reconciled
+F14-P154	policy-engine/tests/unit/runtime/http/test_control_worker_custody.py	PASS	2	2	2	0	0	0	0	0	0	0	0	52.98642009900141	1684424	valid_reconciled
+F14-P155	policy-engine/tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py	ERROR	2	0	0	0	2	0	0	0	0	0	0	56.39672592399984	1716356	valid_reconciled
+F14-P156	policy-engine/tests/unit/runtime/quality/test_multi_tenant_shared_cas.py	PASS	2	2	2	0	0	0	0	0	0	0	0	50.63959251199958	1622276	valid_reconciled
+F14-P157	policy-engine/tests/unit/scientist/evidence/claims/test_ledger.py	PASS	2	2	2	0	0	0	0	0	0	0	0	29.711436372999742	1417608	valid_reconciled
+F14-P158	policy-engine/tests/unit/ir/analytics/test_ncm.py	PASS	1	1	1	0	0	0	0	0	0	0	0	47.21241259499948	1642644	valid_reconciled
+F14-P159	policy-engine/tests/unit/runtime/http/test_human_decision_guarded_custody.py	PASS	2	2	2	0	0	0	0	0	0	0	0	63.67729758600035	1697692	valid_reconciled
+F14-P160	policy-engine/tests/unit/runtime/quality/test_acquisition_route_loop.py	PASS	1	1	1	0	0	0	0	0	0	0	0	56.08645285300008	1656392	valid_reconciled
+F14-P161	policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py	PASS	1	1	1	0	0	0	0	0	0	0	0	22.56103903500116	754944	valid_reconciled
+Дополнительные gates и property replay states не назначены: gate_rows=[], property_rows=[].
+Ниже все compact failure blocks. Exact node ID восстанавливается как path данной cell из TSV без начального policy-engine/, затем :: + элемент nodes. Пустой элемент обозначает collection node самого файла. attempts разворачивается в отдельный event для каждой указанной попытки. Для всех событий wasxfail=null, cause_status=not_established, raw_transfer_missing=true. Многоточия внутри сообщений — вывод самого pytest.
+{
+  "events":611,
+  "cause_status":"not_established",
+  "raw_transfer_missing":true,
+  "messages":{
+    "M001":"E       AssertionError: assert {'atlas_debt_...nown': 0, ...} == {'atlas_debt_...nown': 0, ...}\nE\nE         Omitting 23 identical items, use -vv to show\nE         Differing items:\nE         {'closure_signal_count_exit_disagreements': 4} != {'closure_signal_count_exit_disagreements': 6}\nE         {'register_ids': 277} != {'register_ids': 260}\nE         {'closure_signal_identity_unresolvable': 4} != {'closure_signal_identity_unresolvable': 6}\nE         Use -v to get more diff",
+    "M002":"E       AssertionError: assert set() == {'ds10-public...on-rendering'}\nE\nE         Extra items in the right set:\nE         'ds10-public-decision-rendering'\nE         Use -v to get more diff",
+    "M003":"E       AssertionError: assert '| `DEBT-REGISTER.md` | 260 | 260 | 74 | blocked=35, closed=186, folded=4, foreign=6, open=29 |' in '# PolicyOS Open Work and Debt Ledger\\n\\nGenerated by `tools/quality/validation/check_debt_ledger.py --write`. Closed ... rows retained as branch records, not debt ids: `codex/gy-def6-e11`, `codex/ds17-confidence-ledger-risk-spend-plan`.\\n'",
+    "M004":"E       AssertionError: assert not (Finding(code='closure_commit_not_on_main', detail='Atlas:GY-DEF20: 518e04da5', informational=False), Finding(code='cl...ing(code='closure_commit_not_on_main', detail='Atlas:deep-import-baseline-stale: 5cc68c43e', informational=False), ...)\nE        +  where (Finding(code='closure_commit_not_on_main', detail='Atlas:GY-DEF20: 518e04da5', informational=False), Finding(code='cl...ing(code='closure_commit_not_on_main', detail='Atlas:deep-import-baseline-stale: 5cc68c43e', informational=False), ...) = AuditReport(findings=(Finding(code='closure_commit_not_on_main', detail='Atlas:GY-DEF20: 518e04da5', informational=Fal...owers/plans/**/*.md'], 'other_sources': 'register status/standing, Atlas overview, dispositions and cited selectors'}}).blocking_findings",
+    "M005":"E       AssertionError: assert '# PolicyOS O...pend-plan`.\\n' == '# PolicyOS O...pend-plan`.\\n'\nE\nE         Skipping 3003 identical leading characters in diff, use -v to show\nE         - ry-plan` (declared-ref-missing) |\nE         + ry-plan` (local-only) |\nE         - | [`ds10-public-decision-rendering`](DEBT-REGISTER.md#a-open-and-executable-now) | `blocked` | `—` | team-design | [register §A](DEBT-REGISTER.md#a-open-and-executable-now) | `codex/ds10-capability-discovery-plan` (declared-ref-missing) |\nE         ?                                                                                                                                                                                                                 ...\nE\nE         ...Full output truncated (137 lines hidden), use '-vv' to show",
+    "M006":"E       _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':\nE       Failed to download extension \"fts\" at URL \"http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz\"\nE       Extension \"fts\" is an existing extension.\nE\nE       For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)",
+    "M007":"E               polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/production_data/manifest.json",
+    "M008":"E       assert (42, 4) == (39, 4)\nE\nE         At index 0 diff: 42 != 39\nE         Use -v to get more diff",
+    "M009":"E       AssertionError: assert 1 == 0\nE        +  where 1 = <function main at 0x7f7708401220>(['--repo-root', '/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine', '--check', '--corruption-probes', '--json'])\nE        +    where <function main at 0x7f7708401220> = <module 'tools.quality.validation.check_trust_claim_posture' from '/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/tools/quality/validation/check_trust_claim_posture.py'>.main",
+    "M010":"E           ValueError: output probe scratch roots must be outside repo_root",
+    "M011":"E           ValueError: catalog_fetch_source_unreadable",
+    "M012":"E       AssertionError: assert [LifecycleFin...rror).'), ...] == []\nE\nE         Left contains 7 more items, first extra item: LifecycleFinding(check='removed_stub_reference', path='docs/plans/active/agent-packages/PolicyOS_E02R2/FINAL_REPORT.md', message='stale direct reference `tests/architecture`; use `tests/repo_quality/architecture`.')\nE         Use -v to get more diff",
+    "M013":"E       AssertionError: assert [] == [LifecycleFin...ns/archive.')]\nE\nE         Right contains one more item: LifecycleFinding(check='active_plan_metadata', path='docs/plans/active/CLOSED_PLAN.md', message='active plan contains accepted final closeout evidence; move it to docs/plans/archive.')\nE         Use -v to get more diff",
+    "M014":"E       AssertionError: assert [] == [LifecycleFin...` metadata.')]\nE\nE         Right contains one more item: LifecycleFinding(check='redirect_stub', path='frontend/README.md', message='redirect stub missing `sunset_date` metadata.')\nE         Use -v to get more diff",
+    "M015":"E       AssertionError: assert [] == [LifecycleFin...hitecture`.')]\nE\nE         Right contains 2 more items, first extra item: LifecycleFinding(check='removed_stub_path', path='tests/architecture', message='removed redirect stub directory still exists; use `tests/repo_quality/architecture`.')\nE         Use -v to get more diff",
+    "M016":"E       AssertionError: assert [] == [LifecycleFin...pi-client`.')]\nE\nE         Right contains 3 more items, first extra item: LifecycleFinding(check='removed_stub_reference', path='docs/live.md', message='stale direct reference `tests/architecture`; use `tests/repo_quality/architecture`.')\nE         Use -v to get more diff",
+    "M017":"E       AssertionError: assert set() == {'docs/live.md'}\nE\nE         Extra items in the right set:\nE         'docs/live.md'\nE         Use -v to get more diff",
+    "M018":"E       AssertionError: assert [] == [LifecycleFin...` metadata.')]\nE\nE         Right contains one more item: LifecycleFinding(check='redirect_stub', path='frontend/README.md', message='redirect stub missing `created_date` metadata.')\nE         Use -v to get more diff",
+    "M019":"E       AssertionError: assert [] == [LifecycleFin...ility_adr`.')]\nE\nE         Right contains one more item: LifecycleFinding(check='redirect_stub', path='frontend/README.md', message='redirect stub sunset exceeds the 90-day policy without `compatibility_adr`.')\nE         Use -v to get more diff",
+    "M020":"E       AssertionError: assert [] == [LifecycleFin...frontend/`.')]\nE\nE         Right contains one more item: LifecycleFinding(check='redirect_stub', path='frontend/README.md', message='redirect stub `compatibility_adr` must declare `frontend/`.')\nE         Use -v to get more diff",
+    "M021":"E       AssertionError: assert ['docs freshn...f06bafcdb6be'] == []\nE\nE         Left contains 3 more items, first extra item: 'docs freshness exception baseline expired'\nE         Use -v to get more diff",
+    "M022":"E       AssertionError: assert False is True\nE        +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted\nE        +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision",
+    "M023":"E           polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest",
+    "M024":"E       AssertionError: assert 'unsupported mutation station' in 'No package metadata was found for mutmut'",
+    "M025":"E       AssertionError: assert 2 == 0\nE        +  where 2 = <function _run_target at 0x7f6d8c7787d0>(PosixPath('/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/_build/e02-full/F14/20261005T074752Z/F14-P036/attempt-001/tmp/test_real_mutant_is_killed_wit0/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7f6d8c7787d0> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()",
+    "M026":"E       AssertionError: assert False\nE        +  where False = <built-in method startswith of str object at 0x7f6d8c72d7d0>('mutmut run did not execute successfully:')\nE        +    where <built-in method startswith of str object at 0x7f6d8c72d7d0> = 'No package metadata was found for mutmut'.startswith",
+    "M027":"E       AssertionError: assert False\nE        +  where False = <built-in method startswith of str object at 0x7f6d8c72d890>('mutmut run did not execute successfully:')\nE        +    where <built-in method startswith of str object at 0x7f6d8c72d890> = 'No package metadata was found for mutmut'.startswith",
+    "M028":"E       AssertionError: assert 2 == 1\nE        +  where 2 = <function _run_target at 0x7f6d8c7787d0>(PosixPath('/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/_build/e02-full/F14/20261005T074752Z/F14-P036/attempt-001/tmp/test_real_survivor_is_failure0/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7f6d8c7787d0> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()",
+    "M029":"E       AssertionError: assert 2 == 0\nE        +  where 2 = <function _run_target at 0x7f6d8c7787d0>(PosixPath('/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/_build/e02-full/F14/20261005T074752Z/F14-P036/attempt-001/tmp/test_controlled_protocol_admis0/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7f6d8c7787d0> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()",
+    "M030":"E       AssertionError: assert 2 == 1\nE        +  where 2 = <function _run_target at 0x7f6d8c7787d0>(PosixPath('/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/_build/e02-full/F14/20261005T074752Z/F14-P036/attempt-001/tmp/test_controlled_protocol_admis1/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7f6d8c7787d0> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()",
+    "M031":"E       assert False",
+    "M032":"E       AssertionError: assert 'missing' in 'No package metadata was found for mutmut'",
+    "M033":"E       ImportError: cannot import name '_has_n7_acq01_route_payload' from 'polisyos.runtime.quality.generation_cycle' (/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/src/polisyos/runtime/quality/generation_cycle.py)",
+    "M034":"E       FileNotFoundError: [Errno 2] No such file or directory: '/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json'\nE           polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
+    "M035":"E       AssertionError: assert 0 == 1\nE        +  where 0 = len(())\nE        +    where () = GenerationCycleRun(schema_version='policyos.runtime.generation_cycle_controller.v4', run_id='generation_cycle_4823f4d2...e-deployment:sha256:04d18e810a3b23261881b6d264db79aa99842b7c4acd8b67b21ea3209aeffc3d', deployment_identity_reason=None).acquisition_receipts",
+    "M036":"E       Failed: DID NOT RAISE <class 'polisyos.runtime.quality.generation_cycle.GenerationCycleError'>",
+    "M037":"E       assert None is not None",
+    "M038":"E       AssertionError: assert {'polisyos.be...yos.ddm', ...} == {'polisyos.be...yos.ddm', ...}\nE\nE         Extra items in the left set:\nE         'polisyos.runtime.quality'\nE         Use -v to get more diff",
+    "M039":"E           AssertionError: assert datetime.date(2026, 10, 1) >= datetime.date(2026, 10, 5)\nE            +  where datetime.date(2026, 10, 1) = _date('2026-10-01')\nE            +  and   datetime.date(2026, 10, 5) = <built-in method today of type object at 0x1559560>()\nE            +    where <built-in method today of type object at 0x1559560> = <class 'datetime.date'>.today\nE            +      where <class 'datetime.date'> = dt.date",
+    "M040":"E       AssertionError: assert datetime.date(2026, 10, 1) >= datetime.date(2026, 10, 5)\nE        +  where datetime.date(2026, 10, 1) = _date('2026-10-01')\nE        +  and   datetime.date(2026, 10, 5) = <built-in method today of type object at 0x1559560>()\nE        +    where <built-in method today of type object at 0x1559560> = <class 'datetime.date'>.today\nE        +      where <class 'datetime.date'> = dt.date",
+    "M041":"E       assert 22 == 0",
+    "M042":"E   ModuleNotFoundError: No module named 'hatchling'",
+    "M043":"E       AssertionError: {\nE           \"census\": {\nE             \"path_denominator\": \"current src/** (tracked plus non-ignored untracked)\",\nE             \"file_type_denominator\": \".py\",\nE             \"head_tracked_python_files\": 2697,\nE             \"current_python_files\": 2697,\nE             \"independent_head_plus_status_python_files\": 2697,\nE             \"ast_call_count\": 4,\nE             \"independent_token_call_count\": 4,\nE             \"unreadable\": [],\nE             \"sites\": [\nE               {\nE                 \"identity\": \"src/polisyos/runtime/http/services/control/nl_pipeline.py::NaturalLanguageRunMixin._execute_nl_pipeline_impl._agent_pipeline._run_variant::RetrievalService[1]\",\nE                 \"line\": 5259,\nE                 \"column\": 32,\nE                 \"expression_sha256\": \"e035257cd1bbd2405b90ac5083fc52b19889c4c4eb802c675afae67377bf4877\",\nE                 \"catalog_argument\": \"Name(id='retrieval_catalog', ctx=Load())\"\nE               },\nE               {\nE                 \"identity\": \"src/polisyos/runtime/http/services/control/run_lifecycle.py::ControlPlaneService.__init__::RetrievalService[1]\",\nE                 \"line\": 2237,\nE                 \"column\": 30,\nE                 \"expression_sha256\": \"c94e6c60d0d392204152f28a9d3de62f569500ce893e6967ec0a206ac8b585cb\",\nE                 \"catalog_argument\": \"Attribute(value=Name(id='self', ctx=Load()), attr='_retrieval_catalog', ctx=Load())\"\nE               },\nE               {\nE                 \"identity\": \"src/polisyos/runtime/quality/acquisition_planner.py::RealAcquisitionOwnerGateway._capture_fabric::RetrievalService[1]\",\nE                 \"line\": 1416,\nE                 \"column\": 34,\nE                 \"expression_sha256\": \"693fdbd81eddb10371a6f807b38c45c2a62402c682838fc16f0aca7afdec78a1\",\nE                 \"catalog_argument\": \"Name(id='graph', ctx=Load())\"\nE               },\nE               {\nE                 \"identity\": \"src/polisyos/runtime/quality/acquisition_planner.py::RealAcquisitionOwnerGateway._capture_fabric::RetrievalService[2]\",\nE                 \"line\": 1463,\nE                 \"column\": 26,\nE                 \"expression_sha256\": \"693fdbd81eddb10371a6f807b38c45c2a62402c682838fc16f0aca7afdec78a1\",\nE                 \"catalog_argument\": \"Name(id='graph', ctx=Load())\"\nE               }\nE             ]\nE           },\nE           \"outcomes\": [\nE             {\nE               \"identity\": \"src/polisyos/runtime/http/services/control/nl_pipeline.py::NaturalLanguageRunMixin._execute_nl_pipeline_impl._agent_pipeline._run_variant::RetrievalService[1]\",\nE               \"passed\": false,\nE               \"reason\": \"AttributeError: 'ControlPlaneService' object has no attribute '_artifact_store'\"\nE             },\nE             {\nE               \"identity\": \"src/polisyos/runtime/http/services/control/run_lifecycle.py::ControlPlaneService.__init__::RetrievalService[1]\",\nE               \"passed\": false,\nE               \"reason\": \"AttributeError: 'ControlPlaneService' object has no attribute '_artifact_store'\"\nE             },\nE             {\nE               \"identity\": \"src/polisyos/runtime/quality/acquisition_planner.py::RealAcquisitionOwnerGateway._capture_fabric::RetrievalService[1]\",\nE               \"passed\": true\nE             },\nE             {\nE               \"identity\": \"src/polisyos/runtime/quality/acquisition_planner.py::RealAcquisitionOwnerGateway._capture_fabric::RetrievalService[2]\",\nE               \"passed\": true\nE             }\nE           ]\nE         }\nE       assert False\nE        +  where False = all(<generator object test_actual_constructor_resolves_catalog.<locals>.<genexpr> at 0x7f55de315560>)",
+    "M044":"E                       AttributeError: 'ControlPlaneService' object has no attribute '_artifact_store'",
+    "M045":"E           assert 2.1038300655310936e-18 == -3.2698671302...e-18 ± 3.3e-30\nE\nE             comparison failed\nE             Obtained: 2.1038300655310936e-18\nE             Expected: -3.269867130283955e-18 ± 3.3e-30",
+    "M046":"E       Failed: DID NOT RAISE <class 'OSError'>",
+    "M047":"E       Failed: DID NOT RAISE <class 'PermissionError'>",
+    "M048":"E           AssertionError: assert '| `polisyos.ir.analytics` | 278 | curated lazy facade |' in '# IR Public Surface\\n\\nRelated explanation: [Trinity](../../explanation/trinity.md).\\n\\n> Package-level IR facades ar...  the public-surface renderer in `polisyos-tools architecture guardrails` for the\\n  generated repository inventory.\\n'",
+    "M049":"E       AssertionError: assert ['promotion_s...ot_completed'] == []\nE\nE         Left contains 2 more items, first extra item: 'promotion_source_unresolved:persisted-source-run:ValueError'\nE         Use -v to get more diff",
+    "M050":"E       AssertionError: assert {'docs/plans/...nsus.md', ...} == {'docs/plans/...nsus.md', ...}\nE\nE         Extra items in the left set:\nE         'docs/superpowers/journals/measurement-plane/row1/survey.md'\nE         Use -v to get more diff",
+    "M051":"E       KeyError: 'hatch'",
+    "M052":"E           AssertionError: assert [] == [LifecycleFin...ility_adr`.')]\nE\nE             Right contains one more item: LifecycleFinding(check='redirect_stub', path='frontend/README.md', message='redirect stub sunset exceeds the 90-day policy without `compatibility_adr`.')\nE             Use -v to get more diff",
+    "M053":"('/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_temporal_runner.py', 10, \"Skipped: could not import 'temporalio': No module named 'temporalio'\")",
+    "M054":"E       KeyError: \"artifact_id=ArtifactID(root='sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20') kind='core.registry_bundle' media_type='application/json' manifest_profile_sha256=None\""
+  }
+}
+{"cell":"F14-P001","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M001","nodes":["test_real_census_replays_published_invariants"]}
+{"cell":"F14-P001","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M002","nodes":["test_ds10_debt_projection_exposes_every_unresolvable_signal"]}
+{"cell":"F14-P001","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M003","nodes":["test_real_ledger_exposes_every_gy_block_receipt_and_typed_state"]}
+{"cell":"F14-P001","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M004","nodes":["test_declared_informational_signal_findings_stay_out_of_blocking"]}
+{"cell":"F14-P001","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M005","nodes":["test_real_ledger_is_the_deterministic_rendering"]}
+{"cell":"F14-P004","phase":"call","outcome":"failed","message":"M006","nodes":["test_current_input_rejects_legacy_caller_gate_predicates[admissibility]","test_current_input_rejects_legacy_caller_gate_predicates[effective_independence]","test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow","test_canonical_promotion_freezes_on_open_world_risk[limited-deployment_scope_limited]","test_canonical_promotion_freezes_on_open_world_risk[not_established-deployment_scope_not_established]","test_canonical_promotion_freezes_on_scope_not_established","test_owner_projection_round_trips_exact_open_world_vector_identity","test_v4_v1_history_is_readable_but_cannot_be_current_authority","test_v1_scope_rows_cannot_be_restamped_as_current_authority","test_current_owner_projection_requires_the_physical_open_world_key","test_decision_front_rejects_unbound_open_world_receipt","test_decision_front_predicate_is_owned_by_canonical_promotion_sequence","test_n9_emits_additive_decisive_instances_with_deterministic_identity","test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red","test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution","test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused","test_registered_non_calibration_route_cannot_be_omitted_from_ledger","test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation","test_caller_offer_cannot_substitute_for_owner_recomputation","test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows","test_registered_promotion_route_without_owner_producer_fails_before_spend","test_removing_code_owned_data_trust_route_fails_before_spend","test_relabelled_code_owned_owner_and_verifier_fail_before_spend[owner_ref-attacker.FakeOwner]","test_relabelled_code_owned_owner_and_verifier_fail_before_spend[verifier_ref-attacker.FakeVerifier]","test_relabelled_code_owned_owner_and_verifier_fail_before_spend[obligation_class-value]","test_same_class_unrelated_claim_cannot_satisfy_compiled_obligation","test_supported_owner_bound_offer_round_trips_through_generic_validator","test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable","test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable","test_unknown_non_calibration_offer_fail_closes_before_spend","test_n9_receipt_authorizes_only_narrow_projection_and_current_head","test_n9_owner_replay_projection_round_trips_through_json","test_ungrounded_candidate_stays_shadow_by_real_grounding_owner","test_uncalibrated_candidate_stays_shadow","test_untransportable_candidate_stays_shadow","test_timeout_knob_cannot_decide_effect_or_fabricate_block","test_lower_boundary_wins_over_optimistic_declared_transform","test_no_cg2_owner_grant_stays_shadow","test_cg2_open_admissibility_obligation_keeps_promotion_red","test_contract_testing_bind_receipt_is_intrinsically_non_promotable","test_scope_insufficient_obligation_does_not_vacuously_pass","test_scope_insufficient_cannot_mint_production_authority","test_unseen_non_panel_value_receipt_flows_unchanged","test_forged_g4_ref_is_refused_by_owner_resolution","test_gyk_witness_pointer_is_not_a_supported_input","test_invented_measurement_marker_does_not_supply_authority","test_real_dependent_independence_graph_refuses_legacy_true","test_empty_independence_graph_cannot_establish_promotion_evidence","test_n9_measurement_refuses_catalog_metadata_without_fabric_custody","test_n9_measurement_refuses_all_null_observations","test_n9_measurement_refuses_out_of_contract_observations","test_n9_measurement_recomputes_full_authority_identity[phase]","test_n9_measurement_recomputes_full_authority_identity[profile]","test_n9_measurement_recomputes_full_authority_identity[problem]","test_n9_measurement_recomputes_full_authority_identity[time]","test_n9_measurement_recomputes_full_authority_identity[authority_role]","test_n9_measurement_rechecks_source_requirement_and_problem[requirement]","test_n9_measurement_rechecks_source_requirement_and_problem[problem]","test_n9_replays_current_measurement_source_at_admission[catalog_removed]","test_n9_replays_current_measurement_source_at_admission[source_changed]","test_n9_replays_current_measurement_source_at_admission[payload_missing]","test_n9_replays_current_measurement_source_at_admission[contract_changed]","test_real_measurement_root_resolves_and_binds_into_n9","test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient","test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect","test_cg1_derived_atom_cannot_satisfy_effect","test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct","test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct","test_ungrounded_effect_claim_fails_its_entailment_conjunct","test_effect_exact_or_bounded_entailment_satisfies_without_minting[False-effect_claim_entailed]","test_effect_exact_or_bounded_entailment_satisfies_without_minting[True-effect_claim_bounded]","test_production_n9_port_persists_effect_but_refuses_contract_only_cg2","test_foreign_candidate_and_wrong_verifier_provenance_fail_closed","test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0","test_n5_coupling_blocker_refuses_coupling","test_supported_n5_coupling_path_satisfies_coupling","test_effective_independence_missing_is_explicit_decisive_nonreceipt","test_data_trust_typed_fields_fail_data_obligation","test_s6_typed_posture_fails_implementation_obligation","test_hand_edited_confidence_projection_is_rejected","test_caller_cannot_supply_authoritative_risk_spends","test_n9_rejects_session_bound_to_a_different_design_problem","test_value_receipt_candidate_mismatch_fails_closed_before_accounting","test_verification_ledger_session_cannot_run_n9_authority_path","test_private_verification_sequence_stamps_receipt_non_consumer_promotable","test_private_verification_boundary_rejects_alternate_registry","test_public_validator_rejects_verification_before_opening_authority_namespace","test_private_verification_revalidator_recomputes_current_head","test_private_verification_revalidator_requires_loaded_owner_repo","test_verification_projection_is_not_n9_authority_provenance","test_schedule_slot_is_reserved_before_obligation_outcomes","test_probabilistic_certificate_bypassing_ledger_is_rejected","test_non_calibration_probabilistic_certificate_bypass_is_rejected","test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation","test_rehashed_computed_boundary_is_rejected_by_owner_recomputation","test_rehashed_contract_lane_as_production_is_rejected_by_owner_recomputation","test_receipt_candidate_id_must_match_replayed_owner_input","test_rehashed_owner_projection_still_fails_live_candidate_binding","test_empty_ledger_projection_cannot_insure_forged_probabilistic_success","test_ledger_claim_scope_is_recomputed_from_candidate_owner","test_failed_obligation_cannot_be_relabelled_into_decision_front","test_promotion_history_remains_readable_after_exact_v3_to_v6_reissue","test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission","test_n9_semantic_ledger_changes_with_governing_owner_input","test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage","test_promotion_comparison_repairs_current_v6_lineage_only_through_live_owner_proof","test_promotion_comparison_refuses_v2_without_open_world_owner_fact"],"attempts":["attempt-001","attempt-002"]}
+{"cell":"F14-P004","phase":"call","outcome":"failed","message":"M007","nodes":["test_measurement_root_evidence_replays_canonical_base_dataset_envelope","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[ref_shaped]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[nonexistent_root]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[wrong_content]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_fetch]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_catalog]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[stale_baseline]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[rebound_evidence]"],"attempts":["attempt-001","attempt-002"]}
+{"cell":"F14-P005","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M008","nodes":["test_literal_censuses_reconcile_for_both_complete_walks"]}
+{"cell":"F14-P005","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M009","nodes":["test_c05_corruption_matrix_is_complete_semantic_and_scratch_bounded"]}
+{"cell":"F14-P005","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M010","nodes":["test_generated_family_probe_and_narrow_reference_writer_are_scratch_bounded"]}
+{"cell":"F14-P007","attempt":"attempt-001","phase":"setup","outcome":"failed","message":"M011","nodes":["TestLaunchRun::test_launch_workflow_run_accepted","TestLaunchRun::test_launch_run_with_trinity_bundle","TestLaunchRun::test_launch_run_missing_data_source_returns_400","TestLaunchRun::test_launch_run_invalid_body_returns_422","TestCapabilities::test_get_control_capabilities_returns_manifest","TestCapabilities::test_get_control_capabilities_projects_current_execution_policy","TestCapabilities::test_get_control_capabilities_reports_selected_production_data_manifest","TestCapabilities::test_get_control_workers_returns_worker_leases","TestCapabilities::test_get_control_outbox_returns_events","TestCapabilities::test_get_control_job_status_returns_record","TestCapabilities::test_get_control_job_status_returns_quality_scorecard","TestCapabilities::test_get_control_job_status_labels_dashboard_projection_authority_gaps","TestCapabilities::test_api_projection_source_truth_conflict_blocks_approval_ready_shape","TestCapabilities::test_failed_serious_run_exposes_operator_diagnostic_on_api_projections","TestProductionApproval::test_runtime_context_store_enforces_tenant_ownership_index","TestProductionApproval::test_production_approval_blocks_missing_decision_producer","TestProductionApproval::test_served_v2_approval_refuses_pointer_owner_without_packet_artifact","TestProductionApproval::test_persisted_control_progress_does_not_bypass_producer_trust","TestProductionApproval::test_run_production_approval_rejects_unpersisted_inline_scorecard","TestProductionApproval::test_run_production_approval_rejects_incomplete_override","TestDecisionValidity::test_get_run_decision_validity_returns_lifecycle_summary","TestDecisionValidity::test_get_packet_decision_validity_exposes_pending_reviews","TestDecisionValidity::test_decision_validity_exports_bind_shared_replay_contract","TestDecisionValidity::test_source_invalidation_marks_published_decision_stale_and_exposes_lifecycle_status","TestDecisionValidity::test_norm_invalidation_can_withdraw_published_decision","TestDecisionValidity::test_invalidation_domains_update_lifecycle_status[data_snapshot-data::msme-panel::2026-data_invalidation-stale-refresh_decision]","TestDecisionValidity::test_invalidation_domains_update_lifecycle_status[quality_report-metric::msme_survival_rate-metric_invalidation-review_required-human_review]","TestDecisionValidity::test_invalidation_domains_update_lifecycle_status[econometric_evidence-model::survival-effect-v2-model_invalidation-superseded-review_superseded]","TestDecisionValidity::test_invalidation_domains_update_lifecycle_status[normative_arbitration-conflict::eligibility-budget-2026-conflict_invalidation-review_required-human_review]","TestDecisionValidity::test_reissue_packet_includes_scorecard_new_evidence_and_change_reason","TestLaunchNlRun::test_launch_nl_run_without_model_is_typed_refusal","TestLaunchNlRun::test_launch_nl_run_with_llm_model","TestLaunchNlRun::test_launch_nl_run_with_llm_models","TestLaunchNlRun::test_launch_nl_run_accepts_execution_plan_payload","TestLaunchNlRun::test_launch_nl_run_invalid_parallel_models_returns_422","TestLaunchNlRun::test_launch_nl_run_empty_request_returns_422","TestDataIngestion::test_ingest_data_accepted","TestDataIngestion::test_ingest_data_empty_datasets_returns_422","TestConnectorsList::test_list_connectors_returns_list","TestConnectorsAvailableProfiles::test_connectors_include_available_profiles","test_list_connectors_and_profiles_are_producer_backed","TestSourceProfiles::test_list_profiles_returns_list","TestSourceProfiles::test_list_profiles_has_builtin","TestSourceProfiles::test_profile_has_expected_fields","TestSourceProfiles::test_ingest_with_connection_profile","TestSourceProfiles::test_ingest_response_has_new_fields","TestLlmProfiles::test_list_llm_profiles_returns_list","TestLlmProfiles::test_list_llm_profiles_has_builtin","TestCacheStatus::test_cache_status_returns_empty","TestBindingProfiles::test_list_binding_profiles_returns_list","TestBindingProfiles::test_list_binding_profiles_has_builtins","TestBindingProfiles::test_binding_profile_has_expected_fields","TestDataRetrievalControl::test_data_resolve_returns_payload","TestDataRetrievalControl::test_data_discover_returns_payload","TestDataRetrievalControl::test_data_preview_returns_preview","TestDataRetrievalControl::test_data_catalog_search_returns_capability_frontier","TestDataRetrievalControl::test_data_index_stats_returns_stats","TestDataRetrievalControl::test_data_promotion_endpoints","TestIngestStreamingWindowed::test_ingest_streaming_windowed","TestIngestRecordReplay::test_empty_replay_ref_refuses_before_batch_full_ingress","TestIngestRecordReplay::test_ingest_replay_reports_effective_mode_on_served_success","TestIngestRecordReplay::test_ingest_replay_reports_effective_mode_on_served_failure","TestIngestRecordReplay::test_ingest_batch_full_reports_effective_mode_control","TestIngestRecordReplay::test_ingest_record_mode","TestIngestRecordReplay::test_ingest_response_has_record_and_binding_fields","test_lex_search_preserves_truth_fields_through_api"]}
+{"cell":"F14-P007","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M011","nodes":["TestLaunchNlRun::test_launch_nl_run_research_red_preflight_creates_short_failed_job"]}
+{"cell":"F14-P008","attempt":"attempt-001","phase":"setup","outcome":"failed","message":"M011","nodes":["test_mutating_operation_without_permission_is_denied_403[analyze-attractors]","test_mutating_operation_without_permission_is_denied_403[persist-basin-map]","test_mutating_operation_without_permission_is_denied_403[persist-continuation-branch]","test_mutating_operation_without_permission_is_denied_403[analyze-lyapunov]","test_mutating_operation_without_permission_is_denied_403[get-artifact-batch]","test_mutating_operation_without_permission_is_denied_403[render-bureaucratic-artifact]","test_mutating_operation_without_permission_is_denied_403[estimate-causal-frontier-sae]","test_mutating_operation_without_permission_is_denied_403[search-capabilities]","test_mutating_operation_without_permission_is_denied_403[discover-data-sources]","test_mutating_operation_without_permission_is_denied_403[ingest-data]","test_mutating_operation_without_permission_is_denied_403[preview-fetch-plan]","test_mutating_operation_without_permission_is_denied_403[approve-data-promotion]","test_mutating_operation_without_permission_is_denied_403[reject-data-promotion]","test_mutating_operation_without_permission_is_denied_403[resolve-data-needs]","test_mutating_operation_without_permission_is_denied_403[admit-epoch-validity-batch]","test_mutating_operation_without_permission_is_denied_403[publish-decision-validity-event]","test_mutating_operation_without_permission_is_denied_403[search-lex-graph]","test_mutating_operation_without_permission_is_denied_403[trigger-lex-pipeline]","test_mutating_operation_without_permission_is_denied_403[launch-run]","test_mutating_operation_without_permission_is_denied_403[launch-nl-run]","test_mutating_operation_without_permission_is_denied_403[evaluate-run-feedback]","test_mutating_operation_without_permission_is_denied_403[submit-normative-evidence]","test_mutating_operation_without_permission_is_denied_403[reissue-run]","test_mutating_operation_without_permission_is_denied_403[analyze-fabric-impact]","test_mutating_operation_without_permission_is_denied_403[get-fabric-quality-batch]","test_mutating_operation_without_permission_is_denied_403[get-fabric-trust-batch]","test_mutating_operation_without_permission_is_denied_403[get-lineage-batch]","test_mutating_operation_without_permission_is_denied_403[compute-mobility-bounds]","test_mutating_operation_without_permission_is_denied_403[estimate-mobility]","test_mutating_operation_without_permission_is_denied_403[get-runs-batch]","test_mutating_operation_without_permission_is_denied_403[request-run-acquisition-decision]","test_mutating_operation_without_permission_is_denied_403[execute-run-acquisition-route]","test_mutating_operation_without_permission_is_denied_403[create-run-human-decision]","test_mutating_operation_without_permission_is_denied_403[create-run-production-approval]","test_mutating_operation_without_permission_is_denied_403[issue-public-verification-record]","test_mutating_operation_without_permission_is_denied_403[create-run-scenario]","test_mutating_operation_without_identity_is_denied_401[analyze-attractors]","test_mutating_operation_without_identity_is_denied_401[persist-basin-map]","test_mutating_operation_without_identity_is_denied_401[persist-continuation-branch]","test_mutating_operation_without_identity_is_denied_401[analyze-lyapunov]","test_mutating_operation_without_identity_is_denied_401[get-artifact-batch]","test_mutating_operation_without_identity_is_denied_401[render-bureaucratic-artifact]","test_mutating_operation_without_identity_is_denied_401[estimate-causal-frontier-sae]","test_mutating_operation_without_identity_is_denied_401[search-capabilities]","test_mutating_operation_without_identity_is_denied_401[discover-data-sources]","test_mutating_operation_without_identity_is_denied_401[ingest-data]","test_mutating_operation_without_identity_is_denied_401[preview-fetch-plan]","test_mutating_operation_without_identity_is_denied_401[approve-data-promotion]","test_mutating_operation_without_identity_is_denied_401[reject-data-promotion]","test_mutating_operation_without_identity_is_denied_401[resolve-data-needs]","test_mutating_operation_without_identity_is_denied_401[admit-epoch-validity-batch]","test_mutating_operation_without_identity_is_denied_401[publish-decision-validity-event]","test_mutating_operation_without_identity_is_denied_401[search-lex-graph]","test_mutating_operation_without_identity_is_denied_401[trigger-lex-pipeline]","test_mutating_operation_without_identity_is_denied_401[launch-run]","test_mutating_operation_without_identity_is_denied_401[launch-nl-run]","test_mutating_operation_without_identity_is_denied_401[evaluate-run-feedback]","test_mutating_operation_without_identity_is_denied_401[submit-normative-evidence]","test_mutating_operation_without_identity_is_denied_401[reissue-run]","test_mutating_operation_without_identity_is_denied_401[analyze-fabric-impact]","test_mutating_operation_without_identity_is_denied_401[get-fabric-quality-batch]","test_mutating_operation_without_identity_is_denied_401[get-fabric-trust-batch]","test_mutating_operation_without_identity_is_denied_401[get-lineage-batch]","test_mutating_operation_without_identity_is_denied_401[compute-mobility-bounds]","test_mutating_operation_without_identity_is_denied_401[estimate-mobility]","test_mutating_operation_without_identity_is_denied_401[get-runs-batch]","test_mutating_operation_without_identity_is_denied_401[request-run-acquisition-decision]","test_mutating_operation_without_identity_is_denied_401[execute-run-acquisition-route]","test_mutating_operation_without_identity_is_denied_401[create-run-human-decision]","test_mutating_operation_without_identity_is_denied_401[create-run-production-approval]","test_mutating_operation_without_identity_is_denied_401[issue-public-verification-record]","test_mutating_operation_without_identity_is_denied_401[create-run-scenario]","test_mutating_operation_authorized_request_reaches_handler[analyze-attractors]","test_mutating_operation_authorized_request_reaches_handler[persist-basin-map]","test_mutating_operation_authorized_request_reaches_handler[persist-continuation-branch]","test_mutating_operation_authorized_request_reaches_handler[analyze-lyapunov]","test_mutating_operation_authorized_request_reaches_handler[get-artifact-batch]","test_mutating_operation_authorized_request_reaches_handler[render-bureaucratic-artifact]","test_mutating_operation_authorized_request_reaches_handler[estimate-causal-frontier-sae]","test_mutating_operation_authorized_request_reaches_handler[search-capabilities]","test_mutating_operation_authorized_request_reaches_handler[discover-data-sources]","test_mutating_operation_authorized_request_reaches_handler[ingest-data]","test_mutating_operation_authorized_request_reaches_handler[preview-fetch-plan]","test_mutating_operation_authorized_request_reaches_handler[approve-data-promotion]","test_mutating_operation_authorized_request_reaches_handler[reject-data-promotion]","test_mutating_operation_authorized_request_reaches_handler[resolve-data-needs]","test_mutating_operation_authorized_request_reaches_handler[admit-epoch-validity-batch]","test_mutating_operation_authorized_request_reaches_handler[publish-decision-validity-event]","test_mutating_operation_authorized_request_reaches_handler[search-lex-graph]","test_mutating_operation_authorized_request_reaches_handler[trigger-lex-pipeline]","test_mutating_operation_authorized_request_reaches_handler[launch-run]","test_mutating_operation_authorized_request_reaches_handler[launch-nl-run]","test_mutating_operation_authorized_request_reaches_handler[evaluate-run-feedback]","test_mutating_operation_authorized_request_reaches_handler[submit-normative-evidence]","test_mutating_operation_authorized_request_reaches_handler[reissue-run]","test_mutating_operation_authorized_request_reaches_handler[analyze-fabric-impact]","test_mutating_operation_authorized_request_reaches_handler[get-fabric-quality-batch]","test_mutating_operation_authorized_request_reaches_handler[get-fabric-trust-batch]","test_mutating_operation_authorized_request_reaches_handler[get-lineage-batch]","test_mutating_operation_authorized_request_reaches_handler[compute-mobility-bounds]","test_mutating_operation_authorized_request_reaches_handler[estimate-mobility]","test_mutating_operation_authorized_request_reaches_handler[get-runs-batch]","test_mutating_operation_authorized_request_reaches_handler[request-run-acquisition-decision]","test_mutating_operation_authorized_request_reaches_handler[execute-run-acquisition-route]","test_mutating_operation_authorized_request_reaches_handler[create-run-human-decision]","test_mutating_operation_authorized_request_reaches_handler[create-run-production-approval]","test_mutating_operation_authorized_request_reaches_handler[issue-public-verification-record]","test_mutating_operation_authorized_request_reaches_handler[create-run-scenario]","test_high_stakes_mutating_operation_without_step_up_is_denied[ingest-data]","test_high_stakes_mutating_operation_without_step_up_is_denied[approve-data-promotion]","test_high_stakes_mutating_operation_without_step_up_is_denied[reject-data-promotion]","test_high_stakes_mutating_operation_without_step_up_is_denied[publish-decision-validity-event]","test_high_stakes_mutating_operation_without_step_up_is_denied[admit-epoch-validity-batch]","test_high_stakes_mutating_operation_without_step_up_is_denied[reissue-run]","test_high_stakes_mutating_operation_without_step_up_is_denied[request-run-acquisition-decision]","test_high_stakes_mutating_operation_without_step_up_is_denied[execute-run-acquisition-route]","test_high_stakes_mutating_operation_without_step_up_is_denied[create-run-human-decision]","test_high_stakes_mutating_operation_without_step_up_is_denied[create-run-production-approval]","test_mutating_routes_have_exactly_one_action_permission_dependency","test_openapi_mutating_denominator_matches_live_router","test_each_mutating_operation_projects_action_permission_extension","test_capability_search_routes_share_one_safe_dependency_and_deny_before_handler","test_resource_binding_contract_projects_required_selector_and_parent_invariants","test_new_sibling_mutating_route_is_automatically_in_denominator","test_action_permission_dependency_is_load_bearing","test_owned_run_batch_is_bound_before_opa","test_owned_batch_binding_is_order_independent_and_checks_every_id","test_authorization_resource_binds_query_semantics","test_authorization_body_is_replayed_byte_identically","test_malformed_or_encoded_authorization_body_denies_before_opa[duplicate-key]","test_malformed_or_encoded_authorization_body_denies_before_opa[invalid-utf8]","test_malformed_or_encoded_authorization_body_denies_before_opa[encoded-body]","test_oversized_authorization_body_denies_before_opa","test_production_approval_cross_run_scorecard_denies_before_opa","test_production_approval_scorecard_without_run_denies_before_opa","test_production_approval_invalid_scorecard_schema_denies_before_opa_and_persistence[absent]","test_production_approval_invalid_scorecard_schema_denies_before_opa_and_persistence[wrong]","test_production_approval_wrong_artifact_kind_denies_before_opa","test_production_approval_ignores_client_overlay_output_path","test_production_approval_never_executes_persisted_scorecard_output_path","test_scenario_id_collision_across_runs_denies_before_opa","test_scenario_write_rechecks_authorized_revision","test_scenario_mutation_without_durable_head_store_denies_before_opa","test_scenario_authorization_binding_two_apps_same_revision_allows_one_mutation","test_persisted_default_scenario_head_wins_list_projection","test_scenario_head_content_mismatch_denies_before_opa","test_scenario_head_change_during_binding_denies_before_opa","test_unheaded_scenario_candidate_artifact_is_never_selected","test_resolved_promotion_selector_never_claims_caller_tenant","test_missing_alternative_resource_selectors_are_denied_before_opa","test_guarded_human_decision_get_binds_owned_run_and_exact_path_before_opa","test_all_human_decision_gets_declare_exact_owned_run_bindings","test_late_unguarded_mutation_is_denied_before_opa_and_handler","test_unsafe_mutation_cannot_shadow_or_disable_opa_deny[enforcement-disabled]","test_unsafe_mutation_cannot_shadow_or_disable_opa_deny[shadow-mode]","test_delegated_effective_scope_governs_binding_and_execution_policy","test_handler_cannot_replace_frozen_authorization_resource","test_runtime_api_allows_tenant_scoped_access","test_runtime_api_denies_cross_tenant_run_access","test_runtime_api_authz_deny_blocks_endpoint","test_runtime_api_authz_timeout_returns_gateway_timeout","test_runtime_api_denies_cross_tenant_artifact_access","test_runtime_api_denies_unscoped_artifact_access","test_runtime_api_rejects_missing_claims_fail_closed","test_runtime_api_auth_me_requires_claims_without_explicit_fixture_flag","test_runtime_api_cross_tenant_compare_requires_explicit_capability","test_runtime_security_middleware_order_guard_detects_reordering","test_review_websocket_rejects_anonymous_connect","test_review_websocket_rechecks_message_authorization"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M012","nodes":["test_phase6_4_docs_lifecycle_gate_passes_current_contract"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M013","nodes":["test_phase7_active_plan_with_accepted_closeout_is_rejected"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M014","nodes":["test_phase0_2_redirect_stub_without_sunset_date_is_rejected"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M015","nodes":["test_phase6_2_removed_tests_architecture_redirect_directory_is_rejected"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M016","nodes":["test_phase6_2_stale_removed_stub_references_are_rejected"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M017","nodes":["test_phase6_2_reference_scan_skips_runtime_data_roots"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M018","nodes":["test_phase1_4_redirect_stub_without_created_date_is_rejected"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M019","nodes":["test_phase1_4_redirect_stub_over_90_days_without_adr_is_rejected"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M020","nodes":["test_phase1_4_redirect_stub_over_90_days_requires_adr_to_declare_stub"]}
+{"cell":"F14-P014","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M021","nodes":["test_phase6_4_docs_freshness_baseline_is_docs_only_and_stable"]}
+{"cell":"F14-P015","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M022","nodes":["test_promotion_coordinator_persists_readiness_and_updates_champion","test_missing_prior_knowledge_caps_readiness_below_recommendation_ready","test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler"]}
+{"cell":"F14-P017","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M011","nodes":["test_runtime_container_exposes_one_decision_validity_owner","test_control_service_builds_retrieval_with_injected_provider_bundle","test_runtime_container_passes_control_registry_provider_override"]}
+{"cell":"F14-P017","attempt":"attempt-001","phase":"setup","outcome":"failed","message":"M023","nodes":["test_process_nl_job_enters_persisted_tenant_scope[missing]","test_process_nl_job_enters_persisted_tenant_scope[authorized]","test_process_nl_job_enters_persisted_tenant_scope[wrong_role]","test_process_nl_job_enters_persisted_tenant_scope[wrong_source]"]}
+{"cell":"F14-P017","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M023","nodes":["test_served_simulate_only_replays_source_bound_n4_candidate_into_joint_n5","test_served_owner_context_keeps_missing_n4_source_candidate_limited"]}
+{"cell":"F14-P018","attempt":"attempt-001","phase":"setup","outcome":"failed","message":"M023","nodes":["test_existing_blocked_generation_producer_is_read_before_n9_refusal","test_controlled_profile_candidate_preserves_simulation_without_n9_authority","test_removing_core_terminal_with_progress_markers_retained_refuses_source","test_compiled_source_content_binding_survives_retained_semantic_markers","test_matching_candidate_label_cannot_select_foreign_candidate_bytes","test_compiled_source_manifest_custody_requires_exact_writer_contract[artifact_id]","test_compiled_source_manifest_custody_requires_exact_writer_contract[integrity]","test_compiled_source_manifest_custody_requires_exact_writer_contract[byte_size]","test_compiled_source_manifest_custody_requires_exact_writer_contract[media_type]","test_compiled_source_manifest_custody_requires_exact_writer_contract[artifact_schema]","test_blocked_generation_source_refuses_before_eval_safety_n9_classifier"]}
+{"cell":"F14-P021","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M011","nodes":["test_non_development_runtime_revalidates_same_object_authority_before_request[identity_method]","test_non_development_runtime_revalidates_same_object_authority_before_request[principal_grants]","test_non_development_runtime_revalidates_same_object_authority_before_request[opa_method]","test_non_development_runtime_revalidates_same_object_authority_before_request[cell_method]","test_non_development_runtime_revalidates_same_object_authority_before_request[step_up_method]","test_non_development_runtime_revalidates_same_object_authority_before_request[identity_jwks_cache]","test_non_development_runtime_revalidates_same_object_authority_before_request[step_up_jwks_client]","test_non_development_runtime_revalidates_same_object_authority_before_request[opa_decision_cache]","test_non_development_runtime_revalidates_same_object_authority_before_request[opa_session]","test_non_development_runtime_revalidates_perimeter_objects_before_bypass[identity_public_paths]","test_non_development_runtime_revalidates_perimeter_objects_before_bypass[authorization_enforcement]","test_non_development_runtime_revalidates_perimeter_objects_before_bypass[delegation_manager]","test_non_development_runtime_revalidates_perimeter_objects_before_bypass[step_up_replay_store]","test_non_development_review_socket_rejects_removed_deployment_installation","test_non_development_request_revalidates_authority_after_entry_before_mutation","test_non_development_bootstrap_requires_exact_deployment_security_bundle"]}
+{"cell":"F14-P021","attempt":"attempt-001","phase":"setup","outcome":"failed","message":"M011","nodes":["test_service_principal_grant_reaches_opa_and_blocks_sibling_mutation"]}
+{"cell":"F14-P028","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M011","nodes":["test_generated_runtime_api_client_job_status_contract_hits_runtime_control_service"]}
+{"cell":"F14-P036","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M024","nodes":["test_declared_native_station_is_unrun_before_subprocess"]}
+{"cell":"F14-P036","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M025","nodes":["test_real_mutant_is_killed_without_running_or_mutating_sibling"]}
+{"cell":"F14-P036","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M026","nodes":["test_failing_clean_baseline_is_unrun"]}
+{"cell":"F14-P036","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M027","nodes":["test_zero_mutants_is_unrun"]}
+{"cell":"F14-P036","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M028","nodes":["test_real_survivor_is_failure"]}
+{"cell":"F14-P036","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M029","nodes":["test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[none]"]}
+{"cell":"F14-P036","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M030","nodes":["test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[survivor]"]}
+{"cell":"F14-P036","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M031","nodes":["test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[remove_summary]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[false_total]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[remove_metadata]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[internal_error]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[sibling_test]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[sibling_source]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[zero_mutants]"]}
+{"cell":"F14-P036","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M032","nodes":["test_missing_declared_source_never_becomes_empty_success"]}
+{"cell":"F14-P044","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M033","nodes":["test_acq01_route_fence_ignores_present_nonroute_payload_values"]}
+{"cell":"F14-P044","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M034","nodes":["test_production_n7_acq01_route_is_limited_before_route_cas_and_n5","test_n7_acq01_route_context_helper_refuses_production_scope_with_valid_route","test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr","test_n7_acq01_route_requires_controller_selected_store[missing]","test_n7_acq01_route_requires_controller_selected_store[foreign_store]","test_n7_acq01_reentry_rebuilds_fresh_context_before_n5_and_n7","test_n7_acq01_reentry_rebinds_real_n5_and_default_n8","test_n7_acq01_reentry_rejects_tampered_receipt_world_binding[before_ref]","test_n7_acq01_reentry_rejects_tampered_receipt_world_binding[delta_hash]","test_n7_acq01_reentry_rejects_registry_version_content_mismatch","test_n7_acq01_reentry_does_not_dispatch_gateway_source_echo","test_n7_acq01_measurement_root_rejects_same_id_altered_source_requirement"]}
+{"cell":"F14-P044","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M035","nodes":["test_n7_run_recalculates_dependent_simulation_after_verified_owner_write"]}
+{"cell":"F14-P044","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M036","nodes":["test_n7_reentry_rejects_semantically_foreign_owner_binding[foreign_hash]","test_n7_reentry_rejects_semantically_foreign_owner_binding[foreign_target_slots]"]}
+{"cell":"F14-P044","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M037","nodes":["test_n7_reentry_does_not_run_n5_from_registry_only_world_ref"]}
+{"cell":"F14-P046","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M038","nodes":["test_phase1_3_package_contracts_are_primary_and_mirrored"]}
+{"cell":"F14-P046","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M039","nodes":["test_phase1_3_report_only_gates_have_owners_evidence_and_no_fail_closed_mode"]}
+{"cell":"F14-P046","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M040","nodes":["test_phase1_3_module_size_budget_sets_defaults_and_shrinking_god_module_budgets"]}
+{"cell":"F14-P046","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M041","nodes":["test_phase1_3_report_only_validator_reports_without_contract_errors"]}
+{"cell":"F14-P047","attempt":"attempt-001","phase":"collection","outcome":"failed","message":"M042","nodes":[""]}
+{"cell":"F14-P056","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M043","nodes":["test_actual_constructor_resolves_catalog"]}
+{"cell":"F14-P056","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M006","nodes":["test_every_constructor_binds_full_fetch_into_n9_and_catalog_removal_refuses"]}
+{"cell":"F14-P056","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M044","nodes":["test_actual_nl_fetch_default_binds_measurement_and_persistence_removal_refuses"]}
+{"cell":"F14-P058","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M045","nodes":["test_welfare_withholds_mixed_marginal_pearson_covariance[external-external-delta]","test_welfare_withholds_mixed_marginal_pearson_covariance[external-external-monte_carlo]"]}
+{"cell":"F14-P061","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M046","nodes":["test_failed_reused_directory_export_preserves_prior_complete_generation","test_import_rolls_back_new_generation_on_mid_publication_failure"]}
+{"cell":"F14-P061","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M047","nodes":["test_import_enforces_existing_tenant_ownership","test_import_rejects_a_selected_view_bound_to_another_tenant"]}
+{"cell":"F14-P063","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M011","nodes":["test_core_security_config_reaches_runtime_startup_and_fabric_context"]}
+{"cell":"F14-P065","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M011","nodes":["test_res_03_real_simulation_later_failure_reaches_user_route"]}
+{"cell":"F14-P066","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M048","nodes":["test_public_surface_docs_counts_match_manifest"]}
+{"cell":"F14-P067","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M049","nodes":["test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read"]}
+{"cell":"F14-P075","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M050","nodes":["test_benchmark_wrapper_caller_census_is_complete_and_bounded"]}
+{"cell":"F14-P075","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M051","nodes":["test_frontend_workspace_build_paths_and_python_package_boundaries"]}
+{"cell":"F14-P075","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M052","nodes":["test_redirect_lifecycle_rejects_an_unqualified_expired_stub"]}
+{"cell":"F14-P083","attempt":"attempt-001","phase":"setup","outcome":"failed","message":"M011","nodes":["test_live_monitor_ref_reloads_bytes_and_persists_lifecycle_and_epoch_bindings","test_epoch_batch_http_preserves_signature_failure_vocabulary","test_canonical_epoch_origin_reaches_registered_http_batch_intake","test_generic_http_event_cannot_write_through_pending_epoch_batch","test_control_epoch_batch_resolves_ledger_from_packet_not_request","test_partial_or_pending_epoch_batch_cannot_bridge_claims","test_publish_decision_validity_event_updates_registered_packets"]}
+{"cell":"F14-P083","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M011","nodes":["test_monitor_ref_without_epoch_binding_is_rejected_before_bridge_persistence"]}
+{"cell":"F14-P087","attempt":"attempt-001","phase":"setup","outcome":"failed","message":"M011","nodes":["test_run_scenarios_return_manifest_with_assumptions_and_lineage","test_scenario_capabilities_list_supported_and_unsupported_surfaces","test_counterfactual_metrics_are_single_payload_with_scenario_ref","test_scenario_lineage_deep_dive_contains_assumptions_and_exports","test_create_scenario_draft_is_fetchable","test_scenario_manifest_rejects_conflicting_temporal_scope"]}
+{"cell":"F14-P087","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M011","nodes":["test_created_scenario_survives_fresh_runtime_context"]}
+{"cell":"F14-P100","attempt":"attempt-001","phase":"setup","outcome":"failed","message":"M011","nodes":["test_capability_search_returns_typed_missing_owner_frontier","test_capability_search_persists_exact_returned_packet","test_dataset_compatibility_route_delegates_to_canonical_search_once","test_post_and_dataset_get_return_the_same_injected_owner_packet","test_capability_search_rejects_audience_drift_as_422","test_case_provider_is_backed_by_canonical_global_index","test_case_provider_refuses_invalid_persisted_binding"]}
+{"cell":"F14-P108","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M011","nodes":["test_runtime_container_installs_exact_human_decision_dependencies","test_runtime_container_installs_one_acquisition_action_service","test_runtime_container_rejects_custody_alias_substitution","test_runtime_container_installs_registered_attested_production_approval_resolver","test_runtime_container_rejects_cross_app_production_approval_resolver","test_operational_consumers_reject_unregistered_exact_resolver","test_registered_resolver_rejects_consumer_constructed_issuance_grant"]}
+{"cell":"F14-P116","attempt":"attempt-001","phase":"collection","outcome":"skipped","message":"M053","nodes":[""]}
+{"cell":"F14-P144","attempt":"attempt-001","phase":"call","outcome":"failed","message":"M054","nodes":["test_registry_bundle_build_and_load_work_with_protocol_store"]}
+{"cell":"F14-P155","attempt":"attempt-001","phase":"setup","outcome":"failed","message":"M011","nodes":["test_served_replay_reads_owner_session_and_denies_foreign_tenant","test_served_replay_keeps_connector_cache_sidecars_tenant_local"]}
+Воспроизводимый argv для любой указанной cell/attempt строится следующим кодом. Используются тот же immutable checkout, подготовленная .venv, исходный observer с SHA256 72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4 и сохранённый plugin/e02_database.py. Каталоги каждого replay свежие; выбор всегда составляет полный файл.
+import csv, os, subprocess, uuid
+from pathlib import Path
+
+ROOT = Path("/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z")
+P = ROOT / "policy-engine"
+O = P / "_build/e02-full/F14/20261005T074752Z"
+PY = str(P / ".venv/bin/python")
+TIME = str(O / "setup/time-local/usr/bin/time")
+cells = {r["id"]: r for r in csv.DictReader((O / "cells.tsv").open(), delimiter="\t")}
+
+def replay_argv(cell, attempt="attempt-001"):
+    path = cells[cell]["path"].removeprefix("policy-engine/")
+    D = O / cell / ("replay-" + uuid.uuid4().hex)
+    D.mkdir()
+    for name in ("observer", "tmp", "os-tmp", "hypothesis", "pytest-cache", "benchmarks"):
+        (D / name).mkdir()
+
+    env = os.environ.copy()
+    for key in list(env):
+        if key in {
+            "PYTEST_ADDOPTS", "PYTEST_PLUGINS",
+            "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR",
+            "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL",
+            "POLISYOS_R7_REMOVE_ACTIVE_PROBE_SUPPRESSION",
+        } or key.startswith("POLISYOS_PYTEST_RECEIPT_"):
+            env.pop(key)
+
+    env.update({
+        "PATH": ":".join([
+            str(P / ".venv/bin"),
+            str(O / "setup/node22/package/bin"),
+            str(O / "setup/uv-py/bin"),
+            env["PATH"],
+        ]),
+        "COREPACK_HOME": str(O / "setup/corepack"),
+        "npm_config_cache": str(O / "setup/npm-cache"),
+        "UV_CACHE_DIR": str(O / "setup/uv-cache"),
+        "UV_PYTHON_INSTALL_DIR": str(O / "setup/python"),
+        "UV_NO_BUILD_PACKAGE": "pillow",
+        "PYTHONPATH": str(O / "plugin"),
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+        "POLISYOS_TOOLS_TIMING_LOG": str(D / "timing.jsonl"),
+        "E02_OBSERVER_DIR": str(D / "observer"),
+        "HYPOTHESIS_STORAGE_DIRECTORY": str(D / "hypothesis"),
+        "TMPDIR": str(D / "os-tmp"),
+    })
+
+    pytest = [
+        PY, "-m", "pytest", "-c", "pytest.ini", path,
+        "-p", "e02_observer", "-p", "e02_database",
+        "--junitxml=" + str(D / "junit.xml"),
+        "--durations=0",
+        "--basetemp=" + str(D / "tmp"),
+        "-o", "cache_dir=" + str(D / "pytest-cache"),
+        "--benchmark-storage=file://" + str(D / "benchmarks"),
+    ]
+    runner = [
+        PY, "-m", "tools.quality.testing.run_timed_suite",
+        "--lane", "e02-full-F14:" + cell, "--cwd", ".",
+    ]
+    fallback = cell == "F14-P001" or (cell == "F14-P004" and attempt == "attempt-002")
+    if not fallback:
+        runner += ["--capture-pytest-workload", "--receipt-output", str(D / "execution.json")]
+
+    argv = [
+        TIME, "-v", "-o", str(D / "wrapper-resource.txt"),
+        *runner, "--",
+        TIME, "-v", "-o", str(D / "pytest-resource.txt"),
+        *pytest,
+    ]
+    return argv, env, P, D
+
+# Например:
+# argv, env, cwd, D = replay_argv("F14-P004", "attempt-002")
+# with (D/"stdout.log").open("wb") as out, (D/"stderr.log").open("wb") as err:
+#     completed = subprocess.run(argv, cwd=cwd, env=env, stdout=out, stderr=err)
+# effective = P / "_cache/hypothesis"
+# if effective.exists():
+#     effective.rename(D / "effective-hypothesis-cache")
+Измерены конкретные local CPU Monte Carlo, synthetic coupled-policy pure_step и filesystem CAS paths в P035/P055/P060. REST compliance P057 заменяет fetch/health_check mocks; P071 принудительно проверяет DoWhy dependency fallback. DuckDB FTS и Temporal backend witnesses остаются UNRUN/environment_unavailable. Полная nested provenance, live services/API/LLM, GPU/Metal/macOS не установлены.
+Сохранённые VM-файлы: [result.json](/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/_build/e02-full/F14/20261005T074752Z/result.json), [failures.jsonl](/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/_build/e02-full/F14/20261005T074752Z/failures.jsonl), [handoff.md](/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/_build/e02-full/F14/20261005T074752Z/handoff.md), [raw archive](/workspace/polisyos/policy-engine/_build/e02-full/F14/checkout-20261005T074752Z/policy-engine/_build/e02-full/F14/20261005T074752Z/F14-raw.tar.gz). Их наличие и проверка hashes не доказывают передачу или скачивание raw получателем.

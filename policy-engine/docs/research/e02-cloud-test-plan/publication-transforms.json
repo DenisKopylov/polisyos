@@ -1,0 +1,38 @@
+[
+  {
+    "path": "execution-organization/allocation.json",
+    "original_sha256": "0fd353725c481c28e379010fbf0f5a6921b830586be5a09501b73f0320c07597",
+    "transform": "lossless JSON whitespace compaction; unavailable local source paths made portable; allocation planner/prompt archive links recorded",
+    "parsed_value_equal_to_original": false
+  },
+  {
+    "path": "execution-organization/verification.json",
+    "original_sha256": "d77574178a768f2d29163f3c722c8f8cc8bbc3eb44aad9f0b2e30cdf4521607b",
+    "transform": "Recomputed complete assignment census and corruption rejection after portable allocation publication; lossless JSON whitespace compaction",
+    "parsed_value_equal_to_original": false
+  },
+  {
+    "path": "full-run/allocation.json",
+    "original_sha256": "71626a75e5af30251b363902079266dab30ef72d4c19c61f1413c5a32a8b8fab",
+    "transform": "lossless JSON whitespace compaction; unavailable local source paths made portable; allocation planner/prompt archive links recorded",
+    "parsed_value_equal_to_original": false
+  },
+  {
+    "path": "full-run/finding-routes.json",
+    "original_sha256": "1fc997ce20680349c42209214ebfe1a6874e0b503299d921535d4ca6269d7485",
+    "transform": "lossless JSON whitespace compaction",
+    "parsed_value_equal_to_original": true
+  },
+  {
+    "path": "full-run/foreign-overlay.json",
+    "original_sha256": "95685c3814f2bbca0300dae99c7933002051b14cc80f576bcbea643cabb2da97",
+    "transform": "lossless JSON whitespace compaction; unavailable local source paths made portable; allocation planner/prompt archive links recorded",
+    "parsed_value_equal_to_original": false
+  },
+  {
+    "path": "full-run/open-probes.json",
+    "original_sha256": "eb2165a56429f17e703a730d534448d5fc56adc0f8cf01737c5ccf925e871dff",
+    "transform": "Lossless JSON whitespace compaction; retained finding_map now uses finding-routes.json; hashed scratch register explicitly archived/omitted",
+    "parsed_value_equal_to_original": false
+  }
+]

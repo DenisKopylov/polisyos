@@ -1,0 +1,505 @@
+Выполнены 130/130 файлов: 101 PASS, 25 FAILED, 4 ERROR. Сохранены 132 attempts. Для 127 файлов canonical receipt сверён; P002, P003 и P004 завершены в observer_fallback. UNRUN нет.
+Exact SHA/tree и tracked bytes подтверждены, исходный checkout сохранён. Все причины failures и ownership остаются not_established. Эти результаты не закрывают E02 и не доказывают semantic capability chain.
+Native export недоступен: transfer_status=compact_text_only, raw_archive_transfer=missing. Полные tracebacks, argv, CPU/resource measurements и raw остаются в VM. Ниже переданы сами компактные результаты.
+Metadata JSON:
+{
+  "job": "F09",
+  "run": "20261005T074624Z",
+  "repository": "DenisKopylov/polisyos",
+  "source_role": "e02_head",
+  "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+  "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+  "manifest_sha256": "033d478d225b3e4fe2322d0ccb0e5a83993fca17ab37f8dc7148e73fa0246b01",
+  "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+  "assigned": 130,
+  "executed": 130,
+  "attempts": 132,
+  "states": {"PASS": 101, "FAILED": 25, "ERROR": 4},
+  "phase_totals_selected_attempts": {
+    "collected": 2270,
+    "calls": 2234,
+    "call_pass": 1970,
+    "call_failed": 263,
+    "setup_error": 21,
+    "teardown_error": 0,
+    "skip": 16,
+    "xfail": 0,
+    "xpass": 0,
+    "collection_skip": 0,
+    "collection_error": 0
+  },
+  "skip_phases": {"setup": 15, "call": 1},
+  "exceptional_events_selected_attempts": 300,
+  "exceptional_events_all_attempts": 439,
+  "start": "2026-10-05T08:04:17.588803+00:00",
+  "end": "2026-10-05T10:45:54.551985+00:00",
+  "no_new_cells_after": "2026-10-05T11:15:14.478261+00:00",
+  "series_wall_s": 9696.963204145432,
+  "sum_selected_direct_pytest_wall_s": 7732.25,
+  "largest_direct_pytest_rss_kib": 3877456,
+  "resource_boundary": "GNU time process and children; RSS is not VM peak; wrapper and pytest boundaries are separate",
+  "receipt_states": {
+    "valid_reconciled": 127,
+    "canonical_workload_receipt_missing": 3
+  },
+  "selected_fallback_attempts": {
+    "F09-P002": 2,
+    "F09-P003": 2,
+    "F09-P004": 1
+  },
+  "recovery": {
+    "F09-P002": "attempt-01 invalid_observer_mismatch; one same-full-file fallback attempt preserved",
+    "F09-P003": "attempt-01 invalid_observer_mismatch; one same-full-file fallback attempt preserved",
+    "post_series_recovery_candidates": 0
+  },
+  "final_source_clean": true,
+  "original_checkout_head_preserved": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+  "toolchain": {
+    "python": "3.14.2",
+    "uv": "0.9.21",
+    "node": "22.16.0",
+    "pnpm": "10.33.2",
+    "gnu_time": "1.9",
+    "platform": "Linux x86_64",
+    "cpu_quota_equivalents": 4,
+    "memory_limit_bytes": 17179869184
+  },
+  "selected_extras": [
+    "lint", "test", "runtime", "ml", "analytics", "bayesian",
+    "optimization-advanced", "sensitivity", "causal-discovery",
+    "agent-sim", "causal-discovery-scale", "search_bo", "solvers", "vector-search"
+  ],
+  "setup": {
+    "pnpm_frozen_install": {"exit": 0, "wall_s": 13.55613398551941},
+    "uv_frozen_full_union_initial": {
+      "state": "interrupted_transport", "exit": null, "wall_s": null
+    },
+    "uv_frozen_full_union_recovery": {"exit": 0, "wall_s": 104.76541471481323},
+    "harness_probe_validated": true,
+    "installed_distributions": 253,
+    "UV_NO_BUILD_PACKAGE": "pillow"
+  },
+  "config_sha256": {
+    "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+    "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+    "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+  },
+  "P004_nested_boundary": {
+    "observed_pytest_starts": 53,
+    "all_collect_only": true,
+    "allowed_data_state_selector": "tests/integration/runtime_quality/test_data_state_substrate.py::test_agent_registry_has_typed_discovery_surface",
+    "scope": "subprocess starts, not complete nested outcome provenance"
+  },
+  "gates": [],
+  "properties": [],
+  "continuation_unrun": [],
+  "excluded_missing_paths": 33,
+  "verification_issues": [],
+  "archive": {
+    "sha256": "f6fc699097312c85f9e931a168db4e973fbcad21475beaf06b3e661e4b0bf14b",
+    "bytes": 17996757,
+    "members": 2992,
+    "member_manifest_sha256": "6a0c12a3f1520ef42fc9f67cc3a99cae2908a7477ab9dd4cf0dd0cfedb354325",
+    "all_attempt_deciding_outputs_present": true,
+    "independent_tar_readback": true,
+    "recipient_download_verified": false
+  },
+  "cause_status": "not_established",
+  "transfer_status": "compact_text_only",
+  "raw_archive_transfer": "missing",
+  "raw_transfer_missing": true
+}
+Измерены pytest call phases назначенных файлов, включая runtime HTTP/frontend bridges, численные и storage tests. Fixture/mocking metadata сохранена для всех вызванных test functions. Названия backend nodes и imports не дают полного доказательства исполнения backend: live services, GPU/Metal/macOS и полная nested provenance не установлены. P023 использовал intercepted transport. Реальные production_data не предоставлялись и не копировались.
+Полный cells.tsv; counts относятся к выбранному terminal attempt:
+id	state	collected	calls	call_pass	call_failed	setup_error	teardown_error	skip	xfail	xpass	collection_skip	collection_error	wall_s	rss_kib	receipt_status	path
+F09-P001	FAILED	30	30	4	26	0	0	0	0	0	0	0	61.84	1686148	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_intervention_substrate.py
+F09-P002	FAILED	99	84	79	5	0	0	15	0	0	0	0	371.3	1657680	canonical_workload_receipt_missing	policy-engine/tests/unit/runtime/quality/test_generation_cycle.py
+F09-P003	FAILED	154	154	35	119	0	0	0	0	0	0	0	1499.51	1697696	canonical_workload_receipt_missing	policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py
+F09-P004	FAILED	71	71	63	8	0	0	0	0	0	0	0	872.76	1639376	canonical_workload_receipt_missing	policy-engine/tests/repo_quality/tools/test_debt_ledger_checker.py
+F09-P005	ERROR	38	37	35	2	1	0	0	0	0	0	0	254.5	2693796	valid_reconciled	policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py
+F09-P006	FAILED	76	76	74	1	0	0	1	0	0	0	0	46.33	662832	valid_reconciled	policy-engine/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py
+F09-P007	PASS	64	64	64	0	0	0	0	0	0	0	0	382.74	702652	valid_reconciled	policy-engine/tests/unit/foundry/methods/test_selection_advisor.py
+F09-P008	PASS	90	90	90	0	0	0	0	0	0	0	0	2.87	346400	valid_reconciled	policy-engine/tests/unit/fabric/connectors/test_schema_system.py
+F09-P009	FAILED	120	120	108	12	0	0	0	0	0	0	0	69.45	1614736	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_design_generation.py
+F09-P010	PASS	21	21	21	0	0	0	0	0	0	0	0	214.82	1683512	valid_reconciled	policy-engine/tests/unit/remediation/test_cyc_05.py
+F09-P011	FAILED	37	37	29	8	0	0	0	0	0	0	0	246.0	1429936	valid_reconciled	policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py
+F09-P012	PASS	7	7	7	0	0	0	0	0	0	0	0	96.95	1800196	valid_reconciled	policy-engine/tests/integration/runtime_frontend/test_ds15_acquisition_route_contract_bridge.py
+F09-P013	PASS	93	93	93	0	0	0	0	0	0	0	0	50.45	1593688	valid_reconciled	policy-engine/tests/unit/scientist/validation/test_decision_validity_service.py
+F09-P014	FAILED	53	53	52	1	0	0	0	0	0	0	0	2.33	225136	valid_reconciled	policy-engine/tests/unit/fabric/connectors/test_protocol_compliance.py
+F09-P015	PASS	46	46	46	0	0	0	0	0	0	0	0	37.72	1411236	valid_reconciled	policy-engine/tests/unit/scientist/evidence/claims/test_head_index.py
+F09-P016	FAILED	24	24	21	3	0	0	0	0	0	0	0	47.66	1593360	valid_reconciled	policy-engine/tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py
+F09-P017	FAILED	52	52	49	3	0	0	0	0	0	0	0	10.86	144420	valid_reconciled	policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py
+F09-P018	PASS	3	3	3	0	0	0	0	0	0	0	0	46.89	1630820	valid_reconciled	policy-engine/tests/unit/runtime/http/test_resilience_guards.py
+F09-P019	FAILED	19	19	9	10	0	0	0	0	0	0	0	5.67	258596	valid_reconciled	policy-engine/tests/repo_quality/tools/test_docs_lifecycle.py
+F09-P020	FAILED	31	31	27	4	0	0	0	0	0	0	0	35.98	1467508	valid_reconciled	policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py
+F09-P021	PASS	19	19	19	0	0	0	0	0	0	0	0	26.99	640188	valid_reconciled	policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py
+F09-P022	PASS	14	14	14	0	0	0	0	0	0	0	0	2.98	138532	valid_reconciled	policy-engine/tests/repo_quality/tools/test_docs_gate.py
+F09-P023	FAILED	39	39	38	1	0	0	0	0	0	0	0	63.45	1619328	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py
+F09-P024	PASS	32	32	32	0	0	0	0	0	0	0	0	3.32	105828	valid_reconciled	policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py
+F09-P025	PASS	25	25	25	0	0	0	0	0	0	0	0	31.46	1327080	valid_reconciled	policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py
+F09-P026	PASS	7	7	7	0	0	0	0	0	0	0	0	33.1	1393900	valid_reconciled	policy-engine/tests/integration/scientist/test_checkpoint_resume.py
+F09-P027	PASS	17	17	17	0	0	0	0	0	0	0	0	4.66	363840	valid_reconciled	policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py
+F09-P028	ERROR	16	6	2	4	10	0	0	0	0	0	0	101.00999999999999	1625436	valid_reconciled	policy-engine/tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py
+F09-P029	PASS	27	27	27	0	0	0	0	0	0	0	0	45.62	1591040	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py
+F09-P030	PASS	9	9	9	0	0	0	0	0	0	0	0	29.38	711284	valid_reconciled	policy-engine/tests/unit/foundry/data_plane/test_bindings_multiscale.py
+F09-P031	PASS	22	22	22	0	0	0	0	0	0	0	0	6.16	488976	valid_reconciled	policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py
+F09-P032	PASS	26	26	26	0	0	0	0	0	0	0	0	45.8	1398540	valid_reconciled	policy-engine/tests/unit/scientist/search/test_search_loop.py
+F09-P033	PASS	25	25	25	0	0	0	0	0	0	0	0	36.91	1505876	valid_reconciled	policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py
+F09-P034	PASS	8	8	8	0	0	0	0	0	0	0	0	1.33	101140	valid_reconciled	policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py
+F09-P035	PASS	24	24	24	0	0	0	0	0	0	0	0	1.44	102660	valid_reconciled	policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py
+F09-P036	PASS	14	14	14	0	0	0	0	0	0	0	0	29.07	640656	valid_reconciled	policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py
+F09-P037	FAILED	7	7	6	1	0	0	0	0	0	0	0	27.86	151720	valid_reconciled	policy-engine/tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py
+F09-P038	PASS	3	3	3	0	0	0	0	0	0	0	0	1.35	101800	valid_reconciled	policy-engine/tests/repo_quality/tools/test_scientist_phase1_gate.py
+F09-P039	PASS	36	36	36	0	0	0	0	0	0	0	0	46.88	1586176	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_authority.py
+F09-P040	PASS	18	18	18	0	0	0	0	0	0	0	0	51.59	1607576	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_world_model_record.py
+F09-P041	PASS	6	6	6	0	0	0	0	0	0	0	0	2.62	248976	valid_reconciled	policy-engine/tests/repo_quality/tools/test_phase2_hygiene.py
+F09-P042	PASS	1	1	1	0	0	0	0	0	0	0	0	74.67	1620416	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_acquisition_route_loop.py
+F09-P043	FAILED	18	18	10	8	0	0	0	0	0	0	0	60.44	1704000	valid_reconciled	policy-engine/tests/unit/remediation/test_acq_01.py
+F09-P044	PASS	25	25	25	0	0	0	0	0	0	0	0	33.53	1328296	valid_reconciled	policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py
+F09-P045	FAILED	3	3	0	3	0	0	0	0	0	0	0	1.52	112652	valid_reconciled	policy-engine/tests/repo_quality/tools/test_core_runtime_closeout.py
+F09-P046	PASS	19	19	19	0	0	0	0	0	0	0	0	2.4	224484	valid_reconciled	policy-engine/tests/unit/fabric/connectors/test_federation.py
+F09-P047	PASS	19	19	19	0	0	0	0	0	0	0	0	1.36	112484	valid_reconciled	policy-engine/tests/unit/remediation/test_mig_05.py
+F09-P048	PASS	5	5	5	0	0	0	0	0	0	0	0	1.49	102872	valid_reconciled	policy-engine/tests/unit/remediation/test_cas_01.py
+F09-P049	PASS	15	15	15	0	0	0	0	0	0	0	0	32.25	1409400	valid_reconciled	policy-engine/tests/unit/scientist/orchestration/workflows/test_builder_pinning.py
+F09-P050	PASS	6	6	6	0	0	0	0	0	0	0	0	50.48	729556	valid_reconciled	policy-engine/tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py
+F09-P051	PASS	17	17	17	0	0	0	0	0	0	0	0	50.65	1619968	valid_reconciled	policy-engine/tests/unit/core/security/test_chronology_anchor.py
+F09-P052	FAILED	13	13	3	10	0	0	0	0	0	0	0	166.9	1594352	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_grounding_relation.py
+F09-P053	FAILED	3	3	2	1	0	0	0	0	0	0	0	64.14	1594572	valid_reconciled	policy-engine/tests/repo_quality/tools/test_ds9_approval_semantic_strangle.py
+F09-P054	PASS	14	14	14	0	0	0	0	0	0	0	0	1.31	100972	valid_reconciled	policy-engine/tests/unit/core/artifacts/backends/test_config.py
+F09-P055	PASS	16	16	16	0	0	0	0	0	0	0	0	1.66	112044	valid_reconciled	policy-engine/tests/unit/remediation/test_cas_02.py
+F09-P056	PASS	5	5	5	0	0	0	0	0	0	0	0	50.32	1591284	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_design_problem.py
+F09-P057	FAILED	1	1	0	1	0	0	0	0	0	0	0	52.86	1665928	valid_reconciled	policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py
+F09-P058	FAILED	1	1	0	1	0	0	0	0	0	0	0	53.19	1636648	valid_reconciled	policy-engine/tests/integration/runtime_frontend/test_capability_discovery_free_growth.py
+F09-P059	PASS	15	15	15	0	0	0	0	0	0	0	0	35.3	1419468	valid_reconciled	policy-engine/tests/unit/data_requirement/test_compiler.py
+F09-P060	PASS	15	15	15	0	0	0	0	0	0	0	0	3.36	131472	valid_reconciled	policy-engine/tests/unit/remediation/test_ber_01.py
+F09-P061	PASS	15	15	15	0	0	0	0	0	0	0	0	33.54	1388968	valid_reconciled	policy-engine/tests/unit/scientist/facade/test_api.py
+F09-P062	PASS	11	11	11	0	0	0	0	0	0	0	0	38.42	1473144	valid_reconciled	policy-engine/tests/unit/scientist/nodes/test_build_policy_output_bundle.py
+F09-P063	PASS	4	4	4	0	0	0	0	0	0	0	0	31.06	637520	valid_reconciled	policy-engine/tests/unit/foundry/coupling/test_estimation.py
+F09-P064	FAILED	4	4	3	1	0	0	0	0	0	0	0	53.74	751464	valid_reconciled	policy-engine/tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py
+F09-P065	PASS	12	12	12	0	0	0	0	0	0	0	0	2.53	225696	valid_reconciled	policy-engine/tests/unit/fabric/data_plane/test_modes.py
+F09-P066	FAILED	14	14	2	12	0	0	0	0	0	0	0	177.44	1597204	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_grounding_risk.py
+F09-P067	PASS	15	15	15	0	0	0	0	0	0	0	0	2.03	114960	valid_reconciled	policy-engine/tests/unit/remediation/test_mig_04.py
+F09-P068	PASS	16	16	16	0	0	0	0	0	0	0	0	33.85	1327728	valid_reconciled	policy-engine/tests/unit/scientist/search/test_adversarial.py
+F09-P069	PASS	7	7	7	0	0	0	0	0	0	0	0	1.67	108312	valid_reconciled	policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py
+F09-P070	PASS	5	5	5	0	0	0	0	0	0	0	0	48.57	1592056	valid_reconciled	policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py
+F09-P071	PASS	14	14	14	0	0	0	0	0	0	0	0	37.47	1491324	valid_reconciled	policy-engine/tests/unit/remediation/test_fun_03.py
+F09-P072	PASS	12	12	12	0	0	0	0	0	0	0	0	2.98	259112	valid_reconciled	policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py
+F09-P073	PASS	12	12	12	0	0	0	0	0	0	0	0	35.43	1398244	valid_reconciled	policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py
+F09-P074	PASS	11	11	11	0	0	0	0	0	0	0	0	1.45	106104	valid_reconciled	policy-engine/tests/unit/core/phase0/test_artifact_store.py
+F09-P075	PASS	12	12	12	0	0	0	0	0	0	0	0	2.71	268720	valid_reconciled	policy-engine/tests/unit/remediation/test_doe_03.py
+F09-P076	ERROR	11	5	4	1	6	0	0	0	0	0	0	57.14	1687548	valid_reconciled	policy-engine/tests/unit/runtime/http/test_scenarios_api.py
+F09-P077	PASS	10	10	10	0	0	0	0	0	0	0	0	29.76	645672	valid_reconciled	policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py
+F09-P078	PASS	22	22	22	0	0	0	0	0	0	0	0	31.96	1335100	valid_reconciled	policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py
+F09-P079	PASS	10	10	10	0	0	0	0	0	0	0	0	3.6	284096	valid_reconciled	policy-engine/tests/unit/remediation/test_dfi_03.py
+F09-P080	FAILED	10	10	8	2	0	0	0	0	0	0	0	48.23	1591304	valid_reconciled	policy-engine/tests/unit/remediation/test_emp_01.py
+F09-P081	PASS	10	10	10	0	0	0	0	0	0	0	0	2.6	239436	valid_reconciled	policy-engine/tests/unit/remediation/test_udf_05.py
+F09-P082	PASS	10	10	10	0	0	0	0	0	0	0	0	49.07	1610700	valid_reconciled	policy-engine/tests/unit/scientist/evidence/claims/test_posture.py
+F09-P083	PASS	10	10	10	0	0	0	0	0	0	0	0	30.98	707192	valid_reconciled	policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py
+F09-P084	PASS	9	9	9	0	0	0	0	0	0	0	0	2.14	100964	valid_reconciled	policy-engine/tests/unit/common/test_async_tools.py
+F09-P085	PASS	9	9	9	0	0	0	0	0	0	0	0	30.31	649976	valid_reconciled	policy-engine/tests/unit/remediation/test_cal_01.py
+F09-P086	PASS	12	12	12	0	0	0	0	0	0	0	0	48.5	1588972	valid_reconciled	policy-engine/tests/unit/remediation/test_frc_02_s10.py
+F09-P087	PASS	9	9	9	0	0	0	0	0	0	0	0	105.24000000000001	1567420	valid_reconciled	policy-engine/tests/unit/remediation/test_rep_01.py
+F09-P088	PASS	16	16	16	0	0	0	0	0	0	0	0	2.4	242544	valid_reconciled	policy-engine/tests/unit/remediation/test_uqs_01.py
+F09-P089	PASS	6	6	6	0	0	0	0	0	0	0	0	57.3	1611088	valid_reconciled	policy-engine/tests/unit/runtime/quality/test_acquisition_overlay_visibility.py
+F09-P090	PASS	9	9	9	0	0	0	0	0	0	0	0	34.34	1340932	valid_reconciled	policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py
+F09-P091	PASS	11	11	11	0	0	0	0	0	0	0	0	28.34	651388	valid_reconciled	policy-engine/tests/unit/remediation/test_api_01.py
+F09-P092	PASS	8	8	8	0	0	0	0	0	0	0	0	2.54	237020	valid_reconciled	policy-engine/tests/unit/remediation/test_emb_03.py
+F09-P093	PASS	8	8	8	0	0	0	0	0	0	0	0	1.36	114084	valid_reconciled	policy-engine/tests/unit/remediation/test_mig_02.py
+F09-P094	PASS	9	9	9	0	0	0	0	0	0	0	0	2.39	125452	valid_reconciled	policy-engine/tests/unit/remediation/test_run_03.py
+F09-P095	FAILED	8	8	0	8	0	0	0	0	0	0	0	59.52	1706104	valid_reconciled	policy-engine/tests/unit/runtime/http/test_runtime_service_container.py
+F09-P096	PASS	5	5	5	0	0	0	0	0	0	0	0	1.22	101552	valid_reconciled	policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py
+F09-P097	PASS	14	14	14	0	0	0	0	0	0	0	0	34.73	890384	valid_reconciled	policy-engine/tests/unit/remediation/test_eco_01.py
+F09-P098	PASS	4	4	4	0	0	0	0	0	0	0	0	164.88	3877456	valid_reconciled	policy-engine/tests/unit/remediation/test_plg_03.py
+F09-P099	ERROR	6	2	0	2	4	0	0	0	0	0	0	55.18	1697488	valid_reconciled	policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py
+F09-P100	PASS	8	8	8	0	0	0	0	0	0	0	0	2.54	144392	valid_reconciled	policy-engine/tests/unit/scientist/governance/continuous/test_published_signature_custody.py
+F09-P101	PASS	7	7	7	0	0	0	0	0	0	0	0	2.82	148304	valid_reconciled	policy-engine/tests/unit/scientist/governance/test_equity_pass.py
+F09-P102	PASS	7	7	7	0	0	0	0	0	0	0	0	33.48	1333136	valid_reconciled	policy-engine/tests/unit/scientist/search/test_lesson_transfer.py
+F09-P103	PASS	6	6	6	0	0	0	0	0	0	0	0	60.57	1609256	valid_reconciled	policy-engine/tests/unit/remediation/test_cyc_04.py
+F09-P104	PASS	6	6	6	0	0	0	0	0	0	0	0	6.43	294092	valid_reconciled	policy-engine/tests/unit/remediation/test_obs_02.py
+F09-P105	PASS	7	7	7	0	0	0	0	0	0	0	0	32.97	1409132	valid_reconciled	policy-engine/tests/unit/scientist/governance/continuous/test_invalidation.py
+F09-P106	PASS	6	6	6	0	0	0	0	0	0	0	0	34.79	1390520	valid_reconciled	policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py
+F09-P107	PASS	3	3	3	0	0	0	0	0	0	0	0	1.66	100768	valid_reconciled	policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py
+F09-P108	PASS	3	3	3	0	0	0	0	0	0	0	0	3.75	282812	valid_reconciled	policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py
+F09-P109	PASS	5	5	5	0	0	0	0	0	0	0	0	33.48	1328536	valid_reconciled	policy-engine/tests/unit/remediation/test_bkt_03.py
+F09-P110	PASS	5	5	5	0	0	0	0	0	0	0	0	3.23	286148	valid_reconciled	policy-engine/tests/unit/remediation/test_dfi_02.py
+F09-P111	PASS	6	6	6	0	0	0	0	0	0	0	0	27.82	655604	valid_reconciled	policy-engine/tests/unit/remediation/test_fit_01.py
+F09-P112	PASS	10	10	10	0	0	0	0	0	0	0	0	71.34	1591352	valid_reconciled	policy-engine/tests/unit/remediation/test_sim_02.py
+F09-P113	FAILED	5	5	0	5	0	0	0	0	0	0	0	48.96	1652184	valid_reconciled	policy-engine/tests/unit/runtime/http/test_cycle_board_projection_service.py
+F09-P114	PASS	6	6	6	0	0	0	0	0	0	0	0	36.16	1329668	valid_reconciled	policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py
+F09-P115	PASS	2	2	2	0	0	0	0	0	0	0	0	1.1	101216	valid_reconciled	policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py
+F09-P116	PASS	4	4	4	0	0	0	0	0	0	0	0	2.96	284288	valid_reconciled	policy-engine/tests/unit/data_forge/kernel/test_embeddings.py
+F09-P117	PASS	4	4	4	0	0	0	0	0	0	0	0	30.62	657340	valid_reconciled	policy-engine/tests/unit/remediation/test_cau_05.py
+F09-P118	PASS	4	4	4	0	0	0	0	0	0	0	0	46.04	1579008	valid_reconciled	policy-engine/tests/unit/remediation/test_lex_01.py
+F09-P119	PASS	4	4	4	0	0	0	0	0	0	0	0	33.97	1407300	valid_reconciled	policy-engine/tests/unit/remediation/test_udf_01.py
+F09-P120	PASS	4	4	4	0	0	0	0	0	0	0	0	2.56	138868	valid_reconciled	policy-engine/tests/unit/scientist/governance/test_pii_check_pass.py
+F09-P121	PASS	4	4	4	0	0	0	0	0	0	0	0	30.66	1328444	valid_reconciled	policy-engine/tests/unit/scientist/search/strategies/test_adapter.py
+F09-P122	PASS	3	3	3	0	0	0	0	0	0	0	0	2.11	101136	valid_reconciled	policy-engine/tests/unit/core/artifacts/test_async_store.py
+F09-P123	PASS	3	3	3	0	0	0	0	0	0	0	0	2.88	280108	valid_reconciled	policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py
+F09-P124	PASS	3	3	3	0	0	0	0	0	0	0	0	2.3	220968	valid_reconciled	policy-engine/tests/unit/fabric/ingestion/test_raw_result_sink.py
+F09-P125	PASS	3	3	3	0	0	0	0	0	0	0	0	29.91	716052	valid_reconciled	policy-engine/tests/unit/scientist/agent/test_feasibility_probe.py
+F09-P126	PASS	3	3	3	0	0	0	0	0	0	0	0	31.09	1330228	valid_reconciled	policy-engine/tests/unit/scientist/search/test_frontier.py
+F09-P127	PASS	2	2	2	0	0	0	0	0	0	0	0	3.0	283512	valid_reconciled	policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py
+F09-P128	PASS	2	2	2	0	0	0	0	0	0	0	0	3.36	370092	valid_reconciled	policy-engine/tests/unit/remediation/test_uqp_03.py
+F09-P129	PASS	1	1	1	0	0	0	0	0	0	0	0	33.34	1382736	valid_reconciled	policy-engine/tests/unit/scientist/evidence/claims/test_ledger.py
+F09-P130	PASS	1	1	1	0	0	0	0	0	0	0	0	2.29	141748	valid_reconciled	policy-engine/tests/unit/scientist/governance/test_normative_arbitration_pass.py
+Воспроизводимый полный argv для любого cell/attempt строится следующим кодом. cells.tsv — блок выше; instrumentation сохранён в указанном run root. Attempt 2 существует только у P002/P003. Для нового воспроизведения используются новые output directories, тот же SHA и frozen profile. Код ниже сейчас не запускался.
+import csv, json, os, subprocess, sys, uuid
+from pathlib import Path
+
+ROOT = Path("/workspace/polisyos-e02-F09-20261005T074624Z/policy-engine")
+RUN = ROOT / "_build/e02-full/F09/20261005T074624Z"
+cell, number = sys.argv[1], int(sys.argv[2])
+row = next(r for r in csv.DictReader(open("cells.tsv"), delimiter="\t") if r["id"] == cell)
+test = row["path"].removeprefix("policy-engine/")
+fallback = cell == "F09-P004" or (cell in {"F09-P002", "F09-P003"} and number == 2)
+out = RUN / "replay" / cell / (f"attempt-{number:02d}-" + uuid.uuid4().hex)
+out.mkdir(parents=True)
+for name in ["observer", "tmp", "pytest-cache", "benchmarks", "hypothesis", "os-tmp"]:
+    (out / name).mkdir()
+cfg = json.loads((RUN / "setup/toolchain.json").read_text())
+env = os.environ.copy()
+controls = [
+    "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR",
+    "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL",
+    "POLISYOS_R7_REMOVE_ACTIVE_PROBE_SUPPRESSION",
+]
+for key in list(env):
+    if key in controls + [
+        "PYTEST_ADDOPTS", "PYTEST_PLUGINS", "VIRTUAL_ENV",
+        "UV_PROJECT_ENVIRONMENT", "HYPOTHESIS_PROFILE",
+        "HYPOTHESIS_STORAGE_DIRECTORY", "POLISYOS_TOOLS_TIMING_LOG"
+    ] or key.startswith("POLISYOS_PYTEST_RECEIPT_"):
+        env.pop(key)
+env.update({
+    "PATH": cfg["PATH"],
+    "COREPACK_HOME": str(RUN / "setup/corepack"),
+    "PYTHONPATH": str(RUN / "plugin"),
+    "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1", "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1", "JAX_PLATFORMS": "cpu",
+    "UV_CACHE_DIR": str(RUN / "setup/uv-cache"),
+    "UV_PYTHON_INSTALL_DIR": cfg["base_env"]["UV_PYTHON_INSTALL_DIR"],
+    "POLISYOS_TOOLS_TIMING_LOG": str(out / "timing.jsonl"),
+    "E02_OBSERVER_DIR": str(out / "observer"),
+    "HYPOTHESIS_STORAGE_DIRECTORY": str(out / "hypothesis"),
+    "TMPDIR": str(out / "os-tmp"),
+})
+hyp = ROOT / "_cache/hypothesis"
+hyp.parent.mkdir(exist_ok=True)
+if hyp.is_symlink() and hyp.resolve().is_relative_to(ROOT / "_build/e02-full"):
+    hyp.unlink()
+elif hyp.exists() or hyp.is_symlink():
+    raise RuntimeError("Use a fresh checkout or preserve the existing owned Hypothesis cache first")
+hyp.symlink_to(out / "hypothesis", target_is_directory=True)
+py = str(ROOT / ".venv/bin/python")
+tm = str(RUN / "setup/toolchain/gnu-time/usr/bin/time")
+argv = [
+    tm, "-v", "-o", str(out / "wrapper-resource.txt"),
+    py, "-m", "tools.quality.testing.run_timed_suite",
+    "--lane", "e02-full-F09:" + cell, "--cwd", ".",
+]
+if not fallback:
+    argv += ["--capture-pytest-workload", "--receipt-output", str(out / "execution.json")]
+argv += [
+    "--", tm, "-v", "-o", str(out / "pytest-resource.txt"),
+    py, "-m", "pytest", "-c", "pytest.ini", test,
+    "-p", "e02_observer", "-p", "e02_environment",
+    "--junitxml=" + str(out / "junit.xml"), "--durations=0",
+    "--basetemp=" + str(out / "tmp"),
+    "-o", "cache_dir=" + str(out / "pytest-cache"),
+    "--benchmark-storage=file://" + str(out / "benchmarks"),
+]
+print(json.dumps({"cwd": str(ROOT), "argv": argv}, ensure_ascii=False))
+with (out / "stdout.log").open("wb") as stdout, (out / "stderr.log").open("wb") as stderr:
+    raise SystemExit(subprocess.run(argv, cwd=ROOT, env=env, stdout=stdout, stderr=stderr).returncode)
+Компактный failure ledger ниже включает все 439 exceptional events всех attempts, без top-N. Exact node ID восстанавливается без потерь:
+cells.tsv.path.removeprefix("policy-engine/") + "::" + node_suffix.
+Колонки каждого JSONL block: [cell, phase, outcome, attempt_numbers, error_id, node_suffixes]. [1,2] означает одинаковое наблюдение в обеих сохранённых попытках. Для всех blocks: cause_status=not_established, wasxfail=null, raw_transfer_missing=true. Полный longrepr находится в RUN/<cell>/attempt-XX/observer/*/events.jsonl и failures.jsonl. Многоточия в сообщениях ниже уже присутствуют в pytest exception text; упаковщик сообщения не обрезал.
+Каталог actual errors:
+{"E01":"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest"}
+{"E02":"_duckdb.IOException: IO Error: Cannot open database \"/workspace/polisyos-e02-F09-20261005T074624Z/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb\" in read-only mode: database does not exist"}
+{"E03":"builtins.AssertionError: assert 'simulation_pending_n5' == 'simulation_blocked'\n  \n  - simulation_blocked\n  + simulation_pending_n5"}
+{"E04":"builtins.Skipped: production_data owner catalog is unavailable (production_data/manifest.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/identification_mode_registry.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/schema_regime_registry.json, production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb); link the worktree's provisioned production_data owner tree read-only"}
+{"E05":"builtins.AssertionError: assert 'blocked' in {'escalate', 'stop'}\n +  where 'blocked' = LoopVOIDecision(candidate_id='candidate_cycle_2', terminal_kind='search_ceiling_repair_required', scheduler_action='ad...son='advance_by_information_value', priority=0.536, next_action='blocked', reason='fake_cycle_same_candidate_repeated').next_action\n +    where LoopVOIDecision(candidate_id='candidate_cycle_2', terminal_kind='search_ceiling_repair_required', scheduler_action='ad...son='advance_by_information_value', priority=0.536, next_action='blocked', reason='fake_cycle_same_candidate_repeated') = GenerationCycleRecord(cycle_index=2, design_problem_ref='sha256:e63fd54d153540c71b9308ca020c59e727307e85ecbc8ae547b9a0...on_receipt=None, acquisition_routing_report=None, acquisition_cost_basis_record=None, acquisition_cost_basis_hash=None).voi_decision"}
+{"E06":"polisyos.runtime.quality.generation_cycle.GenerationCycleError: n7_reentry_candidate_atom_not_canonical: n7_reentry_candidate_atom_not_canonical"}
+{"E07":"builtins.ValueError: confidence_ledger_scope_binding_mismatch"}
+{"E08":"builtins.AssertionError: Regex pattern did not match.\n  Expected regex: 'generation_cycle_comparison_admission_manifest_drift'\n  Actual message: 'confidence_ledger_scope_binding_mismatch'"}
+{"E09":"_duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':\nFailed to download extension \"fts\" at URL \"http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz\"\nExtension \"fts\" is an existing extension.\n\nFor more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)"}
+{"E10":"pydantic_core._pydantic_core.ValidationError: 1 validation error for _LegacyCanonicalPromotionReceiptV3\nowner_projection\n  Value error, n9_owner_projection_hash_mismatch [type=value_error, input_value={'admissibility': True, '...rld_model_record': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"}
+{"E11":"pydantic_core._pydantic_core.ValidationError: 1 validation error for _LegacyCanonicalPromotionReceiptV6\nowner_projection\n  Value error, n9_owner_projection_hash_mismatch [type=value_error, input_value={'candidate_summary': {'a...rld_model_record': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"}
+{"E12":"pydantic_core._pydantic_core.ValidationError: 1 validation error for _LegacyCanonicalPromotionReceiptV5\nowner_projection\n  Value error, n9_owner_projection_hash_mismatch [type=value_error, input_value={'schema_version': 'polic...050699dfb942209ef3e0f5'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"}
+{"E13":"builtins.AssertionError: Regex pattern did not match.\n  Expected regex: 'promotion_comparison_requires_verification_receipt'\n  Actual message: \"1 validation error for _LegacyCanonicalPromotionReceiptV5\\nowner_projection\\n  Value error, n9_owner_projection_hash_mismatch [type=value_error, input_value={'schema_version': 'polic...050699dfb942209ef3e0f5'}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error\""}
+{"E14":"polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/polisyos-e02-F09-20261005T074624Z/policy-engine/production_data/manifest.json"}
+{"E15":"builtins.AssertionError: assert 8 == 7\n +  where 8 = sum(<generator object test_explicit_nonclosure_parser_reads_every_populated_section.<locals>.<genexpr> at 0x7f2f3550ed40>)"}
+{"E16":"builtins.AssertionError: assert 246 == 178"}
+{"E17":"builtins.AssertionError: assert {'ds10-public...on-rendering'} == {'ds10-connec...on-rendering'}\n  \n  Extra items in the right set:\n  'ds10-global-case-index-producer-allocation'\n  'ds10-connector-acquisition-content'\n  Use -v to get more diff"}
+{"E18":"builtins.AssertionError: assert '| `DEBT-REGISTER.md` | 178 | 178 | 75 | ambiguous=1, blocked=39, closed=103, folded=2, foreign=6, open=27 |' in '# PolicyOS Open Work and Debt Ledger\\n\\nGenerated by `tools/quality/validation/check_debt_ledger.py --write`. Closed ...rather than unknown.\\nSection-E irregular branch rows retained as branch records, not debt ids: `codex/gy-def6-e11`.\\n'"}
+{"E19":"builtins.StopIteration: "}
+{"E20":"builtins.AssertionError: assert 'closed' == 'blocked'\n  \n  - blocked\n  + closed"}
+{"E21":"builtins.AssertionError: assert not (Finding(code='closure_commit_not_on_main', detail='Atlas:GY-DEF20: 518e04da5', informational=False), Finding(code='cl...ing(code='closure_commit_not_on_main', detail='Atlas:deep-import-baseline-stale: 5cc68c43e', informational=False), ...)\n +  where (Finding(code='closure_commit_not_on_main', detail='Atlas:GY-DEF20: 518e04da5', informational=False), Finding(code='cl...ing(code='closure_commit_not_on_main', detail='Atlas:deep-import-baseline-stale: 5cc68c43e', informational=False), ...) = AuditReport(findings=(Finding(code='closure_commit_not_on_main', detail='Atlas:GY-DEF20: 518e04da5', informational=Fal...ather than unknown.\\nSection-E irregular branch rows retained as branch records, not debt ids: `codex/gy-def6-e11`.\\n').blocking_findings"}
+{"E22":"builtins.AssertionError: assert '# PolicyOS O...-def6-e11`.\\n' == '# PolicyOS O...-def6-e11`.\\n'\n  \n  Skipping 3205 identical leading characters in diff, use -v to show\n  - ry-plan` (declared-ref-missing) |\n  + ry-plan` (local-only) |\n  - | [`ds10-public-decision-rendering`](DEBT-REGISTER.md#a-open-and-executable-now) | `blocked` | `—` | team-design | [register §A](DEBT-REGISTER.md#a-open-and-executable-now) | `codex/ds10-capability-discovery-plan` (declared-ref-missing) |\n  ?                                                                                                                                                                                                                 ...\n  \n  ...Full output truncated (153 lines hidden), use '-vv' to show"}
+{"E23":"builtins.AssertionError: assert 'stale' == 'review_required'\n  \n  - review_required\n  + stale"}
+{"E24":"builtins.AssertionError: assert b'/**\\n * Thi...  } | null;\\n' == b'/**\\n * Thi...\\n    };\\n}\\n'\n  \n  At index 122202 diff: b'_' != b'{'\n  Use -v to get more diff"}
+{"E25":"builtins.ValueError: catalog_fetch_source_unreadable"}
+{"E26":"builtins.AssertionError: assert <IdentificationStatus.IDENTIFIED: 'identified'> in {<IdentificationStatus.HEDGE_FOUND: 'hedge_found'>, <IdentificationStatus.ORACLE_NEEDED: 'oracle_needed'>, <IdentificationStatus.PAG_AMBIGUOUS: 'pag_ambiguous'>}\n +  where <IdentificationStatus.IDENTIFIED: 'identified'> = IdentificationResult(status=<IdentificationStatus.IDENTIFIED: 'identified'>, estimand_ast=EstimandAST(schema_version='...e:X'], 'blocked_pair': None}}, 'intervention_identification_status': 'identified', 'intervention_reduction_chain': []}).status"}
+{"E27":"builtins.Skipped: Unexpectedly identified"}
+{"E28":"polisyos.runtime.quality.data_state_substrate.DataStateSubstrateError: production_data_path_missing: /workspace/polisyos-e02-F09-20261005T074624Z/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"}
+{"E29":"builtins.AssertionError: ['production_data_path_missing: /workspace/polisyos-e02-F09-20261005T074624Z/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb']\nassert 'generation_unavailable' == 'generated'\n  \n  - generated\n  + generation_unavailable"}
+{"E30":"builtins.AssertionError: assert 'generation_unavailable' == 'generated'\n  \n  - generated\n  + generation_unavailable"}
+{"E31":"builtins.AssertionError: assert 'atom_binding' == 'surrogate'\n  \n  - surrogate\n  + atom_binding"}
+{"E32":"builtins.AssertionError: assert 36 == 0"}
+{"E33":"builtins.AssertionError: assert 253 == 0"}
+{"E34":"builtins.AssertionError: [{'check': 'import-exceptions', 'detail': '2026-07-01', 'message': 'import exception is expired', 'subject': 'E-2026-0...026-07-30', 'message': 'import exception is expired', 'subject': 'E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-LEX-001'}, ...]\nassert 'failed' == 'passed'\n  \n  - passed\n  + failed"}
+{"E35":"builtins.AssertionError: assert [Finding(chec...'2026-07-31')] == [Finding(chec...', detail='')]\n  \n  Left contains one more item: Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file shell package exception sunset is expired or invalid', detail='2026-07-31')\n  Use -v to get more diff"}
+{"E36":"builtins.AssertionError: assert [Finding(chec...=2026-07-31')] == [Finding(chec...=2026-07-31')]\n  \n  At index 0 diff: Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file shell package exception sunset is expired or invalid', detail='2026-08-01') != Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file shell package exception sunset must be no later than the Wave 3 cutoff', detail='sunset=2026-08-01 cutoff=2026-07-31')\n  Left contains one more item: Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file shell ...\n  \n  ...Full output truncated (2 lines hidden), use '-vv' to show"}
+{"E37":"builtins.AssertionError: assert [Finding(chec...issing_node')] == [Finding(chec...issing_node')]\n  \n  At index 0 diff: Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file shell package exception sunset is expired or invalid', detail='2026-07-31') != Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file shell package exception smoke_import_test node id is missing', detail='tests/unit/fabric/test_smoke.py::test_missing_node')\n  Left contains one more item: Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file s...\n  \n  ...Full output truncated (2 lines hidden), use '-vv' to show"}
+{"E38":"builtins.AssertionError: assert [Finding(chec...:test_smoke')] == [Finding(chec...:test_smoke')]\n  \n  At index 0 diff: Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file shell package exception sunset is expired or invalid', detail='2026-07-31') != Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file shell package exception smoke_import_test must reference the excepted package', detail='expected=polisyos.fabric.legacy_helper nodeid=tests/unit/fabric/test_smoke.py::test_smoke')\n  Left contains one more item: Finding(check='single-file-shell-package', subject='sr...\n  \n  ...Full output truncated (2 lines hidden), use '-vv' to show"}
+{"E39":"builtins.AssertionError: assert [Finding(chec...'2026-07-31')] == []\n  \n  Left contains one more item: Finding(check='single-file-shell-package', subject='src/polisyos/fabric/legacy_helper', message='single-file shell package exception sunset is expired or invalid', detail='2026-07-31')\n  Use -v to get more diff"}
+{"E40":"builtins.AssertionError: assert mappingproxy({}) == {'api_key': '***'}\n  \n  Use -v to get more diff"}
+{"E41":"builtins.AssertionError: [{'code': 'capability_repo_ref_file_missing', 'message': 'repo reference repo://tests/unit/runtime/quality/test_wave2_...ion_as_closeout_substitute points at a missing path.', 'path': '$.capability_claim_inputs[11].semantic_test_ref'}, ...]\nassert 'fail' == 'pass'\n  \n  - pass\n  + fail"}
+{"E42":"builtins.AssertionError: assert {'code': 'capability_repo_ref_file_missing', 'message': 'repo reference repo://packages/runtime-api-client/runtimeApiClient.ts points at a missing path.', 'path': '$.artifacts_produced[0].surface_refs[3]'} is None\n +  where {'code': 'capability_repo_ref_file_missing', 'message': 'repo reference repo://packages/runtime-api-client/runtimeApiClient.ts points at a missing path.', 'path': '$.artifacts_produced[0].surface_refs[3]'} = <function validate_repo_reference at 0x7f171c3c9170>('repo://packages/runtime-api-client/runtimeApiClient.ts', repo_root=PosixPath('/workspace/polisyos-e02-F09-20261005T074624Z/policy-engine'), path='$.artifacts_produced[0].surface_refs[3]')\n +    where <function validate_repo_reference at 0x7f171c3c9170> = ratchet.validate_repo_reference"}
+{"E43":"builtins.AssertionError: assert 1 == 0"}
+{"E44":"builtins.Failed: DID NOT RAISE <class 'ProcessLookupError'>"}
+{"E45":"builtins.Failed: owned descendant survived worker cleanup"}
+{"E46":"builtins.AssertionError: assert [LifecycleFin...codeError).')] == []\n  \n  Left contains 5 more items, first extra item: LifecycleFinding(check='reference_scan_ambiguous', path='docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-...concurrency-1/checkpoint.sqlite', message='committed reference input is unreadable or malformed (UnicodeDecodeError).')\n  Use -v to get more diff"}
+{"E47":"builtins.AssertionError: assert [] == [LifecycleFin...ns/archive.')]\n  \n  Right contains one more item: LifecycleFinding(check='active_plan_metadata', path='docs/plans/active/CLOSED_PLAN.md', message='active plan contains accepted final closeout evidence; move it to docs/plans/archive.')\n  Use -v to get more diff"}
+{"E48":"builtins.AssertionError: assert [] == [LifecycleFin...` metadata.')]\n  \n  Right contains one more item: LifecycleFinding(check='redirect_stub', path='frontend/README.md', message='redirect stub missing `sunset_date` metadata.')\n  Use -v to get more diff"}
+{"E49":"builtins.AssertionError: assert [] == [LifecycleFin...hitecture`.')]\n  \n  Right contains 2 more items, first extra item: LifecycleFinding(check='removed_stub_path', path='tests/architecture', message='removed redirect stub directory still exists; use `tests/repo_quality/architecture`.')\n  Use -v to get more diff"}
+{"E50":"builtins.AssertionError: assert [] == [LifecycleFin...pi-client`.')]\n  \n  Right contains 3 more items, first extra item: LifecycleFinding(check='removed_stub_reference', path='docs/live.md', message='stale direct reference `tests/architecture`; use `tests/repo_quality/architecture`.')\n  Use -v to get more diff"}
+{"E51":"builtins.AssertionError: assert set() == {'docs/live.md'}\n  \n  Extra items in the right set:\n  'docs/live.md'\n  Use -v to get more diff"}
+{"E52":"builtins.AssertionError: assert [] == [LifecycleFin...` metadata.')]\n  \n  Right contains one more item: LifecycleFinding(check='redirect_stub', path='frontend/README.md', message='redirect stub missing `created_date` metadata.')\n  Use -v to get more diff"}
+{"E53":"builtins.AssertionError: assert [] == [LifecycleFin...ility_adr`.')]\n  \n  Right contains one more item: LifecycleFinding(check='redirect_stub', path='frontend/README.md', message='redirect stub sunset exceeds the 90-day policy without `compatibility_adr`.')\n  Use -v to get more diff"}
+{"E54":"builtins.AssertionError: assert [] == [LifecycleFin...frontend/`.')]\n  \n  Right contains one more item: LifecycleFinding(check='redirect_stub', path='frontend/README.md', message='redirect stub `compatibility_adr` must declare `frontend/`.')\n  Use -v to get more diff"}
+{"E55":"builtins.AssertionError: assert ['docs freshn...e4390da75b2b'] == []\n  \n  Left contains 3 more items, first extra item: 'docs freshness exception baseline expired'\n  Use -v to get more diff"}
+{"E56":"builtins.AssertionError: assert False is True\n +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted\n +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision"}
+{"E57":"builtins.AssertionError: assert None is not None\n +  where None = SearchIteration(iteration=0, candidate={'candidate_id': 'candidate_b'}, objective_value=inf, objective_details=[], is_...e.timezone.utc), policy_evaluation_status='invalid', policy_evaluation_error='objective_stack_returned_untyped_result').policy_evaluation"}
+{"E58":"builtins.AssertionError: assert [('GET', 'htt...ge': '1000'})] == [('GET', 'htt...ge': '1000'})]\n  \n  At index 0 diff: ('GET', 'https://api.worldbank.org/v2/country/US/indicator/NY.GDP.MKTP.CD', {'format': 'json', 'per_page': '1'}) != ('GET', 'https://api.worldbank.org/v2/country/UKR/indicator/GC.BAL.CASH.GD.ZS', {'date': '2023:2024', 'format': 'json', 'page': '1', 'per_page': '1000'})\n  Left contains one more item: ('GET', 'https://api.worldbank.org/v2/country/UKR/indicator/GC.BAL.CASH.GD.ZS', {'date': '2023:2024', 'format': 'json', 'page': '1', 'per_page': '1000'})\n  Use -v to get more diff"}
+{"E59":"builtins.AssertionError: assert ['src/polisyo...l.embeddings'] == []\n  \n  Left contains 6 more items, first extra item: 'src/polisyos/runtime/quality/acquisition_planner.py: polisyos.data_forge.domains.academic.openalex.client'\n  Use -v to get more diff"}
+{"E60":"polisyos.runtime.quality.substrate_registry.SubstrateRegistryError: substrate_catalog_missing: /workspace/polisyos-e02-F09-20261005T074624Z/policy-engine/production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json"}
+{"E61":"builtins.SystemExit: WS-2D: evidence path from `code_evidence` does not exist: packages/runtime-api-client/runtimeApiClient.ts"}
+{"E62":"builtins.AssertionError: assert frozenset({'a...pes.ts', ...}) == frozenset({'a...pes.ts', ...})\n  \n  Extra items in the left set:\n  'src/polisyos/runtime/quality/capability_authority.py'\n  Use -v to get more diff"}
+{"E63":"builtins.AssertionError: real Lex owner index is required for the CC15 growth witness\nassert ()"}
+{"E64":"builtins.AssertionError: assert 'diagnostic_attached' == 'not_available'\n  \n  - not_available\n  + diagnostic_attached"}
+{"E65":"builtins.AssertionError: assert []"}
+{"E66":"builtins.AssertionError: assert None == (1.0,)\n +  where None = getattr(ValueOuterSet(representation='interval_box', lower=(4.0,), upper=(4.0,), coordinates=('emp01_test_method',), identific...aaaaaaaaaaaaaaaaaaaaaaa', epoch='2026-Q3', representation_status='certified', solver_time_budget_ms=None, width=(0.0,)), 'statistical_lower', None)"}
+{"E67":"builtins.AssertionError: assert (-0.5,) == (1.0,)\n  \n  At index 0 diff: -0.5 != 1.0\n  Use -v to get more diff"}
+{"E68":"builtins.ValueError: historical producer availability owner row is absent"}
+Все failure/skip blocks:
+["F09-P001","call","failed",[1],"E01",["test_all_real_knobs_bind_world_slots_through_owner_without_injected_authority","test_all_real_law_map_entries_trace_to_l3_provision_without_injected_authority","test_default_method_route_excludes_changed_ambient_entry_points","test_every_real_law_knob_pair_is_recognized_only_relative_to_synthetic_sources","test_family_method_routing_uses_real_manifest_registry_and_python314_blockers","test_frozen_subject_producer_is_invariant_to_the_proposed_law_mapping","test_intervention_substrate_behavior_report_exercises_real_space_and_mutations","test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_branches","test_law_bound_lever_fails_closed_for_dangling_map_entries","test_law_bound_lever_traces_real_l3_threshold_and_blocks_violating_value","test_missing_legal_subject_is_ambiguous_before_numeric_units","test_pack_context_fences_first_vertical_knob_fallback","test_pack_lever_resolution_returns_typed_candidate_unbound","test_phase5_configured_value_port_family_reaches_owner_selection_and_replay","test_phase5_n8_default_rejects_every_corrupted_real_route","test_phase5_n8_real_routes_are_constraints_and_explicit_requests_cannot_escape","test_phase5_real_unrelated_law_target_cannot_authorize_a_knob","test_phase5_route_context_binds_source_and_rejects_forged_method_constraint","test_phase5_route_growth_ambiguity_and_source_substitution","test_phase5_supplied_manifest_cannot_disappear_from_selection_or_context","test_real_knob_dictionary_resolves_domain_and_fails_closed_for_unknown_or_out_of_range","test_subject_comparison_removal_turns_real_transposition_gate_red","test_subject_forwarding_removal_turns_real_positive_gate_red"]]
+["F09-P001","call","failed",[1],"E02",["test_current_law_resolution_rejects_rehashed_recognition_splices","test_subject_membership_and_actual_law_route_grow_as_data","test_synthetic_recognition_does_not_authorize_credal_or_atom_consumers"]]
+["F09-P002","call","failed",[1,2],"E03",["test_joint_port_rejects_candidate_unbound_resolution_from_another_context"]]
+["F09-P002","setup","skipped",[1,2],"E04",["test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters","test_active_overlay_reentry_is_exact_direct_and_read_only","test_cycle_world_identity_rejects_atom_from_another_problem","test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match","test_default_value_port_binds_the_actual_n5_context","test_explicit_joint_request_atom_refs_bind_before_injected_controller","test_explicit_joint_request_cannot_bypass_context_wmr","test_explicit_request_nested_atom_missing_slot_fails_world_identity","test_joint_port_accepts_label_drift_after_atom_world_resolution","test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr","test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity","test_joint_port_reuses_exact_cycle_context_wmr","test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity","test_phase5_value_port_configuration_preserves_manifest_omission","test_shaped_wmr_ref_without_resolved_object_is_rejected"]]
+["F09-P002","call","failed",[1,2],"E05",["test_controller_runs_counterexample_driven_revision_over_two_real_cycles"]]
+["F09-P002","call","failed",[1,2],"E06",["test_acquisition_required_invokes_n7_and_records_same_cycle_reentry"]]
+["F09-P002","call","failed",[1,2],"E07",["test_generation_cycle_contract_mutations_turn_red"]]
+["F09-P002","call","failed",[1,2],"E08",["test_generation_cycle_contract_write_refuses_stale_comparison_admission"]]
+["F09-P003","call","failed",[1,2],"E09",["test_caller_cannot_supply_authoritative_risk_spends","test_caller_offer_cannot_substitute_for_owner_recomputation","test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation","test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable","test_canonical_promotion_freezes_on_open_world_risk[limited-deployment_scope_limited]","test_canonical_promotion_freezes_on_open_world_risk[not_established-deployment_scope_not_established]","test_canonical_promotion_freezes_on_scope_not_established","test_cg1_derived_atom_cannot_satisfy_effect","test_cg2_open_admissibility_obligation_keeps_promotion_red","test_contract_testing_bind_receipt_is_intrinsically_non_promotable","test_current_input_rejects_legacy_caller_gate_predicates[admissibility]","test_current_input_rejects_legacy_caller_gate_predicates[effective_independence]","test_current_owner_projection_requires_the_physical_open_world_key","test_data_trust_typed_fields_fail_data_obligation","test_decision_front_predicate_is_owned_by_canonical_promotion_sequence","test_decision_front_rejects_unbound_open_world_receipt","test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red","test_effect_exact_or_bounded_entailment_satisfies_without_minting[False-effect_claim_entailed]","test_effect_exact_or_bounded_entailment_satisfies_without_minting[True-effect_claim_bounded]","test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct","test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct","test_effective_independence_missing_is_explicit_decisive_nonreceipt","test_empty_independence_graph_cannot_establish_promotion_evidence","test_empty_ledger_projection_cannot_insure_forged_probabilistic_success","test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0","test_failed_obligation_cannot_be_relabelled_into_decision_front","test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow","test_foreign_candidate_and_wrong_verifier_provenance_fail_closed","test_forged_g4_ref_is_refused_by_owner_resolution","test_gyk_witness_pointer_is_not_a_supported_input","test_hand_edited_confidence_projection_is_rejected","test_invented_measurement_marker_does_not_supply_authority","test_ledger_claim_scope_is_recomputed_from_candidate_owner","test_lower_boundary_wins_over_optimistic_declared_transform","test_n5_coupling_blocker_refuses_coupling","test_n9_emits_additive_decisive_instances_with_deterministic_identity","test_n9_measurement_rechecks_source_requirement_and_problem[problem]","test_n9_measurement_rechecks_source_requirement_and_problem[requirement]","test_n9_measurement_recomputes_full_authority_identity[authority_role]","test_n9_measurement_recomputes_full_authority_identity[phase]","test_n9_measurement_recomputes_full_authority_identity[problem]","test_n9_measurement_recomputes_full_authority_identity[profile]","test_n9_measurement_recomputes_full_authority_identity[time]","test_n9_measurement_refuses_all_null_observations","test_n9_measurement_refuses_catalog_metadata_without_fabric_custody","test_n9_measurement_refuses_out_of_contract_observations","test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution","test_n9_owner_replay_projection_round_trips_through_json","test_n9_receipt_authorizes_only_narrow_projection_and_current_head","test_n9_rejects_session_bound_to_a_different_design_problem","test_n9_replays_current_measurement_source_at_admission[catalog_removed]","test_n9_replays_current_measurement_source_at_admission[contract_changed]","test_n9_replays_current_measurement_source_at_admission[payload_missing]","test_n9_replays_current_measurement_source_at_admission[source_changed]","test_n9_semantic_ledger_changes_with_governing_owner_input","test_no_cg2_owner_grant_stays_shadow","test_non_calibration_probabilistic_certificate_bypass_is_rejected","test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused","test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable","test_owner_projection_round_trips_exact_open_world_vector_identity","test_private_verification_boundary_rejects_alternate_registry","test_private_verification_revalidator_recomputes_current_head","test_private_verification_revalidator_requires_loaded_owner_repo","test_private_verification_sequence_stamps_receipt_non_consumer_promotable","test_probabilistic_certificate_bypassing_ledger_is_rejected","test_production_n9_port_persists_effect_but_refuses_contract_only_cg2","test_promotion_comparison_refuses_v2_without_open_world_owner_fact","test_promotion_comparison_repairs_current_v6_lineage_only_through_live_owner_proof","test_public_validator_rejects_verification_before_opening_authority_namespace","test_real_dependent_independence_graph_refuses_legacy_true","test_real_measurement_root_resolves_and_binds_into_n9","test_receipt_candidate_id_must_match_replayed_owner_input","test_registered_non_calibration_route_cannot_be_omitted_from_ledger","test_registered_promotion_route_without_owner_producer_fails_before_spend","test_rehashed_computed_boundary_is_rejected_by_owner_recomputation","test_rehashed_contract_lane_as_production_is_rejected_by_owner_recomputation","test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation","test_rehashed_owner_projection_still_fails_live_candidate_binding","test_relabelled_code_owned_owner_and_verifier_fail_before_spend[obligation_class-value]","test_relabelled_code_owned_owner_and_verifier_fail_before_spend[owner_ref-attacker.FakeOwner]","test_relabelled_code_owned_owner_and_verifier_fail_before_spend[verifier_ref-attacker.FakeVerifier]","test_removing_code_owned_data_trust_route_fails_before_spend","test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage","test_s6_typed_posture_fails_implementation_obligation","test_same_class_unrelated_claim_cannot_satisfy_compiled_obligation","test_schedule_slot_is_reserved_before_obligation_outcomes","test_scope_insufficient_cannot_mint_production_authority","test_scope_insufficient_obligation_does_not_vacuously_pass","test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission","test_supported_n5_coupling_path_satisfies_coupling","test_supported_owner_bound_offer_round_trips_through_generic_validator","test_timeout_knob_cannot_decide_effect_or_fabricate_block","test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows","test_uncalibrated_candidate_stays_shadow","test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient","test_ungrounded_candidate_stays_shadow_by_real_grounding_owner","test_ungrounded_effect_claim_fails_its_entailment_conjunct","test_unknown_non_calibration_offer_fail_closes_before_spend","test_unseen_non_panel_value_receipt_flows_unchanged","test_untransportable_candidate_stays_shadow","test_v1_scope_rows_cannot_be_restamped_as_current_authority","test_v4_v1_history_is_readable_but_cannot_be_current_authority","test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect","test_value_receipt_candidate_mismatch_fails_closed_before_accounting","test_verification_ledger_session_cannot_run_n9_authority_path","test_verification_projection_is_not_n9_authority_provenance"]]
+["F09-P003","call","failed",[1,2],"E10",["test_legacy_v3_history_is_exactly_readable_but_not_current_authority","test_promotion_history_remains_readable_after_exact_v3_to_v6_reissue"]]
+["F09-P003","call","failed",[1,2],"E11",["test_frozen_v6_capture_preserves_history_and_refuses_current_admission"]]
+["F09-P003","call","failed",[1,2],"E12",["test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority"]]
+["F09-P003","call","failed",[1,2],"E13",["test_round1_v5_authority_receipt_cannot_enter_historical_comparison"]]
+["F09-P003","call","failed",[1,2],"E14",["test_measurement_root_evidence_replays_canonical_base_dataset_envelope","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_catalog]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[mismatched_fetch]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[nonexistent_root]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[rebound_evidence]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[ref_shaped]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[stale_baseline]","test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage[wrong_content]"]]
+["F09-P004","call","failed",[1],"E15",["test_explicit_nonclosure_parser_reads_every_populated_section"]]
+["F09-P004","call","failed",[1],"E16",["test_real_census_replays_published_invariants"]]
+["F09-P004","call","failed",[1],"E17",["test_ds10_debt_projection_exposes_every_unresolvable_signal"]]
+["F09-P004","call","failed",[1],"E18",["test_real_ledger_exposes_every_gy_block_receipt_and_typed_state"]]
+["F09-P004","call","failed",[1],"E19",["test_capability_states_require_evidence_scoped_to_the_debt_subject"]]
+["F09-P004","call","failed",[1],"E20",["test_ds9_claims_and_splits_only_approved_debt_scope"]]
+["F09-P004","call","failed",[1],"E21",["test_declared_informational_signal_findings_stay_out_of_blocking"]]
+["F09-P004","call","failed",[1],"E22",["test_real_ledger_is_the_deterministic_rendering"]]
+["F09-P005","call","failed",[1],"E23",["test_epoch_batch_success_example_is_owner_derived_and_strict"]]
+["F09-P005","call","failed",[1],"E24",["test_openapi_typescript_output_matches_committed_shared_types"]]
+["F09-P005","setup","failed",[1],"E25",["test_bad_request_uses_problem_json_payload"]]
+["F09-P006","call","failed",[1],"E26",["TestCausalEngineIdentify::test_non_identifiable_returns_negative_cert"]]
+["F09-P006","call","skipped",[1],"E27",["TestCausalEngineCompile::test_compile_raises_on_non_identified"]]
+["F09-P009","call","failed",[1],"E01",["test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition","test_content_bound_candidate_resolves_candidate_lever_id_not_trinity_kind","test_phase5_surrogate_rejects_fake_route_targets_without_certifying_candidates","test_prompt_slice_rejects_context_for_another_design_problem","test_prompt_slice_uses_pack_candidate_levers_without_binding_them"]]
+["F09-P009","call","failed",[1],"E14",["test_prompt_slice_uses_context_bound_l6_vocabulary_not_model_filter"]]
+["F09-P009","call","failed",[1],"E28",["test_cgf_binding_recovers_legacy_exact_match_rejection","test_novel_candidate_with_false_analog_evidence_routes_to_cg3"]]
+["F09-P009","call","failed",[1],"E29",["test_recorded_llm_organs_emit_diverse_cg3_dispositions_without_authority"]]
+["F09-P009","call","failed",[1],"E30",["test_gateway_only_model_is_accepted_from_live_catalog","test_problem_variation_recordings_produce_different_candidate_sets"]]
+["F09-P009","call","failed",[1],"E31",["test_fake_surrogate_owner_ref_fails_closed"]]
+["F09-P011","call","failed",[1],"E32",["test_phase6_1_import_boundary_report_emits_package_level_deltas"]]
+["F09-P011","call","failed",[1],"E33",["test_phase6_1_conversion_report_covers_all_package_import_gates"]]
+["F09-P011","call","failed",[1],"E34",["test_phase6_1_fail_closed_cli_report_passes_current_contract"]]
+["F09-P011","call","failed",[1],"E35",["test_phase1_1_single_file_shell_exception_requires_migration_target_and_smoke_test"]]
+["F09-P011","call","failed",[1],"E36",["test_phase1_1_wrapper_only_shell_exception_cannot_outlive_wave3"]]
+["F09-P011","call","failed",[1],"E37",["test_phase1_1_shell_exception_smoke_import_test_nodeid_must_exist"]]
+["F09-P011","call","failed",[1],"E38",["test_phase1_1_shell_exception_smoke_import_test_must_cover_package"]]
+["F09-P011","call","failed",[1],"E39",["test_phase0_2_single_file_shell_package_dated_exception_is_allowed"]]
+["F09-P014","call","failed",[1],"E40",["TestConnectionConfig::test_redacted_hides_credentials"]]
+["F09-P016","call","failed",[1],"E41",["test_w1a_capability_reality_report_is_generated_and_valid"]]
+["F09-P016","call","failed",[1],"E42",["test_wave5_exit_records_i5_manifest_and_influence_boundaries"]]
+["F09-P016","call","failed",[1],"E43",["test_w1a_cli_can_write_json_output"]]
+["F09-P017","call","failed",[1],"E44",["test_timeout_cleans_owned_process_descendant[async]","test_timeout_cleans_owned_process_descendant[sync]"]]
+["F09-P017","call","failed",[1],"E45",["test_cleanup_kills_descendant_after_worker_exit"]]
+["F09-P019","call","failed",[1],"E46",["test_phase6_4_docs_lifecycle_gate_passes_current_contract"]]
+["F09-P019","call","failed",[1],"E47",["test_phase7_active_plan_with_accepted_closeout_is_rejected"]]
+["F09-P019","call","failed",[1],"E48",["test_phase0_2_redirect_stub_without_sunset_date_is_rejected"]]
+["F09-P019","call","failed",[1],"E49",["test_phase6_2_removed_tests_architecture_redirect_directory_is_rejected"]]
+["F09-P019","call","failed",[1],"E50",["test_phase6_2_stale_removed_stub_references_are_rejected"]]
+["F09-P019","call","failed",[1],"E51",["test_phase6_2_reference_scan_skips_runtime_data_roots"]]
+["F09-P019","call","failed",[1],"E52",["test_phase1_4_redirect_stub_without_created_date_is_rejected"]]
+["F09-P019","call","failed",[1],"E53",["test_phase1_4_redirect_stub_over_90_days_without_adr_is_rejected"]]
+["F09-P019","call","failed",[1],"E54",["test_phase1_4_redirect_stub_over_90_days_requires_adr_to_declare_stub"]]
+["F09-P019","call","failed",[1],"E55",["test_phase6_4_docs_freshness_baseline_is_docs_only_and_stable"]]
+["F09-P020","call","failed",[1],"E56",["test_missing_prior_knowledge_caps_readiness_below_recommendation_ready","test_promotion_coordinator_persists_readiness_and_updates_champion","test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler"]]
+["F09-P020","call","failed",[1],"E57",["test_search_controller_accepts_policy_bundle_after_module_reload"]]
+["F09-P023","call","failed",[1],"E58",["test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport"]]
+["F09-P028","call","failed",[1],"E07",["test_generation_cycle_check_rejects_forged_historical_receipt_before_reissue","test_generation_cycle_check_rejects_rehashed_stale_live_field","test_generation_cycle_check_reports_historical_reissue_without_traceback","test_generation_cycle_writer_reissues_exact_history_with_actual_current_owners"]]
+["F09-P028","setup","failed",[1],"E07",["test_current_epoch_keeps_strict_complete_projection","test_source_reissue_preserves_actual_fresh_payload","test_source_reissue_rejects_every_changed_binding[admission_duplicate]","test_source_reissue_rejects_every_changed_binding[admission_omitted]","test_source_reissue_rejects_every_changed_binding[current_epoch]","test_source_reissue_rejects_every_changed_binding[historical_body]","test_source_reissue_rejects_every_changed_binding[historical_bytes]","test_source_reissue_rejects_every_changed_binding[historical_inner_hash]","test_source_reissue_rejects_every_changed_binding[source_status]","test_source_reissue_rejects_every_changed_binding[unrelated_governing_value]"]]
+["F09-P037","call","failed",[1],"E59",["test_phase2_runtime_consumers_use_data_forge_read_api_not_internals"]]
+["F09-P043","call","failed",[1],"E60",["test_n7_acq01_measurement_root_rejects_same_id_altered_source_requirement","test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr","test_n7_acq01_reentry_does_not_dispatch_gateway_source_echo","test_n7_acq01_reentry_rebinds_real_n5_and_default_n8","test_n7_acq01_reentry_rebuilds_fresh_context_before_n5_and_n7","test_n7_acq01_reentry_rejects_registry_version_content_mismatch","test_n7_acq01_reentry_rejects_tampered_receipt_world_binding[before_ref]","test_n7_acq01_reentry_rejects_tampered_receipt_world_binding[delta_hash]"]]
+["F09-P045","call","failed",[1],"E61",["test_core_runtime_closeout_ledger_loads_and_matches_expected_blockers","test_core_runtime_closeout_summary_and_exit_codes","test_core_runtime_closeout_supports_complete_manual_evidence"]]
+["F09-P052","call","failed",[1],"E09",["test_alias_resolution_is_the_decisive_contract_property","test_certificate_identity_is_invariant_to_persisted_edge_mapping_order","test_certificate_is_deterministic_for_same_reference_epoch","test_concrete_alias_is_certified_specialization","test_false_analog_is_vetoed_not_bound","test_gy_k_witness_does_not_decide_relation","test_joint_cross_modal_inconsistency_blocks_with_unsat_core","test_shadow_only_contract_rejects_bind_recommendation","test_synonym_alias_resolves_without_surface_exact_match","test_unknown_unresolved_axis_does_not_over_veto_or_block"]]
+["F09-P053","call","failed",[1],"E62",["test_raw_approval_semantic_denominator_classifies_complete_tracked_set"]]
+["F09-P057","call","failed",[1],"E25",["test_data_forge_catalog_fixture_source_contract_reaches_runtime_api"]]
+["F09-P058","call","failed",[1],"E63",["test_new_legal_norm_owner_row_appears_without_frontend_code_change"]]
+["F09-P064","call","failed",[1],"E64",["test_simulation_methods_dispatch_and_agent_sim_bridge_runs"]]
+["F09-P066","call","failed",[1],"E09",["test_admission_event_cannot_be_transplanted_to_a_different_binding","test_corrupt_established_head_is_unknown_never_zero","test_crash_after_event_before_head_still_charges","test_governed_resolver_recomputes_synthetic_ancestry_despite_false_flag","test_independent_owners_share_one_cap","test_only_owner_admissions_charge_and_exhaustion_preserves_candidate","test_preemptive_cap_removal_is_detected","test_refused_candidate_does_not_spend_any_admission_budget","test_restart_and_missing_head_cannot_reset_spend","test_synthetic_production_refusal_is_not_an_absent_calibration_mask","test_unsupported_lock_platform_preserves_candidate_custody"]]
+["F09-P066","call","failed",[1],"E65",["test_existing_v1_records_stay_readable_without_claiming_run_accounting"]]
+["F09-P076","setup","failed",[1],"E25",["test_counterfactual_metrics_are_single_payload_with_scenario_ref","test_create_scenario_draft_is_fetchable","test_run_scenarios_return_manifest_with_assumptions_and_lineage","test_scenario_capabilities_list_supported_and_unsupported_surfaces","test_scenario_lineage_deep_dive_contains_assumptions_and_exports","test_scenario_manifest_rejects_conflicting_temporal_scope"]]
+["F09-P076","call","failed",[1],"E25",["test_created_scenario_survives_fresh_runtime_context"]]
+["F09-P080","call","failed",[1],"E66",["test_identification_set_and_statistical_uncertainty_remain_separate"]]
+["F09-P080","call","failed",[1],"E67",["test_asymmetric_interval_is_preserved_by_value_projection"]]
+["F09-P095","call","failed",[1],"E25",["test_operational_consumers_reject_unregistered_exact_resolver","test_registered_resolver_rejects_consumer_constructed_issuance_grant","test_runtime_container_installs_exact_human_decision_dependencies","test_runtime_container_installs_one_acquisition_action_service","test_runtime_container_installs_registered_attested_production_approval_resolver","test_runtime_container_rejects_cross_app_production_approval_resolver","test_runtime_container_rejects_custody_alias_substitution","test_runtime_container_surfaces_typed_unavailable_custody_without_failing_health"]]
+["F09-P099","call","failed",[1],"E25",["test_legacy_browser_token_receives_public_verifier_refusal","test_public_verification_does_not_make_private_run_routes_public"]]
+["F09-P099","setup","failed",[1],"E25",["test_changed_source_bytes_cannot_issue_under_unchanged_run_reference","test_foreign_run_and_client_document_cannot_issue","test_owned_run_packet_is_redacted_issued_and_publicly_verified","test_public_export_refusal_prevents_record_and_link_issuance"]]
+["F09-P113","call","failed",[1],"E68",["test_adjacent_counts_and_n13b_control_plane_signal_cannot_mint_structural_progress","test_component_absence_states_and_historical_environment_measurement_stay_separate","test_cycle_board_stage_trace_href_is_available_only_for_resolved_packet","test_cycle_board_stage_trace_href_serializes_complete_packet_pins","test_known_cohorts_are_owner_ordered_non_exhaustive_and_exclude_run_list_jobs"]]
+Отдельный excluded-slot ledger: все 33 отсутствия подтверждены полным Git tree целевого cut. Это MISSING slots, отдельно от pytest skips.
+path	state	absence_confirmed
+policy-engine/tests/integration/core_runtime/test_acquisition_tenant_custody.py	MISSING	true
+policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py	MISSING	true
+policy-engine/tests/repo_quality/architecture/test_owner_residual_exceptions.py	MISSING	true
+policy-engine/tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py	MISSING	true
+policy-engine/tests/repo_quality/tools/test_file_read_measurement.py	MISSING	true
+policy-engine/tests/repo_quality/tools/test_gy_acquisition_assurance.py	MISSING	true
+policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract_verdict.py	MISSING	true
+policy-engine/tests/repo_quality/tools/test_mutation.py	MISSING	true
+policy-engine/tests/repo_quality/tools/test_runtime_contract_measurement.py	MISSING	true
+policy-engine/tests/repo_quality/tools/test_vocabulary_source_census.py	MISSING	true
+policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py	MISSING	true
+policy-engine/tests/unit/core/phase0/test_worktree_admission.py	MISSING	true
+policy-engine/tests/unit/fabric/test_ceiling_relations.py	MISSING	true
+policy-engine/tests/unit/fabric/test_r13_ingestion_sidecars.py	MISSING	true
+policy-engine/tests/unit/lex/knowledge/test_locale_census.py	MISSING	true
+policy-engine/tests/unit/runtime/http/test_acquisition_human_source.py	MISSING	true
+policy-engine/tests/unit/runtime/http/test_control_job_core_attempts.py	MISSING	true
+policy-engine/tests/unit/runtime/http/test_cycle_board_historical_availability.py	MISSING	true
+policy-engine/tests/unit/runtime/http/test_epoch_issuance_composition.py	MISSING	true
+policy-engine/tests/unit/runtime/http/test_human_decision_mutation_binding.py	MISSING	true
+policy-engine/tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_acquisition_owner_store_requirement.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_adaptation_transition.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_confidence_ledger_packaged.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_epoch_deployment.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_epoch_transition_verification.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_generation_cycle_outer_artifact_replay.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_production_invocation.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_promotion_scope_guards.py	MISSING	true
+policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py	MISSING	true
+policy-engine/tests/unit/scientist/evidence/claims/test_posture_markdown.py	MISSING	true
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_report_canonical_persistence.py	MISSING	true
+VM-файлы сохранены: [result.json](/workspace/polisyos-e02-F09-20261005T074624Z/policy-engine/_build/e02-full/F09/20261005T074624Z/result.json), [failures.jsonl](/workspace/polisyos-e02-F09-20261005T074624Z/policy-engine/_build/e02-full/F09/20261005T074624Z/failures.jsonl), [handoff.md](/workspace/polisyos-e02-F09-20261005T074624Z/policy-engine/_build/e02-full/F09/20261005T074624Z/handoff.md), [raw.tar.gz](/workspace/polisyos-e02-F09-20261005T074624Z/policy-engine/_build/e02-full/F09/20261005T074624Z/raw.tar.gz). Эти ссылки и локальная hash verification не подтверждают transfer или приёмку raw получателем.

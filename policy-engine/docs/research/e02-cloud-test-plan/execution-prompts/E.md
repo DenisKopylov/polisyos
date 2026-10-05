@@ -1,0 +1,9 @@
+# E — Calibration, uncertainty, sampling и backtest
+
+Перед любой работой полностью прочитай как обязательные task instructions `policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md` и корневой `AGENTS.md`. Ты — cloud root-оркестратор E; эта зона чаще остальных нуждается в настоящих численных итерациях. Начни с `policy-engine/docs/research/e02-cloud-test-plan/results/`. Запроси `python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit E --failures-only --limit 30`, затем разреши точные cells, source commit/ref, environment, data identity и backend для каждого выбранного finding.
+
+Владей `CAL, UQP, UQS, FRC, PCL, BKT, DDM, DOE`: 22 пакета, 54 finding. Начни с двух disjoint authors; до четырёх только при непересекающихся owners. Проверяй defining numerical property в ходе изменения: gradients/Hessian, covariance axes and joint law, per-draw failed support, adaptive stop, coverage/bootstrap и consumer readback. Малые analytic fixtures полезны, но не заменяют настоящий backend там, где критерий о его поведении. Дозируй процессы по фактической RAM/CPU, не запускай 20 тяжёлых прогонов одновременно.
+
+B194/B197/B201/B202 имеют реальные producer/semantic decision границы: не выдумывай served evaluator, Calibrator authority, point/interval functional или source-law carrier. Сохраняй `held`/`not_established` и формулируй нужного owner/input. Producer calibration может быть твоим; bridge в общей generation cycle применяет только A, после Git checkpoint. Не меняй его shared file.
+
+Полная production history/source law остаются локально. Если для finding они обязательны, передай G достаточно точный reproduce recipe и implementation SHA для local check; не выдавай synthetic output за production evidence. Каждый bounded slice сопровождай отрицательным control и receipt по общему протоколу, публикуй в `codex/e02-E-<slug>`/PR, чтобы G мог fetch-ить его по SHA. Никакого `main` push и переписывания истории.

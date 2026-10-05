@@ -1,0 +1,86 @@
+{
+  "schema": "policyos.e02.results_navigation_validation.v1",
+  "claim": "transfer/index integrity only; no VM or product verification",
+  "helper_sha256": {
+    "import_results.py": "701a73c316eb1d9b842004efbb8856960f9ccbe896816b365a13a415a7c50410",
+    "query.py": "fb8d1b841d24e9069f7618ab08bee23b5f20fb1027f32a4ce8ed3d7e662a1f83"
+  },
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "$PACK/results/import_results.py",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python3",
+        "$PACK/results/import_results.py",
+        "--root",
+        "$IGNORED_CORRUPTION_COPY/results",
+        "--check"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "index verification failed: derived artifact drift: cells.tsv\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "$PACK/results/import_results.py",
+        "--root",
+        "$IGNORED_CORRUPTION_COPY/results",
+        "--check"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "index verification failed: transferred source hash drift\n"
+    },
+    {
+      "argv": [
+        "policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "$PACK/results/import_results.py",
+        "$PACK/results/query.py"
+      ],
+      "exit": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    }
+  ],
+  "query_smoke": [
+    {
+      "cell": "F08-P001",
+      "source_blocks": 3,
+      "referenced_messages": 3
+    },
+    {
+      "cell": "F09-P002",
+      "source_blocks": 6,
+      "referenced_messages": 6
+    },
+    {
+      "cell": "F12-P038",
+      "source_blocks": 13,
+      "referenced_messages": 0
+    },
+    {
+      "cell": "F14-P001",
+      "source_blocks": 5,
+      "referenced_messages": 5
+    },
+    {
+      "cell": "F15-P001",
+      "source_blocks": 1,
+      "referenced_messages": 3
+    }
+  ],
+  "finding_basis_check": "B37 canonical adequacy/discriminator/residual/assigned routes preserved",
+  "raw_archives_received": 0
+}

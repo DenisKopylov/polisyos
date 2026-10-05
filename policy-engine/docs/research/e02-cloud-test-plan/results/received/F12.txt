@@ -1,0 +1,764 @@
+Выполнены все 122 файла: native — 100 PASS, 17 FAILED, 5 ERROR, UNRUN нет. После отдельного locked-дополнения профиля mutation P038 прошёл все 15 тестов в observer_fallback. Все первичные результаты и повторы сохранены.
+Источник не изменён. Архив проверен чтением реальных bytes. Raw transfer недоступен; ниже переданы metadata, все TSV-строки и компактные блоки всех 358 non-pass events. Причины/ownership failures и закрытие E02 не установлены.
+Файлы в VM: [result.json](/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/result.json), [failures.jsonl](/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/failures.jsonl), [handoff.md](/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/handoff.md), [raw archive](/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/e02-full-F12-20261005T0750Z-raw.tar.gz).
+Metadata JSON:
+{
+  "job": "F12",
+  "run_id": "20261005T0750Z",
+  "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+  "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+  "source_role": "main",
+  "manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+  "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+  "config_sha256": {
+    "policy-engine/pyproject.toml": "5e98214495a461efb3aa60877a3f8cf9cae109e934da1e39dafc4c1346f631be",
+    "policy-engine/uv.lock": "ca41190281680015fd7e5e1a42e55bfcddfb3e76b171417df3110553f4b01266",
+    "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+    "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+  },
+  "native_profile": [
+    "lint","test","runtime","ml","analytics","bayesian",
+    "optimization-advanced","sensitivity","causal-discovery",
+    "vector-search","solvers","search_bo","agent-sim","causal-discovery-scale"
+  ],
+  "post_series_profile_addition": {
+    "extra": "mutation",
+    "mutmut": "3.5.0",
+    "frozen_sync_exit": 0,
+    "start": "2026-10-05T11:31:32.027945+00:00",
+    "end": "2026-10-05T11:31:32.702578+00:00",
+    "wall_s": 0.6746398770010273,
+    "disk_free_before_bytes": 21512089600,
+    "disk_floor_bytes": 21474836480,
+    "distributions_before": 253,
+    "distributions_after": 263,
+    "removed_or_changed_previous_distributions": 0,
+    "added": {
+      "coverage": "7.13.5",
+      "linkify-it-py": "2.1.0",
+      "markdown-it-py": "4.0.0",
+      "mdit-py-plugins": "0.5.0",
+      "mdurl": "0.1.2",
+      "mutmut": "3.5.0",
+      "rich": "14.3.2",
+      "setproctitle": "1.3.7",
+      "textual": "8.2.2",
+      "uc-micro-py": "2.0.0"
+    },
+    "native_P038_environment_blocker": "initial union omitted locked mutation extra; native P038 is not a complete mutation backend witness"
+  },
+  "toolchain": {
+    "python": "3.14.2",
+    "uv": "0.9.21",
+    "node": "22.23.3",
+    "corepack": "0.36.0",
+    "pnpm": "10.33.2"
+  },
+  "platform": {
+    "os_arch": "Linux x86_64",
+    "cpu_max": "400000 100000",
+    "cpuset": "0-4",
+    "memory_limit_bytes": 17179869184,
+    "execution": "CPU"
+  },
+  "setup": {
+    "initial_frozen_sync": "interrupted during transport outage; exit unknown",
+    "resumed_frozen_union_sync_exit": 0,
+    "resumed_frozen_union_sync_wall_s": 164.84046047099997,
+    "pnpm_frozen_install_exit": 0,
+    "pnpm_frozen_install_wall_s": 29.86,
+    "segments_ref": "environment.json"
+  },
+  "native_start": "2026-10-05T08:07:38.885412+00:00",
+  "native_end": "2026-10-05T11:08:25.672522+00:00",
+  "all_attempts_end": "2026-10-05T11:33:55.340423+00:00",
+  "budget_clock_start": "2026-10-05T07:43:00+00:00",
+  "budget_clock_precision": "conservative pre-setup bound, not actual request timestamp",
+  "original_new_cell_cutoff": "2026-10-05T11:13:00+00:00",
+  "user_authorized_necessary_new_tests_after_cutoff": true,
+  "attempts_started_after_original_cutoff": 2,
+  "native_totals": {
+    "assigned": 122,
+    "executed_primary": 122,
+    "states": {"PASS":100,"FAILED":17,"ERROR":5},
+    "UNRUN": 0,
+    "collected": 1891,
+    "calls": 1668,
+    "call_pass": 1553,
+    "call_failed": 115,
+    "setup_error": 208,
+    "teardown_error": 0,
+    "skip": 15,
+    "xfail": 0,
+    "xpass": 0,
+    "collection_skip": 0,
+    "collection_error": 0,
+    "unknown_cells": 0,
+    "sum_primary_wall_s": 10815.273352822003,
+    "sum_primary_direct_user_s": 9596.13,
+    "sum_primary_direct_system_s": 544.95,
+    "receipt_statuses": {
+      "valid_reconciled": 120,
+      "invalid_reconciliation": 1,
+      "canonical_workload_receipt_missing": 1
+    }
+  },
+  "all_attempts": 125,
+  "sum_all_attempt_wall_s": 11837.700467499006,
+  "additional_attempts": [
+    {
+      "cell":"F12-P001","attempt":2,"state":"FAILED",
+      "collected":91,"calls":77,"call_pass":75,"call_failed":2,"skip":14,
+      "start":"2026-10-05T11:08:41.533818+00:00",
+      "end":"2026-10-05T11:24:53.946065+00:00",
+      "wall_s":972.412679119001,
+      "profile":"native_profile",
+      "receipt_mode":"observer_fallback",
+      "receipt_status":"canonical_workload_receipt_missing",
+      "collection_and_phase_counts_match_native":true,
+      "native_receipt_mismatch":{"observer_nodes":91,"canonical_nodes":1}
+    },
+    {
+      "cell":"F12-P038","attempt":2,"state":"FAILED",
+      "collected":15,"calls":15,"call_pass":11,"call_failed":4,
+      "start":"2026-10-05T11:31:32.896725+00:00",
+      "end":"2026-10-05T11:31:54.904066+00:00",
+      "wall_s":22.00716556200132,
+      "profile":"native_profile + mutation",
+      "receipt_mode":"canonical",
+      "receipt_status":"valid_reconciled",
+      "observed_child_blocker":"canonical plugin rejected tests/test_sample_math.py nodes outside selected parent paths"
+    },
+    {
+      "cell":"F12-P038","attempt":3,"state":"PASS",
+      "collected":15,"calls":15,"call_pass":15,"call_failed":0,
+      "start":"2026-10-05T11:33:27.332984+00:00",
+      "end":"2026-10-05T11:33:55.340423+00:00",
+      "wall_s":28.007269996000105,
+      "profile":"native_profile + mutation",
+      "receipt_mode":"observer_fallback",
+      "receipt_status":"canonical_workload_receipt_missing"
+    }
+  ],
+  "native_primary_rows_preserved": true,
+  "source_checks": {
+    "all_assigned_blobs_match":true,
+    "HEAD_and_tree_match":true,
+    "tracked_diff_empty":true,
+    "observer_matches":true,
+    "original_clone_HEAD_preserved":true,
+    "source_drift":[],
+    "custody_blockers":[]
+  },
+  "resource_units": {
+    "wall_s":"seconds, supervisor around timed wrapper",
+    "CPU":"seconds, direct pytest GNU time",
+    "rss_kib":"KiB, direct pytest process-tree GNU time maximum; not VM peak"
+  },
+  "gates": [],
+  "properties": [],
+  "unrun_continuation": [],
+  "archive": {
+    "name":"e02-full-F12-20261005T0750Z-raw.tar.gz",
+    "sha256":"77cb8fe94b0737bac108573c38063e9f47dd744c628aa0d77f91da526f3e3608",
+    "size_bytes":11706218,
+    "members":2364,
+    "actual_bytes_readback":true,
+    "every_member_hash_and_size_verified":true,
+    "all_attempts_present":125,
+    "nonpass_attempts_present":24
+  },
+  "text_validation": {
+    "all_primary_TSV_rows_match":122,
+    "all_nonpass_events_represented":358,
+    "failure_groups":56,
+    "all_attempt_phase_counts_reconciled":125
+  },
+  "transfer_status":"compact_text_only",
+  "raw_archive_transfer":"missing",
+  "failure_defaults": {
+    "cause_status":"not_established",
+    "raw_transfer_missing":true,
+    "full_longrepr":"preserved in VM failures.jsonl and archive",
+    "nodeid_rule":"cells.tsv path without policy-engine/ + :: + each suffix",
+    "argv_rule":"full-file argv below; canonical except P004, P001 attempt 2 and P038 attempt 3, which use observer_fallback"
+  },
+  "limitations": [
+    "failure ownership and inherited status not established by slice-base replay",
+    "semantic capability chain and E02 closure not established",
+    "owned module snapshot; complete nested process/backend history unavailable",
+    "no live LLM/API, real production_data or GPU/Metal/macOS attestation",
+    "local archive validation does not prove transfer or recipient acceptance"
+  ]
+}
+Воспроизводимый argv для каждого блока: FILE — полный путь из TSV без policy-engine/; CELL — его ID; OUT — новый каталог попытки. Native и P001 attempt 2 используют native profile; P038 attempts 2/3 — native profile плюс mutation. До запуска создаются OUT/os-tmp, OUT/hypothesis, OUT/observer; repository _cache/hypothesis направляется в OUT/hypothesis. Stdout/stderr открываются supervisor отдельно.
+{
+  "cwd":"/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine",
+  "PY":"/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/.venv/bin/python",
+  "TIME":"/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/bootstrap/time-local/usr/bin/time",
+  "PLUGIN":"/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/plugin",
+  "canonical_argv":[
+    "<TIME>","-v","-o","<OUT>/wrapper-resource.txt",
+    "<PY>","-m","tools.quality.testing.run_timed_suite",
+    "--lane","e02-full-F12:<CELL>","--cwd",".",
+    "--capture-pytest-workload","--receipt-output","<OUT>/execution.json","--",
+    "<TIME>","-v","-o","<OUT>/pytest-resource.txt",
+    "<PY>","-m","pytest","-c","pytest.ini","<FILE>",
+    "-p","e02_observer","-p","e02_environment",
+    "--junitxml=<OUT>/junit.xml","--durations=0","--basetemp=<OUT>/tmp",
+    "-o","cache_dir=<OUT>/pytest-cache","--benchmark-storage=file://<OUT>/benchmarks"
+  ],
+  "observer_fallback_remove_from_canonical":[
+    "--capture-pytest-workload","--receipt-output","<OUT>/execution.json"
+  ],
+  "overrides":{
+    "POLISYOS_TOOLS_TIMING_LOG":"<OUT>/timing.jsonl",
+    "E02_OBSERVER_DIR":"<OUT>/observer",
+    "HYPOTHESIS_STORAGE_DIRECTORY":"<OUT>/hypothesis",
+    "TMPDIR":"<OUT>/os-tmp",
+    "PYTHONPATH":"<PLUGIN>",
+    "OMP_NUM_THREADS":"1","OPENBLAS_NUM_THREADS":"1","MKL_NUM_THREADS":"1",
+    "NUMEXPR_NUM_THREADS":"1","VECLIB_MAXIMUM_THREADS":"1","JAX_PLATFORMS":"cpu",
+    "PATH_prefix":"/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin"
+  },
+  "cleared_controls":[
+    "PYTEST_ADDOPTS","PYTEST_PLUGINS","PYTEST_XDIST_WORKER","POLISYOS_TEST_FILTERS",
+    "POLISYOS_TOOLS_TIMING_REGIME","POLISYOS_TOOLS_TIMING_RETENTION",
+    "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR",
+    "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL",
+    "POLISYOS_R7_REMOVE_ACTIVE_PROBE_SUPPRESSION",
+    "POLISYOS_PYTEST_RECEIPT_*"
+  ],
+  "native_property_controls_absent_in_observed_children":true,
+  "e02_environment_source":"import json,os,sys\nfrom pathlib import Path\nimport pytest\n@pytest.hookimpl(trylast=True)\ndef pytest_collection_finish(session):\n    h=sys.modules.get('hypothesis')\n    settings=getattr(h,'settings',None)\n    d={'pid':os.getpid(),'hypothesis_env':os.environ.get('HYPOTHESIS_STORAGE_DIRECTORY'),'hypothesis_default_database':repr(settings.default.database) if settings else None,'hypothesis_profile':settings.get_current_profile_name() if settings else None,'hypothesis_repo_cache_resolved':str((Path.cwd()/'_cache/hypothesis').resolve()),'collect_only':bool(session.config.option.collectonly)}\n    p=Path(os.environ['E02_OBSERVER_DIR'])/'environment';p.mkdir(exist_ok=True);(p/(str(os.getpid())+'.json')).write_text(json.dumps(d)+'\\n')\n"
+}
+Все строки cells.tsv — первичные попытки:
+id	path	state	reason	collected	calls	call_pass	call_failed	setup_error	teardown_error	skip	xfail	xpass	collection_skip	collection_error	wall_s	rss_kib	receipt_status
+F12-P001	policy-engine/tests/unit/runtime/quality/test_generation_cycle.py	FAILED	native	91	77	75	2	0	0	14	0	0	0	0	828.2502797	1550924.0	invalid_reconciliation
+F12-P002	policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py	ERROR	native	175	6	6	0	169	0	0	0	0	0	0	278.120093278	1774696.0	valid_reconciled
+F12-P003	policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py	ERROR	native	42	15	9	6	27	0	0	0	0	0	0	156.172193117	1497828.0	valid_reconciled
+F12-P004	policy-engine/tests/repo_quality/tools/test_debt_ledger_checker.py	FAILED	assigned_debt_ledger_exception	76	76	71	5	0	0	0	0	0	0	0	1652.8435967439998	1560148.0	canonical_workload_receipt_missing
+F12-P005	policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py	ERROR	native	37	36	34	2	1	0	0	0	0	0	0	442.3198754770001	2583248.0	valid_reconciled
+F12-P006	policy-engine/tests/unit/runtime/quality/test_credal_reference.py	ERROR	native	15	10	5	5	5	0	0	0	0	0	0	92.09133786299981	1524000.0	valid_reconciled
+F12-P007	policy-engine/tests/unit/fabric/connectors/test_schema_system.py	PASS	native	85	85	85	0	0	0	0	0	0	0	0	10.018428361000588	337216.0	valid_reconciled
+F12-P008	policy-engine/tests/unit/fabric/connectors/test_registry.py	PASS	native	63	63	63	0	0	0	0	0	0	0	0	8.001466637999329	212464.0	valid_reconciled
+F12-P009	policy-engine/tests/integration/runtime_quality/test_chronology_protocol_conformance.py	PASS	native	38	38	38	0	0	0	0	0	0	0	0	80.01073026500035	1493176.0	valid_reconciled
+F12-P010	policy-engine/tests/performance/test_runtime_hot_paths.py	FAILED	native	21	21	12	9	0	0	0	0	0	0	0	102.03461181800049	1591708.0	valid_reconciled
+F12-P011	policy-engine/tests/unit/scientist/validation/test_decision_validity_service.py	PASS	native	98	98	98	0	0	0	0	0	0	0	0	88.09049557599974	1521296.0	valid_reconciled
+F12-P012	policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py	FAILED	native	49	49	40	9	0	0	0	0	0	0	0	80.0301511130001	1509956.0	valid_reconciled
+F12-P013	policy-engine/tests/unit/runtime/http/test_control_service_di.py	FAILED	native	30	30	27	3	0	0	0	0	0	0	0	178.04939248699975	1619368.0	valid_reconciled
+F12-P014	policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py	PASS	native	49	48	48	0	0	0	1	0	0	0	0	88.02351872700001	1503552.0	valid_reconciled
+F12-P015	policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py	PASS	native	13	13	13	0	0	0	0	0	0	0	0	148.0298658039992	1618724.0	valid_reconciled
+F12-P016	policy-engine/tests/integration/runtime_frontend/test_ds15_acquisition_route_contract_bridge.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	172.15612732000045	1640676.0	valid_reconciled
+F12-P017	policy-engine/tests/repo_quality/tools/test_repository_last_mile_inventory.py	FAILED	native	23	23	21	2	0	0	0	0	0	0	0	42.018629051999596	279164.0	valid_reconciled
+F12-P018	policy-engine/tests/repo_quality/tools/test_unified_cli.py	PASS	native	18	18	18	0	0	0	0	0	0	0	0	76.01796915799969	1279744.0	valid_reconciled
+F12-P019	policy-engine/tests/integration/core_runtime/test_acquisition_authority_provider.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	130.02910711700042	1684536.0	valid_reconciled
+F12-P020	policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	118.02820256299947	1679792.0	valid_reconciled
+F12-P021	policy-engine/tests/integration/core_runtime/test_acquisition_route_execution_binding.py	PASS	native	11	11	11	0	0	0	0	0	0	0	0	102.09998238699973	1516156.0	valid_reconciled
+F12-P022	policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py	PASS	native	42	42	42	0	0	0	0	0	0	0	0	120.03892005800026	1540848.0	valid_reconciled
+F12-P023	policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py	PASS	native	28	28	28	0	0	0	0	0	0	0	0	6.002055886000562	102904.0	valid_reconciled
+F12-P024	policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py	PASS	native	8	8	8	0	0	0	0	0	0	0	0	52.00877497500005	1220932.0	valid_reconciled
+F12-P025	policy-engine/tests/unit/foundry/methods/catalog/forecasting/test_uncertainty_bundle.py	PASS	native	14	14	14	0	0	0	0	0	0	0	0	140.04651379999996	633248.0	valid_reconciled
+F12-P026	policy-engine/tests/unit/runtime/quality/test_chronology_proof.py	FAILED	native	30	30	29	1	0	0	0	0	0	0	0	88.03000563299975	1494088.0	valid_reconciled
+F12-P027	policy-engine/tests/unit/runtime/quality/test_acquisition_movement_positive.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	134.02741389599942	1638244.0	valid_reconciled
+F12-P028	policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py	PASS	native	14	14	14	0	0	0	0	0	0	0	0	88.02055674999974	1506180.0	valid_reconciled
+F12-P029	policy-engine/tests/unit/foundry/data_plane/test_bindings_multiscale.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	50.01849565299926	660232.0	valid_reconciled
+F12-P030	policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py	PASS	native	24	24	24	0	0	0	0	0	0	0	0	152.03501284600043	1550636.0	valid_reconciled
+F12-P031	policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py	FAILED	native	7	7	6	1	0	0	0	0	0	0	0	90.08755523299988	1470488.0	valid_reconciled
+F12-P032	policy-engine/tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py	PASS	native	9	9	9	0	0	0	0	0	0	0	0	88.03380772699984	1487928.0	valid_reconciled
+F12-P033	policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py	PASS	native	12	12	12	0	0	0	0	0	0	0	0	66.02440232800018	1409288.0	valid_reconciled
+F12-P034	policy-engine/tests/unit/runtime/quality/test_epoch_validity_cascade.py	PASS	native	30	30	30	0	0	0	0	0	0	0	0	106.02201149099983	1489952.0	valid_reconciled
+F12-P035	policy-engine/tests/repo_quality/tools/test_gy_acquisition_assurance.py	PASS	native	11	11	11	0	0	0	0	0	0	0	0	36.00945450200015	211876.0	valid_reconciled
+F12-P036	policy-engine/tests/repo_quality/tools/test_trust_posture_measurement.py	PASS	native	18	18	18	0	0	0	0	0	0	0	0	66.00870474099975	1295872.0	valid_reconciled
+F12-P037	policy-engine/tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py	FAILED	native	7	7	6	1	0	0	0	0	0	0	0	42.00927792099992	148180.0	valid_reconciled
+F12-P038	policy-engine/tests/repo_quality/tools/test_mutation.py	FAILED	native	15	15	0	15	0	0	0	0	0	0	0	6.002760965999187	102144.0	valid_reconciled
+F12-P039	policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py	PASS	native	32	32	32	0	0	0	0	0	0	0	0	30.04733186700014	341012.0	valid_reconciled
+F12-P040	policy-engine/tests/unit/scientist/governance/continuous/test_governed_public_record.py	PASS	native	23	23	23	0	0	0	0	0	0	0	0	66.03016580499934	1329808.0	valid_reconciled
+F12-P041	policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py	PASS	native	12	12	12	0	0	0	0	0	0	0	0	6.001872261000244	101328.0	valid_reconciled
+F12-P042	policy-engine/tests/repo_quality/tools/test_vocabulary_source_census.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	8.002507459999833	100756.0	valid_reconciled
+F12-P043	policy-engine/tests/unit/ddm/test_full_acceptance.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	6.00213952500053	101440.0	valid_reconciled
+F12-P044	policy-engine/tests/unit/runtime/quality/test_grounding_bind.py	FAILED	native	17	17	1	16	0	0	0	0	0	0	0	272.1165518180005	1499892.0	valid_reconciled
+F12-P045	policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py	FAILED	native	22	22	21	1	0	0	0	0	0	0	0	122.04780448800011	1615316.0	valid_reconciled
+F12-P046	policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_6_release_topology.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	6.001522062999356	111340.0	valid_reconciled
+F12-P047	policy-engine/tests/repo_quality/tools/test_locale_census_independent.py	PASS	native	22	22	22	0	0	0	0	0	0	0	0	6.0021488020001925	101036.0	valid_reconciled
+F12-P048	policy-engine/tests/unit/calibration/test_continuous.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	10.002114621000146	263900.0	valid_reconciled
+F12-P049	policy-engine/tests/unit/fabric/data_plane/test_cursor_store.py	PASS	native	16	16	16	0	0	0	0	0	0	0	0	8.003647372999694	102912.0	valid_reconciled
+F12-P050	policy-engine/tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py	FAILED	native	4	4	0	4	0	0	0	0	0	0	0	96.0975327770002	1600712.0	valid_reconciled
+F12-P051	policy-engine/tests/unit/ir/test_causal_graph_contract.py	PASS	native	15	15	15	0	0	0	0	0	0	0	0	6.001774136999302	103256.0	valid_reconciled
+F12-P052	policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	8.00252217599973	246516.0	valid_reconciled
+F12-P053	policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	10.003151230000185	350360.0	valid_reconciled
+F12-P054	policy-engine/tests/unit/core/security/test_chronology_anchor.py	PASS	native	17	17	17	0	0	0	0	0	0	0	0	92.02483795799981	1528752.0	valid_reconciled
+F12-P055	policy-engine/tests/unit/runtime/quality/test_grounding_relation.py	FAILED	native	13	13	3	10	0	0	0	0	0	0	0	200.1567035220005	1495596.0	valid_reconciled
+F12-P056	policy-engine/tests/unit/runtime/quality/test_epoch_custody_audit.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	156.04285305299982	1488184.0	valid_reconciled
+F12-P057	policy-engine/tests/unit/core/phase0/test_store_signing.py	PASS	native	10	10	10	0	0	0	0	0	0	0	0	6.002004833999308	102556.0	valid_reconciled
+F12-P058	policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py	PASS	native	4	4	4	0	0	0	0	0	0	0	0	52.01147879100063	1226892.0	valid_reconciled
+F12-P059	policy-engine/tests/integration/foundry_scientist/test_method_node_bridge.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	66.01524443800008	1357164.0	valid_reconciled
+F12-P060	policy-engine/tests/integration/runtime_quality/test_published_signature_custody.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	98.02538289400036	1515988.0	valid_reconciled
+F12-P061	policy-engine/tests/unit/ir/test_public_surface.py	PASS	native	14	14	14	0	0	0	0	0	0	0	0	14.005410791998656	251000.0	valid_reconciled
+F12-P062	policy-engine/tests/unit/runtime/quality/test_non_data_acquisition.py	PASS	native	23	23	23	0	0	0	0	0	0	0	0	80.0162615499994	1520452.0	valid_reconciled
+F12-P063	policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py	PASS	native	8	8	8	0	0	0	0	0	0	0	0	56.02941226099938	1221872.0	valid_reconciled
+F12-P064	policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	64.01246003699998	1288956.0	valid_reconciled
+F12-P065	policy-engine/tests/unit/foundry/coupling/test_estimation.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	46.00886627100044	584472.0	valid_reconciled
+F12-P066	policy-engine/tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py	FAILED	native	4	4	3	1	0	0	0	0	0	0	0	86.02222219299983	690820.0	valid_reconciled
+F12-P067	policy-engine/tests/repo_quality/tools/test_file_read_measurement.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	6.003571481000108	100956.0	valid_reconciled
+F12-P068	policy-engine/tests/unit/fabric/data_plane/test_modes.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	12.003780115001064	214996.0	valid_reconciled
+F12-P069	policy-engine/tests/unit/runtime/quality/test_grounding_risk.py	FAILED	native	14	14	2	12	0	0	0	0	0	0	0	208.25653267599955	1496924.0	valid_reconciled
+F12-P070	policy-engine/tests/repo_quality/tools/test_generated_client_station.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	14.005903400000534	122904.0	valid_reconciled
+F12-P071	policy-engine/tests/unit/runtime/quality/test_promotion_safety.py	PASS	native	14	14	14	0	0	0	0	0	0	0	0	94.03874729499876	1523948.0	valid_reconciled
+F12-P072	policy-engine/tests/unit/foundry/compile/test_program_graph_ops.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	56.0311091399999	607284.0	valid_reconciled
+F12-P073	policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	6.002174953000576	108312.0	valid_reconciled
+F12-P074	policy-engine/tests/unit/core/phase0/test_worktree_admission.py	PASS	native	23	23	23	0	0	0	0	0	0	0	0	6.002701110999624	100276.0	valid_reconciled
+F12-P075	policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	8.002345179998883	253732.0	valid_reconciled
+F12-P076	policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py	PASS	native	12	12	12	0	0	0	0	0	0	0	0	58.00753051200081	1294876.0	valid_reconciled
+F12-P077	policy-engine/tests/unit/runtime/http/test_api_maturity.py	ERROR	native	11	5	2	3	6	0	0	0	0	0	0	98.13343925799927	1620796.0	valid_reconciled
+F12-P078	policy-engine/tests/unit/runtime/quality/test_constrained_response.py	PASS	native	11	11	11	0	0	0	0	0	0	0	0	80.01454107300015	1502840.0	valid_reconciled
+F12-P079	policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py	PASS	native	10	10	10	0	0	0	0	0	0	0	0	52.01057482000033	594844.0	valid_reconciled
+F12-P080	policy-engine/tests/unit/runtime/quality/test_acquisition_route_loop.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	106.12857989400072	1536900.0	valid_reconciled
+F12-P081	policy-engine/tests/unit/runtime/quality/test_global_case_index.py	PASS	native	15	15	15	0	0	0	0	0	0	0	0	80.02242219899927	1470428.0	valid_reconciled
+F12-P082	policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py	PASS	native	8	8	8	0	0	0	0	0	0	0	0	60.01160019300005	1411616.0	valid_reconciled
+F12-P083	policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	62.062551929999245	1346088.0	valid_reconciled
+F12-P084	policy-engine/tests/unit/fabric/test_root_facade.py	PASS	native	8	8	8	0	0	0	0	0	0	0	0	8.00209956100116	211156.0	valid_reconciled
+F12-P085	policy-engine/tests/unit/runtime/quality/test_acquisition_overlay_visibility.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	88.02196349900078	1519864.0	valid_reconciled
+F12-P086	policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py	PASS	native	4	4	4	0	0	0	0	0	0	0	0	62.02675444200031	1234596.0	valid_reconciled
+F12-P087	policy-engine/tests/unit/fabric/test_acquisition_assurance.py	PASS	native	25	25	25	0	0	0	0	0	0	0	0	12.00507093700071	201484.0	valid_reconciled
+F12-P088	policy-engine/tests/unit/fabric/test_ceiling_relations.py	PASS	native	24	24	24	0	0	0	0	0	0	0	0	8.001422744000593	200624.0	valid_reconciled
+F12-P089	policy-engine/tests/unit/runtime/http/test_runtime_service_container.py	FAILED	native	8	8	1	7	0	0	0	0	0	0	0	98.02103068399992	1611720.0	valid_reconciled
+F12-P090	policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	60.012458217999665	1288964.0	valid_reconciled
+F12-P091	policy-engine/tests/unit/runtime/http/test_resilience_guards.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	94.04074959600075	1551568.0	valid_reconciled
+F12-P092	policy-engine/tests/unit/runtime/quality/test_chronology_qualification.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	72.01262402999964	1489760.0	valid_reconciled
+F12-P093	policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	54.112727268000526	1230052.0	valid_reconciled
+F12-P094	policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	8.002603547000035	257420.0	valid_reconciled
+F12-P095	policy-engine/tests/unit/common/test_llm_json.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	4.0017974080001295	100892.0	valid_reconciled
+F12-P096	policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	74.01502620199972	1489704.0	valid_reconciled
+F12-P097	policy-engine/tests/unit/scholar/search/test_providers.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	8.001586497000972	212824.0	valid_reconciled
+F12-P098	policy-engine/tests/unit/scientist/governance/continuous/test_owner_event_producer.py	PASS	native	9	9	9	0	0	0	0	0	0	0	0
+
+
+
+
+
+
+Выполнены все 122 файла: native — 100 PASS, 17 FAILED, 5 ERROR; UNRUN — 0. Сохранены 125 attempts. После дополнения locked-профиля mutation и разрешённого fallback recovery P038 прошёл все 15 тестов. Первичные результаты сохранены без подмены.
+Источник не изменён. Архив проверен чтением bytes и hashes всех members. Raw transfer недоступен: compact_text_only / raw_archive_transfer=missing. Полные longrepr остаются в VM. Причины/ownership failures и закрытие E02 не установлены.
+Файлы в VM: [result.json](/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/result.json), [failures.jsonl](/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/failures.jsonl), [handoff.md](/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/handoff.md), [raw archive](/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/e02-full-F12-20261005T0750Z-raw.tar.gz).
+Metadata JSON:
+{
+  "job": "F12",
+  "run_id": "20261005T0750Z",
+  "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+  "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+  "role": "main",
+  "manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+  "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+  "config_sha256": {
+    "policy-engine/pyproject.toml": "5e98214495a461efb3aa60877a3f8cf9cae109e934da1e39dafc4c1346f631be",
+    "policy-engine/uv.lock": "ca41190281680015fd7e5e1a42e55bfcddfb3e76b171417df3110553f4b01266",
+    "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+    "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+  },
+  "toolchain": {
+    "python": "3.14.2",
+    "uv": "0.9.21",
+    "node": "22.23.3",
+    "corepack": "0.36.0",
+    "pnpm": "10.33.2"
+  },
+  "platform": {
+    "os_arch": "Linux x86_64",
+    "cpu_max": "400000 100000",
+    "cpuset": "0-4",
+    "memory_limit_bytes": 17179869184
+  },
+  "native_profile": [
+    "lint", "test", "runtime", "ml", "analytics", "bayesian",
+    "optimization-advanced", "sensitivity", "causal-discovery",
+    "vector-search", "solvers", "search_bo", "agent-sim",
+    "causal-discovery-scale"
+  ],
+  "profile_completion": {
+    "added_locked_extra": "mutation",
+    "mutmut": "3.5.0",
+    "start": "2026-10-05T11:31:32.027945+00:00",
+    "end": "2026-10-05T11:31:32.702578+00:00",
+    "exit": 0,
+    "disk_free_before_bytes": 21512089600,
+    "disk_floor_bytes": 21474836480,
+    "native_distributions": 253,
+    "final_distributions": 263,
+    "previous_distributions_changed_or_removed": 0,
+    "added": {
+      "coverage": "7.13.5",
+      "linkify-it-py": "2.1.0",
+      "markdown-it-py": "4.0.0",
+      "mdit-py-plugins": "0.5.0",
+      "mdurl": "0.1.2",
+      "mutmut": "3.5.0",
+      "rich": "14.3.2",
+      "setproctitle": "1.3.7",
+      "textual": "8.2.2",
+      "uc-micro-py": "2.0.0"
+    },
+    "native_P038_environment_blocker": "locked mutation extra absent; initial union preparation was incomplete for this backend witness"
+  },
+  "setup": {
+    "initial_frozen_sync": "interrupted during transport outage; exit unknown",
+    "resumed_frozen_union_sync": "exit 0 before native series",
+    "pnpm_frozen_install": "exit 0 before native series",
+    "segments_and_logs": "environment.json and bootstrap/"
+  },
+  "times_utc": {
+    "budget_start_bound": "2026-10-05T07:43:00+00:00",
+    "budget_start_precision": "conservative pre-setup bound, not actual request timestamp",
+    "original_new_cell_cutoff": "2026-10-05T11:13:00+00:00",
+    "native_start": "2026-10-05T08:07:38.885412+00:00",
+    "native_end": "2026-10-05T11:08:25.672522+00:00",
+    "last_attempt_end": "2026-10-05T11:33:55.340423+00:00",
+    "user_authorized_required_tests_after_cutoff": true,
+    "attempts_started_after_original_cutoff": 2
+  },
+  "native_totals": {
+    "assigned": 122,
+    "executed_primary": 122,
+    "states": {"PASS": 100, "FAILED": 17, "ERROR": 5},
+    "collected": 1891,
+    "calls": 1668,
+    "call_pass": 1553,
+    "call_failed": 115,
+    "setup_error": 208,
+    "teardown_error": 0,
+    "skip": 15,
+    "xfail": 0,
+    "xpass": 0,
+    "collection_skip": 0,
+    "collection_error": 0,
+    "unknown_cells": 0,
+    "sum_primary_wall_s": 10815.273352822003,
+    "sum_primary_direct_user_s": 9596.13,
+    "sum_primary_direct_system_s": 544.95,
+    "receipt_statuses": {
+      "valid_reconciled": 120,
+      "invalid_reconciliation": 1,
+      "canonical_workload_receipt_missing": 1
+    }
+  },
+  "all_attempts": 125,
+  "sum_all_attempt_wall_s": 11837.700467499006,
+  "additional_attempts": [
+    {
+      "cell": "F12-P001", "attempt": 2,
+      "profile": "native",
+      "state": "FAILED", "collected": 91, "calls": 77,
+      "call_pass": 75, "call_failed": 2, "skip": 14,
+      "wall_s": 972.412679119001,
+      "receipt_mode": "observer_fallback",
+      "receipt_status": "canonical_workload_receipt_missing",
+      "collection_and_phase_counts_match_native": true
+    },
+    {
+      "cell": "F12-P038", "attempt": 2,
+      "profile": "native plus mutation",
+      "state": "FAILED", "collected": 15, "calls": 15,
+      "call_pass": 11, "call_failed": 4,
+      "wall_s": 22.00716556200132,
+      "receipt_mode": "canonical",
+      "receipt_status": "valid_reconciled",
+      "observed_child_blocker": "canonical plugin rejected synthetic tests/test_sample_math.py paths"
+    },
+    {
+      "cell": "F12-P038", "attempt": 3,
+      "profile": "native plus mutation",
+      "state": "PASS", "collected": 15, "calls": 15,
+      "call_pass": 15, "call_failed": 0,
+      "wall_s": 28.007269996000105,
+      "receipt_mode": "observer_fallback",
+      "receipt_status": "canonical_workload_receipt_missing"
+    }
+  ],
+  "source_drift": [],
+  "source_checks": {
+    "all_122_expected_blobs_match_actual_bytes": true,
+    "whole_tracked_diff_empty": true,
+    "owned_module_snapshot_hashes_reconciled": true,
+    "custody_blockers": [],
+    "original_clone_head_preserved": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "commits_pushes_PRs": 0
+  },
+  "resources": {
+    "wall_s": "supervisor around timed wrapper; seconds",
+    "rss_kib": "GNU time direct pytest process-tree maximum; KiB; not VM peak",
+    "cpu": "direct pytest GNU time user/system seconds",
+    "peaks_are_not_summed": true
+  },
+  "archive": {
+    "name": "e02-full-F12-20261005T0750Z-raw.tar.gz",
+    "sha256": "77cb8fe94b0737bac108573c38063e9f47dd744c628aa0d77f91da526f3e3608",
+    "size_bytes": 11706218,
+    "members": 2364,
+    "actual_tar_bytes_read_back": true,
+    "all_member_hashes_and_sizes_verified": true,
+    "all_attempts_present": 125,
+    "nonpass_attempts_present": 24
+  },
+  "gates": [],
+  "properties": [],
+  "unrun_continuation": [],
+  "failure_events": 358,
+  "failure_groups": 56,
+  "transfer_status": "compact_text_only",
+  "raw_archive_transfer": "missing",
+  "failure_defaults": {
+    "cause_status": "not_established",
+    "raw_transfer_missing": true,
+    "full_longrepr": "preserved in VM failures.jsonl and raw archive",
+    "nodeid_rule": "TSV path without policy-engine/ + :: + each suffix",
+    "raw_attempt_ref": "<RUN_ROOT>/<cell>/attempt-<attempt>/"
+  },
+  "limitations": [
+    "PASS file counts include partial call coverage where explicit skips occurred",
+    "failure ownership and inherited status not established by slice-base replay",
+    "semantic capability chain and E02 closure not established",
+    "Linux CPU evidence; no GPU/Metal/macOS attestation",
+    "no production_data provisioned or copied; live owner lane remained skipped",
+    "owned module snapshots and partial nested observations do not prove complete nested provenance",
+    "archive readback does not prove raw transfer or recipient acceptance"
+  ]
+}
+Воспроизводимый argv для каждого блока ниже: CELL_ID и полный FILE берутся из TSV; OUT — новый каталог попытки. Для native/P001 attempt 2 используется native profile; для P038 attempts 2/3 — тот же frozen union плюс mutation. Fallback применяется к P004, P001 attempt 2 и P038 attempt 3.
+{
+  "cwd": "/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine",
+  "PY": "/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/.venv/bin/python",
+  "TIME": "/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/bootstrap/time-local/usr/bin/time",
+  "RUN_ROOT": "/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z",
+  "argv_canonical": [
+    "<TIME>", "-v", "-o", "<OUT>/wrapper-resource.txt",
+    "<PY>", "-m", "tools.quality.testing.run_timed_suite",
+    "--lane", "e02-full-F12:<CELL_ID>", "--cwd", ".",
+    "--capture-pytest-workload", "--receipt-output", "<OUT>/execution.json",
+    "--",
+    "<TIME>", "-v", "-o", "<OUT>/pytest-resource.txt",
+    "<PY>", "-m", "pytest", "-c", "pytest.ini", "<FILE>",
+    "-p", "e02_observer", "-p", "e02_environment",
+    "--junitxml=<OUT>/junit.xml", "--durations=0",
+    "--basetemp=<OUT>/tmp", "-o", "cache_dir=<OUT>/pytest-cache",
+    "--benchmark-storage=file://<OUT>/benchmarks"
+  ],
+  "fallback_omit": [
+    "--capture-pytest-workload", "--receipt-output", "<OUT>/execution.json"
+  ],
+  "env_overrides": {
+    "PYTHONPATH": "<RUN_ROOT>/plugin",
+    "POLISYOS_TOOLS_TIMING_LOG": "<OUT>/timing.jsonl",
+    "E02_OBSERVER_DIR": "<OUT>/observer",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "<OUT>/hypothesis",
+    "TMPDIR": "<OUT>/os-tmp",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu",
+    "LC_ALL": "C",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "clear_controls": [
+    "PYTEST_ADDOPTS", "PYTEST_PLUGINS", "PYTEST_XDIST_WORKER",
+    "POLISYOS_TEST_FILTERS",
+    "POLISYOS_TOOLS_TIMING_REGIME", "POLISYOS_TOOLS_TIMING_RETENTION",
+    "POLISYOS_PYTEST_RECEIPT_*",
+    "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR",
+    "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL",
+    "POLISYOS_R7_REMOVE_ACTIVE_PROBE_SUPPRESSION"
+  ],
+  "preparation": [
+    "Use recorded Python/Node versions and the appropriate frozen extra union.",
+    "Create fresh OUT/os-tmp, OUT/hypothesis and OUT/observer before process start.",
+    "Point cwd/_cache/hypothesis to OUT/hypothesis before imports.",
+    "Capture stdout.log/stderr.log directly and preserve nonzero exits.",
+    "FILE is the TSV path without policy-engine/; launch the entire file."
+  ],
+  "observer": "Exact e02_observer.py source supplied in the request; verified SHA256 in metadata.",
+  "e02_environment_source": "import json,os,sys\nfrom pathlib import Path\nimport pytest\n@pytest.hookimpl(trylast=True)\ndef pytest_collection_finish(session):\n    h=sys.modules.get('hypothesis')\n    settings=getattr(h,'settings',None)\n    d={'pid':os.getpid(),'hypothesis_env':os.environ.get('HYPOTHESIS_STORAGE_DIRECTORY'),'hypothesis_default_database':repr(settings.default.database) if settings else None,'hypothesis_profile':settings.get_current_profile_name() if settings else None,'hypothesis_repo_cache_resolved':str((Path.cwd()/'_cache/hypothesis').resolve()),'collect_only':bool(session.config.option.collectonly)}\n    p=Path(os.environ['E02_OBSERVER_DIR'])/'environment';p.mkdir(exist_ok=True);(p/(str(os.getpid())+'.json')).write_text(json.dumps(d)+'\\n')\n"
+}
+Все 122 строки cells.tsv — первичные попытки:
+id	path	state	reason	collected	calls	call_pass	call_failed	setup_error	teardown_error	skip	xfail	xpass	collection_skip	collection_error	wall_s	rss_kib	receipt_status
+F12-P001	policy-engine/tests/unit/runtime/quality/test_generation_cycle.py	FAILED	native	91	77	75	2	0	0	14	0	0	0	0	828.2502797	1550924.0	invalid_reconciliation
+F12-P002	policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py	ERROR	native	175	6	6	0	169	0	0	0	0	0	0	278.120093278	1774696.0	valid_reconciled
+F12-P003	policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py	ERROR	native	42	15	9	6	27	0	0	0	0	0	0	156.172193117	1497828.0	valid_reconciled
+F12-P004	policy-engine/tests/repo_quality/tools/test_debt_ledger_checker.py	FAILED	assigned_debt_ledger_exception	76	76	71	5	0	0	0	0	0	0	0	1652.8435967439998	1560148.0	canonical_workload_receipt_missing
+F12-P005	policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py	ERROR	native	37	36	34	2	1	0	0	0	0	0	0	442.3198754770001	2583248.0	valid_reconciled
+F12-P006	policy-engine/tests/unit/runtime/quality/test_credal_reference.py	ERROR	native	15	10	5	5	5	0	0	0	0	0	0	92.09133786299981	1524000.0	valid_reconciled
+F12-P007	policy-engine/tests/unit/fabric/connectors/test_schema_system.py	PASS	native	85	85	85	0	0	0	0	0	0	0	0	10.018428361000588	337216.0	valid_reconciled
+F12-P008	policy-engine/tests/unit/fabric/connectors/test_registry.py	PASS	native	63	63	63	0	0	0	0	0	0	0	0	8.001466637999329	212464.0	valid_reconciled
+F12-P009	policy-engine/tests/integration/runtime_quality/test_chronology_protocol_conformance.py	PASS	native	38	38	38	0	0	0	0	0	0	0	0	80.01073026500035	1493176.0	valid_reconciled
+F12-P010	policy-engine/tests/performance/test_runtime_hot_paths.py	FAILED	native	21	21	12	9	0	0	0	0	0	0	0	102.03461181800049	1591708.0	valid_reconciled
+F12-P011	policy-engine/tests/unit/scientist/validation/test_decision_validity_service.py	PASS	native	98	98	98	0	0	0	0	0	0	0	0	88.09049557599974	1521296.0	valid_reconciled
+F12-P012	policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py	FAILED	native	49	49	40	9	0	0	0	0	0	0	0	80.0301511130001	1509956.0	valid_reconciled
+F12-P013	policy-engine/tests/unit/runtime/http/test_control_service_di.py	FAILED	native	30	30	27	3	0	0	0	0	0	0	0	178.04939248699975	1619368.0	valid_reconciled
+F12-P014	policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py	PASS	native	49	48	48	0	0	0	1	0	0	0	0	88.02351872700001	1503552.0	valid_reconciled
+F12-P015	policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py	PASS	native	13	13	13	0	0	0	0	0	0	0	0	148.0298658039992	1618724.0	valid_reconciled
+F12-P016	policy-engine/tests/integration/runtime_frontend/test_ds15_acquisition_route_contract_bridge.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	172.15612732000045	1640676.0	valid_reconciled
+F12-P017	policy-engine/tests/repo_quality/tools/test_repository_last_mile_inventory.py	FAILED	native	23	23	21	2	0	0	0	0	0	0	0	42.018629051999596	279164.0	valid_reconciled
+F12-P018	policy-engine/tests/repo_quality/tools/test_unified_cli.py	PASS	native	18	18	18	0	0	0	0	0	0	0	0	76.01796915799969	1279744.0	valid_reconciled
+F12-P019	policy-engine/tests/integration/core_runtime/test_acquisition_authority_provider.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	130.02910711700042	1684536.0	valid_reconciled
+F12-P020	policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	118.02820256299947	1679792.0	valid_reconciled
+F12-P021	policy-engine/tests/integration/core_runtime/test_acquisition_route_execution_binding.py	PASS	native	11	11	11	0	0	0	0	0	0	0	0	102.09998238699973	1516156.0	valid_reconciled
+F12-P022	policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py	PASS	native	42	42	42	0	0	0	0	0	0	0	0	120.03892005800026	1540848.0	valid_reconciled
+F12-P023	policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py	PASS	native	28	28	28	0	0	0	0	0	0	0	0	6.002055886000562	102904.0	valid_reconciled
+F12-P024	policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py	PASS	native	8	8	8	0	0	0	0	0	0	0	0	52.00877497500005	1220932.0	valid_reconciled
+F12-P025	policy-engine/tests/unit/foundry/methods/catalog/forecasting/test_uncertainty_bundle.py	PASS	native	14	14	14	0	0	0	0	0	0	0	0	140.04651379999996	633248.0	valid_reconciled
+F12-P026	policy-engine/tests/unit/runtime/quality/test_chronology_proof.py	FAILED	native	30	30	29	1	0	0	0	0	0	0	0	88.03000563299975	1494088.0	valid_reconciled
+F12-P027	policy-engine/tests/unit/runtime/quality/test_acquisition_movement_positive.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	134.02741389599942	1638244.0	valid_reconciled
+F12-P028	policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py	PASS	native	14	14	14	0	0	0	0	0	0	0	0	88.02055674999974	1506180.0	valid_reconciled
+F12-P029	policy-engine/tests/unit/foundry/data_plane/test_bindings_multiscale.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	50.01849565299926	660232.0	valid_reconciled
+F12-P030	policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py	PASS	native	24	24	24	0	0	0	0	0	0	0	0	152.03501284600043	1550636.0	valid_reconciled
+F12-P031	policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py	FAILED	native	7	7	6	1	0	0	0	0	0	0	0	90.08755523299988	1470488.0	valid_reconciled
+F12-P032	policy-engine/tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py	PASS	native	9	9	9	0	0	0	0	0	0	0	0	88.03380772699984	1487928.0	valid_reconciled
+F12-P033	policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py	PASS	native	12	12	12	0	0	0	0	0	0	0	0	66.02440232800018	1409288.0	valid_reconciled
+F12-P034	policy-engine/tests/unit/runtime/quality/test_epoch_validity_cascade.py	PASS	native	30	30	30	0	0	0	0	0	0	0	0	106.02201149099983	1489952.0	valid_reconciled
+F12-P035	policy-engine/tests/repo_quality/tools/test_gy_acquisition_assurance.py	PASS	native	11	11	11	0	0	0	0	0	0	0	0	36.00945450200015	211876.0	valid_reconciled
+F12-P036	policy-engine/tests/repo_quality/tools/test_trust_posture_measurement.py	PASS	native	18	18	18	0	0	0	0	0	0	0	0	66.00870474099975	1295872.0	valid_reconciled
+F12-P037	policy-engine/tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py	FAILED	native	7	7	6	1	0	0	0	0	0	0	0	42.00927792099992	148180.0	valid_reconciled
+F12-P038	policy-engine/tests/repo_quality/tools/test_mutation.py	FAILED	native	15	15	0	15	0	0	0	0	0	0	0	6.002760965999187	102144.0	valid_reconciled
+F12-P039	policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py	PASS	native	32	32	32	0	0	0	0	0	0	0	0	30.04733186700014	341012.0	valid_reconciled
+F12-P040	policy-engine/tests/unit/scientist/governance/continuous/test_governed_public_record.py	PASS	native	23	23	23	0	0	0	0	0	0	0	0	66.03016580499934	1329808.0	valid_reconciled
+F12-P041	policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py	PASS	native	12	12	12	0	0	0	0	0	0	0	0	6.001872261000244	101328.0	valid_reconciled
+F12-P042	policy-engine/tests/repo_quality/tools/test_vocabulary_source_census.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	8.002507459999833	100756.0	valid_reconciled
+F12-P043	policy-engine/tests/unit/ddm/test_full_acceptance.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	6.00213952500053	101440.0	valid_reconciled
+F12-P044	policy-engine/tests/unit/runtime/quality/test_grounding_bind.py	FAILED	native	17	17	1	16	0	0	0	0	0	0	0	272.1165518180005	1499892.0	valid_reconciled
+F12-P045	policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py	FAILED	native	22	22	21	1	0	0	0	0	0	0	0	122.04780448800011	1615316.0	valid_reconciled
+F12-P046	policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_6_release_topology.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	6.001522062999356	111340.0	valid_reconciled
+F12-P047	policy-engine/tests/repo_quality/tools/test_locale_census_independent.py	PASS	native	22	22	22	0	0	0	0	0	0	0	0	6.0021488020001925	101036.0	valid_reconciled
+F12-P048	policy-engine/tests/unit/calibration/test_continuous.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	10.002114621000146	263900.0	valid_reconciled
+F12-P049	policy-engine/tests/unit/fabric/data_plane/test_cursor_store.py	PASS	native	16	16	16	0	0	0	0	0	0	0	0	8.003647372999694	102912.0	valid_reconciled
+F12-P050	policy-engine/tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py	FAILED	native	4	4	0	4	0	0	0	0	0	0	0	96.0975327770002	1600712.0	valid_reconciled
+F12-P051	policy-engine/tests/unit/ir/test_causal_graph_contract.py	PASS	native	15	15	15	0	0	0	0	0	0	0	0	6.001774136999302	103256.0	valid_reconciled
+F12-P052	policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	8.00252217599973	246516.0	valid_reconciled
+F12-P053	policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	10.003151230000185	350360.0	valid_reconciled
+F12-P054	policy-engine/tests/unit/core/security/test_chronology_anchor.py	PASS	native	17	17	17	0	0	0	0	0	0	0	0	92.02483795799981	1528752.0	valid_reconciled
+F12-P055	policy-engine/tests/unit/runtime/quality/test_grounding_relation.py	FAILED	native	13	13	3	10	0	0	0	0	0	0	0	200.1567035220005	1495596.0	valid_reconciled
+F12-P056	policy-engine/tests/unit/runtime/quality/test_epoch_custody_audit.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	156.04285305299982	1488184.0	valid_reconciled
+F12-P057	policy-engine/tests/unit/core/phase0/test_store_signing.py	PASS	native	10	10	10	0	0	0	0	0	0	0	0	6.002004833999308	102556.0	valid_reconciled
+F12-P058	policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py	PASS	native	4	4	4	0	0	0	0	0	0	0	0	52.01147879100063	1226892.0	valid_reconciled
+F12-P059	policy-engine/tests/integration/foundry_scientist/test_method_node_bridge.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	66.01524443800008	1357164.0	valid_reconciled
+F12-P060	policy-engine/tests/integration/runtime_quality/test_published_signature_custody.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	98.02538289400036	1515988.0	valid_reconciled
+F12-P061	policy-engine/tests/unit/ir/test_public_surface.py	PASS	native	14	14	14	0	0	0	0	0	0	0	0	14.005410791998656	251000.0	valid_reconciled
+F12-P062	policy-engine/tests/unit/runtime/quality/test_non_data_acquisition.py	PASS	native	23	23	23	0	0	0	0	0	0	0	0	80.0162615499994	1520452.0	valid_reconciled
+F12-P063	policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py	PASS	native	8	8	8	0	0	0	0	0	0	0	0	56.02941226099938	1221872.0	valid_reconciled
+F12-P064	policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	64.01246003699998	1288956.0	valid_reconciled
+F12-P065	policy-engine/tests/unit/foundry/coupling/test_estimation.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	46.00886627100044	584472.0	valid_reconciled
+F12-P066	policy-engine/tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py	FAILED	native	4	4	3	1	0	0	0	0	0	0	0	86.02222219299983	690820.0	valid_reconciled
+F12-P067	policy-engine/tests/repo_quality/tools/test_file_read_measurement.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	6.003571481000108	100956.0	valid_reconciled
+F12-P068	policy-engine/tests/unit/fabric/data_plane/test_modes.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	12.003780115001064	214996.0	valid_reconciled
+F12-P069	policy-engine/tests/unit/runtime/quality/test_grounding_risk.py	FAILED	native	14	14	2	12	0	0	0	0	0	0	0	208.25653267599955	1496924.0	valid_reconciled
+F12-P070	policy-engine/tests/repo_quality/tools/test_generated_client_station.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	14.005903400000534	122904.0	valid_reconciled
+F12-P071	policy-engine/tests/unit/runtime/quality/test_promotion_safety.py	PASS	native	14	14	14	0	0	0	0	0	0	0	0	94.03874729499876	1523948.0	valid_reconciled
+F12-P072	policy-engine/tests/unit/foundry/compile/test_program_graph_ops.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	56.0311091399999	607284.0	valid_reconciled
+F12-P073	policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	6.002174953000576	108312.0	valid_reconciled
+F12-P074	policy-engine/tests/unit/core/phase0/test_worktree_admission.py	PASS	native	23	23	23	0	0	0	0	0	0	0	0	6.002701110999624	100276.0	valid_reconciled
+F12-P075	policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	8.002345179998883	253732.0	valid_reconciled
+F12-P076	policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py	PASS	native	12	12	12	0	0	0	0	0	0	0	0	58.00753051200081	1294876.0	valid_reconciled
+F12-P077	policy-engine/tests/unit/runtime/http/test_api_maturity.py	ERROR	native	11	5	2	3	6	0	0	0	0	0	0	98.13343925799927	1620796.0	valid_reconciled
+F12-P078	policy-engine/tests/unit/runtime/quality/test_constrained_response.py	PASS	native	11	11	11	0	0	0	0	0	0	0	0	80.01454107300015	1502840.0	valid_reconciled
+F12-P079	policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py	PASS	native	10	10	10	0	0	0	0	0	0	0	0	52.01057482000033	594844.0	valid_reconciled
+F12-P080	policy-engine/tests/unit/runtime/quality/test_acquisition_route_loop.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	106.12857989400072	1536900.0	valid_reconciled
+F12-P081	policy-engine/tests/unit/runtime/quality/test_global_case_index.py	PASS	native	15	15	15	0	0	0	0	0	0	0	0	80.02242219899927	1470428.0	valid_reconciled
+F12-P082	policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py	PASS	native	8	8	8	0	0	0	0	0	0	0	0	60.01160019300005	1411616.0	valid_reconciled
+F12-P083	policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	62.062551929999245	1346088.0	valid_reconciled
+F12-P084	policy-engine/tests/unit/fabric/test_root_facade.py	PASS	native	8	8	8	0	0	0	0	0	0	0	0	8.00209956100116	211156.0	valid_reconciled
+F12-P085	policy-engine/tests/unit/runtime/quality/test_acquisition_overlay_visibility.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	88.02196349900078	1519864.0	valid_reconciled
+F12-P086	policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py	PASS	native	4	4	4	0	0	0	0	0	0	0	0	62.02675444200031	1234596.0	valid_reconciled
+F12-P087	policy-engine/tests/unit/fabric/test_acquisition_assurance.py	PASS	native	25	25	25	0	0	0	0	0	0	0	0	12.00507093700071	201484.0	valid_reconciled
+F12-P088	policy-engine/tests/unit/fabric/test_ceiling_relations.py	PASS	native	24	24	24	0	0	0	0	0	0	0	0	8.001422744000593	200624.0	valid_reconciled
+F12-P089	policy-engine/tests/unit/runtime/http/test_runtime_service_container.py	FAILED	native	8	8	1	7	0	0	0	0	0	0	0	98.02103068399992	1611720.0	valid_reconciled
+F12-P090	policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	60.012458217999665	1288964.0	valid_reconciled
+F12-P091	policy-engine/tests/unit/runtime/http/test_resilience_guards.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	94.04074959600075	1551568.0	valid_reconciled
+F12-P092	policy-engine/tests/unit/runtime/quality/test_chronology_qualification.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	72.01262402999964	1489760.0	valid_reconciled
+F12-P093	policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	54.112727268000526	1230052.0	valid_reconciled
+F12-P094	policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	8.002603547000035	257420.0	valid_reconciled
+F12-P095	policy-engine/tests/unit/common/test_llm_json.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	4.0017974080001295	100892.0	valid_reconciled
+F12-P096	policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	74.01502620199972	1489704.0	valid_reconciled
+F12-P097	policy-engine/tests/unit/scholar/search/test_providers.py	PASS	native	5	5	5	0	0	0	0	0	0	0	0	8.001586497000972	212824.0	valid_reconciled
+F12-P098	policy-engine/tests/unit/scientist/governance/continuous/test_owner_event_producer.py	PASS	native	9	9	9	0	0	0	0	0	0	0	0	60.02097495000089	1322348.0	valid_reconciled
+F12-P099	policy-engine/tests/unit/common/test_config_bootstrap.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	6.001982908001082	100624.0	valid_reconciled
+F12-P100	policy-engine/tests/unit/core/security/test_tenant_context.py	PASS	native	4	4	4	0	0	0	0	0	0	0	0	6.0014021639999555	101256.0	valid_reconciled
+F12-P101	policy-engine/tests/unit/lex/knowledge/test_locale_census.py	PASS	native	12	12	12	0	0	0	0	0	0	0	0	6.003207547999409	103704.0	valid_reconciled
+F12-P102	policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py	PASS	native	7	7	7	0	0	0	0	0	0	0	0	170.18212860099993	1521204.0	valid_reconciled
+F12-P103	policy-engine/tests/unit/scientist/governance/continuous/test_governed_public_record_population.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	64.02096039000025	1323940.0	valid_reconciled
+F12-P104	policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	48.0190493099999	672496.0	valid_reconciled
+F12-P105	policy-engine/tests/unit/ddm/test_facade.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	4.002362430001085	101044.0	valid_reconciled
+F12-P106	policy-engine/tests/unit/runtime/http/test_non_data_acquisition_projection.py	PASS	native	8	8	8	0	0	0	0	0	0	0	0	96.12674223300019	1598492.0	valid_reconciled
+F12-P107	policy-engine/tests/unit/scientist/governance/test_pii_check_pass.py	PASS	native	4	4	4	0	0	0	0	0	0	0	0	6.007350021000093	149156.0	valid_reconciled
+F12-P108	policy-engine/tests/unit/scientist/search/strategies/test_random_grid.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	60.01256787499915	1227728.0	valid_reconciled
+F12-P109	policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	6.001906145000248	115648.0	valid_reconciled
+F12-P110	policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_validators.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	8.009202556000673	263756.0	valid_reconciled
+F12-P111	policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	6.002642577999723	100592.0	valid_reconciled
+F12-P112	policy-engine/tests/unit/runtime/quality/test_agent_action_authority_replay.py	PASS	native	4	4	4	0	0	0	0	0	0	0	0	96.0604043910007	1517200.0	valid_reconciled
+F12-P113	policy-engine/tests/unit/runtime/quality/test_evaluation_safety.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	84.04625420199955	1496380.0	valid_reconciled
+F12-P114	policy-engine/tests/unit/scientist/governance/continuous/test_incident.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	8.00229477799985	149656.0	valid_reconciled
+F12-P115	policy-engine/tests/unit/scientist/search/test_sentinels.py	PASS	native	3	3	3	0	0	0	0	0	0	0	0	60.021897095000895	1229728.0	valid_reconciled
+F12-P116	policy-engine/tests/unit/runtime/http/test_acquisition_human_source.py	PASS	native	6	6	6	0	0	0	0	0	0	0	0	82.01895224700093	1557148.0	valid_reconciled
+F12-P117	policy-engine/tests/unit/runtime/quality/test_acquisition_activation_readback.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	90.03714550999939	1514444.0	valid_reconciled
+F12-P118	policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py	PASS	native	2	2	2	0	0	0	0	0	0	0	0	76.01066531200013	1486100.0	valid_reconciled
+F12-P119	policy-engine/tests/unit/common/test_markdown.py	PASS	native	21	21	21	0	0	0	0	0	0	0	0	6.002065726001092	100380.0	valid_reconciled
+F12-P120	policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	96.025779865	1517372.0	valid_reconciled
+F12-P121	policy-engine/tests/unit/runtime/http/test_human_decision_guarded_timeout.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	88.01514293800028	1561896.0	valid_reconciled
+F12-P122	policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py	PASS	native	1	1	1	0	0	0	0	0	0	0	0	46.00654721799947	700708.0	valid_reconciled
+Все компактные non-pass blocks. Для каждого suffixes exact node ID получается по правилу из metadata; cause_status=not_established и raw_transfer_missing=true применяются ко всем блокам.
+{"cell":"F12-P001","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert {'test_acquis...ext_wmr', ...} == {'test_acquis...troller', ...}\nE\nE         Extra items in the right set:\nE         'test_default_value_port_binds_the_actual_n5_context'\nE         Use -v to get more diff","suffixes":["test_owner_catalog_prerequisite_is_declared_not_ambient"]}
+{"cell":"F12-P001","attempt":1,"phase":"setup","outcome":"skipped","actual":"Skipped: production_data owner catalog is unavailable (production_data/manifest.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/identification_mode_registry.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/schema_regime_registry.json, production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb); link the worktree's provisioned production_data owner tree read-only","suffixes":["test_joint_port_reuses_exact_cycle_context_wmr","test_joint_port_accepts_label_drift_after_atom_world_resolution","test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr","test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match","test_cycle_world_identity_rejects_atom_from_another_problem","test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity","test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity","test_explicit_joint_request_cannot_bypass_context_wmr","test_explicit_joint_request_atom_refs_bind_before_injected_controller","test_explicit_request_nested_atom_missing_slot_fails_world_identity","test_shaped_wmr_ref_without_resolved_object_is_rejected","test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters","test_phase5_value_port_configuration_preserves_manifest_omission","test_active_overlay_reentry_is_exact_direct_and_read_only"]}
+{"cell":"F12-P001","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert [{'code': 'cu...alog.duckdb'}] == [{'code': 'cu...ction_drift'}]\nE\nE         At index 0 diff: {'code': 'current_wmr_reissue_owner_resolution_failed', 'error': 'production_data_path_missing: /workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb'} != {'code': 'current_wmr_reissue_receipt_owner_projection_drift'}\nE         Use -v to get more diff","suffixes":["test_default_value_port_binds_the_actual_n5_context"]}
+{"cell":"F12-P002","attempt":1,"phase":"setup","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_mutating_operation_without_permission_is_denied_403[analyze-attractors]","test_mutating_operation_without_permission_is_denied_403[persist-basin-map]","test_mutating_operation_without_permission_is_denied_403[persist-continuation-branch]","test_mutating_operation_without_permission_is_denied_403[analyze-lyapunov]","test_mutating_operation_without_permission_is_denied_403[get-artifact-batch]","test_mutating_operation_without_permission_is_denied_403[render-bureaucratic-artifact]","test_mutating_operation_without_permission_is_denied_403[estimate-causal-frontier-sae]","test_mutating_operation_without_permission_is_denied_403[search-capabilities]","test_mutating_operation_without_permission_is_denied_403[discover-data-sources]","test_mutating_operation_without_permission_is_denied_403[ingest-data]","test_mutating_operation_without_permission_is_denied_403[preview-fetch-plan]","test_mutating_operation_without_permission_is_denied_403[approve-data-promotion]","test_mutating_operation_without_permission_is_denied_403[reject-data-promotion]","test_mutating_operation_without_permission_is_denied_403[resolve-data-needs]","test_mutating_operation_without_permission_is_denied_403[admit-epoch-validity-batch]","test_mutating_operation_without_permission_is_denied_403[publish-decision-validity-event]","test_mutating_operation_without_permission_is_denied_403[search-lex-graph]","test_mutating_operation_without_permission_is_denied_403[trigger-lex-pipeline]","test_mutating_operation_without_permission_is_denied_403[launch-run]","test_mutating_operation_without_permission_is_denied_403[launch-nl-run]","test_mutating_operation_without_permission_is_denied_403[evaluate-run-feedback]","test_mutating_operation_without_permission_is_denied_403[submit-normative-evidence]","test_mutating_operation_without_permission_is_denied_403[reissue-run]","test_mutating_operation_without_permission_is_denied_403[analyze-fabric-impact]","test_mutating_operation_without_permission_is_denied_403[get-fabric-quality-batch]","test_mutating_operation_without_permission_is_denied_403[get-fabric-trust-batch]","test_mutating_operation_without_permission_is_denied_403[get-lineage-batch]","test_mutating_operation_without_permission_is_denied_403[compute-mobility-bounds]","test_mutating_operation_without_permission_is_denied_403[estimate-mobility]","test_mutating_operation_without_permission_is_denied_403[get-runs-batch]","test_mutating_operation_without_permission_is_denied_403[request-run-acquisition-decision]","test_mutating_operation_without_permission_is_denied_403[execute-run-acquisition-route]","test_mutating_operation_without_permission_is_denied_403[create-run-human-decision]","test_mutating_operation_without_permission_is_denied_403[create-run-production-approval]","test_mutating_operation_without_permission_is_denied_403[issue-public-verification-record]","test_mutating_operation_without_permission_is_denied_403[create-run-scenario]","test_mutating_operation_without_identity_is_denied_401[analyze-attractors]","test_mutating_operation_without_identity_is_denied_401[persist-basin-map]","test_mutating_operation_without_identity_is_denied_401[persist-continuation-branch]","test_mutating_operation_without_identity_is_denied_401[analyze-lyapunov]","test_mutating_operation_without_identity_is_denied_401[get-artifact-batch]","test_mutating_operation_without_identity_is_denied_401[render-bureaucratic-artifact]","test_mutating_operation_without_identity_is_denied_401[estimate-causal-frontier-sae]","test_mutating_operation_without_identity_is_denied_401[search-capabilities]","test_mutating_operation_without_identity_is_denied_401[discover-data-sources]","test_mutating_operation_without_identity_is_denied_401[ingest-data]","test_mutating_operation_without_identity_is_denied_401[preview-fetch-plan]","test_mutating_operation_without_identity_is_denied_401[approve-data-promotion]","test_mutating_operation_without_identity_is_denied_401[reject-data-promotion]","test_mutating_operation_without_identity_is_denied_401[resolve-data-needs]","test_mutating_operation_without_identity_is_denied_401[admit-epoch-validity-batch]","test_mutating_operation_without_identity_is_denied_401[publish-decision-validity-event]","test_mutating_operation_without_identity_is_denied_401[search-lex-graph]","test_mutating_operation_without_identity_is_denied_401[trigger-lex-pipeline]","test_mutating_operation_without_identity_is_denied_401[launch-run]","test_mutating_operation_without_identity_is_denied_401[launch-nl-run]","test_mutating_operation_without_identity_is_denied_401[evaluate-run-feedback]","test_mutating_operation_without_identity_is_denied_401[submit-normative-evidence]","test_mutating_operation_without_identity_is_denied_401[reissue-run]","test_mutating_operation_without_identity_is_denied_401[analyze-fabric-impact]","test_mutating_operation_without_identity_is_denied_401[get-fabric-quality-batch]","test_mutating_operation_without_identity_is_denied_401[get-fabric-trust-batch]","test_mutating_operation_without_identity_is_denied_401[get-lineage-batch]","test_mutating_operation_without_identity_is_denied_401[compute-mobility-bounds]","test_mutating_operation_without_identity_is_denied_401[estimate-mobility]","test_mutating_operation_without_identity_is_denied_401[get-runs-batch]","test_mutating_operation_without_identity_is_denied_401[request-run-acquisition-decision]","test_mutating_operation_without_identity_is_denied_401[execute-run-acquisition-route]","test_mutating_operation_without_identity_is_denied_401[create-run-human-decision]","test_mutating_operation_without_identity_is_denied_401[create-run-production-approval]","test_mutating_operation_without_identity_is_denied_401[issue-public-verification-record]","test_mutating_operation_without_identity_is_denied_401[create-run-scenario]","test_mutating_operation_authorized_request_reaches_handler[analyze-attractors]","test_mutating_operation_authorized_request_reaches_handler[persist-basin-map]","test_mutating_operation_authorized_request_reaches_handler[persist-continuation-branch]","test_mutating_operation_authorized_request_reaches_handler[analyze-lyapunov]","test_mutating_operation_authorized_request_reaches_handler[get-artifact-batch]","test_mutating_operation_authorized_request_reaches_handler[render-bureaucratic-artifact]","test_mutating_operation_authorized_request_reaches_handler[estimate-causal-frontier-sae]","test_mutating_operation_authorized_request_reaches_handler[search-capabilities]","test_mutating_operation_authorized_request_reaches_handler[discover-data-sources]","test_mutating_operation_authorized_request_reaches_handler[ingest-data]","test_mutating_operation_authorized_request_reaches_handler[preview-fetch-plan]","test_mutating_operation_authorized_request_reaches_handler[approve-data-promotion]","test_mutating_operation_authorized_request_reaches_handler[reject-data-promotion]","test_mutating_operation_authorized_request_reaches_handler[resolve-data-needs]","test_mutating_operation_authorized_request_reaches_handler[admit-epoch-validity-batch]","test_mutating_operation_authorized_request_reaches_handler[publish-decision-validity-event]","test_mutating_operation_authorized_request_reaches_handler[search-lex-graph]","test_mutating_operation_authorized_request_reaches_handler[trigger-lex-pipeline]","test_mutating_operation_authorized_request_reaches_handler[launch-run]","test_mutating_operation_authorized_request_reaches_handler[launch-nl-run]","test_mutating_operation_authorized_request_reaches_handler[evaluate-run-feedback]","test_mutating_operation_authorized_request_reaches_handler[submit-normative-evidence]","test_mutating_operation_authorized_request_reaches_handler[reissue-run]","test_mutating_operation_authorized_request_reaches_handler[analyze-fabric-impact]","test_mutating_operation_authorized_request_reaches_handler[get-fabric-quality-batch]","test_mutating_operation_authorized_request_reaches_handler[get-fabric-trust-batch]","test_mutating_operation_authorized_request_reaches_handler[get-lineage-batch]","test_mutating_operation_authorized_request_reaches_handler[compute-mobility-bounds]","test_mutating_operation_authorized_request_reaches_handler[estimate-mobility]","test_mutating_operation_authorized_request_reaches_handler[get-runs-batch]","test_mutating_operation_authorized_request_reaches_handler[request-run-acquisition-decision]","test_mutating_operation_authorized_request_reaches_handler[execute-run-acquisition-route]","test_mutating_operation_authorized_request_reaches_handler[create-run-human-decision]","test_mutating_operation_authorized_request_reaches_handler[create-run-production-approval]","test_mutating_operation_authorized_request_reaches_handler[issue-public-verification-record]","test_mutating_operation_authorized_request_reaches_handler[create-run-scenario]","test_high_stakes_mutating_operation_without_step_up_is_denied[ingest-data]","test_high_stakes_mutating_operation_without_step_up_is_denied[approve-data-promotion]","test_high_stakes_mutating_operation_without_step_up_is_denied[reject-data-promotion]","test_high_stakes_mutating_operation_without_step_up_is_denied[publish-decision-validity-event]","test_high_stakes_mutating_operation_without_step_up_is_denied[admit-epoch-validity-batch]","test_high_stakes_mutating_operation_without_step_up_is_denied[reissue-run]","test_high_stakes_mutating_operation_without_step_up_is_denied[request-run-acquisition-decision]","test_high_stakes_mutating_operation_without_step_up_is_denied[execute-run-acquisition-route]","test_high_stakes_mutating_operation_without_step_up_is_denied[create-run-human-decision]","test_high_stakes_mutating_operation_without_step_up_is_denied[create-run-production-approval]","test_mutating_routes_have_exactly_one_action_permission_dependency","test_openapi_mutating_denominator_matches_live_router","test_each_mutating_operation_projects_action_permission_extension","test_capability_search_routes_share_one_safe_dependency_and_deny_before_handler","test_resource_binding_contract_projects_required_selector_and_parent_invariants","test_new_sibling_mutating_route_is_automatically_in_denominator","test_action_permission_dependency_is_load_bearing","test_owned_run_batch_is_bound_before_opa","test_owned_batch_binding_is_order_independent_and_checks_every_id","test_authorization_resource_binds_query_semantics","test_authorization_body_is_replayed_byte_identically","test_malformed_or_encoded_authorization_body_denies_before_opa[duplicate-key]","test_malformed_or_encoded_authorization_body_denies_before_opa[invalid-utf8]","test_malformed_or_encoded_authorization_body_denies_before_opa[encoded-body]","test_oversized_authorization_body_denies_before_opa","test_production_approval_cross_run_scorecard_denies_before_opa","test_production_approval_scorecard_without_run_denies_before_opa","test_production_approval_invalid_scorecard_schema_denies_before_opa_and_persistence[absent]","test_production_approval_invalid_scorecard_schema_denies_before_opa_and_persistence[wrong]","test_production_approval_wrong_artifact_kind_denies_before_opa","test_production_approval_ignores_client_overlay_output_path","test_production_approval_never_executes_persisted_scorecard_output_path","test_scenario_id_collision_across_runs_denies_before_opa","test_scenario_write_rechecks_authorized_revision","test_scenario_mutation_without_durable_head_store_denies_before_opa","test_scenario_authorization_binding_two_apps_same_revision_allows_one_mutation","test_persisted_default_scenario_head_wins_list_projection","test_scenario_head_content_mismatch_denies_before_opa","test_scenario_head_change_during_binding_denies_before_opa","test_unheaded_scenario_candidate_artifact_is_never_selected","test_resolved_promotion_selector_never_claims_caller_tenant","test_missing_alternative_resource_selectors_are_denied_before_opa","test_guarded_human_decision_get_binds_owned_run_and_exact_path_before_opa","test_all_human_decision_gets_declare_exact_owned_run_bindings","test_late_unguarded_mutation_is_denied_before_opa_and_handler","test_unsafe_mutation_cannot_shadow_or_disable_opa_deny[enforcement-disabled]","test_unsafe_mutation_cannot_shadow_or_disable_opa_deny[shadow-mode]","test_delegated_effective_scope_governs_binding_and_execution_policy","test_handler_cannot_replace_frozen_authorization_resource","test_runtime_api_allows_tenant_scoped_access","test_runtime_api_denies_cross_tenant_run_access","test_runtime_api_authz_deny_blocks_endpoint","test_runtime_api_authz_timeout_returns_gateway_timeout","test_runtime_api_denies_cross_tenant_artifact_access","test_runtime_api_denies_unscoped_artifact_access","test_runtime_api_rejects_missing_claims_fail_closed","test_runtime_api_auth_me_requires_claims_without_explicit_fixture_flag","test_runtime_api_cross_tenant_compare_requires_explicit_capability","test_runtime_security_middleware_order_guard_detects_reordering","test_review_websocket_rejects_anonymous_connect","test_review_websocket_rechecks_message_authorization"]}
+{"cell":"F12-P003","attempt":1,"phase":"call","outcome":"failed","actual":"E       _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':\nE       Failed to download extension \"fts\" at URL \"http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz\"\nE       Extension \"fts\" is an existing extension.\nE\nE       For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)","suffixes":["test_n9_contract_input_preserves_actual_cg2_producer_output","test_rederived_n9_contract_accounts_fixed_time_refusal_through_n11","test_n9_contract_persists_live_om01_authority_witness","test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace","test_n9_contract_rejects_deleted_projection_conditionality","test_n9_contract_separates_full_record_from_verified_comparison_identity"]}
+{"cell":"F12-P003","attempt":1,"phase":"setup","outcome":"failed","actual":"E       _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':\nE       Failed to download extension \"fts\" at URL \"http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz\"\nE       Extension \"fts\" is an existing extension.\nE\nE       For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)","suffixes":["test_n9_writer_reissues_the_governed_v6_source_scope_epoch","test_current_n9_proof_recomputes_its_entire_consumed_input","test_n9_writer_reissues_only_the_governed_credal_input_epoch","test_n9_source_scope_reissue_refuses_governing_drift[status]","test_n9_source_scope_reissue_refuses_governing_drift[evidence]","test_n9_source_scope_reissue_refuses_governing_drift[risk]","test_n9_source_scope_reissue_refuses_governing_drift[order]","test_n9_source_scope_reissue_refuses_governing_drift[certificate]","test_n9_source_scope_reissue_refuses_governing_drift[candidate]","test_n9_source_scope_reissue_refuses_governing_drift[credal]","test_n9_source_scope_reissue_refuses_governing_drift[empty_to_null]","test_n9_source_scope_reissue_refuses_governing_drift[empty_to_absent]","test_n9_source_scope_reissue_refuses_governing_drift[empty_kind]","test_n9_credal_epoch_reissue_refuses_other_frozen_drift[wrong_epoch]","test_n9_credal_epoch_reissue_refuses_other_frozen_drift[governing_value]","test_n9_credal_epoch_reissue_refuses_other_frozen_drift[governing_receipt]","test_n9_credal_epoch_reissue_refuses_other_frozen_drift[comparison_epoch]","test_n9_credal_epoch_reissue_refuses_other_frozen_drift[fake_inner_hash]","test_n9_credal_epoch_reissue_refuses_other_frozen_drift[fake_old_hash]","test_n9_credal_reissue_requires_the_complete_admitted_identity_set[absent]","test_n9_credal_reissue_requires_the_complete_admitted_identity_set[null]","test_n9_credal_reissue_requires_the_complete_admitted_identity_set[empty]","test_n9_credal_reissue_requires_the_complete_admitted_identity_set[duplicate]","test_n9_credal_reissue_requires_the_complete_admitted_identity_set[novel]","test_n9_credal_reissue_requires_the_complete_admitted_identity_set[scalar]","test_n9_credal_epoch_reissue_removal_restores_governing_refusal","test_n9_new_input_epoch_reissue_removal_keeps_the_ordinary_owner_strict"]}
+{"cell":"F12-P004","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert {'atlas_debt_...nown': 0, ...} == {'atlas_debt_...nown': 0, ...}\nE\nE         Omitting 23 identical items, use -vv to show\nE         Differing items:\nE         {'closure_signal_identity_unresolvable': 4} != {'closure_signal_identity_unresolvable': 6}\nE         {'register_ids': 277} != {'register_ids': 260}\nE         {'closure_signal_count_exit_disagreements': 4} != {'closure_signal_count_exit_disagreements': 6}\nE         Use -v to get more diff","suffixes":["test_real_census_replays_published_invariants"]}
+{"cell":"F12-P004","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert set() == {'ds10-public...on-rendering'}\nE\nE         Extra items in the right set:\nE         'ds10-public-decision-rendering'\nE         Use -v to get more diff","suffixes":["test_ds10_debt_projection_exposes_every_unresolvable_signal"]}
+{"cell":"F12-P004","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert '| `DEBT-REGISTER.md` | 260 | 260 | 74 | blocked=35, closed=186, folded=4, foreign=6, open=29 |' in '# PolicyOS Open Work and Debt Ledger\\n\\nGenerated by `tools/quality/validation/check_debt_ledger.py --write`. Closed ... rows retained as branch records, not debt ids: `codex/gy-def6-e11`, `codex/ds17-confidence-ledger-risk-spend-plan`.\\n'","suffixes":["test_real_ledger_exposes_every_gy_block_receipt_and_typed_state"]}
+{"cell":"F12-P004","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert not (Finding(code='closure_commit_not_on_main', detail='Atlas:GY-DEF20: 518e04da5', informational=False), Finding(code='cl...ing(code='closure_commit_not_on_main', detail='Atlas:deep-import-baseline-stale: 5cc68c43e', informational=False), ...)\nE        +  where (Finding(code='closure_commit_not_on_main', detail='Atlas:GY-DEF20: 518e04da5', informational=False), Finding(code='cl...ing(code='closure_commit_not_on_main', detail='Atlas:deep-import-baseline-stale: 5cc68c43e', informational=False), ...) = AuditReport(findings=(Finding(code='closure_commit_not_on_main', detail='Atlas:GY-DEF20: 518e04da5', informational=Fal...owers/plans/**/*.md'], 'other_sources': 'register status/standing, Atlas overview, dispositions and cited selectors'}}).blocking_findings","suffixes":["test_declared_informational_signal_findings_stay_out_of_blocking"]}
+{"cell":"F12-P004","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert '# PolicyOS O...pend-plan`.\\n' == '# PolicyOS O...pend-plan`.\\n'\nE\nE         Skipping 3003 identical leading characters in diff, use -v to show\nE         - ry-plan` (declared-ref-missing) |\nE         + ry-plan` (local-only) |\nE         - | [`ds10-public-decision-rendering`](DEBT-REGISTER.md#a-open-and-executable-now) | `blocked` | `—` | team-design | [register §A](DEBT-REGISTER.md#a-open-and-executable-now) | `codex/ds10-capability-discovery-plan` (declared-ref-missing) |\nE         ?                                                                                                                                                                                                                 ...\nE\nE         ...Full output truncated (137 lines hidden), use '-vv' to show","suffixes":["test_real_ledger_is_the_deterministic_rendering"]}
+{"cell":"F12-P005","attempt":1,"phase":"call","outcome":"failed","actual":"E       KeyError: 'const'","suffixes":["test_openapi_exposes_strict_acquisition_route_boundary_without_growth_authority"]}
+{"cell":"F12-P005","attempt":1,"phase":"call","outcome":"failed","actual":"E       pydantic_core._pydantic_core.ValidationError: 1 validation error for CycleBoardProjectionPacket\nE       payload.historical_producer_availability.read_receipt\nE         Field required [type=missing, input_value={'source_ref': 'docs/plan...nce': 'production_data'}, input_type=dict]\nE           For further information visit https://errors.pydantic.dev/2.12/v/missing","suffixes":["test_cycle_board_success_example_is_a_strict_composed_absence_packet"]}
+{"cell":"F12-P005","attempt":1,"phase":"setup","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_bad_request_uses_problem_json_payload"]}
+{"cell":"F12-P006","attempt":1,"phase":"call","outcome":"failed","actual":"E               polisyos.runtime.quality.data_state_substrate.DataStateSubstrateError: production_data_path_missing: /workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb","suffixes":["test_phase5_law_owner_refusal_survives_credal_and_atom_consumers","test_phase5_law_resolution_exception_keeps_declared_dependency","test_phase5_law_handoff_removal_goes_red[status]","test_phase5_law_handoff_removal_goes_red[association]","test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it"]}
+{"cell":"F12-P006","attempt":1,"phase":"setup","outcome":"failed","actual":"E               polisyos.runtime.quality.data_state_substrate.DataStateSubstrateError: production_data_path_missing: /workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb","suffixes":["test_contested_edge_lifts_set_valued_and_blocks_confirmation","test_fake_edge_fails_closed_out_of_scope","test_expanded_essential_scope_classes_are_counted","test_exact_and_family_edge_payloads_match_pre_split_oracles","test_reference_repair_stales_dependent_certificate"]}
+{"cell":"F12-P010","attempt":1,"phase":"call","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_run_index_refresh_hot_path","test_run_index_list_runs_hot_path","test_run_index_incremental_refresh_cycle_hot_path","test_run_index_incremental_refresh_soak_smoke","test_timeline_build_hot_path","test_lineage_build_hot_path","test_async_artifact_store_round_trip_hot_path","test_async_artifact_store_repeated_round_trip_soak_smoke","test_async_artifact_store_concurrent_round_trip_soak_smoke"]}
+{"cell":"F12-P012","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 'fail' == 'pass'\nE\nE         - pass\nE         + fail","suffixes":["test_g1_ledgers_emit_common_universal_search_contract_fields","test_g1_manifest_counts_match_runtime_builder","test_g1_free_growth_uses_live_l1_dcat_search_not_fixture_loader","test_g1_free_growth_metric_binding_requires_no_code_change"]}
+{"cell":"F12-P012","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert {'alias', 'ex... 'relational'} <= {'alias', 'de... 'relational'}\nE\nE         Extra items in the left set:\nE         'exact'","suffixes":["test_task7_g1_ledger_records_alias_graph_expansion_and_match_modes"]}
+{"cell":"F12-P012","attempt":1,"phase":"call","outcome":"failed","actual":"E           assert False\nE            +  where False = all(<generator object test_task7_search_health_reports_semantic_hnsw_state.<locals>.<genexpr> at 0x7fddb0e51cb0>)","suffixes":["test_task7_search_health_reports_semantic_hnsw_state"]}
+{"cell":"F12-P012","attempt":1,"phase":"call","outcome":"failed","actual":"E       assert False\nE        +  where False = any(<generator object test_g1_runtime_uses_construct_agnostic_l1_dcat_search_not_pinned_constants.<locals>.<genexpr> at 0x7fddb0a9d700>)","suffixes":["test_g1_runtime_uses_construct_agnostic_l1_dcat_search_not_pinned_constants"]}
+{"cell":"F12-P012","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 'not_measured' == 'l1_dcat_query'\nE\nE         - l1_dcat_query\nE         + not_measured","suffixes":["test_g1_search_health_and_strangle_reports_are_measured_not_self_attested"]}
+{"cell":"F12-P012","attempt":1,"phase":"call","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_g1_catalog_search_finds_credit_access_from_construct_query"]}
+{"cell":"F12-P013","attempt":1,"phase":"call","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_runtime_container_exposes_one_decision_validity_owner","test_control_service_builds_retrieval_with_injected_provider_bundle","test_runtime_container_passes_control_registry_provider_override"]}
+{"cell":"F12-P014","attempt":1,"phase":"setup","outcome":"skipped","actual":"Skipped: cloud-gated N7 live owner lane; routine tests must not call the network","suffixes":["test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle"]}
+{"cell":"F12-P017","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert {'cross_cutti...:00:00Z', ...} == {'cross_cutti...:00:00Z', ...}\nE\nE         Omitting 10 identical items, use -vv to show\nE         Differing items:\nE         {'findings': [{'count': 1, 'current_status': 'observed', 'finding_id': 'LM-001', 'kind': 'package_root_loose_python', ...ount': 0, 'current_status': 'not_observed', 'finding_id': 'LM-006', 'kind': 'compatibility_wrapper_sunset', ...}, ...]} != {'findings': [{'count': 1, 'current_status': 'observed', 'finding_id': 'LM-001', 'kind': 'package_root_loose_python', ...ount': 0, 'current_status': 'not_observed', 'finding_id': 'LM-006', 'kind': 'compatibility_wrapper_sunset', ...}, ...]}\nE         {'summary': {'finding_count': 26...\nE\nE         ...Full output truncated (2 lines hidden), use '-vv' to show","suffixes":["test_json_output_cli_and_committed_baseline_are_machine_readable"]}
+{"cell":"F12-P017","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 'ambiguous inventory input: CalledProcessError' in 'concern: calibration: Cross-cutting concern contract is missing required Phase 0.4 metadata.\\nconcern: calibration: C...vernance_validation_verification_policy_verified: Scientist parallel implementation family has no current locations.\\n'\nE        +  where 'concern: calibration: Cross-cutting concern contract is missing required Phase 0.4 metadata.\\nconcern: calibration: C...vernance_validation_verification_policy_verified: Scientist parallel implementation family has no current locations.\\n' = CaptureResult(out='', err='concern: calibration: Cross-cutting concern contract is missing required Phase 0.4 metadata...ernance_validation_verification_policy_verified: Scientist parallel implementation family has no current locations.\\n').err\nE        +    where CaptureResult(out='', err='concern: calibration: Cross-cutting concern contract is missing required Phase 0.4 metadata...ernance_validation_verification_policy_verified: Scientist parallel implementation family has no current locations.\\n') = readouterr()\nE        +      where readouterr = <_pytest.capture.CaptureFixture object at 0x7f261c676850>.readouterr","suffixes":["test_failed_git_census_cannot_fall_back_to_station_files"]}
+{"cell":"F12-P026","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert ['store', 'st...ner_verifier'] == ['store', 've...ner_verifier']\nE\nE         At index 1 diff: 'store' != 'verifier'\nE         Left contains one more item: 'owner_verifier'\nE         Use -v to get more diff","suffixes":["test_owner_resolution_binds_exact_policy_dependencies"]}
+{"cell":"F12-P031","attempt":1,"phase":"call","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_generated_runtime_api_client_job_status_contract_hits_runtime_control_service"]}
+{"cell":"F12-P037","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert ['src/polisyo...nel.snapshot'] == []\nE\nE         Left contains 3 more items, first extra item: 'src/polisyos/runtime/quality/acquisition_planner.py: polisyos.data_forge.domains.academic.openalex.client'\nE         Use -v to get more diff","suffixes":["test_phase2_runtime_consumers_use_data_forge_read_api_not_internals"]}
+{"cell":"F12-P038","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 'unsupported mutation station' in 'No package metadata was found for mutmut'","suffixes":["test_declared_native_station_is_unrun_before_subprocess"]}
+{"cell":"F12-P038","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 2 == 0\nE        +  where 2 = <function _run_target at 0x7f1b9b880880>(PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-1/tmp/test_real_mutant_is_killed_wit0/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7f1b9b880880> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()","suffixes":["test_real_mutant_is_killed_without_running_or_mutating_sibling"]}
+{"cell":"F12-P038","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert False\nE        +  where False = <built-in method startswith of str object at 0x7f1b9b872970>('mutmut run did not execute successfully:')\nE        +    where <built-in method startswith of str object at 0x7f1b9b872970> = 'No package metadata was found for mutmut'.startswith","suffixes":["test_failing_clean_baseline_is_unrun"]}
+{"cell":"F12-P038","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert False\nE        +  where False = <built-in method startswith of str object at 0x7f1b9b872a30>('mutmut run did not execute successfully:')\nE        +    where <built-in method startswith of str object at 0x7f1b9b872a30> = 'No package metadata was found for mutmut'.startswith","suffixes":["test_zero_mutants_is_unrun"]}
+{"cell":"F12-P038","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 2 == 1\nE        +  where 2 = <function _run_target at 0x7f1b9b880880>(PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-1/tmp/test_real_survivor_is_failure0/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7f1b9b880880> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()","suffixes":["test_real_survivor_is_failure"]}
+{"cell":"F12-P038","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 2 == 0\nE        +  where 2 = <function _run_target at 0x7f1b9b880880>(PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-1/tmp/test_controlled_protocol_admis0/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7f1b9b880880> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()","suffixes":["test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[none]"]}
+{"cell":"F12-P038","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 2 == 1\nE        +  where 2 = <function _run_target at 0x7f1b9b880880>(PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-1/tmp/test_controlled_protocol_admis1/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7f1b9b880880> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()","suffixes":["test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[survivor]"]}
+{"cell":"F12-P038","attempt":1,"phase":"call","outcome":"failed","actual":"E       assert False","suffixes":["test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[remove_summary]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[false_total]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[remove_metadata]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[internal_error]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[sibling_test]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[sibling_source]","test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption[zero_mutants]"]}
+{"cell":"F12-P038","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 'missing' in 'No package metadata was found for mutmut'","suffixes":["test_missing_declared_source_never_becomes_empty_success"]}
+{"cell":"F12-P044","attempt":1,"phase":"call","outcome":"failed","actual":"E       _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':\nE       Failed to download extension \"fts\" at URL \"http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz\"\nE       Extension \"fts\" is an existing extension.\nE\nE       For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)","suffixes":["test_calibrated_exact_robust_singleton_binds_and_records_risk","test_fabricated_caller_calibration_is_rejected_and_freezes_bind","test_spoofed_caller_calibration_still_freezes_bind","test_cold_start_exact_freezes_bind","test_tampered_certificate_fails_closed_before_bind","test_forged_selected_relation_is_replayed_against_live_reference","test_contested_support_is_not_a_robust_singleton","test_multiple_safe_atoms_abstain_without_picking_one","test_false_analog_hard_abstains_even_when_cg1_hands_off_novel","test_false_analog_hard_abstain_mutation_is_causal_when_other_obligations_close","test_candidate_unverified_obligation_abstains","test_unsafe_bind_decision_certificate_cannot_be_deserialized","test_bind_decision_certificate_rejects_caller_supplied_calibration_source","test_decision_certificate_rejects_bogus_content_hash","test_forged_promotable_production_certificate_resolves_non_promotable","test_contract_testing_bind_resolves_non_promotable"]}
+{"cell":"F12-P045","attempt":1,"phase":"call","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_app_factory_passes_typed_deployment_trust_to_default_service"]}
+{"cell":"F12-P050","attempt":1,"phase":"call","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_monitor_event_persists_claim_supersession_without_in_place_edit","test_default_http_supersession_request_preserves_unappointed_owner_limit","test_http_supersession_rejects_unresolved_monitor_before_owner_effect[absent]","test_http_supersession_rejects_unresolved_monitor_before_owner_effect[wrong_vocabulary]"]}
+{"cell":"F12-P055","attempt":1,"phase":"call","outcome":"failed","actual":"E       _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':\nE       Failed to download extension \"fts\" at URL \"http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz\"\nE       Extension \"fts\" is an existing extension.\nE\nE       For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)","suffixes":["test_synonym_alias_resolves_without_surface_exact_match","test_concrete_alias_is_certified_specialization","test_false_analog_is_vetoed_not_bound","test_joint_cross_modal_inconsistency_blocks_with_unsat_core","test_gy_k_witness_does_not_decide_relation","test_unknown_unresolved_axis_does_not_over_veto_or_block","test_shadow_only_contract_rejects_bind_recommendation","test_certificate_is_deterministic_for_same_reference_epoch","test_certificate_identity_is_invariant_to_persisted_edge_mapping_order","test_alias_resolution_is_the_decisive_contract_property"]}
+{"cell":"F12-P066","attempt":1,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 'diagnostic_attached' == 'not_available'\nE\nE         - not_available\nE         + diagnostic_attached","suffixes":["test_simulation_methods_dispatch_and_agent_sim_bridge_runs"]}
+{"cell":"F12-P069","attempt":1,"phase":"call","outcome":"failed","actual":"E       _duckdb.Error: An error occurred while trying to automatically install the required extension 'fts':\nE       Failed to download extension \"fts\" at URL \"http://extensions.duckdb.org/v1.4.3/linux_amd64/fts.duckdb_extension.gz\"\nE       Extension \"fts\" is an existing extension.\nE\nE       For more info, visit https://duckdb.org/docs/stable/extensions/troubleshooting?version=v1.4.3&platform=linux_amd64&extension=fts (ERROR Could not establish connection)","suffixes":["test_refused_candidate_does_not_spend_any_admission_budget","test_only_owner_admissions_charge_and_exhaustion_preserves_candidate","test_restart_and_missing_head_cannot_reset_spend","test_independent_owners_share_one_cap","test_crash_after_event_before_head_still_charges","test_corrupt_established_head_is_unknown_never_zero","test_synthetic_production_refusal_is_not_an_absent_calibration_mask","test_preemptive_cap_removal_is_detected","test_admission_event_cannot_be_transplanted_to_a_different_binding","test_unsupported_lock_platform_preserves_candidate_custody","test_governed_resolver_recomputes_synthetic_ancestry_despite_false_flag"]}
+{"cell":"F12-P069","attempt":1,"phase":"call","outcome":"failed","actual":"E       assert []","suffixes":["test_existing_v1_records_stay_readable_without_claiming_run_accounting"]}
+{"cell":"F12-P077","attempt":1,"phase":"setup","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_artifact_endpoints_emit_immutable_cache_headers","test_artifact_content_negotiates_raw_representation","test_artifact_download_endpoint_returns_attachment","test_artifact_batch_endpoint_avoids_n_plus_one_fetches","test_runs_batch_endpoint_returns_multiple_run_details","test_run_detail_endpoint_emits_link_relations"]}
+{"cell":"F12-P077","attempt":1,"phase":"call","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_runtime_lifecycle_health_tracks_startup_and_shutdown","test_api_version_headers_surface_deprecation_policy","test_runs_live_endpoint_advertises_sse_flow_control"]}
+{"cell":"F12-P089","attempt":1,"phase":"call","outcome":"failed","actual":"E           ValueError: catalog_fetch_source_unreadable","suffixes":["test_runtime_container_installs_exact_human_decision_dependencies","test_runtime_container_installs_one_acquisition_action_service","test_runtime_container_rejects_custody_alias_substitution","test_runtime_container_installs_registered_attested_production_approval_resolver","test_runtime_container_rejects_cross_app_production_approval_resolver","test_operational_consumers_reject_unregistered_exact_resolver","test_registered_resolver_rejects_consumer_constructed_issuance_grant"]}
+{"cell":"F12-P001","attempt":2,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert {'test_acquis...ext_wmr', ...} == {'test_acquis...troller', ...}\nE\nE         Extra items in the right set:\nE         'test_default_value_port_binds_the_actual_n5_context'\nE         Use -v to get more diff","suffixes":["test_owner_catalog_prerequisite_is_declared_not_ambient"]}
+{"cell":"F12-P001","attempt":2,"phase":"setup","outcome":"skipped","actual":"Skipped: production_data owner catalog is unavailable (production_data/manifest.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/identification_mode_registry.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/schema_regime_registry.json, production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb); link the worktree's provisioned production_data owner tree read-only","suffixes":["test_joint_port_reuses_exact_cycle_context_wmr","test_joint_port_accepts_label_drift_after_atom_world_resolution","test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr","test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match","test_cycle_world_identity_rejects_atom_from_another_problem","test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity","test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity","test_explicit_joint_request_cannot_bypass_context_wmr","test_explicit_joint_request_atom_refs_bind_before_injected_controller","test_explicit_request_nested_atom_missing_slot_fails_world_identity","test_shaped_wmr_ref_without_resolved_object_is_rejected","test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters","test_phase5_value_port_configuration_preserves_manifest_omission","test_active_overlay_reentry_is_exact_direct_and_read_only"]}
+{"cell":"F12-P001","attempt":2,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert [{'code': 'cu...alog.duckdb'}] == [{'code': 'cu...ction_drift'}]\nE\nE         At index 0 diff: {'code': 'current_wmr_reissue_owner_resolution_failed', 'error': 'production_data_path_missing: /workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb'} != {'code': 'current_wmr_reissue_receipt_owner_projection_drift'}\nE         Use -v to get more diff","suffixes":["test_default_value_port_binds_the_actual_n5_context"]}
+{"cell":"F12-P038","attempt":2,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 2 == 0\nE        +  where 2 = <function _run_target at 0x7fde68ea8510>(PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-2/tmp/test_real_mutant_is_killed_wit0/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7fde68ea8510> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()","suffixes":["test_real_mutant_is_killed_without_running_or_mutating_sibling"]}
+{"cell":"F12-P038","attempt":2,"phase":"call","outcome":"failed","actual":"E       assert 'FAILED tests/test_sample_math.py::test_adjust' in \"\\n⠋ Generating mutants\\n⠙ Generating mutants\\n⠹ Generating mutants\\n⠸ Generating mutants\\n⠼ Generating mutants\\n⠴ Gen...utside the selected paths:['tests/test_sample_math.py::test_adjust']\\n\\nfailed to collect stats. runner returned 3\\n\\n\"\nE        +  where \"\\n⠋ Generating mutants\\n⠙ Generating mutants\\n⠹ Generating mutants\\n⠸ Generating mutants\\n⠼ Generating mutants\\n⠴ Gen...utside the selected paths:['tests/test_sample_math.py::test_adjust']\\n\\nfailed to collect stats. runner returned 3\\n\\n\" = read_text()\nE        +    where read_text = (PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-2/tmp/test_failing_clean_baseline_is0/project/_build/mutation/probe-r1in_w_h') / 'run.log').read_text\nE        +      where PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02/full/F12/20261005T0750Z/F12-P038/attempt-2/tmp/test_failing_clean_baseline_is0/project/_build/mutation/probe-r1in_w_h') = Path('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-2/tmp/test_failing_clean_baseline_is0/project/_build/mutation/probe-r1in_w_h')","suffixes":["test_failing_clean_baseline_is_unrun"]}
+{"cell":"F12-P038","attempt":2,"phase":"call","outcome":"failed","actual":"E       assert 'could not find any test case for any mutant' in \"\\n⠋ Generating mutants\\n⠙ Generating mutants\\n⠹ Generating mutants\\n⠸ Generating mutants\\n⠼ Generating mutants\\n⠴ Gen...outside the selected paths:['tests/test_sample_math.py::test_value']\\n\\nfailed to collect stats. runner returned 3\\n\\n\"\nE        +  where \"\\n⠋ Generating mutants\\n⠙ Generating mutants\\n⠹ Generating mutants\\n⠸ Generating mutants\\n⠼ Generating mutants\\n⠴ Gen...outside the selected paths:['tests/test_sample_math.py::test_value']\\n\\nfailed to collect stats. runner returned 3\\n\\n\" = read_text()\nE        +    where read_text = (PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-2/tmp/test_zero_mutants_is_unrun0/project/_build/mutation/probe-v3lwyhx7') / 'run.log').read_text\nE        +      where PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-2/tmp/test_zero_mutants_is_unrun0/project/_build/mutation/probe-v3lwyhx7') = Path('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-2/tmp/test_zero_mutants_is_unrun0/project/_build/mutation/probe-v3lwyhx7')","suffixes":["test_zero_mutants_is_unrun"]}
+{"cell":"F12-P038","attempt":2,"phase":"call","outcome":"failed","actual":"E       AssertionError: assert 2 == 1\nE        +  where 2 = <function _run_target at 0x7fde68ea8510>(PosixPath('/workspace/polisyos-e02-F12-20261005T0750Z/policy-engine/_build/e02-full/F12/20261005T0750Z/F12-P038/attempt-2/tmp/test_real_survivor_is_failure0/project'), name='probe', target=MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0))\nE        +    where <function _run_target at 0x7fde68ea8510> = mutation._run_target\nE        +    and   MutationTarget(paths='sample_math.py', tests='tests/test_sample_math.py', threshold_pct=100.0) = _target()","suffixes":["test_real_survivor_is_failure"]}

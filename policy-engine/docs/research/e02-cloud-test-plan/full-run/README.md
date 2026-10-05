@@ -1,0 +1,9 @@
+# E02: закреплённое назначение полного прогона
+
+Полный прогон 15 машин завершён передачей компактных сообщений. Начните с [пакета результатов](../results/README.md) и [промптов исполнения](../execution-prompts/README.md). `allocation.json` остаётся исходным frozen assignment, а не подтверждением исполнения или closure.
+
+В assignment 2 074 native Python file×cut cells (560 текущих, 1 514 исторических), 9 дополнительных property states и 14 gates. Исторические missing/safety slots сохранены отдельно: 414 и 5; они не становятся PASS/UNRUN фактически назначенного набора. Весь roster находится в `jobs[].files` с cell ID/path/test blob/source-cut identity. `finding-routes.json` покрывает все 282 finding ID candidate routes; discriminator criteria ведут в [bundle-catalog.md](../bundle-catalog.md) и pinned canonical bundle sources. `open-probes.json` сохраняет нерешённые различители. `foreign-overlay.json` — исторический provenance index, не новый admission. `e02_observer.py` — использованный observer helper.
+
+Ранние `jobs.json`, `jobs-current.json`, pilot/full-run prompt copies и planning scratch не включены в эту публикацию. Их исходные SHA/роль и локальный archive commit сохранены в allocation: это unavailable planner provenance, а не обещание скачать файл из GitHub. Конечное назначение self-contained; точные пользовательские сообщения, их metadata, commands и source locators находятся в `../results/received/`. Исследовательская ветка локально сохранена без переписывания истории. JSON whitespace компактирован, product/governed JSON не изменён.
+
+Результаты остаются source-reported compact text only: raw archives не переданы. Пять source cuts не смешиваются; новая implementation branch начинается от опубликованного main или pinned G checkpoint и проверяется заново по затронутому свойству.

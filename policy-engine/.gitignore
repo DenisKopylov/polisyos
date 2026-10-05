@@ -149,3 +149,11 @@ packages/*/.eslintcache
 docs/plans/active/agent-packages/PolicyOS_E02R2/raw/
 docs/superpowers/journals/**/raw/
 docs/research/**/raw/
+
+# Published E02 navigation/ownership indexes; intermediate TSV/JSONL stay ignored.
+!docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv
+!docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv
+!docs/research/e02-cloud-test-plan/results/cells.tsv
+!docs/research/e02-cloud-test-plan/results/properties.tsv
+!docs/research/e02-cloud-test-plan/results/routes.tsv
+!docs/research/e02-cloud-test-plan/results/events.jsonl

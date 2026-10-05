@@ -1,0 +1,553 @@
+{
+  "schema": "policyos.e02.transferred_results_index.v1",
+  "scope": "15 transferred UTF-8 texts; 2074 planned Python file/cut cells",
+  "sources": [
+    {
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "transferred_bytes": 71251,
+      "source_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "metadata_lines": [
+        [
+          4,
+          114
+        ]
+      ],
+      "primary_cells": 139,
+      "states": {
+        "ERROR": 2,
+        "FAILED": 20,
+        "PASS": 117
+      },
+      "properties": 0,
+      "gates": 4,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 117,
+            "rows": 139,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "transferred_bytes": 61014,
+      "source_sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+      "metadata_lines": [
+        [
+          5,
+          126
+        ]
+      ],
+      "primary_cells": 140,
+      "states": {
+        "COLLECTION_SKIP": 1,
+        "ERROR": 2,
+        "FAILED": 21,
+        "PASS": 116
+      },
+      "properties": 0,
+      "gates": 2,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 128,
+            "rows": 140,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "transferred_bytes": 75761,
+      "source_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "metadata_lines": [
+        [
+          6,
+          128
+        ]
+      ],
+      "primary_cells": 141,
+      "states": {
+        "ERROR": 2,
+        "FAILED": 17,
+        "PASS": 122
+      },
+      "properties": 9,
+      "gates": 3,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 130,
+            "rows": 141,
+            "complete": true
+          },
+          {
+            "header_line": 273,
+            "rows": 0,
+            "complete": false
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "transferred_bytes": 79431,
+      "source_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "metadata_lines": [
+        [
+          4,
+          78
+        ]
+      ],
+      "primary_cells": 140,
+      "states": {
+        "ERROR": 2,
+        "FAILED": 16,
+        "PASS": 122
+      },
+      "properties": 0,
+      "gates": 5,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 210,
+            "rows": 140,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "transferred_bytes": 97032,
+      "source_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "metadata_lines": [
+        [
+          7,
+          408
+        ]
+      ],
+      "primary_cells": 145,
+      "states": {
+        "COLLECTION_SKIP": 1,
+        "ERROR": 12,
+        "FAILED": 20,
+        "PASS": 112
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 410,
+            "rows": 145,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "transferred_bytes": 99912,
+      "source_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "metadata_lines": [
+        [
+          3,
+          126
+        ]
+      ],
+      "primary_cells": 145,
+      "states": {
+        "ERROR": 6,
+        "FAILED": 24,
+        "PASS": 115
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 184,
+            "rows": 145,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "transferred_bytes": 74977,
+      "source_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "metadata_lines": [
+        [
+          5,
+          5
+        ]
+      ],
+      "primary_cells": 122,
+      "states": {
+        "COLLECTION_SKIP": 1,
+        "ERROR": 7,
+        "FAILED": 16,
+        "PASS": 98
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 6,
+            "rows": 122,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "transferred_bytes": 95586,
+      "source_sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+      "metadata_lines": [
+        [
+          5,
+          121
+        ]
+      ],
+      "primary_cells": 130,
+      "states": {
+        "COLLECTION_ERROR": 1,
+        "ERROR": 9,
+        "FAILED": 25,
+        "PASS": 95
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 123,
+            "rows": 130,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "transferred_bytes": 75983,
+      "source_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "metadata_lines": [
+        [
+          5,
+          113
+        ]
+      ],
+      "primary_cells": 130,
+      "states": {
+        "ERROR": 4,
+        "FAILED": 25,
+        "PASS": 101
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 116,
+            "rows": 130,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "transferred_bytes": 71852,
+      "source_sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+      "metadata_lines": [
+        [
+          5,
+          118
+        ]
+      ],
+      "primary_cells": 117,
+      "states": {
+        "COLLECTION_SKIP": 1,
+        "ERROR": 5,
+        "FAILED": 16,
+        "PASS": 95
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 120,
+            "rows": 117,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "transferred_bytes": 62579,
+      "source_sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+      "metadata_lines": [
+        [
+          5,
+          127
+        ]
+      ],
+      "primary_cells": 121,
+      "states": {
+        "ERROR": 8,
+        "FAILED": 16,
+        "PASS": 97
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 129,
+            "rows": 121,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "transferred_bytes": 110036,
+      "source_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "metadata_lines": [
+        [
+          5,
+          194
+        ],
+        [
+          346,
+          527
+        ]
+      ],
+      "primary_cells": 122,
+      "states": {
+        "ERROR": 5,
+        "FAILED": 17,
+        "PASS": 100
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 237,
+            "rows": 97,
+            "complete": false
+          },
+          {
+            "header_line": 585,
+            "rows": 122,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "transferred_bytes": 87536,
+      "source_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "metadata_lines": [
+        [
+          5,
+          125
+        ]
+      ],
+      "primary_cells": 160,
+      "states": {
+        "ERROR": 7,
+        "FAILED": 28,
+        "PASS": 125
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 127,
+            "rows": 160,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "transferred_bytes": 122592,
+      "source_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "metadata_lines": [
+        [
+          4,
+          113
+        ],
+        [
+          220,
+          348
+        ]
+      ],
+      "primary_cells": 161,
+      "states": {
+        "COLLECTION_SKIP": 1,
+        "ERROR": 10,
+        "FAILED": 19,
+        "PASS": 131
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 115,
+            "rows": 93,
+            "complete": false
+          },
+          {
+            "header_line": 350,
+            "rows": 161,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "transferred_bytes": 85661,
+      "source_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "metadata_lines": [
+        [
+          5,
+          153
+        ]
+      ],
+      "primary_cells": 161,
+      "states": {
+        "ERROR": 7,
+        "FAILED": 27,
+        "PASS": 127
+      },
+      "properties": 0,
+      "gates": 0,
+      "table_selection": {
+        "tables": [
+          {
+            "header_line": 155,
+            "rows": 161,
+            "complete": true
+          }
+        ],
+        "selected": "last_complete_exact_manifest_set"
+      },
+      "binding_grade": "recomputed_text_binding",
+      "behavior_grade": "source_reported_compact_text_only",
+      "raw_archive_transfer": "missing"
+    }
+  ],
+  "primary_cells": 2074,
+  "primary_states": {
+    "COLLECTION_ERROR": 1,
+    "COLLECTION_SKIP": 5,
+    "ERROR": 88,
+    "FAILED": 307,
+    "PASS": 1673
+  },
+  "property_states": 9,
+  "gates": 14,
+  "gate_states": {
+    "FAILED": 3,
+    "PARTIAL": 1,
+    "PASS": 8,
+    "UNRUN/environment_unavailable": 2
+  },
+  "finding_ids": 282,
+  "route_rows": 2524,
+  "unrouted_findings": [],
+  "locator_records": 1170,
+  "raw_archives_received": 0,
+  "index_acceptance": "transfer_and_navigation_only",
+  "product_closure": "not_established"
+}

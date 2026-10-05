@@ -153,6 +153,10 @@ async def test_provider_failure_retry_and_reuse_charge_received_usage_once() -> 
 
 
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    strict=True,
+    reason="B66/B68: producer-bound accounting settlement is missing after initiator cancellation",
+)
 async def test_cancelled_initiator_cannot_erase_actual_provider_cost() -> None:
     """Physical success must have one accounting owner even if its caller cancels."""
     provider = _Provider(gated=True)

@@ -7,7 +7,7 @@ import math
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.scientist.methods.search.strategies.space import (
@@ -16,6 +16,11 @@ from polisyos.scientist.methods.search.strategies.space import (
 from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
 
 from .models import BenchmarkEvaluation, BenchmarkSplit, MetricDirection
+
+if TYPE_CHECKING:
+    from polisyos.scientist.methods.search.strategies.transfer import RunFingerprint
+
+    from .warm_start import WarmStartBridge
 
 logger = logging.getLogger(__name__)
 
@@ -109,11 +114,11 @@ def _try_import_bayesian():
         return None
 
 
-class SearchSpace:
+class SearchSpace(NativeSearchSpace):
     """Autotune adapter backed by the canonical strategy ``SearchSpace``."""
 
     def __init__(self, bounds: list[dict[str, Any] | ParameterBounds]) -> None:
-        self._native = NativeSearchSpace(
+        super().__init__(
             bounds=[self._to_parameter_bound(bound) for bound in bounds]
         )
 
@@ -143,39 +148,9 @@ class SearchSpace:
         )
 
     @property
-    def bounds(self) -> list[ParameterBounds]:
-        """Return the canonical parameter bounds used by the strategy."""
-        return self._native.bounds
-
-    @property
-    def dim(self) -> int:
-        return self._native.dim
-
-    @property
     def param_bounds(self) -> list[Any]:
         """Compatibility alias for consumers that inspect parameter bounds."""
-        return self._native.bounds
-
-    @property
-    def names(self) -> list[str]:
-        """Return canonical expanded parameter names."""
-        return self._native.names
-
-    def normalize(self, params: dict[str, Any]) -> tuple[float, ...]:
-        """Normalize parameters through the canonical strategy implementation."""
-        return self._native.normalize(params)
-
-    def denormalize(self, vector: tuple[float, ...]) -> dict[str, Any]:
-        """Resolve a relaxed vector to the effective typed execution."""
-        return self._native.denormalize(vector)
-
-    def sample_sobol(self, n_samples: int, seed: int = 42) -> list[tuple[float, ...]]:
-        """Sample relaxed vectors through the canonical strategy implementation."""
-        return self._native.sample_sobol(n_samples=n_samples, seed=seed)
-
-    def to_botorch_bounds(self) -> Any:
-        """Delegate optional BoTorch bounds construction to the native space."""
-        return self._native.to_botorch_bounds()
+        return self.bounds
 
 
 class BayesianCandidateGenerator:
@@ -186,14 +161,18 @@ class BayesianCandidateGenerator:
 
     def __init__(
         self,
-        search_space: SearchSpace | None = None,
+        search_space: NativeSearchSpace | None = None,
         *,
         primary_metric: str = "score",
         direction: MetricDirection = MetricDirection.MAXIMIZE,
         compare_split: BenchmarkSplit = BenchmarkSplit.HOLDOUT,
         n_initial: int = 6,
         seed: int = 42,
+        warm_start_bridge: WarmStartBridge | None = None,
+        warm_start_fingerprint: RunFingerprint | None = None,
     ) -> None:
+        if (warm_start_bridge is None) != (warm_start_fingerprint is None):
+            raise ValueError("Warm-start bridge and target fingerprint must be provided together")
         self._primary_metric = primary_metric
         self._direction = direction
         self._compare_split = compare_split
@@ -215,6 +194,9 @@ class BayesianCandidateGenerator:
                     self._optimizer.warm_start(self._warm_evals)
             except Exception as exc:
                 logger.warning("BayesianCandidateGenerator: optimizer init failed: %s", exc)
+        if self._optimizer is not None and warm_start_bridge is not None:
+            assert warm_start_fingerprint is not None
+            self.warm_start(warm_start_bridge.load_warm_start(warm_start_fingerprint))
 
     @property
     def botorch_available(self) -> bool:

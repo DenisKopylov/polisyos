@@ -20,7 +20,7 @@
   "pull_request": null,
   "changed_paths": [
     "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-baseline.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-baseline.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness.json"
   ],
   "baseline_cells": [
@@ -64,7 +64,7 @@
       "wall_s": 29.048176073000036,
       "pytest_wall_s": 24.15,
       "peak_rss_kib": 1234528,
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-baseline.log",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-baseline.txt",
       "output_sha256": "bc97a385a4c2e12f8645930cc538f6188d547e7f0ae538a74420724d67e61cea"
     },
     {

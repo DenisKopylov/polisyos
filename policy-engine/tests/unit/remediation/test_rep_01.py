@@ -1,11 +1,4 @@
-"""RED witness and compatibility controls for the REP-01 replay relocation.
-
-The four direct-owner checks are expected to be RED until production cutover:
-the Runtime root facade, delayed Core CLI import, benchmark import, and dynamic
-import inventory must all point at Scientist's deterministic owner.  The
-remaining tests are controls for the supported ABI and persisted contracts;
-they should remain GREEN across that relocation.
-"""
+"""Behavioral ownership witnesses and compatibility controls for REP-01."""
 
 from __future__ import annotations
 
@@ -92,16 +85,157 @@ import importlib
 import sys
 
 runtime = importlib.import_module('polisyos.runtime')
-canonical = importlib.import_module('polisyos.scientist.replay.deterministic')
 expected = {ROOT_EXPORTS!r}
 assert tuple(runtime.__all__) == expected
+assert 'polisyos.scientist.replay.deterministic' not in sys.modules
 assert 'polisyos.runtime.replay' not in sys.modules
+first = getattr(runtime, expected[0])
+assert 'polisyos.scientist.replay.deterministic' in sys.modules
+canonical = sys.modules['polisyos.scientist.replay.deterministic']
+assert first is getattr(canonical, expected[0])
 for name in expected:
     assert getattr(runtime, name) is getattr(canonical, name), name
 assert 'polisyos.runtime.replay' not in sys.modules
 """,
     )
     assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"
+
+
+def test_cli_replays_persisted_packet_through_bundle_import_export_without_compatibility(
+    tmp_path: Path,
+) -> None:
+    """The direct CLI owner consumes a persisted bundle and reads the round-trip back."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.scientist.replay.deterministic import completeness_check
+    from tests.unit.runtime.test_replay_runtime import _build_packet_fixture
+
+    source_root = tmp_path / "source-cas"
+    source_store = FileSystemCAS(source_root)
+    packet_ref, packet_payload, simulation_result_ref = _build_packet_fixture(source_store)
+    original = completeness_check(source_store, packet_ref.artifact_id)
+    assert original.ok
+    assert original.graph is not None
+
+    source_bundle = tmp_path / "source-bundle.tar.gz"
+    source_store.export_subgraph(
+        original.graph.all_artifact_ids(),
+        source_bundle,
+        compress=True,
+        include_manifests=True,
+    )
+    round_trip_bundle = tmp_path / "round-trip-bundle.tar.gz"
+
+    script = f"""
+import contextlib
+import importlib
+import io
+import json
+import sys
+from pathlib import Path
+
+class RejectCompatibilityImport:
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == 'polisyos.runtime.replay':
+            raise AssertionError('CLI imported the compatibility shim')
+        return None
+
+sys.meta_path.insert(0, RejectCompatibilityImport())
+cli = importlib.import_module('polisyos.core.components._cli_replay')
+assert 'polisyos.runtime.replay' not in sys.modules
+canonical = importlib.import_module('polisyos.scientist.replay.deterministic')
+assert Path(cli.__file__).is_relative_to({str(SRC_ROOT)!r})
+assert Path(canonical.__file__).is_relative_to({str(SRC_ROOT)!r})
+
+def args(*, bundle, export=None, check_only=False):
+    from pathlib import Path
+    from types import SimpleNamespace
+    return SimpleNamespace(
+        packet_ref={str(packet_ref.artifact_id)!r},
+        bundle=str(bundle),
+        cas_root=Path({str(tmp_path / 'unused-cas')!r}),
+        check_only=check_only,
+        export=str(export) if export else None,
+        json=True,
+        strategy='auto',
+        mode='bit_exact',
+        no_verify=False,
+        tolerance=0.01,
+        confidence_level=0.95,
+    )
+
+capture = io.StringIO()
+with contextlib.redirect_stdout(capture):
+    export_status = cli._cmd_replay(args(bundle={str(source_bundle)!r}, export={str(round_trip_bundle)!r}))
+export_payload = json.loads(capture.getvalue())
+
+capture = io.StringIO()
+with contextlib.redirect_stdout(capture):
+    readback_status = cli._cmd_replay(args(bundle={str(round_trip_bundle)!r}, check_only=True))
+readback_payload = json.loads(capture.getvalue())
+
+backend = importlib.import_module('polisyos.scientist.replay.backend')
+assert Path(backend.__file__).is_relative_to({str(SRC_ROOT)!r})
+expected_simulation = canonical.normalize_artifact_id({str(simulation_result_ref.artifact_id)!r})
+backend._execute_foundry_replay = lambda *, store, payload, seed: expected_simulation
+capture = io.StringIO()
+with contextlib.redirect_stdout(capture):
+    replay_status = cli._cmd_replay(args(bundle={str(round_trip_bundle)!r}))
+replay_payload = json.loads(capture.getvalue())
+
+print(json.dumps({{
+    'export_status': export_status,
+    'export': export_payload,
+    'readback_status': readback_status,
+    'readback': readback_payload,
+    'replay_status': replay_status,
+    'replay': replay_payload,
+    'cli_file': cli.__file__,
+    'canonical_file': canonical.__file__,
+    'backend_file': backend.__file__,
+    'compatibility_loaded': 'polisyos.runtime.replay' in sys.modules,
+}}))
+"""
+    result = _run_isolated(script)
+    assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"
+    outcome = json.loads(result.stdout)
+
+    assert outcome["export_status"] == 0
+    assert outcome["export"]["exported_artifacts"] == original.total_artifacts
+    assert outcome["export"]["missing_artifacts"] == []
+    assert outcome["readback_status"] == 0
+    assert outcome["readback"]["level"] == "complete"
+    assert outcome["readback"]["strategy"] == "foundry"
+    assert outcome["readback"]["bundle_import"]["verification_failed"] == []
+    assert outcome["replay_status"] == 0
+    assert outcome["replay"]["success"] is True
+    assert outcome["replay"]["completeness"]["level"] == "complete"
+    assert outcome["replay"]["verification"]["passed"] is True
+    assert outcome["replay"]["verification"]["mode"] == "bit_exact"
+    assert outcome["compatibility_loaded"] is False
+    assert Path(outcome["canonical_file"]).is_relative_to(SRC_ROOT)
+    assert Path(outcome["cli_file"]).is_relative_to(SRC_ROOT)
+    assert Path(outcome["backend_file"]).is_relative_to(SRC_ROOT)
+
+    readback_store = FileSystemCAS(tmp_path / "readback-cas")
+    imported = readback_store.import_subgraph(round_trip_bundle, verify_integrity=True)
+    persisted = completeness_check(readback_store, packet_ref.artifact_id)
+    assert imported.verification_failed == []
+    assert persisted.ok
+    assert persisted.graph is not None
+    assert {str(item) for item in persisted.graph.all_artifact_ids()} == {
+        str(item) for item in original.graph.all_artifact_ids()
+    }
+    for artifact_id in original.graph.all_artifact_ids():
+        assert readback_store.get_bytes(artifact_id) == source_store.get_bytes(artifact_id)
+    assert readback_store.get_bytes(packet_ref.artifact_id) == source_store.get_bytes(
+        packet_ref.artifact_id
+    )
+    assert readback_store.get_bytes(simulation_result_ref.artifact_id) == source_store.get_bytes(
+        simulation_result_ref.artifact_id
+    )
+    assert packet_payload["artifacts"]["simulation_result_ref"] == str(
+        simulation_result_ref.artifact_id
+    )
 
 
 def test_runtime_replay_compatibility_window_keeps_all_twenty_symbols() -> None:
@@ -159,12 +293,25 @@ def test_core_replay_cli_keeps_delayed_import_on_direct_scientist_owner(
 def test_advanced_benchmark_replay_import_binds_direct_scientist_owner() -> None:
     """The benchmark helper must not keep a hidden dependency on Runtime replay."""
     result = _run_isolated(
-        """
+        f"""
 import importlib
+import sys
+from pathlib import Path
+
+class RejectCompatibilityImport:
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == 'polisyos.runtime.replay':
+            raise AssertionError('benchmark imported the compatibility shim')
+        return None
+
+sys.meta_path.insert(0, RejectCompatibilityImport())
 
 common = importlib.import_module('benchmarks.advanced.common')
-canonical = importlib.import_module('polisyos.scientist.replay.deterministic')
+canonical = sys.modules['polisyos.scientist.replay.deterministic']
 assert common.runtime_replay is canonical
+assert 'polisyos.runtime.replay' not in sys.modules
+assert Path(common.__file__).is_relative_to({str(PROJECT_ROOT / 'benchmarks')!r})
+assert Path(canonical.__file__).is_relative_to({str(SRC_ROOT)!r})
 """
     )
     assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"

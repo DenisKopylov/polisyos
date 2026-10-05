@@ -3,7 +3,7 @@
 G ведёт `codex/e02-integration` от опубликованного `origin/main`:
 `c40d4acae1ce58b597267255026d9356565828fd`, tree
 `897662caf73bd4487f798d66938b74d7abfe753e`. Этот checkpoint фиксирует входы
-и подготовку приёмки. Решения фиксируются в [checkpoint-06](checkpoint-06.json)
+и подготовку приёмки. Решения фиксируются в [checkpoint-07](checkpoint-07.json)
 и [independent review](reviews/2026-10-05-first-pass.md). Новых finding closure
 decisions пока нет. Исследовательский source `6978076…` не является новым
 кандидатом. Протокол исполнения — [HANDOFF](../execution-prompts/HANDOFF.md).
@@ -125,7 +125,7 @@ economic dtype, Lex input/plan binding, bias statistical support, forecast
 producer, Morris geometry и CAL-05 mapped-schedule refusal к ранее принятым
 code slices. Finding closure не заявлена. Cal/UQ, streaming и cold budget
 mutation сохраняют HOLD по независимым локальным falsifiers; runner exit 0
-этих probes не является product PASS. C-canon ещё не принят.
+этих probes не является product PASS. Checkpoint-07 принимает ограниченный Core-to-IR adapter profile; 52 адресных случая, paired readback и два wrapped backtest consumer прошли на source 97c85fae. SAE bundle-route не дошёл до route из-за недоступного catalog input и не проверяет adapter branch (persist_artifacts=false); inline persistence route остаётся UNRUN. Прямые Core writers и полный CAN-01 closure остаются остатками.
 
 [Recovered work](reviews/2026-10-05-recovered-work.md) определяет полезные
 адаптации из retired checkout'ов и отличает их от устаревших/небезопасных

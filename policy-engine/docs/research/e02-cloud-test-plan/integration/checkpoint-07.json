@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-05",
+  "publisher": "G",
+  "branch": "codex/e02-integration",
+  "integration_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+  "integration_tree": "e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3",
+  "previous_checkpoint": "checkpoint-06.json",
+  "remote_readback": "The source merge is local at record preparation; normal push and exact remote readback follow this record commit.",
+  "accepted_slices": [
+    {
+      "unit": "C",
+      "slice": "canon-ir-adapter-profile",
+      "accepted_head": "b98bc432e3afc0f17d992fc034029b68b0952169",
+      "topic_tree": "5ee83592653f466ab6aaf813e0afc0b831e4e984",
+      "candidate_sha": "8f13193b79b366fe26101af37427da5f44ef490a",
+      "candidate_tree": "8a26ff846f97da07583ab25df12d550c8ad51317",
+      "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "merge_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+      "merge_tree": "e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3",
+      "merge_parents": [
+        "86f37d782a709d298a9908ca3ef891adc9f89253",
+        "b98bc432e3afc0f17d992fc034029b68b0952169"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-ir-adapter-profile.json",
+        "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py"
+      ],
+      "deciding_receipt": "checks/c-canon.json",
+      "deciding_receipt_sha256": "f16be23afa15b5cfc98e0db531859214c9e18d903b560731ed1096de502f5499",
+      "handoff_receipt": {
+        "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-ir-adapter-profile.json@b98bc432e3afc0f17d992fc034029b68b0952169",
+        "sha256": "fbc772ca53b3af82e8d6aff0b84fa9b03c3fe4455beb68837e1ac6c206be1089",
+        "bytes": 8479
+      },
+      "code_decision": "GO_bounded_IR_adapter_profile_only",
+      "reviewers": [
+        "consumer_c",
+        "consumer_d",
+        "G"
+      ],
+      "finding_closure": false,
+      "limitations": [
+        "Bounded adapter behavior only; unwrapped Core writers in metric validation, IC and SAE output diagnostics remain a declared same-class deeper residual (P40).",
+        "SAE inline persist_artifacts=true adapter route remains UNRUN; use isolated test-scoped catalog/service invocation if that consumer criterion is commissioned. No production-data blanket mount.",
+        "Historical full-corpus parity, all dynamically generated payloads, global writer consolidation, public uncertainty authority, production data and broad closeout are not established.",
+        "Expanded isolated Ruff diagnostic found I001 outside the three C mechanism/test paths; no slice-base P41 replay, hence no inherited classification."
+      ],
+      "readback": "Exact topic footprint blobs equal merge blobs; integrated checks pin source SHA/tree and preserve complete outputs."
+    }
+  ],
+  "finding_closures": [],
+  "freeze": "not_frozen",
+  "broad_replay": "UNRUN; reserve once after source freeze",
+  "main_publication": "not_authorized",
+  "affected_checks": {
+    "executed": "52 contract/producer cases; paired metric/IC readback plus raw-Core falsifier; two genuine wrapped backtest consumers PASS.",
+    "unrun": "SAE inline persistence route; global writer consolidation and combined source freeze replay."
+  },
+  "remaining_queue": "reviews/2026-10-05-owner-actions.md; full A–F closure decision research requested by the user supersedes further routine acceptance work in this phase."
+}

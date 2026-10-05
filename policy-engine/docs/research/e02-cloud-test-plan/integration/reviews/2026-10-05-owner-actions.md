@@ -79,10 +79,7 @@ actual conflict is returned to the canonical writer, never repaired by G.
 | CYC-02 → RES-03 | Fresh-process N5 readback is not the required ordinary earlier-success/later-failure result lifecycle. Native B EXE cache/checkpoint evidence is also a separate property. |
 | NET-01 → ING-02 | B's acquire-deadline witness and C's lower-cap restart witness both remain held. Recheck the integrated pool/streaming consumer when the owners settle those contracts. |
 
-The Core-to-IR adapter is a bounded ready slice, still not admitted by
-checkpoint-06. After its contract changes,
-recheck composition and real metric-validation/IC callers, including callers
-that still supply a Core store directly. PCL/BKT/FRC share an affected wave
+Checkpoint-07 admits the bounded Core-to-IR adapter profile. On source 97c85fae, the 52-case contract/producer wave, two wrapped backtest consumers and paired metric/IC IR readbacks pass. The raw-Core falsifier still persists incompatible tags; global writer consolidation remains a C/canonical-caller task. The SAE bundle-route setup failure is not an adapter discriminator (persist_artifacts=false); the separate inline persistence route remains UNRUN. PCL/BKT/FRC share an affected wave
 after bias/FRC supplier decisions. C plugin discovery/training share their
 legacy registry and require a combined consumer check; FRY's mechanism registry
 and F's causal-method facade are separate ABIs. C OBS's per-file snapshot fix

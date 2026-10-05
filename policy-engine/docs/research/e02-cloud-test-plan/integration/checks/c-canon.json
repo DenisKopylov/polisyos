@@ -1,0 +1,262 @@
+{
+  "schema": "policyos.e02.local_check_receipt.v1",
+  "unit": "C",
+  "slice": "canon-ir-adapter-profile",
+  "candidate": {
+    "branch": "codex/e02-G-check-c-canon",
+    "head_sha": "8f13193b79b366fe26101af37427da5f44ef490a",
+    "tree_sha": "8a26ff846f97da07583ab25df12d550c8ad51317",
+    "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "handoff_sha": "b98bc432e3afc0f17d992fc034029b68b0952169"
+  },
+  "environment": {
+    "python": "3.14.3",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-g-check-c-canon/polisyos/policy-engine/.venv/bin/python",
+    "prefix": "/Users/deniskopylov/.codex/worktrees/e02-g-check-c-canon/polisyos/policy-engine/.venv",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "versions": {
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pydantic": "2.12.5",
+      "torch": null,
+      "hnswlib": null
+    },
+    "thread_policy": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "JAX_PLATFORM_NAME": "cpu",
+      "JAX_PLATFORMS": "cpu"
+    }
+  },
+  "code_decision": "GO_bounded_IR_adapter_profile_only",
+  "finding_closures": [],
+  "property": {
+    "statement": "JSON writes routed through CoreToIRArtifactStoreAdapter use actual IR canonical bytes before Core put_bytes persistence; paired IR readback succeeds; incompatible tags reject before persistence.",
+    "runtime_path": [
+      "CoreToIRArtifactStoreAdapter.put_json",
+      "IR to_canonical_bytes",
+      "Core ArtifactStore.put_bytes",
+      "IR get_json_artifact"
+    ],
+    "negative_control": "Raw Core passed directly to the IR helper persists nested float_hex and its IR reader rejects; adapter rejects the same payload with zero persisted IDs.",
+    "predicate_basis": "recomputed"
+  },
+  "isolated_candidate_checks": {
+    "focused_pytest": {
+      "status": "PASS",
+      "selected_nodes": 52,
+      "node_count_basis": "actual --collect-only node list for the same seven files",
+      "exit": 0,
+      "elapsed_seconds": 12,
+      "stdout": "policy-engine/_build/e02-g-check/logs/focused_pytest.stdout",
+      "stderr": "policy-engine/_build/e02-g-check/logs/focused_pytest.stderr",
+      "result": "policy-engine/_build/e02-g-check/logs/focused_pytest.result.txt",
+      "warning": "existing pytest warning: unknown config option cache_dir"
+    },
+    "selected_collection": {
+      "status": "PASS",
+      "collected": 52,
+      "exit": 0,
+      "stdout": "policy-engine/_build/e02-g-check/logs/collection-rerun.stdout",
+      "stderr": "policy-engine/_build/e02-g-check/logs/collection-rerun.stderr",
+      "result": "policy-engine/_build/e02-g-check/logs/collection-rerun.result.txt"
+    },
+    "exact_c_changed_paths_ruff": {
+      "check": {
+        "status": "PASS",
+        "exit": 0,
+        "stdout": "policy-engine/_build/e02-g-check/logs/c_changed_ruff.stdout",
+        "stderr": "policy-engine/_build/e02-g-check/logs/c_changed_ruff.stderr",
+        "result": "policy-engine/_build/e02-g-check/logs/c_changed_ruff.result.txt"
+      },
+      "format_check": {
+        "status": "PASS",
+        "exit": 0,
+        "stdout": "policy-engine/_build/e02-g-check/logs/c_changed_format.stdout",
+        "stderr": "policy-engine/_build/e02-g-check/logs/c_changed_format.stderr",
+        "result": "policy-engine/_build/e02-g-check/logs/c_changed_format.result.txt"
+      }
+    },
+    "real_consumer_probe": {
+      "status": "PASS_FOR_PAIRED_READBACK; BYPASS_OBSERVED",
+      "exit": 0,
+      "elapsed_seconds": 13,
+      "stdout": "policy-engine/_build/e02-g-check/logs/paired_consumer_probe_falsifier.stdout",
+      "stderr": "policy-engine/_build/e02-g-check/logs/paired_consumer_probe_falsifier.stderr",
+      "result": "policy-engine/_build/e02-g-check/logs/paired_consumer_probe_falsifier.result.txt",
+      "metric_node": "actual FileSystemCAS entries for metric_validation_report and preseeded observation bundle used put_json; both paired IR reads decoded",
+      "ic_pass": "actual FileSystemCAS entries for trinity_bundle, ic_report, and ic_certificate used put_json; paired IR reads decoded",
+      "differential_falsifier": "raw Core store passed to IR put_json_artifact persisted nested float_hex; paired IR reader raised CanonViolation Unknown canonical _type: 'float_hex'. The same input through ensure_ir_artifact_store raised before persistence and left 0 artifact IDs.",
+      "synthetic_only": true
+    },
+    "expanded_ruff_diagnostic": {
+      "status": "FAIL_OUTSIDE_C_CHANGED_PATHS",
+      "exit": 1,
+      "stdout": "policy-engine/_build/e02-g-check/logs/initial-run/ruff_check.stdout",
+      "stderr": "policy-engine/_build/e02-g-check/logs/initial-run/ruff_check.stderr",
+      "result": "policy-engine/_build/e02-g-check/logs/initial-run/ruff_check.result.txt",
+      "findings": [
+        "I001 in scientist/nodes/builtins/simulate/run_metric_validation.py",
+        "I001 in tests/unit/scientist/governance/test_incentive_compatibility_pass.py",
+        "I001 in tests/unit/scientist/nodes/builtins/simulate/test_run_metric_validation.py"
+      ],
+      "classification": "diagnostic expanded scan only; no base replay performed, so not classified as inherited"
+    }
+  },
+  "source_runner": {
+    "runner": "policy-engine/_build/e02-g-check/run_c_canon_checks.sh",
+    "runner_sha256": "42e464011daeef98c57f0ec3e247e6b8a0960714a75251bd219ca78b5917b9a5",
+    "probe": "policy-engine/_build/e02-g-check/probe_consumers.py",
+    "probe_sha256": "55a79fa10a3e53f5c399331600a628fda3b3158614724873f938715e6fe7bb5a"
+  },
+  "retained_original_outputs": {
+    "path": "policy-engine/_build/e02-g-disk-cleanup-20261005/c-canon-retained-file-manifest.json",
+    "bytes": 25948,
+    "sha256": "10a23d84ca1a8489866afd3c42ee0ffdb03a93787016045cbd60a76caab77ef3"
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/_build/e02-g-disk-cleanup-20261005/c-canon-final-identity-review.json",
+      "bytes": 11316,
+      "sha256": "14fe391d6db5b0bcbc396bff4e0f7ff8ebca3de70880cf1e5655975b188d5226"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-disk-cleanup-20261005/c-canon-final-property-review.json",
+      "bytes": 11251,
+      "sha256": "5109b8ccfe8d34173bd1d7f4bd8d159cf2e30e3a49b32bbeedda17ceb1f43cf3"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-disk-cleanup-20261005/c-canon-sae-scope-review.json",
+      "bytes": 4255,
+      "sha256": "f2fc2fe9c8a5cd7820b22703f7ee34dcf353534edbd4c43788d9d112e15b21d8"
+    }
+  ],
+  "integrated_source": {
+    "head": "97c85fae2d4505ec8248540d98b9556296244208",
+    "tree": "e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3",
+    "parents": [
+      "86f37d782a709d298a9908ca3ef891adc9f89253",
+      "b98bc432e3afc0f17d992fc034029b68b0952169"
+    ]
+  },
+  "integrated_checks": {
+    "focused_pytest": {
+      "outcome": "PASS",
+      "cases": 52,
+      "failures": 0,
+      "errors": 0,
+      "warning": "pytest unknown cache_dir config",
+      "invocation": {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/focused_pytest.invocation.json",
+        "bytes": 1017,
+        "sha256": "2f1a8f655b85e3e078a2da08b3b13e52105567d26536ae672a9b5837e555dc5b"
+      }
+    },
+    "paired_consumer_probe": {
+      "outcome": "PASS_FOR_READBACK_AND_EXPECTED_DIVERGENCE",
+      "core_put_json_artifacts": 5,
+      "paired_ir_decode_ok": 5,
+      "adapter_negative_persisted": 0,
+      "raw_core_bypass_persisted": 1
+    },
+    "adapter_consumers": {
+      "cases": 3,
+      "pass": 2,
+      "failed_during_setup": 1,
+      "commands": [
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_backtesting_orchestrator_naive_mode",
+        "tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_core_refs_read_back_from_reopened_filesystem_store",
+        "tests/unit/runtime/http/test_sae_spatial_route.py::test_causal_frontier_route_loads_bundle_and_writes_outputs"
+      ],
+      "pytest_exit": 1,
+      "SAE_property_execution": "UNRUN_BOOTSTRAP_INPUT_MISSING",
+      "SAE_selector_relevance": "persist_artifacts=false; does not enter adapter branch",
+      "P41_inherited": "not_established"
+    },
+    "full_deciding_outputs": [
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/adapter-consumers.invocation.json",
+        "bytes": 935,
+        "sha256": "95d29eec85060375a4898a9b44b0dde328dd7bb2127d7c880f24458d13e78996"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/adapter-consumers.junit.xml",
+        "bytes": 2631,
+        "sha256": "4f11d4367518321a13c3b707de0bed5c0e111b0ac12e4b654d372b3f38ceade3"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/adapter-consumers.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/adapter-consumers.stdout",
+        "bytes": 2791,
+        "sha256": "d1e12c35395eb8405f339fe438fe26ab8bbb27f7424b5ec03be9fd977a95a3e8"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/environment.invocation.json",
+        "bytes": 1136,
+        "sha256": "1b822fa10f137fce0babd99515a5dcf7650d4155719c682532ac0325912286a1"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/environment.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/environment.stdout",
+        "bytes": 820,
+        "sha256": "9a0823e67d490eef60c2f47f7d035be4ee17d245bd65eb6f6c40c6dd39031e88"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/focused.junit.xml",
+        "bytes": 8476,
+        "sha256": "a4afe38ca8b5f66243e619fb0f0c180faf8af727c1f3c42c2ec68d582c1a817b"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/focused_pytest.invocation.json",
+        "bytes": 1017,
+        "sha256": "2f1a8f655b85e3e078a2da08b3b13e52105567d26536ae672a9b5837e555dc5b"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/focused_pytest.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/focused_pytest.stdout",
+        "bytes": 607,
+        "sha256": "b0cc0bf8bc2fecb773cb775cea4107988a458e8c64eef358f7139d78898e3f13"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/paired_consumer_probe.invocation.json",
+        "bytes": 497,
+        "sha256": "388d7945ceda92e99227c0499c2f6bbfea9fa8ae1724aa10d7d6dbbaaeaba2c2"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/paired_consumer_probe.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-canon-integration-check/paired_consumer_probe.stdout",
+        "bytes": 13373,
+        "sha256": "8ddcb58682688954fc5f6c5f44b7bf2239a998fa6613fe518606d18a8a6052e4"
+      }
+    ]
+  },
+  "limitations": [
+    "Bounded adapter behavior only; unwrapped Core writers in metric validation, IC and SAE output diagnostics remain a declared same-class deeper residual (P40).",
+    "SAE inline persist_artifacts=true adapter route remains UNRUN; use isolated test-scoped catalog/service invocation if that consumer criterion is commissioned. No production-data blanket mount.",
+    "Historical full-corpus parity, all dynamically generated payloads, global writer consolidation, public uncertainty authority, production data and broad closeout are not established.",
+    "Expanded isolated Ruff diagnostic found I001 outside the three C mechanism/test paths; no slice-base P41 replay, hence no inherited classification."
+  ],
+  "data_scope": "synthetic fixtures and temporary CAS only; no production inputs",
+  "broad_replay": "UNRUN; reserve once after source freeze"
+}

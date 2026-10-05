@@ -2,7 +2,7 @@
   {
     "path": "execution-organization/allocation.json",
     "original_sha256": "0fd353725c481c28e379010fbf0f5a6921b830586be5a09501b73f0320c07597",
-    "transform": "lossless JSON whitespace compaction; unavailable local source paths made portable; allocation planner/prompt archive links recorded",
+    "transform": "Portable source provenance and compact JSON; execution staffing rewritten per user request to aggressive directsubagent dispatch, dynamic owner-based writers and cloud-unrestricted/local-bounded compute",
     "parsed_value_equal_to_original": false
   },
   {

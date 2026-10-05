@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--repo", type=Path, required=True)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--python", type=Path, required=True)
+    parser.add_argument("--source-base", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     repo = args.repo.resolve()
@@ -40,12 +41,26 @@ def main():
             "cache_dir=" + str(args.output / "pytest-cache"), "--junitxml",
             str(args.output / "cohort.xml"), *cohort["test_paths"]]
     env = dict(os.environ, PYTHONPATH="src:product", POLISYOS_METRICS_PORT="0")
-    identity_script = """import importlib.metadata as m, importlib.util as u, json, platform, sys
-print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':platform.platform(),
+    changed_modules = {}
+    for path in git("diff", "--name-only", args.source_base, before["sha"],
+                    "--", "policy-engine/src").splitlines():
+        if path.endswith(".py"):
+            module = path.split("/src/", 1)[1][:-3].replace("/", ".")
+            changed_modules[module.removesuffix(".__init__")] = str(repo / path)
+    identity_script = """import hashlib, importlib.metadata as m, importlib.util as u, json, pathlib, platform, sys
+origins={}
+for name,expected in json.loads(sys.argv[1]).items():
+ spec=u.find_spec(name);origin=spec.origin if spec else None
+ origins[name]={'origin':origin,'expected':expected,'matches_expected':origin is not None and pathlib.Path(origin).resolve()==pathlib.Path(expected).resolve(),
+ 'sha256':hashlib.sha256(pathlib.Path(origin).read_bytes()).hexdigest() if origin else None}
+print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'sys_path':sys.path,
 'versions':{n:m.version(n) for n in ['pytest','numpy','orjson','pydantic','jax','duckdb']},
-'module_origins':{n:u.find_spec(n).origin for n in ['polisyos','pytest','numpy','orjson','pydantic','jax','duckdb']}}))"""
-    identity = json.loads(subprocess.check_output([str(args.python), "-c", identity_script],
+'module_origins':{n:u.find_spec(n).origin for n in ['polisyos','pytest','numpy','orjson','pydantic','jax','duckdb']},'changed_source_origins':origins}))"""
+    identity = json.loads(subprocess.check_output([str(args.python), "-c", identity_script,
+                         json.dumps(changed_modules)],
                          cwd=repo / "policy-engine", env=env, text=True))
+    if not all(row["matches_expected"] for row in identity["changed_source_origins"].values()):
+        raise SystemExit("Changed source modules do not resolve to the frozen checkout")
     started = datetime.now(timezone.utc).isoformat()
     clock = time.monotonic()
     measurement_error = None
@@ -81,6 +96,7 @@ print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':pl
                "cwd": str(repo / "policy-engine"), "environment":
                {"PYTHONPATH": env["PYTHONPATH"], "POLISYOS_METRICS_PORT": "0"},
                "interpreter": identity, "source_before": before, "source_after": after,
+               "source_base": args.source_base,
                "source_unchanged": before == after, "exit_code": run.returncode,
                "whole_file_count": len(cohort["test_paths"]), "outputs": outputs,
                "input": {"path": str(args.input.resolve()), "sha256": input_sha256,

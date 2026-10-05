@@ -24,6 +24,7 @@ class _GatedConnector:
         self.gate = gate
         self.started = asyncio.Event()
         self.proceed = asyncio.Event()
+        self.disconnect_started = asyncio.Event()
         self.disconnected: list[str] = []
         self.disconnect_failures = disconnect_failures
 
@@ -41,6 +42,7 @@ class _GatedConnector:
         return HealthStatus(healthy=True)
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
+        self.disconnect_started.set()
         self.disconnected.append(handle.session_id)
         if self.disconnect_failures:
             self.disconnect_failures -= 1
@@ -166,6 +168,72 @@ async def test_cancelled_semaphore_waiter_cannot_hide_connect_from_close() -> No
         connector.proceed.set()
         with pytest.raises(PoolClosedError):
             await physical_acquire
+        await close
+
+    assert len(connector.disconnected) == 1
+    assert pool._semaphore._value == 1
+
+
+@pytest.mark.asyncio
+async def test_semaphore_wait_cannot_restart_absolute_network_deadline() -> None:
+    """A slow admission consumes the same time budget used by later connector work."""
+    fast = _GatedConnector()
+    slow = _GatedConnector(gate="connect")
+    connectors = iter([fast, slow])
+    pool = _pool(
+        lambda: next(connectors),
+        acquire_timeout_seconds=0.1,
+        max_connection_uses=1,
+    )
+    first = await pool.acquire()
+    waiter = asyncio.create_task(pool.acquire())
+    loop = asyncio.get_running_loop()
+    release_tasks: list[asyncio.Task[None]] = []
+    release_timer = loop.call_later(
+        0.06, lambda: release_tasks.append(asyncio.create_task(pool.release(first)))
+    )
+    try:
+        await asyncio.wait_for(slow.started.wait(), timeout=0.5)
+        with pytest.raises(PoolExhaustedError):
+            await asyncio.wait_for(asyncio.shield(waiter), timeout=0.07)
+    finally:
+        release_timer.cancel()
+        slow.proceed.set()
+        if not waiter.done():
+            waiter.cancel()
+        with suppress(asyncio.CancelledError, PoolExhaustedError):
+            await waiter
+        await asyncio.gather(*release_tasks)
+        await pool.close_all()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("cancel_during_cleanup", [False, True])
+async def test_expired_acquire_retains_physical_owner_until_cleanup_settles(
+    cancel_during_cleanup: bool,
+) -> None:
+    """Neither expiry nor repeated cancellation frees an undischarged physical slot."""
+    connector = _GatedConnector(gate="health")
+    pool = _pool(lambda: connector, validate_on_acquire=True)
+    acquire = asyncio.create_task(pool.acquire())
+    await asyncio.wait_for(connector.started.wait(), timeout=0.5)
+    connector.gate = "disconnect"
+    await asyncio.wait_for(connector.disconnect_started.wait(), timeout=0.5)
+    try:
+        assert not acquire.done()
+        with pytest.raises(PoolExhaustedError):
+            await pool.acquire()
+        if cancel_during_cleanup:
+            acquire.cancel()
+        close = asyncio.create_task(pool.close_all())
+        await asyncio.sleep(0)
+        assert not close.done()
+        assert pool._semaphore._value == 0
+    finally:
+        connector.proceed.set()
+        expected = asyncio.CancelledError if cancel_during_cleanup else PoolExhaustedError
+        with pytest.raises(expected):
+            await acquire
         await close
 
     assert len(connector.disconnected) == 1

@@ -140,7 +140,9 @@ def owner_tables(final):
 
 
 def disposition_rows(doc):
-    value = doc.get("finding_classification", doc.get("finding_dispositions"))
+    # A receipt may carry a short class bucket beside its complete per-ID disposition.
+    # Preserve the owned disposition, including evidence and residuals, when both exist.
+    value = doc.get("finding_dispositions", doc.get("finding_classification"))
     if isinstance(value, list):
         return [(row.get("finding_id", row.get("id")), index, row)
                 for index, row in enumerate(value)]

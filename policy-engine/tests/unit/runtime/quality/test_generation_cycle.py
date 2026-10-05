@@ -3591,6 +3591,90 @@ async def test_blocked_voi_action_blocks_run_and_recursive_terminal(tmp_path: Pa
     }
 
 
+@pytest.mark.parametrize(
+    "schema_version",
+    [
+        "policyos.runtime.generation_cycle_controller.v1",
+        "policyos.runtime.generation_cycle_controller.v2",
+        "policyos.runtime.generation_cycle_controller.v3",
+    ],
+)
+@pytest.mark.asyncio
+async def test_current_n9_admission_rejects_blocked_run_for_each_supported_schema(
+    schema_version: str,
+) -> None:
+    from polisyos.runtime.quality.public_export import (
+        PublicExportRedactionError,
+        project_promotion_open_world_limitation,
+    )
+
+    class _AdvanceUntilSafetyCapController(GenerationCycleController):
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "advance", "reason": "voi_scheduler_advanced"}
+            )
+
+    controller = _AdvanceUntilSafetyCapController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_CurrentValidGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=REPO_ROOT,
+    )
+    source = await controller.run(
+        _problem(f"blocked_n9_schema_{schema_version.rsplit('.', 1)[-1]}"),
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+    assert source.terminal_status == "blocked"
+    assert source.cycles[-1].voi_decision.next_action == "advance"
+
+    payload = source.model_dump(mode="json")
+    payload["schema_version"] = schema_version
+    if schema_version.endswith((".v1", ".v2")):
+        payload["deployment_identity_status"] = "not_established"
+        payload["deployment_identity"] = None
+        payload["deployment_identity_reason"] = None
+    if schema_version.endswith(".v1"):
+        payload["synthetic"] = None
+        payload["source_handoff_refs"] = []
+        payload["source_preservation_receipt"] = None
+    payload["promotion_port"] = {
+        "status": "not_promoted",
+        "reason": f"generation_cycle_blocked_before_n9:{source.blocked_reason}",
+        "certified_candidate_ids": [],
+        "receipts": [{"candidate_id": source.candidate_summaries[0].candidate_id}],
+        "strangle_receipt": None,
+        "pre_n9_open_world_gates": [],
+    }
+    versioned = GenerationCycleRun.model_validate(payload)
+
+    issue_codes = {
+        issue.get("code")
+        for issue in validate_generation_cycle_run(versioned, repo_root=REPO_ROOT)
+    }
+    assert "blocked_generation_cycle_n9_admission_mismatch" in issue_codes
+
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="blocked_generation_cycle_n9_admission_mismatch",
+    ):
+        project_promotion_open_world_limitation(
+            run=versioned,
+            design_problem=object(),  # current N6 refusal must precede receipt projection
+            receipt=object(),
+            resolver=object(),
+            repo_root=REPO_ROOT,
+        )
+
+    if schema_version.endswith((".v1", ".v2")):
+        historical_wire = versioned.model_dump(mode="json")
+        assert historical_wire["schema_version"] == schema_version
+        assert generation_cycle_module.validate_generation_cycle_run_history(
+            historical_wire
+        ) == ()
+
+
 @pytest.mark.asyncio
 async def test_same_candidate_new_basis_preserves_history_and_current_front() -> None:
     """A changed basis is a new occurrence, not a second current-front row."""

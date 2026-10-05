@@ -624,6 +624,9 @@ class EvaluationSafetyPersistenceService:
         from polisyos.runtime.http.services.control.generation_cycle import (
             CompiledRecursiveGenerationCycleRun,
         )
+        from polisyos.runtime.quality.generation_cycle import (
+            generation_cycle_n9_source_status,
+        )
 
         inputs_read: list[str] = []
         read_attempts: list[str] = []
@@ -723,6 +726,10 @@ class EvaluationSafetyPersistenceService:
                             if len(child_problems) != 1:
                                 raise ValueError("promotion_source_child_problem_not_retained")
                             problem = child_problems[0]
+                        if generation_cycle_n9_source_status(cycle) == "terminal_blocked":
+                            raise ValueError(
+                                "promotion_source_blocked_generation_cycle_cannot_supply_n9_receipt"
+                            )
                         from polisyos.runtime.quality.promotion_sequence import (
                             CanonicalPromotionReceipt,
                         )

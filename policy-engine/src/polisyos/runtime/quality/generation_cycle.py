@@ -227,6 +227,7 @@ ValuePortStatus = Literal[
 ]
 PromotionPortStatus = Literal["promotion_pending_n9", "certified_current_valid", "not_promoted"]
 TerminalStatus = Literal["completed", "blocked"]
+GenerationCycleN9SourceStatus = Literal["terminal_nonblocked", "terminal_blocked"]
 
 
 class GenerationCycleError(ValueError):
@@ -1810,6 +1811,18 @@ class GenerationCycleRun(_StrictModel):
             for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
                 payload.pop(key, None)
         return payload
+
+
+def generation_cycle_n9_source_status(
+    run: GenerationCycleRun,
+) -> GenerationCycleN9SourceStatus:
+    """Classify only whether N6 terminal status disqualifies this run from N9 input.
+
+    A nonblocked result is not an N9 grant: the N9 owner still resolves and
+    verifies the candidate, value, epoch, and promotion evidence independently.
+    """
+
+    return "terminal_blocked" if run.terminal_status == "blocked" else "terminal_nonblocked"
 
 
 class GenerationPort(Protocol):
@@ -6556,19 +6569,28 @@ def _validate_generation_cycle_run(
                 if not (cause_is_reconciled or safety_cap_has_expected_shape):
                     issues.append({"code": "generation_cycle_block_cause_not_reconciled"})
 
-            expected_n9_refusal = (
-                "generation_cycle_blocked_before_n9:"
-                f"{run.blocked_reason or 'generation_cycle_blocked'}"
-            )
-            if (
-                run.promotion_port.status != "not_promoted"
-                or run.promotion_port.reason != expected_n9_refusal
-                or run.promotion_port.certified_candidate_ids
-                or run.promotion_port.receipts
-                or run.promotion_port.strangle_receipt is not None
-                or run.promotion_port.pre_n9_open_world_gates
-            ):
-                issues.append({"code": "blocked_generation_cycle_n9_admission_mismatch"})
+
+    # V1/V2 remain byte-exact historical projections, but a currently used
+    # source in any supported schema cannot contribute N9 evidence when N6 is
+    # terminally blocked. Preserve the v3 historical semantic check that was
+    # already part of its live schema contract.
+    if (
+        generation_cycle_n9_source_status(run) == "terminal_blocked"
+        and (require_currentness or run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION)
+    ):
+        expected_n9_refusal = (
+            "generation_cycle_blocked_before_n9:"
+            f"{run.blocked_reason or 'generation_cycle_blocked'}"
+        )
+        if (
+            run.promotion_port.status != "not_promoted"
+            or run.promotion_port.reason != expected_n9_refusal
+            or run.promotion_port.certified_candidate_ids
+            or run.promotion_port.receipts
+            or run.promotion_port.strangle_receipt is not None
+            or run.promotion_port.pre_n9_open_world_gates
+        ):
+            issues.append({"code": "blocked_generation_cycle_n9_admission_mismatch"})
 
     for index, cycle in enumerate(run.cycles):
         if cycle.terminal_kind not in expected_denominator:

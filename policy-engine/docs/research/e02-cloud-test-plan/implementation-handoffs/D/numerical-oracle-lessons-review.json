@@ -1,0 +1,88 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "d3bd03dc0e0041ba83d75768987717f069218331"
+  ],
+  "candidate_tree_sha": "f6fb068d655f6183b814c3fcfe604b955aa69d6a",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "closure_ids": [],
+  "verdict": "PASS_BOUNDED_CODE_REVIEW",
+  "baseline_cells": [],
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pytest": "9.0.2",
+    "source_mode": "git archive exact SHA; PYTHONPATH=<archive>/policy-engine/src; separate TemporaryDirectory per candidate; tracked architecture included"
+  },
+  "production_files_written": [],
+  "path_map": "Mirrored tests only; immutable source snapshots. This branch contains no production patch.",
+  "slice": "numerical-oracle-lessons-review",
+  "review_target_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+  "review_target_tree_sha": "a5443d26d3b2e335a4a5eefc5a651e8f3e50e77d",
+  "observed_ids": [
+    "B136",
+    "B137"
+  ],
+  "bundle_ids": [
+    "TRN-03"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-lessons-review.txt"
+  ],
+  "log_sha256": "c8168551c3a8ea03fe39d6298d50c589d63d2900df32b90e74eb6c345286dfef",
+  "source_basis": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py@66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+    "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py@66c1a8b17e20fcdf1d36593afb052ff92ed2b171"
+  ],
+  "verification": [
+    {
+      "id": "TRN-original-native",
+      "source_sha": "6d1916ce2d41c3af81b00710acebc56c332b26f0",
+      "command": "git archive SOURCE_SHA policy-engine/src policy-engine/tests policy-engine/architecture policy-engine/pytest.ini policy-engine/pyproject.toml; extract; locked python -m pytest tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lesson_transfer.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/orchestration/memory/test_failure_lessons.py --tb=short -ra",
+      "input_closure": "Native FileSystemCAS + fixture-root registry, real SearchController hint consumer, permitted/excluded query constraints, cold/warm/restart reads, source/evidence v2 refs, sidecar throttling/corruption, removal controls.",
+      "output": "22passed,2warnings in13.07s; exit0",
+      "status": "PASS"
+    },
+    {
+      "id": "TRN-active-policy-original-discriminator",
+      "source_sha": "6d1916ce2d41c3af81b00710acebc56c332b26f0",
+      "command": "Immutable snapshot. Use native test fixture _registry and _card(age_days=100,confidence=.9). Registry defaultTTL90; source policy/source and target policy/target same tenant, same current timestamp. Record local source then find_transfer_candidates and direct materialize_transfer with TransferPolicy(ttl_days=180), LessonQuery(min_confidence=.8,trust_levels=[TRANSFERRED]); assert one candidate and materialized confidence.9.",
+      "input_closure": "Evidence age100 days is within explicit callerTTL180. Same-tenant cross-domain provenance weight independently computed .65; source card stays immutable.",
+      "output": "registry_ttl90 override_ttl180 age_days100 expected_weight.65; candidates_under_override0; direct_materialized_under_overrideFalse; AssertionError per-call admitted evidence TTL ignored; probeexit1.",
+      "status": "FAIL",
+      "review_class": "P40 same evidence aging/policy propagation class deeper; sent parent before patch"
+    },
+    {
+      "id": "TRN-final-native",
+      "source_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+      "command": "Identical exact four native selectors, immutable archive/locked env.",
+      "input_closure": "Previous22 cases plus active policy propagation through local/transfer/direct and newest producer ref retained after out-of-order old arrival, old/new CAS artifacts and restarted query.",
+      "output": "25passed,2warnings in47.79s; exit0",
+      "status": "PASS"
+    },
+    {
+      "id": "TRN-active-policy-final-discriminator",
+      "source_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+      "command": "Identical admitted-policy witness and assertions at final immutable snapshot.",
+      "input_closure": "Same100day source/.9 confidence, TTL180 override, minconfidence.8 transferred query; independentweight.65.",
+      "output": "candidates_under_override1; direct_materialized_under_overrideTrue confidence.9; probeexit0",
+      "status": "PASS"
+    }
+  ],
+  "harness_errors": [
+    "Initial custom-policy scratch card omitted required stage_name/fidelity_level/candidate_hash; failed fixture validation only. Corrected by native _card helper; deciding old FAIL and final PASS recorded separately."
+  ],
+  "limitations": [
+    "Evidence policy remains existing declared TTL policy, not external truth probability.",
+    "Read-side sidecars throttle sequential access; concurrent first readers may both write hints, which never set evidence clock.",
+    "Fixture synthetic source refs are explicit; no full GY production evidence or tenant authority claim.",
+    "No new verification institution/authorization semantics introduced and no finding closure claimed."
+  ]
+}

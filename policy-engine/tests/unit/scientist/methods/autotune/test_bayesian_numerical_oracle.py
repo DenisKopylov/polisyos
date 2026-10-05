@@ -41,6 +41,26 @@ def _optimizer(space: SearchSpace | AutotuneSearchSpace) -> BayesianOptimizer:
     return BayesianOptimizer(space, config=BayesianConfig(seed=17, n_initial=6))
 
 
+@pytest.mark.parametrize("lower, upper", [(0.2, 1.8), (-1.8, -0.2), (0.2, 0.8)])
+def test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected(
+    lower: float, upper: float
+) -> None:
+    from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
+
+    # This is an enumerated physical domain, independent of normalization or
+    # production rounding. An unsupported bounds specification may be rejected.
+    feasible = set(range(math.ceil(lower), math.floor(upper) + 1))
+    try:
+        space = SearchSpace([ParameterBounds("n", lower, upper, ParameterType.INTEGER)])
+        strategy = RandomSearchStrategy(space, seed=42)
+    except ValueError:
+        return
+    for _ in range(10):
+        candidate = strategy.suggest([])
+        actual = candidate.params["n"]
+        assert type(actual) is int and actual in feasible, (lower, upper, actual, feasible)
+
+
 def test_autotune_first_suggestion_uses_real_space_and_checkpoint_protocol() -> None:
     """Run the default adapter and real optimizer without patching its suggestion."""
     space = AutotuneSearchSpace([{"name": "x", "lower": 0.0, "upper": 10.0}])

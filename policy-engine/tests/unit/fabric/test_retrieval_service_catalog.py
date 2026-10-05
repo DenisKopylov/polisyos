@@ -4,6 +4,8 @@ from contextlib import nullcontext
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
+import pytest
+
 from polisyos.core.contracts.control import (
     DataNeed,
     DataResolveRequest,
@@ -17,6 +19,7 @@ from polisyos.data_forge.domains.catalog.knowledge.types import (
     MetricBindingMatch,
     ResolvedFetchTarget,
 )
+from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolveResult
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest, FetchResult
 from polisyos.fabric.retrieval.executor import FetchExecutor
@@ -106,6 +109,91 @@ class _CatalogOnlyBindingCatalog:
         ]
 
 
+class _DisabledSourceBindingCatalog:
+    def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
+        if metric_name != "gdp":
+            return []
+        return [
+            MetricBindingMatch(
+                metric_id="gdp",
+                catalog_dataset_id="catalog-gdp-uk",
+                distribution_id="dist-gdp-uk",
+                connector_id="fixture.fetch",
+                request_dataset_id="disabled-dataset",
+                confidence=0.99,
+                execution_tier="fetchable",
+                source="data_gov_uk",
+                title="Disabled source binding",
+            )
+        ]
+
+
+class _DisabledSourceFallbackCatalog:
+    def find_by_polisyos_metric(self, metric_name: str, *, top_k: int = 20):
+        if metric_name != "gdp":
+            return []
+        return [
+            DatasetSearchResult(
+                id="catalog-gdp-uk",
+                title="Disabled source fallback",
+                polisyos_metrics=["gdp"],
+                similarity=0.99,
+                source="data_gov_uk",
+                execution_tier="fetchable",
+            )
+        ]
+
+    def resolve_fetch_target(self, dataset_id: str):
+        if dataset_id != "catalog-gdp-uk":
+            return None
+        return ResolvedFetchTarget(
+            catalog_dataset_id=dataset_id,
+            connector_id="fixture.fetch",
+            request_dataset_id="disabled-dataset",
+            parser_supported=True,
+        )
+
+
+class _UnregisteredSourceBindingCatalog:
+    def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
+        if metric_name != "gdp":
+            return []
+        return [
+            MetricBindingMatch(
+                metric_id="gdp",
+                catalog_dataset_id="catalog-gdp-future",
+                connector_id="fixture.fetch",
+                request_dataset_id="unregistered-dataset",
+                execution_tier="fetchable",
+                source="future_source",
+            )
+        ]
+
+
+class _UnregisteredSourceFallbackCatalog:
+    def find_by_polisyos_metric(self, metric_name: str, *, top_k: int = 20):
+        if metric_name != "gdp":
+            return []
+        return [
+            DatasetSearchResult(
+                id="catalog-gdp-future",
+                title="Unregistered source fallback",
+                polisyos_metrics=["gdp"],
+                similarity=0.99,
+                source="future_source",
+                execution_tier="fetchable",
+            )
+        ]
+
+    def resolve_fetch_target(self, dataset_id: str):
+        return ResolvedFetchTarget(
+            catalog_dataset_id=dataset_id,
+            connector_id="fixture.fetch",
+            request_dataset_id="unregistered-dataset",
+            parser_supported=True,
+        )
+
+
 class _TargetCatalog:
     def find_by_polisyos_metric(self, metric_name: str, *, top_k: int = 20):
         if metric_name != "gdp":
@@ -165,6 +253,60 @@ def test_catalog_resolution_rejects_catalog_only_metric_bindings(tmp_path) -> No
 
     assert plans == []
     assert candidates == []
+
+
+def test_public_catalog_resolution_rejects_disabled_source_bindings(tmp_path, monkeypatch) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=_DisabledSourceBindingCatalog(),
+    )
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+
+    outcome = service.resolve(
+        DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane")
+    )
+
+    assert outcome.fetch_plans == []
+    assert outcome.candidates == []
+
+
+def test_public_catalog_resolution_rejects_disabled_source_fallbacks(tmp_path, monkeypatch) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=_DisabledSourceFallbackCatalog(),
+    )
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+
+    outcome = service.resolve(
+        DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane")
+    )
+
+    assert outcome.fetch_plans == []
+    assert outcome.candidates == []
+
+
+@pytest.mark.parametrize(
+    "catalog_type",
+    [_UnregisteredSourceBindingCatalog, _UnregisteredSourceFallbackCatalog],
+)
+def test_public_catalog_resolution_holds_unregistered_source_ids(
+    tmp_path,
+    monkeypatch,
+    catalog_type,
+) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=catalog_type())
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+
+    with pytest.raises(catalog_read_api.CatalogSelectionError) as caught:
+        service.resolve(DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"))
+
+    assert caught.value.code == "catalog_source_unregistered"
 
 
 def test_catalog_resolution_applies_rolling_window_defaults_for_rest_sources(tmp_path) -> None:

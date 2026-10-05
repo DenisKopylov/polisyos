@@ -1,0 +1,81 @@
+{
+  "schema": "policyos.e02.check.v1",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-pool-deadline-removal.py",
+    "deadline"
+  ],
+  "cwd": "/workspace/e02-B-adapters/policy-engine",
+  "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+  "source_before": {
+    "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+    "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+    "branch": "refs/heads/codex/e02-B-adapters",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+    "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+    "branch": "refs/heads/codex/e02-B-adapters",
+    "status": ""
+  },
+  "source_unchanged": true,
+  "started_utc": "2026-10-05T16:11:49.091403+00:00",
+  "finished_utc": "2026-10-05T16:11:50.875968+00:00",
+  "wall_s": 1.7337907340006495,
+  "maxrss_kib": 135228,
+  "resource_measurement": "Linux resource.getrusage(RUSAGE_CHILDREN) cumulative child peak; no process/thread quota imposed",
+  "exit_code": 1,
+  "environment": {
+    "PYTHONPATH": "src:product",
+    "POLISYOS_METRICS_PORT": "0",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "versions": {
+      "pytest": "9.0.2",
+      "numpy": "2.3.5",
+      "orjson": "3.11.5",
+      "pydantic": "2.12.5",
+      "jax": "0.8.2",
+      "duckdb": "1.4.3"
+    },
+    "module_origins": {
+      "polisyos.fabric.connectors.pool": {
+        "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+      },
+      "pytest": {
+        "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+        "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+      },
+      "numpy": {
+        "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+        "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+      },
+      "orjson": {
+        "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+        "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+      },
+      "pydantic": {
+        "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+        "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+      },
+      "jax": {
+        "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+        "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+      },
+      "duckdb": {
+        "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+        "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+      }
+    }
+  },
+  "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared.",
+  "log": {
+    "path": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/removal-deadline.log",
+    "bytes": 6798,
+    "sha256": "9a03b50d5c11374ac71adcf1e0121162e360a8b56b6bc6d2c0671b46806527f4"
+  },
+  "driver_sha256": "78041e1de3c7b322d702c62005c8b8bc03c1b39a938dfba02846e9bea9ecf2b3"
+}

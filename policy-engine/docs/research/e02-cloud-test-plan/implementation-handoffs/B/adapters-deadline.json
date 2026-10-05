@@ -1,0 +1,1594 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "adapters-deadline",
+  "closure_ids": [],
+  "examined_finding_ids": [
+    "B49",
+    "B50",
+    "B53",
+    "B64",
+    "B65",
+    "B66",
+    "B67",
+    "B68",
+    "B87",
+    "B89",
+    "B90",
+    "B91",
+    "B92",
+    "B93",
+    "B94"
+  ],
+  "bundle_ids": [
+    "JIT-01",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02",
+    "WIRE-01"
+  ],
+  "slice_base_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+  "implementation_commits": [
+    "242437452f07e74be81584cfc332f91bd07d282a",
+    "88e27af5f3aedac68fdbe268ec87e17f239d755f"
+  ],
+  "candidate_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+  "candidate_tree_sha": "e8d319521938bca8306425d45cd6543865fd2c6d",
+  "frozen_executable_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+  "branch": "codex/e02-B-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/30",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-net01-pool-acquisition.toml",
+    "policy-engine/src/polisyos/fabric/connectors/README.md",
+    "policy-engine/src/polisyos/fabric/connectors/pool.py",
+    "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py"
+  ],
+  "changed_input_identity": {
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-net01-pool-acquisition.toml": {
+      "git_blob": "a80b58fab9bc6d59a79e6697e577f2e63c468a82",
+      "sha256": "9598288399d9cb2be8dd428a1c60e0b11b36bd41c63abcdaa991b2371e63b190"
+    },
+    "policy-engine/src/polisyos/fabric/connectors/README.md": {
+      "git_blob": "e3e6871875847c87cafdafc07c2e9594328e6512",
+      "sha256": "222475bd769441880462cacb4f47644c0edec0435496d5e4dbac6e0d30ec182b"
+    },
+    "policy-engine/src/polisyos/fabric/connectors/pool.py": {
+      "git_blob": "c5e2bc062c0a8aa75bdc8ab44007d9bf93ff6b57",
+      "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+    },
+    "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py": {
+      "git_blob": "f4f1333801a25a4dc2122f08e4f0269da8ecfb46",
+      "sha256": "d86382030fe0f7deb9a0def4464f6579cb93d70e5cf26a0c77b4539b878b45b2"
+    }
+  },
+  "prior_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+  "baseline_cells": [
+    "F01-P003",
+    "F01-P026",
+    "F01-P084",
+    "F02-P004",
+    "F02-P078",
+    "F03-P023",
+    "F03-P066",
+    "F03-P074",
+    "F03-P091",
+    "F04-P009",
+    "F04-P021",
+    "F05-P047",
+    "F06-P010",
+    "F06-P020",
+    "F06-P037",
+    "F06-P041",
+    "F07-P008",
+    "F07-P023",
+    "F07-P027",
+    "F07-P067",
+    "F07-P084",
+    "F08-P010",
+    "F08-P029",
+    "F08-P086",
+    "F10-P024",
+    "F10-P027",
+    "F10-P031",
+    "F11-P015",
+    "F12-P008",
+    "F13-P010",
+    "F13-P024",
+    "F13-P027",
+    "F13-P097",
+    "F13-P104",
+    "F15-P004",
+    "F15-P032",
+    "F15-P087"
+  ],
+  "baseline_binding": {
+    "original": {
+      "routes": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@c40d4acae1ce58b597267255026d9356565828fd",
+      "cells": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_contexts": [
+        {
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@c40d4acae1ce58b597267255026d9356565828fd#L4-L114",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@c40d4acae1ce58b597267255026d9356565828fd#L4-L114",
+          "manifest_sha256": "a6ad0dad1bbad671dbf5a9efb3892d4a55c5445573e0060c0eac27c85f097527",
+          "transferred_source_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L126",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L126",
+          "manifest_sha256": "1487b06837c99c3f00b02acb38ddf301917ee5f2d34aa32c05e80529860ef52b",
+          "transferred_source_sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@c40d4acae1ce58b597267255026d9356565828fd#L6-L128",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@c40d4acae1ce58b597267255026d9356565828fd#L6-L128",
+          "manifest_sha256": "b5a8936a67d7e05869331c2ec7ad0c9b36148ec7b9fa7ea00e8f210d4d9a87b0",
+          "transferred_source_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@c40d4acae1ce58b597267255026d9356565828fd#L4-L78",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@c40d4acae1ce58b597267255026d9356565828fd#L4-L78",
+          "manifest_sha256": "eba2a5ce95a6c327bb6e102c7f52e91f645fb5ba54f7f0b3e92b597358fa1d2e",
+          "transferred_source_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F05",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@c40d4acae1ce58b597267255026d9356565828fd#L7-L408",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@c40d4acae1ce58b597267255026d9356565828fd#L7-L408",
+          "manifest_sha256": "9f736f1d425b5eba2a5eafd45d759488f178ac3236a61a8e24b45384cd64f312",
+          "transferred_source_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@c40d4acae1ce58b597267255026d9356565828fd#L3-L126",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@c40d4acae1ce58b597267255026d9356565828fd#L3-L126",
+          "manifest_sha256": "d7df889ef4e489f4695a6c9241f78b379db15168974a2940bf43be969292840e",
+          "transferred_source_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L5",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L5",
+          "manifest_sha256": "d7fb66fc3665474c59f11b0463c741b1b05c1b7c8646897c9b4b7d455a68c40f",
+          "transferred_source_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L121",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L121",
+          "manifest_sha256": "9f127589aca86d743c482b2e68a3d330e148248109b5f84e69d4497b8aafbc9f",
+          "transferred_source_sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L118",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L118",
+          "manifest_sha256": "98c71606177a82542b2993e057988b7cb332a0f90716084a713e5c76cb07f6bd",
+          "transferred_source_sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F11",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L127",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L127",
+          "manifest_sha256": "70c193180f8034353f89544f8b27bdbb8afbb5d87b0087e5d4a86d89d5f9681b",
+          "transferred_source_sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F12",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L194",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L194",
+          "manifest_sha256": "d4eb4eca6f827297fc217c5104fd3176da7f63e622951fa801df0f787e233a28",
+          "transferred_source_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L125",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L125",
+          "manifest_sha256": "2747a065030762fc81609e59e81db0029ac11cc6064f29e3d81a5cf3e289fe31",
+          "transferred_source_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        },
+        {
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L153",
+          "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L153",
+          "manifest_sha256": "303fa24cde39780a16e39ee738d073c9e172b5286bb724e44859ea6f72198bec",
+          "transferred_source_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+          "raw_archive_transfer": "missing",
+          "use": "navigation and source context only; original package PASS is not candidate evidence"
+        }
+      ],
+      "resolved_route_count": 105,
+      "resolved_cell_count": 37,
+      "query_commands": [
+        "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit B --failures-only --limit 30",
+        "for each examined finding: python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding <ID> --limit 1000 --details --job-context --block-limit 1000"
+      ],
+      "baseline_grade": "All selected cell states report PASS in original source; raw archives absent. Exact TSV/source metadata is navigation only, never proof of this candidate."
+    },
+    "role": "All37 exact routed source/cell/environment/input-closure entries retained as navigation and original context only. New defect/fix evidence is own clean slice-base d0eb realpool probe/test-only242 versus candidate88 and property removal; baseline packagePASS never promotes new code."
+  },
+  "checks": [
+    {
+      "schema": "policyos.e02.check.v1",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "-ra",
+        "--basetemp",
+        "_build/e02-B-adapters-deadline/native-full15-tmp",
+        "-o",
+        "cache_dir=_build/e02-B-adapters-deadline/native-full15-cache",
+        "--junitxml=_build/e02-B-adapters-deadline/native-full15.xml",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/foundry/methods/test_compiler.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "tests/unit/fabric/connectors/test_resilience.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+        "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "tests/unit/remediation/test_wire_01.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py"
+      ],
+      "cwd": "/workspace/e02-B-adapters/policy-engine",
+      "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "source_before": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_unchanged": true,
+      "started_utc": "2026-10-05T16:10:02.457161+00:00",
+      "finished_utc": "2026-10-05T16:10:24.610444+00:00",
+      "wall_s": 22.113357570999142,
+      "maxrss_kib": 407600,
+      "resource_measurement": "Linux resource.getrusage(RUSAGE_CHILDREN) cumulative child peak; no process/thread quota imposed",
+      "exit_code": 0,
+      "environment": {
+        "PYTHONPATH": "src:product",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "orjson": "3.11.5",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "duckdb": "1.4.3"
+        },
+        "module_origins": {
+          "polisyos.fabric.connectors.pool": {
+            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+          },
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "orjson": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+          },
+          "pydantic": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+          },
+          "jax": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        }
+      },
+      "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared.",
+      "log": {
+        "path": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/native-full15.log",
+        "bytes": 811,
+        "sha256": "941f4945c3cc1832b30f50f2bd36f71bfd64de4521d3143fb18da2241d9e328b",
+        "committed_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.log"
+      },
+      "driver_sha256": "78041e1de3c7b322d702c62005c8b8bc03c1b39a938dfba02846e9bea9ecf2b3",
+      "id": "native-full15",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.log",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.json",
+      "observed_result": "389 passed,1 strict XFAIL B66/B68 in18.50s pytest; wall22.113s RSS407600KiB;15 complete files; source unchanged.",
+      "denominator_policy": "Actual JUnit390 includes one explicit strict XFAIL; no selected-only/collection-only or sum of family counts."
+    },
+    {
+      "schema": "policyos.e02.check.v1",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-pool-late-admission-probe.py"
+      ],
+      "cwd": "/workspace/e02-B-adapters/policy-engine",
+      "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "source_before": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_unchanged": true,
+      "started_utc": "2026-10-05T16:11:49.090790+00:00",
+      "finished_utc": "2026-10-05T16:11:50.920378+00:00",
+      "wall_s": 1.7784065539999574,
+      "maxrss_kib": 134748,
+      "resource_measurement": "Linux resource.getrusage(RUSAGE_CHILDREN) cumulative child peak; no process/thread quota imposed",
+      "exit_code": 0,
+      "environment": {
+        "PYTHONPATH": "src:product",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "orjson": "3.11.5",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "duckdb": "1.4.3"
+        },
+        "module_origins": {
+          "polisyos.fabric.connectors.pool": {
+            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+          },
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "orjson": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+          },
+          "pydantic": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+          },
+          "jax": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        }
+      },
+      "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared.",
+      "log": {
+        "path": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/late-handle-final.log",
+        "bytes": 4613,
+        "sha256": "c1b9fd9338e81b9ee76706c15bb110239658208af1f261151c85eb351f3e1cb6",
+        "committed_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-final.log"
+      },
+      "driver_sha256": "78041e1de3c7b322d702c62005c8b8bc03c1b39a938dfba02846e9bea9ecf2b3",
+      "id": "late-handle-final",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-final.log",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-final.json",
+      "observed_result": "Four actual event-gated cooperative/suppress connect/health variants all refuse late admission with PoolExhaustedError; created handles disconnect exactly once before close, permit1/active0/in_use0/pending0."
+    },
+    {
+      "schema": "policyos.e02.check.v1",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-pool-deadline-removal.py",
+        "deadline"
+      ],
+      "cwd": "/workspace/e02-B-adapters/policy-engine",
+      "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "source_before": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_unchanged": true,
+      "started_utc": "2026-10-05T16:11:49.091403+00:00",
+      "finished_utc": "2026-10-05T16:11:50.875968+00:00",
+      "wall_s": 1.7337907340006495,
+      "maxrss_kib": 135228,
+      "resource_measurement": "Linux resource.getrusage(RUSAGE_CHILDREN) cumulative child peak; no process/thread quota imposed",
+      "exit_code": 1,
+      "environment": {
+        "PYTHONPATH": "src:product",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "orjson": "3.11.5",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "duckdb": "1.4.3"
+        },
+        "module_origins": {
+          "polisyos.fabric.connectors.pool": {
+            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+          },
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "orjson": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+          },
+          "pydantic": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+          },
+          "jax": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        }
+      },
+      "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared.",
+      "log": {
+        "path": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/removal-deadline.log",
+        "bytes": 6798,
+        "sha256": "9a03b50d5c11374ac71adcf1e0121162e360a8b56b6bc6d2c0671b46806527f4",
+        "committed_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-deadline.log"
+      },
+      "driver_sha256": "78041e1de3c7b322d702c62005c8b8bc03c1b39a938dfba02846e9bea9ecf2b3",
+      "id": "removal-deadline",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-deadline.log",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-deadline.json",
+      "observed_result": "Expected negative: deleting only absolute budget guard keeps timeout and docs/markers but real suppress-connect/health again admit actual late handles; driver exit1."
+    },
+    {
+      "schema": "policyos.e02.check.v1",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-pool-deadline-removal.py",
+        "successful-registration"
+      ],
+      "cwd": "/workspace/e02-B-adapters/policy-engine",
+      "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "source_before": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_unchanged": true,
+      "started_utc": "2026-10-05T16:11:49.097500+00:00",
+      "finished_utc": "2026-10-05T16:11:51.649617+00:00",
+      "wall_s": 2.5102767280004628,
+      "maxrss_kib": 170540,
+      "resource_measurement": "Linux resource.getrusage(RUSAGE_CHILDREN) cumulative child peak; no process/thread quota imposed",
+      "exit_code": 1,
+      "environment": {
+        "PYTHONPATH": "src:product",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "orjson": "3.11.5",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "duckdb": "1.4.3"
+        },
+        "module_origins": {
+          "polisyos.fabric.connectors.pool": {
+            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+          },
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "orjson": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+          },
+          "pydantic": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+          },
+          "jax": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        }
+      },
+      "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared.",
+      "log": {
+        "path": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/removal-successful-registration.log",
+        "bytes": 1580,
+        "sha256": "5a7ef875e5f68c6b9b1bd09ce9f0168e85cb083f7ba4b78e7a0a28847cbf2a38",
+        "committed_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-successful-registration.log"
+      },
+      "driver_sha256": "78041e1de3c7b322d702c62005c8b8bc03c1b39a938dfba02846e9bea9ecf2b3",
+      "id": "removal-successful-registration",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-successful-registration.log",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-successful-registration.json",
+      "observed_result": "Expected negative: deleting only successful-registration commit causes actual next metadata owner to hold published acquire; ordinary regression1FAIL, exit1."
+    },
+    {
+      "schema": "policyos.e02.check.v1",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "--runxfail",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_cannot_erase_actual_provider_cost"
+      ],
+      "cwd": "/workspace/e02-B-adapters/policy-engine",
+      "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "source_before": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+        "tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+        "branch": "refs/heads/codex/e02-B-adapters",
+        "status": ""
+      },
+      "source_unchanged": true,
+      "started_utc": "2026-10-05T16:11:49.130759+00:00",
+      "finished_utc": "2026-10-05T16:11:50.733324+00:00",
+      "wall_s": 1.5572411329994793,
+      "maxrss_kib": 134296,
+      "resource_measurement": "Linux resource.getrusage(RUSAGE_CHILDREN) cumulative child peak; no process/thread quota imposed",
+      "exit_code": 1,
+      "environment": {
+        "PYTHONPATH": "src:product",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "orjson": "3.11.5",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "duckdb": "1.4.3"
+        },
+        "module_origins": {
+          "polisyos.fabric.connectors.pool": {
+            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+          },
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "orjson": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+          },
+          "pydantic": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+          },
+          "jax": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        }
+      },
+      "input_closure": "Frozen tree-selected source/tests/conftest/config and existing shared installed venv; complete command and wrapper retained, own unique tmp/cache/JUnit path. Synthetic events and actual pool path; no live TCP/DB/data except existing whole-file fixtures. Optional backend/data absence stays declared.",
+      "log": {
+        "path": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/llm-residual.log",
+        "bytes": 816,
+        "sha256": "799156d5cf73f3704a6e48ecc40425b98d399a9d59a6e66f1812605290a54f89",
+        "committed_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/llm-residual.log"
+      },
+      "driver_sha256": "78041e1de3c7b322d702c62005c8b8bc03c1b39a938dfba02846e9bea9ecf2b3",
+      "id": "llm-residual",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/llm-residual.log",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/llm-residual.json",
+      "observed_result": "Declared residual: actual trace cost0.0 vs actual returned provider cost0.02, --runxfail1FAIL. No producer-bound settlement capability was added."
+    },
+    {
+      "id": "late-handle-base",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-pool-late-admission-probe.py"
+      ],
+      "cwd": "/workspace/e02-B-adapters/policy-engine",
+      "target_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product",
+        "python": "3.14.2 Linux x86_64",
+        "actual_pool_module": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "actual_pool_sha256": "4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7"
+      },
+      "input_closure": "Clean attached exact d0eb tree before source/tests edits; retained complete synthetic connector driver, actual pool/loop clock; four variants, no live TCP/data/ports. Full output and session exit1 observed.",
+      "outcome": "FAIL",
+      "observed_result": "Both cooperative variants refuse; both cancellation-suppress variants return actual late in_use handles; final close cleans them exactly once.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-base.log"
+    },
+    {
+      "id": "native-test-only-red",
+      "command": "PYTHONPATH=src:product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q --tb=short tests/unit/fabric/connectors/test_pool_e02.py --junitxml=_build/e02-B-adapters-deadline/test-only-242.xml",
+      "cwd": "/workspace/e02-B-adapters/policy-engine",
+      "target_sha": "242437452f07e74be81584cfc332f91bd07d282a",
+      "environment": {
+        "PYTHONPATH": "src:product",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "orjson": "3.11.5",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "duckdb": "1.4.3"
+        },
+        "module_origins": {
+          "polisyos.fabric.connectors.pool": {
+            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+          },
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "orjson": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+          },
+          "pydantic": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+          },
+          "jax": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        }
+      },
+      "input_closure": "Exact clean242 test-only tree; pool production blob remains exact slice-base d0eb, committed14case regression tests, repository conftest/pytest.ini/shared venv; no production data/live transport.",
+      "outcome": "FAIL",
+      "observed_result": "3FAIL11PASS0.58s: suppress-connect, suppress-health and post-publication metadata await; all original9 controls pass.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/test-only-242.log"
+    },
+    {
+      "id": "independent-cmp",
+      "command": "Complete driver/native argv and full environment/input custody in committed independent-cmp/pool-finally-88-receipt.json; same exact driver on complete d0eb versus88 Git archives.",
+      "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "origins": {
+          "polisyos.fabric.connectors.pool": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/source/policy-engine/src/polisyos/fabric/connectors/pool.py",
+          "polisyos.fabric.connectors.base": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/source/policy-engine/src/polisyos/fabric/connectors/base.py",
+          "pytest": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+          "pydantic": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py"
+        },
+        "versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "duckdb": "1.4.3",
+          "numpy": "2.3.5"
+        }
+      },
+      "input_closure": "Complete immutable tracked Git archive of each exact SHA, actual asyncio.Lock/connector/ConnectionPool+close_all, all source/config/conftest inherited from archive; synthetic no TCP/ports/data. Anonymous archive is not a registered Git worktree; source archive deleted after hashes/custody retained, no new worktree admission claim.",
+      "outcome": "PASS",
+      "observed_result": "Independent candidate17PASS0.67s and two unchanged real-lock/control probes PASS. Base negative actually PoolExhausted with inaccessible in_use+active1 and blocked close despite cooperative I/O; explicit counter rescue only after deciding output. Candidate returns before later metadata holder and close disconnects once/permit1.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-receipt.json"
+    },
+    {
+      "id": "ruff",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/fabric/connectors/pool.py tests/unit/fabric/connectors/test_pool_e02.py; separate ruff format --check same2 files; git diff --check",
+      "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "environment": {
+        "PYTHONPATH": "src:product",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "orjson": "3.11.5",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "duckdb": "1.4.3"
+        },
+        "module_origins": {
+          "polisyos.fabric.connectors.pool": {
+            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+          },
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "orjson": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+          },
+          "pydantic": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+          },
+          "jax": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        }
+      },
+      "input_closure": "Exact88 defining production/test files and configured Ruff rules, existing installed ruff; no runtime side effect.",
+      "outcome": "PASS",
+      "observed_result": "Ruff check and format pass; diff whitespace check empty.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/ruff.log"
+    },
+    {
+      "id": "time-wrapper-unavailable",
+      "command": "/usr/bin/time -v followed by the same fifteen-file pytest argv; command never launched pytest because /usr/bin/time absent",
+      "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "environment": {
+        "PYTHONPATH": "src:product",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "orjson": "3.11.5",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "duckdb": "1.4.3"
+        },
+        "module_origins": {
+          "polisyos.fabric.connectors.pool": {
+            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+          },
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "orjson": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+          },
+          "pydantic": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+          },
+          "jax": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        }
+      },
+      "input_closure": "Shell lookup of /usr/bin/time; no test executed. Full native actual execution recorded separately with resource.getrusage wrapper.",
+      "outcome": "ERROR",
+      "observed_result": "exit127 /usr/bin/time:No such file or directory; not product/native failure.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/cohort.log"
+    },
+    {
+      "id": "architecture-invocation",
+      "command": "No extra cloud static scan rerun required by root; independent root supportedNode22 gate pending",
+      "target_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "environment": {
+        "PYTHONPATH": "src:product",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "orjson": "3.11.5",
+          "pydantic": "2.12.5",
+          "jax": "0.8.2",
+          "duckdb": "1.4.3"
+        },
+        "module_origins": {
+          "polisyos.fabric.connectors.pool": {
+            "path": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+          },
+          "pytest": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+            "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+          },
+          "numpy": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+            "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+          },
+          "orjson": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+            "sha256": "15077fc576f55e01c00fa32763f83a566d04b6a6194b735f5270385fa17fd9e1"
+          },
+          "pydantic": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+            "sha256": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6"
+          },
+          "jax": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+            "sha256": "cccfaedf855cef1b65193d0a744f91f68820f96bbcdf0d1daeb5ceca14ae3c43"
+          },
+          "duckdb": {
+            "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py",
+            "sha256": "2b20aa68f219791777a195cfec5f87fff610299d26bfbc1e6ef7692476c704a1"
+          }
+        }
+      },
+      "input_closure": "No current full architecture/input denominator measured by this leaf; prior twoUNRUN scanners/deferred receiver boundaries not accepted as inherited-red waiver.",
+      "outcome": "UNRUN",
+      "observed_result": "source-invocation/not_established; native real paths are bounded evidence, no repository-wide zero or future rootPASS claimed.",
+      "output": null
+    }
+  ],
+  "native_junit_counts": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "1",
+      "tests": "390",
+      "time": "18.500",
+      "timestamp": "2026-10-05T16:10:04.319682+00:00",
+      "hostname": "b878f4efbdfc"
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B49",
+      "bundle_id": "JIT-01",
+      "disposition": "bounded_verified",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1299-L1314",
+      "criterion_sha256": "a57f0c542d38e1825f69a100bc9d5fa6770a76111033b2440ebb37314c0af406",
+      "baseline_cell_ids": [
+        "F01-P003",
+        "F01-P084",
+        "F02-P078",
+        "F08-P086",
+        "F13-P097"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Real CPU invocation preserves warm kernel identity while scale2->3 changes x10 output20->30 and old callable remains20.",
+      "limitations": [
+        "No physical Metal/GPU backend run.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "jit"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B50",
+      "bundle_id": "JIT-01",
+      "disposition": "bounded_verified",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1315-L1330",
+      "criterion_sha256": "7ad6aecc286e2b9c3b88875d276eb03097526f3460541fff6290d69d677b8cc9",
+      "baseline_cell_ids": [
+        "F01-P003",
+        "F01-P084",
+        "F02-P078",
+        "F08-P086",
+        "F13-P097"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Failed actual kernel publication unblocks both joined owners with CompilationError, clears flight, and subsequent real invocation rebuilds successfully.",
+      "limitations": [
+        "Static/shape/dtype/backend-declaration fingerprint axes checked; no different physical accelerator.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "jit"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B53",
+      "bundle_id": "JIT-01",
+      "disposition": "bounded_verified",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1363-L1378",
+      "criterion_sha256": "822a520a40d553ba76bbdcd4df727cbc9798a14f09ec3a91fc8adf8f267291ee",
+      "baseline_cell_ids": [
+        "F01-P003",
+        "F01-P084",
+        "F02-P078",
+        "F08-P086",
+        "F13-P097"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Native suite observes preparation outside trace and actual per-execution work; unknown shape refuses; native warm-kernel fixture invokes real code.",
+      "limitations": [
+        "No production batch/JAX accelerator performance measurement.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "jit"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B64",
+      "bundle_id": "LLM-01",
+      "disposition": "bounded_verified",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1649-L1668",
+      "criterion_sha256": "2a59c0ad6e7cf7bae7c4a39c950f089c911176a6da86c8646cce73dda9466f73",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F03-P066",
+        "F03-P091",
+        "F05-P047",
+        "F07-P027",
+        "F07-P084",
+        "F10-P031",
+        "F13-P104",
+        "F15-P032"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Native named prompt/provider/Gateway payload checks preserve supported context and reject incompatible context before external call.",
+      "limitations": [
+        "Synthetic provider/Gateway path; no actual billable vendor call.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "llm"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B65",
+      "bundle_id": "LLM-01",
+      "disposition": "bounded_verified",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1669-L1688",
+      "criterion_sha256": "f21a5d7d62b538e3466fe46778cbd8e27c2e3fa333cfb0b3a367b8fa6c731b76",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F03-P066",
+        "F03-P091",
+        "F05-P047",
+        "F07-P027",
+        "F07-P084",
+        "F10-P031",
+        "F13-P104",
+        "F15-P032"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Optional metrics failure preserves successful response; mandatory accounting failure carries received response/event and is visible.",
+      "limitations": [
+        "Cancellation-surviving mandatory settlement remains B66/B68.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "llm"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B66",
+      "bundle_id": "LLM-01",
+      "disposition": "partial_producer_capability_missing",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1689-L1708",
+      "criterion_sha256": "397fc3ab86c9c5243288fde7c7396afd3146df75bf74bb39973870a9d22c47a5",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F03-P066",
+        "F03-P091",
+        "F05-P047",
+        "F07-P027",
+        "F07-P084",
+        "F10-P031",
+        "F13-P104",
+        "F15-P032"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Normal miss/reuse/expiry/retry accounts actual provider usage once; cancellation falsifier receives cost0.02 while trace total remains0.",
+      "limitations": [
+        "Missing canonical producer-owned durable settlement outcome/event identity and cancellation-surviving trace/accounting/budget bridge; strict XFAIL declares the known residual, direct --runxfail remains FAIL.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "B LLM canonical producer owner + G review: design producer-owned settlement; same negative test must become PASS without arbitrary follower charge or discarded accounting errors.",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "llm",
+          "llm-accounting-base",
+          "llm-accounting-negative"
+        ]
+      },
+      "check_refs": [
+        "native-full15",
+        "llm-residual"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B67",
+      "bundle_id": "LLM-02",
+      "disposition": "partial_authority_input_missing",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1709-L1728",
+      "criterion_sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F05-P047",
+        "F07-P027",
+        "F10-P031",
+        "F15-P032"
+      ],
+      "predicate_basis": "consumer_asserted",
+      "verified_behavior": "Packet byte/hash binding recomputed and cache axes discriminate version/scope/permission/seed/parameters/model.",
+      "limitations": [
+        "cache_reuse.allowed/current permission/ref/immutability metadata are supplied by caller; actual current authorizer/resolver is not established. Functional consumer checks do not close permission authority.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "Canonical cache packet producer/current permission owner + G: establish authorizer/ref binding contract and replay actual denied/moved-version case.",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "llm"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B68",
+      "bundle_id": "LLM-02",
+      "disposition": "partial_accounting_and_authority",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1729-L1748",
+      "criterion_sha256": "444a26030aad6d955907fee063845e8938c8348c5c7d970d3d4da6a1c2e3da62",
+      "baseline_cell_ids": [
+        "F01-P026",
+        "F05-P047",
+        "F07-P027",
+        "F10-P031",
+        "F15-P032"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Single shared provider flight; initiating waiter cancellation preserves follower; deadline clears flight; actual retry succeeds.",
+      "limitations": [
+        "Within supplied allowed context; shared-flight cancellation still loses producer cost settlement as B66 and authority admission remains B67.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "Same canonical producer settlement/permission owners as B66/B67; G exact-candidate rerun of direct cancellation falsifier.",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "llm",
+          "llm-accounting-negative"
+        ]
+      },
+      "check_refs": [
+        "native-full15",
+        "llm-residual"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "disposition": "bounded_verified_class_fix",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2263-L2274",
+      "criterion_sha256": "6e2bbb77d53fcdc1c29b51651016758e2e2b05b5f51bec0cf69a00d20f4e8996",
+      "baseline_cell_ids": [
+        "F02-P004",
+        "F04-P009",
+        "F06-P010",
+        "F06-P020",
+        "F07-P008",
+        "F08-P010",
+        "F11-P015",
+        "F12-P008",
+        "F13-P010",
+        "F15-P004"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Native streaming failures retain physical ownership; failed disconnect retry + release/close share one handle and permit until cleanup finishes.",
+      "limitations": [
+        "C-owned streaming.py unchanged; synthetic connector exercises actual handle/process-task lifecycle. No live vendor transport. P40 widening acceptance belongs to G.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "net",
+          "pool-candidate",
+          "independent-pool-review"
+        ]
+      },
+      "check_refs": [
+        "native-full15",
+        "late-handle-final",
+        "independent-cmp",
+        "removal-deadline",
+        "removal-successful-registration"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B89",
+      "bundle_id": "NET-01",
+      "disposition": "bounded_verified_class_fix",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2405-L2418",
+      "criterion_sha256": "43cfad4b987c5efbb7cc52c98e8a7d84508a7d4d6e64395cc926086c91f3de1a",
+      "baseline_cell_ids": [
+        "F02-P004",
+        "F04-P009",
+        "F06-P010",
+        "F06-P020",
+        "F07-P008",
+        "F08-P010",
+        "F11-P015",
+        "F12-P008",
+        "F13-P010",
+        "F15-P004"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Per-invocation registration prevents cancelled unadmitted waiter from decrementing another real connecting owner; cleanup blocks close and replacement until disconnect settles, including repeated cancellation.",
+      "limitations": [
+        "Class invariant widened through admitted acquire ownership, not sample-instance counter workaround; unresolved physical disconnect cannot be abandoned.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "pool-base",
+          "pool-candidate",
+          "registration-mechanism-removal",
+          "net",
+          "independent-pool-review"
+        ]
+      },
+      "check_refs": [
+        "native-full15",
+        "late-handle-final",
+        "independent-cmp",
+        "removal-deadline",
+        "removal-successful-registration"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B90",
+      "bundle_id": "NET-01",
+      "disposition": "mechanism_fixed_bounded",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2419-L2434",
+      "criterion_sha256": "40d664e5fe4a6a8f7559b5a5faf15b49ac0b739e538d9377c00e76e8a3dd26ee",
+      "baseline_cell_ids": [
+        "F02-P004",
+        "F04-P009",
+        "F06-P010",
+        "F06-P020",
+        "F07-P008",
+        "F08-P010",
+        "F11-P015",
+        "F12-P008",
+        "F13-P010",
+        "F15-P004"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Single absolute monotonic deadline recomputed before work/retry and final metadata publication; suppress-connect/health cannot publish late returned handle. Successful publication and acquire registration settle atomically, with no subsequent await. Pending failed disconnect retains handle/permit through honest retry. Shorter connection timeout and provider primary ValueError remain intact.",
+      "limitations": [
+        "Entered connector work and disconnect can suppress cancellation or remain blocked. No hard wall-time/physical cancellation/drain bound, live TCP or vendor latency claim.",
+        "Final publication is a scoped internal handle-admission boundary, not a transport/provider or institutional permission law.",
+        "Candidate acceptance is separate from formal finding closure; source four-base/full serving/input custody scope remains open and G must independently accept exact candidate."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "pool-base",
+          "pool-candidate",
+          "deadline-mechanism-removal",
+          "connection-timeout-preservation",
+          "net",
+          "independent-pool-review"
+        ]
+      },
+      "check_refs": [
+        "native-full15",
+        "late-handle-final",
+        "independent-cmp",
+        "removal-deadline",
+        "removal-successful-registration"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B91",
+      "bundle_id": "NET-02",
+      "disposition": "bounded_verified",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2435-L2448",
+      "criterion_sha256": "9635f3793b099112dd1dc8fbd0a83231afe05d27cd97e8eab1a0479a577ce6a4",
+      "baseline_cell_ids": [
+        "F04-P021",
+        "F06-P037",
+        "F08-P029",
+        "F10-P024",
+        "F13-P024"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Native fractional/default-capacity/weighted/cancellation/cooldown pacing checks + independent weighted long-term token law.",
+      "limitations": [
+        "Native reusable selectors provide canonical repeatable evidence; additional earlier ad hoc executable not preserved, no formal closure rests on it. No vendor-specific rate contract.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "net",
+          "regulator-weighted-pressure"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B92",
+      "bundle_id": "NET-02",
+      "disposition": "bounded_verified",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2449-L2462",
+      "criterion_sha256": "37097e7bc91e5b288c7e2c05359674ea52fac78804c3ea54b8a928c84a95cbea",
+      "baseline_cell_ids": [
+        "F04-P021",
+        "F06-P037",
+        "F08-P029",
+        "F10-P024",
+        "F13-P024"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Actual stale CLOSED and HALF_OPEN completion cannot steal new-generation recovery; cancellation releases current slot; repeated lease finalization rejects.",
+      "limitations": [
+        "Real in-process state machine and leases exercised; no live downstream HTTP vendor.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "net",
+          "regulator-weighted-pressure"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B93",
+      "bundle_id": "NET-02",
+      "disposition": "bounded_verified_ledger_binding_mismatch",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2463-L2476",
+      "criterion_sha256": "f07d58727fcd6d01cb3768ec794500785fa052cd388988920e2033fc198ab803",
+      "baseline_cell_ids": [
+        "F04-P021",
+        "F06-P037",
+        "F08-P029",
+        "F10-P024",
+        "F13-P024"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Cooldown/OPEN native pressure and TTL controls; executable actual HALF_OPEN lease survives expiry/pressure and typed protected-capacity refusal, with real post-quiescence replacement acquisition.",
+      "limitations": [
+        "Canonical B_r19 source and p_triage criterion concern bounded live regulator state; residual/card_discriminator_review instead describes duck-type isinstance/lookalike. Preserve mapping mismatch; G must reconcile dependent ledger fields before formal acceptance.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G + residual ledger owner: reconcile B93 card_discriminator_review with canonical NET-02 protected-state criterion; rerun committed registry-half-open.py on admitted candidate.",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "net",
+          "registry-half-open"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    },
+    {
+      "finding_id": "B94",
+      "bundle_id": "WIRE-01",
+      "disposition": "bounded_verified",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2477-L2492",
+      "criterion_sha256": "da315729082384722dd083535cd9f7e944d8ff25aaa8856ca4ab8fc1f1d99bc7",
+      "baseline_cell_ids": [
+        "F03-P023",
+        "F03-P074",
+        "F06-P041",
+        "F07-P023",
+        "F07-P067",
+        "F10-P027",
+        "F13-P027",
+        "F15-P087"
+      ],
+      "predicate_basis": "recomputed",
+      "verified_behavior": "Filesystem-written typed ExperimentState and OutputAwareNodeOutcome survive cold/warm orjson+stdlib serialization and real merge_tier_outcomes; Decimal tuples/nested bytes/ArtifactRef exact; foreign alias and tampered digest reject.",
+      "limitations": [
+        "Codec/actual tier consumer filesystem path exercised. Live Ray/Temporal bridge services UNRUN; digest integrity does not grant authority.",
+        "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+      ],
+      "next_owner": "G acceptance and formal closure owner",
+      "prior_check_refs": {
+        "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "ids": [
+          "wire"
+        ]
+      },
+      "check_refs": [
+        "native-full15"
+      ],
+      "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+    }
+  ],
+  "property": {
+    "statement": "One absolute acquire budget governs internal work/retry and final handle admission. Final metadata commit recomputes monotonic budget, publishes actual owned handle and finishes successful acquisition registration without a later await. Failed/expired ownership stays with physical cleanup until settled.",
+    "runtime_path": [
+      "actual SourceConnector connect/health coroutine -> ConnectionHandle/PooledConnection pending owner",
+      "actual ConnectionPool semaphore and acquisition registration",
+      "budget/closed/generation recomputation inside metadata commit",
+      "consumer receives usable handle or PoolExhaustedError; close_all actual physical drain consumer"
+    ],
+    "proxy_divergence": "asyncio.timeout cancellation is cooperative and is not the actual budget quantity: connector can suppress cancellation and return usable handle after expiry. Old publication followed by awaited-finally can strand real in_use handle and acquisition counter even with fully cooperative I/O.",
+    "negative_controls": [
+      "same complete four-case driver at exact slice-base and candidate",
+      "ordinary3red->green regression plus all original9 native controls",
+      "remove budget quantity -> actual late handle returns again",
+      "remove successful registration commit -> actual next lock owner stalls caller again",
+      "shorter connectTimeoutError/providerValueError/persistent late-disconnectfailure retain primaryerror+one physicalpermit",
+      "independent same real-lock driver and actual close consumer across complete exact Git archives"
+    ]
+  },
+  "class_bucket": {
+    "rule": "SAME NET01deadline/admission/ownership class deeper; P40SECOND requires quantity widening, not new per-site cancellation patch.",
+    "decision": "widen existing capability",
+    "smallest_capability": "Carry the existing absolute monotonic deadline into owned admission and finish successful registration in the same metadata publication lock; capability exists here and is implemented.",
+    "declared_residual": "Entered connector I/O/physical disconnect may suppress cancellation or never settle. This is explicitly unsupported hard wall-time/drain boundedness, not permission for late handle publication."
+  },
+  "predicate_basis": "recomputed",
+  "authority_purpose": "Scoped internal resource/handle admission only; no producer permission, institutional authorizer or live serving claim.",
+  "rule_schema_version": "existing PoolConfig/ConnectionHandle API unchanged",
+  "time_roles": {
+    "acquisition_budget": "One loop.time absolute deadline, rechecked as quantity before work/retry/final commit",
+    "physical_cleanup": "Separate settle/ownership lifecycle; may outlive deadline",
+    "source_and_baseline_time": "Exact immutable commit/input references, not transported priorPASS"
+  },
+  "provenance": {
+    "admission": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/admission-resume.json",
+    "admission_outcome": "Exit0 resume requested exact existing /workspace/e02-B-adapters codex/e02-B-adapters clean attached d0eb before edits; full92953B receipt retained. Snapshot is not reservation.",
+    "slice_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/slice-base.json",
+    "G_feedback": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/b-pool-deadline.json@46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+    "G_source_limit": "G full deciding stdout/stderr committed, originalGdriver hash only/not Git transferred; this leaf built independent complete driver, not Gsource replay.",
+    "historical_other_worktrees": "Prior RUNreview2 self-created detached trees remain precreation_custody_not_established; exact qualifier published in B/run-executor-review/independent-worktree-custody.json@86c5771aa51859624488c784df710b73cd0929b0. This slice uses original root-provided writer and fresh resume snapshot; no new worktree/reattach."
+  },
+  "leases_and_ownership": {
+    "canonical_writer": "adapters_probe explicitly reactivated by root for pool.py/test_pool_e02.py and companions; one writer; no C streaming.py or A generation_cycle/run_lifecycle edits",
+    "independent_reviewer": "cmp_res_probe read-only complete Git-archive source/control/native actual runtime; root source review accepted narrow mechanism"
+  },
+  "capability_state_or_finding_state": "mechanism_fixed_bounded; all15 exact criterion dispositions preserved, no full finding closure. B66/B68 settlement producer/bridge missing; B67 authority currentinput not established; B93 ledger mapping mismatch retained.",
+  "limitations_and_next_owner": [
+    "G independently fetch exact source/receipt and rerun whole pool17 on admitted local candidate/native environment; no production data required for synthetic generic quantity/ownership property.",
+    "No hard physical cancellation or full acquisition/drain wall-time bound for uncooperative entered I/O, synchronous/blocking logger/factory work, or disconnect. No live TCP/vendor latency/full served stream claim.",
+    "All15 native fixture scopes are finite; full source four-base/current authority/production-history and live Ray/Temporal/accelerator limits retained in each row; packagePASS not formal closure.",
+    "B66/B68 missing canonical producer-bound durable settlement survives; direct --runxfail stillFAIL with receivedcost0.02 and trace0.0. B67 current permission/ref resolver remains consumer_asserted, no invented authorizer.",
+    "B93 canonical protected regulator-state criterion versus residual duck-type/lookalike mapping mismatch preserved; G/ledger owner must reconcile.",
+    "No architecture waiver: source invocation deferred boundaries not established and leaf architecture waveUNRUN. Root supportedNode22 gate/final74 execution is separate future evidence.",
+    "Cloud interpreter3.14.2 and prepush Node24.19 differs supportedNode22; normal shared hooks ran with no bypass, typecheckPASS29.63s.",
+    "Scope does not change private providers or C/A publishers; downstream NET01->ING02 consumer served proof belongs C/G after actualproducer contract acceptance.",
+    "This deadline publication/registration fix does not prove that every externally requested caller cancellation suppressed by a connector is honored before an otherwise valid within-budget return. Propagating cancellation and physical cleanup ownership are bounded by the actual native/probe scenarios; no universal cancellation suppression claim."
+  ],
+  "pattern_pass": [
+    "P29/P32 realpath+property-removal; P31/P40 sameclass secondescape widened to monotonic quantity and atomiccommit; P35complete15files/all15rows/37cells; P37/P38recomputedbudget vs cooperativecancelproxy; P41slice-based0eb exactown red, no inherited-red waiver; P14qualifiedsource/archive/custody scopes"
+  ],
+  "replay": {
+    "generic": "From exact candidate checkout policy-engine: PYTHONPATH=src:product python -m pytest -o addopts= -q --tb=short tests/unit/fabric/connectors/test_pool_e02.py; full15 argv in native-full15.json. Restore retained three standalone driver files under their exact /tmp names for original deciding command replay; they contain no secrets and full hashes are indexed. Or run committed probe script directly with same PYTHONPATH.",
+    "property_removal": "Complete removal.py original depends /tmp/e02-pool-late-admission-probe.py; copy retained same-named committed bytes there before deadline mode. No source file edits; isolated interpreter only.",
+    "independent": "Independent archived source may be regenerated by git archive exactSHA from complete tracked tree, then driver import path/cwd rebound to that tree. No creating Git worktree is necessary; sourcearchive identity is separate from registered admission."
+  },
+  "transport": {
+    "source_published_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+    "remote_readback": "git ls-remote origin refs/heads/codex/e02-B-adapters returned exact88e27af5f3aedac68fdbe268ec87e17f239d755f; separate handoff commit follows source without rewriting history."
+  },
+  "evidence_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/evidence-index.json",
+  "evidence_index_sha256": "2aa20b20fa0d31e9db210eb87fdc129719823c2c50b5161431b8dbeecbeb513c",
+  "independent_source_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-independent-review-88.json"
+}

@@ -1,0 +1,14 @@
+{
+  "slice_base_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+  "slice_base_tree": "10300d99093d49b0168d22a98bbe8a29caa41df6",
+  "branch": "refs/heads/codex/e02-B-adapters",
+  "path": "/workspace/e02-B-adapters",
+  "status": "",
+  "admission_receipt": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/admission-resume.json",
+  "admission_sha256": "962b2a950d2cf7e0703daada1bd86f97e41345042b6b777bd4da11b445ddcff4",
+  "admission_exit_code": 0,
+  "G_feedback_sha": "46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+  "probe_sha256": "668e350ea85c130467f9c4c31ed95cd33eed1a1ccc688dc10be2619bad3650fc",
+  "base_log_sha256": "72ab16407c95e6655c39f55f243d96bf0dcfbe45e1ed5d5f39f30c95754a58bb",
+  "base_probe_exit": 1
+}

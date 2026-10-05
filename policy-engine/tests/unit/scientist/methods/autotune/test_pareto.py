@@ -199,7 +199,9 @@ class TestParetoFront:
         lower_raw_cost = _eval(first=1.0, cost=1.0, third=2.0)
         higher_raw_cost = _eval(first=1.0, cost=2.0, third=1.0)
         evaluations = [lower_raw_cost, higher_raw_cost]
-        normalized_points = [promoter._eval_objective_vector(evaluation) for evaluation in evaluations]
+        normalized_points = [
+            promoter._eval_objective_vector(evaluation) for evaluation in evaluations
+        ]
 
         assert normalized_points == [(1.0, -1.0, 2.0), (1.0, -2.0, 1.0)]
         expected_indices = _slow_non_dominated_points(normalized_points)
@@ -334,9 +336,7 @@ class TestParetoFront:
             ]
         ).compute_front([evaluation])
 
-        selection_coordinate = selection_front.model_dump(mode="json")[
-            "coordinate_schema"
-        ]
+        selection_coordinate = selection_front.model_dump(mode="json")["coordinate_schema"]
         holdout_coordinate = holdout_front.model_dump(mode="json")["coordinate_schema"]
         assert selection_coordinate["version"] == "pareto-coordinate.v1"
         assert holdout_coordinate["version"] == "pareto-coordinate.v1"
@@ -556,7 +556,9 @@ class TestParetoFront:
         assert [member.candidate_ref_id for member in front.members] == [
             str(valid.candidate_ref.artifact_id)
         ]
-        assert all(math.isfinite(value) for member in front.members for value in member.objectives.values())
+        assert all(
+            math.isfinite(value) for member in front.members for value in member.objectives.values()
+        )
         assert all(math.isfinite(value) for value in front.reference_point.values())
         assert math.isfinite(front.hypervolume)
 
@@ -597,9 +599,12 @@ class TestParetoFront:
         assert finite_control.input_assessment.input_count == 2
         assert finite_control.input_assessment.assessed_count == 2
         assert finite_control.input_assessment.unassessed_evaluations == ()
-        assert finite_control.model_dump(mode="json")["members"] == promoter.compute_front(
-            [best, missing, non_finite, dominated]
-        ).model_dump(mode="json")["members"]
+        assert (
+            finite_control.model_dump(mode="json")["members"]
+            == promoter.compute_front([best, missing, non_finite, dominated]).model_dump(
+                mode="json"
+            )["members"]
+        )
 
     @pytest.mark.parametrize("omission_indices", [(0, 0), (0, 2)])
     def test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions(

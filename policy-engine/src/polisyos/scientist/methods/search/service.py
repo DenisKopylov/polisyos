@@ -73,9 +73,7 @@ class _NativeSearchServiceDriver:
             else:
                 raw_candidate_id = payload["candidate_id"]
                 if not isinstance(raw_candidate_id, str) or not raw_candidate_id:
-                    raise ValueError(
-                        "search candidate_id must be an explicit non-empty string"
-                    )
+                    raise ValueError("search candidate_id must be an explicit non-empty string")
                 candidate_id = raw_candidate_id
             if (
                 candidate_id in pending
@@ -136,9 +134,7 @@ class _NativeSearchServiceDriver:
                 "objective_value": float(evaluation.objective_value),
             }
         elif not isinstance(simulation_results, dict):
-            raise TypeError(
-                "EvaluationBundle.stage_b_result.simulation_results must be a mapping"
-            )
+            raise TypeError("EvaluationBundle.stage_b_result.simulation_results must be a mapping")
 
         feedback = stage_b_result.get("feedback")
         if feedback is None:
@@ -275,9 +271,7 @@ class _NativeSearchServiceDriver:
 
     def _mark_nonempty_generation(self) -> None:
         if self.controller._run_state.empty_generation_attempts:
-            self.controller._run_state.generation_transition = (
-                GenerationTransition.TRANSIENT_EMPTY
-            )
+            self.controller._run_state.generation_transition = GenerationTransition.TRANSIENT_EMPTY
             self.controller._run_state.empty_generation_attempts = 0
 
     def _evaluate_batch(
@@ -301,10 +295,7 @@ class _NativeSearchServiceDriver:
             self.controller._run_state.apply_evaluation_transition(transition)
             self.controller._refresh_budget_snapshot(initial_context)
 
-            if (
-                transition.disposition is _EvaluationDisposition.SENTINEL
-                and not generated
-            ):
+            if transition.disposition is _EvaluationDisposition.SENTINEL and not generated:
                 self._stop("Initial sentinel evaluated")
                 return "Initial sentinel evaluated"
 

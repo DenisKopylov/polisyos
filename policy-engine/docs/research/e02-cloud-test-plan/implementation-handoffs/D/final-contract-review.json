@@ -544,7 +544,8 @@
       "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
       "git_blob": "ff25c935265e8d781febc101628ce0b159ea8e44",
       "sha256": "0845ff4d85b58443c78e23be781517f3aa504312e731e8d7113de24e5d087553",
-      "bytes": 7663
+      "bytes": 7663,
+      "source_sha": "d61ff66521cf52b95bddc51dc24c9b368b6b5451"
     },
     "final_test_identity": {
       "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",

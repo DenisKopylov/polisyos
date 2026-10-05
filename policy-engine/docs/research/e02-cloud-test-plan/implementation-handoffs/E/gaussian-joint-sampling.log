@@ -1,0 +1,2429 @@
+E02 E Gaussian joint sampling: complete bounded analytic-fixture output. No production history or source-law evidence.
+
+Implementation5f9 targeted recipe
+=================================
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "tests/unit/foundry/uncertainty/test_covariance.py",
+    "tests/unit/foundry/uncertainty/test_delta.py",
+    "tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+    "tests/unit/foundry/uncertainty/test_quasi_mc.py",
+    "tests/unit/remediation/test_uqp_01.py",
+    "tests/unit/remediation/test_uqp_02.py",
+    "tests/unit/remediation/test_uqp_03.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+    "-o",
+    "addopts=",
+    "--junitxml=_build/e02/gaussian-joint-sampling/candidate.xml",
+    "-q"
+  ],
+  "cwd": "/workspace/e02-E-cal-uq/policy-engine",
+  "source_sha": "5f9f4ae333cf13d152ae84693b44e73918b01703",
+  "exit": 0,
+  "wall_s": 29.643207504000088,
+  "max_rss_kib": 1098684,
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "jax": "0.8.2",
+    "backend": "cpu",
+    "jax_x64": false,
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "PYTHONPATH": "/workspace/e02-E-cal-uq/policy-engine/src",
+    "owner_origin": "/workspace/e02-E-cal-uq/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py"
+  }
+}
+
+Implementation5f9 targeted PASS
+===============================
+........................................................................ [ 77%]
+.....................                                                    [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_valid_delta_output_is_not_marked_missing_or_incomplete
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_multi_output
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+93 passed, 2 warnings in 23.01s
+
+Implementation5f9 original family recipe
+========================================
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "tests/unit/foundry/calibration",
+    "tests/unit/foundry/uncertainty",
+    "tests/unit/remediation/test_cal_01.py",
+    "tests/unit/remediation/test_cal_02.py",
+    "tests/unit/remediation/test_cal_03.py",
+    "tests/unit/remediation/test_cal_04.py",
+    "tests/unit/remediation/test_cal_06.py",
+    "tests/unit/remediation/test_uqp_01.py",
+    "tests/unit/remediation/test_uqp_02.py",
+    "tests/unit/remediation/test_uqp_03.py",
+    "tests/unit/remediation/test_uqs_01.py",
+    "-o",
+    "addopts=",
+    "--junitxml=_build/e02/gaussian-joint-sampling/family.xml",
+    "-q"
+  ],
+  "cwd": "/workspace/e02-E-cal-uq/policy-engine",
+  "source_sha": "5f9f4ae333cf13d152ae84693b44e73918b01703",
+  "exit": 1,
+  "wall_s": 60.882461106999926,
+  "max_rss_kib": 1954848,
+  "PYTHONPATH": "/workspace/e02-E-cal-uq/policy-engine/src"
+}
+
+Implementation5f9 original family FAIL; retained, never inherited exclusion
+===========================================================================
+........................................................................ [ 24%]
+........................................................................ [ 48%]
+......................................FFFF...F.......................... [ 73%]
+........................................................................ [ 97%]
+......                                                                   [100%]
+=================================== FAILURES ===================================
+________ test_partial_failures_are_per_draw_provenanced_candidate_only _________
+
+    def test_partial_failures_are_per_draw_provenanced_candidate_only() -> None:
+        result = MonteCarloPropagator(_config()).propagate(
+            _half_fails,
+            {"x": 0.0},
+            {"x": _normal_env(0.0, 1.0)},
+            ["y"],
+        )[0]
+    
+        assert result.diagnostics["n_samples"] == 1000
+>       assert result.diagnostics["n_failed"] == 515
+E       assert 508 == 515
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:85: AssertionError
+________ test_missing_and_non_finite_outputs_are_also_not_authoritative ________
+
+    def test_missing_and_non_finite_outputs_are_also_not_authoritative() -> None:
+        envelope = {"x": _normal_env(0.0, 1.0)}
+        missing = MonteCarloPropagator(_config()).propagate(
+            lambda x: {} if x < 0 else {"y": float(x)},
+            {"x": 0.0},
+            envelope,
+            ["y"],
+        )[0]
+        _require_candidate_only(missing)
+>       assert missing.diagnostics["missing_output_count"] == 515
+E       assert 508 == 515
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:124: AssertionError
+____________ test_one_failed_draw_records_all_affected_outputs_once ____________
+
+    def test_one_failed_draw_records_all_affected_outputs_once() -> None:
+        def two_outputs(x: float) -> dict[str, float]:
+            if x < 0:
+                raise RuntimeError("input-dependent solver refusal")
+            return {"y": float(x), "z": float(x)}
+    
+        results = MonteCarloPropagator(_config()).propagate(
+            two_outputs,
+            {"x": 0.0},
+            {"x": _normal_env(0.0, 1.0)},
+            ["y", "z"],
+        )
+    
+        assert len(results) == 2
+        provenance = results[0].diagnostics["draw_outcome_provenance"]
+        assert provenance is results[1].diagnostics["draw_outcome_provenance"]
+        for result in results:
+            assert result.diagnostics["draw_outcome_provenance"] is provenance
+        failures = provenance["failure_records"]
+>       assert len(failures) == 515
+E       AssertionError: assert 508 == 515
+E        +  where 508 = len([{'draw_index': 0, 'output_outcomes': [{'error_type': 'RuntimeError', 'outcome_code': 'simulation_exception', 'output_...ut_metric_id': 'z'}], 'sampled_input_sha256': 'acc0d024366193a9ec21ad1cc90ef59680717c1e725487ea3c2f5b52aed603e4'}, ...])
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:163: AssertionError
+______ test_mixed_output_failures_are_one_record_with_each_typed_outcome _______
+
+    def test_mixed_output_failures_are_one_record_with_each_typed_outcome() -> None:
+        def mixed_outputs(x: float) -> dict[str, float | None]:
+            if x < 0:
+                return {"y": None, "z": float("nan")}
+            return {"y": float(x), "z": float(x)}
+    
+        result = MonteCarloPropagator(_config()).propagate(
+            mixed_outputs,
+            {"x": 0.0},
+            {"x": _normal_env(0.0, 1.0)},
+            ["y", "z"],
+        )[0]
+    
+        provenance = result.diagnostics["draw_outcome_provenance"]
+        failures = provenance["failure_records"]
+>       assert len(failures) == 515
+E       AssertionError: assert 508 == 515
+E        +  where 508 = len([{'draw_index': 0, 'output_outcomes': [{'error_type': None, 'outcome_code': 'missing_output', 'output_metric_id': 'y'}...ut_metric_id': 'z'}], 'sampled_input_sha256': 'acc0d024366193a9ec21ad1cc90ef59680717c1e725487ea3c2f5b52aed603e4'}, ...])
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:198: AssertionError
+_____ test_real_node_persists_aggregate_draw_report_and_exact_missing_set ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-17/test_real_node_persists_aggreg0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd4ca1e3cb0>
+
+    def test_real_node_persists_aggregate_draw_report_and_exact_missing_set(tmp_path, monkeypatch) -> None:
+        store, ctx, state = _build_node_context(
+            tmp_path,
+            run_id="R_b194_mc",
+            metric_values={"y": 0, "z": 0},
+            propagation_config={
+                "mc_n_samples": 1000,
+                "mc_batch_size": 200,
+                "mc_min_valid_samples": 50,
+                "mc_seed": 2424,
+                "compute_sensitivity": False,
+            },
+        )
+        historical_report_bytes = (
+            b'{"diagnostics":[],"input_envelope_count":0,"mapped_param_count":0,'
+            b'"mapped_params":[],"mapping_status":"resolved","methods":[],'
+            b'"missing_output_metric_ids":[],"output_metric_count":0,'
+            b'"schema_version":"1.0","unmapped_metric_ids":[]}'
+        )
+        assert to_canonical_bytes(from_canonical_bytes(historical_report_bytes)) == (
+            historical_report_bytes
+        )
+        historical_report_ref = store.put_bytes(
+            historical_report_bytes,
+            PutOptions(
+                kind="foundry.propagation_report",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version="1.0"),
+            ),
+        )
+        def build_failing_fn(params, *, base_metric_values, nominal_params):
+            del params, base_metric_values, nominal_params
+    
+            def fn(**current_params):
+                x = float(current_params["x"])
+                if x < 0:
+                    return {"y": None, "z": float("nan")}
+                return {"y": x, "z": x}
+    
+            fn._sensitivity_map = {"y": {"x": 1.0}, "z": {"x": 1.0}}
+            return fn, {"x"}
+    
+        monkeypatch.setattr(node_module, "_build_propagation_fn", build_failing_fn)
+        outcome = PropagateUncertaintyNode().execute(ctx, state)
+    
+        assert outcome.status == "ok"
+        report_ref = outcome.state.artifacts_index["propagation_report_ref"]
+        report = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
+        assert report["schema_version"] == "1.1"
+        assert report["missing_output_metric_ids"] == ["y"]
+        assert report["incomplete_output_metric_ids"] == ["y", "z"]
+        shared_provenance = report["draw_outcome_provenance"]
+        assert shared_provenance["requested_draw_count"] == 1000
+>       assert len(shared_provenance["failure_records"]) == 515
+E       AssertionError: assert 508 == 515
+E        +  where 508 = len([{'draw_index': 0, 'output_outcomes': [{'error_type': None, 'outcome_code': 'missing_output', 'output_metric_id': 'y'}...ut_metric_id': 'z'}], 'sampled_input_sha256': 'acc0d024366193a9ec21ad1cc90ef59680717c1e725487ea3c2f5b52aed603e4'}, ...])
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:396: AssertionError
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_linear_fn_exact
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_multi_output
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only
+FAILED tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_missing_and_non_finite_outputs_are_also_not_authoritative
+FAILED tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_one_failed_draw_records_all_affected_outputs_once
+FAILED tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_mixed_output_failures_are_one_record_with_each_typed_outcome
+FAILED tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_real_node_persists_aggregate_draw_report_and_exact_missing_set
+5 failed, 289 passed, 2 warnings in 54.18s
+
+Implementation50e8 corrected family recipe
+==========================================
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "tests/unit/foundry/calibration",
+    "tests/unit/foundry/uncertainty",
+    "tests/unit/remediation/test_cal_01.py",
+    "tests/unit/remediation/test_cal_02.py",
+    "tests/unit/remediation/test_cal_03.py",
+    "tests/unit/remediation/test_cal_04.py",
+    "tests/unit/remediation/test_cal_06.py",
+    "tests/unit/remediation/test_uqp_01.py",
+    "tests/unit/remediation/test_uqp_02.py",
+    "tests/unit/remediation/test_uqp_03.py",
+    "tests/unit/remediation/test_uqs_01.py",
+    "-o",
+    "addopts=",
+    "--junitxml=_build/e02/gaussian-joint-sampling/family-fixed.xml",
+    "-q"
+  ],
+  "cwd": "/workspace/e02-E-cal-uq/policy-engine",
+  "source_sha": "50e8ecf1717efa6b6fe2e42925c7d9042a5db7c2",
+  "exit": 0,
+  "wall_s": 109.9475345740002,
+  "max_rss_kib": 2090772,
+  "PYTHONPATH": "/workspace/e02-E-cal-uq/policy-engine/src",
+  "precision": "calibration collection enables JAX x64; B194 witnesses scope float32; mixed observer nested float32/float64"
+}
+
+Implementation50e8 corrected family PASS
+========================================
+........................................................................ [ 24%]
+........................................................................ [ 48%]
+........................................................................ [ 72%]
+........................................................................ [ 97%]
+........                                                                 [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_linear_fn_exact
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_multi_output
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_valid_delta_output_is_not_marked_missing_or_incomplete
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only
+  /workspace/e02-E-cal-uq/policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:44: DeprecationWarning: jax.experimental.enable_x64 is deprecated in JAX v0.8.0 and will be removed in JAX v0.9.0; use jax.enable_x64(True) instead.
+    with jax.experimental.enable_x64(False):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+296 passed, 4 warnings in 98.26s (0:01:38)
+
+B194 precision-bound development check
+======================================
+............                                                             [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only
+  /workspace/e02-E-cal-uq/policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:44: DeprecationWarning: jax.experimental.enable_x64 is deprecated in JAX v0.8.0 and will be removed in JAX v0.9.0; use jax.enable_x64(True) instead.
+    with jax.experimental.enable_x64(False):
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_valid_delta_output_is_not_marked_missing_or_incomplete
+  /workspace/e02-E-cal-uq/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+12 passed, 2 warnings in 16.00s
+
+Independent oracle baseline0a4; CAL/UQ source identical to slicebasec40
+=======================================================================
+{"oracle": "B181 zero support JAX primal/gradient/Hessian", "value": 0.0, "gradient": [0.0, -0.0, 0.0], "hessian": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], "negative_proxy_value": 0.0, "negative_proxy_gradient_finite": false}
+{"oracle": "CAL true JAX Hessian/covariance", "hessian_max_error": 7.152557373046875e-07, "covariance_max_error": 7.450580596923828e-08, "backend": "cpu"}
+{"oracle": "B187 covariance 3 distinct axes", "computed": [[1.0, 0.20000000298023224, -0.10000000149011612], [0.20000000298023224, 4.0, 0.6000000238418579], [-0.10000000149011612, 0.6000000238418579, 9.0]], "expected": [[1.0, 0.2, -0.1], [0.2, 4.0, 0.6], [-0.1, 0.6, 9.0]], "negative_row_column_permutation": [[9.0, -0.1, 0.6], [-0.1, 1.0, 0.2], [0.6, 0.2, 4.0]]}
+{"oracle": "B188 Gaussian shared difference", "method": "random", "shared_variance": 2.1286215432742708, "independent_control_variance": 2.1286215432742708, "shared_draws_zero": false, "max_abs_shared": 5.159459114075, "baseline_gap": true}
+{"oracle": "B188 Gaussian shared difference", "method": "sobol", "shared_variance": 1.9884809007851765, "independent_control_variance": 1.9884809007851765, "shared_draws_zero": false, "max_abs_shared": 4.385224342346, "baseline_gap": true}
+{"oracle": "B188 Gaussian shared difference", "method": "halton", "shared_variance": 1.9991211122928272, "independent_control_variance": 1.9991211122928272, "shared_draws_zero": false, "max_abs_shared": 5.037025928497, "baseline_gap": true}
+
+Independent root original candidate5f9
+======================================
+{"oracle": "B181 zero support JAX primal/gradient/Hessian", "value": 0.0, "gradient": [0.0, -0.0, 0.0], "hessian": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], "negative_proxy_value": 0.0, "negative_proxy_gradient_finite": false}
+{"oracle": "CAL true JAX Hessian/covariance", "hessian_max_error": 7.152557373046875e-07, "covariance_max_error": 7.450580596923828e-08, "backend": "cpu"}
+{"oracle": "B187 covariance 3 distinct axes", "computed": [[1.0, 0.20000000298023224, -0.10000000149011612], [0.20000000298023224, 4.0, 0.6000000238418579], [-0.10000000149011612, 0.6000000238418579, 9.0]], "expected": [[1.0, 0.2, -0.1], [0.2, 4.0, 0.6], [-0.1, 0.6, 9.0]], "negative_row_column_permutation": [[9.0, -0.1, 0.6], [-0.1, 1.0, 0.2], [0.6, 0.2, 4.0]]}
+{"oracle": "B188 Gaussian shared difference", "method": "random", "shared_variance": 0.0, "independent_control_variance": 2.1286215432742708, "shared_draws_zero": true, "max_abs_shared": 0.0, "baseline_gap": false}
+{"oracle": "B188 Gaussian shared difference", "method": "sobol", "shared_variance": 0.0, "independent_control_variance": 1.9884809007851765, "shared_draws_zero": true, "max_abs_shared": 0.0, "baseline_gap": false}
+{"oracle": "B188 Gaussian shared difference", "method": "halton", "shared_variance": 0.0, "independent_control_variance": 1.9991211122928272, "shared_draws_zero": true, "max_abs_shared": 0.0, "baseline_gap": false}
+
+Remove-property/keep-markers direct actual-mutant execution
+===========================================================
+actual_mutated_owner_origin /workspace/e02-E-cal-uq/policy-engine/_build/e02/gaussian-joint-sampling/removal/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+test_mc_gaussian_joint_draws_preserve_singular_law_and_covariance_axes random FAIL 
+Not equal to tolerance rtol=0, atol=2e-06
+
+Mismatched elements: 256 / 256 (100%)
+Max absolute difference among violations: 7.4113369
+Max relative difference among violations: inf
+ ACTUAL: array([ 1.633309,  4.323678, -1.727846,  1.036764, -6.273545, -0.710496,
+       -2.244098, -3.85035 , -6.25531 ,  1.650608, -3.432873,  0.264296,
+        1.615304, -1.647784,  1.154688,  0.347583, -3.0467  ,  4.728806,...
+ DESIRED: array(0.)
+test_mc_gaussian_independent_control_retains_nonzero_difference_variance random PASS
+test_mc_invalid_gaussian_covariance_is_refused_before_model_calls random FAIL 
+test_mc_gaussian_joint_draws_preserve_singular_law_and_covariance_axes sobol FAIL 
+Not equal to tolerance rtol=0, atol=2e-06
+
+Mismatched elements: 256 / 256 (100%)
+Max absolute difference among violations: 8.33791924
+Max relative difference among violations: inf
+ ACTUAL: array([-2.135724,  2.56567 ,  0.342181, -0.768099, -4.561148,  4.915208,
+        1.052397, -0.445381, -1.400101,  4.345473, -0.599117, -2.306416,
+       -4.715119,  1.063086,  0.892823,  2.280599, -1.101908,  4.249465,...
+ DESIRED: array(0.)
+test_mc_gaussian_independent_control_retains_nonzero_difference_variance sobol PASS
+test_mc_invalid_gaussian_covariance_is_refused_before_model_calls sobol FAIL 
+test_mc_gaussian_joint_draws_preserve_singular_law_and_covariance_axes halton FAIL 
+Not equal to tolerance rtol=0, atol=2e-06
+
+Mismatched elements: 256 / 256 (100%)
+Max absolute difference among violations: 9.22899246
+Max relative difference among violations: inf
+ ACTUAL: array([ 2.315683e+00, -5.083475e+00,  1.767298e+00,  2.276922e-01,
+       -2.030046e+00, -2.346181e+00,  6.383865e+00, -1.462739e+00,
+        1.221112e+00, -6.484507e-01,  7.477172e-02, -8.076507e-01,...
+ DESIRED: array(0.)
+test_mc_gaussian_independent_control_retains_nonzero_difference_variance halton PASS
+test_mc_invalid_gaussian_covariance_is_refused_before_model_calls halton FAIL 
+test_mc_declared_gaussian_joint_model_cannot_grant_authority_from_marginals FAIL 
+REMOVAL DETECTED: 7 expected property failures; 3 independent variance controls pass
+
+Architecture guardrails f070 FAIL; attribution not_established
+==============================================================
+Generated artifact freshness clean: runtime-api-client (3 generator-observed outputs).
+Generated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs).
+Standalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.
+Architecture guardrail check FAILED:
+- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline.
+--- architecture/baselines/imports/deep_import.json (current)
++++ architecture/baselines/imports/deep_import.json (expected)
+@@ -45,6 +45,34 @@
+       "target_root": "ir"
+     },
+     {
++      "source_module": "polisyos.calibration.forecast_bridge",
++      "source_root": "calibration",
++      "source_file": "src/polisyos/calibration/forecast_bridge.py",
++      "target_module": "polisyos.ir.analytics.backtest",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.calibration.forecast_bridge",
++      "source_root": "calibration",
++      "source_file": "src/polisyos/calibration/forecast_bridge.py",
++      "target_module": "polisyos.ir.artifacts",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.calibration.forecast_bridge",
++      "source_root": "calibration",
++      "source_file": "src/polisyos/calibration/forecast_bridge.py",
++      "target_module": "polisyos.ir.model_layer.canon",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.calibration.forecast_bridge",
++      "source_root": "calibration",
++      "source_file": "src/polisyos/calibration/forecast_bridge.py",
++      "target_module": "polisyos.ir.registry.refs",
++      "target_root": "ir"
++    },
++    {
+       "source_module": "polisyos.calibration.multiclass",
+       "source_root": "calibration",
+       "source_file": "src/polisyos/calibration/multiclass.py",
+@@ -94,20 +122,6 @@
+       "target_root": "common"
+     },
+     {
+-      "source_module": "polisyos.core.artifacts.backends.gcs_store",
+-      "source_root": "core",
+-      "source_file": "src/polisyos/core/artifacts/backends/gcs_store.py",
+-      "target_module": "polisyos.common.serialization",
+-      "target_root": "common"
+-    },
+-    {
+-      "source_module": "polisyos.core.artifacts.backends.s3_store",
+-      "source_root": "core",
+-      "source_file": "src/polisyos/core/artifacts/backends/s3_store.py",
+-      "target_module": "polisyos.common.serialization",
+-      "target_root": "common"
+-    },
+-    {
+       "source_module": "polisyos.core.artifacts.ir_adapter",
+       "source_root": "core",
+       "source_file": "src/polisyos/core/artifacts/ir_adapter.py",
+@@ -157,6 +171,20 @@
+       "target_root": "common"
+     },
+     {
++      "source_module": "polisyos.core.canon.canon_json",
++      "source_root": "core",
++      "source_file": "src/polisyos/core/canon/canon_json.py",
++      "target_module": "polisyos.common.canonical",
++      "target_root": "common"
++    },
++    {
++      "source_module": "polisyos.core.canon.hashing",
++      "source_root": "core",
++      "source_file": "src/polisyos/core/canon/hashing.py",
++      "target_module": "polisyos.common.hashing",
++      "target_root": "common"
++    },
++    {
+       "source_module": "polisyos.core.compiler.report",
+       "source_root": "core",
+       "source_file": "src/polisyos/core/compiler/report.py",
+@@ -701,6 +729,13 @@
+       "source_file": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+       "target_module": "polisyos.common.logger",
+       "target_root": "common"
++    },
++    {
++      "source_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "source_root": "data_forge",
++      "source_file": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
+     },
+     {
+       "source_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+@@ -1256,13 +1291,6 @@
+       "target_root": "common"
+     },
+     {
+-      "source_module": "polisyos.data_forge.domains.catalog.batch.core_sources_ingest",
+-      "source_root": "data_forge",
+-      "source_file": "src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+-      "target_module": "polisyos.common.logger",
+-      "target_root": "common"
+-    },
+-    {
+       "source_module": "polisyos.data_forge.domains.catalog.batch.embedder",
+       "source_root": "data_forge",
+       "source_file": "src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+@@ -1690,31 +1718,24 @@
+       "target_root": "ir"
+     },
+     {
++      "source_module": "polisyos.data_forge.domains.ukraine.builders.bindings_validation",
++      "source_root": "data_forge",
++      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py",
++      "target_module": "polisyos.ir.observation.contracts",
++      "target_root": "ir"
++    },
++    {
+       "source_module": "polisyos.data_forge.domains.ukraine.builders.common",
+       "source_root": "data_forge",
+       "source_file": "src/polisyos/data_forge/domains/ukraine/builders/common.py",
+-      "target_module": "polisyos.core.artifacts.store",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.data_forge.domains.ukraine.builders.common",
++      "target_module": "polisyos.ir.model_layer",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.data_forge.domains.ukraine.builders.demography",
+       "source_root": "data_forge",
+-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/common.py",
+-      "target_module": "polisyos.core.canon",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.data_forge.domains.ukraine.builders.common",
+-      "source_root": "data_forge",
+-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/common.py",
++      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+       "target_module": "polisyos.ir.model_layer.types",
+-      "target_root": "ir"
+-    },
+-    {
+-      "source_module": "polisyos.data_forge.domains.ukraine.builders.common",
+-      "source_root": "data_forge",
+-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/common.py",
+-      "target_module": "polisyos.ir.observation.contracts",
+       "target_root": "ir"
+     },
+     {
+@@ -1725,6 +1746,41 @@
+       "target_root": "ir"
+     },
+     {
++      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
++      "source_root": "data_forge",
++      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/io.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
++      "source_root": "data_forge",
++      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/io.py",
++      "target_module": "polisyos.core.artifacts.store",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
++      "source_root": "data_forge",
++      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/io.py",
++      "target_module": "polisyos.core.canon",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.data_forge.domains.ukraine.builders.observation",
++      "source_root": "data_forge",
++      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/observation.py",
++      "target_module": "polisyos.ir.model_layer.types",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
++      "source_root": "data_forge",
++      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
++      "target_module": "polisyos.core.artifacts.store",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
+       "source_root": "data_forge",
+       "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+@@ -1742,6 +1798,13 @@
+       "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
+       "source_root": "data_forge",
+       "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
++      "target_module": "polisyos.ir.model_layer.types",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
++      "source_root": "data_forge",
++      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+       "target_module": "polisyos.ir.observation.bundles",
+       "target_root": "ir"
+     },
+@@ -2488,6 +2551,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.fabric.connectors.cache._store_core",
++      "source_root": "fabric",
++      "source_file": "src/polisyos/fabric/connectors/cache/_store_core.py",
++      "target_module": "polisyos.core.artifacts.protocol",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.fabric.connectors.cache._store_index",
+       "source_root": "fabric",
+       "source_file": "src/polisyos/fabric/connectors/cache/_store_index.py",
+@@ -3499,6 +3569,13 @@
+       "source_module": "polisyos.fabric.data_plane.modes",
+       "source_root": "fabric",
+       "source_file": "src/polisyos/fabric/data_plane/modes.py",
++      "target_module": "polisyos.core.artifacts",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.fabric.data_plane.modes",
++      "source_root": "fabric",
++      "source_file": "src/polisyos/fabric/data_plane/modes.py",
+       "target_module": "polisyos.core.artifacts.async_store",
+       "target_root": "core"
+     },
+@@ -3506,21 +3583,14 @@
+       "source_module": "polisyos.fabric.data_plane.modes",
+       "source_root": "fabric",
+       "source_file": "src/polisyos/fabric/data_plane/modes.py",
+-      "target_module": "polisyos.core.artifacts.backends.config",
++      "target_module": "polisyos.core.artifacts.manifest",
+       "target_root": "core"
+     },
+     {
+       "source_module": "polisyos.fabric.data_plane.modes",
+       "source_root": "fabric",
+       "source_file": "src/polisyos/fabric/data_plane/modes.py",
+-      "target_module": "polisyos.core.artifacts.manifest",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.fabric.data_plane.modes",
+-      "source_root": "fabric",
+-      "source_file": "src/polisyos/fabric/data_plane/modes.py",
+-      "target_module": "polisyos.core.artifacts.store",
++      "target_module": "polisyos.core.artifacts.protocol",
+       "target_root": "core"
+     },
+     {
+@@ -4112,6 +4182,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.fabric.identity.migrations",
++      "source_root": "fabric",
++      "source_file": "src/polisyos/fabric/identity/migrations.py",
++      "target_module": "polisyos.common.migrations.base",
++      "target_root": "common"
++    },
++    {
+       "source_module": "polisyos.fabric.identity.segment_manifest",
+       "source_root": "fabric",
+       "source_file": "src/polisyos/fabric/identity/segment_manifest.py",
+@@ -4178,6 +4255,13 @@
+       "source_module": "polisyos.fabric.ingestion.ingestion_providers",
+       "source_root": "fabric",
+       "source_file": "src/polisyos/fabric/ingestion/ingestion_providers.py",
++      "target_module": "polisyos.core.artifacts.protocol",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.fabric.ingestion.ingestion_providers",
++      "source_root": "fabric",
++      "source_file": "src/polisyos/fabric/ingestion/ingestion_providers.py",
+       "target_module": "polisyos.core.artifacts.store",
+       "target_root": "core"
+     },
+@@ -4255,6 +4339,13 @@
+       "source_module": "polisyos.fabric.retrieval.custody",
+       "source_root": "fabric",
+       "source_file": "src/polisyos/fabric/retrieval/custody.py",
++      "target_module": "polisyos.core.artifacts.protocol",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.fabric.retrieval.custody",
++      "source_root": "fabric",
++      "source_file": "src/polisyos/fabric/retrieval/custody.py",
+       "target_module": "polisyos.core.contracts.control",
+       "target_root": "core"
+     },
+@@ -4283,6 +4374,20 @@
+       "source_module": "polisyos.fabric.retrieval.executor",
+       "source_root": "fabric",
+       "source_file": "src/polisyos/fabric/retrieval/executor.py",
++      "target_module": "polisyos.core.artifacts.backends.config",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.fabric.retrieval.executor",
++      "source_root": "fabric",
++      "source_file": "src/polisyos/fabric/retrieval/executor.py",
++      "target_module": "polisyos.core.artifacts.protocol",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.fabric.retrieval.executor",
++      "source_root": "fabric",
++      "source_file": "src/polisyos/fabric/retrieval/executor.py",
+       "target_module": "polisyos.core.contracts.control",
+       "target_root": "core"
+     },
+@@ -4332,6 +4437,20 @@
+       "source_module": "polisyos.fabric.retrieval.service",
+       "source_root": "fabric",
+       "source_file": "src/polisyos/fabric/retrieval/service.py",
++      "target_module": "polisyos.core.artifacts.backends.config",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.fabric.retrieval.service",
++      "source_root": "fabric",
++      "source_file": "src/polisyos/fabric/retrieval/service.py",
++      "target_module": "polisyos.core.artifacts.protocol",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.fabric.retrieval.service",
++      "source_root": "fabric",
++      "source_file": "src/polisyos/fabric/retrieval/service.py",
+       "target_module": "polisyos.core.contracts.control",
+       "target_root": "core"
+     },
+@@ -5047,6 +5166,13 @@
+       "source_root": "foundry",
+       "source_file": "src/polisyos/foundry/agent_sim/artifact.py",
+       "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.foundry.agent_sim.artifact",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/agent_sim/artifact.py",
++      "target_module": "polisyos.core.artifacts.protocol",
+       "target_root": "core"
+     },
+     {
+@@ -5361,6 +5487,13 @@
+       "source_module": "polisyos.foundry.calibration.report",
+       "source_root": "foundry",
+       "source_file": "src/polisyos/foundry/calibration/report.py",
++      "target_module": "polisyos.core.artifacts.protocol",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.foundry.calibration.report",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/calibration/report.py",
+       "target_module": "polisyos.core.artifacts.store",
+       "target_root": "core"
+     },
+@@ -5505,6 +5638,20 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.foundry.compile.randomization",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/compile/randomization.py",
++      "target_module": "polisyos.core.canon",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.foundry.compile.randomization",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/compile/randomization.py",
++      "target_module": "polisyos.core.contracts.foundry",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.foundry.compile.trinity_compiler",
+       "source_root": "foundry",
+       "source_file": "src/polisyos/foundry/compile/trinity_compiler.py",
+@@ -5557,6 +5704,13 @@
+       "source_module": "polisyos.foundry.compile.trinity_compiler",
+       "source_root": "foundry",
+       "source_file": "src/polisyos/foundry/compile/trinity_compiler.py",
++      "target_module": "polisyos.ir.kernel.slots",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.foundry.compile.trinity_compiler",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/compile/trinity_compiler.py",
+       "target_module": "polisyos.ir.linker",
+       "target_root": "ir"
+     },
+@@ -6030,20 +6184,6 @@
+       "target_root": "ir"
+     },
+     {
+-      "source_module": "polisyos.foundry.mechanisms.treasury",
+-      "source_root": "foundry",
+-      "source_file": "src/polisyos/foundry/mechanisms/treasury.py",
+-      "target_module": "polisyos.core.canon",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.foundry.mechanisms.treasury",
+-      "source_root": "foundry",
+-      "source_file": "src/polisyos/foundry/mechanisms/treasury.py",
+-      "target_module": "polisyos.core.contracts.foundry",
+-      "target_root": "core"
+-    },
+-    {
+       "source_module": "polisyos.foundry.methods.artifacts._chain",
+       "source_root": "foundry",
+       "source_file": "src/polisyos/foundry/methods/artifacts/_chain.py",
+@@ -7498,6 +7638,13 @@
+       "source_file": "src/polisyos/foundry/methods/catalog/causal/kernel_methods.py",
+       "target_module": "polisyos.ir.analytics.kernel_causal",
+       "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.foundry.methods.catalog.causal.literature_prior",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/methods/catalog/causal/literature_prior.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
+     },
+     {
+       "source_module": "polisyos.foundry.methods.catalog.causal.literature_prior",
+@@ -8592,6 +8739,13 @@
+       "target_root": "ir"
+     },
+     {
++      "source_module": "polisyos.foundry.methods.catalog.mechanism.families",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/methods/catalog/mechanism/families.py",
++      "target_module": "polisyos.ir.analytics.mechanism_design",
++      "target_root": "ir"
++    },
++    {
+       "source_module": "polisyos.foundry.methods.catalog.microsim.advanced",
+       "source_root": "foundry",
+       "source_file": "src/polisyos/foundry/methods/catalog/microsim/advanced.py",
+@@ -9131,6 +9285,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.foundry.methods.layout",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/methods/layout.py",
++      "target_module": "polisyos.ir.kernel.slots",
++      "target_root": "ir"
++    },
++    {
+       "source_module": "polisyos.foundry.methods.selection.advisor",
+       "source_root": "foundry",
+       "source_file": "src/polisyos/foundry/methods/selection/advisor.py",
+@@ -9184,6 +9345,41 @@
+       "source_root": "foundry",
+       "source_file": "src/polisyos/foundry/methods/testing/golden.py",
+       "target_module": "polisyos.core.canon",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.foundry.plugins.api",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/plugins/api.py",
++      "target_module": "polisyos.core.artifacts.backends.config",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.foundry.plugins.api",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/plugins/api.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.foundry.plugins.api",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/plugins/api.py",
++      "target_module": "polisyos.core.artifacts.protocol",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.foundry.plugins.training_adapter",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/plugins/training_adapter.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.foundry.plugins.training_adapter",
++      "source_root": "foundry",
++      "source_file": "src/polisyos/foundry/plugins/training_adapter.py",
++      "target_module": "polisyos.core.artifacts.protocol",
+       "target_root": "core"
+     },
+     {
+@@ -9495,6 +9691,27 @@
+       "target_root": "data_forge"
+     },
+     {
++      "source_module": "polisyos.ir.migrations.base",
++      "source_root": "ir",
++      "source_file": "src/polisyos/ir/migrations/base.py",
++      "target_module": "polisyos.common.migrations._engine",
++      "target_root": "common"
++    },
++    {
++      "source_module": "polisyos.ir.model_layer.canon",
++      "source_root": "ir",
++      "source_file": "src/polisyos/ir/model_layer/canon.py",
++      "target_module": "polisyos.common.canonical",
++      "target_root": "common"
++    },
++    {
++      "source_module": "polisyos.ir.model_layer.canon",
++      "source_root": "ir",
++      "source_file": "src/polisyos/ir/model_layer/canon.py",
++      "target_module": "polisyos.common.hashing",
++      "target_root": "common"
++    },
++    {
+       "source_module": "polisyos.ir.schemas.catalog",
+       "source_root": "ir",
+       "source_file": "src/polisyos/ir/schemas/catalog.py",
+@@ -9964,6 +10181,69 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/legal_evaluation/impact_diff.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/legal_evaluation/impact_diff.py",
++      "target_module": "polisyos.core.artifacts.store",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/legal_evaluation/impact_diff.py",
++      "target_module": "polisyos.core.contracts.lex",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/legal_evaluation/impact_diff.py",
++      "target_module": "polisyos.core.governance.passes.base",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/legal_evaluation/impact_diff.py",
++      "target_module": "polisyos.core.governance.passes.legal_pass",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/legal_evaluation/impact_diff.py",
++      "target_module": "polisyos.core.governance.passes.safety_pass",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/legal_evaluation/impact_diff.py",
++      "target_module": "polisyos.core.governance.profiles",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/legal_evaluation/impact_diff.py",
++      "target_module": "polisyos.ir.loading.norm_pack",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/legal_evaluation/impact_diff.py",
++      "target_module": "polisyos.ir.world.ids",
++      "target_root": "ir"
++    },
++    {
+       "source_module": "polisyos.lex.normpack.applicability",
+       "source_root": "lex",
+       "source_file": "src/polisyos/lex/normpack/applicability.py",
+@@ -10125,6 +10405,13 @@
+       "target_root": "ir"
+     },
+     {
++      "source_module": "polisyos.lex.normpack.diff",
++      "source_root": "lex",
++      "source_file": "src/polisyos/lex/normpack/diff.py",
++      "target_module": "polisyos.ir.loading.norm_pack",
++      "target_root": "ir"
++    },
++    {
+       "source_module": "polisyos.lex.normpack.extract_norm_claims",
+       "source_root": "lex",
+       "source_file": "src/polisyos/lex/normpack/extract_norm_claims.py",
+@@ -10342,76 +10629,6 @@
+       "target_root": "ir"
+     },
+     {
+-      "source_module": "polisyos.lex.simulator.diff",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/diff.py",
+-      "target_module": "polisyos.ir.loading.norm_pack",
+-      "target_root": "ir"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.engine",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/engine.py",
+-      "target_module": "polisyos.core.artifacts.manifest",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.engine",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/engine.py",
+-      "target_module": "polisyos.core.artifacts.store",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.engine",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/engine.py",
+-      "target_module": "polisyos.core.contracts.lex",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.engine",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/engine.py",
+-      "target_module": "polisyos.core.governance.passes.base",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.engine",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/engine.py",
+-      "target_module": "polisyos.core.governance.passes.legal_pass",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.engine",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/engine.py",
+-      "target_module": "polisyos.core.governance.passes.safety_pass",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.engine",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/engine.py",
+-      "target_module": "polisyos.core.governance.profiles",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.engine",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/engine.py",
+-      "target_module": "polisyos.ir.loading.norm_pack",
+-      "target_root": "ir"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.engine",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/engine.py",
+-      "target_module": "polisyos.ir.world.ids",
+-      "target_root": "ir"
+-    },
+-    {
+       "source_module": "polisyos.lex.simulator.mutator",
+       "source_root": "lex",
+       "source_file": "src/polisyos/lex/simulator/mutator.py",
+@@ -10424,13 +10641,6 @@
+       "source_file": "src/polisyos/lex/simulator/mutator.py",
+       "target_module": "polisyos.ir.world.ids",
+       "target_root": "ir"
+-    },
+-    {
+-      "source_module": "polisyos.lex.simulator.report",
+-      "source_root": "lex",
+-      "source_file": "src/polisyos/lex/simulator/report.py",
+-      "target_module": "polisyos.core.contracts.lex",
+-      "target_root": "core"
+     },
+     {
+       "source_module": "polisyos.lex.types",
+@@ -10450,8 +10660,22 @@
+       "source_module": "polisyos.pdc._impl.world_model_record",
+       "source_root": "pdc",
+       "source_file": "src/polisyos/pdc/_impl/world_model_record.py",
++      "target_module": "polisyos.core.artifacts",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.pdc._impl.world_model_record",
++      "source_root": "pdc",
++      "source_file": "src/polisyos/pdc/_impl/world_model_record.py",
+       "target_module": "polisyos.ir.kernel",
+       "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.runtime",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/__init__.py",
++      "target_module": "polisyos.scientist.replay.deterministic",
++      "target_root": "scientist"
+     },
+     {
+       "source_module": "polisyos.runtime.api",
+@@ -10590,6 +10814,27 @@
+       "source_module": "polisyos.runtime.http.resilience",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/http/resilience.py",
++      "target_module": "polisyos.core.artifacts.ids",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.http.resilience",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/resilience.py",
++      "target_module": "polisyos.core.artifacts.protocol",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.http.resilience",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/resilience.py",
++      "target_module": "polisyos.core.artifacts.signing",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.http.resilience",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/resilience.py",
+       "target_module": "polisyos.fabric.connectors.resilience.circuit_breaker",
+       "target_root": "fabric"
+     },
+@@ -10762,6 +11007,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.runtime.http.services.acquisition_surface_execution",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/services/acquisition_surface_execution.py",
++      "target_module": "polisyos.core.artifacts",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.runtime.http.services.adapters.core_run",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/http/services/adapters/core_run.py",
+@@ -10958,6 +11210,20 @@
+       "target_root": "foundry"
+     },
+     {
++      "source_module": "polisyos.runtime.http.services.control.evaluation_safety",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/services/control/evaluation_safety.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.http.services.control.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/services/control/generation_cycle.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.runtime.http.services.control.lex_pipeline",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/http/services/control/lex_pipeline.py",
+@@ -11290,6 +11556,13 @@
+       "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
++      "target_module": "polisyos.core.artifacts",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+       "target_module": "polisyos.core.artifacts.async_store",
+       "target_root": "core"
+     },
+@@ -11409,7 +11682,21 @@
+       "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
++      "target_module": "polisyos.fabric.ingestion.ingestion_providers",
++      "target_root": "fabric"
++    },
++    {
++      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+       "target_module": "polisyos.fabric.retrieval",
++      "target_root": "fabric"
++    },
++    {
++      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
++      "target_module": "polisyos.fabric.storage.tenant_cas",
+       "target_root": "fabric"
+     },
+     {
+@@ -11556,6 +11843,13 @@
+       "source_module": "polisyos.runtime.http.services.debug",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/http/services/debug.py",
++      "target_module": "polisyos.core.contracts.foundry",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.http.services.debug",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/services/debug.py",
+       "target_module": "polisyos.core.contracts.runtime",
+       "target_root": "core"
+     },
+@@ -11644,6 +11938,13 @@
+       "target_root": "scientist"
+     },
+     {
++      "source_module": "polisyos.runtime.http.services.human_decisions",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/http/services/human_decisions.py",
++      "target_module": "polisyos.core.artifacts.ownership",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.runtime.http.services.lineage",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/http/services/lineage.py",
+@@ -11987,17 +12288,10 @@
+       "target_root": "core"
+     },
+     {
+-      "source_module": "polisyos.runtime.quality.acquisition_executor",
+-      "source_root": "runtime",
+-      "source_file": "src/polisyos/runtime/quality/acquisition_executor.py",
+-      "target_module": "polisyos.core.artifacts.backends.config",
+-      "target_root": "core"
+-    },
+-    {
+       "source_module": "polisyos.runtime.quality.acquisition_planner",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/acquisition_planner.py",
+-      "target_module": "polisyos.core.artifacts.backends.config",
++      "target_module": "polisyos.core.artifacts.protocol",
+       "target_root": "core"
+     },
+     {
+@@ -12018,8 +12312,29 @@
+       "source_module": "polisyos.runtime.quality.acquisition_planner",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/acquisition_planner.py",
++      "target_module": "polisyos.fabric.connectors.sources.file_tabular",
++      "target_root": "fabric"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.acquisition_planner",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/acquisition_planner.py",
++      "target_module": "polisyos.fabric.retrieval.custody",
++      "target_root": "fabric"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.acquisition_planner",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/acquisition_planner.py",
+       "target_module": "polisyos.fabric.retrieval.service",
+       "target_root": "fabric"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.acquisition_route_loop",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/acquisition_route_loop.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
+     },
+     {
+       "source_module": "polisyos.runtime.quality.adaptation_transition",
+@@ -12120,6 +12435,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.runtime.quality.candidate_simulation",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/candidate_simulation.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.runtime.quality.case_lifecycle",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/case_lifecycle.py",
+@@ -12127,10 +12449,52 @@
+       "target_root": "scientist"
+     },
+     {
++      "source_module": "polisyos.runtime.quality.chronology_proof",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/chronology_proof.py",
++      "target_module": "polisyos.core.artifacts._manifest_lifecycle",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.runtime.quality.confidence_ledger",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/confidence_ledger.py",
+       "target_module": "polisyos.core.artifacts.backends.config",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.cycle_substrate",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/cycle_substrate.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.cycle_substrate",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/cycle_substrate.py",
++      "target_module": "polisyos.foundry.data_plane.bindings",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.cycle_substrate",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/cycle_substrate.py",
++      "target_module": "polisyos.foundry.execute.executor",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.cycle_substrate",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/cycle_substrate.py",
++      "target_module": "polisyos.ir.analytics.ncm",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.data_forge_binding",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
++      "target_module": "polisyos.core.contracts.fabric",
+       "target_root": "core"
+     },
+     {
+@@ -12207,8 +12571,22 @@
+       "source_module": "polisyos.runtime.quality.data_state_substrate",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
++      "target_module": "polisyos.core.contracts.foundry",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.data_state_substrate",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+       "target_module": "polisyos.core.registry",
+       "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.data_state_substrate",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
++      "target_module": "polisyos.data_forge.domains.catalog.knowledge.overlay",
++      "target_root": "data_forge"
+     },
+     {
+       "source_module": "polisyos.runtime.quality.data_state_substrate",
+@@ -12235,6 +12613,13 @@
+       "source_module": "polisyos.runtime.quality.data_state_substrate",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
++      "target_module": "polisyos.foundry.data_plane.bindings",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.data_state_substrate",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+       "target_module": "polisyos.ir.model_layer.model_spec",
+       "target_root": "ir"
+     },
+@@ -12249,6 +12634,13 @@
+       "source_module": "polisyos.runtime.quality.design_generation",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/design_generation.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_versioning",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.design_generation",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/design_generation.py",
+       "target_module": "polisyos.ir.analytics.interventions",
+       "target_root": "ir"
+     },
+@@ -12264,13 +12656,6 @@
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/design_generation.py",
+       "target_module": "polisyos.ir.linker",
+-      "target_root": "ir"
+-    },
+-    {
+-      "source_module": "polisyos.runtime.quality.design_generation",
+-      "source_root": "runtime",
+-      "source_file": "src/polisyos/runtime/quality/design_generation.py",
+-      "target_module": "polisyos.ir.trinity",
+       "target_root": "ir"
+     },
+     {
+@@ -12305,6 +12690,13 @@
+       "source_module": "polisyos.runtime.quality.design_generation",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/design_generation.py",
++      "target_module": "polisyos.scientist.agent.protocols",
++      "target_root": "scientist"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.design_generation",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/design_generation.py",
+       "target_module": "polisyos.scientist.orchestration.llm.factory",
+       "target_root": "scientist"
+     },
+@@ -12313,6 +12705,13 @@
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/design_problem.py",
+       "target_module": "polisyos.ir.governance.problem_frame",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.design_problem",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/design_problem.py",
++      "target_module": "polisyos.ir.kernel.base",
+       "target_root": "ir"
+     },
+     {
+@@ -12365,6 +12764,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.runtime.quality.epoch_validity_cascade",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/epoch_validity_cascade.py",
++      "target_module": "polisyos.core.contracts.c4_persisted_profiles",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.runtime.quality.event_log",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/event_log.py",
+@@ -12403,7 +12809,35 @@
+       "source_module": "polisyos.runtime.quality.generation_cycle",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.core.artifacts",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
+       "target_module": "polisyos.core.artifacts.backends.config",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.core.canon",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.core.contracts.foundry",
+       "target_root": "core"
+     },
+     {
+@@ -12412,6 +12846,20 @@
+       "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
+       "target_module": "polisyos.core.contracts.value_outer_set",
+       "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.core.registry",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.data_forge.domains.catalog.knowledge.country_codes",
++      "target_root": "data_forge"
+     },
+     {
+       "source_module": "polisyos.runtime.quality.generation_cycle",
+@@ -12424,6 +12872,27 @@
+       "source_module": "polisyos.runtime.quality.generation_cycle",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.fabric.data_plane",
++      "target_root": "fabric"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.foundry.data_plane",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.foundry.execute.executor",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
+       "target_module": "polisyos.foundry.methods.catalog.causal.transport_engine",
+       "target_root": "foundry"
+     },
+@@ -12438,14 +12907,7 @@
+       "source_module": "polisyos.runtime.quality.generation_cycle",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
+-      "target_module": "polisyos.ir.analytics.causal_graph",
+-      "target_root": "ir"
+-    },
+-    {
+-      "source_module": "polisyos.runtime.quality.generation_cycle",
+-      "source_root": "runtime",
+-      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
+-      "target_module": "polisyos.ir.analytics.context",
++      "target_module": "polisyos.ir.analytics.ncm",
+       "target_root": "ir"
+     },
+     {
+@@ -12453,6 +12915,13 @@
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
+       "target_module": "polisyos.ir.analytics.transportability",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
++      "target_module": "polisyos.ir.registry.refs",
+       "target_root": "ir"
+     },
+     {
+@@ -12477,6 +12946,34 @@
+       "target_root": "scientist"
+     },
+     {
++      "source_module": "polisyos.runtime.quality.generation_source",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_source.py",
++      "target_module": "polisyos.core.artifacts._manifest_lifecycle",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_source",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_source.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_source",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_source.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_versioning",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.generation_source",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/generation_source.py",
++      "target_module": "polisyos.ir.analytics.ncm",
++      "target_root": "ir"
++    },
++    {
+       "source_module": "polisyos.runtime.quality.grounding_calibration",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/grounding_calibration.py",
+@@ -12711,6 +13208,13 @@
+       "source_module": "polisyos.runtime.quality.non_data_acquisition",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/non_data_acquisition.py",
++      "target_module": "polisyos.core.artifacts.store",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.non_data_acquisition",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/non_data_acquisition.py",
+       "target_module": "polisyos.fabric.evidence.non_data_acquisition",
+       "target_root": "fabric"
+     },
+@@ -12767,6 +13271,13 @@
+       "source_module": "polisyos.runtime.quality.proving_ground.causal_forecast_search",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
++      "target_module": "polisyos.data_forge.kernel.embeddings",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.proving_ground.causal_forecast_search",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+       "target_module": "polisyos.data_forge.read_api.academic",
+       "target_root": "data_forge"
+     },
+@@ -12799,6 +13310,20 @@
+       "target_root": "foundry"
+     },
+     {
++      "source_module": "polisyos.runtime.quality.proving_ground.substrate_grounding_search",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
++      "target_module": "polisyos.data_forge.kernel.embeddings",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.recursive_generation_cycle",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/recursive_generation_cycle.py",
++      "target_module": "polisyos.core.artifacts",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.runtime.quality.replay",
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/replay.py",
+@@ -13111,6 +13636,13 @@
+       "source_root": "runtime",
+       "source_file": "src/polisyos/runtime/quality/world_model_record.py",
+       "target_module": "polisyos.core.artifacts",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.runtime.quality.world_model_record",
++      "source_root": "runtime",
++      "source_file": "src/polisyos/runtime/quality/world_model_record.py",
++      "target_module": "polisyos.core.artifacts.manifest",
+       "target_root": "core"
+     },
+     {
+@@ -13159,6 +13691,13 @@
+       "source_module": "polisyos.scholar.api",
+       "source_root": "scholar",
+       "source_file": "src/polisyos/scholar/api.py",
++      "target_module": "polisyos.core.artifacts.ids",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scholar.api",
++      "source_root": "scholar",
++      "source_file": "src/polisyos/scholar/api.py",
+       "target_module": "polisyos.core.artifacts.protocol",
+       "target_root": "core"
+     },
+@@ -13167,6 +13706,13 @@
+       "source_root": "scholar",
+       "source_file": "src/polisyos/scholar/api.py",
+       "target_module": "polisyos.core.artifacts.store",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scholar.api",
++      "source_root": "scholar",
++      "source_file": "src/polisyos/scholar/api.py",
++      "target_module": "polisyos.core.canon",
+       "target_root": "core"
+     },
+     {
+@@ -13327,7 +13873,21 @@
+       "source_module": "polisyos.scholar.orchestrator.enrich",
+       "source_root": "scholar",
+       "source_file": "src/polisyos/scholar/orchestrator/enrich.py",
++      "target_module": "polisyos.core.artifacts.ids",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scholar.orchestrator.enrich",
++      "source_root": "scholar",
++      "source_file": "src/polisyos/scholar/orchestrator/enrich.py",
+       "target_module": "polisyos.core.artifacts.store",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scholar.orchestrator.enrich",
++      "source_root": "scholar",
++      "source_file": "src/polisyos/scholar/orchestrator/enrich.py",
++      "target_module": "polisyos.core.canon",
+       "target_root": "core"
+     },
+     {
+@@ -14069,6 +14629,13 @@
+       "source_module": "polisyos.scientist.agent.feasibility",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/agent/feasibility.py",
++      "target_module": "polisyos.foundry.execute._internal.snapshots",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.scientist.agent.feasibility",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/agent/feasibility.py",
+       "target_module": "polisyos.foundry.execute.executor",
+       "target_root": "foundry"
+     },
+@@ -14706,6 +15273,13 @@
+       "source_module": "polisyos.scientist.cross_graph.compiler",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.cross_graph.compiler",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
+       "target_module": "polisyos.data_forge.read_api.academic",
+       "target_root": "data_forge"
+     },
+@@ -16859,6 +17433,13 @@
+       "target_root": "ir"
+     },
+     {
++      "source_module": "polisyos.scientist.methods.autotune.bayesian_generator",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
++      "target_module": "polisyos.core.artifacts.ids",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.scientist.methods.autotune.calibration",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/methods/autotune/calibration.py",
+@@ -17202,6 +17783,104 @@
+       "target_root": "ir"
+     },
+     {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.core.artifacts.store",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.core.contracts.fabric",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.foundry.methods.artifacts",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.foundry.methods.backends.dispatch",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.foundry.methods.base",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.foundry.methods.catalog.forecasting",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.foundry.methods.compiler.specialization",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.foundry.methods.selection.registry",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.ir.analytics.backtest",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.ir.analytics.calibration_diagnostics",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.ir.artifacts",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.ir.model_layer.canon",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
++      "target_module": "polisyos.ir.registry.refs",
++      "target_root": "ir"
++    },
++    {
+       "source_module": "polisyos.scientist.methods.backtesting.masking",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/methods/backtesting/masking.py",
+@@ -17240,7 +17919,21 @@
+       "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/methods/backtesting/orchestrator.py",
++      "target_module": "polisyos.core.contracts.fabric",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+       "target_module": "polisyos.ir.analytics.backtest",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/orchestrator.py",
++      "target_module": "polisyos.ir.analytics.uncertainty",
+       "target_root": "ir"
+     },
+     {
+@@ -17248,6 +17941,13 @@
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+       "target_module": "polisyos.ir.artifacts",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/backtesting/orchestrator.py",
++      "target_module": "polisyos.ir.model_layer.canon",
+       "target_root": "ir"
+     },
+     {
+@@ -17709,6 +18409,13 @@
+       "source_module": "polisyos.scientist.methods.discovery.prior_miner",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/methods/discovery/prior_miner.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.methods.discovery.prior_miner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/discovery/prior_miner.py",
+       "target_module": "polisyos.data_forge.read_api.academic",
+       "target_root": "data_forge"
+     },
+@@ -18595,6 +19302,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.scientist.methods.search.service",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/methods/search/service.py",
++      "target_module": "polisyos.common.logger",
++      "target_root": "common"
++    },
++    {
+       "source_module": "polisyos.scientist.methods.search.stages",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/methods/search/stages.py",
+@@ -18822,6 +19536,20 @@
+       "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
++      "target_module": "polisyos.data_forge.read_api.academic",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+       "target_module": "polisyos.foundry.methods.catalog.causal.invariance_tests",
+       "target_root": "foundry"
+     },
+@@ -18990,6 +19718,13 @@
+       "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_parameters",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_parameters",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+       "target_module": "polisyos.data_forge.read_api.academic",
+       "target_root": "data_forge"
+     },
+@@ -19067,6 +19802,13 @@
+       "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_transport",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_transport",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+       "target_module": "polisyos.data_forge.read_api.academic",
+       "target_root": "data_forge"
+     },
+@@ -20922,6 +21664,13 @@
+       "source_module": "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+       "target_module": "polisyos.data_forge.read_api.academic",
+       "target_root": "data_forge"
+     },
+@@ -21022,6 +21771,20 @@
+       "source_file": "src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
+       "target_module": "polisyos.core.components",
+       "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
++      "target_module": "polisyos.data_forge.read_api.academic",
++      "target_root": "data_forge"
+     },
+     {
+       "source_module": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+@@ -21132,6 +21895,20 @@
+       "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
++      "target_module": "polisyos.data_forge.read_api.academic",
++      "target_root": "data_forge"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+       "target_module": "polisyos.ir.trinity",
+       "target_root": "ir"
+     },
+@@ -21370,6 +22147,13 @@
+       "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
++      "target_module": "polisyos.foundry.uncertainty.covariance",
++      "target_root": "foundry"
++    },
++    {
++      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+       "target_module": "polisyos.ir.analytics.dependence_structure",
+       "target_root": "ir"
+     },
+@@ -21906,6 +22690,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.scientist.orchestration.engine.context",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/context.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
+       "source_module": "polisyos.scientist.orchestration.engine.convergence",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/orchestration/engine/convergence.py",
+@@ -21958,6 +22749,13 @@
+       "source_module": "polisyos.scientist.orchestration.engine.executor",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/orchestration/engine/executor.py",
++      "target_module": "polisyos.core.artifacts.write_contract",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scientist.orchestration.engine.executor",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/executor.py",
+       "target_module": "polisyos.core.canon",
+       "target_root": "core"
+     },
+@@ -21969,6 +22767,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.scientist.orchestration.engine.executor",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/executor.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
+       "source_module": "polisyos.scientist.orchestration.engine.fan_out",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/orchestration/engine/fan_out.py",
+@@ -22109,6 +22914,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.scientist.orchestration.engine.protocol",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/protocol.py",
++      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
++      "target_root": "data_forge"
++    },
++    {
+       "source_module": "polisyos.scientist.orchestration.engine.registry",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/orchestration/engine/registry.py",
+@@ -22200,6 +23012,13 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.scientist.orchestration.engine.runner.fallback_runner",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py",
++      "target_module": "polisyos.core.errors",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.scientist.orchestration.engine.runner.local_runner",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/orchestration/engine/runner/local_runner.py",
+@@ -22212,6 +23031,20 @@
+       "source_file": "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+       "target_module": "polisyos.common.logger",
+       "target_root": "common"
++    },
++    {
++      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
++      "target_module": "polisyos.core.artifacts.ids",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
+     },
+     {
+       "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+@@ -22221,9 +23054,37 @@
+       "target_root": "core"
+     },
+     {
++      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
++      "target_module": "polisyos.core.contracts.skip_blockers",
++      "target_root": "core"
++    },
++    {
+       "source_module": "polisyos.scientist.orchestration.engine.state",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/orchestration/engine/state.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scientist.orchestration.engine.state_branching",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/state_branching.py",
++      "target_module": "polisyos.core.artifacts.manifest",
++      "target_root": "core"
++    },
++    {
++      "source_module": "polisyos.scientist.orchestration.engine.state_branching",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/state_branching.py",
++      "target_module": "polisyos.ir.registry.refs",
++      "target_root": "ir"
++    },
++    {
++      "source_module": "polisyos.scientist.orchestration.engine.state_merge",
++      "source_root": "scientist",
++      "source_file": "src/polisyos/scientist/orchestration/engine/state_merge.py",
+       "target_module": "polisyos.core.artifacts.manifest",
+       "target_root": "core"
+     },
+@@ -22490,13 +23351,6 @@
+       "source_module": "polisyos.scientist.orchestration.workflows.builder",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
+-      "target_module": "polisyos.core.artifacts.store",
+-      "target_root": "core"
+-    },
+-    {
+-      "source_module": "polisyos.scientist.orchestration.workflows.builder",
+-      "source_root": "scientist",
+-      "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
+       "target_module": "polisyos.core.registry",
+       "target_root": "core"
+     },
+@@ -23267,7 +24121,7 @@
+       "source_module": "polisyos.scientist.validation.verification.ic.service",
+       "source_root": "scientist",
+       "source_file": "src/polisyos/scientist/validation/verification/ic/service.py",
+-      "target_module": "polisyos.foundry.mechanisms.design",
++      "target_module": "polisyos.foundry.methods.catalog.mechanism.families",
+       "target_root": "foundry"
+     },
+     {
+- New deep-import creep detected: polisyos.calibration.forecast_bridge -> polisyos.ir.analytics.backtest (src/polisyos/calibration/forecast_bridge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.calibration.forecast_bridge -> polisyos.ir.artifacts (src/polisyos/calibration/forecast_bridge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.calibration.forecast_bridge -> polisyos.ir.model_layer.canon (src/polisyos/calibration/forecast_bridge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.calibration.forecast_bridge -> polisyos.ir.registry.refs (src/polisyos/calibration/forecast_bridge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.core.canon.canon_json -> polisyos.common.canonical (src/polisyos/core/canon/canon_json.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.core.canon.hashing -> polisyos.common.hashing (src/polisyos/core/canon/hashing.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.academic.knowledge.skg_query -> polisyos.core.artifacts.manifest (src/polisyos/data_forge/domains/academic/knowledge/skg_query.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.bindings_validation -> polisyos.ir.observation.contracts (src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.common -> polisyos.ir.model_layer (src/polisyos/data_forge/domains/ukraine/builders/common.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.demography -> polisyos.ir.model_layer.types (src/polisyos/data_forge/domains/ukraine/builders/demography.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.io -> polisyos.core.artifacts.manifest (src/polisyos/data_forge/domains/ukraine/builders/io.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.io -> polisyos.core.artifacts.store (src/polisyos/data_forge/domains/ukraine/builders/io.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.io -> polisyos.core.canon (src/polisyos/data_forge/domains/ukraine/builders/io.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.observation -> polisyos.ir.model_layer.types (src/polisyos/data_forge/domains/ukraine/builders/observation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.sources -> polisyos.core.artifacts.store (src/polisyos/data_forge/domains/ukraine/builders/sources.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.sources -> polisyos.ir.model_layer.types (src/polisyos/data_forge/domains/ukraine/builders/sources.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.connectors.cache._store_core -> polisyos.core.artifacts.protocol (src/polisyos/fabric/connectors/cache/_store_core.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.data_plane.modes -> polisyos.core.artifacts (src/polisyos/fabric/data_plane/modes.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.data_plane.modes -> polisyos.core.artifacts.protocol (src/polisyos/fabric/data_plane/modes.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.identity.migrations -> polisyos.common.migrations.base (src/polisyos/fabric/identity/migrations.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.ingestion.ingestion_providers -> polisyos.core.artifacts.protocol (src/polisyos/fabric/ingestion/ingestion_providers.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.retrieval.custody -> polisyos.core.artifacts.protocol (src/polisyos/fabric/retrieval/custody.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.retrieval.executor -> polisyos.core.artifacts.backends.config (src/polisyos/fabric/retrieval/executor.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.retrieval.executor -> polisyos.core.artifacts.protocol (src/polisyos/fabric/retrieval/executor.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.retrieval.service -> polisyos.core.artifacts.backends.config (src/polisyos/fabric/retrieval/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.fabric.retrieval.service -> polisyos.core.artifacts.protocol (src/polisyos/fabric/retrieval/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.agent_sim.artifact -> polisyos.core.artifacts.protocol (src/polisyos/foundry/agent_sim/artifact.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.calibration.report -> polisyos.core.artifacts.protocol (src/polisyos/foundry/calibration/report.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.compile.randomization -> polisyos.core.canon (src/polisyos/foundry/compile/randomization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.compile.randomization -> polisyos.core.contracts.foundry (src/polisyos/foundry/compile/randomization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.compile.trinity_compiler -> polisyos.ir.kernel.slots (src/polisyos/foundry/compile/trinity_compiler.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.methods.catalog.causal.literature_prior -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/foundry/methods/catalog/causal/literature_prior.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.methods.catalog.mechanism.families -> polisyos.ir.analytics.mechanism_design (src/polisyos/foundry/methods/catalog/mechanism/families.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.methods.layout -> polisyos.ir.kernel.slots (src/polisyos/foundry/methods/layout.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.plugins.api -> polisyos.core.artifacts.backends.config (src/polisyos/foundry/plugins/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.plugins.api -> polisyos.core.artifacts.manifest (src/polisyos/foundry/plugins/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.plugins.api -> polisyos.core.artifacts.protocol (src/polisyos/foundry/plugins/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.plugins.training_adapter -> polisyos.core.artifacts.manifest (src/polisyos/foundry/plugins/training_adapter.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.foundry.plugins.training_adapter -> polisyos.core.artifacts.protocol (src/polisyos/foundry/plugins/training_adapter.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.ir.migrations.base -> polisyos.common.migrations._engine (src/polisyos/ir/migrations/base.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.ir.model_layer.canon -> polisyos.common.canonical (src/polisyos/ir/model_layer/canon.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.ir.model_layer.canon -> polisyos.common.hashing (src/polisyos/ir/model_layer/canon.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.artifacts.manifest (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.artifacts.store (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.contracts.lex (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.governance.passes.base (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.governance.passes.legal_pass (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.governance.passes.safety_pass (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.governance.profiles (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.ir.loading.norm_pack (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.ir.world.ids (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.lex.normpack.diff -> polisyos.ir.loading.norm_pack (src/polisyos/lex/normpack/diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.pdc._impl.world_model_record -> polisyos.core.artifacts (src/polisyos/pdc/_impl/world_model_record.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime -> polisyos.scientist.replay.deterministic (src/polisyos/runtime/__init__.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.resilience -> polisyos.core.artifacts.ids (src/polisyos/runtime/http/resilience.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.resilience -> polisyos.core.artifacts.protocol (src/polisyos/runtime/http/resilience.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.resilience -> polisyos.core.artifacts.signing (src/polisyos/runtime/http/resilience.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.services.acquisition_surface_execution -> polisyos.core.artifacts (src/polisyos/runtime/http/services/acquisition_surface_execution.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.services.control.evaluation_safety -> polisyos.core.artifacts.manifest (src/polisyos/runtime/http/services/control/evaluation_safety.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.services.control.generation_cycle -> polisyos.core.artifacts.manifest (src/polisyos/runtime/http/services/control/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.services.control.run_lifecycle -> polisyos.core.artifacts (src/polisyos/runtime/http/services/control/run_lifecycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.services.control.run_lifecycle -> polisyos.fabric.ingestion.ingestion_providers (src/polisyos/runtime/http/services/control/run_lifecycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.services.control.run_lifecycle -> polisyos.fabric.storage.tenant_cas (src/polisyos/runtime/http/services/control/run_lifecycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.services.debug -> polisyos.core.contracts.foundry (src/polisyos/runtime/http/services/debug.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.http.services.human_decisions -> polisyos.core.artifacts.ownership (src/polisyos/runtime/http/services/human_decisions.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.acquisition_planner -> polisyos.core.artifacts.protocol (src/polisyos/runtime/quality/acquisition_planner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.acquisition_planner -> polisyos.fabric.connectors.sources.file_tabular (src/polisyos/runtime/quality/acquisition_planner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.acquisition_planner -> polisyos.fabric.retrieval.custody (src/polisyos/runtime/quality/acquisition_planner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.acquisition_route_loop -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/acquisition_route_loop.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.candidate_simulation -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/candidate_simulation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.chronology_proof -> polisyos.core.artifacts._manifest_lifecycle (src/polisyos/runtime/quality/chronology_proof.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.cycle_substrate -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/cycle_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.cycle_substrate -> polisyos.foundry.data_plane.bindings (src/polisyos/runtime/quality/cycle_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.cycle_substrate -> polisyos.foundry.execute.executor (src/polisyos/runtime/quality/cycle_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.cycle_substrate -> polisyos.ir.analytics.ncm (src/polisyos/runtime/quality/cycle_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.data_forge_binding -> polisyos.core.contracts.fabric (src/polisyos/runtime/quality/data_forge_binding.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.data_state_substrate -> polisyos.core.contracts.foundry (src/polisyos/runtime/quality/data_state_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.data_state_substrate -> polisyos.data_forge.domains.catalog.knowledge.overlay (src/polisyos/runtime/quality/data_state_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.data_state_substrate -> polisyos.foundry.data_plane.bindings (src/polisyos/runtime/quality/data_state_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.design_generation -> polisyos.data_forge.domains.academic.knowledge.skg_versioning (src/polisyos/runtime/quality/design_generation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.design_generation -> polisyos.scientist.agent.protocols (src/polisyos/runtime/quality/design_generation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.design_problem -> polisyos.ir.kernel.base (src/polisyos/runtime/quality/design_problem.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.epoch_validity_cascade -> polisyos.core.contracts.c4_persisted_profiles (src/polisyos/runtime/quality/epoch_validity_cascade.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.artifacts (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.canon (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.contracts.foundry (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.registry (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.data_forge.domains.catalog.knowledge.country_codes (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.fabric.data_plane (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.foundry.data_plane (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.foundry.execute.executor (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.ir.analytics.ncm (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.ir.registry.refs (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_source -> polisyos.core.artifacts._manifest_lifecycle (src/polisyos/runtime/quality/generation_source.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_source -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/generation_source.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_source -> polisyos.data_forge.domains.academic.knowledge.skg_versioning (src/polisyos/runtime/quality/generation_source.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.generation_source -> polisyos.ir.analytics.ncm (src/polisyos/runtime/quality/generation_source.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.non_data_acquisition -> polisyos.core.artifacts.store (src/polisyos/runtime/quality/non_data_acquisition.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.proving_ground.causal_forecast_search -> polisyos.data_forge.kernel.embeddings (src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.proving_ground.substrate_grounding_search -> polisyos.data_forge.kernel.embeddings (src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.recursive_generation_cycle -> polisyos.core.artifacts (src/polisyos/runtime/quality/recursive_generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.runtime.quality.world_model_record -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/world_model_record.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scholar.api -> polisyos.core.artifacts.ids (src/polisyos/scholar/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scholar.api -> polisyos.core.canon (src/polisyos/scholar/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scholar.orchestrator.enrich -> polisyos.core.artifacts.ids (src/polisyos/scholar/orchestrator/enrich.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scholar.orchestrator.enrich -> polisyos.core.canon (src/polisyos/scholar/orchestrator/enrich.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.agent.feasibility -> polisyos.foundry.execute._internal.snapshots (src/polisyos/scientist/agent/feasibility.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.cross_graph.compiler -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/cross_graph/compiler.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.autotune.bayesian_generator -> polisyos.core.artifacts.ids (src/polisyos/scientist/methods/autotune/bayesian_generator.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.core.artifacts.store (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.core.contracts.fabric (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.artifacts (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.backends.dispatch (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.base (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.catalog.forecasting (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.compiler.specialization (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.selection.registry (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.analytics.backtest (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.analytics.calibration_diagnostics (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.analytics.forecasting_uncertainty (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.artifacts (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.model_layer.canon (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.registry.refs (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.orchestrator -> polisyos.core.contracts.fabric (src/polisyos/scientist/methods/backtesting/orchestrator.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.orchestrator -> polisyos.ir.analytics.uncertainty (src/polisyos/scientist/methods/backtesting/orchestrator.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.backtesting.orchestrator -> polisyos.ir.model_layer.canon (src/polisyos/scientist/methods/backtesting/orchestrator.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.discovery.prior_miner -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/methods/discovery/prior_miner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.methods.search.service -> polisyos.common.logger (src/polisyos/scientist/methods/search/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.build_literature_prior -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.build_literature_prior -> polisyos.data_forge.read_api.academic (src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.resolve_parameters -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.resolve_transport -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime -> polisyos.data_forge.read_api.academic (src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search -> polisyos.data_forge.read_api.academic (src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.nodes.builtins.simulate.propagate_welfare -> polisyos.foundry.uncertainty.covariance (src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.context -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/orchestration/engine/context.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.executor -> polisyos.core.artifacts.write_contract (src/polisyos/scientist/orchestration/engine/executor.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.executor -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/orchestration/engine/executor.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.protocol -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/orchestration/engine/protocol.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.runner.fallback_runner -> polisyos.core.errors (src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.runner.serialization -> polisyos.core.artifacts.ids (src/polisyos/scientist/orchestration/engine/runner/serialization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.runner.serialization -> polisyos.core.artifacts.manifest (src/polisyos/scientist/orchestration/engine/runner/serialization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.runner.serialization -> polisyos.core.contracts.skip_blockers (src/polisyos/scientist/orchestration/engine/runner/serialization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.state_branching -> polisyos.core.artifacts.manifest (src/polisyos/scientist/orchestration/engine/state_branching.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.state_branching -> polisyos.ir.registry.refs (src/polisyos/scientist/orchestration/engine/state_branching.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.orchestration.engine.state_merge -> polisyos.core.artifacts.manifest (src/polisyos/scientist/orchestration/engine/state_merge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- New deep-import creep detected: polisyos.scientist.validation.verification.ic.service -> polisyos.foundry.methods.catalog.mechanism.families (src/polisyos/scientist/validation/verification/ic/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.
+- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/e02-E-cal-uq/policy-engine/schemas/runtime_api_v1.openapi.json.
+- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/e02-E-cal-uq/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json.
+
+Independent portable root oracle atf070; fetched Git bytes from e1fed60c4bbb85044535e0b89f2741b524205546
+{"candidate_source": "/workspace/e02-E-cal-uq/policy-engine", "monte_carlo_module": "/workspace/e02-E-cal-uq/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py", "jax": "0.8.2", "jax_x64": false, "backend": "cpu"}
+{"oracle": "B181 zero support JAX primal/gradient/Hessian", "value": 0.0, "gradient": [0.0, -0.0, 0.0], "hessian": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], "negative_proxy_value": 0.0, "negative_proxy_gradient_finite": false}
+{"oracle": "CAL true JAX Hessian/covariance", "hessian_max_error": 7.152557373046875e-07, "covariance_max_error": 7.450580596923828e-08, "backend": "cpu"}
+{"oracle": "B187 covariance 3 distinct axes", "computed": [[1.0, 0.20000000298023224, -0.10000000149011612], [0.20000000298023224, 4.0, 0.6000000238418579], [-0.10000000149011612, 0.6000000238418579, 9.0]], "expected": [[1.0, 0.2, -0.1], [0.2, 4.0, 0.6], [-0.1, 0.6, 9.0]], "negative_row_column_permutation": [[9.0, -0.1, 0.6], [-0.1, 1.0, 0.2], [0.6, 0.2, 4.0]]}
+{"oracle": "B188 Gaussian shared difference", "method": "random", "shared_variance": 0.0, "independent_control_variance": 2.1286215432742708, "shared_draws_zero": true, "max_abs_shared": 0.0, "baseline_gap": false}
+{"oracle": "B188 Gaussian shared difference", "method": "sobol", "shared_variance": 0.0, "independent_control_variance": 1.9884809007851765, "shared_draws_zero": true, "max_abs_shared": 0.0, "baseline_gap": false}
+{"oracle": "B188 Gaussian shared difference", "method": "halton", "shared_variance": 0.0, "independent_control_variance": 1.9991211122928272, "shared_draws_zero": true, "max_abs_shared": 0.0, "baseline_gap": false}
+{"oracle_count": 6, "result": "PASS"}
+
+Ruff check: All checks passed! Ruff format --check:3 files already formatted. NewTOML parsed and all six curated release sections validated/rendered.
+Independent root replayed the native Hessian, MC and B194 gate on final f070. Complete recipe and stdout are published on root companion 210a9849acd3b7a9bdff80159971a5e9bc97f0dc.
+Harness limitation: first pytest mutant run passed because tests/conftest reinserted candidate source. It is not deciding removal evidence. Corrected direct run asserted mutated module origin and detected7 property failures with3 unrelated controls passing.
+
+Independent root final f070 native gate recipe from 210a9849acd3b7a9bdff80159971a5e9bc97f0dc
+{
+  "source_sha": "f07058a3eb782463eedce65a6d0d54c332a46efe",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "tests/unit/foundry/calibration/test_hessian.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "-o",
+    "addopts=",
+    "-q"
+  ],
+  "cwd": "/workspace/e02-E-cal-uq/policy-engine",
+  "PYTHONPATH": "/workspace/e02-E-cal-uq/policy-engine/src",
+  "exit_code": 0,
+  "wall_seconds": 32.06879138500017,
+  "peak_child_rss_kib": 1131000
+}
+
+Independent root final native gate complete stdout
+.....................................                                    [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only
+  /workspace/e02-E-cal-uq/policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:44: DeprecationWarning: jax.experimental.enable_x64 is deprecated in JAX v0.8.0 and will be removed in JAX v0.9.0; use jax.enable_x64(True) instead.
+    with jax.experimental.enable_x64(False):
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_valid_delta_output_is_not_marked_missing_or_incomplete
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+37 passed, 2 warnings in 26.05s

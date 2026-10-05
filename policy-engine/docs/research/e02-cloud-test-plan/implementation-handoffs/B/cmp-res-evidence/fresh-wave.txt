@@ -1,0 +1,47 @@
+{
+  "target_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+  "target_tree_sha": "410f904cc0fa5e83e072a74e9823fd35b880a50d",
+  "cwd": "/workspace/e02-B-cmp-res/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "--show-capture=no",
+    "--basetemp",
+    "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-temp-final",
+    "--override-ini",
+    "cache_dir=/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-cache-final",
+    "--junitxml",
+    "/workspace/e02-B-cmp-res/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/fresh-wave.junit.xml",
+    "tests/unit/remediation/test_cmp_01.py",
+    "tests/unit/remediation/test_cmp_02.py",
+    "tests/unit/remediation/test_cmp_03.py",
+    "tests/unit/remediation/test_res_03.py",
+    "tests/unit/remediation/test_res_04.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "tests/unit/foundry/methods/test_composer.py",
+    "tests/unit/foundry/methods/test_composer_hardening.py",
+    "tests/unit/foundry/methods/test_semantic_validator.py",
+    "tests/unit/foundry/methods/test_linker.py"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "src:product",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "exit_code": 0,
+  "wall_seconds": 9.182364226000118,
+  "max_rss_kib": 186736,
+  "end_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade"
+}
+STDOUT
+........................................................................ [ 44%]
+........................................................................ [ 89%]
+.................                                                        [100%]
+161 passed in 6.97s
+
+STDERR

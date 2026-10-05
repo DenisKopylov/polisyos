@@ -1,0 +1,990 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cmp-res",
+  "writer_family": "B-W04",
+  "closure_ids": [
+    "B44",
+    "B74",
+    "B75",
+    "B76"
+  ],
+  "closure_ids_semantics": "Affected candidate mechanism IDs, not an assertion of ledger closure. Per-finding classification below preserves all residuals.",
+  "scope_finding_ids": [
+    "B13",
+    "B42",
+    "B43",
+    "B44",
+    "B45",
+    "B46",
+    "B47",
+    "B48",
+    "B74",
+    "B75",
+    "B76"
+  ],
+  "bundle_ids": [
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "RES-03",
+    "RES-04"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "236349107399b2016e7b7d2e20ba0f552b99aba4",
+    "fe1449957e06e9c62fae481c18cc07ab03ef65fb",
+    "e9f9738c1d0cd1cb4166718fe4cc5f76b7c15f9a",
+    "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+    "436e7beb61fb35237533d9a8e00a8aae4760fb8c"
+  ],
+  "implementation_candidate_sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+  "candidate_tree_sha": "81074c43bc1bc23483e5d77671d25c1d898ff96d",
+  "tested_source_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+  "tested_source_tree_sha": "410f904cc0fa5e83e072a74e9823fd35b880a50d",
+  "post_verification_delta": "436e7 companion commit changes README and release fragment only; Python blobs match tested d7. Tests and scanner remain explicitly receipts on d7; architecture targets436.",
+  "branch": "codex/e02-B-cmp-res",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-B-checkpoint-execution.toml",
+    "policy-engine/src/polisyos/foundry/methods/README.md",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "policy-engine/tests/unit/remediation/test_res_04.py"
+  ],
+  "canonical_sources": [
+    {
+      "bundle_id": "CMP-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_blob": "58fd79d46e7abeb0f8c274409c6bae186ace2652"
+    },
+    {
+      "bundle_id": "CMP-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_blob": "3ec6afe17ced620957c52e5535a4a4db24dd250b"
+    },
+    {
+      "bundle_id": "CMP-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_blob": "14b7ff08d551056a6778212cbd6432ecf0f20eef"
+    },
+    {
+      "bundle_id": "RES-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_blob": "7325214b92eb9e624c788357588dabe9aa9c3c78"
+    },
+    {
+      "bundle_id": "RES-04",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_blob": "fc47f7c48fbbefa2ebc4f0754e38015cc17cffb1"
+    }
+  ],
+  "canonical_residual_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b rows for exact scope IDs; partial is context, not candidate measurement",
+  "baseline_cells": [
+    {
+      "id": "F01-P044",
+      "finding_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F01.txt:161",
+      "environment_input_context_job": "F01",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F01-P116",
+      "finding_ids": [
+        "B13"
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_res_03.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F01.txt:233",
+      "environment_input_context_job": "F01",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F02-P002",
+      "finding_ids": [
+        "B47",
+        "B48"
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/foundry/methods/test_linker.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F02.txt:130",
+      "environment_input_context_job": "F02",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F02-P117",
+      "finding_ids": [
+        "B42",
+        "B43",
+        "B44"
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F02.txt:245",
+      "environment_input_context_job": "F02",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F03-P010",
+      "finding_ids": [
+        "B42",
+        "B43",
+        "B44",
+        "B45",
+        "B46"
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F03.txt:140",
+      "environment_input_context_job": "F03",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F03-P065",
+      "finding_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F03.txt:195",
+      "environment_input_context_job": "F03",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F03-P101",
+      "finding_ids": [
+        "B45",
+        "B46"
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F03.txt:231",
+      "environment_input_context_job": "F03",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F04-P014",
+      "finding_ids": [
+        "B45",
+        "B46",
+        "B47",
+        "B48"
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/foundry/methods/test_semantic_validator.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F04.txt:224",
+      "environment_input_context_job": "F04",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F04-P090",
+      "finding_ids": [
+        "B47",
+        "B48"
+      ],
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": [
+        "research_main"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F04.txt:300",
+      "environment_input_context_job": "F04",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F05-P065",
+      "finding_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": [
+        "e02_execution_base"
+      ],
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F05.txt:475",
+      "environment_input_context_job": "F05",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F07-P041",
+      "finding_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": [
+        "e02_head"
+      ],
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F07.txt:47",
+      "environment_input_context_job": "F07",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F07-P059",
+      "finding_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": [
+        "e02_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F07.txt:65",
+      "environment_input_context_job": "F07",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F07-P083",
+      "finding_ids": [
+        "B47",
+        "B48"
+      ],
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": [
+        "e02_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F07.txt:89",
+      "environment_input_context_job": "F07",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F08-P103",
+      "finding_ids": [
+        "B45",
+        "B46"
+      ],
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": [
+        "e02_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F08.txt:226",
+      "environment_input_context_job": "F08",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F08-P117",
+      "finding_ids": [
+        "B42",
+        "B43",
+        "B44"
+      ],
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": [
+        "e02_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F08.txt:240",
+      "environment_input_context_job": "F08",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F08-P118",
+      "finding_ids": [
+        "B13"
+      ],
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": [
+        "e02_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_res_03.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F08.txt:241",
+      "environment_input_context_job": "F08",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F12-P052",
+      "finding_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": [
+        "main"
+      ],
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F12.txt:637",
+      "environment_input_context_job": "F12",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F13-P103",
+      "finding_ids": [
+        "B47",
+        "B48"
+      ],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": [
+        "integration_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F13.txt:230",
+      "environment_input_context_job": "F13",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F14-P054",
+      "finding_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": [
+        "integration_head"
+      ],
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F14.txt:404",
+      "environment_input_context_job": "F14",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F14-P077",
+      "finding_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": [
+        "integration_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F14.txt:427",
+      "environment_input_context_job": "F14",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F15-P118",
+      "finding_ids": [
+        "B45",
+        "B46"
+      ],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": [
+        "integration_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F15.txt:273",
+      "environment_input_context_job": "F15",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F15-P137",
+      "finding_ids": [
+        "B42",
+        "B43",
+        "B44"
+      ],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": [
+        "integration_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F15.txt:292",
+      "environment_input_context_job": "F15",
+      "basis": "navigation_only; not candidate evidence"
+    },
+    {
+      "id": "F15-P138",
+      "finding_ids": [
+        "B13"
+      ],
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": [
+        "integration_head"
+      ],
+      "path": "policy-engine/tests/unit/remediation/test_res_03.py",
+      "source_reported_state": "PASS",
+      "receipt_locator": "received/F15.txt:293",
+      "environment_input_context_job": "F15",
+      "basis": "navigation_only; not candidate evidence"
+    }
+  ],
+  "baseline_source_contexts": [
+    {
+      "job": "F01",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "metadata_line": 4,
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_tree_sha": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+      "environment_profile": "received/F01.txt:4 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F02",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+      "metadata_line": 5,
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_tree_sha": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+      "environment_profile": "received/F02.txt:5 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F03",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "metadata_line": 6,
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_tree_sha": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+      "environment_profile": "received/F03.txt:6 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F04",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "metadata_line": 4,
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_tree_sha": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+      "environment_profile": "received/F04.txt:4 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F05",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "metadata_line": 7,
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_tree_sha": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+      "environment_profile": "received/F05.txt:7 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F07",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "metadata_line": 5,
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_tree_sha": "dde3150361bb45ae3347e585a38dc297015da7ef",
+      "environment_profile": "received/F07.txt:5 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F08",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+      "metadata_line": 5,
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_tree_sha": "dde3150361bb45ae3347e585a38dc297015da7ef",
+      "environment_profile": "received/F08.txt:5 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F12",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "metadata_line": 5,
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_tree_sha": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+      "environment_profile": "received/F12.txt:5 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F13",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "metadata_line": 5,
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "environment_profile": "received/F13.txt:5 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F14",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "metadata_line": 4,
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "environment_profile": "received/F14.txt:4 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    },
+    {
+      "job": "F15",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "source_text_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "metadata_line": 5,
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "environment_profile": "received/F15.txt:5 environment/profile/toolchain objects",
+      "raw_archive_transfer": "missing",
+      "input_closure": "Source-reported per-cell test path, source cut and frozen profile only. Raw archive, observer bytes and full fixture/input identities were not transferred; independent baseline admission remains not_established."
+    }
+  ],
+  "baseline_denominator": {
+    "finding_ids": 11,
+    "route_rows": 59,
+    "unique_cells": 23,
+    "jobs": 11,
+    "raw_archives_received": 0,
+    "note": "All23 source-reported PASS; no PASS upgraded to candidate evidence. TSV whole-join, no limit30 inference."
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "--show-capture=no",
+        "--basetemp",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-temp-final",
+        "--override-ini",
+        "cache_dir=/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-cache-final",
+        "--junitxml",
+        "/workspace/e02-B-cmp-res/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/fresh-wave.junit.xml",
+        "tests/unit/remediation/test_cmp_01.py",
+        "tests/unit/remediation/test_cmp_02.py",
+        "tests/unit/remediation/test_cmp_03.py",
+        "tests/unit/remediation/test_res_03.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/test_composer.py",
+        "tests/unit/foundry/methods/test_composer_hardening.py",
+        "tests/unit/foundry/methods/test_semantic_validator.py",
+        "tests/unit/foundry/methods/test_linker.py"
+      ],
+      "cwd": "/workspace/e02-B-cmp-res/policy-engine",
+      "target_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "target_tree_sha": "410f904cc0fa5e83e072a74e9823fd35b880a50d",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/environment.json",
+      "input_closure": {
+        "test_sources": "Each complete selected file in the recorded argv@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "runtime_sources": "Own worktree src on PYTHONPATH; measured module origins in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/environment.json",
+        "fixture_data": "Tracked synthetic real MethodSignature/registry methods; real NumpyRunner, tiny arrays, pytest tmp paths. No production dataset or catalog admitted. Existing duck/fake dispatcher tests remain bounded controls, not the primary execution oracle.",
+        "system_inputs": "Recorded cloud Python/NumPy/library versions and numeric environment; POSIX flock/fsync/replace on the container filesystem. Separate metrics ports, per-attempt basetemp/cache, four actual spawned writer processes. No numerical/process quota added."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 9.182364226000118,
+      "max_rss_kib": 186736,
+      "result": "161 passed in 6.97s; zero skip/error/failure in complete 11-file selection",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/fresh-wave.txt",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/fresh-wave.junit.xml"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "--show-capture=no",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py"
+      ],
+      "target_sha": "236349107399b2016e7b7d2e20ba0f552b99aba4",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/environment.json",
+      "input_closure": "Four tracked native tests at the tests-only commit; production checkpointing blob unchanged from slice base. Tests are real backend execution and real JSON/NumPy save/load.",
+      "outcome": "FAIL",
+      "result": "Four distinguishing failures before production repair: unknown seed; static factor omitted (8 rather than11); renamed input receives dict; post-publication fsync fault deletes live sidecar.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/base-native-red.txt"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "--show-capture=no",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "-k",
+        "history_only"
+      ],
+      "target_sha": "e9f9738c1d0cd1cb4166718fe4cc5f76b7c15f9a",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/environment.json",
+      "input_closure": "Tests-only followup over reviewed fe144 source. Two real filesystem writers, real NumPy result history and actual OS flock measurement; pre-manifest failure paused at cleanup.",
+      "outcome": "FAIL",
+      "result": "Second SAME B76 ownership escape reproduced: A late rollback deletes B live history sidecar. One failed, five deselected.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/review-history-race-red.txt"
+    },
+    {
+      "command": "PYTHONPATH=src:product POLISYOS_METRICS_PORT=0 /workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/backends/checkpointing.py tests/unit/foundry/methods/backends/test_checkpointing.py tests/unit/foundry/methods/backends/test_checkpointing_execution.py tests/unit/remediation/test_res_04.py && /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/methods/backends/checkpointing.py tests/unit/foundry/methods/backends/test_checkpointing.py tests/unit/foundry/methods/backends/test_checkpointing_execution.py tests/unit/remediation/test_res_04.py && git diff --check",
+      "target_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/environment.json",
+      "input_closure": "Exactly checkpointing.py, checkpointing_execution test, native checkpointing test, remediation RES04 test; four paths listed in changed_paths below.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "All checks passed!\n4 files already formatted\n",
+      "cwd": "/workspace/e02-B-cmp-res/policy-engine"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "--receipt",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/production-invocation-final.json"
+      ],
+      "target_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/environment.json",
+      "input_closure": "Static diagnostic over tracked project Python plus script-entrypoint/source/receiver model and actual base-to-tested diff. Full large report was not transferred.",
+      "outcome": "UNRUN",
+      "observed_diagnostic_status": "UNRESOLVED/partial",
+      "exit_code": 3,
+      "wall_seconds": 216.51650721100032,
+      "max_rss_kib": 8344488,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/production-invocation.txt",
+      "raw_report": {
+        "path": "policy-engine/_build/e02-B-cmp-res/raw/production-invocation-final.json",
+        "sha256": "64f076a7b34c74dfd49c856ceec520ee9349d8c4004ecc22c45671ecac1df58d",
+        "bytes": 170856799,
+        "available_in_git": false
+      },
+      "limitation": "No regressions in reported static model; save/execute newly unresolved_by_construction. Static status is not runtime invocation or absence proof."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=line",
+        "--show-capture=no",
+        "--basetemp",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-temp-served-final",
+        "--override-ini",
+        "cache_dir=/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-cache-served-final",
+        "tests/integration/scientist/test_res_03_real_simulation_route.py"
+      ],
+      "target_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/environment.json",
+      "input_closure": "Tracked RES03 real simulation-to-user integration witness plus app startup catalog/published runtime owners. Requested catalog path below is unavailable at startup; those source bytes were not admitted.",
+      "outcome": "FAIL",
+      "mechanism_verdict": "UNRUN/cloud_missing_catalog_input",
+      "exit_code": 1,
+      "wall_seconds": 49.75196832700021,
+      "max_rss_kib": 1021828,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/served-route-cloud-limit.txt",
+      "limitation": "Failure at DatasetCatalogStore._fetch_source_identities before user-route oracle; no candidate regression or inherited-red attribution asserted."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+      "target_tree_sha": "81074c43bc1bc23483e5d77671d25c1d898ff96d",
+      "environment": {
+        "python_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/environment.json",
+        "node": "24.19.0",
+        "pnpm": "10.33.2",
+        "bootstrap": "corepack pnpm install --frozen-lockfile exit0 (16.09s), no lockfile change"
+      },
+      "input_closure": "Guardrail source/config/generated-artifact inputs across repository, including changed checkpoint owner. Captured after companion commit with no concurrent repository writes. Unsupported Node24 observed; supported Node22 measurement pending.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 197.64921901499974,
+      "max_rss_kib": 1100532,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res-evidence/architecture-guardrails.json",
+      "raw_stdout": {
+        "path": "policy-engine/_build/e02-B-cmp-res/raw/architecture-guardrails-final.txt",
+        "sha256": "426f011030222d40e34290f780da7b31a953a0a22ce23bd8f87606ccbb95c41c",
+        "bytes": 115869,
+        "available_in_git": false
+      },
+      "predicate_basis_for_final_architecture_acceptance": "not_established",
+      "limitation": "Client generators clean; deep-import baseline drift and runtime-openapi/trust-claim generated-output drift remain. No baseline sync/weakening or inherited-red attribution: exact slice-base replay and disjoint full input denominator were not established. G must rerun supported Node22 and retain full deciding bytes."
+    },
+    {
+      "command": "python3 TOML parse plus is_file for all release fragment evidence/migration/runbook references; git diff --check",
+      "target_sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+      "environment": "Python stdlib tomllib; own checkout",
+      "input_closure": "Only companion README/release fragment, plus their referenced tracked paths",
+      "outcome": "PASS",
+      "output": "Release fragment TOML and referenced paths valid\n"
+    },
+    {
+      "command": "python3 - <<'PY'\nimport pathlib,subprocess\npaths=subprocess.check_output(['git','ls-files','--','policy-engine/src','policy-engine/product','product'],text=True).splitlines()\nfiles=[p for p in paths if p.endswith('.py')]\nhits=[p for p in files if 'CheckpointingChainExecutor' in pathlib.Path(p).read_text(errors='replace')]\nprint(len(files),hits)\nPY",
+      "target_sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+      "environment": "Cloud Git tracked checkout; stdlib text reader",
+      "input_closure": "2697 tracked Python files under named src/product roots; excludes tests and other roots, literal search only",
+      "outcome": "PASS",
+      "output": "Only checkpointing.py contains the literal class name in the selected non-test denominator.",
+      "limitation": "Bounded source census, not complete dynamic/reflection invocation absence proof.",
+      "cwd": "/workspace/e02-B-cmp-res"
+    }
+  ],
+  "property": {
+    "statement": "Checkpoint execution consumes the same compiled effective parameters/slot bindings as sequential execution, replays original completed-node history, and publishes one readable complete manifest generation while keeping rollback ownership under the writer lock.",
+    "runtime_path": [
+      "Actual MethodComposer/MethodRegistry compiled native methods",
+      "MethodDispatcher and NumpyRunner; canonical chain payload/binding helpers",
+      "ChainCheckpoint.save: actual flock/fsync/NumPy sidecars/atomic JSON replacement",
+      "ChainCheckpoint.load: real filesystem and content-bound array resolution",
+      "CheckpointingChainExecutor.execute resume: original node results/slot outputs/exact request binding",
+      "ChainExecutionResult final state and per-node reproducibility; direct internal surface"
+    ],
+    "surface": "Internal direct API; product orchestration and served checkpoint surface unestablished",
+    "authority_purpose": "Technical computation replay and persistence; no scientific validation, promotion, custody or governance authority admission",
+    "provenance": "Replayed original node MethodResult output/artifacts/timing/reproducibility; no current-runtime metadata substitution",
+    "rule_schema_version": "Existing CompiledMethodChain/MethodSignature and ChainCheckpoint format, no new format/schema owner. Reuse existing _stable_digest and canonical payload/binding functions.",
+    "time_roles": "Original result timing/seed/backend preserved; created_at remains publication Unix timestamp; a replay is not an independent original computation; failed fsync does not assert durable publication",
+    "proxy_divergence": "Dummy dispatchers can accept an injected unknown seed and miss static or bound input semantics. Actual NumpyRunner fails or yields8 rather than11 at tests-only ancestor. Atomic per-file helper presence also passes while complete manifest read fails after publication/rollback sidecar deletion. Both are concrete preserved red witnesses.",
+    "negative_controls": [
+      "Unknown user parameter fails the real NumpyRunner",
+      "Changed initial input/static override refuses checkpoint reuse",
+      "Missing per-node history is declared and never synthesized",
+      "Actual directory fd fsync failure after new JSON publication",
+      "Actual pre-manifest failure plus two filesystem writers and history-only NumPy result",
+      "Missing/foreign/symlink/escaping sidecar plus path collision controls",
+      "Actual concurrent spawned writer processes and concurrent JSON/NumPy reader"
+    ]
+  },
+  "pattern_pass": {
+    "P01_P02": "Direct native producer/artifact/consumer closure; served bridge explicitly unestablished",
+    "P27_P31": "One checkpoint canonical owner; existing chain helpers reused",
+    "P29_P32_P33_P37_P38": "Real backend/filesystem assertions and ancestor red controls, no marker or summary proof",
+    "P35": "Whole59 route rows/23cells/11finding denominator reconciled",
+    "P40": "Second SAME B76 publication/rollback ownership escape: widened writer-lock ownership to all cleanup, not a history-filename patch",
+    "P41": "No inherited-red label for architecture or served startup: exact base/disjoint proof absent"
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "direct_native_mechanism_verified; implemented_but_not_orchestrated; source finding partial classifications preserved",
+  "independent_review": {
+    "reviewer": "B root, separate executor",
+    "source_delta_review": "fe144 payload reviewed; e9f9738→d7 lock/cleanup delta accepted without blockers before fresh wave",
+    "companion_delta_review": "d7→436e7 README/release fragment independently reviewed, source-consistent boundaries, no blockers",
+    "independent_tests": "Root28 PASS checkpointing_execution/native checkpointing/RES04 on frozen d7 (2.31s)",
+    "receipt_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cmp-review.txt@b09e634d0c2b0c522e50a69f161ed373a2b3bed6",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cmp-review.xml@b09e634d0c2b0c522e50a69f161ed373a2b3bed6"
+    ],
+    "evidence_basis": "independently_reconciled; exact root implementation checkpoint bytes inspected from Git; remote root publication must be independently fetched by G"
+  },
+  "cross_owner_handoff": {
+    "owners": [
+      "A",
+      "G"
+    ],
+    "candidate_sha": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+    "runtime_test_source": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py@436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+    "command": "From policy-engine, own venv with PYTHONPATH=src:product and isolated metrics port/basetemp: python -m pytest -o addopts= -q --tb=short tests/integration/scientist/test_res_03_real_simulation_route.py",
+    "contract": "Real simulation persists its tenant-bound result/state in FileSystemCAS; later workflow failure retains successful result and dependency scope; user debug candidate reader exposes retained state with exact failed/blocked chain outcome. Replay is candidate evidence, not promotion authority.",
+    "negative_case": "Existing exact witness controls: missing node returns404; tampered simulation artifact bytes and tampered report-binding bytes return409 integrity/binding failures; unscoped/foreign/schema/media/stale/missing state bindings raise typed SimulationResultProjectionError. Preserve these real CAS/route controls, without replacing startup catalog by markers.",
+    "required_inputs": [
+      "Read-only admitted production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb under local repo root",
+      "Default acquisition overlay architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb if present; source identities must be valid",
+      "Additional published signature/IR/owner inputs encountered by app startup must be admitted and reported by local runner; complete later startup denominator unestablished in cloud"
+    ],
+    "observed_cloud_boundary": "TestClient lifespan→ControlPlaneService run_lifecycle:2232→DatasetCatalogGraph→DatasetCatalogStore identify(db_path):966 raises catalog_fetch_source_unreadable before reader oracle",
+    "prohibited_shared_edits": "No generation_cycle.py, run_lifecycle.py or streaming.py changes in slice"
+  },
+  "publication": {
+    "candidate_core_sha_remote_verified": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+    "method": "B root explicit push, then leaf ls-remote + fetch + source readback matched d7",
+    "handoff_publication": "Append this separate receipt commit, push same topic branch and verify exact head; never self-reference receipt future SHA"
+  },
+  "limitations_and_next_owner": [
+    "G accepts implementation separately from finding closure; no ledger rewrite by leaf.",
+    "All11 IDs have individual residual scopes; historical four-base replay not performed here.",
+    "A/G must replay exact served candidate with admitted local catalog/published inputs; full production dataset stays local.",
+    "G must rerun architecture at supported Node22/frozen dependencies, retain complete deciding bytes and resolve baseline/generated drift without auto-sync. No inherited attribution asserted.",
+    "Large diagnostic163MiB and architecture113KiB raw reports remain ignored/local and hash-bound; full report-based recipient evidence is not_established until rerun or authorized transfer. Complete modest native failure/stdout/JUnit evidence is committed alongside receipt."
+  ],
+  "finding_classification": [
+    {
+      "finding_id": "B13",
+      "bundle_id": "RES-03",
+      "canonical_source_status": "partial",
+      "disposition": "component_verified_served_input_blocked",
+      "basis": "fresh_component_wave_and_served_cloud_limit@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Async level success collection, exact errors and dependency-scope retained by existing native component tests. Final served TestClient witness fails app startup before consumer.",
+      "residual_and_next_owner": "A/G local admitted catalog/published input replay; no complete served closure",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B42",
+      "bundle_id": "CMP-01",
+      "canonical_source_status": "partial",
+      "disposition": "existing_mechanism_bounded_verified",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Both fresh process import orders run the common wrapper and real two-node registry chain.",
+      "residual_and_next_owner": "Optional-dependency absent negative and historical replay not freshly established",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B43",
+      "bundle_id": "CMP-01",
+      "canonical_source_status": "partial",
+      "disposition": "existing_mechanism_bounded_verified",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Declaration-only requires edge, independent sibling effective level, real execution wrapper and cycle rejection verified.",
+      "residual_and_next_owner": "Actual independent branch runtime overlap timing is not measured here; supported-mode/historical scope remains bounded",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B44",
+      "bundle_id": "CMP-01",
+      "canonical_source_status": "partial",
+      "disposition": "sibling_checkpoint_payload_repaired",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Existing actual sequential/async static/dynamic/override oracle passed. Checkpoint sibling now shares canonical payload/materialization and separates runtime seed; native negative unknown parameter and override invalidation pass.",
+      "residual_and_next_owner": "Full tracing/reproducibility parity across every supported executor and historical four-base replay not claimed",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B45",
+      "bundle_id": "CMP-02",
+      "canonical_source_status": "partial",
+      "disposition": "existing_policy_bounded_verified",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "WARN exposes duplicate-target warnings; STRICT rejects duplicate target; distinct slots and explicit merge compose successfully.",
+      "residual_and_next_owner": "WARN acceptance is recorded policy. Runtime merge semantics under arbitrary UUID rebuilding not established; no new scientific authority rule invented",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B46",
+      "bundle_id": "CMP-02",
+      "canonical_source_status": "partial",
+      "disposition": "existing_mechanism_bounded_verified",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Occurrence-order validator accepts estimate/sensitivity/estimate and reports early sensitivity even with later estimate in WARN and STRICT.",
+      "residual_and_next_owner": "Validator witness uses its real validator with a duck chain and existing method metadata heuristics; full runtime semantic decision not established",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B47",
+      "bundle_id": "CMP-03",
+      "canonical_source_status": "partial",
+      "disposition": "existing_mechanism_bounded_verified",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Actual SlotSpec auto matching finds augmenting assignment; neutral renames preserve feasibility; impossible matching rejected.",
+      "residual_and_next_owner": "Bounded existing compatibility model; no arbitrary global scientific-semantic adequacy or historical replay claim",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B48",
+      "bundle_id": "CMP-03",
+      "canonical_source_status": "partial",
+      "disposition": "existing_mechanism_bounded_verified",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Manual/auto actual typed slot paths apply same semantic mismatch, completeness, unit/shape/contract rejection controls.",
+      "residual_and_next_owner": "Existing semantic rules only; no new domain owner decision invented; historical four-base replay remains pending",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B74",
+      "bundle_id": "RES-04",
+      "canonical_source_status": "partial",
+      "disposition": "native_request_identity_repaired",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Native static params/overrides, changed initial input and exact prefix check use canonical effective request; cold and unchanged warm replay retain values.",
+      "residual_and_next_owner": "Residual ledger dependency/model/version-selective invalidation and unrelated-input reusable-work acceptance are not fully exercised",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B75",
+      "bundle_id": "RES-04",
+      "canonical_source_status": "partial",
+      "disposition": "native_original_history_repaired",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Native multiply/add retains6 then7 with original seed/backend/reproducibility and real restored slot outputs; missing history declares limitation and no synthetic node results.",
+      "residual_and_next_owner": "Historical incomplete-prefix continuation with re-persistence and all version/provenance miss combinations not established; no served authority consumer asserted",
+      "finding_full_closure_asserted": false
+    },
+    {
+      "finding_id": "B76",
+      "bundle_id": "RES-04",
+      "canonical_source_status": "partial",
+      "disposition": "native_publication_ownership_repaired",
+      "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+      "verified_scope": "Real sidecar/manifest boundary after directory-fsync failure preserves readable new generation; rollback all state/history sidecars under writer lock; four process writers/concurrent reader, thread history race, missing/foreign/path/symlink controls pass.",
+      "residual_and_next_owner": "Power loss after failed fsync is uncertain and returns SaveError. Generic distributed checkpoint, state-merge conflict policy and full product CAS are outside this direct API witness",
+      "finding_full_closure_asserted": false
+    }
+  ],
+  "baseline_results_package_source": "c40d4acae1ce58b597267255026d9356565828fd"
+}

@@ -1,0 +1,89 @@
+target_sha=236349107399b2016e7b7d2e20ba0f552b99aba4
+command=['/workspace/polisyos/policy-engine/.venv/bin/python', '-m', 'pytest', '-o', 'addopts=', '-q', '--tb=short', '--show-capture=no', 'tests/unit/foundry/methods/backends/test_checkpointing_execution.py']
+cwd=/workspace/e02-B-cmp-res/policy-engine
+env_overrides=PYTHONPATH=src:product POLISYOS_METRICS_PORT=0
+exit=1 wall_s=2.313 max_child_rss_kib=177796
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_checkpoint_execution_preserves_static_dynamic_and_override_payload[False] _
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:117: in test_checkpoint_execution_preserves_static_dynamic_and_override_payload
+    checkpointed = CheckpointingChainExecutor(checkpoint_dir=tmp_path, registry=registry).execute(
+src/polisyos/foundry/methods/backends/checkpointing.py:428: in execute
+    result = disp.dispatch(
+src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+src/polisyos/foundry/methods/backends/numpy_runner.py:60: in execute
+    resolved = _resolve_params(signature, params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/numpy_runner.py:35: in _resolve_params
+    raise ValueError(f"Unknown parameters for {signature.fqn}: {sorted(unknown)}")
+E   ValueError: Unknown parameters for tests.checkpoint_execution.multiply@1.0.0: ['seed']
+_ test_checkpoint_execution_preserves_static_dynamic_and_override_payload[True] _
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:121: in test_checkpoint_execution_preserves_static_dynamic_and_override_payload
+    assert checkpointed.final_state["value"] == 11.0
+E   assert 8.0 == 11.0
+_ test_checkpoint_resume_materializes_saved_slot_outputs_and_original_history __
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:156: in test_checkpoint_resume_materializes_saved_slot_outputs_and_original_history
+    cold = CheckpointingChainExecutor(checkpoint_dir=tmp_path, registry=registry).execute(
+src/polisyos/foundry/methods/backends/checkpointing.py:428: in execute
+    result = disp.dispatch(
+src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+src/polisyos/foundry/methods/backends/numpy_runner.py:66: in execute
+    output = method_class.pure_step(state, resolved)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:72: in pure_step
+    return step(state, params)
+           ^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:141: in <lambda>
+    lambda state, params: {"total": float(state) + params["offset"]},
+                                    ^^^^^^^^^^^^
+E   TypeError: float() argument must be a string or a real number, not 'dict'
+_ test_directory_fsync_failure_after_manifest_replace_preserves_readable_generation _
+src/polisyos/foundry/methods/backends/checkpointing.py:245: in load
+    state = _deserialise_state(data.pop("intermediate_state"), path.parent)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/checkpointing.py:968: in _deserialise_state
+    return {key: _deserialise_state(value, base_dir) for key, value in payload.items()}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/checkpointing.py:940: in _deserialise_state
+    raise CheckpointLoadError(f"Checkpoint sidecar missing: {sidecar_path}")
+E   polisyos.foundry.methods.backends.checkpointing.CheckpointLoadError: Checkpoint sidecar missing: /tmp/pytest-of-agent/pytest-25/test_directory_fsync_failure_a0/checkpoint_fsync.gen-135caf76dd154f29852f3ce1d8d9eda0__WyJhcnIiXQ.npy
+
+The above exception was the direct cause of the following exception:
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:206: in test_directory_fsync_failure_after_manifest_replace_preserves_readable_generation
+    loaded = ChainCheckpoint.load(path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/checkpointing.py:273: in load
+    raise CheckpointLoadError(f"Failed to load checkpoint at {path}: {exc}") from exc
+E   polisyos.foundry.methods.backends.checkpointing.CheckpointLoadError: Failed to load checkpoint at /tmp/pytest-of-agent/pytest-25/test_directory_fsync_failure_a0/checkpoint_fsync.json: Checkpoint sidecar missing: /tmp/pytest-of-agent/pytest-25/test_directory_fsync_failure_a0/checkpoint_fsync.gen-135caf76dd154f29852f3ce1d8d9eda0__WyJhcnIiXQ.npy
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_checkpoint_execution_preserves_static_dynamic_and_override_payload[False]
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_checkpoint_execution_preserves_static_dynamic_and_override_payload[True]
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_checkpoint_resume_materializes_saved_slot_outputs_and_original_history
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_directory_fsync_failure_after_manifest_replace_preserves_readable_generation
+4 failed in 0.44s

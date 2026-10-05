@@ -1,0 +1,26 @@
+{
+  "target_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+  "target_tree_sha": "410f904cc0fa5e83e072a74e9823fd35b880a50d",
+  "cwd": "/workspace/e02-B-cmp-res/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "c40d4acae1ce58b597267255026d9356565828fd",
+    "--receipt",
+    "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/production-invocation-final.json"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "src:product",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "exit_code": 3,
+  "wall_seconds": 216.51650721100032,
+  "max_rss_kib": 8344488,
+  "end_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade"
+}
+STDOUT
+{"status": "UNRESOLVED", "coverage": "partial", "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.", "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.", "unmeasured": ["HTTP router dispatch", "dependency injection/container dispatch", "event-bus dispatch", "registered callback invocation", "deferred lambda/coroutine execution and generator resumption", "reflection and dynamic receiver/factory resolution", "runtime execution, persisted business receipts, and gate substance"], "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.", "regressions": [], "new_unresolved_by_construction": ["polisyos.foundry.methods.backends.checkpointing.ChainCheckpoint.save", "polisyos.foundry.methods.backends.checkpointing.CheckpointingChainExecutor.execute"], "unresolved_by_construction_count": 9191, "unresolved_receiver_call_count": 139723, "receipt": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/production-invocation-final.json", "runtime_invocation_established": false}
+
+STDERR

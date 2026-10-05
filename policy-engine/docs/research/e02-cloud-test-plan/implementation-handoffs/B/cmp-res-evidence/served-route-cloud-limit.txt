@@ -1,0 +1,37 @@
+{
+  "target_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+  "target_tree_sha": "410f904cc0fa5e83e072a74e9823fd35b880a50d",
+  "cwd": "/workspace/e02-B-cmp-res/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=line",
+    "--show-capture=no",
+    "--basetemp",
+    "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-temp-served-final",
+    "--override-ini",
+    "cache_dir=/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pytest-cache-served-final",
+    "tests/integration/scientist/test_res_03_real_simulation_route.py"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "src:product",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "exit_code": 1,
+  "wall_seconds": 49.75196832700021,
+  "max_rss_kib": 1021828
+}
+STDOUT
+F                                                                        [100%]
+=================================== FAILURES ===================================
+E   ValueError: catalog_fetch_source_unreadable
+/workspace/e02-B-cmp-res/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError: catalog_fetch_source_unreadable
+=========================== short test summary info ============================
+FAILED tests/integration/scientist/test_res_03_real_simulation_route.py::test_res_03_real_simulation_later_failure_reaches_user_route
+1 failed in 42.53s
+
+STDERR

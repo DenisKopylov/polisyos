@@ -1,0 +1,396 @@
+"""Independent behavioral witnesses; all output stays outside the product tree."""
+from __future__ import annotations
+
+import hashlib
+import importlib
+import json
+import math
+import os
+import platform
+import struct
+import subprocess
+import sys
+from dataclasses import asdict
+from pathlib import Path
+from typing import Any
+
+import jax
+import numpy as np
+from polisyos.calibration.continuous import evaluate_continuous
+from polisyos.calibration.curve import compute_calibration_curve
+from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
+from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    PropagationMethod,
+    UncertaintyEnvelope,
+    UncertaintySource,
+)
+from polisyos.scientist.methods.backtesting.bootstrap import BootstrapCI, bootstrap_metric
+
+ROOT = Path('/workspace/e02-E-assessment')
+OUT = Path('/workspace/e02-runtime/coverage-adaptive-independent')
+SRC = ROOT / 'policy-engine/src'
+KEY_MODULES = (
+    'polisyos.calibration.curve',
+    'polisyos.calibration.continuous',
+    'polisyos.ir.analytics.calibration_diagnostics',
+    'polisyos.scientist.methods.backtesting.bootstrap',
+    'polisyos.foundry.uncertainty.config',
+    'polisyos.foundry.uncertainty.monte_carlo',
+    'polisyos.foundry.uncertainty.covariance',
+    'polisyos.foundry.uncertainty.protocol',
+    'polisyos.ir.analytics.uncertainty',
+)
+
+
+def git(*args: str) -> str:
+    return subprocess.check_output(['git', '-C', str(ROOT), *args], text=True).strip()
+
+
+def key_sources() -> dict[str, Any]:
+    records: dict[str, Any] = {}
+    for name in KEY_MODULES:
+        path = Path(importlib.import_module(name).__file__).resolve()
+        assert path.is_relative_to(SRC), (name, path)
+        rel = str(path.relative_to(ROOT))
+        records[name] = {
+            'origin': str(path),
+            'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+            'working_git_blob': git('hash-object', str(path)),
+            'head_git_blob': git('rev-parse', f'HEAD:{rel}'),
+        }
+        assert records[name]['working_git_blob'] == records[name]['head_git_blob']
+    return records
+
+
+def dump(name: str, value: Any) -> None:
+    (OUT / name).write_text(json.dumps(value, indent=2, allow_nan=False) + '\n')
+
+
+def emit(name: str, value: Any) -> None:
+    sys.stdout.write(json.dumps({'case': name, 'measurement': value}, sort_keys=True) + '\n')
+    sys.stdout.flush()
+
+
+def env(mean: float, std: float) -> UncertaintyEnvelope:
+    return UncertaintyEnvelope(
+        point_estimate=mean,
+        confidence_interval=(mean - 1.96 * std, mean + 1.96 * std),
+        confidence_level=0.95,
+        distribution_family=DistributionFamily.NORMAL,
+        source=UncertaintySource.CALIBRATION,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+        gate_eligible=True,
+    )
+
+
+def adaptive_case(*, enable_x64: bool, seed: int, broad: bool) -> dict[str, Any]:
+    observed: list[dict[str, Any]] = []
+
+    def simulate(x: Any) -> dict[str, float]:
+        output = float(x) if broad else 10.0
+        observed.append({
+            'x': float(x), 'y': output,
+            'input_type': f'{type(x).__module__}.{type(x).__name__}',
+            'dtype': str(getattr(x, 'dtype', 'nominal_python_float')),
+        })
+        return {'y': output}
+
+    config = PropagationConfig(
+        mc_batch_size=50, mc_seed=seed, compute_sensitivity=False,
+        adaptive_stopping=AdaptiveStoppingConfig(
+            enabled=True, min_samples=50, max_samples=240,
+            ci_half_width_target=0.01, check_interval=60,
+        ),
+    )
+    previous = jax.config.x64_enabled
+    with jax.experimental.enable_x64(enable_x64):
+        result = MonteCarloPropagator(config).propagate(
+            simulate, {'x': 100.0}, {'x': env(100.0, 2.0)}, ['y'],
+        )[0]
+    assert jax.config.x64_enabled == previous
+    nominal, draws = observed[0], observed[1:]
+    assert nominal['x'] == 100.0
+    expected_count = 240 if broad else 60
+    assert len(draws) == expected_count
+    assert result.diagnostics['n_samples'] == len(draws)
+    assert result.diagnostics['stopped_early'] == (not broad)
+    provenance = result.diagnostics['draw_outcome_provenance']
+    assert provenance['requested_draw_count'] == 240
+    assert provenance['attempted_draw_count'] == len(draws)
+    assert provenance['successful_draw_count'] == len(draws)
+    assert provenance['unattempted_draw_count'] == 240 - len(draws)
+    assert provenance['failure_records'] == []
+    assert provenance['outcome_denominator_complete'] == broad
+    assert result.envelope.sample_size == len(draws)
+    widths = []
+    for count in range(60, len(draws) + 1, 60):
+        output = np.asarray([draw['y'] for draw in draws[:count]])
+        lo, hi = np.quantile(output, [0.025, 0.975])
+        distribution_relative_width = float((hi - lo) / abs(np.mean(output)))
+        standard_error_proxy = float(1.96 * np.std(output, ddof=1) / math.sqrt(count)
+                                     / abs(np.mean(output)))
+        widths.append({
+            'draw_count': count,
+            'distribution_relative_width': distribution_relative_width,
+            'mean_standard_error_proxy': standard_error_proxy,
+        })
+        assert (distribution_relative_width > 0.01) == broad
+        if broad:
+            assert standard_error_proxy < 0.01
+    assert result.envelope.gate_eligible == broad
+    if not broad:
+        assert result.envelope.interval_semantics == IntervalSemantics.HEURISTIC_RANGE
+        assert result.envelope.confidence_level is None
+    name = f'adaptive-{enable_x64}-{seed}-{broad}'
+    dump(name + '-observations.json', observed)
+    return {
+        'x64': enable_x64, 'seed': seed, 'broad_normal': broad,
+        'nominal_count': 1, 'observed_draw_count': len(draws),
+        'sampled_input_dtype': draws[0]['dtype'],
+        'sampled_input_type': draws[0]['input_type'],
+        'stopped_early': result.diagnostics['stopped_early'],
+        'requested': provenance['requested_draw_count'],
+        'unattempted': provenance['unattempted_draw_count'],
+        'gate_eligible': result.envelope.gate_eligible,
+        'interval_semantics': result.envelope.interval_semantics.value,
+        'widths': widths,
+    }
+
+
+def support_case(enable_x64: bool) -> dict[str, Any]:
+    observations: list[dict[str, Any]] = []
+
+    def simulate(x: Any) -> dict[str, Any]:
+        number = float(x)
+        outcome = 'exception' if number < -0.5 else 'mixed' if number < 0 else 'success'
+        observations.append({'x': number, 'outcome': outcome})
+        if outcome == 'exception':
+            raise RuntimeError('independent observed solver refusal')
+        if outcome == 'mixed':
+            return {'y': None, 'z': float('nan')}
+        return {'y': number, 'z': 2.0 * number}
+
+    with jax.experimental.enable_x64(enable_x64):
+        results = MonteCarloPropagator(PropagationConfig(
+            mc_n_samples=1000, mc_batch_size=200, mc_seed=2424,
+            compute_sensitivity=False,
+        )).propagate(simulate, {'x': 0.0}, {'x': env(0.0, 1.0)}, ['y', 'z'])
+    assert observations[0] == {'x': 0.0, 'outcome': 'success'}
+    draws = observations[1:]
+    assert len(draws) == 1000
+    counts = {name: sum(item['outcome'] == name for item in draws)
+              for name in ('exception', 'mixed', 'success')}
+    assert all(value > 0 for value in counts.values())
+    assert sum(counts.values()) == 1000
+    provenance = results[0].diagnostics['draw_outcome_provenance']
+    assert provenance is results[1].diagnostics['draw_outcome_provenance']
+    failures = provenance['failure_records']
+    expected_indices = [i for i, item in enumerate(draws) if item['outcome'] != 'success']
+    assert [row['draw_index'] for row in failures] == expected_indices
+    for row in failures:
+        item = draws[row['draw_index']]
+        independent_digest = hashlib.sha256(b'x\x00' + struct.pack('>d', item['x'])).hexdigest()
+        assert row['sampled_input_sha256'] == independent_digest
+        expected_outputs = (
+            [{'output_metric_id': name, 'outcome_code': 'simulation_exception',
+              'error_type': 'RuntimeError'} for name in ('y', 'z')]
+            if item['outcome'] == 'exception' else
+            [{'output_metric_id': 'y', 'outcome_code': 'missing_output', 'error_type': None},
+             {'output_metric_id': 'z', 'outcome_code': 'non_finite_output', 'error_type': None}]
+        )
+        assert row['output_outcomes'] == expected_outputs
+    assert provenance['successful_draw_count'] == counts['success']
+    assert provenance['attempted_draw_count'] == 1000
+    assert provenance['requested_draw_count'] == 1000
+    assert provenance['unattempted_draw_count'] == 0
+    assert provenance['outcome_denominator_complete'] is True
+    for index, result in enumerate(results):
+        assert result.diagnostics['n_valid'] == counts['success']
+        assert result.diagnostics['n_failed'] == counts['exception'] + counts['mixed']
+        assert result.diagnostics['missing_output_count'] == (counts['mixed'] if index == 0 else 0)
+        assert result.envelope.gate_eligible is False
+        assert result.envelope.confidence_level is None
+        assert result.envelope.interval_semantics == IntervalSemantics.HEURISTIC_RANGE
+        assert result.envelope.sample_size == counts['success']
+        assert len(result.envelope.distribution_payload.samples) == counts['success']
+        assert result.envelope.metadata['candidate_only'] is True
+    dump(f'support-{enable_x64}-observations.json', observations)
+    dump(f'support-{enable_x64}-provenance.json', provenance)
+    return {'x64': enable_x64, 'nominal_count': 1, 'draw_count': 1000,
+            'counts': counts, 'digest_matches': len(failures),
+            'candidate_only': True, 'denominator_complete': True}
+
+
+def coverage_cases() -> dict[str, Any]:
+    y = np.arange(100, dtype=float)
+    levels = [0.5, 0.8, 0.9]
+    full = [[(value - 0.25, value + 0.25) if index < round(level * 100)
+             else (-200.0, -199.0) for index, value in enumerate(y)] for level in levels]
+    measured_hits = [sum(lo <= truth <= hi for truth, (lo, hi) in zip(y, row, strict=True))
+                     for row in full]
+    assert measured_hits == [50, 80, 90]
+    cases = {'complete': (full, levels), 'partial_first': ([[], *full[1:]], levels),
+             'partial_last': ([*full[:2], []], levels), 'all_skipped': ([[], [], []], levels),
+             'not_evaluated': ([], []), 'finite_miscalibrated': ([full[0]], [0.9])}
+    measurements: dict[str, Any] = {}
+    for name, (intervals, nominal) in cases.items():
+        curve = compute_calibration_curve(y.tolist(), intervals, levels=nominal)
+        report = evaluate_continuous(y_true=y, intervals=intervals, levels=nominal,
+                                     uncertainty={'bootstrap': 75, 'seed': 827})
+        path = OUT / f'coverage-{name}-report.json'
+        path.write_text(report.model_dump_json())
+        reopened = CalibrationDiagnosticsReport.model_validate_json(path.read_text())
+        assert reopened == report
+        receipt = reopened.to_truthfulness_receipt()
+        expected_status = ('not_evaluated' if name == 'not_evaluated' else 'incomplete'
+                           if name.startswith('partial') or name == 'all_skipped' else 'evaluated')
+        assert curve.evaluation_status == expected_status
+        assert reopened.metadata['interval_coverage']['status'] == expected_status
+        assert curve.n_comparisons == sum(bool(row) for row in intervals)
+        assert all(point.n_observations == 100 for point in curve.points)
+        assert all(item.count == 100 for item in reopened.curves['interval_coverage'])
+        assert curve.is_well_calibrated == (name == 'complete')
+        assert receipt.runtime_truthfulness_tier == (
+            'approximate_calibrated' if name == 'complete' else 'unverified')
+        if expected_status != 'evaluated':
+            assert reopened.metrics.intervals == {}
+        if name.startswith('partial'):
+            assert curve.ece == 0.0
+        if name in ('not_evaluated', 'all_skipped'):
+            assert curve.ece is None
+        measurements[name] = {
+            'curve': asdict(curve), 'n_obs': reopened.metrics.n_obs,
+            'bin_denominators': [item.count for item in reopened.curves['interval_coverage']],
+            'readback_equal': reopened == report,
+            'tier': receipt.runtime_truthfulness_tier.value,
+            'degradation_reasons': receipt.degradation_reasons,
+        }
+    rejections = []
+    controls = {
+        'nonfinite_observation': lambda: evaluate_continuous(
+            y_true=[float('nan')], intervals=[[(0.0, 1.0)]], levels=[0.5]),
+        'nonfinite_bounds': lambda: evaluate_continuous(
+            y_true=[0.0], intervals=[[(float('-inf'), 1.0)]], levels=[0.5]),
+        'nonfinite_empty_level': lambda: evaluate_continuous(
+            y_true=[0.0], intervals=[[]], levels=[float('nan')]),
+        'nonfinite_predictive': lambda: evaluate_continuous(
+            y_true=[0.0], predictive_samples=[[float('nan'), 1.0]], levels=[0.5]),
+        'out_of_domain_predictive_level': lambda: evaluate_continuous(
+            y_true=[0.0], predictive_samples=[[-1.0, 1.0]], levels=[1.0]),
+        'misaligned_intervals': lambda: evaluate_continuous(
+            y_true=[0.0, 1.0], intervals=[[(0.0, 1.0)]], levels=[0.5]),
+    }
+    for name, control in controls.items():
+        try:
+            control()
+        except ValueError as exc:
+            rejections.append({'name': name, 'error': str(exc)})
+        else:
+            raise AssertionError(f'negative control admitted: {name}')
+    measurements['rejections'] = rejections
+    return measurements
+
+
+def bootstrap_cases() -> dict[str, Any]:
+    values = np.asarray([0.0] * 75 + [100.0] * 25)
+    reps, seed = 400, 2919
+    rng = np.random.default_rng(seed)
+    samples = [rng.choice(values, size=len(values), replace=True) for _ in range(reps)]
+    reference = {'mean': np.asarray([sum(sample) / len(sample) for sample in samples]),
+                 'median': np.asarray([sorted(sample)[49:51] for sample in samples]).mean(axis=1),
+                 'maximum': np.asarray([max(sample) for sample in samples])}
+    result: dict[str, Any] = {}
+    observed: list[dict[str, Any]] = []
+
+    def custom_maximum(data: np.ndarray) -> float:
+        answer = float(max(data))
+        observed.append({'input_sha256': hashlib.sha256(data.tobytes()).hexdigest(),
+                         'returned': answer, 'length': len(data)})
+        return answer
+
+    for name in ('mean', 'median', 'declared_median_actual_maximum', 'anonymous_maximum'):
+        custom = 'maximum' in name
+        ci = bootstrap_metric(values, metric='same_display_name',
+                              statistic=custom_maximum if custom else name,
+                              statistic_id='median' if name.startswith('declared') else None,
+                              n_bootstrap=reps, seed=seed)
+        path = OUT / f'bootstrap-{name}.json'
+        path.write_text(json.dumps(asdict(ci), allow_nan=False))
+        reopened = BootstrapCI(**json.loads(path.read_text()))
+        assert ci == reopened
+        selector = 'maximum' if custom else name
+        expected_point = {'mean': 25.0, 'median': 0.0, 'maximum': 100.0}[selector]
+        expected_bounds = np.percentile(reference[selector], [2.5, 97.5])
+        assert ci.point_estimate == expected_point
+        assert np.allclose([ci.lower, ci.upper], expected_bounds, atol=1e-12, rtol=0)
+        expected_basis = 'consumer_asserted' if name.startswith('declared') else (
+            'not_established' if custom else 'recomputed')
+        assert ci.statistic_identity_basis == expected_basis
+        result[name] = {'serialized': asdict(reopened),
+                        'independent_bounds': expected_bounds.tolist(),
+                        'consumer_readback_equal': True}
+    assert len(observed) == 2 * (reps + 1)
+    hashes = [hashlib.sha256(data.tobytes()).hexdigest() for data in [values, *samples]]
+    assert [item['input_sha256'] for item in observed[:reps + 1]] == hashes
+    assert [item['input_sha256'] for item in observed[reps + 1:]] == hashes
+    dump('bootstrap-custom-observations.json', observed)
+    result['observer'] = {'custom_invocations': len(observed),
+                          'independently_matched_input_hashes': len(observed),
+                          'nominal_invocations': 2, 'resample_invocations': 2 * reps}
+    result['declared_identity_negative_control'] = (
+        'Declared median remained consumer_asserted while actual observed point=100; median=0.')
+    return result
+
+
+def main() -> None:
+    before = key_sources()
+    head_before = git('rev-parse', 'HEAD')
+    environment = {'python_executable': sys.executable, 'python': sys.version,
+                   'platform': platform.platform(), 'numpy': np.__version__,
+                   'jax': jax.__version__, 'jax_backend': jax.default_backend(),
+                   'jax_devices': [str(device) for device in jax.devices()],
+                   'jax_x64_at_entry': jax.config.x64_enabled,
+                   'pythonpath': os.environ.get('PYTHONPATH'),
+                   'head_before': head_before,
+                   'branch': git('symbolic-ref', '-q', 'HEAD')}
+    assert jax.default_backend() == 'cpu'
+    emit('environment', environment)
+    measurements: dict[str, Any] = {'environment': environment, 'adaptive': [], 'support': []}
+    for x64 in (False, True):
+        measurements['adaptive'].append(adaptive_case(enable_x64=x64, seed=17, broad=False))
+        emit('adaptive', measurements['adaptive'][-1])
+        for seed in (17, 83, 219):
+            measurements['adaptive'].append(adaptive_case(enable_x64=x64, seed=seed, broad=True))
+            emit('adaptive', measurements['adaptive'][-1])
+        measurements['support'].append(support_case(x64))
+        emit('support', measurements['support'][-1])
+    measurements['coverage'] = coverage_cases()
+    emit('coverage', measurements['coverage'])
+    measurements['bootstrap'] = bootstrap_cases()
+    emit('bootstrap', measurements['bootstrap'])
+    after = key_sources()
+    assert after == before
+    measurements['sources_before'] = before
+    measurements['sources_after'] = after
+    measurements['head_after'] = git('rev-parse', 'HEAD')
+    origins = {name: str(Path(module.__file__).resolve())
+               for name, module in sys.modules.items()
+               if name.startswith('polisyos') and getattr(module, '__file__', None)}
+    assert all(Path(path).is_relative_to(SRC) for path in origins.values()), origins
+    dump('imported-polisyos-origins.json', origins)
+    dump('measurements.json', measurements)
+    emit('source_freeze', {'identical': True, 'target_source_count': len(before),
+                           'imported_polisyos_module_count': len(origins),
+                           'head_before': head_before, 'head_after': measurements['head_after']})
+    emit('verdict', {'pass': True, 'scope': 'local source and numerical backend only',
+                     'held': ['B194', 'B197', 'B201', 'B202'],
+                     'production_source_or_history': 'not_established'})
+
+
+if __name__ == '__main__':
+    main()

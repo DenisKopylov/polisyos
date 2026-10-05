@@ -18,13 +18,20 @@
   "implementation_commits": [
     "dba6117d9be329ec0959111118fac275c7d4209b",
     "b09e634d0c2b0c522e50a69f161ed373a2b3bed6",
-    "570b7e75171d5ba97112230da44e97b16d3cc0f6"
+    "570b7e75171d5ba97112230da44e97b16d3cc0f6",
+    "23cd29e147b8a389023797e7369e910ee4e13ec7",
+    "b7c089f4e2a26ff3d3030f4e68abbf79a0c5676f"
   ],
-  "candidate_tree_sha": "5449e55a924a0e63cbe75cb16970cd64f35e19b1",
+  "candidate_tree_sha": "6faf765c81586950179485090170bb398ab2fe3d",
   "branch": "codex/e02-B-coordination",
   "pull_request": null,
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/baseline-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/output-checkpoint.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/transfer-index.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/baseline-resolution.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.xml",
@@ -47,7 +54,18 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/run-process-review.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/run-process-review.xml",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/transferred-source-check.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream-evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/downstream-contracts.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative-rerun.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative-rerun.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/published-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/review.md"
   ],
   "baseline_cells": [
     {
@@ -4748,6 +4766,70 @@
         "sha256": "805e13f541f4d2677f5d56d958555ebd5d5c82d1ee4e013e291b6e008ae76a71"
       },
       "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.xml"
+    },
+    {
+      "command": "See downstream/downstream-contracts.json NET_streaming.new_consumer_probe: native script with and without --disconnect-ok",
+      "target_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+      "environment": "Linux Python3.14.2; native StreamingSourceSession/Registry/Pool; isolated event-gated typed connector collaborator, no live network",
+      "input_closure": "Actual session create, real0.03 acquire timeout, persistently failing disconnect, then healthy disconnect and actual registry shutdown; real owner/permit readback. Separate healthy-disconnect control.",
+      "outcome": "FAIL",
+      "deciding_output": "Negative exit1: pending pool1/permit0 and registry shutdown performs zero disconnects. Healthy control exit0: pool0/permit1. C owns streaming.py.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.txt",
+        "sha256": "d39185deaa695e5b95b708f4c9204ed79444ef2158afc2441d058aa1b358eb39"
+      },
+      "predicate_basis": "recomputed",
+      "next_owner": "C; contract/probe committed, no C source modified"
+    },
+    {
+      "command": "PYTHONPATH=src:product shared-python llm-review/native-budget-negative.py from source-bound policy-engine cwd",
+      "target_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product",
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+      },
+      "input_closure": "pinned fixture _Provider/_Metrics; native Cache→Traced→LLMBudgetEnforcer→BudgetState run cap1.00; two userhello max_tokens2 prompt_estimate3 runindependent-run; cancel first owner before provider release; received-usage only, not vendor billing",
+      "outcome": "FAIL",
+      "wrapper_exit_code": 0,
+      "deciding_output": "Witness succeeded: one actual received-usage provider cost0.02; native BudgetState spent0, released reservations; follower cache-hit cost0. Source completion/reservation owner handshake absent. Vendor billing not measured.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative-rerun.json",
+        "sha256": "67f883488c90d0a66202ba1b275901a00d146c760939fc283b061b500c41772c"
+      },
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative-wrapper.json",
+      "predicate_basis": "recomputed",
+      "next_owner": "B semantic contract/G settlement owner; no invented settlement authority or callback relocation"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-b52-oracle/policy-engine/src:/workspace/e02-B-b52-oracle/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-oracle/probe.py",
+      "cwd": "/workspace/e02-B-b52-oracle/policy-engine",
+      "target_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+      "environment": {
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "uid": 1000,
+        "isolation": "temporary real FileSystemCAS paths; no DB/port/production dataset; one watchdog and ready coroutine intentionally concurrent"
+      },
+      "input_closure": {
+        "fixture_source": "policy-engine/tests/integration/scientist/test_execution_state_replay.py@0f24d18d988f579db20a84c734a587abe6cabe20",
+        "real_chain": "AsyncWorkflowExecutor cold→real FileSystemCAS cache v2 entry+journal→actual RunContext trace NODE_CACHE_STORE; checkpoint branch also publishes native CASCheckpointHook then resolves persisted latest checkpoint and metadata.cache_entry_refs→fresh same-run cache→native state operations merge",
+        "latency": "only get_bytes first targeted native entry read is paused by per-case threading Events; delegates real store read afterwards",
+        "control": "in isolated Python process only two execute seed call sites extracted from exact source are made await run_blocking_async; source files unchanged",
+        "complete_source_cut": "All runtime imports from immutable dedicated read-only worktree 0f24; fresh temp filesystem CAS per case. No production data required.",
+        "checkpoint_bridge": "Checkpoint branch verifies native completed_nodes=[writer] and checkpoint metadata refs equal cold producer refs, extracts only persisted refs after real resolve_latest_checkpoint, then empties trace to distinguish entry-ref inlet."
+      },
+      "outcome": "FAIL",
+      "wrapper_exit_code": 0,
+      "deciding_output": "Native cold trace/checkpoint blocks real CAS read on loopthread with0neighbor ticks;40ms workflow limit returns167–183ms. Naive off-loop control yields108–109ticks but exposes late cache entry after deadline/cancel. Independent post-attempt consumer observation is not a cancelled-workflow commit.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/output-checkpoint.txt",
+        "sha256": "dd54f9e799681b959ff509d48f37f9626b83db1a2fedafa3ce35dfe701eb5cbf"
+      },
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/receipt.json",
+      "predicate_basis": "recomputed",
+      "next_owner": "EXE B52 frozen515054 candidate independent acceptance pending; native source here exact0f24"
     }
   ],
   "property": {
@@ -4768,13 +4850,15 @@
     ]
   },
   "predicate_basis": "independently_reconciled",
-  "capability_state_or_finding_state": "Seven independent bounded runtime checks plus exact partial static diagnostic; no finding closure and no full B closeout yet.",
+  "capability_state_or_finding_state": "Seven independent bounded runtime checks, exact partial static diagnostic, and three distinct downstream/cold-seed negative witnesses transferred; no finding closure. Final RUN/EXE candidates and full B reconciliation pending.",
   "limitations_and_next_owner": [
-    "G fetch exact slice commits and this evidence checkpoint; code integration/shared ledger remain G-owned.",
-    "Additional RUN process and scoped CAS admission reviews are separate later checkpoints.",
-    "Full production catalog stays local; served RES03 input closure needs A/G local run.",
-    "Static raw graph is ignored/untransferred; full raw admission not_established until exact rerun; static PASS never confers runtime wiring authority.",
-    "Architecture base exit2 UNRUN and later CMP gate FAIL are not classified inherited. G supportedNode22/frozen workspace rerun required.",
-    "All60 finding dispositions are reconciled in the final coordination checkpoint."
+    "G fetch exact slice commits and this evidence checkpoint; G alone owns integration/shared ledger and final finding closure.",
+    "A owns generation_cycle.py/run_lifecycle.py; B13 local catalog producer/artifact/served-consumer input closure requires exact candidate replay.",
+    "C owns streaming.py; committed real startup-cleanup negative and healthy-disconnect control require owner transfer before handle publication.",
+    "LLM cancelled owner received-cost/accounting remains reproducibly FAIL; source lacks acknowledged producer/reservation settlement identity contract.",
+    "B52 cold recovery candidate515054 awaits frozen independent acceptance; this oracle stays bound to0f24.",
+    "Static raw graph is ignored/untransferred and coveragepartial; full raw admission not_established until exact rerun. Static PASS never confers runtime wiring authority.",
+    "Architecture base exit2 UNRUN and later CMP gate FAIL are not classified inherited. SupportedNode22 final candidate rerun pending.",
+    "All60 finding dispositions and25bundle census will be reconciled in the final coordination checkpoint."
   ]
 }

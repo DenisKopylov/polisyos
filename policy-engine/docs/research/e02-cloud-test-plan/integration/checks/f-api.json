@@ -1,0 +1,81 @@
+{
+  "command": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-api/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/remediation/test_api_01.py",
+      "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+      "tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+      "-v",
+      "-s"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-api/polisyos/policy-engine",
+    "env": {
+      "CODEX_CI": "1",
+      "PYTHONPATH": "src:."
+    }
+  },
+  "environment": {
+    "mac_version": "27.0.1",
+    "machine": "arm64",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "pytest_version": "pytest 9.0.2",
+    "python_version": "Python 3.14.0",
+    "runtime_versions": {
+      "executable": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-api/polisyos/policy-engine/.venv/bin/python",
+      "packages": {
+        "dowhy": null,
+        "econml": null,
+        "networkx": null,
+        "numpy": "2.3.5",
+        "pydantic": "2.12.5",
+        "pytest": "9.0.2",
+        "scipy": "1.16.3"
+      },
+      "version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]"
+    }
+  },
+  "result": {
+    "exit_code": 0,
+    "stderr_bytes": 0,
+    "stderr_path": "_build/e02-g-check/api-abi/stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_bytes": 1338,
+    "stdout_path": "_build/e02-g-check/api-abi/stdout.txt",
+    "stdout_sha256": "0026c6977c163ff30b65d981aee993dfd52694168c4b7de10c108ae3ec8b5064",
+    "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0\ncachedir: _cache/pytest\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\ntest taxonomy enabled; active pytest quarantines=0\nrootdir: /Users/deniskopylov/.codex/worktrees/e02-g-check-f-api/polisyos/policy-engine\nconfigfile: pytest.ini\nplugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0\nasyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 26 items\n\ntests/unit/remediation/test_api_01.py ...........\ntests/unit/foundry/methods/catalog/causal/test_facade_consumers.py ...........{\"executing_party\": \"F/causal_api\", \"literal_import_files\": 39, \"literal_import_occurrences\": 60, \"tracked_python_denominator\": 6427, \"unresolved_boundary\": \"computed import addresses and external callers\"}\n.\ntests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py .\ntests/unit/foundry/methods/catalog/causal/test__interference_contracts.py ..\n\n============================= 26 passed in 22.29s ==============================\n",
+    "stderr": ""
+  },
+  "target": {
+    "branch": "codex/e02-G-check-f-api",
+    "git_state_unchanged": true,
+    "head": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+    "head_after": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+    "status_after": [],
+    "status_before": [],
+    "tree": "42c3b569fdff79a03148ecb6a150904ac69019df"
+  },
+  "timing": {
+    "child_ru_maxrss_after_raw": 591069184,
+    "child_ru_maxrss_before_raw": 43663360,
+    "ended_at_utc": "2026-10-05T15:02:40.500929+00:00",
+    "ru_maxrss_platform_units": "bytes on macOS",
+    "started_at_utc": "2026-10-05T15:02:09.136957+00:00",
+    "wall_seconds": 31.36367675
+  },
+  "schema": "policyos.e02.independent_check.v1",
+  "original_receipt": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-api/polisyos/policy-engine/_build/e02-g-check/api-abi/receipt.json",
+    "sha256": "dd902c2989aafb84ae7469afb60371747d74ead45c4b69c312133befb73c169b",
+    "environment_retention": "Only relevant task/runtime controls retained; original local full environment remains ignored"
+  },
+  "root_review": "G read complete26-case output, census and immutable source/test+handoff; retained bridge-removal control; no product executable change in slice",
+  "limitations": [
+    "APFS snapshot environment, editable metadata inherited; PYTHONPATH selects candidate src, test paths candidate-local",
+    "DoWhy/EconML not installed; installed-package/MkDocs/external/computed caller behavior UNRUN",
+    "UtilityJudge ranking red provenance not_established; no exclusion as inherited",
+    "No LA-020 closure; full runtime/OpenAPI gates pending freeze"
+  ]
+}

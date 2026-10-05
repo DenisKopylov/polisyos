@@ -18,6 +18,10 @@ import pytest
 from polisyos.scientist.methods.search.strategies import bayesian as owner
 from polisyos.scientist.methods.search.strategies._deps import require_botorch, require_torch
 from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
+from polisyos.scientist.methods.search.strategies.resource_arbiter import (
+    ResourceArbiter,
+    ResourcePolicy,
+)
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     AcquisitionType,
@@ -490,3 +494,92 @@ def test_future_refit_clock_and_old_acquisition_policy_refuse_atomically(
     assert torch.equal(restored._torch_rng.get_state(), torch_before)
     assert restored._iteration == iteration_before
     _assert_same_model(scene.fitted._model, restored._model)
+
+
+def test_real_hard_limit_checkpoint_restores_and_performs_due_refit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A legitimate resource fallback can defer a scheduled fit across a checkpoint."""
+    torch = require_torch()
+    require_botorch()
+    space = SearchSpace([ParameterBounds(name="x", lower=0.0, upper=1.0)])
+
+    def make(policy: ResourcePolicy) -> BayesianOptimizer:
+        strategy = BayesianOptimizer(
+            space,
+            BayesianConfig(
+                n_initial=3,
+                acquisition=AcquisitionType.UCB,
+                num_restarts=1,
+                raw_samples=8,
+                refit_interval=1,
+                fallback_on_failure=False,
+                seed=17,
+            ),
+            resource_arbiter=ResourceArbiter(policy),
+        )
+        assert strategy._botorch_ready
+        return strategy
+
+    policy = ResourcePolicy(soft_rss_mb=10000, hard_rss_mb=12000, enable_cleanup=False)
+    producer = make(policy)
+    history = [_evaluation(space, index, x) for index, x in enumerate((0.0, 0.5, 1.0))]
+    _assert_candidate(producer.suggest(history))
+    _assert_gp_corpus(producer, history)
+    initial_model = producer._model
+
+    # These are fixture inputs to the actual arbiter, not an orchestration
+    # resource quota or a mocked GP/arbiter branch.
+    policy.soft_rss_mb = policy.hard_rss_mb = 0
+    expanded = [*history, _evaluation(space, 3, 0.2)]
+    hard = producer.suggest(expanded)
+    assert hard.source_strategy == "random_hard_limit"
+    assert producer._model is initial_model
+    _assert_gp_corpus(producer, history)
+    state = producer.get_state()
+    assert state.iteration == 4 and state.metadata["last_refit_iteration"] == 3
+    assert len(state.metadata["train_X"]) == len(state.metadata["refit_train_X"]) == 3
+    artifact = json.dumps(json.loads(state.to_artifact()), sort_keys=True).encode()
+    restored = make(ResourcePolicy(soft_rss_mb=10000, hard_rss_mb=12000, enable_cleanup=False))
+    restored.set_state(StrategyState.from_artifact(artifact))
+    _assert_gp_corpus(restored, history)
+    _assert_same_model(producer._model, restored._model)
+
+    # An elapsed valid schedule is distinct from an impossible future clock.
+    future = StrategyState.from_artifact(artifact)
+    future.metadata["last_refit_iteration"] = 5
+    before_model = restored._model
+    before_rng = restored._rng.getstate()
+    before_torch = restored._torch_rng.get_state().clone()
+    with pytest.raises(ValueError, match="incompatible"):
+        restored.set_state(future)
+    assert restored._model is before_model
+    assert restored._rng.getstate() == before_rng
+    assert torch.equal(restored._torch_rng.get_state(), before_torch)
+    assert restored._iteration == 4
+
+    # Record and delegate the real fit, allowing the scheduled operation.
+    # Other tests retain strict traps when a full fit is not due.
+    fits: list[int] = []
+    actual_fit = restored._fit_full_gp
+
+    def observe_fit(x: Any, y: Any) -> None:
+        fits.append(x.shape[0])
+        actual_fit(x, y)
+
+    monkeypatch.setattr(restored, "_fit_full_gp", observe_fit)
+    policy.soft_rss_mb, policy.hard_rss_mb = 10000, 12000
+    expected = producer.suggest(expanded)
+    candidate = restored.suggest(expanded)
+    _assert_candidate(expected)
+    _assert_candidate(candidate)
+    assert fits == [4]
+    assert producer._model is not initial_model and restored._model is not before_model
+    assert restored._last_refit_iteration == restored._last_train_size == 4
+    _assert_gp_corpus(restored, expanded)
+    _assert_same_model(producer._model, restored._model)
+    assert candidate.params_normalized == pytest.approx(expected.params_normalized, abs=1e-8)
+    healthy = make(ResourcePolicy(soft_rss_mb=10000, hard_rss_mb=12000, enable_cleanup=False))
+    healthy.set_state(StrategyState.from_artifact(restored.get_state().to_artifact()))
+    _assert_same_model(restored._model, healthy._model)
+    _emit("real_hard_limit_checkpoint_due_refit", restored, candidate)

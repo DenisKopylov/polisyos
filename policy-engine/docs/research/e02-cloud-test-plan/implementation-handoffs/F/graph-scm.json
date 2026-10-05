@@ -1,0 +1,501 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "graph-scm",
+  "closure_ids": [
+    "B215",
+    "B216",
+    "B217",
+    "B223"
+  ],
+  "bundle_ids": [
+    "GRF-01",
+    "GRF-02",
+    "GRF-03",
+    "SCM-01",
+    "SCM-02",
+    "SCM-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "672f541313c550e96544728ed397daf330c04442"
+  ],
+  "candidate_tree_sha": "f6bf9b9467d56e86408693982c8f68ea381b1e4c",
+  "branch": "codex/e02-F-graph-scm",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/23",
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+    "policy-engine/tests/unit/remediation/test_scm_02.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P025",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+      "state": "FAILED",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "23",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "17.09",
+      "rss_kib": "518032",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "142",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P048",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+      "state": "FAILED",
+      "collected": "19",
+      "calls": "19",
+      "call_pass": "15",
+      "call_failed": "4",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.012882947921753",
+      "rss_kib": "115692",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "171",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F13-P030",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+      "state": "FAILED",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "23",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "9.53",
+      "rss_kib": "659616",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "157",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_grade": "compact_text_only; zero raw archives received; source bytes referenced under results/received. Native SCM full-file red independently reproduced on untouched slice base (23pass/1fail); new real-job bridge failure independently reproduced before alias edit. No historical outcome promoted to candidate PASS.",
+  "checks": [
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_scm_01.py tests/unit/remediation/test_scm_02.py tests/unit/remediation/test_scm_03.py tests/unit/remediation/test_grf_03.py tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py tests/unit/foundry/methods/catalog/causal/test_gcm_query.py tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py tests/unit/ir/test_causal_queries_contract.py tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+      "target_sha": "672f541313c550e96544728ed397daf330c04442",
+      "environment": "CPython3.14.2 Linux shared baseline venv read-only; PYTHONPATH=src:. in admitted worktree",
+      "input_closure": "11 exact test files listed by command; synthetic SCM/DAG fixtures, local filesystem CAS; no production inputs",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-targeted.txt",
+      "counts": {
+        "passed": 123,
+        "skipped": 1,
+        "warnings": 25
+      },
+      "skip_limits": [
+        "test_gcm_query_dowhy_parity_optional: DoWhy absent and excluded by Python markers; not a backend PASS"
+      ],
+      "wall_seconds": 45.148,
+      "max_rss_kib": 517372,
+      "deciding_output": "123 passed, 1 skipped, 25 warnings in 36.98s; optional DoWhy parity is not executed and is not backend evidence.",
+      "outcome_scope": "123 executed synthetic/native cases passed; excluded DoWhy parity case remains separate SKIP, not part of backend property admission."
+    },
+    {
+      "command": "python -m ruff check src/polisyos/foundry/methods/catalog/causal/gcm_query.py tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py tests/unit/remediation/test_scm_02.py",
+      "target_sha": "672f541313c550e96544728ed397daf330c04442",
+      "environment": "ruff0.14.10 CPython3.14.2",
+      "input_closure": "three changed Python paths",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "python -m ruff format --check src/polisyos/foundry/methods/catalog/causal/gcm_query.py tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py tests/unit/remediation/test_scm_02.py",
+      "target_sha": "672f541313c550e96544728ed397daf330c04442",
+      "environment": "ruff0.14.10 CPython3.14.2",
+      "input_closure": "three changed Python paths",
+      "outcome": "PASS",
+      "output": "3 files already formatted"
+    },
+    {
+      "command": "python -m pytest -o addopts= -q -rs tests/unit/ir/test_causal_graph_contract.py",
+      "target_sha": "672f541313c550e96544728ed397daf330c04442",
+      "environment": "shared CPython3.14.2 baseline; networkx absent",
+      "input_closure": "26 graph contract cases; no production inputs",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-contract-targeted.txt",
+      "counts": {
+        "passed": 15,
+        "failed": 11
+      },
+      "cause": "all11 ModuleNotFoundError networkx; environment execution limitation; no inherited-red P41 claim"
+    },
+    {
+      "command": "independent reviewer /root/cau native8-case replay",
+      "target_sha": "672f541313c550e96544728ed397daf330c04442",
+      "environment": "CPython3.14.2 original baseline venv read-only with candidate PYTHONPATH",
+      "input_closure": "eight unique graph/SCM cases including parameter expansions in complete reviewer command",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-independent-review.txt",
+      "counts": {
+        "passed": 8,
+        "warnings": 14
+      },
+      "wall_seconds": 66.53,
+      "max_rss_kib": 512164
+    },
+    {
+      "command": "PYTHONPATH=src:.:/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages /workspace/e02-F-graph-env/bin/python -m pytest -o addopts= -q -rs tests/unit/ir/test_causal_graph_contract.py tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "target_sha": "672f541313c550e96544728ed397daf330c04442",
+      "environment": "CPython3.14.2 isolated system-site overlay /workspace/e02-F-graph-env; NetworkX3.6.1 installed from exact uv.lock wheel+sha256; pytest9.0.2 imported from shared read-only environment",
+      "input_closure": "all26 native graph contract cases plus three independent finite ADMG oracle tests; original shared-env missing-backend run preserved separately; no production data",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-targeted.txt",
+      "counts": {
+        "passed": 29,
+        "skipped": 0
+      },
+      "deciding_output": "29 passed in 13.91s. Native NetworkX d-separation also agrees with all2400 moralization queries on complete200 three-node ADMG domain; no held owner closure follows from installation.",
+      "wall_seconds": 37.036,
+      "max_rss_kib": 500400
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+      "target_sha": "672f541313c550e96544728ed397daf330c04442",
+      "environment": "CPython3.14.2 read-only shared venv; Node24.19.0 vs supported22; pnpm10.33.2; TypeScript generator dependency openapi-typescript/node_modules absent",
+      "input_closure": "complete architecture guardrail command at frozen source and frozen own worktree outputs; run output held outside worktree until completion; dependency-generated scratch isolated by gate; no production inputs",
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-architecture.txt",
+      "deciding_output": "Architecture guardrail check UNRUN: required measurements unavailable; no complete verdict. Two generators exit254; partial deep-import baseline, OpenAPI snapshot and trust-claim-posture generated projection drift reported.",
+      "wall_seconds": 200.581,
+      "max_rss_kib": 1100236,
+      "attempt_integrity": "The first attempt observed concurrent creation of this slice receipt files outside generator scratch and its tool output was truncated. It is superseded by this complete2020-line frozen replay, with no writes to the worktree during measurement.",
+      "P41": "not_established; no inherited-red attribution, because complete slice-base replay and zero relevant-path denominator intersection proof were not performed"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/foundry/methods/catalog/causal/test_gcm_query.py::test_gcm_query_dowhy_parity_optional",
+      "execution_note": "The exact node was part of the complete11-file command; it was not rerun merely to reproduce the expected skip.",
+      "target_sha": "672f541313c550e96544728ed397daf330c04442",
+      "environment": "CPython3.14.2 shared baseline; DoWhy absent and excluded by python_version<3.13 marker",
+      "input_closure": "optional backend parity property only; no admitted DoWhy runtime or production inputs",
+      "outcome": "SKIP",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-targeted.txt",
+      "counts": {
+        "skipped": 1
+      },
+      "deciding_output": "DoWhy optional parity importorskip; backend property not established; no shim created."
+    }
+  ],
+  "property": {
+    "statement": "GCMQuery outputs its declared native dispatcher slot while preserving historical consumer output; known Gaussian abduction and explicit attribution arms retain mathematical meaning through real method job, CAS and persisted ensemble consumer. Static ADMG separation/perfect-do match independent finite latent-DAG oracle.",
+    "runtime_path": [
+      "SCM artifact/input CausalQuery",
+      "GCMQuery.pure_step NumPy MethodDispatcher binds causal_query_result",
+      "scientist.compute.run_job persists method artifacts",
+      "RunCausalQueriesNode persists ir.causal_query_result@1.1 and uncertainty projection",
+      "FileSystemCAS reopen + load_causal_query_result",
+      "RunCausalEnsembleNode persisted-result arm and uncertainty readback",
+      "native API surface GCMQuery/RunCausalQueriesNode; no served production policy claim"
+    ],
+    "proxy_divergence": "A correct pure result or mocked job gives green while native dispatcher rejects missing declared slot causal_query_result. A linear_gaussian_posterior label stays intact when noise is replaced by imputed residual Uy=2, but analytic mean1/variance0.5 oracle fails. Fork/collider share a skeleton but have opposite Rule1 admissibility.",
+    "negative_controls": [
+      "removed declared output slot while query_result and signature stay intact: actual native node raises MethodContractError",
+      "imputed residual with unchanged posterior markers produces mean2/variance0; analytic oracle rejects",
+      "fully observed X=1,Y=2 produces deterministic Y(0)=1",
+      "identical explicit attribution arms produce0, distinct observational/explicit/stochastic comparator tests remain",
+      "latent-DAG incoming-only surgery preserves outgoing paths and cuts confounding",
+      "fork/collider actual Rule1 and pure confounding Rule3 consumer discriminators"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded native bridge mechanism repaired and finite synthetic verification extended; full findings remain partial/held until independent admission and missing historical/real-data/owner-specific criteria. No status ledger rewritten.",
+  "authority_purpose": "mathematical/structural query execution and honest uncertainty projection on named synthetic fixtures; does not authorize a recommendation or establish an empirical effect on admitted real data",
+  "provenance": {
+    "source": "672f541313c550e96544728ed397daf330c04442",
+    "rule_and_schema_versions": [
+      "causal.structural.gcm_query@1.0.0",
+      "ir.causal_query_result@1.1",
+      "policyos.e02.implementation_handoff.v1"
+    ],
+    "time_roles": "synthetic factual condition then intervention/action/prediction; no real observational/legal/publication times supplied"
+  },
+  "backend_limits": {
+    "python": "3.14.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "markers": {
+      "dowhy": "python_version < 3.13",
+      "econml": "python_version < 3.14"
+    },
+    "dowhy": "ABSENT/target marker excluded",
+    "econml": "ABSENT/target marker excluded",
+    "networkx_shared": "ABSENT; original FAIL preserved",
+    "networkx_overlay": "3.6.1 exact uv.lock wheel hash d47fbf302e7d9cbbb9e2555a0d267983d2aa476bac30e90dfbe5669bd57f3762; separate real supported backend env, no shim"
+  },
+  "consumer_census": {
+    "executing_holder": "/root/graph_scm",
+    "basis": "recomputed",
+    "source": "672f541313c550e96544728ed397daf330c04442",
+    "path_denominator": [
+      "policy-engine/src/polisyos/foundry/**/*.py",
+      "policy-engine/src/polisyos/scientist/**/*.py"
+    ],
+    "file_type_denominator": "1199 complete Python files; tracked and filesystem walks reconciled",
+    "fqn": "causal.structural.gcm_query@1.0.0",
+    "callers": [
+      "scientist/nodes/builtins/causal/run_causal_queries.py",
+      "scientist/nodes/builtins/causal/run_causal_ensemble.py"
+    ],
+    "compatibility": "both historical query_result consumers continue to read same object; no FQN/signature/public facade changed"
+  },
+  "findings": [
+    {
+      "id": "B214",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "GRF-03"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "GRF-03 synthetic known-reverse normalization/CPDAG refusal tests pass in targeted suite; no full sound-PAG-extension or admitted downstream real-data claim.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-03 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      }
+    },
+    {
+      "id": "B215",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "SCM-02"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "Native job partial Gaussian evidence and full factual controls persist/reopen correct posterior moments. Imputed-residual variant with unchanged posterior markers is rejected by numeric oracle. Historical four-base/selector reconciliation remains not_established.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-02 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      }
+    },
+    {
+      "id": "B216",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "Independent ancestral-moralization oracle covers complete 200 three-node ADMGs / 2400 ordered queries; actual Rule1 and sibling sigma consumers run. Finite synthetic scope only.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-01 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      }
+    },
+    {
+      "id": "B217",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "All eight action sets per three-node graph agree with latent-DAG perfect surgery under 12 queries, and actual Rule3 removes pure-confounding action. Finite synthetic scope only.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-01 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      }
+    },
+    {
+      "id": "B218",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "GRF-03"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "Existing GRF-03 compact temporal lag round-trip/self-lag/static-negative controls pass. Static GCM requires supported temporal expansion; no full temporal causal capability claimed.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-03 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      }
+    },
+    {
+      "id": "B219",
+      "ledger_status_preserved": "held",
+      "bundle_ids": [
+        "GRF-02"
+      ],
+      "residual_class": "missing_backend_input_and_held_owner_state",
+      "bounded_result_and_residual": "Original shared environment lacks NetworkX and native exporter fails; locked NetworkX overlay rerun recorded separately. Preserve held pending owner acceptance and currentness/four-base/consumer impact; installing runtime alone does not close finding.",
+      "next_owner": {
+        "kind": "data_record",
+        "name": "Pinned NetworkX 3.6.1 runtime artifact/environment for B219 behavioral verification",
+        "appointment_status": "Canonical residual originally recorded a missing pinned NetworkX artifact. This slice now supplies an isolated locked3.6.1 native runtime and 29PASS behavioral receipt. The original shared-env failure stays nonPASS; owner acceptance, currentness/four-base and consumer-impact criteria remain pending, so held is preserved."
+      }
+    },
+    {
+      "id": "B220",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "GRF-02"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "No topology/cache mechanism changes. Native full26-case graph contract passes with locked NetworkX. Additional read-only warm-cache probe rejects ordinary mutation, confirms model_copy(new edges) agrees across ancestors/export/model_dump, and confirms weakref cleanup; finding-level historical selector/JUnit reconciliation and owner admission remain pending.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-02 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      }
+    },
+    {
+      "id": "B221",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "SCM-01"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "Existing SCM-01 synthetic fit/root-law controls pass; they deliberately exclude DoWhy fit. Full admitted root joint law and backend validation remain limited, never inferred from synthetic fixture.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      }
+    },
+    {
+      "id": "B222",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "SCM-01"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "Existing polynomial evaluator and twin shared-noise controls pass on synthetic saved payload. No new nonlinear posterior-abduction or full real-data fitting claim.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      }
+    },
+    {
+      "id": "B223",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "SCM-02"
+      ],
+      "residual_class": "mechanism_and_verification_oracle",
+      "bounded_result_and_residual": "Native dispatcher producer output-slot omission corrected at canonical GCMQuery owner. True attribution do2/observational=6 survives CAS and actual persisted ensemble consumer. Existing identical-explicit-arm and stochastic policy tests pass; real causal identification remains limited.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-02 scope owner for broader capability; E02-R2 baseline broker for current four-base replay",
+        "appointment_status": "roles identified; individual appointment is not claimed"
+      }
+    },
+    {
+      "id": "B224",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "SCM-03"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "Existing SCM-03 perfect-do/pruning/logical-stream/shift controls pass. No query-plan or world-model rewrite; actual local finite-DGP scope.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-03 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      }
+    },
+    {
+      "id": "B225",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "SCM-03"
+      ],
+      "residual_class": "verification_oracle",
+      "bounded_result_and_residual": "Existing malformed law/finiteness/support/tail/reproducible-stream controls pass. No arbitrary law or policy-authority claim; supported native stochastic law only.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-03 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      }
+    },
+    {
+      "id": "LA-007",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "residual_class": "semantic_owner_and_missing_packaging_input",
+      "bounded_result_and_residual": "Local package retirement regression retained. External installed loader/resource owner appointment and installed-artifact receipt remain pending with C; no wheel closure claimed.",
+      "next_owner": {
+        "kind": "owner_appointment",
+        "name": "Packaging and external-loader owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      }
+    },
+    {
+      "id": "LA-019",
+      "ledger_status_preserved": "partial",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "residual_class": "semantic_owner_and_missing_packaging_input",
+      "bounded_result_and_residual": "Local canonical package imports retained. External loader/resource path and installed-artifact admission remain pending with C; no scope-wide absence inferred.",
+      "next_owner": {
+        "kind": "owner_appointment",
+        "name": "Packaging and external-loader owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      }
+    }
+  ],
+  "finding_denominator": {
+    "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+    "complete_selected_family_rows": 14,
+    "executor": "/root/graph_scm",
+    "basis": "recomputed"
+  },
+  "independent_review": {
+    "reviewer": "/root/cau",
+    "target_sha": "672f541313c550e96544728ed397daf330c04442",
+    "verdict": "GO; no blocking delta findings",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-independent-review.txt",
+    "P40": "NEW native ABI bridge class repaired. Backend/real-data/PAG scope remains declared limited class, not another repair round."
+  },
+  "limitations_and_next_owner": [
+    "G: exact candidate receipt admission and final integrated broad regression; local admitted-real-data SCM fit/query rerun only where criterion needs real source/joint law.",
+    "GRF verification owner/G: B219 held remains owner-governed after native NetworkX check; no installation-only closure.",
+    "C/G: LA-007/LA-019 installed wheel/external loader/resource admission and owner appointment.",
+    "Finding verification owners/G: historical four-base/full-file currentness and selector-to-discriminator reconciliation remain unrun, never replaced by package PASS.",
+    "GCM raw peer keys emit existing signature/projection warnings; authoritative declared slot now present. Pydantic top-level-validator warning retained; numeric and content readbacks, not warning suppression, decide success.",
+    "G architecture owner: controlled candidate architecture check is UNRUN, not PASS; install/use supported Node22 and locked generator dependencies, then rerun the exact full guardrail command. Partial import/OpenAPI/trust projection drift is recorded; no inherited-red P41 label without full exact-base denominator proof."
+  ],
+  "P40_buckets": {
+    "NEW_repair_class": "Canonical GCM producer omitted declared native output slot. Same-object alias repairs actual dispatcher-to-CAS-to-ensemble path, independently verified with property-removal counterexample.",
+    "declared_limited_class": "Missing DoWhy/EconML marker-excluded backend, finite synthetic-vs-real-data and full PAG/temporal limits, B219 owner-held state, external installed-loader/resource admission, and broad architecture UNRUN are explicit residuals; no parallel shim or broad closure."
+  },
+  "delivery_notes": "Implementation source is frozen at672f541313c550e96544728ed397daf330c04442. This handoff is a separate later commit; G receives code and all moderate deciding logs through the topic branch/PR. Complete architecture deciding stdout118246 bytes is included to make the UNRUN result independently inspectable."
+}

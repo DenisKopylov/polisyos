@@ -1,0 +1,87 @@
+COMMAND: /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_scm_01.py tests/unit/remediation/test_scm_02.py tests/unit/remediation/test_scm_03.py tests/unit/remediation/test_grf_03.py tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py tests/unit/foundry/methods/catalog/causal/test_gcm_query.py tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py tests/unit/ir/test_causal_queries_contract.py tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py
+......................................................s................. [ 58%]
+....................................................                     [100%]
+=============================== warnings summary ===============================
+tests/unit/remediation/test_scm_02.py::test_attribution_uses_a_distinct_observational_baseline
+tests/unit/remediation/test_scm_02.py::test_attribution_observational_comparator_requires_natural_root_evidence
+tests/unit/remediation/test_scm_02.py::test_explicit_do_zero_is_not_observational_attribution_baseline
+tests/unit/remediation/test_scm_02.py::test_explicit_identical_target_and_comparator_have_zero_contrast
+tests/unit/remediation/test_scm_02.py::test_stochastic_policy_comparison_executes_and_preserves_distinct_arms
+tests/unit/remediation/test_scm_02.py::test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest
+  /workspace/e02-F-graph-scm/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py:1604: UserWarning: A custom validator is returning a value other than `self`.
+  Returning anything other than `self` from a top level model validator isn't supported when validating via `__init__`.
+  See the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.
+    query_result = CausalQueryResult(
+
+tests/unit/remediation/test_scm_02.py::test_legacy_v1_result_loads_and_writes_matching_v1_1_cas_manifest
+  /workspace/e02-F-graph-scm/policy-engine/tests/unit/remediation/test_scm_02.py:552: UserWarning: A custom validator is returning a value other than `self`.
+  Returning anything other than `self` from a top level model validator isn't supported when validating via `__init__`.
+  See the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.
+    result = CausalQueryResult(
+
+tests/unit/remediation/test_scm_02.py::test_legacy_result_rejects_self_attested_provenance_conflict
+  /workspace/e02-F-graph-scm/policy-engine/tests/unit/remediation/test_scm_02.py:593: UserWarning: A custom validator is returning a value other than `self`.
+  Returning anything other than `self` from a top level model validator isn't supported when validating via `__init__`.
+  See the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.
+    result = CausalQueryResult(
+
+tests/unit/remediation/test_scm_02.py::test_raw_legacy_result_rejects_self_attested_provenance_without_cas
+  /workspace/e02-F-graph-scm/policy-engine/tests/unit/remediation/test_scm_02.py:628: UserWarning: A custom validator is returning a value other than `self`.
+  Returning anything other than `self` from a top level model validator isn't supported when validating via `__init__`.
+  See the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.
+    result = CausalQueryResult(
+
+tests/unit/remediation/test_scm_02.py::test_legacy_provenance_is_manifest_bound_across_result_versions
+  /workspace/e02-F-graph-scm/policy-engine/tests/unit/remediation/test_scm_02.py:653: UserWarning: A custom validator is returning a value other than `self`.
+  Returning anything other than `self` from a top level model validator isn't supported when validating via `__init__`.
+  See the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.
+    result = CausalQueryResult(
+
+tests/unit/remediation/test_scm_02.py::test_causal_result_loader_requires_manifest_schema
+  /workspace/e02-F-graph-scm/policy-engine/tests/unit/remediation/test_scm_02.py:702: UserWarning: A custom validator is returning a value other than `self`.
+  Returning anything other than `self` from a top level model validator isn't supported when validating via `__init__`.
+  See the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.
+    result_payload = CausalQueryResult(
+
+tests/unit/remediation/test_scm_02.py::test_causal_query_producer_reconciles_envelope_with_result
+  /workspace/e02-F-graph-scm/policy-engine/tests/unit/remediation/test_scm_02.py:734: UserWarning: A custom validator is returning a value other than `self`.
+  Returning anything other than `self` from a top level model validator isn't supported when validating via `__init__`.
+  See the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.
+    result = CausalQueryResult(
+
+tests/unit/remediation/test_scm_02.py::test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest
+tests/unit/remediation/test_scm_02.py::test_native_counterfactual_job_persists_gaussian_oracle[partial-evidence-posterior]
+tests/unit/remediation/test_scm_02.py::test_native_counterfactual_job_persists_gaussian_oracle[fully-observed-residual]
+  /workspace/e02-F-graph-scm/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/remediation/test_scm_02.py::test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest
+tests/unit/remediation/test_scm_02.py::test_native_counterfactual_job_persists_gaussian_oracle[partial-evidence-posterior]
+tests/unit/remediation/test_scm_02.py::test_native_counterfactual_job_persists_gaussian_oracle[fully-observed-residual]
+  /workspace/e02-F-graph-scm/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+    result = backend.run(
+
+tests/unit/remediation/test_scm_02.py::test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest
+tests/unit/remediation/test_scm_02.py::test_native_counterfactual_job_persists_gaussian_oracle[partial-evidence-posterior]
+tests/unit/remediation/test_scm_02.py::test_native_counterfactual_job_persists_gaussian_oracle[fully-observed-residual]
+  /workspace/e02-F-graph-scm/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] query_result: unexpected_key — Key 'query_result' not declared in output slots
+    result = backend.run(
+
+tests/unit/remediation/test_scm_02.py::test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest
+tests/unit/remediation/test_scm_02.py::test_native_counterfactual_job_persists_gaussian_oracle[partial-evidence-posterior]
+tests/unit/remediation/test_scm_02.py::test_native_counterfactual_job_persists_gaussian_oracle[fully-observed-residual]
+  /workspace/e02-F-graph-scm/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = backend.run(
+
+tests/unit/remediation/test_scm_02.py::test_causal_ensemble_rejects_mixed_canonical_contrast_before_persisting
+  /workspace/e02-F-graph-scm/policy-engine/tests/unit/remediation/test_scm_02.py:952: UserWarning: A custom validator is returning a value other than `self`.
+  Returning anything other than `self` from a top level model validator isn't supported when validating via `__init__`.
+  See the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.
+    CausalQueryResult(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+123 passed, 1 skipped, 25 warnings in 36.98s
+
+EXIT: 0
+WALL_SECONDS: 45.148
+MAX_RSS_KIB: 517372

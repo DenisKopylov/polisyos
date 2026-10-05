@@ -1,0 +1,25 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F/causal_api",
+  "source_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+  "cwd": "/workspace/e02-F-causal-output/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/workspace/e02-F-receipts/output-independent-tmp",
+    "tests/unit/foundry/methods/catalog/causal/test_output_contract.py",
+    "-q",
+    "-ra",
+    "--tb=short"
+  ],
+  "exit": 0,
+  "wall_s": 11.777947090999987,
+  "max_rss_kib": 507688,
+  "complete_stdout": "............                                                             [100%]\n=============================== warnings summary ===============================\n../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[RegressionDiscontinuity]\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[StandardDifferenceInDifferences]\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] envelope: unexpected_key \u2014 Key 'envelope' not declared in output slots\n    result = testfunction(**testargs)\n\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[RegressionDiscontinuity]\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] result: unexpected_key \u2014 Key 'result' not declared in output slots\n    result = testfunction(**testargs)\n\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[RegressionDiscontinuity]\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[StandardDifferenceInDifferences]\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] report: unexpected_key \u2014 Key 'report' not declared in output slots\n    result = testfunction(**testargs)\n\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[RegressionDiscontinuity]\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] warnings: unexpected_key \u2014 Key 'warnings' not declared in output slots\n    result = testfunction(**testargs)\n\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[RegressionDiscontinuity]\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] uncertainty_envelope: unexpected_key \u2014 Key 'uncertainty_envelope' not declared in output slots\n    result = testfunction(**testargs)\n\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[RegressionDiscontinuity]\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[StandardDifferenceInDifferences]\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] warnings: empty_array \u2014 Output 'warnings' is an empty array\n    result = testfunction(**testargs)\n\ntests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_native_estimator_declared_report_survives_dispatch_and_cas[StandardDifferenceInDifferences]\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] causal_effect_report: unexpected_key \u2014 Key 'causal_effect_report' not declared in output slots\n    result = testfunction(**testargs)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n12 passed, 11 warnings in 7.36s\n"
+}

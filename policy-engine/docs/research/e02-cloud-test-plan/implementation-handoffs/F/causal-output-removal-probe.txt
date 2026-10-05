@@ -1,0 +1,47 @@
+"""Run marker-preserving causal output deletion controls without disk edits.
+
+Execute from candidate policy-engine with the native source PYTHONPATH:
+python causal-output-removal-probe.txt aliases|authority
+The control must exit nonzero; declared alias strings and guard messages stay
+in the compiled function. pytest runs the native producer/consumer oracle.
+"""
+
+import ast
+import inspect
+import sys
+
+import pytest
+from polisyos.foundry.methods.catalog.causal import _common
+
+original = _common.wrap_causal_output
+source = inspect.getsource(original)
+tree = ast.parse(source)
+function = tree.body[0]
+mode = sys.argv[1]
+if mode == "aliases":
+    # Append removal before return: original keys and builders remain in AST.
+    removal = ast.parse('''
+output.pop("causal_effect_report", None)
+output.pop("uncertainty_envelope", None)
+if not extras or "result" not in extras:
+    output.pop("result", None)
+''').body
+    function.body[-1:-1] = removal
+elif mode == "authority":
+    # Keep the complete authority guard, message and fields; disable execution.
+    guard = next(node for node in function.body if isinstance(node, ast.If))
+    guard.test = ast.Constant(False)
+else:
+    raise ValueError(mode)
+ast.fix_missing_locations(tree)
+exec(compile(tree, "<marker-preserving-causal-output-control>", "exec"), _common.__dict__)
+# Catalog decorators import native methods before this control can run. Replace
+# the existing function's code so their already-bound references change too.
+original.__code__ = _common.wrap_causal_output.__code__
+_common.wrap_causal_output = original
+print(f"control={mode}; compiled markers retained; source file unchanged")
+raise SystemExit(pytest.main([
+    "-o", "addopts=", "--import-mode=importlib", "--strict-markers", "-q", "-ra",
+    "-p", "no:cacheprovider", "--tb=short", "--show-capture=no", "--disable-warnings",
+    "tests/unit/foundry/methods/catalog/causal/test_output_contract.py",
+]))

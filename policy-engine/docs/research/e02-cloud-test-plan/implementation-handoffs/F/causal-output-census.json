@@ -1,0 +1,465 @@
+{
+  "source_causal_files": 132,
+  "wrapper_call_count": 106,
+  "wrapper_call_modules": [
+    "cate.py",
+    "causal_bcf.py",
+    "causal_rl.py",
+    "did.py",
+    "dml.py",
+    "dowhy_identify_estimate.py",
+    "dowhy_refute.py",
+    "dtr.py",
+    "endogenous_group_inequality.py",
+    "forest_dr.py",
+    "frontier.py",
+    "g_computation.py",
+    "g_estimation.py",
+    "kernel_methods.py",
+    "meta_learners.py",
+    "operator_valued.py",
+    "policy_learning.py",
+    "proximal_mediation.py",
+    "rdd.py",
+    "space_time_dscm.py",
+    "structural_time_series.py",
+    "synthetic_control.py"
+  ],
+  "applicable_local_methods": 44,
+  "methods": [
+    {
+      "fqn": "causal.hte.causal_forest@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.cate",
+      "output_ports": [
+        "causal_effect_report",
+        "hte_result"
+      ]
+    },
+    {
+      "fqn": "causal.hte.causal_bcf@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.causal_bcf",
+      "output_ports": [
+        "causal_effect_report",
+        "hte_result"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.ope.ope@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.causal_rl",
+      "output_ports": [
+        "ope_result",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.causal_bandit.causal_bandit@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.causal_rl",
+      "output_ports": [
+        "bandit_result",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.inference.difference_in_differences@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.did",
+      "output_ports": [
+        "result",
+        "uncertainty_envelope",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.inference.did.standard@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.did",
+      "output_ports": [
+        "result",
+        "uncertainty_envelope",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.inference.did.staggered@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.did",
+      "output_ports": [
+        "result",
+        "uncertainty_envelope",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.hte.double_ml@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.dml",
+      "output_ports": [
+        "causal_effect_report",
+        "hte_result"
+      ]
+    },
+    {
+      "fqn": "causal.inference.dowhy_identify_estimate@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate",
+      "output_ports": [
+        "causal_effect_report"
+      ]
+    },
+    {
+      "fqn": "causal.inference.dowhy_identify_estimate@2.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate",
+      "output_ports": [
+        "causal_effect_report"
+      ]
+    },
+    {
+      "fqn": "causal.refutation.dowhy_refute@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.dowhy_refute",
+      "output_ports": [
+        "causal_effect_report"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.q_learning.q_learning@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.dtr",
+      "output_ports": [
+        "dtr_result",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.a_learning.a_learning@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.dtr",
+      "output_ports": [
+        "dtr_result",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.owl.owl@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.dtr",
+      "output_ports": [
+        "dtr_result",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.dr_dtr.dr_dtr@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.dtr",
+      "output_ports": [
+        "dtr_result",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.distributional.endogenous_group_decomposition@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.endogenous_group_inequality",
+      "output_ports": [
+        "bounds_bundle",
+        "decomposition_result",
+        "distributional_bounds_bundle",
+        "envelope",
+        "negative_certificate",
+        "report",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.hte.forest_dr@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.forest_dr",
+      "output_ports": [
+        "causal_effect_report",
+        "hte_result"
+      ]
+    },
+    {
+      "fqn": "causal.proximal.proximal_bridge@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.frontier",
+      "output_ports": [
+        "bounds_bundle",
+        "bridge_plausibility_report",
+        "envelope",
+        "negative_certificate",
+        "proximal_result",
+        "report",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.proximal.spatial_proximal_bridge@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.frontier",
+      "output_ports": [
+        "bounds_bundle",
+        "bridge_plausibility_report",
+        "envelope",
+        "negative_certificate",
+        "report",
+        "spatial_proximal_result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.distributional.unconditional_qte@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.frontier",
+      "output_ports": [
+        "distributional_result",
+        "envelope",
+        "report",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.interference.network_cate@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.frontier",
+      "output_ports": [
+        "envelope",
+        "network_hte_result",
+        "report",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.g_computation.parametric_g_formula@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.g_computation",
+      "output_ports": [
+        "g_result",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.ice_g_formula.ice_g_formula@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.g_computation",
+      "output_ports": [
+        "g_result",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.ltmle.ltmle@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.g_computation",
+      "output_ports": [
+        "g_result",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.dynamic.snmm.snmm_g_estimation@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.g_estimation",
+      "output_ports": [
+        "result",
+        "snmm_result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.kernel.refusal@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.kernel_methods",
+      "output_ports": [
+        "envelope",
+        "kernel_report",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.kernel.cme_plugin@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.kernel_methods",
+      "output_ports": [
+        "envelope",
+        "kernel_report",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.kernel.frontdoor_cme@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.kernel_methods",
+      "output_ports": [
+        "envelope",
+        "kernel_report",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.kernel.transport_cme@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.kernel_methods",
+      "output_ports": [
+        "envelope",
+        "kernel_report",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.kernel.dr_cme@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.kernel_methods",
+      "output_ports": [
+        "envelope",
+        "kernel_report",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.kernel.kiv@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.kernel_methods",
+      "output_ports": [
+        "envelope",
+        "kernel_report",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.kernel.proximal_minimax@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.kernel_methods",
+      "output_ports": [
+        "envelope",
+        "kernel_report",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.hte.meta_learner@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.meta_learners",
+      "output_ports": [
+        "causal_effect_report",
+        "hte_result"
+      ]
+    },
+    {
+      "fqn": "causal.operator.cme_krr@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.operator_valued",
+      "output_ports": [
+        "envelope",
+        "operator_effect_bundle",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.operator.operator_r_learner@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.operator_valued",
+      "output_ports": [
+        "envelope",
+        "operator_effect_bundle",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.operator.kiv@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.operator_valued",
+      "output_ports": [
+        "envelope",
+        "operator_effect_bundle",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.operator.proximal_minimax@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.operator_valued",
+      "output_ports": [
+        "envelope",
+        "operator_effect_bundle",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.operator.unsupported_target@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.operator_valued",
+      "output_ports": [
+        "envelope",
+        "operator_effect_bundle",
+        "report",
+        "result",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.targeting.policy_tree@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.policy_learning",
+      "output_ports": [
+        "causal_effect_report",
+        "policy_recommendation"
+      ]
+    },
+    {
+      "fqn": "causal.proximal.proximal_mediation@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.proximal_mediation",
+      "output_ports": [
+        "bounds_bundle",
+        "bridge_plausibility_report",
+        "envelope",
+        "negative_certificate",
+        "proximal_mediation_result",
+        "report",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.inference.regression_discontinuity@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.rdd",
+      "output_ports": [
+        "causal_effect_report"
+      ]
+    },
+    {
+      "fqn": "causal.space_time.fem_spde_g_computation@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.space_time_dscm",
+      "output_ports": [
+        "convergence_diagnostics",
+        "effect_surface",
+        "envelope",
+        "green_kernel_summary",
+        "identification_certificate",
+        "ipw_result",
+        "positivity_report",
+        "report",
+        "result",
+        "spde_estimator",
+        "spillover_impulse_response",
+        "warnings"
+      ]
+    },
+    {
+      "fqn": "causal.inference.structural_time_series@1.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.structural_time_series",
+      "output_ports": [
+        "causal_effect_report"
+      ]
+    },
+    {
+      "fqn": "causal.inference.synthetic_control@2.0.0",
+      "module": "polisyos.foundry.methods.catalog.causal.synthetic_control",
+      "output_ports": [
+        "augmented",
+        "counterfactual",
+        "envelope",
+        "report",
+        "warnings",
+        "weights"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+.........................ss...........................sssss...s......... [ 35%]
+........................................................................ [ 70%]
+............................................................             [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/foundry/methods/catalog/causal/test_hte_methods.py:33: could not import 'econml': No module named 'econml'
+SKIPPED [1] tests/unit/foundry/methods/catalog/causal/test_hte_methods.py:51: could not import 'econml': No module named 'econml'
+SKIPPED [1] tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py:130: could not import 'dowhy': No module named 'dowhy'
+SKIPPED [3] tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py:157: could not import 'dowhy': No module named 'dowhy'
+SKIPPED [1] tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py:169: could not import 'dowhy': No module named 'dowhy'
+SKIPPED [1] tests/unit/foundry/methods/catalog/causal/test_dowhy_refute.py:63: could not import 'dowhy': No module named 'dowhy'
+196 passed, 8 skipped, 106 warnings in 241.24s (0:04:01)
+
+exit_code=0 wall_seconds=246.331 maxrss_kib=558616

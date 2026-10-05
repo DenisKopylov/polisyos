@@ -7,6 +7,10 @@ The script reads immutable Git blobs, all tracked D handoff JSON, all added or
 modified JSON in the selected base-to-target diff, and changed release fragments.
 It discovers file/reference/hash pairs from the receipts, preserves explicit
 historical source bindings, and checks available bytes, sizes and Git blob IDs.
+Only actual Git blobs can supply file payloads; tree listings cannot. An
+available file reference takes precedence over interpreting a value as inline
+text. Local JSON pointers resolve to their actual decoded string bytes. SHA
+declarations with no unambiguous byte locator remain explicit limitations.
 The canonical finding-owner rows are joined to the complete routes and cells
 tables. Their ID sets, finding routes, owners, cell identities and source
 line/byte locators are reconciled against the baseline map. Counts are derived;

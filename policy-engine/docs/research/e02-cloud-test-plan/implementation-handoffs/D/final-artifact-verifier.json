@@ -232,7 +232,8 @@
       "verify.py": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py",
         "sha256": "6e7ee883a0d9687d5feeab3de73cdfecebfd646aad05af5b6d30f2746e1ef246",
-        "bytes": 22951
+        "bytes": 22951,
+        "commit": "dc23a996704e6c251ab1c9b7ad24b19479168f6c"
       },
       "test_e02_final_artifacts.py": {
         "path": "policy-engine/tests/repo_quality/tools/test_e02_final_artifacts.py",

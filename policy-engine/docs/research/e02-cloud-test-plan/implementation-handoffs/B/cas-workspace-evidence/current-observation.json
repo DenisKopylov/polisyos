@@ -1,0 +1,281 @@
+{
+  "schema": "policyos.e02.B.CAS.current_workspace_observation.v1",
+  "started_at": "2026-10-05T15:43:57.858399+00:00",
+  "finished_at": "2026-10-05T15:43:57.963802+00:00",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-cas",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "exit_code": 0,
+      "stdout": "worktree /workspace/polisyos\nHEAD 0a4b9cd48068454bb8ce95b5ae69bf5c323ee924\nbranch refs/heads/work\n\nworktree /workspace/e02-B-acceptance\nHEAD 800f1c3d7502b675b74210fcd686da2919efbecd\nbranch refs/heads/codex/e02-B-acceptance\n\nworktree /workspace/e02-B-adapters\nHEAD d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83\nbranch refs/heads/codex/e02-B-adapters\n\nworktree /workspace/e02-B-b52-oracle\nHEAD 0f24d18d988f579db20a84c734a587abe6cabe20\ndetached\n\nworktree /workspace/e02-B-b52-review515\nHEAD 515054e7427467bf6e72fcfa22cc809c7cfe2c19\ndetached\n\nworktree /workspace/e02-B-cas\nHEAD 71d53452f69a6172b14071133a597a02add294bf\nbranch refs/heads/codex/e02-B-cas\n\nworktree /workspace/e02-B-cas-alias-base\nHEAD cef751539b0c3244fcfdc6c06dc64177f70aa56e\ndetached\n\nworktree /workspace/e02-B-cas-alias-fix\nHEAD 3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6\ndetached\n\nworktree /workspace/e02-B-cmp-res\nHEAD e3f0103c167beb42a8aff2db6a81de12b79ae565\nbranch refs/heads/codex/e02-B-cmp-res\n\nworktree /workspace/e02-B-coordination\nHEAD 087c84a2d7223971e6faca71b8533f41c56327d7\nbranch refs/heads/codex/e02-B-coordination\n\nworktree /workspace/e02-B-dur-ledger\nHEAD f3b9f054c86218b431ab927b56100164842db64a\nbranch refs/heads/codex/e02-B-dur-ledger\n\nworktree /workspace/e02-B-exe-state\nHEAD f669bc1dc89dcba3cd027abef8401a59673e3b32\nbranch refs/heads/codex/e02-B-exe-state\n\nworktree /workspace/e02-B-run\nHEAD 86c5771aa51859624488c784df710b73cd0929b0\nbranch refs/heads/codex/e02-B-run\n\nworktree /workspace/e02-B-run-review-base\nHEAD ab310be19f310a6055797a2af56bf1ffae01f555\ndetached\n\nworktree /workspace/e02-B-run-review-candidate\nHEAD 6c2cab488368932479677bc036ffad25657c0367\ndetached\n\nworktree /workspace/e02-cas-contract-base36\nHEAD 36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6\ndetached\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-cas-contract-base36",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-cas-contract-base36\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-cas-contract-base36",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "stdout": "/workspace/polisyos/.git\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-cas-contract-base36",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-cas-contract-base36",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "exit_code": 0,
+      "stdout": "ac5b7fc314e40d6736af885e185a7d3aa627eacc\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-cas-contract-base36",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-cas",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-B-cas\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-cas",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "stdout": "/workspace/polisyos/.git\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-cas",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "refs/heads/codex/e02-B-cas\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-cas",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "71d53452f69a6172b14071133a597a02add294bf\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-cas",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "exit_code": 0,
+      "stdout": "8c1c29733f54557ea36d21a9c2d5c99f00da3655\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-cas",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "complete_git_registration_denominator": {
+    "command": "git -C /workspace/e02-B-cas worktree list --porcelain",
+    "count": 16,
+    "registrations": [
+      {
+        "worktree": "/workspace/polisyos",
+        "HEAD": "0a4b9cd48068454bb8ce95b5ae69bf5c323ee924",
+        "branch": "refs/heads/work"
+      },
+      {
+        "worktree": "/workspace/e02-B-acceptance",
+        "HEAD": "800f1c3d7502b675b74210fcd686da2919efbecd",
+        "branch": "refs/heads/codex/e02-B-acceptance"
+      },
+      {
+        "worktree": "/workspace/e02-B-adapters",
+        "HEAD": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "branch": "refs/heads/codex/e02-B-adapters"
+      },
+      {
+        "worktree": "/workspace/e02-B-b52-oracle",
+        "HEAD": "0f24d18d988f579db20a84c734a587abe6cabe20",
+        "detached": true
+      },
+      {
+        "worktree": "/workspace/e02-B-b52-review515",
+        "HEAD": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+        "detached": true
+      },
+      {
+        "worktree": "/workspace/e02-B-cas",
+        "HEAD": "71d53452f69a6172b14071133a597a02add294bf",
+        "branch": "refs/heads/codex/e02-B-cas"
+      },
+      {
+        "worktree": "/workspace/e02-B-cas-alias-base",
+        "HEAD": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+        "detached": true
+      },
+      {
+        "worktree": "/workspace/e02-B-cas-alias-fix",
+        "HEAD": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+        "detached": true
+      },
+      {
+        "worktree": "/workspace/e02-B-cmp-res",
+        "HEAD": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+        "branch": "refs/heads/codex/e02-B-cmp-res"
+      },
+      {
+        "worktree": "/workspace/e02-B-coordination",
+        "HEAD": "087c84a2d7223971e6faca71b8533f41c56327d7",
+        "branch": "refs/heads/codex/e02-B-coordination"
+      },
+      {
+        "worktree": "/workspace/e02-B-dur-ledger",
+        "HEAD": "f3b9f054c86218b431ab927b56100164842db64a",
+        "branch": "refs/heads/codex/e02-B-dur-ledger"
+      },
+      {
+        "worktree": "/workspace/e02-B-exe-state",
+        "HEAD": "f669bc1dc89dcba3cd027abef8401a59673e3b32",
+        "branch": "refs/heads/codex/e02-B-exe-state"
+      },
+      {
+        "worktree": "/workspace/e02-B-run",
+        "HEAD": "86c5771aa51859624488c784df710b73cd0929b0",
+        "branch": "refs/heads/codex/e02-B-run"
+      },
+      {
+        "worktree": "/workspace/e02-B-run-review-base",
+        "HEAD": "ab310be19f310a6055797a2af56bf1ffae01f555",
+        "detached": true
+      },
+      {
+        "worktree": "/workspace/e02-B-run-review-candidate",
+        "HEAD": "6c2cab488368932479677bc036ffad25657c0367",
+        "detached": true
+      },
+      {
+        "worktree": "/workspace/e02-cas-contract-base36",
+        "HEAD": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+        "detached": true
+      }
+    ]
+  },
+  "self_created_registered_baseline": {
+    "path": "/workspace/e02-cas-contract-base36",
+    "head_sha": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+    "tree_sha": "ac5b7fc314e40d6736af885e185a7d3aa627eacc",
+    "branch_ref": null,
+    "detached": true,
+    "status_porcelain_all_untracked": "",
+    "dotgit_raw": "gitdir: /workspace/polisyos/.git/worktrees/e02-cas-contract-base36\n",
+    "absolute_git_dir": "/workspace/polisyos/.git/worktrees/e02-cas-contract-base36",
+    "common_dir": "/workspace/polisyos/.git",
+    "admin_head_raw": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6\n",
+    "admin_commondir_raw": "../..\n",
+    "admin_gitdir_backlink_raw": "/workspace/e02-cas-contract-base36/.git\n",
+    "dotgit_points_to_admin": true,
+    "admin_backlink_matches_live_dotgit": true,
+    "scope": "current sequential read-only observation only; no historical creation/admission implication"
+  },
+  "root_provided_writer_current_observation": {
+    "path": "/workspace/e02-B-cas",
+    "head_sha": "71d53452f69a6172b14071133a597a02add294bf",
+    "tree_sha": "8c1c29733f54557ea36d21a9c2d5c99f00da3655",
+    "branch_ref": "refs/heads/codex/e02-B-cas",
+    "detached": false,
+    "status_porcelain_all_untracked": "",
+    "dotgit_raw": "gitdir: /workspace/polisyos/.git/worktrees/e02-B-cas\n",
+    "absolute_git_dir": "/workspace/polisyos/.git/worktrees/e02-B-cas",
+    "common_dir": "/workspace/polisyos/.git",
+    "admin_head_raw": "ref: refs/heads/codex/e02-B-cas\n",
+    "admin_commondir_raw": "../..\n",
+    "admin_gitdir_backlink_raw": "/workspace/e02-B-cas/.git\n",
+    "dotgit_points_to_admin": true,
+    "admin_backlink_matches_live_dotgit": true,
+    "scope": "current sequential read-only observation only; no historical creation/admission implication"
+  },
+  "limits": [
+    "Sequential current Git/filesystem observation; no name reservation or retrospective precreation admission proof.",
+    "Git registry records attachment, not agent creation provenance; already removed/unregistered historical directories cannot be reconstructed from this selector."
+  ]
+}

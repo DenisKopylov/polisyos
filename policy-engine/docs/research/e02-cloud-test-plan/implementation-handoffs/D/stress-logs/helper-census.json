@@ -1,0 +1,9 @@
+{
+  "target_sha": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+  "tracked_python_denominator": 6427,
+  "pathset_sha256": "27b4845bc096b0713875ad5dfefbf8c59ba2a380b4228fa2e53fc79bc119a7ce",
+  "removed_helper": "_deduplicate_vulnerabilities",
+  "direct_named_references": [],
+  "dynamic_name_construction": "not_established",
+  "outcome": "PASS"
+}

@@ -1,0 +1,12 @@
+{"argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "/tmp/e02_stress_probe.py", "preserving"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+probe_mode=preserving; source_sha256=33dc75a9ad0d819a2636caa662ff10e907c662a11f638600c5388284dc3bab1e
+..........                                                               [100%]
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+{"exit_code": 0, "elapsed_s": 27.547, "max_rss_kib": 1165976}

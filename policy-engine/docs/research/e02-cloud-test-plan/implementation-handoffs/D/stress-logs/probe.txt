@@ -1,0 +1,49 @@
+import hashlib,pathlib,subprocess,sys,tempfile
+import pytest
+from polisyos.scientist.methods.search import adversarial as runtime
+mode=sys.argv[1]
+original=pathlib.Path(runtime.__file__).read_text()
+assert hashlib.sha256(original.encode()).hexdigest()=='d2e49ec1720979eb468605f1d1cae1a6f58803123eeaa187c65b510ad2f51640'
+assert pathlib.Path(runtime.__file__).resolve()==(pathlib.Path.cwd()/'src/polisyos/scientist/methods/search/adversarial.py').resolve()
+selector='tests/unit/scientist/search/test_adversarial_streaming.py'
+if mode=='historical':
+    changed=subprocess.check_output(['git','show','c40d4acae1ce58b597267255026d9356565828fd:policy-engine/src/polisyos/scientist/methods/search/adversarial.py'],text=True)
+    tests=['-k','keeps_full_vulnerability']
+elif mode=='retention_removal':
+    old='if len(self.examples) < self._max_examples:'
+    assert original.count(old)==1
+    changed=original.replace(old,'if True:  # Remove retention bound; keep _max_examples and counters.')
+    tests=['-k','keeps_full_vulnerability']
+elif mode=='counter_removal':
+    old='''        self.observed_count += 1
+        severity = vulnerability.severity
+        self.severity_counts[severity] = self.severity_counts.get(severity, 0) + 1
+        key = _vulnerability_key(vulnerability)
+        if key not in self.unique_keys:
+            self.unique_keys.add(key)'''
+    new='''        key = _vulnerability_key(vulnerability)
+        if key not in self.unique_keys:
+            self.observed_count += 1
+            severity = vulnerability.severity
+            self.severity_counts[severity] = self.severity_counts.get(severity, 0) + 1
+            self.unique_keys.add(key)'''
+    assert original.count(old)==1
+    changed=original.replace(old,new)
+    tests=['-k','repeated_scenario']
+elif mode=='direction_removal':
+    old='    if direction is OptimizationDirection.MAXIMIZE:\n        return -raw_objective\n    return raw_objective'
+    assert original.count(old)==1
+    changed=original.replace(old,'    if direction is OptimizationDirection.MAXIMIZE:\n        return -raw_objective\n    return -raw_objective')
+    tests=['-k','real_adaptive_objectives']
+elif mode=='preserving':
+    old='if len(self.examples) < self._max_examples:'
+    assert original.count(old)==1
+    changed=original.replace(old,'if len(self.examples) + 1 <= self._max_examples:')
+    tests=[]
+else:raise ValueError(mode)
+with tempfile.TemporaryDirectory(prefix='e02-stress-'+mode+'-') as d:
+    source=pathlib.Path(d)/'adversarial.py';source.write_text(changed)
+    runtime.__file__=str(source)
+    exec(compile(changed,str(source),'exec'),runtime.__dict__)
+    print('probe_mode='+mode+'; source_sha256='+hashlib.sha256(changed.encode()).hexdigest(),flush=True)
+    sys.exit(pytest.main([selector,'-q','-o','cache_dir=_cache/pytest-stress-'+mode,*tests]))

@@ -1,0 +1,2 @@
+PolicyOS hook: missing binary: /workspace/e02-D-stress/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine.
+Observed git commit exit1 before install; no commit created. Normal local frozen install followed by successful canonical hook run recorded in format-commit-hooks.log.

@@ -1,0 +1,14 @@
+{"argv": ["npm", "exec", "--yes", "--package=node@22", "--", "git", "commit", "-m", "style: format touched scenario adversary consumer test"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  eslint (skip) no files for inspection
+│  check-contrast (skip) no matching staged files
+│  prettier (skip) no files for inspection
+│  check-reduced-motion (skip) no matching staged files
+                                      
+  ────────────────────────────────────
+summary: (done in 0.15 seconds)       
+[codex/e02-D-stress 58bccb82f] style: format touched scenario adversary consumer test
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+{"exit_code": 0, "elapsed_s": 0.807, "max_rss_kib": 81056}

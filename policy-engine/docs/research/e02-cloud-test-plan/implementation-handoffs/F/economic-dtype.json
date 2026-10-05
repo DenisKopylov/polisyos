@@ -1,0 +1,572 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "economic-dtype",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA-003",
+    "LA-004",
+    "LA-035"
+  ],
+  "bundle_ids": [
+    "ECO-01",
+    "FRY-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0"
+  ],
+  "candidate_tree_sha": "9dcc163a864635004408ddd449bab105762e1726",
+  "branch": "codex/e02-F-economic-dtype",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+    "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+    "policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py"
+  ],
+  "baseline_cells": [],
+  "discovery_receipt": {
+    "source_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+    "published_head": "e642bb9025a67739c201393acca5712603cb064d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+    "branch": "codex/e02-F-economics",
+    "discovery": "NEW producer/backend dtype class from mixed-profile55PASS4FAIL; this separate slice repairs scalar cond compatibility, original receipt remains unmodified"
+  },
+  "baseline_receipt_basis": {
+    "grade": "historical source-reported compact text only; no raw Fxx archives",
+    "backend_profile": "baseline Python3.14 excluded DoWhy/EconML markers; native JAX CPU only for this slice",
+    "semantic_adequacy": "not_established for finding closure"
+  },
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "versions": {
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "numpy": "2.3.5",
+      "pytest": "9.0.2"
+    },
+    "native_backend": "cpu",
+    "devices": [
+      "TFRT_CPU_0"
+    ],
+    "default_x64": false,
+    "candidate_modules": [
+      {
+        "module": "polisyos.foundry.agent_sim.distributions",
+        "path": "/workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+        "sha256": "2b8a2471da8542e5f6d5f5652072ed04cea897720fc594fa57feccffe33aa7ee"
+      },
+      {
+        "module": "polisyos.foundry.plugins.economics.state",
+        "path": "/workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+        "sha256": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da"
+      },
+      {
+        "module": "polisyos.foundry.plugins.economics.plugin",
+        "path": "/workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+        "sha256": "40e579d2d4efa4e3bc4da3f46462f075a88a3422b1492ede8ef5439accb7bb94"
+      }
+    ],
+    "backend_limit": "Native JAX CPU witness only; no DoWhy/EconML invocation or positive witness."
+  },
+  "input_closure": {
+    "kind": "positive known synthetic arrays and seeded native EconomicsPlugin factory",
+    "production_inputs": false,
+    "authority_purpose": "bounded native arithmetic/type/consumer verification, no production or normative economic authority",
+    "dtype_cases": "float32 default+x64,float64 x64,int32 default+x64,float16/bfloat16 x64; eager/JIT, active/all-inactive, inactive-value/permutation controls",
+    "source_test_hashes": {
+      "policy-engine/src/polisyos/foundry/agent_sim/distributions.py": "2b8a2471da8542e5f6d5f5652072ed04cea897720fc594fa57feccffe33aa7ee",
+      "policy-engine/src/polisyos/foundry/plugins/economics/state.py": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da",
+      "policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py": "13b1879f4e86108e9916db419170f9af886548697f227de2923244c1db99365c"
+    },
+    "resource_measurement": "three-command importer/architecture wave max child RSS1368092KiB; not attributed as per-command RSS"
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "tests/unit/foundry/plugins/test_economics_dtype.py",
+        "-v",
+        "-ra",
+        "--tb=short"
+      ],
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "canonical mechanism source at slice base (empty mechanism diff) plus initial new test definitions before Ruff layout/import formatting; test sha256 0d4add0d71238b089da32ca708097b8d3e094599072b627dd67d3c4445edf094",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "observed": "27 failed,33 passed,0 skips/errors; native cond dtype mismatch; this is the pre-fix discriminator, not inherited-red attribution",
+      "wall_seconds": 18.443201226999918,
+      "max_rss_kib": 793796,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+        "bytes": 84777,
+        "section": "economic-dtype-base"
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "tests/unit/foundry/plugins/test_economics_dtype.py",
+        "-v",
+        "-ra",
+        "--tb=short"
+      ],
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "all60 new parametrized native test nodes; pre-freeze source/test hashes independently reconciled with all three committed blobs",
+      "outcome": "PASS",
+      "observed": "60 passed,0 skipped/errors,16.55s pytest",
+      "wall_seconds": 21.570264124999767,
+      "max_rss_kib": 890236,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+        "bytes": 84777,
+        "section": "economic-dtype-targeted"
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "tests/unit/foundry/plugins/test_plugin_system.py",
+        "tests/unit/foundry/plugins/test_economics_social_weights.py",
+        "tests/unit/foundry/agent_sim/test_distributions.py",
+        "tests/unit/remediation/test_eco_01.py",
+        "-v",
+        "-ra",
+        "--tb=short"
+      ],
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "complete selected native plugin/consumer/remediation files, including real composite executor and simulator: 37 nodes",
+      "outcome": "PASS",
+      "observed": "37 passed,0 skipped/errors,43.29s pytest",
+      "wall_seconds": 54.69297200700021,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+        "bytes": 84777,
+        "section": "economic-dtype-importers-default"
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "tests/unit/foundry/plugins/test_plugin_system.py",
+        "tests/unit/foundry/plugins/test_economics_social_weights.py",
+        "tests/unit/remediation/test_eco_01.py",
+        "-v",
+        "-ra",
+        "--tb=short"
+      ],
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "JAX_ENABLE_X64": "true"
+      },
+      "input_closure": "complete selected native plugin/consumer/remediation files, including real composite executor and simulator: 30 nodes",
+      "outcome": "PASS",
+      "observed": "30 passed,0 skipped/errors,49.08s pytest",
+      "wall_seconds": 55.477037679000205,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+        "bytes": 84777,
+        "section": "economic-dtype-importers-x64"
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/plugins/test_economics_dtype.py",
+        "tests/unit/foundry/agent_sim/test_distributions.py",
+        "tests/unit/foundry/agent_sim/test_agent_simulation_step3.py",
+        "-o",
+        "cache_dir=/workspace/e02-F-receipts/foundry-economic-review-cache",
+        "--basetemp=/workspace/e02-F-receipts/foundry-economic-review-tmp"
+      ],
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": "new60 nodes plus all existing distributions and agent_sim step3 importer nodes,76 total",
+      "outcome": "PASS",
+      "observed": "76 passed,0 skipped/errors,17.21s pytest",
+      "executing_holder": "F/foundry independent reviewer",
+      "wall_seconds": 30.558598299000096,
+      "max_rss_kib": 1126584,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+        "bytes": 84777,
+        "section": "foundry-economic-review"
+      }
+    },
+    {
+      "command": [
+        "PYTHONPATH=src:.",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-removal.py",
+        "gini-zero-dtype"
+      ],
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "real canonical-module in-memory mutation, unchanged names/exports; selected native value and dtype checks",
+      "outcome": "PASS",
+      "observed_probe_exit": 1,
+      "expected_probe_exit": 1,
+      "observed": "============ 4 failed, 4 passed, 52 deselected, 1 warning in 1.51s =============",
+      "wall_seconds": 12.029294057999778,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+        "bytes": 84777,
+        "section": "economic-dtype-gini-zero-dtype"
+      }
+    },
+    {
+      "command": [
+        "PYTHONPATH=src:.",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-removal.py",
+        "median-zero-dtype"
+      ],
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "real canonical-module in-memory mutation, unchanged names/exports; selected native value and dtype checks",
+      "outcome": "PASS",
+      "observed_probe_exit": 1,
+      "expected_probe_exit": 1,
+      "observed": "============ 4 failed, 4 passed, 52 deselected, 1 warning in 1.36s =============",
+      "wall_seconds": 12.115712067999993,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+        "bytes": 84777,
+        "section": "economic-dtype-median-zero-dtype"
+      }
+    },
+    {
+      "command": [
+        "PYTHONPATH=src:.",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-removal.py",
+        "median-downcast"
+      ],
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "real canonical-module in-memory mutation, unchanged names/exports; selected native value and dtype checks",
+      "outcome": "PASS",
+      "observed_probe_exit": 1,
+      "expected_probe_exit": 1,
+      "observed": "================= 2 failed, 58 deselected, 1 warning in 0.58s ==================",
+      "wall_seconds": 11.350987535000058,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+        "bytes": 84777,
+        "section": "economic-dtype-median-downcast"
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/agent_sim/distributions.py src/polisyos/foundry/plugins/economics/state.py tests/unit/foundry/plugins/test_economics_dtype.py",
+        "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/agent_sim/distributions.py src/polisyos/foundry/plugins/economics/state.py tests/unit/foundry/plugins/test_economics_dtype.py"
+      ],
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "environment": "Python3.14.2",
+      "input_closure": "all three implementation source/test paths",
+      "outcome": "PASS",
+      "output": "All checks passed!\n3 files already formatted\n"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "actual repository architecture command with native Python scanner plus tmp generated-freshness subprocesses; complete input closure not established for unrun TS generators",
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "observed": "Required runtime-api-client and runtime-dashboard-api-types generators UNRUN: openapi-typescript/node_modules absent, Node24 versus supported22. Completed partial import-baseline and OpenAPI/trust-register drift findings remain FAIL. No complete architecture verdict.",
+      "wall_seconds": 205.13269041600006,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-architecture.txt",
+        "sha256": "5d3160f3a0a69ace31bfc628e54e7050c77ea3b870ceda11ab5899b387ebb240",
+        "bytes": 118101,
+        "kind": "complete command stdout, trailing whitespace normalized only"
+      },
+      "full_raw_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economic-dtype-architecture.log",
+        "sha256": "5d3160f3a0a69ace31bfc628e54e7050c77ea3b870ceda11ab5899b387ebb240",
+        "bytes": 118101,
+        "transfer": "local ignored exact raw; complete normalized stdout committed alongside receipt"
+      },
+      "attribution": "not_established; no exact base replay/zero-input-intersection proof, never labeled inherited"
+    }
+  ],
+  "property": {
+    "statement": "Canonical hard Gini and historical lower-median zero-active branches use the dtype produced by their existing active computations, so native JAX can trace both branches without narrowing values or replacing the formulas.",
+    "runtime_path": [
+      "masked native arrays\u2192agent_sim.distributions.compute_gini_hard",
+      "EconomicState._median_active\u2192EconomicDistributions",
+      "EconomicsPlugin.create_initial_state\u2192EconomicState.empty",
+      "native JIT EconomicState.update_aggregates\u2192registered GiniObjective.evaluate and observation-builder outputs"
+    ],
+    "artifact": "existing EconomicDistributions and EconomicState JAX pytrees; no new persistence or external signature contract",
+    "consumer_abi": "unchanged callable signatures and domain state fields; native factory/refresh/objective/observations/composite executor/simulator tested, no new public facade",
+    "surface": "existing pure statistics and plugin consumer outputs; publication/admitted policy/data surfaces out_of_scope",
+    "proxy_divergence": "Float32-only smoke checks still PASS when float64 cond compatibility is removed. A float32 narrowing then cast back to float64 keeps output dtype correct but returns16777216 instead of exact16777217; native value oracle rejects it.",
+    "negative_controls": [
+      "both canonical zero-branch dtype fixes individually removed in memory; float32 controls4PASS,float64 controls4FAIL each",
+      "same-output-dtype narrowing mutant rejected by two exact lower-median value tests",
+      "inactive values/signs and positions perturbed while selected values fixed",
+      "integer fractional Gini prevents values.dtype-only integer zero branch workaround",
+      "analytic pairwise positive-array Gini and historical lower order statistic independent of implementation formula"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "bounded_native_scalar_dtype_repair; architecture_UNRUN_with_partial_FAIL_findings; economic authority/production applicability held; no finding closed",
+  "consumer_census": {
+    "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+    "denominator": {
+      "tracked_file_types": "all tracked files from git ls-tree",
+      "tracked_files": 13543,
+      "scanned_path": "policy-engine/src/**/*.py",
+      "scanned_file_types": [
+        ".py"
+      ],
+      "scanned_files": 2697,
+      "source_tree_sha": "7a5ae6b5a8a8eabd30014efb0ff506714c4a2e82"
+    },
+    "literal_matches": {
+      "compute_gini_hard": [
+        "policy-engine/src/polisyos/foundry/agent_sim/__init__.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/wiring/executors.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/state.py"
+      ],
+      "_median_active": [
+        "policy-engine/src/polisyos/foundry/plugins/economics/state.py"
+      ]
+    },
+    "scope": "Source-level literal consumer trace, not dynamic registry or external-plugin absence.",
+    "unresolved_boundaries": [
+      "Dynamic imports / reflection / string assembly",
+      "External plugins and admitted real production inputs"
+    ],
+    "absence_verdict": "not_established outside the declared tracked Python literal denominator"
+  },
+  "independent_review": {
+    "reviewer": "F/foundry",
+    "source_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+    "verdict": "GO for bounded dtype patch, no blocking findings",
+    "source_bytes_stable": true,
+    "native_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+      "sha256": "5ae619d919a946ccc5c12767b48092248cc8f4962a53ebbf909b75a300665797",
+      "bytes": 85093,
+      "section": "foundry-economic-review"
+    },
+    "analytic_controls": {
+      "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "python": "3.14.2",
+      "jax": "0.8.2",
+      "runtime": "[CpuDevice(id=0)]",
+      "scope": "Native public HARD dispatch and historical lower median; synthetic positive values only, no normative/all-zero-total convention",
+      "records": [
+        {
+          "x64": false,
+          "input_dtype": "<class 'jax.numpy.float32'>",
+          "compiled": false,
+          "three_active_gini": 0.2222222089767456,
+          "exact_pairwise_oracle": "2/9",
+          "lower_median": 2.0,
+          "all_inactive": [
+            0.0,
+            0.0
+          ],
+          "outcome": "PASS"
+        },
+        {
+          "x64": false,
+          "input_dtype": "<class 'jax.numpy.float32'>",
+          "compiled": true,
+          "three_active_gini": 0.2222222089767456,
+          "exact_pairwise_oracle": "2/9",
+          "lower_median": 2.0,
+          "all_inactive": [
+            0.0,
+            0.0
+          ],
+          "outcome": "PASS"
+        },
+        {
+          "x64": true,
+          "input_dtype": "<class 'jax.numpy.float32'>",
+          "compiled": false,
+          "three_active_gini": 0.2222222089767456,
+          "exact_pairwise_oracle": "2/9",
+          "lower_median": 2.0,
+          "all_inactive": [
+            0.0,
+            0.0
+          ],
+          "outcome": "PASS"
+        },
+        {
+          "x64": true,
+          "input_dtype": "<class 'jax.numpy.float32'>",
+          "compiled": true,
+          "three_active_gini": 0.2222222089767456,
+          "exact_pairwise_oracle": "2/9",
+          "lower_median": 2.0,
+          "all_inactive": [
+            0.0,
+            0.0
+          ],
+          "outcome": "PASS"
+        },
+        {
+          "x64": true,
+          "input_dtype": "<class 'jax.numpy.float64'>",
+          "compiled": false,
+          "three_active_gini": 0.2222221816215948,
+          "exact_pairwise_oracle": "2/9",
+          "lower_median": 2.0,
+          "all_inactive": [
+            0.0,
+            0.0
+          ],
+          "outcome": "PASS"
+        },
+        {
+          "x64": true,
+          "input_dtype": "<class 'jax.numpy.float64'>",
+          "compiled": true,
+          "three_active_gini": 0.2222221816215948,
+          "exact_pairwise_oracle": "2/9",
+          "lower_median": 2.0,
+          "all_inactive": [
+            0.0,
+            0.0
+          ],
+          "outcome": "PASS"
+        },
+        {
+          "input_dtype": "float64",
+          "compiled": true,
+          "precision_gini": 2.980231861293703e-08,
+          "exact_pairwise_oracle": "1/33554436",
+          "precision_lower_median": 16777217.0,
+          "same_output_dtype_narrowing_control_gini": 5.960463744791866e-08,
+          "same_output_dtype_narrowing_control_median": 16777216.0,
+          "value_oracle_rejects_narrowing": true,
+          "outcome": "PASS"
+        }
+      ]
+    },
+    "p40": "scalar cond dtype class repaired at both actual factory dependencies; formula and profile semantics are a distinct owner-held scope"
+  },
+  "semantic_boundary_probe": {
+    "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+    "records": [
+      {
+        "dtype": "float32",
+        "all_active_zero_total_result": -1.3333333730697632,
+        "classification": "existing formula convention unchanged; no inequality-validity claim at zero total"
+      },
+      {
+        "dtype": "float64",
+        "all_active_zero_total_result": -1.3333333730697632,
+        "classification": "existing formula convention unchanged; no inequality-validity claim at zero total"
+      }
+    ],
+    "bound": "dtype compatibility only, not a new zero-total or negative-value inequality convention",
+    "next_owner": "F/ECO canonical semantic owner; select/rule-authorize convention before change"
+  },
+  "pattern_pass": [
+    "P27/P31 retained canonical owners, one promotion invariant at both scalar conditional dependencies; no shim or x64 suppression",
+    "P29/P33 remove-property/keep-names controls fail real runtime oracles while default dtype proxy passes",
+    "P35 complete tracked Python source denominator2697 of13543 tracked files, frozen source tree and literal consumer match set recorded; dynamic/external absence not established",
+    "P37 synthetic numerical predicates recomputed and independently reconciled; real input and economic authority not established",
+    "P38 output dtype proxy diverges from exact float64 value preservation",
+    "P40 class widened to both Gini and median before review; unrelated formula law remains held",
+    "P41 no inherited attribution for architecture incomplete/partial negative verdict or prior mixed FAIL"
+  ],
+  "limitations_and_next_owner": [
+    "LA-003 limited and LA-004/LA-035 semantic owner(Principal Denis) held remain; native arithmetic cannot establish production caller applicability, objective authority or profile equivalence.",
+    "G local run at exact implementation SHA: repeat native dtype tests and selected consumer commands under local JAX CPU; full real inputs stay local and require separately admitted identities.",
+    "Hard Gini ranks/counts remain float32 by existing formula. Float64[1,2,3] gives0.2222221816215948 versus2/9(~4e-8); this patch provides branch compatibility and value preservation, not full64-bit statistical accuracy improvement.",
+    "All-active zero-total Gini retains existing negative formula output (three agents:-1.3333333730697632); negative-value/zero-total economic conventions were not authorized, so no mathematically valid inequality claim is made for those inputs.",
+    "Unrelated fiscal rate/equality representational issue from original mixed-profile receipt is untouched; no tolerance relaxed.",
+    "Previous runtime diagnostic JSON\u2192native patch consumer bridge_missing remains; this scalar plugin fix does not admit that interface.",
+    "Architecture UNRUN/partial FAIL needs provisioned supported Node22+frozen workspace dependencies and owner-approved import/generated artifact reconciliation. No scanner finding is promoted to complete TS-backend witness; no drift sync or gate weakening performed.",
+    "No DoWhy/EconML backend or admitted causal/calibration/coverage witness supplied."
+  ],
+  "log_normalization": {
+    "operation": "strip trailing whitespace on each line and terminal blank separator only; preserve every diagnostic/node/failure/diff line and ordering",
+    "combined_deciding_raw_sha256": "5ae619d919a946ccc5c12767b48092248cc8f4962a53ebbf909b75a300665797",
+    "combined_deciding_normalized": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+      "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+      "bytes": 84777
+    },
+    "architecture_raw_sha256": "5d3160f3a0a69ace31bfc628e54e7050c77ea3b870ceda11ab5899b387ebb240",
+    "architecture_normalized": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-architecture.txt",
+      "sha256": "5d3160f3a0a69ace31bfc628e54e7050c77ea3b870ceda11ab5899b387ebb240",
+      "bytes": 118101
+    }
+  }
+}

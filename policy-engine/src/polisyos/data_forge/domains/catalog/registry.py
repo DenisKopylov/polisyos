@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Self
 
-from pydantic import Field
+from pydantic import ConfigDict, Field, model_validator
 
 from polisyos.data_forge.kernel._base import DataForgeModel
 
-from .selection import resolve_catalog_source_dependencies
+from .selection import select_catalog_sources
 from .source_modules import (
     CatalogExecutionTier,
     CatalogHistoryPolicy,
@@ -23,12 +23,14 @@ from .source_modules import (
 class CatalogSourceRegistryEntry(DataForgeModel):
     """One source entry from the catalog source registry."""
 
+    model_config = ConfigDict(strict=True)
+
     source_id: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
     family: str = Field(min_length=1)
     wave: str = Field(min_length=1, max_length=8)
     endpoint: str = Field(min_length=1)
     enabled: bool = True
-    connector_id: str = Field(min_length=1)
+    connector_id: str = Field(default="", min_length=0)
     profile_id: str = Field(default="", min_length=0)
     execution_tier: CatalogExecutionTier = "catalog"
     run_lane: CatalogRunLane = "catalog"
@@ -49,6 +51,32 @@ class CatalogSourceRegistryEntry(DataForgeModel):
     format_denylist: tuple[str, ...] = Field(default_factory=tuple)
     keyword_allowlist: tuple[str, ...] = Field(default_factory=tuple)
     keyword_denylist: tuple[str, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _apply_execution_tier_defaults(cls, value: object) -> object:
+        """Preserve the batch registry's dependent defaults for omitted fields."""
+        if not isinstance(value, dict):
+            return value
+        normalized = dict(value)
+        execution_tier = normalized.get("execution_tier", "catalog")
+        normalized.setdefault(
+            "run_lane",
+            "catalog" if execution_tier == "catalog" else "empirical",
+        )
+        normalized.setdefault("publish_blocking", execution_tier != "catalog")
+        return normalized
+
+    @model_validator(mode="after")
+    def _policy_fields_are_consistent(self) -> Self:
+        """Keep the existing batch registry's cross-field policy constraints."""
+        if self.run_lane == "enrichment" and self.publish_blocking:
+            raise ValueError("enrichment sources cannot be publish-blocking")
+        if self.allow_manual_backfill and self.history_policy != "rolling_window":
+            raise ValueError("manual backfill requires rolling_window history policy")
+        if self.default_lookback_days is not None and self.history_policy != "rolling_window":
+            raise ValueError("default_lookback_days requires rolling_window history policy")
+        return self
 
     def included_in_run_profile(self, profile: CatalogRunProfile) -> bool:
         """Return whether this source participates in a Data Forge run profile."""
@@ -89,7 +117,9 @@ class CatalogSourceRegistryEntry(DataForgeModel):
 class CatalogSourceRegistrySpec(DataForgeModel):
     """Validated source registry contract used by Data Forge catalog planning."""
 
-    version: int = Field(ge=1)
+    model_config = ConfigDict(strict=True)
+
+    version: int = Field(default=1, ge=1)
     sources: tuple[CatalogSourceRegistryEntry, ...] = Field(default_factory=tuple)
 
     def source_by_id(self, source_id: str) -> CatalogSourceRegistryEntry | None:
@@ -106,25 +136,11 @@ class CatalogSourceRegistrySpec(DataForgeModel):
         run_profile: CatalogRunProfile = "prod_full",
     ) -> tuple[CatalogSourceRegistryEntry, ...]:
         """Return selected registry entries with seed dependencies expanded."""
-        selected = [
-            source
-            for source in self.sources
-            if source.enabled
-            and (wave is None or source.wave.upper() == wave.upper())
-            and source.included_in_run_profile(run_profile)
-        ]
-        return resolve_catalog_source_dependencies(self.sources, selected)
+        return select_catalog_sources(self.sources, wave=wave, run_profile=run_profile)
 
     def to_module_specs(self) -> tuple[CatalogSourceModuleSpec, ...]:
         """Return source-module specs for all registry entries."""
         return tuple(source.to_module_spec() for source in self.sources)
-
-
-_REGISTRY_ROOT_KEYS = frozenset(CatalogSourceRegistrySpec.model_fields)
-_REGISTRY_SOURCE_KEYS = frozenset(
-    "name" if field_name == "source_id" else field_name
-    for field_name in CatalogSourceRegistryEntry.model_fields
-)
 
 
 def default_catalog_source_registry_path() -> Path:
@@ -145,7 +161,7 @@ def _default_catalog_source_registry_view() -> CatalogSourceRegistrySpec:
 
 
 def _load_catalog_source_registry(registry_path: Path) -> CatalogSourceRegistrySpec:
-    """Parse one explicit YAML file into the canonical typed projection."""
+    """Parse one YAML registry through strict Pydantic source contracts."""
     import yaml
 
     payload = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
@@ -153,43 +169,31 @@ def _load_catalog_source_registry(registry_path: Path) -> CatalogSourceRegistryS
         payload = {}
     if not isinstance(payload, dict):
         raise ValueError(f"source registry must be a mapping: {registry_path}")
-    unexpected_root_keys = set(payload) - _REGISTRY_ROOT_KEYS
-    if unexpected_root_keys:
-        raise ValueError(
-            f"source registry has unsupported keys: {sorted(unexpected_root_keys)}: "
-            f"{registry_path}"
-        )
-    version = payload.get("version", 1)
-    if isinstance(version, bool) or not isinstance(version, int):
-        raise ValueError(f"source registry version must be an integer: {registry_path}")
     raw_sources = payload.get("sources", [])
     if not isinstance(raw_sources, list):
         raise ValueError(f"source registry 'sources' must be a list: {registry_path}")
 
-    entries: list[CatalogSourceRegistryEntry] = []
+    normalized_sources: list[dict[str, object]] = []
     for index, row in enumerate(raw_sources):
         if not isinstance(row, dict):
             raise ValueError(f"source registry row {index} must be a mapping: {registry_path}")
-        source_name = row.get("name")
-        if not isinstance(source_name, str) or not source_name.strip():
-            raise ValueError(
-                f"source registry row {index} must have a non-empty name: {registry_path}"
-            )
-        unexpected_source_keys = set(row) - _REGISTRY_SOURCE_KEYS
-        if unexpected_source_keys:
-            raise ValueError(
-                f"source registry row {index} has unsupported keys: "
-                f"{sorted(unexpected_source_keys)}: {registry_path}"
-            )
-        entries.append(_entry_from_mapping(row))
+        normalized_row: dict[str, object] = {}
+        for key, value in row.items():
+            normalized_key = "source_id" if key == "name" else key
+            if normalized_key in normalized_row:
+                raise ValueError(
+                    f"source registry row {index} repeats source identity: {registry_path}"
+                )
+            normalized_row[normalized_key] = _normalize_yaml_sequences(value)
+        normalized_sources.append(normalized_row)
 
-    source_ids = tuple(entry.source_id for entry in entries)
+    normalized_payload = {key: _normalize_yaml_sequences(value) for key, value in payload.items()}
+    normalized_payload["sources"] = tuple(normalized_sources)
+    registry = CatalogSourceRegistrySpec.model_validate(normalized_payload, strict=True)
+    source_ids = tuple(entry.source_id for entry in registry.sources)
     if len(source_ids) != len(set(source_ids)):
         raise ValueError(f"source registry contains duplicate source names: {registry_path}")
-    return CatalogSourceRegistrySpec(
-        version=version,
-        sources=tuple(entries),
-    )
+    return registry
 
 
 def catalog_source_modules_from_registry(
@@ -207,90 +211,13 @@ def _catalog_source_module(source_id: str) -> CatalogSourceModuleSpec:
     return source.to_module_spec()
 
 
-def _entry_from_mapping(row: dict[str, Any]) -> CatalogSourceRegistryEntry:
-    execution_tier = _execution_tier(row.get("execution_tier"))
-    run_lane = _run_lane(row.get("run_lane"), execution_tier)
-    return CatalogSourceRegistryEntry(
-        source_id=str(row.get("name") or "").strip(),
-        family=str(row.get("family") or "").strip(),
-        wave=str(row.get("wave") or "").strip().upper(),
-        endpoint=str(row.get("endpoint") or "").strip(),
-        enabled=_bool(row, "enabled", True),
-        connector_id=str(row.get("connector_id") or "").strip(),
-        profile_id=str(row.get("profile_id") or "").strip(),
-        execution_tier=execution_tier,
-        run_lane=run_lane,
-        publish_blocking=_bool(row, "publish_blocking", execution_tier != "catalog"),
-        update_frequency=str(row.get("update_frequency") or "").strip(),
-        metrics_required=_bool(row, "metrics_required", False),
-        history_policy=_history_policy(row.get("history_policy")),
-        default_lookback_days=_int_or_none(row.get("default_lookback_days")),
-        max_rows_per_snapshot=_int_or_none(row.get("max_rows_per_snapshot")),
-        max_bytes_per_snapshot=_int_or_none(row.get("max_bytes_per_snapshot")),
-        allow_manual_backfill=_bool(row, "allow_manual_backfill", False),
-        seed_from=_optional_str(row.get("seed_from")),
-        require_curated_resources=_bool(row, "require_curated_resources", False),
-        agency_prefix=str(row.get("agency_prefix") or "").strip(),
-        agency_allowlist=_string_tuple(row.get("agency_allowlist")),
-        exclude_agencies=_string_tuple(row.get("exclude_agencies")),
-        format_allowlist=_upper_string_tuple(row.get("format_allowlist")),
-        format_denylist=_upper_string_tuple(row.get("format_denylist")),
-        keyword_allowlist=_lower_string_tuple(row.get("keyword_allowlist")),
-        keyword_denylist=_lower_string_tuple(row.get("keyword_denylist")),
-    )
-
-
-def _execution_tier(value: object) -> CatalogExecutionTier:
-    tier = str(value or "catalog").strip() or "catalog"
-    if tier in {"catalog", "fetchable", "transport_ready"}:
-        return tier
-    raise ValueError(f"invalid catalog execution_tier: {tier}")
-
-
-def _run_lane(value: object, execution_tier: CatalogExecutionTier) -> CatalogRunLane:
-    lane = str(value or "").strip() or ("catalog" if execution_tier == "catalog" else "empirical")
-    if lane in {"catalog", "empirical", "enrichment"}:
-        return lane
-    raise ValueError(f"invalid catalog run_lane: {lane}")
-
-
-def _history_policy(value: object) -> CatalogHistoryPolicy:
-    policy = str(value or "full_snapshot").strip() or "full_snapshot"
-    if policy in {"full_snapshot", "rolling_window"}:
-        return policy
-    raise ValueError(f"invalid catalog history_policy: {policy}")
-
-
-def _optional_str(value: object) -> str | None:
-    text = str(value or "").strip()
-    return text or None
-
-
-def _int_or_none(value: object) -> int | None:
-    if value in (None, ""):
-        return None
-    return int(value)
-
-
-def _bool(row: dict[str, Any], field_name: str, default: bool) -> bool:
-    value = row.get(field_name, default)
-    if not isinstance(value, bool):
-        raise ValueError(f"catalog source {field_name} must be a boolean")
+def _normalize_yaml_sequences(value: object) -> object:
+    """Represent YAML arrays as tuples while retaining every scalar type."""
+    if isinstance(value, list):
+        return tuple(_normalize_yaml_sequences(item) for item in value)
+    if isinstance(value, dict):
+        return {key: _normalize_yaml_sequences(item) for key, item in value.items()}
     return value
-
-
-def _string_tuple(value: object) -> tuple[str, ...]:
-    if not isinstance(value, list | tuple):
-        return ()
-    return tuple(str(item).strip() for item in value if str(item).strip())
-
-
-def _upper_string_tuple(value: object) -> tuple[str, ...]:
-    return tuple(item.upper() for item in _string_tuple(value))
-
-
-def _lower_string_tuple(value: object) -> tuple[str, ...]:
-    return tuple(item.lower() for item in _string_tuple(value))
 
 
 __all__ = [

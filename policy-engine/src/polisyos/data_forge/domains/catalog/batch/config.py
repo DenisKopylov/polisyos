@@ -15,6 +15,8 @@ from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     COUNTRY_SCOPES,
     country_scope_members,
 )
+from polisyos.data_forge.domains.catalog.registry import default_catalog_source_registry_path
+from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
 from polisyos.data_forge.kernel.io import ensure_dirs, snapshot_component_dir
 
 ALL_STAGES = frozenset(
@@ -153,7 +155,7 @@ class DatasetBatchConfig:
         return self.manifests_dir / "telemetry.json"
 
     def load_registry(self) -> SourceRegistry:
-        path = self.registry_path or (Path(__file__).resolve().parent / "source_registry.yaml")
+        path = self.registry_path or self.default_registry_path
         return load_source_registry(path)
 
     @property
@@ -162,7 +164,7 @@ class DatasetBatchConfig:
 
     @property
     def default_registry_path(self) -> Path:
-        return Path(__file__).resolve().parent / "source_registry.yaml"
+        return default_catalog_source_registry_path()
 
     @property
     def default_metrics_map_path(self) -> Path:
@@ -220,7 +222,9 @@ class DatasetBatchConfig:
         if self.registry_path is None:
             return False
         try:
-            return self.registry_path.resolve() != self.default_registry_path.resolve()
+            selected_path = self.registry_path.resolve()
+            legacy_path = (Path(__file__).resolve().parent / "source_registry.yaml").resolve()
+            return selected_path not in {self.default_registry_path.resolve(), legacy_path}
         except FileNotFoundError:
             return True
 
@@ -232,6 +236,7 @@ class DatasetBatchConfig:
         unknown = set(self.stages) - ALL_STAGES
         if unknown:
             raise ValueError(f"Unknown stages: {sorted(unknown)}")
+        validate_catalog_run_profile(self.run_profile)
         if self.metrics_map_path is None:
             self.metrics_map_path = self.default_metrics_map_path
         if not self.resolved_metrics_map_path.exists():
@@ -249,15 +254,6 @@ class DatasetBatchConfig:
                 raise ValueError(
                     "rest_backfill profile requires at least one enabled rolling-window source"
                 )
-        if self.run_profile not in {
-            "prod_full",
-            "prod_core_blocking",
-            "rest_backfill",
-            "catalog_refresh",
-            "preflight_core",
-            "observations_backfill",
-        }:
-            raise ValueError(f"Unsupported run_profile: {self.run_profile}")
         if self.observation_mode not in {"all", "core", "backfill"}:
             raise ValueError("observation_mode must be one of: all, core, backfill")
         if self.resume_mode not in {"smart", "force", "off"}:

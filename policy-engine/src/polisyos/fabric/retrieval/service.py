@@ -182,9 +182,7 @@ class RetrievalService:
         self._explore = explore or ExploreLaneDiscovery(
             providers=resolved,
         )
-        if executor is not None and (
-            cas_root is not None or artifact_store_config is not None
-        ):
+        if executor is not None and (cas_root is not None or artifact_store_config is not None):
             raise ValueError("retrieval_service_executor_store_configuration_conflict")
         if (
             executor is not None
@@ -235,6 +233,19 @@ class RetrievalService:
             else:
                 self._catalog_source_policies = {spec.source_id: spec for spec in registry.sources}
         return self._catalog_source_policies.get(normalized)
+
+    def _catalog_source_is_enabled(self, source_name: str) -> bool:
+        """Require explicit catalog source identities and reject disabled sources."""
+        normalized = source_name.strip()
+        if not normalized:
+            return True
+        policy = self._source_policy(normalized)
+        if policy is None:
+            raise catalog_read_api.CatalogSelectionError(
+                "catalog_source_unregistered",
+                normalized,
+            )
+        return policy.enabled
 
     def _catalog_date_window(
         self,
@@ -758,9 +769,7 @@ class RetrievalService:
                     )
                     bindings = []
                 for binding in bindings:
-                    execution_tier = str(
-                        getattr(binding, "execution_tier", "catalog") or "catalog"
-                    )
+                    execution_tier = str(getattr(binding, "execution_tier", "catalog") or "catalog")
                     if execution_tier not in _EXECUTABLE_CATALOG_TIERS:
                         continue
                     connector_id = str(getattr(binding, "connector_id", "") or "").strip()
@@ -768,6 +777,9 @@ class RetrievalService:
                         getattr(binding, "request_dataset_id", "") or ""
                     ).strip()
                     if not connector_id or not request_dataset_id:
+                        continue
+                    source_name = str(getattr(binding, "source", "") or "")
+                    if not self._catalog_source_is_enabled(source_name):
                         continue
                     resolved_rows.append(
                         {
@@ -784,7 +796,7 @@ class RetrievalService:
                             "confidence": _coerce_float(getattr(binding, "confidence", 0.0) or 0.0),
                             "catalog_title": str(getattr(binding, "title", "") or ""),
                             "execution_tier": execution_tier,
-                            "source": str(getattr(binding, "source", "") or ""),
+                            "source": source_name,
                         }
                     )
 
@@ -799,9 +811,7 @@ class RetrievalService:
                     logger.debug("Catalog lookup failed for metric %s", need.metric, exc_info=True)
                     continue
                 for result in results:
-                    execution_tier = str(
-                        getattr(result, "execution_tier", "catalog") or "catalog"
-                    )
+                    execution_tier = str(getattr(result, "execution_tier", "catalog") or "catalog")
                     if execution_tier not in _EXECUTABLE_CATALOG_TIERS:
                         continue
                     try:
@@ -820,6 +830,9 @@ class RetrievalService:
                         or not target.parser_supported
                     ):
                         continue
+                    source_name = str(getattr(result, "source", "") or "")
+                    if not self._catalog_source_is_enabled(source_name):
+                        continue
                     resolved_rows.append(
                         {
                             "catalog_dataset_id": target.catalog_dataset_id,
@@ -831,7 +844,7 @@ class RetrievalService:
                             "confidence": max(0.05, _coerce_float(result.similarity) * 0.8),
                             "catalog_title": result.title,
                             "execution_tier": execution_tier,
-                            "source": getattr(result, "source", ""),
+                            "source": source_name,
                         }
                     )
 

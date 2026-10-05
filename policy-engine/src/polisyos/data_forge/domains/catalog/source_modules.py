@@ -10,19 +10,15 @@ from polisyos.data_forge.kernel._base import DataForgeModel
 from polisyos.data_forge.kernel.artifacts import RetentionClass
 from polisyos.data_forge.kernel.pipeline import AssetGroup, AssetKey, AssetSpec
 
-from .selection import resolve_catalog_source_dependencies
+from .selection import (
+    CatalogRunProfile,
+    select_catalog_sources,
+    source_included_in_run_profile,
+)
 
 CatalogExecutionTier = Literal["catalog", "fetchable", "transport_ready"]
 CatalogHistoryPolicy = Literal["full_snapshot", "rolling_window"]
 CatalogRunLane = Literal["catalog", "empirical", "enrichment"]
-CatalogRunProfile = Literal[
-    "prod_full",
-    "prod_core_blocking",
-    "rest_backfill",
-    "catalog_refresh",
-    "preflight_core",
-    "observations_backfill",
-]
 CatalogSourceStage = Literal["harvest", "normalize", "observations", "publish"]
 
 SOURCE_ID_PATTERN = r"^[a-z][a-z0-9_]*$"
@@ -88,21 +84,7 @@ class CatalogSourceModuleSpec(DataForgeModel):
 
     def included_in_run_profile(self, profile: CatalogRunProfile) -> bool:
         """Return whether this source module participates in a run profile."""
-        if not self.enabled:
-            return False
-        if profile == "prod_full":
-            return True
-        if profile == "prod_core_blocking":
-            return self.publish_blocking
-        if profile == "rest_backfill":
-            return self.allow_manual_backfill
-        if profile == "catalog_refresh":
-            return self.run_lane in {"catalog", "enrichment"}
-        if profile == "preflight_core":
-            return self.publish_blocking and self.run_lane == "empirical"
-        if profile == "observations_backfill":
-            return self.execution_tier == "transport_ready" and self.run_lane == "empirical"
-        return False
+        return source_included_in_run_profile(self, profile)
 
     def asset_keys(self) -> CatalogSourceAssetKeys:
         """Return stable per-source asset keys."""
@@ -209,13 +191,7 @@ def select_catalog_source_modules(
 ) -> tuple[CatalogSourceModuleSpec, ...]:
     """Select source modules and include any seed dependencies."""
     selected_modules = _default_catalog_source_modules() if modules is None else modules
-    selected = [
-        module
-        for module in selected_modules
-        if (wave is None or module.wave.upper() == wave.upper())
-        and module.included_in_run_profile(run_profile)
-    ]
-    return resolve_catalog_source_dependencies(selected_modules, selected)
+    return select_catalog_sources(selected_modules, wave=wave, run_profile=run_profile)
 
 
 def plan_catalog_source_modules(

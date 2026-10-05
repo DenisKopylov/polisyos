@@ -42,8 +42,11 @@ analysis flows.
   runs.
 - [`pipeline.py`](pipeline.py) coordinates harvest, normalize, merge/dedup,
   graph, ingest, embed, benchmark, QC, and publish stages.
-- [`source_registry.yaml`](source_registry.yaml) is a reviewed product seed
-  input. Keep generated harvests and run outputs outside the source tree.
+- The canonical reviewed source seed is
+  [`../source_registry.yaml`](../source_registry.yaml). Batch runtime uses its
+  canonical parser and selection policy; the batch-local
+  [`source_registry.yaml`](source_registry.yaml) remains a compatibility copy.
+  Keep generated harvests and run outputs outside the source tree.
 - [`core_sources_ingest.py`](core_sources_ingest.py) is the current
   high-complexity ingestion owner tracked in `architecture/module_size_budget.toml`.
 

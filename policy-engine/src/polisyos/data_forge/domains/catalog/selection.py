@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, TypeVar
+from typing import TYPE_CHECKING, Literal, Protocol, TypeVar, cast, get_args
 
 from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
     CatalogSelectionError,
@@ -18,7 +18,71 @@ class _CatalogSeedSource(Protocol):
     seed_from: str | None
 
 
+class _CatalogSelectableSource(_CatalogSeedSource, Protocol):
+    wave: str
+    execution_tier: str
+    run_lane: str
+    publish_blocking: bool
+    allow_manual_backfill: bool
+
+
+CatalogRunProfile = Literal[
+    "prod_full",
+    "prod_core_blocking",
+    "rest_backfill",
+    "catalog_refresh",
+    "preflight_core",
+    "observations_backfill",
+]
+
+_CATALOG_RUN_PROFILES = frozenset(get_args(CatalogRunProfile))
+
 _CatalogSeedSourceT = TypeVar("_CatalogSeedSourceT", bound=_CatalogSeedSource)
+
+
+def validate_catalog_run_profile(profile: str) -> CatalogRunProfile:
+    """Validate one catalog run profile without substituting a default."""
+    if profile not in _CATALOG_RUN_PROFILES:
+        raise CatalogSelectionError("unsupported_run_profile", profile)
+    return cast("CatalogRunProfile", profile)
+
+
+def source_included_in_run_profile(
+    source: _CatalogSelectableSource,
+    profile: str,
+) -> bool:
+    """Return whether an enabled source participates in a validated run profile."""
+    profile_name = validate_catalog_run_profile(profile)
+    if not source.enabled:
+        return False
+    if profile_name == "prod_full":
+        return True
+    if profile_name == "prod_core_blocking":
+        return source.publish_blocking
+    if profile_name == "rest_backfill":
+        return source.allow_manual_backfill
+    if profile_name == "catalog_refresh":
+        return source.run_lane in {"catalog", "enrichment"}
+    if profile_name == "preflight_core":
+        return source.publish_blocking and source.run_lane == "empirical"
+    return source.execution_tier == "transport_ready" and source.run_lane == "empirical"
+
+
+def select_catalog_sources[T: _CatalogSelectableSource](
+    sources: tuple[T, ...],
+    *,
+    wave: str | None = None,
+    run_profile: str = "prod_full",
+) -> tuple[T, ...]:
+    """Apply the canonical wave/profile predicate and resolve mandatory seed closure."""
+    validated_profile = validate_catalog_run_profile(run_profile)
+    selected = tuple(
+        source
+        for source in sources
+        if (wave is None or source.wave.upper() == wave.upper())
+        and source_included_in_run_profile(source, validated_profile)
+    )
+    return resolve_catalog_source_dependencies(sources, selected)
 
 
 def resolve_catalog_source_dependencies(
@@ -36,7 +100,7 @@ def resolve_catalog_source_dependencies(
 
     def resolve_seed(module: _CatalogSeedSourceT, path: tuple[str, ...]) -> None:
         seed_id = module.seed_from
-        if seed_id is None:
+        if seed_id is None or seed_id == "":
             return
         if seed_id in path:
             cycle = " -> ".join((*path, seed_id))
@@ -60,4 +124,10 @@ def resolve_catalog_source_dependencies(
     return tuple(module for module in modules if module.source_id in selected_ids)
 
 
-__all__ = ["resolve_catalog_source_dependencies"]
+__all__ = [
+    "CatalogRunProfile",
+    "resolve_catalog_source_dependencies",
+    "select_catalog_sources",
+    "source_included_in_run_profile",
+    "validate_catalog_run_profile",
+]

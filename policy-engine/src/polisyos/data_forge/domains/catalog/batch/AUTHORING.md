@@ -6,12 +6,14 @@ Last updated: 2026-05-05
 
 ## Purpose
 
-This subtree owns offline catalog ingestion, source registry processing,
-deduplication, graph building, quality checks, and publication helpers.
+This subtree owns offline catalog ingestion, deduplication, graph building,
+quality checks, and publication helpers. It consumes source definitions through
+the canonical catalog registry at `../source_registry.yaml`; intake and
+run-profile/seed selection are owned by the catalog domain.
 
 ## Allowed File Categories
 
-- Product Python modules and small reviewed source registry metadata.
+- Product Python modules and batch-specific metadata.
 - Local README/AUTHORING docs.
 - No raw external harvests or generated run outputs.
 
@@ -32,8 +34,10 @@ Tests live in `tests/unit/data_forge/domains/catalog/` and the broader
 
 ## Fixture/Data Policy
 
-`source_registry.yaml` is a reviewed seed input. Additional fixtures belong
-under `tests/_data/` unless they are package-owned product seed assets.
+The catalog-root `../source_registry.yaml` is the reviewed source seed. The
+batch-local `source_registry.yaml` is a compatibility copy, not the runtime
+default or source of authority. Additional fixtures belong under `tests/_data/`
+unless they are package-owned product seed assets.
 
 ## Generated File Policy
 

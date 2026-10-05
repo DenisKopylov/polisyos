@@ -20,7 +20,7 @@
   ],
   "candidate_tree_sha": "9ab42758250e3c2f34f41bb5abc0d07d269b17f8",
   "branch": "codex/e02-B-run",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/33",
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json",
@@ -1436,5 +1436,14 @@
         "bytes": 6090
       }
     ]
+  },
+  "publication": {
+    "branch": "codex/e02-B-run",
+    "verified_remote_head_before_pr": "9a509ccf3b1c1274a6df14c8be06dd57cb4ce70a",
+    "source_implementation_sha": "6c2cab488368932479677bc036ffad25657c0367",
+    "pr": "https://github.com/DenisKopylov/polisyos/pull/33",
+    "pr_state": "draft; no merge/main push/history rewrite",
+    "hook_validation": "Installed own ignored frontend dependencies with frozen lockfile; pre-commit and pre-push hooks executed normally; frontend typecheck passed.",
+    "app_attachment": "Child app attach tool was called but did not return; bounded orchestration cell terminated, root app attachment requested separately."
   }
 }

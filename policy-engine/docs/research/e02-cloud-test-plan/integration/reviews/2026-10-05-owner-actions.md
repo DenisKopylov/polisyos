@@ -3,8 +3,9 @@
 This is an integration queue, not a finding ledger. An owner's `closure_ids`
 field identifies related findings; it does not override an explicit partial
 disposition or authorize G to close them. Accepted code, evidence adequacy,
-and authority/capability closure are separate decisions. Checkpoint-05 admits
-the exact CAU and FRY heads and preserves all original history.
+and authority/capability closure are separate decisions. Checkpoint-06 adds six
+bounded code slices to the earlier accepted heads and preserves their original
+history. No finding closure follows from those merges.
 
 ## Deciding local HOLD
 
@@ -16,6 +17,7 @@ the exact CAU and FRY heads and preserves all original history.
 | D: transfer | `e608502d9f885d87ce580175cc95f8f17689f6e0` | A public dimension reader sees new dimensions with old generation keys during publication. [G transfer witness](../checks/d-transfer-native.json). | Bind every public reader to the same generation invariant. Later source commits require delta evidence; this receipt does not decide those commits. |
 | D: RL/search | `86584ad12436b10153efcf955e3eb7da3bdbc26d`; later source `4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a` | JSON bool/float version admits as version 1. [G admission witness](../checks/d-rl-admission.json). The later decoder repairs `metadata.base_state`; its package also carries sibling source changes. | Bind an exact combined candidate/tree and all sibling dependencies, with the typed version discriminator. The separate GP witness is not evidence for the full source package. |
 | E: covariance/Monte Carlo | `f07058a3eb782463eedce65a6d0d54c332a46efe` | Finite PSD covariance `1e40` passes validation, then float32 narrowing produces 1,024 nonfinite evaluator draws on random, Sobol and Halton. [G range witness](../checks/e-cal-uq-range.json). | Preserve the admitted law or refuse unsupported range before evaluation. Ordinary full-rank and singular covariance controls pass; they do not establish the unrestricted range claim. |
+| B: durable budget ledger | `510a6076e91f6c5ea540845d77b8d83d0b4a3cb5` | Cold public `record_spend` creates a no-limit ledger; later configured middleware accepts what a freshly configured control blocks. [G cold mutation witness](../checks/b-dur-cold-mutation.json). | Bind mutation to admitted ledger configuration before persistence. This is the same configuration/admission class deeper at the public writer; in-repo production reachability was not established. |
 
 These are property failures, not missing production datasets. Both successful
 probe processes and expected-red controls are interpreted from their actual
@@ -77,7 +79,8 @@ actual conflict is returned to the canonical writer, never repaired by G.
 | CYC-02 → RES-03 | Fresh-process N5 readback is not the required ordinary earlier-success/later-failure result lifecycle. Native B EXE cache/checkpoint evidence is also a separate property. |
 | NET-01 → ING-02 | B's acquire-deadline witness and C's lower-cap restart witness both remain held. Recheck the integrated pool/streaming consumer when the owners settle those contracts. |
 
-The Core-to-IR adapter is a bounded ready slice. After its contract changes,
+The Core-to-IR adapter is a bounded ready slice, still not admitted by
+checkpoint-06. After its contract changes,
 recheck composition and real metric-validation/IC callers, including callers
 that still supply a Core store directly. PCL/BKT/FRC share an affected wave
 after bias/FRC supplier decisions. C plugin discovery/training share their
@@ -105,3 +108,8 @@ P33 keeps the property wider than its witness; P40 buckets the described
 deeper escapes rather than starting serial instance repairs; P41 preserves
 unknown red provenance. Missing consumer, bridge, surface and verification
 labels are retained above instead of promoting diagnostic evidence.
+
+[Recovered workspace drafts](2026-10-05-recovered-work.md) give exact published
+archival refs and minimal adaptation/negative-test instructions for the
+canonical owners. Retirement of their checkout directories does not admit
+their code or close their findings.

@@ -3,7 +3,7 @@
 G ведёт `codex/e02-integration` от опубликованного `origin/main`:
 `c40d4acae1ce58b597267255026d9356565828fd`, tree
 `897662caf73bd4487f798d66938b74d7abfe753e`. Этот checkpoint фиксирует входы
-и подготовку приёмки. Решения фиксируются в [checkpoint-05](checkpoint-05.json)
+и подготовку приёмки. Решения фиксируются в [checkpoint-06](checkpoint-06.json)
 и [independent review](reviews/2026-10-05-first-pass.md). Новых finding closure
 decisions пока нет. Исследовательский source `6978076…` не является новым
 кандидатом. Протокол исполнения — [HANDOFF](../execution-prompts/HANDOFF.md).
@@ -120,6 +120,14 @@ declared bounded residual с falsifier. P41: красный атрибутиру
 artifact/readback, не число jobs или цвет baseline.
 
 Текущие адресные HOLD, dependency interlocks и consumer rechecks перечислены в
-[owner actions](reviews/2026-10-05-owner-actions.md). В checkpoint-05 приняты
-CAU и FRY code slices. Cal/UQ и streaming сохраняют HOLD по независимым
-локальным falsifiers; runner exit 0 этих probes не является product PASS.
+[owner actions](reviews/2026-10-05-owner-actions.md). Checkpoint-06 добавляет
+economic dtype, Lex input/plan binding, bias statistical support, forecast
+producer, Morris geometry и CAL-05 mapped-schedule refusal к ранее принятым
+code slices. Finding closure не заявлена. Cal/UQ, streaming и cold budget
+mutation сохраняют HOLD по независимым локальным falsifiers; runner exit 0
+этих probes не является product PASS. C-canon ещё не принят.
+
+[Recovered work](reviews/2026-10-05-recovered-work.md) определяет полезные
+адаптации из retired checkout'ов и отличает их от устаревших/небезопасных
+черновиков. Код сохранён в Git; промежуточные рабочие пространства перенесены
+в Finder Trash. Production inputs остаются на исходном локальном месте.

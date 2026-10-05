@@ -1,0 +1,129 @@
+{
+  "schema": "policyos.e02.checker_evidence_retirement.v1",
+  "retention_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-disk-cleanup-20261005",
+  "source_action_receipt": "g-checkout-trash-actions.json",
+  "source_action_receipt_sha256": "7f518d99bb4eccd24822706efbbb081f48548a130cfdcf4939f3ce4990eb58c1",
+  "folders": [
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos",
+      "source_head": "d9d61af6359033a08835cf5cc3fecb41c8e6967f",
+      "source_branch": "codex/e02-G-check-b-adapters",
+      "retained_prefix": "retained-checks/b-adapters/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-b-adapters/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-dur/polisyos",
+      "source_head": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+      "source_branch": "codex/e02-G-check-b-dur",
+      "retained_prefix": "retained-checks/b-dur/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-b-dur/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos",
+      "source_head": "418b1f061459e40976d2666b5b62dce21d8c4833",
+      "source_branch": "codex/e02-G-check-b-run",
+      "retained_prefix": "retained-checks/b-run/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-b-run/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos",
+      "source_head": "3e95056bca6d0c15ab7778573172491628f48596",
+      "source_branch": "codex/e02-G-check-b-run2",
+      "retained_prefix": "retained-checks/b-run2/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-b-run2/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-c-canon/polisyos",
+      "source_head": "8f13193b79b366fe26101af37427da5f44ef490a",
+      "source_branch": "codex/e02-G-check-c-canon",
+      "retained_prefix": "retained-checks/c-canon/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-c-canon/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-c-streaming/polisyos",
+      "source_head": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "source_branch": "codex/e02-G-check-c-streaming",
+      "retained_prefix": "retained-checks/c-streaming/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-c-streaming/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-gp/polisyos",
+      "source_head": "052e763253580519d5913a92ad5ccc9a1989e7e3",
+      "source_branch": "codex/e02-G-check-d-gp",
+      "retained_prefix": "retained-checks/d-gp/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-d-gp/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-rl/polisyos",
+      "source_head": "86584ad12436b10153efcf955e3eb7da3bdbc26d",
+      "source_branch": "codex/e02-G-check-d-rl",
+      "retained_prefix": "retained-checks/d-rl/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-d-rl/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos",
+      "source_head": "e608502d9f885d87ce580175cc95f8f17689f6e0",
+      "source_branch": "codex/e02-G-check-d-transfer",
+      "retained_prefix": "retained-checks/d-transfer/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-d-transfer/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-e-bootstrap/polisyos",
+      "source_head": "dafe95e15cff5992b5b9133a35e1e1297de03e87",
+      "source_branch": "codex/e02-G-check-e-bootstrap",
+      "retained_prefix": "retained-checks/e-bootstrap/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-e-bootstrap/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-e-cal-uq/polisyos",
+      "source_head": "f07058a3eb782463eedce65a6d0d54c332a46efe",
+      "source_branch": "codex/e02-G-check-e-cal-uq",
+      "retained_prefix": "retained-checks/e-cal-uq/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-e-cal-uq/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-api/polisyos",
+      "source_head": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+      "source_branch": "codex/e02-G-check-f-api",
+      "retained_prefix": "retained-checks/f-api/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-f-api/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-cau/polisyos",
+      "source_head": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "source_branch": "codex/e02-G-check-f-cau",
+      "retained_prefix": "retained-checks/f-cau/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-f-cau/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-eco/polisyos",
+      "source_head": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "source_branch": "codex/e02-G-check-f-eco",
+      "retained_prefix": "retained-checks/f-eco/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-f-eco/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos",
+      "source_head": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+      "source_branch": "codex/e02-G-check-f-fry",
+      "retained_prefix": "retained-checks/f-fry/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-f-fry/"
+    },
+    {
+      "original_repo": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-lex/polisyos",
+      "source_head": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "source_branch": "codex/e02-G-check-f-lex",
+      "retained_prefix": "retained-checks/f-lex/",
+      "trash_path": "/Users/deniskopylov/.Trash/e02-g-check-f-lex/"
+    }
+  ],
+  "meaning": "Deciding output bytes were relocated and SHA-256 checked; this is file-integrity evidence, not a new runtime or finding result. Full copy manifest stays local. Source code remains in the listed immutable Git refs; dependencies and generated fixtures are disposable.",
+  "integrity_readback": {
+    "predicate_class": "recomputed",
+    "path_denominator": "all retained_build_files in the SHA-bound local action receipt",
+    "file_type_denominator": "regular files",
+    "files": 892,
+    "file_bytes": 2231293
+  },
+  "relocation_rule": "For a historical file beneath original_repo, append its relative path to retention_root/retained_prefix. Per-file hashes and byte lengths remain in the original check and local copy manifest; do not duplicate their derived list here."
+}

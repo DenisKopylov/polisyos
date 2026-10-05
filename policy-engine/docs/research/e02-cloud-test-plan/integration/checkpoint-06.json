@@ -1,0 +1,387 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-05",
+  "publisher": "G",
+  "reviewer_scope": "Reviewer arrays identify independently established G reviewers. Owner-supplied peer roles are not counted without verified reviewer independence.",
+  "integration_sha": "08918047feac94acffb19eccba6d6f9d7e564adc",
+  "integration_tree": "a447dee6f176dbc8e767fb79fb48726b0780b4be",
+  "branch": "codex/e02-integration",
+  "remote_readback": "At checkpoint preparation origin/codex/e02-integration matched integration_sha/tree; subsequent record-only commits may follow.",
+  "previous_checkpoint": "checkpoint-05.json",
+  "accepted_slices": [
+    {
+      "unit": "F",
+      "slice": "economic-dtype",
+      "accepted_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "topic_tree": "f80d2aabdadb85c2a8c44e13205811f217be8ae5",
+      "candidate_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+      "candidate_tree": "9dcc163a864635004408ddd449bab105762e1726",
+      "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "merge_sha": "616a8a91c026cb0751fa5e213ee4364c3edad846",
+      "merge_tree": "571ca96f4a35e9469d60bf2af4b1faefc6353a6d",
+      "merge_parents": [
+        "249451f6401343928b3cf65cb15cc1e90a23a169",
+        "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-removal.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json",
+        "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+        "policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py"
+      ],
+      "deciding_receipt": "checks/f-economic-dtype.json",
+      "deciding_receipt_sha256": "98dfecd84bdf3f2c0d1d7a394bd6bd484d52e06f5bc6c639faddfdf2b9af65d4",
+      "handoff_receipt": {
+        "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json@bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+        "sha256": "c7c0f21acfb3537c9c0a53ef39a36a762193a4b0bb3d0da07bd5c0653f173979",
+        "bytes": 26885
+      },
+      "code_decision": "GO_bounded_native_scalar_dtype_repair",
+      "code_acceptance": "Canonical hard Gini and historical lower-median zero-active branches use the dtype produced by existing active computations, preserving native JAX branch tracing and exact float64 median values; plugin objective and observation consumer path is exercised.",
+      "reviewers": [
+        "G"
+      ],
+      "limitations": [
+        "Only the focused 60-case seeded synthetic plugin test ran; no broad suite or production dataset is represented.",
+        "The NumPy reference is separately implemented in the same test module, not an external validation dataset.",
+        "LA-003 remains limited; LA-004/LA-035 remain held; no normative inequality convention, DoWhy/EconML, or architecture completeness claim."
+      ],
+      "open_finding_ids": [
+        "LA-003",
+        "LA-004",
+        "LA-035"
+      ],
+      "finding_closure": false,
+      "readback": "All topic paths from the slice base were compared by Git blob ID: exact topic tree, merge commit and current HEAD match. Candidate tree and two-parent merge binding independently checked."
+    },
+    {
+      "unit": "F",
+      "slice": "lex-input-binding-and-plan-freeze",
+      "accepted_head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "topic_tree": "860a236668b7194212980271ffafa66677434517",
+      "candidate_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "candidate_tree": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+      "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "merge_sha": "5f7191a4c7ed690086b14a1c01443b3ec0031ce1",
+      "merge_tree": "b91214dcae285330785d29813c55ebdefc445851",
+      "merge_parents": [
+        "ef09ba69ecfa0fab437f8306875212009939b63f",
+        "3fab28d98997527b2a26d46fe4e16220e42383b7"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-frozen-tests.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-removed-controls.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-invocation.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-selector-error.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-removal.txt",
+        "policy-engine/release-fragments/unreleased/2026-10-05-lex-impact-input-binding.toml",
+        "policy-engine/src/polisyos/core/components/_cli_lex.py",
+        "policy-engine/src/polisyos/lex/legal_evaluation/README.md",
+        "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+        "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+      ],
+      "deciding_receipt": "checks/f-lex.json",
+      "deciding_receipt_sha256": "22c31e823bae334e552df20d5fe8febc6b95d8f2f48f05e7ab69d1db09e55a90",
+      "handoff_receipt": {
+        "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json@3fab28d98997527b2a26d46fe4e16220e42383b7",
+        "sha256": "4f0623168329cfc5c4006c5beb79dc205704beb1dc8b537e47b5d2c09e519c20",
+        "bytes": 29849
+      },
+      "code_decision": "GO_bounded_native_impact_binding_and_plan_snapshot",
+      "code_acceptance": "Lex compliance uses the actual old/new packs and supported frozen pass plan; native rule dispatch, CAS persistence/readback, rendering and CLI refusal paths retain the admitted inputs and report limitations.",
+      "reviewers": [
+        "G"
+      ],
+      "limitations": [
+        "Acceptance covers synthetic rules and explicit native expr_ast only; no real law corpus, current-law admission, custody, or production legal-data/API authority.",
+        "Default CLI backend is StubBackend; report_id is not content authority and affected KPI direction/causal effect remains unknown.",
+        "No public typed-signature expansion is claimed."
+      ],
+      "open_finding_ids": [
+        "LA-017"
+      ],
+      "finding_closure": false,
+      "readback": "All topic paths from the slice base were compared by Git blob ID: exact topic tree, merge commit and current HEAD match. Candidate tree and two-parent merge binding independently checked."
+    },
+    {
+      "unit": "E",
+      "slice": "bias-statistical-support",
+      "accepted_head": "797dd66076aaec1f40f0c87efaf8e3d475a96d77",
+      "topic_tree": "86f2b3ec3895c772ff5aae0dec62e30a56d7292b",
+      "candidate_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+      "candidate_tree": "13a4c7ec6c9ae5be23fdf4942e6faeb80e3e0aab",
+      "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "merge_sha": "3f02f39c9998b72eba157df503847971f1ec5f92",
+      "merge_tree": "e98c8022aa05baf153e27e1325afe03c1e8e2c14",
+      "merge_parents": [
+        "de79b4571d1fda359e9ccf9b6d03d4f92965389e",
+        "797dd66076aaec1f40f0c87efaf8e3d475a96d77"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.json",
+        "policy-engine/release-fragments/unreleased/2026-10-05-e02-bkt03-statistical-support.toml",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py"
+      ],
+      "deciding_receipt": "checks/e-backtest-bias.json",
+      "deciding_receipt_sha256": "60748b009589378d3b770841e6e5f0535c83223fe4464b56580f84301481690c",
+      "handoff_receipt": {
+        "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77",
+        "sha256": "fed61ee0b71c16c3ed919c0effc14d7a0c15009be5e70259e10594ae0db89f91",
+        "bytes": 26815
+      },
+      "code_decision": "GO_bounded_producer_property",
+      "code_acceptance": "Unavailable bias statistics with any nonzero per-observation residual persist the exact limitation, degraded status, and no trust score/grade; exact all-zero residual remains separate; real report CAS readback preserves the consumer signal.",
+      "reviewers": [
+        "owner_delta",
+        "sources_f10_f12",
+        "G"
+      ],
+      "limitations": [
+        "B172/B173 remain partial; finding closure is not claimed.",
+        "Extended native suite recorded four composition_bridge failures with P41 provenance not established; production history/source law and scientific assumptions (independence, effective n, multiplicity, domain meaning) are unresolved.",
+        "Backtest/PCL/FRC/CoreIR affected-consumer replay remains queued after supplier decisions."
+      ],
+      "open_finding_ids": [
+        "B172",
+        "B173"
+      ],
+      "finding_closure": false,
+      "readback": "All topic paths from the slice base were compared by Git blob ID: exact topic tree, merge commit and current HEAD match. Candidate tree and two-parent merge binding independently checked."
+    },
+    {
+      "unit": "E",
+      "slice": "frc",
+      "accepted_head": "f2a827da30c3f64e776c5e79d1db75132ad423fc",
+      "topic_tree": "5c66a67d6d9bffa2263fe9fa88ac74ef0ffad39c",
+      "candidate_sha": "45a7b1be8951cad62e45b4c560bad88a1a8c0c53",
+      "candidate_tree": "2c84e5f2d1051344d0f4ecdc18fd5317a9d4e1ed",
+      "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "merge_sha": "bcf5203ea76e3ef5476775eee3a8f55c025d9162",
+      "merge_tree": "17415330814aa12f13e12da05deea95f5316aac2",
+      "merge_parents": [
+        "3f02f39c9998b72eba157df503847971f1ec5f92",
+        "f2a827da30c3f64e776c5e79d1db75132ad423fc"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/.gitignore",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/bridge.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/bridge.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/frc01.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/frc01.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/numerical-witness.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/numerical_witness.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/producer.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/producer.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/production-invocation-summary.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc.json",
+        "policy-engine/release-fragments/unreleased/2026-10-05-forecast-method-rule-binding.toml",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_owner.py"
+      ],
+      "deciding_receipt": "checks/e-forecast-producer.json",
+      "deciding_receipt_sha256": "43d05e21e8b3a0596a932ca210c02878383c4dcf2f65c0f519fd47beef54aaae",
+      "handoff_receipt": {
+        "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc.json@f2a827da30c3f64e776c5e79d1db75132ad423fc",
+        "sha256": "96b4b5a394e1fe9b8b3ef35d13ccba5206dee03b70e14ae7a2be34db10739441",
+        "bytes": 20961
+      },
+      "code_decision": "GO_bounded_producer_property",
+      "code_acceptance": "Real ETS reports preserve resolved method/admitted-rule bindings; canonical CAS readback recomputes observation-side interval coverage and refuses calibration evidence persistence without explicit context.",
+      "reviewers": [
+        "sources_f01_f03",
+        "sources_f10_f12",
+        "G"
+      ],
+      "limitations": [
+        "B32 and LA-051 remain partial/held-authority; no finding closure or credible-evaluation authority.",
+        "A owns generation_cycle and the served S10 result/evidence bridge; that bridge and persisted served consumer readback remain pending.",
+        "Production evaluation context, source lineage and full-data checks remain unestablished; FRC/PCL/backtest/CoreIR affected replay is queued."
+      ],
+      "open_finding_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "finding_closure": false,
+      "readback": "All topic paths from the slice base were compared by Git blob ID: exact topic tree, merge commit and current HEAD match. Candidate tree and two-parent merge binding independently checked."
+    },
+    {
+      "unit": "E",
+      "slice": "doe-morris-geometry",
+      "accepted_head": "40b911e6c086830825dc088df8d64a378589270e",
+      "topic_tree": "66317e7ea0f82360dae3582772cb3aa3698a7296",
+      "candidate_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "candidate_tree": "d38dad891c8f0edf61689cc5d5f1e75128ae3b13",
+      "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "merge_sha": "34d054dbdb936e4e11d67b99c73b19a42f710b62",
+      "merge_tree": "fe80d465ed7ee40a35dd7fbb6de42d4819dcce0b",
+      "merge_parents": [
+        "32336d778c49cbc1ec39ae25d84280e1b0d3b527",
+        "40b911e6c086830825dc088df8d64a378589270e"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry-checks.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry.json",
+        "policy-engine/release-fragments/unreleased/2026-10-05-doe-morris-geometry.toml",
+        "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+        "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+        "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py"
+      ],
+      "deciding_receipt": "checks/e-doe.json",
+      "deciding_receipt_sha256": "7f40c234161d2fc3b274fa755547ea0d006fb1ba388d1f0a2b4728ec018104fc",
+      "handoff_receipt": {
+        "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry.json@40b911e6c086830825dc088df8d64a378589270e",
+        "sha256": "f8266394296cfc5b663c0a8129fc65357bb58206fad84e523700f6311e7f4a25",
+        "bytes": 16631
+      },
+      "code_decision": "GO_bounded_generic_runtime_property",
+      "code_acceptance": "Admitted ungrouped Morris trajectories have valid one-factor steps, grid/delta and complete factor traversal; consumers reject invalid paths and ranking bootstrap validates whole original trajectories before resampling.",
+      "reviewers": [
+        "G",
+        "sources_f07_f09"
+      ],
+      "limitations": [
+        "B102 remains partial; geometric validity does not establish authenticated design/trajectory identity.",
+        "Nonuniform Morris uncertainty, DROP_FAILED selection correction, Sobol/FAST ranking resampling, production persistence and served evaluator are outside scope.",
+        "Architecture-gate failure provenance is not established; final production-invocation scan ended ERROR/exit 137, not PASS."
+      ],
+      "open_finding_ids": [
+        "B102"
+      ],
+      "finding_closure": false,
+      "readback": "All topic paths from the slice base were compared by Git blob ID: exact topic tree, merge commit and current HEAD match. Candidate tree and two-parent merge binding independently checked."
+    },
+    {
+      "unit": "E",
+      "slice": "cal05-mapped-schedules",
+      "accepted_head": "9847a87192c66fd1dabfad027ed06b633eb97fb4",
+      "topic_tree": "239549a2f6e48d553c80053510585bb6c481e9f2",
+      "candidate_sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+      "candidate_tree": "a4358e381d07812ceaa9a770e2b9991e0a68fd9f",
+      "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "merge_sha": "08918047feac94acffb19eccba6d6f9d7e564adc",
+      "merge_tree": "a447dee6f176dbc8e767fb79fb48726b0780b4be",
+      "merge_parents": [
+        "34d054dbdb936e4e11d67b99c73b19a42f710b62",
+        "9847a87192c66fd1dabfad027ed06b633eb97fb4"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-independent-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration_schedule_readback.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/schedule_execution_controls.py.txt",
+        "policy-engine/release-fragments/unreleased/2026-10-05-calibration-mapped-schedules.toml",
+        "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py"
+      ],
+      "deciding_receipt": "checks/e-cal05.json",
+      "deciding_receipt_sha256": "dc6b25c790861ef8367a42dc8d648131d8d3bd42801b2450764e91080a0c642f",
+      "handoff_receipt": {
+        "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.json@9847a87192c66fd1dabfad027ed06b633eb97fb4",
+        "sha256": "d78c6a86809fd17a6255ccf99684acbc3fa69d874dc32c1c6adc7cd7d2b77c6c",
+        "bytes": 32196
+      },
+      "code_decision": "GO_bounded_generic_runtime_property",
+      "code_acceptance": "A supported scalar schedule does not numerically invoke inactive emitters; unsupported mapped predicates refuse before numerical execution, preserving the tested scalar path and differentiable report behavior.",
+      "reviewers": [
+        "G",
+        "sources_f07_f09"
+      ],
+      "limitations": [
+        "No heterogeneous-schedule consuming API, persisted artifact, bridge or served capability is established; reverse-mode AD-safe batching is still needed.",
+        "Only JAX CPU was tested; GPU/Metal, production history/source law and broad integration closure are unrun.",
+        "Production-invocation diagnostic is pending rerun; the vmap(jit) trace-before-refusal nuance is bounded and retained."
+      ],
+      "open_finding_ids": [
+        "B185"
+      ],
+      "finding_closure": false,
+      "readback": "All topic paths from the slice base were compared by Git blob ID: exact topic tree, merge commit and current HEAD match. Candidate tree and two-parent merge binding independently checked."
+    }
+  ],
+  "held_decisions": [
+    {
+      "unit": "E",
+      "slice": "cal-UQ",
+      "candidate_sha": "f07058a3eb782463eedce65a6d0d54c332a46efe",
+      "deciding_receipt": "checks/e-cal-uq-range.json",
+      "reason": "Finite PSD1e40 yields nonfinite evaluator draws on random/Sobol/Halton"
+    },
+    {
+      "unit": "C",
+      "slice": "streaming-retained-capacity",
+      "candidate_sha": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "deciding_receipt": "checks/c-streaming-restore.json",
+      "reason": "Current cap1 admits restored2 rows and EOF publishes both"
+    },
+    {
+      "unit": "B",
+      "slice": "dur-cold-mutation",
+      "candidate_sha": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+      "candidate_tree": "f0331553f28fc39ffbd2d75d41a334a5fe5acc0a",
+      "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "deciding_receipt": "checks/b-dur-cold-mutation.json",
+      "deciding_receipt_sha256": "321be5ec7b5a5b37058db262281e5f65cf37d7bda61aab533ac5a58285049f89",
+      "status": "HOLD",
+      "reason": "Cold direct record_spend on an absent ledger persists default no-limit state; configured bootstrap control blocks. Public API escape remains; no in-repo production reachability was established. Forged nonnegative accounting, retry idempotence, power-loss and multi-host semantics remain unmeasured."
+    }
+  ],
+  "not_accepted_slices": [
+    {
+      "unit": "C",
+      "slice": "canon",
+      "status": "not_admitted",
+      "reason": "No C-canon acceptance decision is included in this checkpoint."
+    }
+  ],
+  "finding_closures": [],
+  "freeze": "not_frozen",
+  "remaining_review_queue": "reviews/2026-10-05-owner-actions.md; prior E-cal-UQ, C-streaming, and B-DUR holds remain open; C-canon remains not admitted.",
+  "affected_checks": {
+    "status": "PENDING",
+    "execution": "UNRUN",
+    "scope": "Targeted combined-consumer checks on the exact integration candidate after required supplier decisions. Reserve the expensive whole replay wave for source freeze; slice-local GO is not a combined replay.",
+    "explicit_selectors_from_receipts": [
+      "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+      "tests/unit/remediation/test_doe_01.py",
+      "tests/unit/remediation/test_doe_02.py",
+      "tests/unit/remediation/test_doe_03.py",
+      "tests/unit/scientist/methods/doe",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "tests/unit/foundry/calibration/test_pure_executor.py",
+      "tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+      "tests/unit/foundry/analysis/test_merge_determinism.py",
+      "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_recovers_income_tax_rate",
+      "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_resolves_slot_id_metric",
+      "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_gradnorm_updates_weights",
+      "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_hessian_uncertainty"
+    ],
+    "queued_without_exact_selector_in_receipt": [
+      "F economic consumer recheck after economic-profile test slice joins",
+      "E backtest/PCL/FRC/CoreIR combined consumer replay after supplier decisions"
+    ]
+  },
+  "broad_replay": "UNRUN; reserved once after source freeze and all reviews.",
+  "main_publication": "not_authorized"
+}

@@ -1,0 +1,180 @@
+{
+  "schema": "e02-final-architecture-import-triage/v1",
+  "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "source_log": {
+    "path": "/workspace/e02-D-receipts/final-architecture.log",
+    "sha256": "b0ff5ed43fddd5227d44130cecb44c710f3cd5fa0476602c65e7f14c7a583428",
+    "bytes": 118997,
+    "lines": 2055
+  },
+  "complete_deep_import_error_denominator": 157,
+  "class_counts": {
+    "same_import_statements_at_base": 151,
+    "no_changed_path_intersection": 149,
+    "added_import_statement": 6,
+    "changed_path_intersection": 8
+  },
+  "touched_path_errors": [
+    {
+      "log_line": 2005,
+      "source_path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "target_module": "polisyos.core.canon",
+      "classification": "added_import_statement",
+      "changed_path_intersection": true,
+      "base_imports": [],
+      "candidate_imports": [
+        {
+          "line": 233,
+          "statement": "from polisyos.core.canon import from_canonical_bytes"
+        }
+      ],
+      "base_sha256": "1bd053194643fbc10024d25dfa3fc7f935a77634fba531b214e144abc005d9e8",
+      "candidate_sha256": "bdf8ea64fbca6bffeecad26cb6abd34571e9f4940f55bd7ed797338926c79391"
+    },
+    {
+      "log_line": 2006,
+      "source_path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "target_module": "polisyos.core.canon.canon_json",
+      "classification": "added_import_statement",
+      "changed_path_intersection": true,
+      "base_imports": [],
+      "candidate_imports": [
+        {
+          "line": 203,
+          "statement": "from polisyos.core.canon.canon_json import CanonSpec"
+        }
+      ],
+      "base_sha256": "1bd053194643fbc10024d25dfa3fc7f935a77634fba531b214e144abc005d9e8",
+      "candidate_sha256": "bdf8ea64fbca6bffeecad26cb6abd34571e9f4940f55bd7ed797338926c79391"
+    },
+    {
+      "log_line": 2008,
+      "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "target_module": "polisyos.core.artifacts.ids",
+      "classification": "same_import_statements_at_base",
+      "changed_path_intersection": true,
+      "base_imports": [
+        {
+          "line": 12,
+          "statement": "from polisyos.core.artifacts.ids import ArtifactID"
+        }
+      ],
+      "candidate_imports": [
+        {
+          "line": 12,
+          "statement": "from polisyos.core.artifacts.ids import ArtifactID"
+        }
+      ],
+      "base_sha256": "864ceb96cd161c76f3df5d5ce014e99277ddce23f35dfd6b214242dde81936b5",
+      "candidate_sha256": "fc3c1c94fa92e4cb90a99b75632336de55749a771c80be0e43946ec91f3542fa"
+    },
+    {
+      "log_line": 2009,
+      "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "classification": "added_import_statement",
+      "changed_path_intersection": true,
+      "base_imports": [],
+      "candidate_imports": [
+        {
+          "line": 14,
+          "statement": "from polisyos.core.artifacts.protocol import ArtifactStore"
+        }
+      ],
+      "base_sha256": "32c1627e65bd7e33d6ca996dbcdbd6979e97fc29ad81106d953565a3a415e1b0",
+      "candidate_sha256": "55fac092a2ed477e5ea856b9c3beda8ac17db5395534f75ec24fb634aa815d12"
+    },
+    {
+      "log_line": 2010,
+      "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "target_module": "polisyos.core.canon",
+      "classification": "added_import_statement",
+      "changed_path_intersection": true,
+      "base_imports": [],
+      "candidate_imports": [
+        {
+          "line": 76,
+          "statement": "from polisyos.core.canon import from_canonical_bytes"
+        }
+      ],
+      "base_sha256": "32c1627e65bd7e33d6ca996dbcdbd6979e97fc29ad81106d953565a3a415e1b0",
+      "candidate_sha256": "55fac092a2ed477e5ea856b9c3beda8ac17db5395534f75ec24fb634aa815d12"
+    },
+    {
+      "log_line": 2029,
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "target_module": "polisyos.common.logger",
+      "classification": "same_import_statements_at_base",
+      "changed_path_intersection": true,
+      "base_imports": [
+        {
+          "line": 15,
+          "statement": "from polisyos.common.logger import get_logger"
+        }
+      ],
+      "candidate_imports": [
+        {
+          "line": 15,
+          "statement": "from polisyos.common.logger import get_logger"
+        }
+      ],
+      "base_sha256": "0b9e880e3c6e03a34ce6b250a0c1b6b66a3d138a2f128ca446d12bf8689aba51",
+      "candidate_sha256": "5e052aa3d9651ce21edd9f6e39cd83663678598cf0f0d9b72d0a641443506b75"
+    },
+    {
+      "log_line": 2030,
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "target_module": "polisyos.core.canon",
+      "classification": "added_import_statement",
+      "changed_path_intersection": true,
+      "base_imports": [],
+      "candidate_imports": [
+        {
+          "line": 816,
+          "statement": "from polisyos.core.canon import from_canonical_bytes"
+        },
+        {
+          "line": 461,
+          "statement": "from polisyos.core.canon import from_canonical_bytes"
+        }
+      ],
+      "base_sha256": "351932fae5958875cc6337f58d4355d278a917805623dd4c64ed4cb4582daf8c",
+      "candidate_sha256": "2bd8f88b7b950e43f0e37b460daec8ce88205c27c588817fa04e67cbef435fe9"
+    },
+    {
+      "log_line": 2031,
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "target_module": "polisyos.core.canon.canon_json",
+      "classification": "added_import_statement",
+      "changed_path_intersection": true,
+      "base_imports": [],
+      "candidate_imports": [
+        {
+          "line": 148,
+          "statement": "from polisyos.core.canon.canon_json import CanonSpec"
+        }
+      ],
+      "base_sha256": "351932fae5958875cc6337f58d4355d278a917805623dd4c64ed4cb4582daf8c",
+      "candidate_sha256": "2bd8f88b7b950e43f0e37b460daec8ce88205c27c588817fa04e67cbef435fe9"
+    }
+  ],
+  "other_top_level_errors": [
+    {
+      "line": 5,
+      "error": "- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline."
+    },
+    {
+      "line": 2054,
+      "error": "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/e02-D-orchestration/policy-engine/schemas/runtime_api_v1.openapi.json."
+    },
+    {
+      "line": 2055,
+      "error": "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/e02-D-orchestration/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+    }
+  ],
+  "whole_log_status": "FAIL",
+  "inherited_red": "not_established; exact architecture command was not replayed at slice base; source statement comparison is a narrower fact",
+  "full_derivable_edge_census_sha256": "33d66fa361ba681cda8cb69a6da44be32b61be1cfebf94488b1f86406c7fb0a3",
+  "next_owners": "D source owners for added import statements; G architecture/generated-output owners for other diagnostic debt. No baseline rewrite or exception admission."
+}

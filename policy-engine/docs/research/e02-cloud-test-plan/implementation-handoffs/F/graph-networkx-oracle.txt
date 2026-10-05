@@ -1,0 +1,31 @@
+SOURCE: 672f541313c550e96544728ed397daf330c04442
+COMMAND: PYTHONPATH=src:.:/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages /workspace/e02-F-graph-env/bin/python - <<'PY'
+import runpy
+from itertools import permutations
+import networkx as nx
+
+oracle = runpy.run_path("tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py")
+graphs = oracle["_three_node_admgs"]()
+assert len(graphs) == 200
+count = 0
+for graph in graphs:
+    edges = oracle["_latent_edges"](graph)
+    dag = nx.DiGraph()
+    dag.add_nodes_from(graph.nodes)
+    dag.add_edges_from(edges)
+    for x, y in permutations(graph.nodes, 2):
+        for conditioned in (frozenset(), frozenset(graph.nodes) - {x, y}):
+            expected = oracle["_dag_separator"](edges, x, y, conditioned)
+            actual = nx.is_d_separator(dag, {x}, {y}, set(conditioned))
+            assert actual == expected, (graph.model_dump(), x, y, conditioned)
+            count += 1
+assert count == 2400
+print(f"NetworkX {nx.__version__}: {len(graphs)} ADMGs / {count} native d-separation oracle comparisons PASS")
+PY
+
+OUTPUT:
+NetworkX 3.6.1: 200 ADMGs / 2400 native d-separation oracle comparisons PASS
+
+EXIT: 0
+WALL_SECONDS: 6.966
+MAX_RSS_KIB: 484964

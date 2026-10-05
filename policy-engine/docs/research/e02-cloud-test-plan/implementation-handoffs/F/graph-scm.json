@@ -208,6 +208,22 @@
         "skipped": 1
       },
       "deciding_output": "DoWhy optional parity importorskip; backend property not established; no shim created."
+    },
+    {
+      "command": "PYTHONPATH=src:.:/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages /workspace/e02-F-graph-env/bin/python -; exact stdin script in committed output log",
+      "target_sha": "672f541313c550e96544728ed397daf330c04442",
+      "environment": "CPython3.14.2 isolated overlay; exact locked NetworkX3.6.1; original shared environment unchanged",
+      "input_closure": "Complete200 three-node ADMG enumerator, independently implemented stdlib ancestral moralization oracle, all12 ordered conditioning queries per graph; no production data",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-oracle.txt",
+      "deciding_output": "NetworkX 3.6.1: 200 ADMGs / 2400 native d-separation oracle comparisons PASS",
+      "counts": {
+        "graphs": 200,
+        "queries": 2400
+      },
+      "wall_seconds": 6.966,
+      "max_rss_kib": 484964,
+      "source_binding": "No source changed after immutable implementation672f541; replay added solely to make the earlier inline backend result reproducible through Git."
     }
   ],
   "property": {

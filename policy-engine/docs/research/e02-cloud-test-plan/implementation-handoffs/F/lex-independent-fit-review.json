@@ -1,0 +1,71 @@
+{
+  "reviewer": "F/fit_tmle",
+  "verdict": "GO bounded 56aa7d47876b29956676ef8dc9f04b64c865948f delta; no actionable code/spec blocker",
+  "source_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+  "source_tree": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+  "commands": [
+    {
+      "cwd": "/workspace/e02-F-lex/policy-engine",
+      "PYTHONPATH": "src:.",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-receipts/lex-independent-fit-controls.py"
+      ],
+      "exit_code": 0,
+      "counts": {
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0
+      }
+    },
+    {
+      "cwd": "/workspace/e02-F-lex/policy-engine",
+      "PYTHONPATH": "src:.",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-receipts/lex-independent-fit-controls.py",
+        "--remove-freeze"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "counts": {
+        "passed": 3,
+        "failed": 6,
+        "skipped": 0,
+        "errors": 0
+      },
+      "interpretation": "expected property-removal failure; candidate markers/source file remain intact; only runtime __init__ tuple snapshot replaced with caller-container reference"
+    }
+  ],
+  "refs": {
+    "lex-independent-fit-native.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-native.json",
+      "sha256": "2e4e60a20ec74c02616113b9766880abf7b3d25e4133ac1f02e6ac034afb9181",
+      "bytes": 1619
+    },
+    "lex-independent-fit-controls.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.json",
+      "sha256": "bb87e2b57aff1cc2fb5a1bd894a9244d77ac3f02aec358b0beaaa109e9532635",
+      "bytes": 16649
+    },
+    "lex-independent-fit-removed-controls.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-removed-controls.json",
+      "sha256": "a8f4a0f9779fd21003532616d2a128dfa1d3878b7e5a6b1cd3f8b925273312ab",
+      "bytes": 15675
+    },
+    "lex-independent-fit-controls.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.py",
+      "sha256": "769e552f19b18d94e0f7953c440c347662cafb1ab9f5c94976ac762fed50e520",
+      "bytes": 8287
+    }
+  },
+  "P40": "minimal tuple snapshot closes admitted-container and consumed-iterator plan escape within this delta; public constructor ABI stays unchanged",
+  "limits": [
+    "LA017 limited: known synthetic rules and explicit native expr_ast only; real law corpus/admission/custody absent",
+    "default CLI legal backend is StubBackend; CLI pass/schema behavior is transport only",
+    "report_id omits context/full content historically; CAS bytes content bound; no authority from report_id or candidate topics",
+    "scratch generator/list cases describe accepted runtime values; no public typed-signature expansion"
+  ],
+  "replay_note": "Extract committed controls.py from published receipt head to local scratch, then run it with PYTHONPATH=src:. from policy-engine at frozen implementation56aa7d47876b29956676ef8dc9f04b64c865948f. The replayer asserts exact HEAD and canonical source path. Scratch paths in command argv are original cloud execution identities."
+}

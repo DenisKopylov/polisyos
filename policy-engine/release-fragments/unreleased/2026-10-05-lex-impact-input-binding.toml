@@ -1,0 +1,12 @@
+id = "2026-10-05-lex-impact-input-binding"
+title = "Bind Lex impact checks to compared norm packs"
+type = "fixed"
+component = "lex"
+owner = "team-policyos-runtime"
+summary = "Legal impact comparison checks the actual old and new packs, preserves explicit empty API pass plans, and refuses unsupported passes instead of recording them as executed."
+evidence = ["tests/unit/lex/legal_evaluation/test_impact_diff.py"]
+compatibility = "Existing report schema 1.0, imports and default pass plan remain compatible. Unsupported pass names now raise ValueError; CLI returns configuration error 2 without publishing a report."
+change_class = "runtime_behavior"
+surface_classification = "internal"
+migration = "Remove unsupported pass IDs; use passes=None for defaults and passes=() for an intentional comparison-only API plan."
+limitations = "Heuristic impact topics remain candidate topics without measured effect size. Actual law/input custody requires admitted corpus/backend evidence."

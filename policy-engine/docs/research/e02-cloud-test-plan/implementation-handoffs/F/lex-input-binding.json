@@ -1,0 +1,620 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "lex-input-binding",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA-017"
+  ],
+  "bundle_ids": [
+    "LEX-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+    "56aa7d47876b29956676ef8dc9f04b64c865948f"
+  ],
+  "candidate_tree_sha": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+  "branch": "codex/e02-F-lex",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/21",
+  "changed_paths": [
+    "policy-engine/src/polisyos/core/components/_cli_lex.py",
+    "policy-engine/src/polisyos/lex/legal_evaluation/README.md",
+    "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+    "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P137",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/lex/simulator/test_engine.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.17",
+      "rss_kib": "222872",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "254",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P054",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "9.39",
+      "rss_kib": "509248.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "184",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F04-P117",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "21.013",
+      "rss_kib": "784428",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "327",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F04-P138",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/lex/simulator/test_diff.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.933",
+      "rss_kib": "229620",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "348",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P076",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "26.94",
+      "rss_kib": "626400",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "486",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P049",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "30.006110429763794",
+      "rss_kib": "666040.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "55",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F09-P118",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "46.04",
+      "rss_kib": "1579008",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "234",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F11-P060",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "29.005",
+      "rss_kib": "616376",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "189",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}"
+    },
+    {
+      "id": "F14-P064",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "23.235391237999465",
+      "rss_kib": "662516",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "414",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P137",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "48.63518115499937",
+      "rss_kib": "1619660",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "487",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_basis": {
+    "grade": "source_reported_compact_text_only",
+    "raw_archives_received": 0,
+    "finding_semantic_adequacy": "not_established",
+    "result_index_check": "import_results.py --check passes against all source bytes and pinned allocation; bookkeeping only"
+  },
+  "environment": {
+    "python": "3.14.2",
+    "platform": "Linux x86_64",
+    "packages": {
+      "pytest": "9.0.2",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pydantic": "2.12.5",
+      "jax": "0.8.2"
+    },
+    "backend": "native ExpressionASTBackend for rule evaluation; CLI default StubBackend verifies transport/schema only",
+    "source_selection": "own worktree cwd + PYTHONPATH=src:.; shared site-packages read-only",
+    "optional_backends": "DoWhy/EconML not installed and excluded under baseline markers; no witness/no shim"
+  },
+  "input_closure": {
+    "kind": "known synthetic NormPack rules and income=2",
+    "normative_law_admitted": false,
+    "production_inputs": false,
+    "schema": "NormPack and NormImpactReport 1.0; schema unchanged",
+    "source": "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py@56aa7d47876b29956676ef8dc9f04b64c865948f",
+    "authority_purpose": "candidate comparison only; no quantitative KPI/custody authority"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/lex/legal_evaluation/test_impact_diff.py -q",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "environment": "new candidate tests applied to unchanged slice-base runtime",
+      "input_closure": "11 native cases; 8 intended regression failures and 3 valid controls",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-red.txt",
+        "sha256": "b7e4f395cae575a1515ea902fce582a94517c5a2c8734be6cda731857c07edbd",
+        "bytes": 10716
+      }
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/lex/legal_evaluation/test_impact_diff.py tests/unit/lex/simulator tests/unit/remediation/test_lex_01.py tests/unit/core/phase0/test_cli.py::test_cli_lex_impact_json_output tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py -ra",
+      "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "environment": "Python3.14.2 native expr_ast+CAS+CLI",
+      "input_closure": "complete selected paths including live Lex/IR/Foundry integration fixture",
+      "wall_s": 69.565,
+      "rss_kib": 781412,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-frozen-tests.txt",
+        "sha256": "375062cdf1523bfcac41c75e8d3b1c509dade7d89f5b2368f34f96c60bcc2be6",
+        "bytes": 100
+      },
+      "counts": {
+        "passed": 21,
+        "skipped": 0,
+        "errors": 0
+      }
+    },
+    {
+      "command": "subprocess monkeypatch NormImpactAnalyzer._run_passes to pass context.get(\"norm_pack\", norm_pack) as compared pack; pytest -o addopts= -q -ra test_impact_diff.py -k \"compared_packs or identical_policy\"",
+      "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+      "outcome": "PASS",
+      "observed_exit": 1,
+      "expected_exit": 1,
+      "environment": "isolated subprocess; unchanged source files and report/pack IDs; property removed with markers intact",
+      "input_closure": "5 selected cases: 3 adversarial failures, 2 valid controls",
+      "wall_s": 3.649166535999939,
+      "rss_kib": 235964,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-removal.txt",
+        "sha256": "a4213e2f5311de92443c4222bec950ab3eb8c9c2355c576068d21ea458ff019d",
+        "bytes": 5784
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/core/components/_cli_lex.py src/polisyos/lex/legal_evaluation/impact_diff.py tests/unit/lex/legal_evaluation/test_impact_diff.py; /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check same three paths",
+      "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+      "outcome": "PASS",
+      "environment": "ruff0.14.10",
+      "input_closure": "all changed Python files",
+      "output": "All checks passed!\n3 files already formatted\n"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+      "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "environment": "Node24.19.0 versus required22; no worktree node_modules/openapi-typescript",
+      "input_closure": "full gate includes changed source; inherited attribution not_established (no exact-base replay plus disjoint denominator)",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-architecture.txt",
+        "sha256": "c7e713e9503e2ea6884a88f40206ce78f0972082b8319c31558ccd351f67d7e7",
+        "bytes": 118079
+      },
+      "limitation": "incomplete generator measurements plus import baseline/OpenAPI/trust-artifact drifts; no PASS and no gate weakening"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base c40d4acae1ce58b597267255026d9356565828fd --receipt /workspace/e02-F-receipts/lex-production-invocation.json",
+      "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+      "outcome": "PASS",
+      "environment": "native static whole source scanner",
+      "input_closure": "static selector only, runtime_invocation_established=false",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-invocation.txt",
+        "sha256": "dc1c2968b0e983681825c1666b6e291132e423b72aae15afb3b9072ffbb1eb99",
+        "bytes": 1341
+      },
+      "coverage": "partial; static diagnostic only; runtime evidence is the separate real tests",
+      "raw_receipt": {
+        "path": "/workspace/e02-F-receipts/lex-production-invocation.json",
+        "bytes": 170856411,
+        "sha256": "e94df7e6d14e616a253c7d756489e9a1b76cad721b623693f2bc257ffc643801",
+        "transfer": "local only; full raw not admitted by receiver. Raw-dependent claims remain not_established; exact rerun above"
+      }
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/lex/legal_evaluation/test_impact_diff.py::test_pass_plan_is_frozen_at_admission -o addopts= -q",
+      "target_sha": "d5ce37d2f5206f02477784f09360e69aa7416295",
+      "source_overlay": "new one-case regression applied to unchanged ec5e55 runtime before tuple snapshot repair",
+      "environment": "native Python3.14.2",
+      "input_closure": "caller legal list mutated after admission; actual persisted report pass plan differs",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "counts": {
+        "failed": 1,
+        "errors": 0
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-red.txt",
+        "sha256": "f324c8aa4efebb213dc9ef5f444ef1a6b4b98148dadeadde3a131a4384f9eb82",
+        "bytes": 1294
+      }
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/lex/legal_evaluation/test_impact_diff.py tests/remediation/test_lex_01.py tests/unit/lex/test_simulator.py tests/unit/core/components/test_cli_lex.py tests/integration/test_lex_ir_foundry_flow.py -o addopts= -q",
+      "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "outcome": "ERROR",
+      "exit_code": 4,
+      "environment": "native selector attempt before correction",
+      "input_closure": "incorrect test path; no tests ran, not product defect or PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-selector-error.txt",
+        "sha256": "62d89589f56fe175052948ca8198f2fe2efa24ed9f1c82723a6722d641642410",
+        "bytes": 93
+      }
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/lex/legal_evaluation/test_impact_diff.py tests/unit/lex/simulator tests/unit/remediation/test_lex_01.py tests/unit/core/phase0/test_cli.py::test_cli_lex_impact_json_output tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py -o addopts= -q -ra",
+      "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "environment": "Python3.14.2 expr_ast+CAS+CLI",
+      "input_closure": "complete selected native five-path scope",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "passed": 22,
+        "skipped": 0,
+        "errors": 0
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-green.txt",
+        "sha256": "0386206095f282d9847f31cf407169ec07878ea88a2e17b2dfd433d55bde7fb4",
+        "bytes": 100
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/lex/legal_evaluation/impact_diff.py tests/unit/lex/legal_evaluation/test_impact_diff.py; /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check same two paths",
+      "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "environment": "ruff0.14.10",
+      "input_closure": "all changed Python delta files",
+      "outcome": "PASS",
+      "output": "All checks passed!\n2 files already formatted\n"
+    },
+    {
+      "command": "independent fresh native22; full argv/replayer in committed independent_delta_review",
+      "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "outcome": "PASS",
+      "observed_exit": 0,
+      "expected_exit": 0,
+      "environment": "Python3.14.2 native expr_ast+CAS",
+      "input_closure": "known synthetic NormPack; unsupported/empty/mutable/iterator/order plans; full payloads retained",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-native.json",
+        "sha256": "2e4e60a20ec74c02616113b9766880abf7b3d25e4133ac1f02e6ac034afb9181",
+        "bytes": 1619
+      }
+    },
+    {
+      "command": "independent native persisted controls9; full argv/replayer in committed independent_delta_review",
+      "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "outcome": "PASS",
+      "observed_exit": 0,
+      "expected_exit": 0,
+      "environment": "Python3.14.2 native expr_ast+CAS",
+      "input_closure": "known synthetic NormPack; unsupported/empty/mutable/iterator/order plans; full payloads retained",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.json",
+        "sha256": "bb87e2b57aff1cc2fb5a1bd894a9244d77ac3f02aec358b0beaaa109e9532635",
+        "bytes": 16649
+      }
+    },
+    {
+      "command": "independent freeze property removal; full argv/replayer in committed independent_delta_review",
+      "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "outcome": "PASS",
+      "observed_exit": 1,
+      "expected_exit": 1,
+      "environment": "Python3.14.2 native expr_ast+CAS",
+      "input_closure": "known synthetic NormPack; unsupported/empty/mutable/iterator/order plans; full payloads retained",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-removed-controls.json",
+        "sha256": "a8f4a0f9779fd21003532616d2a128dfa1d3878b7e5a6b1cd3f8b925273312ab",
+        "bytes": 15675
+      }
+    }
+  ],
+  "property": {
+    "statement": "Lex compliance changes are computed using the actual compared packs and supported requested pass plan before persisted report bytes are consumed. A context norm_pack cannot replace the old/new rules, an unsupported pass cannot be labeled executed, and an explicit empty API plan does not acquire defaults. The admitted pass plan is frozen once; later caller-container mutation or one-shot iterator consumption cannot alter validated execution or persisted disclosure.",
+    "runtime_path": [
+      "old/new NormPack + explicit context → NormImpactAnalyzer",
+      "LegalPass → native expr_ast rule backend; optional SafetyPass",
+      "NormDiff and NormImpactReport → FileSystemCAS manifest/bytes",
+      "reopened NormImpactReport/NormDiff → historical schema consumer + render_impact_markdown",
+      "real CLI → supported report JSON or unsupported-config exit2 without output publication"
+    ],
+    "proxy_divergence": "Old code preserves old/new report IDs and a correct modified norm diff while context norm_pack supplies an empty/permissive/strict third pack to both legal checks. Result new_blockers=0 instead of1. An unknown pass string is also persisted as executed despite no dispatch.",
+    "negative_controls": [
+      "context norm_pack empty/permissive/restrictive while IDs and input declaration remain intact",
+      "unchanged failing policy produces no invented transition/topic",
+      "unsupported pass and mixed legal,legla rejected via API and actual CLI",
+      "explicit passes=() stays empty; None retains defaults",
+      "marker-preserving input-binding removal produces3 regressions with2 controls still passing",
+      "real authority_surface_decision remains blocked for heuristic-only report in existing remediation tests",
+      "caller appends unsupported pass after admission while original validated legal marker remains",
+      "independent append/replace/clear/empty-plan mutation/order/generator controls use native expr_ast, CAS readback and authority consumer",
+      "independent freeze removal:6 failures and3 valid controls; full persisted divergent payloads committed"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_mechanism_and_native_consumer_verified; LA-017 remains limited pending G acceptance and actual corpus/caller custody",
+  "independent_review": {
+    "reviewer": "F/foundry",
+    "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+    "verdict": "GO bounded scope; no actionable code/spec finding",
+    "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/lex/legal_evaluation/test_impact_diff.py tests/unit/lex/simulator/test_engine.py -o cache_dir=/workspace/e02-F-receipts/foundry-lex-review-cache2 --basetemp=/workspace/e02-F-receipts/foundry-lex-review-tmp2",
+    "output": "12 passed in20.37s",
+    "preliminary_attempt": "nonexistent test_impact_analyzer.py selector ERROR/no tests; corrected actual-path run is separate, not a relabeled PASS",
+    "p40": "input binding and pass-execution fidelity are new mechanism repairs; historical report-ID/context identity and default StubBackend limits remain declared boundaries"
+  },
+  "pattern_pass": [
+    "P01/P02 real backend→CAS→CLI/display consumers",
+    "P05/P15 no heuristic topics promoted to quantified or legal authority",
+    "P27 canonical Lex owner extended; old aliases unchanged",
+    "P29/P33 property removal catches report semantic divergence with markers intact",
+    "P35 all baseline rows/UTF8 transfer indexed; full denominator admitted only as bookkeeping",
+    "P37 compared pack and supported dispatch recomputed; actual law corpus not_established",
+    "P38 report field/ID or pass name is not evidence checks used that input/executed",
+    "P40 class-level input/config binding; further report-identity scope is bounded residual",
+    "P41 no inherited-red claim for broad gate",
+    "P40 second pass-plan escape fixed at admission with tuple snapshot; no per-consumer configuration patch"
+  ],
+  "limitations_and_next_owner": [
+    "G must fetch this branch/implementation and independently accept code and LA-017 evidence separately.",
+    "Full admitted legal corpus, source-law provenance, actual old/new pack IDs and real context/backend input custody were not supplied; no law/data-dependent closure in cloud. G local run at exact implementation SHA should execute the receipt property command with sufficient bounded fixtures, then the chosen actual admitted corpus/backend through NormImpactAnalyzer if production applicability is claimed.",
+    "Default CLI LegalPass uses StubBackend unless caller supplies a real backend through the API; CLI success is a transport/schema witness, not a legal adequacy witness.",
+    "Historical report_id hashing omits context/content from identity; CAS byte address is content-bound. This slice preserves historical schema/identity semantics, and consumers must not treat report_id alone as custody or effect evidence.",
+    "affected_kpis remains historical schema1.0 candidate topics with unknown direction and no measured size. Quantitative effect belongs to Scientist/Foundry.",
+    "Supported Node22 + corepack pnpm install --frozen-lockfile are needed before G reruns architecture guardrails on integrated source; current broad gate is UNRUN, drifts not attributed as inherited.",
+    "163MiB static scanner raw stays local ignored scratch. Receiver must rerun any raw-dependent static claim rather than admit compact summary."
+  ],
+  "independent_delta_review": {
+    "reviewer": "F/fit_tmle",
+    "verdict": "GO bounded 56aa7d47876b29956676ef8dc9f04b64c865948f delta; no actionable code/spec blocker",
+    "source_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+    "source_tree": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+    "commands": [
+      {
+        "cwd": "/workspace/e02-F-lex/policy-engine",
+        "PYTHONPATH": "src:.",
+        "argv": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/workspace/e02-F-receipts/lex-independent-fit-controls.py"
+        ],
+        "exit_code": 0,
+        "counts": {
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0,
+          "errors": 0
+        }
+      },
+      {
+        "cwd": "/workspace/e02-F-lex/policy-engine",
+        "PYTHONPATH": "src:.",
+        "argv": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/workspace/e02-F-receipts/lex-independent-fit-controls.py",
+          "--remove-freeze"
+        ],
+        "exit_code": 1,
+        "expected_exit": 1,
+        "counts": {
+          "passed": 3,
+          "failed": 6,
+          "skipped": 0,
+          "errors": 0
+        },
+        "interpretation": "expected property-removal failure; candidate markers/source file remain intact; only runtime __init__ tuple snapshot replaced with caller-container reference"
+      }
+    ],
+    "refs": {
+      "lex-independent-fit-native.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-native.json",
+        "sha256": "2e4e60a20ec74c02616113b9766880abf7b3d25e4133ac1f02e6ac034afb9181",
+        "bytes": 1619
+      },
+      "lex-independent-fit-controls.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.json",
+        "sha256": "bb87e2b57aff1cc2fb5a1bd894a9244d77ac3f02aec358b0beaaa109e9532635",
+        "bytes": 16649
+      },
+      "lex-independent-fit-removed-controls.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-removed-controls.json",
+        "sha256": "a8f4a0f9779fd21003532616d2a128dfa1d3878b7e5a6b1cd3f8b925273312ab",
+        "bytes": 15675
+      },
+      "lex-independent-fit-controls.py": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.py",
+        "sha256": "769e552f19b18d94e0f7953c440c347662cafb1ab9f5c94976ac762fed50e520",
+        "bytes": 8287
+      }
+    },
+    "P40": "minimal tuple snapshot closes admitted-container and consumed-iterator plan escape within this delta; public constructor ABI stays unchanged",
+    "limits": [
+      "LA017 limited: known synthetic rules and explicit native expr_ast only; real law corpus/admission/custody absent",
+      "default CLI legal backend is StubBackend; CLI pass/schema behavior is transport only",
+      "report_id omits context/full content historically; CAS bytes content bound; no authority from report_id or candidate topics",
+      "scratch generator/list cases describe accepted runtime values; no public typed-signature expansion"
+    ],
+    "replay_note": "Extract committed controls.py from published receipt head to local scratch, then run it with PYTHONPATH=src:. from policy-engine at frozen implementation56aa7d47876b29956676ef8dc9f04b64c865948f. The replayer asserts exact HEAD and canonical source path. Scratch paths in command argv are original cloud execution identities."
+  },
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-*.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-*.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.py",
+    "policy-engine/release-fragments/unreleased/2026-10-05-lex-impact-input-binding.toml"
+  ],
+  "final_checkpoint_note": "Broad architecture UNRUN and static invocation partial checks above remain bound to their ec5e55 source, not a PASS of the56aa7 delta or integrated candidate. Native delta source and consumers independently rerun; G supported-profile gate on integrated candidate remains required."
+}

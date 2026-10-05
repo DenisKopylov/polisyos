@@ -1,0 +1,467 @@
+{
+  "source_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+  "source_tree": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+  "source_path": "/workspace/e02-F-lex/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+  "source_sha256": "6d0ab011b18da214b74f6420b06e5838bf2a209f4e8ff70d796f6f73875fe42e",
+  "source_file_bytes": 15760,
+  "mode": "removed-freeze",
+  "backend": "native expr_ast; actual LegalPass/SafetyPass/CAS/readback/render/authority gate",
+  "input": "synthetic two NormPack obligations income>=1 versus income>=3, context income=2; no real law corpus or authority closure",
+  "checks": [
+    {
+      "name": "tuple-plan-and-public-alias-native-consumer-control",
+      "status": "PASS",
+      "persisted_payload": {
+        "affected_kpis": [
+          {
+            "affected_norm_ids": [
+              "n.income"
+            ],
+            "description": "Operational and reporting costs needed to maintain compliance.",
+            "estimated_direction": "unknown",
+            "kpi_id": "compliance_cost"
+          }
+        ],
+        "cas_artifact_id": null,
+        "compliance_deltas": [
+          {
+            "fingerprint": "issue.sha256_47c268f74f0f842a7623ccbc3793c5f96e0fcf00714711422c41598bbe75d1ce",
+            "new_issue": {
+              "code": "n.income",
+              "input_value": "income >= 3",
+              "message": "Obligation not met: Income floor",
+              "pass_id": "legal",
+              "path": [
+                "norm_pack",
+                "n.income",
+                "must"
+              ],
+              "severity": "blocker",
+              "suggestion": "Current values: income=2"
+            },
+            "norm_id": "n.income",
+            "old_issue": null,
+            "pass_id": "legal",
+            "transition": "new_issue"
+          }
+        ],
+        "decision_packet_ref": "decision.independent-fit",
+        "jurisdiction": "ua",
+        "metadata": {
+          "new_issues_total": 1,
+          "old_issues_total": 0,
+          "profile": "strict"
+        },
+        "new_blockers": 1,
+        "new_pack_id": "pack.new",
+        "new_warnings": 0,
+        "norm_diff_ref": "sha256:6118d5d4dd194dc98418ba1b64e16a75a56f5f59c623af97f93ae68eee8f2ee1",
+        "norms_added": 0,
+        "norms_modified": 1,
+        "norms_removed": 0,
+        "old_pack_id": "pack.old",
+        "passes_executed": [
+          "legal"
+        ],
+        "report_id": "lex.impact_report.sha256_7f162eb6b739ad1b39b0f6f09ef84f7f35950c955f33d6a5842a27f91dc4d158",
+        "resolved_blockers": 0,
+        "resolved_warnings": 0,
+        "schema_version": "1.0",
+        "severity_changed": 0
+      }
+    },
+    {
+      "name": "admitted-list-append-unknown-cannot-change-dispatch-or-cas-bytes",
+      "status": "FAIL",
+      "exception": "AssertionError",
+      "message": "(['legal', 'legla'], ['legal'])",
+      "persisted_payload": {
+        "affected_kpis": [
+          {
+            "affected_norm_ids": [
+              "n.income"
+            ],
+            "description": "Operational and reporting costs needed to maintain compliance.",
+            "estimated_direction": "unknown",
+            "kpi_id": "compliance_cost"
+          }
+        ],
+        "cas_artifact_id": null,
+        "compliance_deltas": [
+          {
+            "fingerprint": "issue.sha256_47c268f74f0f842a7623ccbc3793c5f96e0fcf00714711422c41598bbe75d1ce",
+            "new_issue": {
+              "code": "n.income",
+              "input_value": "income >= 3",
+              "message": "Obligation not met: Income floor",
+              "pass_id": "legal",
+              "path": [
+                "norm_pack",
+                "n.income",
+                "must"
+              ],
+              "severity": "blocker",
+              "suggestion": "Current values: income=2"
+            },
+            "norm_id": "n.income",
+            "old_issue": null,
+            "pass_id": "legal",
+            "transition": "new_issue"
+          }
+        ],
+        "decision_packet_ref": "decision.independent-fit",
+        "jurisdiction": "ua",
+        "metadata": {
+          "new_issues_total": 1,
+          "old_issues_total": 0,
+          "profile": "strict"
+        },
+        "new_blockers": 1,
+        "new_pack_id": "pack.new",
+        "new_warnings": 0,
+        "norm_diff_ref": "sha256:6118d5d4dd194dc98418ba1b64e16a75a56f5f59c623af97f93ae68eee8f2ee1",
+        "norms_added": 0,
+        "norms_modified": 1,
+        "norms_removed": 0,
+        "old_pack_id": "pack.old",
+        "passes_executed": [
+          "legal",
+          "legla"
+        ],
+        "report_id": "lex.impact_report.sha256_5fc50a11776198202624767c87d0de30d4a58cd98520b379255cb1424f9ea5c1",
+        "resolved_blockers": 0,
+        "resolved_warnings": 0,
+        "schema_version": "1.0",
+        "severity_changed": 0
+      }
+    },
+    {
+      "name": "admitted-list-replacement-cannot-drop-real-legal-transition",
+      "status": "FAIL",
+      "exception": "AssertionError",
+      "message": "(0, 1)",
+      "persisted_payload": {
+        "affected_kpis": [
+          {
+            "affected_norm_ids": [
+              "n.income"
+            ],
+            "description": "Operational and reporting costs needed to maintain compliance.",
+            "estimated_direction": "unknown",
+            "kpi_id": "compliance_cost"
+          }
+        ],
+        "cas_artifact_id": null,
+        "compliance_deltas": [],
+        "decision_packet_ref": "decision.independent-fit",
+        "jurisdiction": "ua",
+        "metadata": {
+          "new_issues_total": 0,
+          "old_issues_total": 0,
+          "profile": "strict"
+        },
+        "new_blockers": 0,
+        "new_pack_id": "pack.new",
+        "new_warnings": 0,
+        "norm_diff_ref": "sha256:6118d5d4dd194dc98418ba1b64e16a75a56f5f59c623af97f93ae68eee8f2ee1",
+        "norms_added": 0,
+        "norms_modified": 1,
+        "norms_removed": 0,
+        "old_pack_id": "pack.old",
+        "passes_executed": [
+          "safety"
+        ],
+        "report_id": "lex.impact_report.sha256_619e9a71fd751a171a060484510f1ccaecf0762a47597d2bd48872997dd8ffb2",
+        "resolved_blockers": 0,
+        "resolved_warnings": 0,
+        "schema_version": "1.0",
+        "severity_changed": 0
+      }
+    },
+    {
+      "name": "admitted-list-clear-cannot-drop-real-legal-transition",
+      "status": "FAIL",
+      "exception": "AssertionError",
+      "message": "(0, 1)",
+      "persisted_payload": {
+        "affected_kpis": [
+          {
+            "affected_norm_ids": [
+              "n.income"
+            ],
+            "description": "Operational and reporting costs needed to maintain compliance.",
+            "estimated_direction": "unknown",
+            "kpi_id": "compliance_cost"
+          }
+        ],
+        "cas_artifact_id": null,
+        "compliance_deltas": [],
+        "decision_packet_ref": "decision.independent-fit",
+        "jurisdiction": "ua",
+        "metadata": {
+          "new_issues_total": 0,
+          "old_issues_total": 0,
+          "profile": "strict"
+        },
+        "new_blockers": 0,
+        "new_pack_id": "pack.new",
+        "new_warnings": 0,
+        "norm_diff_ref": "sha256:6118d5d4dd194dc98418ba1b64e16a75a56f5f59c623af97f93ae68eee8f2ee1",
+        "norms_added": 0,
+        "norms_modified": 1,
+        "norms_removed": 0,
+        "old_pack_id": "pack.old",
+        "passes_executed": [],
+        "report_id": "lex.impact_report.sha256_6474ef33dea44d11e17a29643f10616fdaaca94e50b376ca474633c43f07e52d",
+        "resolved_blockers": 0,
+        "resolved_warnings": 0,
+        "schema_version": "1.0",
+        "severity_changed": 0
+      }
+    },
+    {
+      "name": "explicit-empty-list-cannot-acquire-later-legal-pass",
+      "status": "FAIL",
+      "exception": "AssertionError",
+      "message": "(1, 0)",
+      "persisted_payload": {
+        "affected_kpis": [
+          {
+            "affected_norm_ids": [
+              "n.income"
+            ],
+            "description": "Operational and reporting costs needed to maintain compliance.",
+            "estimated_direction": "unknown",
+            "kpi_id": "compliance_cost"
+          }
+        ],
+        "cas_artifact_id": null,
+        "compliance_deltas": [
+          {
+            "fingerprint": "issue.sha256_47c268f74f0f842a7623ccbc3793c5f96e0fcf00714711422c41598bbe75d1ce",
+            "new_issue": {
+              "code": "n.income",
+              "input_value": "income >= 3",
+              "message": "Obligation not met: Income floor",
+              "pass_id": "legal",
+              "path": [
+                "norm_pack",
+                "n.income",
+                "must"
+              ],
+              "severity": "blocker",
+              "suggestion": "Current values: income=2"
+            },
+            "norm_id": "n.income",
+            "old_issue": null,
+            "pass_id": "legal",
+            "transition": "new_issue"
+          }
+        ],
+        "decision_packet_ref": "decision.independent-fit",
+        "jurisdiction": "ua",
+        "metadata": {
+          "new_issues_total": 1,
+          "old_issues_total": 0,
+          "profile": "strict"
+        },
+        "new_blockers": 1,
+        "new_pack_id": "pack.new",
+        "new_warnings": 0,
+        "norm_diff_ref": "sha256:6118d5d4dd194dc98418ba1b64e16a75a56f5f59c623af97f93ae68eee8f2ee1",
+        "norms_added": 0,
+        "norms_modified": 1,
+        "norms_removed": 0,
+        "old_pack_id": "pack.old",
+        "passes_executed": [
+          "legal"
+        ],
+        "report_id": "lex.impact_report.sha256_7f162eb6b739ad1b39b0f6f09ef84f7f35950c955f33d6a5842a27f91dc4d158",
+        "resolved_blockers": 0,
+        "resolved_warnings": 0,
+        "schema_version": "1.0",
+        "severity_changed": 0
+      }
+    },
+    {
+      "name": "admitted-two-pass-order-native-payload-matches-tuple-control",
+      "status": "FAIL",
+      "exception": "AssertionError",
+      "message": "(['legal', 'safety'], ['safety', 'legal'])",
+      "persisted_payload": {
+        "affected_kpis": [
+          {
+            "affected_norm_ids": [
+              "n.income"
+            ],
+            "description": "Operational and reporting costs needed to maintain compliance.",
+            "estimated_direction": "unknown",
+            "kpi_id": "compliance_cost"
+          }
+        ],
+        "cas_artifact_id": null,
+        "compliance_deltas": [
+          {
+            "fingerprint": "issue.sha256_47c268f74f0f842a7623ccbc3793c5f96e0fcf00714711422c41598bbe75d1ce",
+            "new_issue": {
+              "code": "n.income",
+              "input_value": "income >= 3",
+              "message": "Obligation not met: Income floor",
+              "pass_id": "legal",
+              "path": [
+                "norm_pack",
+                "n.income",
+                "must"
+              ],
+              "severity": "blocker",
+              "suggestion": "Current values: income=2"
+            },
+            "norm_id": "n.income",
+            "old_issue": null,
+            "pass_id": "legal",
+            "transition": "new_issue"
+          }
+        ],
+        "decision_packet_ref": "decision.independent-fit",
+        "jurisdiction": "ua",
+        "metadata": {
+          "new_issues_total": 1,
+          "old_issues_total": 0,
+          "profile": "strict"
+        },
+        "new_blockers": 1,
+        "new_pack_id": "pack.new",
+        "new_warnings": 0,
+        "norm_diff_ref": "sha256:6118d5d4dd194dc98418ba1b64e16a75a56f5f59c623af97f93ae68eee8f2ee1",
+        "norms_added": 0,
+        "norms_modified": 1,
+        "norms_removed": 0,
+        "old_pack_id": "pack.old",
+        "passes_executed": [
+          "legal",
+          "safety"
+        ],
+        "report_id": "lex.impact_report.sha256_db6591c6422550c40fc851bbc44b274e086a081541d2d16d91396f90a09f9079",
+        "resolved_blockers": 0,
+        "resolved_warnings": 0,
+        "schema_version": "1.0",
+        "severity_changed": 0
+      }
+    },
+    {
+      "name": "accepted-single-use-iterable-is-not-consumed-by-validation",
+      "status": "FAIL",
+      "exception": "AssertionError",
+      "message": "(0, 1)",
+      "persisted_payload": {
+        "affected_kpis": [
+          {
+            "affected_norm_ids": [
+              "n.income"
+            ],
+            "description": "Operational and reporting costs needed to maintain compliance.",
+            "estimated_direction": "unknown",
+            "kpi_id": "compliance_cost"
+          }
+        ],
+        "cas_artifact_id": null,
+        "compliance_deltas": [],
+        "decision_packet_ref": "decision.independent-fit",
+        "jurisdiction": "ua",
+        "metadata": {
+          "new_issues_total": 0,
+          "old_issues_total": 0,
+          "profile": "strict"
+        },
+        "new_blockers": 0,
+        "new_pack_id": "pack.new",
+        "new_warnings": 0,
+        "norm_diff_ref": "sha256:6118d5d4dd194dc98418ba1b64e16a75a56f5f59c623af97f93ae68eee8f2ee1",
+        "norms_added": 0,
+        "norms_modified": 1,
+        "norms_removed": 0,
+        "old_pack_id": "pack.old",
+        "passes_executed": [],
+        "report_id": "lex.impact_report.sha256_6474ef33dea44d11e17a29643f10616fdaaca94e50b376ca474633c43f07e52d",
+        "resolved_blockers": 0,
+        "resolved_warnings": 0,
+        "schema_version": "1.0",
+        "severity_changed": 0
+      }
+    },
+    {
+      "name": "none-retains-default-native-legal-and-safety-control",
+      "status": "PASS",
+      "persisted_payload": {
+        "affected_kpis": [
+          {
+            "affected_norm_ids": [
+              "n.income"
+            ],
+            "description": "Operational and reporting costs needed to maintain compliance.",
+            "estimated_direction": "unknown",
+            "kpi_id": "compliance_cost"
+          }
+        ],
+        "cas_artifact_id": null,
+        "compliance_deltas": [
+          {
+            "fingerprint": "issue.sha256_47c268f74f0f842a7623ccbc3793c5f96e0fcf00714711422c41598bbe75d1ce",
+            "new_issue": {
+              "code": "n.income",
+              "input_value": "income >= 3",
+              "message": "Obligation not met: Income floor",
+              "pass_id": "legal",
+              "path": [
+                "norm_pack",
+                "n.income",
+                "must"
+              ],
+              "severity": "blocker",
+              "suggestion": "Current values: income=2"
+            },
+            "norm_id": "n.income",
+            "old_issue": null,
+            "pass_id": "legal",
+            "transition": "new_issue"
+          }
+        ],
+        "decision_packet_ref": "decision.independent-fit",
+        "jurisdiction": "ua",
+        "metadata": {
+          "new_issues_total": 1,
+          "old_issues_total": 0,
+          "profile": "strict"
+        },
+        "new_blockers": 1,
+        "new_pack_id": "pack.new",
+        "new_warnings": 0,
+        "norm_diff_ref": "sha256:6118d5d4dd194dc98418ba1b64e16a75a56f5f59c623af97f93ae68eee8f2ee1",
+        "norms_added": 0,
+        "norms_modified": 1,
+        "norms_removed": 0,
+        "old_pack_id": "pack.old",
+        "passes_executed": [
+          "legal",
+          "safety"
+        ],
+        "report_id": "lex.impact_report.sha256_db6591c6422550c40fc851bbc44b274e086a081541d2d16d91396f90a09f9079",
+        "resolved_blockers": 0,
+        "resolved_warnings": 0,
+        "schema_version": "1.0",
+        "severity_changed": 0
+      }
+    },
+    {
+      "name": "unknown-at-admission-remains-rejected-control",
+      "status": "PASS",
+      "persisted_payload": {
+        "admission": "rejected-before-analyze"
+      }
+    }
+  ],
+  "passed": 3,
+  "failed": 6,
+  "skipped": 0,
+  "errors": 0
+}

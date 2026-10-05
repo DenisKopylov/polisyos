@@ -16,7 +16,7 @@
   ],
   "candidate_tree_sha": "13a4c7ec6c9ae5be23fdf4942e6faeb80e3e0aab",
   "branch": "codex/e02-E-backtest-bias",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/28",
   "changed_paths": [
     "policy-engine/release-fragments/unreleased/2026-10-05-e02-bkt03-statistical-support.toml",
     "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
@@ -482,6 +482,14 @@
       "outcome": "PASS",
       "expected_negative": false,
       "output": "bias-statistical-support.checks.json#checks/release_fragment_policy_parse_and_evidence"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-bias/policy-engine/src .venv/bin/python /workspace/e02-runtime/bkt03-independent/oracle.py > /workspace/e02-runtime/bkt03-independent/stdout.txt 2>&1",
+      "target_sha": "5d8c9849be66562dba782763e7fc36d399e7daed",
+      "environment": "bias-statistical-support.checks.json#independent_PCL_review/review_json_verbatim",
+      "input_closure": "13 explicit synthetic PROVIDED-plan/CAS fixtures plus separate Student-t n3 reference; exact source checked against implementation SHA",
+      "outcome": "PASS",
+      "output": "bias-statistical-support.checks.json#independent_PCL_review (verbatim stdout/review JSON/oracle code)"
     }
   ],
   "property": {
@@ -517,7 +525,7 @@
   "independent_review": {
     "root_source_review": "No blockers reported on implementation5d8c9849be66562dba782763e7fc36d399e7daed",
     "independent_root_tests": "39PASS exact implementation source; full moderate log in checks companion",
-    "other_reviewer": "PCL reviewer pending at receipt creation"
+    "other_reviewer": "Independent E/PCL leaf PASS:13 native PROVIDED-report/CAS cases and an independent Student-t oracle. Exact source blob and byte digest reconciled before and after; verbatim deciding outputs, review JSON and oracle code in checks companion."
   },
   "limitations_and_next_owner": [
     "Extended native suite150 tests has4 composition_bridge failures. Exact failures/command/output retained; inheritance/causality not_established under P41. Root/G assign that distinct owner, no composition changes in this slice.",
@@ -541,5 +549,15 @@
     "remote_branch": "refs/heads/codex/e02-E-backtest-bias",
     "verified_by": "git ls-remote --heads origin codex/e02-E-backtest-bias",
     "receipt_metadata_commit": "separate subsequent commit; implementation/tree references never point to future receipt SHA"
+  },
+  "pull_request_labels": [
+    "kind:runtime-behavior",
+    "compat:internal",
+    "release:fix"
+  ],
+  "artifact_attachment": {
+    "tool_invoked_after_PR_creation": true,
+    "leaf_call_status": "terminated waiting for root host RPC; E root notified and confirmed it will attach PR28",
+    "root_attachment_status": "not_established in this leaf receipt; final root-host attachment receipt authoritative"
   }
 }

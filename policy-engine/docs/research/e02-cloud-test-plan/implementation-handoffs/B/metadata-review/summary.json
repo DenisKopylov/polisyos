@@ -1,0 +1,259 @@
+{
+  "schema": "policyos.e02.B_metadata_utility_review.v1",
+  "tool_source_sha": "75f7648864f541757ba443828f94d6cdf80cc30c",
+  "final_head": "8b14958355d00fa489673528a8bf49cf5442bad0",
+  "final_tree": "c1bfedccc9cc78558c19dabcf0c4cf860e7568c1",
+  "runtime_execution_performed": false,
+  "process_worktrees_created": false,
+  "outcome": "PASS_bounded_metadata_control",
+  "original_outputs_equal_root_pre_freeze": true,
+  "mutation": {
+    "family": "dur",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a",
+    "only_change": "remove finding_dispositions row B37 in memory",
+    "removed_row": {
+      "finding_id": "B37",
+      "status": "partial",
+      "mechanism": "fixed_class_supplied_incomplete_snapshot_and_cold_publication",
+      "verification": "94 candidate cases including 61 new process/intake controls pass; independent root94 pass; removal20 failures and pinned base14 failures retained",
+      "remaining": "Full four-base replay, physical power loss, multi-host filesystem semantics, valid forged accounting, deployed ledger factory and operation-idempotent ambiguous spend retry are not established."
+    },
+    "unchanged_closure_ids": [
+      "B37"
+    ],
+    "unchanged_bundle_ids": [
+      "DUR-01",
+      "DUR-02"
+    ],
+    "before_rows": 3,
+    "after_rows": 2
+  },
+  "runs": [
+    {
+      "mode": "unaltered",
+      "argv": [
+        "/tmp/e02-B-cas-metadata75f/research/implementation-handoffs/B/verification-tools/reconcile_b_owners.py",
+        "--repo",
+        "/workspace/e02-B-acceptance",
+        "--final-head",
+        "8b14958355d00fa489673528a8bf49cf5442bad0",
+        "--family-head",
+        "run=8b913ecf7c4793004e9e3cec1b163bd04d950f25",
+        "--family-head",
+        "exe=70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+        "--family-head",
+        "cas=f1db5d0d76fb93825a433bf8139235a93b213606",
+        "--family-head",
+        "dur=f3b9f054c86218b431ab927b56100164842db64a",
+        "--family-head",
+        "cmp=e3f0103c167beb42a8aff2db6a81de12b79ae565",
+        "--family-head",
+        "adapters=d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "--source-point",
+        "run=b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+        "--source-point",
+        "exe=94f378200d8684d61737f0561eccafea6eaa843f",
+        "--source-point",
+        "cas=3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+        "--source-point",
+        "dur=510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+        "--source-point",
+        "cmp=436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+        "--source-point",
+        "adapters=d9d61af6359033a08835cf5cc3fecb41c8e6967f",
+        "--overlay",
+        "exe=policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json",
+        "--overlay",
+        "cas=policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json",
+        "--output",
+        "/tmp/e02-B-cas-metadata75f/unaltered-reconciliation.json",
+        "--require-ready"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS_with_declaration_warnings {'all_bundles': 127, 'all_findings': 282, 'B_bundles': 25, 'B_findings': 60} errors 0 warnings 1 /tmp/e02-B-cas-metadata75f/unaltered-reconciliation.json\n",
+      "report": "unaltered-reconciliation.json",
+      "report_sha256": "d155630f58824f67cb5bee170096a590a8741b69355b1abdf8414afee87d807f",
+      "joined_finding_count": 60,
+      "bookkeeping_outcome": "PASS_with_declaration_warnings",
+      "errors": [],
+      "warnings": [
+        {
+          "kind": "advertised_bundle_scope_mismatch",
+          "family": "cas",
+          "missing_advertised_bundles": [
+            "CAS-01",
+            "CAS-03"
+          ],
+          "extra_advertised_bundles": [],
+          "note": "Criterion-owner join is explicit; never treat closure_ids as scope."
+        }
+      ],
+      "formal_closure_or_runtime_acceptance": "not_established_by_this_metadata_join"
+    },
+    {
+      "mode": "remove-B37",
+      "argv": [
+        "/tmp/e02-B-cas-metadata75f/research/implementation-handoffs/B/verification-tools/reconcile_b_owners.py",
+        "--repo",
+        "/workspace/e02-B-acceptance",
+        "--final-head",
+        "8b14958355d00fa489673528a8bf49cf5442bad0",
+        "--family-head",
+        "run=8b913ecf7c4793004e9e3cec1b163bd04d950f25",
+        "--family-head",
+        "exe=70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+        "--family-head",
+        "cas=f1db5d0d76fb93825a433bf8139235a93b213606",
+        "--family-head",
+        "dur=f3b9f054c86218b431ab927b56100164842db64a",
+        "--family-head",
+        "cmp=e3f0103c167beb42a8aff2db6a81de12b79ae565",
+        "--family-head",
+        "adapters=d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+        "--source-point",
+        "run=b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+        "--source-point",
+        "exe=94f378200d8684d61737f0561eccafea6eaa843f",
+        "--source-point",
+        "cas=3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+        "--source-point",
+        "dur=510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+        "--source-point",
+        "cmp=436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+        "--source-point",
+        "adapters=d9d61af6359033a08835cf5cc3fecb41c8e6967f",
+        "--overlay",
+        "exe=policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json",
+        "--overlay",
+        "cas=policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json",
+        "--output",
+        "/tmp/e02-B-cas-metadata75f/remove-B37-reconciliation.json",
+        "--require-ready"
+      ],
+      "exit_code": 1,
+      "stdout": "FAIL {'all_bundles': 127, 'all_findings': 282, 'B_bundles': 25, 'B_findings': 60} errors 2 warnings 2 /tmp/e02-B-cas-metadata75f/remove-B37-reconciliation.json\n",
+      "report": "remove-B37-reconciliation.json",
+      "report_sha256": "580ea5248e915c4a4a8dbc0f10facdf240c6d8fd7ecc49afaae1d43854e7026a",
+      "joined_finding_count": 59,
+      "bookkeeping_outcome": "FAIL",
+      "errors": [
+        {
+          "kind": "finding_partition_failure",
+          "missing_ids": [
+            "B37"
+          ],
+          "foreign_ids": [],
+          "overlaps": {}
+        },
+        {
+          "kind": "canonical_bundle_partition_failure",
+          "missing": [
+            "DUR-01"
+          ],
+          "extra": []
+        }
+      ],
+      "warnings": [
+        {
+          "kind": "advertised_bundle_scope_mismatch",
+          "family": "cas",
+          "missing_advertised_bundles": [
+            "CAS-01",
+            "CAS-03"
+          ],
+          "extra_advertised_bundles": [],
+          "note": "Criterion-owner join is explicit; never treat closure_ids as scope."
+        },
+        {
+          "kind": "advertised_bundle_scope_mismatch",
+          "family": "dur",
+          "missing_advertised_bundles": [],
+          "extra_advertised_bundles": [
+            "DUR-01"
+          ],
+          "note": "Criterion-owner join is explicit; never treat closure_ids as scope."
+        }
+      ],
+      "formal_closure_or_runtime_acceptance": "not_established_by_this_metadata_join"
+    }
+  ],
+  "cohort": {
+    "argv": [
+      "python3",
+      "/tmp/e02-B-cas-metadata75f/research/implementation-handoffs/B/verification-tools/prepare_native_cohort.py",
+      "--repo",
+      "/workspace/e02-B-acceptance",
+      "--final-head",
+      "8b14958355d00fa489673528a8bf49cf5442bad0",
+      "--family-head",
+      "run=8b913ecf7c4793004e9e3cec1b163bd04d950f25",
+      "--family-head",
+      "exe=70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "--family-head",
+      "cas=f1db5d0d76fb93825a433bf8139235a93b213606",
+      "--family-head",
+      "dur=f3b9f054c86218b431ab927b56100164842db64a",
+      "--family-head",
+      "cmp=e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "--family-head",
+      "adapters=d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+      "--source-point",
+      "run=b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "--source-point",
+      "exe=94f378200d8684d61737f0561eccafea6eaa843f",
+      "--source-point",
+      "cas=3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "--source-point",
+      "dur=510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+      "--source-point",
+      "cmp=436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+      "--source-point",
+      "adapters=d9d61af6359033a08835cf5cc3fecb41c8e6967f",
+      "--overlay",
+      "exe=policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json",
+      "--overlay",
+      "cas=policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json",
+      "--output",
+      "/tmp/e02-B-cas-metadata75f/independent-cohort.json",
+      "--require-ready"
+    ],
+    "exit_code": 0,
+    "stdout": "whole native files 74 source waves 12 ready True /tmp/e02-B-cas-metadata75f/independent-cohort.json\n",
+    "whole_file_count": 74,
+    "source_waves": 12,
+    "ready_at_final_head": true,
+    "source_pins": {
+      "run": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "exe": "94f378200d8684d61737f0561eccafea6eaa843f",
+      "cas": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "dur": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+      "cmp": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+      "adapters": "d9d61af6359033a08835cf5cc3fecb41c8e6967f"
+    },
+    "unconfirmed_source_pins": []
+  },
+  "row_priority_control": {
+    "actual_exe_overlay_ids": [
+      "B52",
+      "B60"
+    ],
+    "effective_rich_rows_equal": true,
+    "cas_overlay_ids": [
+      "B148",
+      "B149",
+      "B150",
+      "B151",
+      "B152",
+      "B153",
+      "B154",
+      "B155"
+    ],
+    "all_8_preserved": true,
+    "original_cas_receipt_excluded": true
+  },
+  "limits": [
+    "metadata join/preparation only, no runtime or formal finding closure",
+    "final head is pre-freeze; source follow-up and final preparation/run remain root/G responsibility",
+    "test blob readiness does not independently attest production semantics"
+  ]
+}

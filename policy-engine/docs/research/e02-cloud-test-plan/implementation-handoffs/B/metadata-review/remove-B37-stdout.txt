@@ -1,0 +1,1 @@
+FAIL {'all_bundles': 127, 'all_findings': 282, 'B_bundles': 25, 'B_findings': 60} errors 2 warnings 2 /tmp/e02-B-cas-metadata75f/remove-B37-reconciliation.json

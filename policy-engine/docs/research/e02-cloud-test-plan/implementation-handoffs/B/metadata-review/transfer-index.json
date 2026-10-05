@@ -1,0 +1,54 @@
+{
+  "schema": "policyos.e02.evidence_transfer.v1",
+  "scope": "Complete deciding stdout, actual fault-control driver and observed summary; read-only metadata evidence, no runtime or closure",
+  "tool_source_sha": "75f7648864f541757ba443828f94d6cdf80cc30c",
+  "files": [
+    {
+      "file": "control.py",
+      "bytes": 7693,
+      "sha256": "dfad02c08a815663f1241bbe3639a4bac5d714d07a07974f55c26375a93cec6a"
+    },
+    {
+      "file": "summary.json",
+      "bytes": 10091,
+      "sha256": "70de6efbd510ffe61d55401f5d82fe8d4df6dee3d7a288451003f1d90ad92caa"
+    },
+    {
+      "file": "unaltered-stdout.txt",
+      "bytes": 185,
+      "sha256": "e582a654358b2966c545cf001ec32bb15846e109b38feab3d168867dac204803"
+    },
+    {
+      "file": "remove-B37-stdout.txt",
+      "bytes": 160,
+      "sha256": "f7309dceecfcd5fc16fc7d747483225a5c7dea7147b55c540f2e3609f735ea73"
+    },
+    {
+      "file": "prepare-stdout.txt",
+      "bytes": 100,
+      "sha256": "f98e064c8710bfc27b927b472a72b73e5f22c6b78d5dabb01548aae09af58041"
+    },
+    {
+      "file": "prepare-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "commands-original.json",
+      "bytes": 3970,
+      "sha256": "df9fc23512202517fd59d5a99084936d389a199891c4adf06d5556ff782e6bc8"
+    },
+    {
+      "file": "pinned-tool-identity.json",
+      "bytes": 901,
+      "sha256": "688d287eba7cd3be80040806f4dbdd3fc69d19fb5287a55be59522250fc5cf2e"
+    },
+    {
+      "file": "static-review.json",
+      "bytes": 2244,
+      "sha256": "fc62cfacc7f76ff101d3f8688562dd98154338b2e58b70441df7a05ec25e14f6"
+    }
+  ],
+  "source_delivery": "Pinned tool sources are tracked Git refs from pinned-tool-identity.json, not duplicated. Full derived reconciliation/cohort tables are recomputable from exact Git inputs and driver; final root tables will use latest freeze.",
+  "limits": "Pre-freeze metadata only. Runtime/file/protocol acceptance requires separate checks; CAS scopewarning retained. Input/log binding issues fixed in later tool commits; wait4 measurement code pending actual native execution."
+}

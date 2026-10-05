@@ -1,0 +1,33 @@
+{
+  "schema": "policyos.e02.B_utility_static_review.v1",
+  "tool_source_sha": "75f7648864f541757ba443828f94d6cdf80cc30c",
+  "runtime_execution_performed": false,
+  "metadata_controls_outcome": "PASS_bounded",
+  "items": [
+    {
+      "id": "cas-existing-log-target-binding",
+      "scope": "prepared retained_nonpass provenance",
+      "source_file": "prepare_native_cohort.py",
+      "observation": "observed_target_sha=3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6 for selected latest native302 wave, but existing_log points historical cas-tenant-logs/native-bounded295.txt@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "exact_latest_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-output-logs/native302.txt@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "latest_log_sha256": "c6c2ba841ab1e12351983c17b7e90293ed649a0ae3bea9121534fe7b135252b5",
+      "impact": "historical observed failure remains actual; do not bind old295 bytes as proof of new302 source",
+      "recommendation": "use selected latest wave log or label historical target separately"
+    },
+    {
+      "id": "runner-initial-input-bytes",
+      "scope": "future execution receipt custody",
+      "source_file": "run_native_cohort.py",
+      "observation": "json.loads(args.input.read_text()) parses initial bytes; receipt input.sha256 rereads args.input.read_bytes() after subprocess execution",
+      "impact": "if ignored metadata input is replaced during the long run, final hash may attest different bytes than command_argv selection; clean Git/source unchanged checks do not cover ignored metadata path",
+      "recommendation": "read one initial byte snapshot and hash that same snapshot used by json.loads; retain snapshot or verify after-read equality if needed",
+      "validation": "source-only exact control-flow inspection; no runtime runner invoked"
+    }
+  ],
+  "limits": [
+    "current ready_at_final_head is pre-freeze readiness at8b14958355d00fa489673528a8bf49cf5442bad0",
+    "all74 actual prepared whole files do not attest production source semantics",
+    "future adapters source/family refs require final reprepare before native execution",
+    "no runtime or formal closure verdict from this metadata review"
+  ]
+}

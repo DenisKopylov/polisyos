@@ -1,0 +1,407 @@
+{
+  "schema": "policyos.e02.canonical_locator_census.v1",
+  "target_sha": "8b913ecf7c4793004e9e3cec1b163bd04d950f25",
+  "complete_JSON_paths": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json",
+      "sha256": "fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b",
+      "bytes": 5175
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/G-callback-feedback.json",
+      "sha256": "46954ef683ea614bcbbb0b3e2819d53867c9af340de04227ea7670937b970dcd",
+      "bytes": 14060
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-base/receipt.json",
+      "sha256": "c6e7b2f04133aa34de95b50ad26880d466f59043506af359c16aa201e2bf9784",
+      "bytes": 6075
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-candidate/receipt.json",
+      "sha256": "5921a9c6a173bce50f1d691d9e3c6a97d638f18b9dc365954bea9f18b7795480",
+      "bytes": 6125
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-base-review.json",
+      "sha256": "c1dd04e6407c7c7042f0a3bf02d4e5605742a10199827bb43e18f57b26d9738d",
+      "bytes": 3843
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-base/B69-navigation.json",
+      "sha256": "4e2aada18406527f92656246a6173eca0bf42178af32d29803f37a14a0d594c7",
+      "bytes": 91276
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-base/receipt.json",
+      "sha256": "049fca0d7c686dee5176986a2dd3406738c41633ca341ee766c49fd4df1d18e3",
+      "bytes": 6193
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate-review.json",
+      "sha256": "6ef8d5e659ef6d3d1b782d9238636c87ee4cc8406e6e4e2c40bb45f3441e87f4",
+      "bytes": 11183
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate/receipt.json",
+      "sha256": "d97e3017b156552485916f28080d264eead57e79e3533b93d10ebccb7b17fecc",
+      "bytes": 6140
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-worktree-custody.json",
+      "sha256": "333bf0f0080db8483368d35de8f10463720bcf802ec7ba29b27f35996c719e0d",
+      "bytes": 2366
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/property-removal.json",
+      "sha256": "81614b744fa9f46ade7451cc3b6a36e0a3145d1acd322db3553427bd3d53eea4",
+      "bytes": 1267
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "sha256": "e582ebb73789a6b1b9ededda47f870e528a3a9b4e24a25d595395210c3ead75a",
+      "bytes": 99995
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+      "sha256": "7df9f9c505036ea783179e9c014da0ee7e741a6aa14c5c3df036bc8778bf2576",
+      "bytes": 45361
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base-independent-review.json",
+      "sha256": "27964f85cc5a152c5344420c684ac34c2c0ebcf296bfb7a355c2ef0d1e34348a",
+      "bytes": 6383
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/observations.json",
+      "sha256": "e9f07f9e92915f307824823013837d19e0f69cba47995f9c862c9f0c255a2ae1",
+      "bytes": 3687
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate-independent-review.json",
+      "sha256": "e7ed94229117c1f2fcb7bbc53e720988aa27d5206b11ac13aaa12fd3aaf97e08",
+      "bytes": 8303
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/observations.json",
+      "sha256": "c29f9a8e88eb0840d6ad6da400cefe0d85dab387669beaa792bebd48dfa14e06",
+      "bytes": 3267
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "sha256": "800e7d47ea5bfe81c9adf40ab0c5969076f9569b0995bdeefef69a287e2784d6",
+      "bytes": 51933
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "sha256": "129686e07aef9e74a47b4e768422066331e80da0b65f38d1b922800dfb9c6c53",
+      "bytes": 113141
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/observations.json",
+      "sha256": "9b2a87d546dd4c187ba7f192095f868c1a1cacf1bfd651f4117b091562df111a",
+      "bytes": 21404
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/B39-navigation.json",
+      "sha256": "36e2cd96938e1a75173203b23b942c2a2a1d939e247c34266cef21c8e9454961",
+      "bytes": 68981
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/observations.json",
+      "sha256": "3df4907381055ef26e1b8491453167cd5f841645afec6cdce9f6a9a206b1e036",
+      "bytes": 21826
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/independent-review.json",
+      "sha256": "648d601233ebd45cf08b5afa29ad4c012e3e12a6c7b88929566431ebe091e7dc",
+      "bytes": 13426
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json",
+      "sha256": "b0cc1a0eaf4e6021caf3cf74be5eb1021b8aad9fdbf39cc0a419e0857be38a67",
+      "bytes": 8926
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "sha256": "c87069d3c83bf3d669ac246b33a328b5afd27246099a4d6da02d0ae04c91f44d",
+      "bytes": 186953
+    }
+  ],
+  "json_file_count": 25,
+  "all_package_ref_strings": [
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-base/B69-navigation.json",
+      "json_pointer": "/finding_basis/0/discriminator_ref",
+      "value": "bundle-catalog.md#run-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B69"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate-review.json",
+      "json_pointer": "/baseline_navigation/canonical_finding",
+      "value": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/source_and_residual_refs/bundle_manifest",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/finding_dispositions/0/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/finding_dispositions/1/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/finding_dispositions/2/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/finding_dispositions/3/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/finding_dispositions/4/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/finding_dispositions/5/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/finding_dispositions/6/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/finding_dispositions/7/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/independent_review/complete_receipt/baseline_navigation/canonical_finding",
+      "value": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+      "json_pointer": "/finding_dispositions/0/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+      "json_pointer": "/finding_dispositions/1/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+      "json_pointer": "/finding_dispositions/2/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+      "json_pointer": "/finding_dispositions/3/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+      "json_pointer": "/finding_dispositions/4/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+      "json_pointer": "/finding_dispositions/5/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+      "json_pointer": "/finding_dispositions/6/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+      "json_pointer": "/finding_dispositions/7/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "json_pointer": "/finding_dispositions/0/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "json_pointer": "/finding_dispositions/1/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "json_pointer": "/finding_dispositions/2/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "json_pointer": "/finding_dispositions/3/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "json_pointer": "/finding_dispositions/4/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "json_pointer": "/finding_dispositions/5/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "json_pointer": "/finding_dispositions/6/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "json_pointer": "/finding_dispositions/7/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+      "json_pointer": "/source_and_residual_refs/bundle_manifest",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "json_pointer": "/finding_dispositions/0/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "json_pointer": "/finding_dispositions/1/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "json_pointer": "/finding_dispositions/2/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "json_pointer": "/finding_dispositions/3/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "json_pointer": "/finding_dispositions/4/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "json_pointer": "/finding_dispositions/5/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "json_pointer": "/finding_dispositions/6/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "json_pointer": "/finding_dispositions/7/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+      "json_pointer": "/source_and_residual_refs/bundle_manifest",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/B39-navigation.json",
+      "json_pointer": "/finding_basis/0/discriminator_ref",
+      "value": "bundle-catalog.md#run-03; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B39"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/independent-review.json",
+      "json_pointer": "/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L736-L750"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/finding_dispositions/0/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/finding_dispositions/1/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/finding_dispositions/2/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/finding_dispositions/3/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/finding_dispositions/4/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/finding_dispositions/5/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/finding_dispositions/6/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/finding_dispositions/7/criterion_ref",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/source_and_residual_refs/bundle_manifest",
+      "value": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/independent_executor_review/complete_receipt/baseline_navigation/canonical_finding",
+      "value": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767"
+    }
+  ],
+  "malformed_prefix": "docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package",
+  "malformed_occurrences": [
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate-review.json",
+      "json_pointer": "/baseline_navigation/canonical_finding",
+      "value": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+      "occurrence_count": 1
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
+      "json_pointer": "/independent_review/complete_receipt/baseline_navigation/canonical_finding",
+      "value": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+      "occurrence_count": 1
+    },
+    {
+      "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+      "json_pointer": "/independent_executor_review/complete_receipt/baseline_navigation/canonical_finding",
+      "value": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+      "occurrence_count": 1
+    }
+  ],
+  "string_match_count": 3,
+  "occurrence_count": 3
+}

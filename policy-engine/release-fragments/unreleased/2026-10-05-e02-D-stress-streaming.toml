@@ -1,0 +1,12 @@
+id = "2026-10-05-e02-D-stress-streaming"
+title = "Bound retained stress vulnerability payloads"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Stream observed violation and severity counts while retaining only the configured number of distinct full vulnerability examples. Verify the scenario adversary through its actual normalized GDP objective."
+evidence = ["tests/unit/scientist/search/test_adversarial_streaming.py", "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"]
+compatibility = "StressTestReport schema and presentation order remain unchanged. The worker regression uses a deterministic physical corner and a reachable threshold in normalized objective units."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.methods.search.adversarial"
+migration = "No migration."
+limitations = "Distinct digest keys and sampler/search history remain outside the full-payload bound. Whole-domain completeness and empirical robustness interpretation require the existing B106 principal decision."

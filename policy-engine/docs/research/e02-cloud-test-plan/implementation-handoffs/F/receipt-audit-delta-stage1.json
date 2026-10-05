@@ -1,0 +1,529 @@
+{
+  "schema": "policyos.e02.receipt_audit_delta.v1",
+  "reviewer": "F/causal_api",
+  "mode": "read_only_exact_published_ref_bytes",
+  "initial_audit_path": "/workspace/e02-F-receipts/receipt-audit.json",
+  "initial_audit_sha256": "e12587bb65fda2f576f4cbd8a2796fcce6a56755cf2bd03c43f013ffa7b8d08a",
+  "published_heads": {
+    "codex/e02-F-cau": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "codex/e02-F-causal-api": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+    "codex/e02-F-economic-dtype": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+    "codex/e02-F-economics": "e642bb9025a67739c201393acca5712603cb064d",
+    "codex/e02-F-fit-tmle": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+    "codex/e02-F-foundry": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+    "codex/e02-F-graph-scm": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+    "codex/e02-F-lex": "3fab28d98997527b2a26d46fe4e16220e42383b7"
+  },
+  "changed_or_added_heads": {
+    "codex/e02-F-economic-dtype": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+    "codex/e02-F-fit-tmle": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+    "codex/e02-F-lex": "3fab28d98997527b2a26d46fe4e16220e42383b7"
+  },
+  "records": [
+    {
+      "slice": "economic-dtype",
+      "branch": "codex/e02-F-economic-dtype",
+      "topic_head_sha": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "previous_audited_head": null,
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json",
+      "receipt_sha256": "c7c0f21acfb3537c9c0a53ef39a36a762193a4b0bb3d0da07bd5c0653f173979",
+      "implementation_commits": [
+        "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0"
+      ],
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "candidate_tree_sha": "9dcc163a864635004408ddd449bab105762e1726",
+      "receipt_last_update_sha": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "bindings": {
+        "base_ancestor_candidate": true,
+        "implementation_commits_ancestors_of_candidate": true,
+        "candidate_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_last_update_separate_later_than_implementation": true,
+        "changed_paths_match_declared_implementation_commit_union": true
+      },
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+          "topic_head_sha": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+          "bytes": 84777,
+          "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-architecture.txt",
+          "topic_head_sha": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+          "bytes": 118101,
+          "sha256": "5d3160f3a0a69ace31bfc628e54e7050c77ea3b870ceda11ab5899b387ebb240"
+        }
+      ],
+      "declared_hashes_checked": 12,
+      "non_git_raw_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economic-dtype-architecture.log"
+      ],
+      "checks": [
+        {
+          "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0",
+          "outcome": "UNRUN",
+          "exit_code": 2,
+          "target_is_not_future": true
+        }
+      ],
+      "closure_ids_are_targets_only": [],
+      "related_ids": [
+        "LA-003",
+        "LA-004",
+        "LA-035"
+      ],
+      "bundle_ids": [
+        "ECO-01",
+        "FRY-03"
+      ],
+      "finding_state_as_declared": "bounded_native_scalar_dtype_repair; architecture_UNRUN_with_partial_FAIL_findings; economic authority/production applicability held; no finding closed",
+      "limitations_as_declared": [
+        "LA-003 limited and LA-004/LA-035 semantic owner(Principal Denis) held remain; native arithmetic cannot establish production caller applicability, objective authority or profile equivalence.",
+        "G local run at exact implementation SHA: repeat native dtype tests and selected consumer commands under local JAX CPU; full real inputs stay local and require separately admitted identities.",
+        "Hard Gini ranks/counts remain float32 by existing formula. Float64[1,2,3] gives0.2222221816215948 versus2/9(~4e-8); this patch provides branch compatibility and value preservation, not full64-bit statistical accuracy improvement.",
+        "All-active zero-total Gini retains existing negative formula output (three agents:-1.3333333730697632); negative-value/zero-total economic conventions were not authorized, so no mathematically valid inequality claim is made for those inputs.",
+        "Unrelated fiscal rate/equality representational issue from original mixed-profile receipt is untouched; no tolerance relaxed.",
+        "Previous runtime diagnostic JSON→native patch consumer bridge_missing remains; this scalar plugin fix does not admit that interface.",
+        "Architecture UNRUN/partial FAIL needs provisioned supported Node22+frozen workspace dependencies and owner-approved import/generated artifact reconciliation. No scanner finding is promoted to complete TS-backend witness; no drift sync or gate weakening performed.",
+        "No DoWhy/EconML backend or admitted causal/calibration/coverage witness supplied."
+      ]
+    },
+    {
+      "slice": "fit-tmle",
+      "branch": "codex/e02-F-fit-tmle",
+      "topic_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "previous_audited_head": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+      "receipt_sha256": "2e6e0c9997dc8f9ee80c3cc273ea84572b78189c3dfcf17c88a9d1db1aee9fc3",
+      "implementation_commits": [
+        "b57708fcc95a778d7ff88c4001e4ac8ca74b7889"
+      ],
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+      "receipt_last_update_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "bindings": {
+        "base_ancestor_candidate": true,
+        "implementation_commits_ancestors_of_candidate": true,
+        "candidate_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_last_update_separate_later_than_implementation": true,
+        "changed_paths_match_declared_implementation_commit_union": true
+      },
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+          "topic_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+          "bytes": 31684,
+          "sha256": "2e6e0c9997dc8f9ee80c3cc273ea84572b78189c3dfcf17c88a9d1db1aee9fc3"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/base-probes.txt",
+          "topic_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+          "bytes": 8050,
+          "sha256": "fd949064a6013bd3b1c35c29f979a1e24c817c9caed0731dd32a808756e34de9"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/native-frozen.txt",
+          "topic_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+          "bytes": 394,
+          "sha256": "085a665a6fb38b1dc5976ad2fbea056d1f6dff66183d9a40f66885df027da101"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/consumer-regression.txt",
+          "topic_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+          "bytes": 156,
+          "sha256": "a12f843f3cf0f27a996330fb4ed3d2360bc80067457ee2bcb5571caae9997132"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/removal-controls.txt",
+          "topic_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+          "bytes": 8305,
+          "sha256": "2df4438483d1b8c3962c9e46cb0de6e0880154420e831e8a3f958b99cf569501"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-native.json",
+          "topic_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+          "bytes": 1207,
+          "sha256": "1c75a7438d6799484f76bdaea3a43af677b69f7a339b72c494baf6e20b260c01"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-adversarial.json",
+          "topic_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+          "bytes": 2563,
+          "sha256": "e731f4035cdcb05fec01d2021318ed9845d24da6fb91e733a4e7f62f3f5a1f53"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/architecture.txt",
+          "topic_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+          "bytes": 118089,
+          "sha256": "b9b2738bae8ba398b3a29bdc899ee7f160f891d959eb04e87e72c0da4b39e764"
+        }
+      ],
+      "declared_hashes_checked": 1,
+      "non_git_raw_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/raw/architecture.log"
+      ],
+      "checks": [
+        {
+          "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "ERROR",
+          "exit_code": 137,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "UNRUN",
+          "exit_code": 2,
+          "target_is_not_future": true
+        }
+      ],
+      "closure_ids_are_targets_only": [
+        "B54",
+        "B56"
+      ],
+      "related_ids": [],
+      "bundle_ids": [
+        "FIT-01"
+      ],
+      "finding_state_as_declared": {
+        "B54": "implemented_bounded and finding-specific native verification established for auto/explicit cache; precomputed-bundle admission excluded and not_established",
+        "B56": "partial; bounded external-cap/native parallelism metamorphism established, real production aggregate study admission/producer not established"
+      },
+      "limitations_as_declared": [
+        "F/G: precomputed __shared_nuisance_bundle path and advanced_designs direct read do not have established source-bound/current-contract admission; they are outside this cache-specific bounded closure. Do not promote a supplied bundle to authority.",
+        "B consultation + F canonical owner: appoint/trace actual outer study resource carrier before production B56 closure; do not transfer scientific owner or mistake monetary BudgetMiddleware for a CPU budget.",
+        "G/C: architecture full verdict not_established; use supported Node22, run corepack pnpm install --frozen-lockfile in fresh checkout before TS/generated measurements, then rerun the exact architecture command. Raw deciding bytes must be retained locally; no inherited-red label without P41.",
+        "G: production_invocation ended exit137 without receipt; rerun exact diagnostic with usable host resources. This is diagnostic coverage debt, not a failed native cache/consumer property.",
+        "DoWhy/EconML markers are not bypassed and their absence is no positive backend witness. No real-data inference/coverage claim, production input transfer or public causal facade change is included."
+      ]
+    },
+    {
+      "slice": "lex-input-binding",
+      "branch": "codex/e02-F-lex",
+      "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "previous_audited_head": "d5ce37d2f5206f02477784f09360e69aa7416295",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+      "receipt_sha256": "4f0623168329cfc5c4006c5beb79dc205704beb1dc8b537e47b5d2c09e519c20",
+      "implementation_commits": [
+        "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+        "56aa7d47876b29956676ef8dc9f04b64c865948f"
+      ],
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "candidate_tree_sha": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+      "receipt_last_update_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "bindings": {
+        "base_ancestor_candidate": true,
+        "implementation_commits_ancestors_of_candidate": true,
+        "candidate_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_last_update_separate_later_than_implementation": true,
+        "changed_paths_match_declared_implementation_commit_union": true
+      },
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-red.txt",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 10716,
+          "sha256": "b7e4f395cae575a1515ea902fce582a94517c5a2c8734be6cda731857c07edbd"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-frozen-tests.txt",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 100,
+          "sha256": "375062cdf1523bfcac41c75e8d3b1c509dade7d89f5b2368f34f96c60bcc2be6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-removal.txt",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 5784,
+          "sha256": "a4213e2f5311de92443c4222bec950ab3eb8c9c2355c576068d21ea458ff019d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-architecture.txt",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 118079,
+          "sha256": "c7e713e9503e2ea6884a88f40206ce78f0972082b8319c31558ccd351f67d7e7"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-invocation.txt",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 1341,
+          "sha256": "dc1c2968b0e983681825c1666b6e291132e423b72aae15afb3b9072ffbb1eb99"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-red.txt",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 1294,
+          "sha256": "f324c8aa4efebb213dc9ef5f444ef1a6b4b98148dadeadde3a131a4384f9eb82"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-selector-error.txt",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 93,
+          "sha256": "62d89589f56fe175052948ca8198f2fe2efa24ed9f1c82723a6722d641642410"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-green.txt",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 100,
+          "sha256": "0386206095f282d9847f31cf407169ec07878ea88a2e17b2dfd433d55bde7fb4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-native.json",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 1619,
+          "sha256": "2e4e60a20ec74c02616113b9766880abf7b3d25e4133ac1f02e6ac034afb9181"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.json",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 16649,
+          "sha256": "bb87e2b57aff1cc2fb5a1bd894a9244d77ac3f02aec358b0beaaa109e9532635"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-removed-controls.json",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 15675,
+          "sha256": "a8f4a0f9779fd21003532616d2a128dfa1d3878b7e5a6b1cd3f8b925273312ab"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.py",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 8287,
+          "sha256": "769e552f19b18d94e0f7953c440c347662cafb1ab9f5c94976ac762fed50e520"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+          "topic_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "bytes": 29849,
+          "sha256": "4f0623168329cfc5c4006c5beb79dc205704beb1dc8b537e47b5d2c09e519c20"
+        }
+      ],
+      "declared_hashes_checked": 15,
+      "non_git_raw_paths": [],
+      "checks": [
+        {
+          "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "UNRUN",
+          "exit_code": 2,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "d5ce37d2f5206f02477784f09360e69aa7416295",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+          "outcome": "ERROR",
+          "exit_code": 4,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        }
+      ],
+      "closure_ids_are_targets_only": [],
+      "related_ids": [
+        "LA-017"
+      ],
+      "bundle_ids": [
+        "LEX-01"
+      ],
+      "finding_state_as_declared": "bounded_mechanism_and_native_consumer_verified; LA-017 remains limited pending G acceptance and actual corpus/caller custody",
+      "limitations_as_declared": [
+        "G must fetch this branch/implementation and independently accept code and LA-017 evidence separately.",
+        "Full admitted legal corpus, source-law provenance, actual old/new pack IDs and real context/backend input custody were not supplied; no law/data-dependent closure in cloud. G local run at exact implementation SHA should execute the receipt property command with sufficient bounded fixtures, then the chosen actual admitted corpus/backend through NormImpactAnalyzer if production applicability is claimed.",
+        "Default CLI LegalPass uses StubBackend unless caller supplies a real backend through the API; CLI success is a transport/schema witness, not a legal adequacy witness.",
+        "Historical report_id hashing omits context/content from identity; CAS byte address is content-bound. This slice preserves historical schema/identity semantics, and consumers must not treat report_id alone as custody or effect evidence.",
+        "affected_kpis remains historical schema1.0 candidate topics with unknown direction and no measured size. Quantitative effect belongs to Scientist/Foundry.",
+        "Supported Node22 + corepack pnpm install --frozen-lockfile are needed before G reruns architecture guardrails on integrated source; current broad gate is UNRUN, drifts not attributed as inherited.",
+        "163MiB static scanner raw stays local ignored scratch. Receiver must rerun any raw-dependent static claim rather than admit compact summary."
+      ]
+    }
+  ],
+  "binding_or_hash_problems": [],
+  "finding_closure_accepted_by_this_audit": [],
+  "initial_17_bundle_35_finding_denominator_preserved": {
+    "bundle_owner_tsv_total": 127,
+    "F_bundles": 17,
+    "finding_owner_tsv_total": 282,
+    "F_findings": 35,
+    "ledger_rows": 282,
+    "ledger_unique_ids": 282,
+    "F_represented_in_receipt_related_residual_union": 35
+  },
+  "corrections": [
+    {
+      "slice": "economic-dtype",
+      "previous_head": "3acccc27c862a311b9dab596719eeafd67458de7",
+      "corrected_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "detail": "independent_review.native_output now binds committed normalized deciding bytes84777/SHA879ece00, original pre-normalization hash retained separately"
+    }
+  ],
+  "remaining_finding_state_interpretation": [
+    "No finding closure is accepted from code publication or receipt audit.",
+    "B54 cache-only bounded result excludes precomputed bundle admission; B56 actual production aggregate resource admission remains missing.",
+    "LA003 native dtype/consumer repair adds a real backend witness; fiscal numeric representation and adapter-native bridge remain separate unresolved classes. LA004/035 economic objective/principal authority held.",
+    "LA017 plan freezing and native CLI/service checks concern synthetic law inputs; actual admitted law corpus/caller custody remains limited.",
+    "Common output aliases repair producer-to-consumer ABI; 44 signatures do not prove44 estimator executions or scientific/backend validity.",
+    "DoWhy/EconML absence/skip and architecture UNRUN/partial FAIL are not positive backend or broad verdicts.",
+    "Existing seven-ref raw debt remains as historical; newly transferred full architecture companion resolves deciding-byte transfer only for that newer receipt, not architecture execution coverage."
+  ]
+}

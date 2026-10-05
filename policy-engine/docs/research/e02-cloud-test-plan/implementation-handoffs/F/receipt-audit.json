@@ -1,0 +1,1332 @@
+{
+  "schema": "policyos.e02.receipt_audit.v1",
+  "reviewer": "F/causal_api",
+  "mode": "read_only_exact_published_ref_bytes",
+  "source_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "denominator": {
+    "bundle_owner_tsv_total": 127,
+    "F_bundles": 17,
+    "finding_owner_tsv_total": 282,
+    "F_findings": 35,
+    "ledger_rows": 282,
+    "ledger_unique_ids": 282,
+    "F_represented_in_receipt_related_residual_union": 35
+  },
+  "slices": [
+    {
+      "slice": "cau",
+      "topic_head_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "branch": "codex/e02-F-cau",
+      "implementation_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "candidate_tree_sha": "a7b2625d8dc41f7ae364a5d98ebf6f3c4f60a2cf",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+      "receipt_sha256": "6b920930afda41a260c0c4a106279bbd1e6d054225c137af13a3531a96ba8b30",
+      "receipt_creation_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "bindings": {
+        "base_is_pinned": true,
+        "base_ancestor_implementation": true,
+        "implementation_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_is_later_separate_commit": true,
+        "implementation_paths_match": true
+      },
+      "closure_ids_are_targets_not_accepted_closures": [
+        "B207",
+        "B209"
+      ],
+      "bundles": [
+        "CAU-02"
+      ],
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+          "topic_head_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "bytes": 11600,
+          "sha256": "7dd60eaa7f67c619b9bd2b00d6878fa36441e559f491259d8929fc34a47ac60e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+          "topic_head_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "bytes": 133,
+          "sha256": "ad25613c8f4e665b39b986034c0ab797f63964e69ec7203c392b8b4e9fcdfb5a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+          "topic_head_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "bytes": 11662,
+          "sha256": "77c84ff79a151d8cb47531e7454cff5cbe2d4a9c31b02f09e2924c88743adcb6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+          "topic_head_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "bytes": 761,
+          "sha256": "fc1e6b1dbf1f930b62b6833259013af7b908177a3f9fd3c0fdc8a19655b99949"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+          "topic_head_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "bytes": 1596,
+          "sha256": "73db34872d8305dac18500be06505568706ac3fddde8b7ab8c492f1c527135ca"
+        }
+      ],
+      "unresolved_output_paths": [],
+      "check_states": [
+        {
+          "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "ERROR",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        }
+      ]
+    },
+    {
+      "slice": "economics",
+      "topic_head_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "branch": "codex/e02-F-economics",
+      "implementation_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+      "candidate_tree_sha": "7b7822e23901d9574b53ed97d410a1392763c484",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+      "receipt_sha256": "adc53d604a8c5faae4942c4c24ab83fd1c59e41403a661aefdb044985e828841",
+      "receipt_creation_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "bindings": {
+        "base_is_pinned": true,
+        "base_ancestor_implementation": true,
+        "implementation_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_is_later_separate_commit": true,
+        "implementation_paths_match": true
+      },
+      "closure_ids_are_targets_not_accepted_closures": [],
+      "bundles": [
+        "FRY-03",
+        "ECO-01"
+      ],
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-candidate-deciding.txt",
+          "topic_head_sha": "e642bb9025a67739c201393acca5712603cb064d",
+          "bytes": 23117,
+          "sha256": "1d55ff311072cef78e5d88e3cae8701565f6fd9fba6c6fe500bf19b338833509"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-mask-removal.txt",
+          "topic_head_sha": "e642bb9025a67739c201393acca5712603cb064d",
+          "bytes": 4326,
+          "sha256": "4e7742300b535b7f667938585b1640d9cb3f44e7d13fd52c378b0398aeea5721"
+        }
+      ],
+      "unresolved_output_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economics-candidate.log"
+      ],
+      "check_states": [
+        {
+          "target_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        }
+      ]
+    },
+    {
+      "slice": "api",
+      "topic_head_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "branch": "codex/e02-F-causal-api",
+      "implementation_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+      "candidate_tree_sha": "42c3b569fdff79a03148ecb6a150904ac69019df",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+      "receipt_sha256": "6b1d887fe80163ddc0f5c0d23c9ee8925def223501eaf85797211944be6f85ff",
+      "receipt_creation_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "bindings": {
+        "base_is_pinned": true,
+        "base_ancestor_implementation": true,
+        "implementation_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_is_later_separate_commit": true,
+        "implementation_paths_match": true
+      },
+      "closure_ids_are_targets_not_accepted_closures": [
+        "LA-020"
+      ],
+      "bundles": [
+        "API-01"
+      ],
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+          "topic_head_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+          "bytes": 10960,
+          "sha256": "6b1d887fe80163ddc0f5c0d23c9ee8925def223501eaf85797211944be6f85ff"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+          "topic_head_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+          "bytes": 1301,
+          "sha256": "f680fe0dcd61b71818a851e79396298cb9c35351ebb679fcefca7488352c1160"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+          "topic_head_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+          "bytes": 2125,
+          "sha256": "b5ae83d4ffee3d281723c75304b430e041dc5b2f9f9350ad88a448ddc6c6a633"
+        }
+      ],
+      "unresolved_output_paths": [],
+      "check_states": [
+        {
+          "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        }
+      ]
+    },
+    {
+      "slice": "foundry",
+      "topic_head_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "branch": "codex/e02-F-foundry",
+      "implementation_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+      "candidate_tree_sha": "465c255a4022c2506fb21d41c0bc0fc10ed774b6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+      "receipt_sha256": "34c41ca91eab404b3fbdfdba376108f1205ed47010d1e540b7f7b6f960f3e3ca",
+      "receipt_creation_sha": "b601bcf3ae6c7f09a7d1e1c6d0eb65e6ef17a243",
+      "bindings": {
+        "base_is_pinned": true,
+        "base_ancestor_implementation": true,
+        "implementation_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_is_later_separate_commit": true,
+        "implementation_paths_match": true
+      },
+      "closure_ids_are_targets_not_accepted_closures": [
+        "LA-001",
+        "LA-002",
+        "LA-037"
+      ],
+      "bundles": [
+        "FRY-01"
+      ],
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+          "topic_head_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+          "bytes": 20571,
+          "sha256": "34c41ca91eab404b3fbdfdba376108f1205ed47010d1e540b7f7b6f960f3e3ca"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt",
+          "topic_head_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+          "bytes": 5442,
+          "sha256": "7cf50ac878c1ea1b504027fbb0dcea033a98a6114033e0bc8952dd43587fc792"
+        }
+      ],
+      "unresolved_output_paths": [],
+      "check_states": [
+        {
+          "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        }
+      ]
+    },
+    {
+      "slice": "lex",
+      "topic_head_sha": "d5ce37d2f5206f02477784f09360e69aa7416295",
+      "branch": "codex/e02-F-lex",
+      "implementation_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+      "candidate_tree_sha": "510b423cdbb7f52b5f0dfff9ba8bad9d42fcfd02",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+      "receipt_sha256": "fb8a4e4940048db5d04da4ad8ddc9c9112a960d9e9c055ab9a45e262819ce0b7",
+      "receipt_creation_sha": "d5ce37d2f5206f02477784f09360e69aa7416295",
+      "bindings": {
+        "base_is_pinned": true,
+        "base_ancestor_implementation": true,
+        "implementation_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_is_later_separate_commit": true,
+        "implementation_paths_match": true
+      },
+      "closure_ids_are_targets_not_accepted_closures": [],
+      "bundles": [
+        "LEX-01"
+      ],
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-red.txt",
+          "topic_head_sha": "d5ce37d2f5206f02477784f09360e69aa7416295",
+          "bytes": 10716,
+          "sha256": "b7e4f395cae575a1515ea902fce582a94517c5a2c8734be6cda731857c07edbd"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-frozen-tests.txt",
+          "topic_head_sha": "d5ce37d2f5206f02477784f09360e69aa7416295",
+          "bytes": 100,
+          "sha256": "375062cdf1523bfcac41c75e8d3b1c509dade7d89f5b2368f34f96c60bcc2be6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-removal.txt",
+          "topic_head_sha": "d5ce37d2f5206f02477784f09360e69aa7416295",
+          "bytes": 5784,
+          "sha256": "a4213e2f5311de92443c4222bec950ab3eb8c9c2355c576068d21ea458ff019d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-architecture.txt",
+          "topic_head_sha": "d5ce37d2f5206f02477784f09360e69aa7416295",
+          "bytes": 118079,
+          "sha256": "c7e713e9503e2ea6884a88f40206ce78f0972082b8319c31558ccd351f67d7e7"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-invocation.txt",
+          "topic_head_sha": "d5ce37d2f5206f02477784f09360e69aa7416295",
+          "bytes": 1341,
+          "sha256": "dc1c2968b0e983681825c1666b6e291132e423b72aae15afb3b9072ffbb1eb99"
+        }
+      ],
+      "unresolved_output_paths": [],
+      "check_states": [
+        {
+          "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "UNRUN",
+          "exit_code": 2,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        }
+      ]
+    },
+    {
+      "slice": "fit",
+      "topic_head_sha": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+      "branch": "codex/e02-F-fit-tmle",
+      "implementation_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+      "receipt_sha256": "2556113ef008a9a4982d8a00cb4dc60ccd7831d409024d30d791e92a02b6f248",
+      "receipt_creation_sha": "8ba29766eebbec3a0b43ae046bee58653058fc89",
+      "bindings": {
+        "base_is_pinned": true,
+        "base_ancestor_implementation": true,
+        "implementation_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_is_later_separate_commit": true,
+        "implementation_paths_match": true
+      },
+      "closure_ids_are_targets_not_accepted_closures": [
+        "B54",
+        "B56"
+      ],
+      "bundles": [
+        "FIT-01"
+      ],
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+          "topic_head_sha": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+          "bytes": 30044,
+          "sha256": "2556113ef008a9a4982d8a00cb4dc60ccd7831d409024d30d791e92a02b6f248"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/base-probes.txt",
+          "topic_head_sha": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+          "bytes": 8050,
+          "sha256": "fd949064a6013bd3b1c35c29f979a1e24c817c9caed0731dd32a808756e34de9"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/native-frozen.txt",
+          "topic_head_sha": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+          "bytes": 394,
+          "sha256": "085a665a6fb38b1dc5976ad2fbea056d1f6dff66183d9a40f66885df027da101"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/consumer-regression.txt",
+          "topic_head_sha": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+          "bytes": 156,
+          "sha256": "a12f843f3cf0f27a996330fb4ed3d2360bc80067457ee2bcb5571caae9997132"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/removal-controls.txt",
+          "topic_head_sha": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+          "bytes": 8305,
+          "sha256": "2df4438483d1b8c3962c9e46cb0de6e0880154420e831e8a3f958b99cf569501"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-native.json",
+          "topic_head_sha": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+          "bytes": 1207,
+          "sha256": "1c75a7438d6799484f76bdaea3a43af677b69f7a339b72c494baf6e20b260c01"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-adversarial.json",
+          "topic_head_sha": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+          "bytes": 2563,
+          "sha256": "e731f4035cdcb05fec01d2021318ed9845d24da6fb91e733a4e7f62f3f5a1f53"
+        }
+      ],
+      "unresolved_output_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/raw/architecture.log"
+      ],
+      "check_states": [
+        {
+          "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "ERROR",
+          "exit_code": 137,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+          "outcome": "UNRUN",
+          "exit_code": 2,
+          "target_on_base_to_implementation_path": true
+        }
+      ]
+    },
+    {
+      "slice": "graph",
+      "topic_head_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "branch": "codex/e02-F-graph-scm",
+      "implementation_sha": "672f541313c550e96544728ed397daf330c04442",
+      "candidate_tree_sha": "f6bf9b9467d56e86408693982c8f68ea381b1e4c",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json",
+      "receipt_sha256": "4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050",
+      "receipt_creation_sha": "4050e8c7013defe9458a252379955a99b26bec53",
+      "bindings": {
+        "base_is_pinned": true,
+        "base_ancestor_implementation": true,
+        "implementation_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_is_later_separate_commit": true,
+        "implementation_paths_match": true
+      },
+      "closure_ids_are_targets_not_accepted_closures": [
+        "B215",
+        "B216",
+        "B217",
+        "B223"
+      ],
+      "bundles": [
+        "GRF-01",
+        "GRF-02",
+        "GRF-03",
+        "SCM-01",
+        "SCM-02",
+        "SCM-03"
+      ],
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-targeted.txt",
+          "topic_head_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+          "bytes": 8191,
+          "sha256": "29d583ce556bf9a08c8c30ae4a58dbb4e7264eaa1c5010602a66934be7da8d00"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-contract-targeted.txt",
+          "topic_head_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+          "bytes": 17371,
+          "sha256": "ce6fa910981e4e3d851ac3acf416a8d16b76d5fa3e77f0c7970ebae20e748982"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-independent-review.txt",
+          "topic_head_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+          "bytes": 903,
+          "sha256": "f3d7e48719c3ee785f240aaf6e2016011ac99e2e401f5f9d9eaaf82fb053ff73"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-targeted.txt",
+          "topic_head_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+          "bytes": 454,
+          "sha256": "766d24438761b08c16fbfe894634e2161f401112913c932edd543e63055b22ae"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-architecture.txt",
+          "topic_head_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+          "bytes": 118246,
+          "sha256": "57ca263be16b8df321051ab2ecd890450eadc03a2dfe4b2a77a57d2fa0297d4d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-oracle.txt",
+          "topic_head_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+          "bytes": 1225,
+          "sha256": "067d7be81b807863eae7415eb381b9deb0aa5a302ddf671312041565ce559d97"
+        }
+      ],
+      "unresolved_output_paths": [],
+      "check_states": [
+        {
+          "target_sha": "672f541313c550e96544728ed397daf330c04442",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "672f541313c550e96544728ed397daf330c04442",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "672f541313c550e96544728ed397daf330c04442",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "672f541313c550e96544728ed397daf330c04442",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "672f541313c550e96544728ed397daf330c04442",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "672f541313c550e96544728ed397daf330c04442",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "672f541313c550e96544728ed397daf330c04442",
+          "outcome": "UNRUN",
+          "exit_code": 2,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "672f541313c550e96544728ed397daf330c04442",
+          "outcome": "SKIP",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        },
+        {
+          "target_sha": "672f541313c550e96544728ed397daf330c04442",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_on_base_to_implementation_path": true
+        }
+      ]
+    }
+  ],
+  "finding_map": [
+    {
+      "finding_id": "B54",
+      "receipt_slice": "fit",
+      "candidate_evidence_class": "implemented_bounded",
+      "remaining": "Native cache source identity, immutable bytes and current diagnostic materialization established; precomputed __shared_nuisance_bundle and advanced_designs admission not_established.",
+      "next_owner": "F causal TMLE owner/G",
+      "source_closure_owner": "FIT-01",
+      "source_bundle_ids": [
+        "FIT-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B56",
+      "receipt_slice": "fit",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Native heldout fit under bounded external resource cap established; actual outer aggregate-study admission/resource carrier not_established.",
+      "next_owner": "F TMLE owner with B consultation/G",
+      "source_closure_owner": "FIT-01",
+      "source_bundle_ids": [
+        "FIT-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B204",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Known synthetic standard-DiD design tests pass; four-base replay and finding-level historical selector reconciliation are UNRUN. Real-data parallel-trend validity is not established.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "CAU-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "source_closure_owner": "CAU-01",
+      "source_bundle_ids": [
+        "CAU-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B205",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Current CR0 reference and technical-period duplication tests pass with real statsmodels 0.14.6. Four-base replay is UNRUN; small-cluster coverage and admitted-real-data inference are not established.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "CAU-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "source_closure_owner": "CAU-01",
+      "source_bundle_ids": [
+        "CAU-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B206",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Current confidence-level, 95% control and invalid-level tests pass. Four-base replay is UNRUN; no claim of nominal coverage, corrected standard error or RBC.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "CAU-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "source_closure_owner": "CAU-01",
+      "source_bundle_ids": [
+        "CAU-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B207",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Finite known DGP proves varying panel units affect descriptive bootstrap and unsupported g=0 cannot be silently omitted. Admitted cohort/independent-unit data record and serial-correlated multi-cohort coverage remain pending causal-analysis data owner.",
+      "next_owner": {
+        "kind": "data_record",
+        "name": "Causal-analysis data owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "source_closure_owner": "CAU-02",
+      "source_bundle_ids": [
+        "CAU-02"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B208",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "p-value and inferential CI remain absent. The descriptive multiplier interval is not a calibrated null distribution; null calibration/power and cohort data record remain pending causal-analysis data owner.",
+      "next_owner": {
+        "kind": "data_record",
+        "name": "Causal-analysis data owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "source_closure_owner": "CAU-02",
+      "source_bundle_ids": [
+        "CAU-02"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B209",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Known synthetic eligibility and strict anticipation admission pass; requested unsupported cohort set refuses point output. Real-data anticipation/no-anticipation validity and cohort scope require causal-analysis data owner.",
+      "next_owner": {
+        "kind": "data_record",
+        "name": "Causal-analysis data owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "source_closure_owner": "CAU-02",
+      "source_bundle_ids": [
+        "CAU-02"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B210",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Unsupported requested RBC is honestly refused and uncorrected mode remains supported. Actual RBC implementation/curvature correction is not established; preserve principal-decision residual.",
+      "next_owner": {
+        "kind": "principal_decision",
+        "name": "Principal (Denis)",
+        "appointment_status": "decision draft only; principal ruling pending"
+      },
+      "source_closure_owner": "CAU-03",
+      "source_bundle_ids": [
+        "CAU-03"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B211",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Current bounded vector WLS/reference/kernel/order/rank tests pass. No new implementation delta for this ID; full baseline/finding reconciliation remains with RDD causal-analysis owner, without RBC inference claim.",
+      "next_owner": {
+        "kind": "implementation_owner",
+        "name": "RDD causal-analysis owner",
+        "appointment_status": "owner role identified by reviewed triage; no individual appointment is claimed"
+      },
+      "source_closure_owner": "CAU-03",
+      "source_bundle_ids": [
+        "CAU-03"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B212",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Recorder/IR tests preserve point-only and true interval; real DoWhy tests are SKIP under Python3.14 markers. Native DoWhy point-only consumer witness remains UNRUN for supported reference environment owner/G.",
+      "next_owner": {
+        "kind": "implementation_owner",
+        "name": "DoWhy adapter and causal-analysis owner",
+        "appointment_status": "owner role identified by reviewed triage; no individual appointment is claimed"
+      },
+      "source_closure_owner": "CAU-04",
+      "source_bundle_ids": [
+        "CAU-04"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B213",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Recorder protocol/estimand mismatch controls pass; actual DoWhy version/API/population/adjustment native behavior is UNRUN under markers. No shim or unsupported backend installation used.",
+      "next_owner": {
+        "kind": "implementation_owner",
+        "name": "DoWhy adapter and causal-analysis owner",
+        "appointment_status": "owner role identified by reviewed triage; no individual appointment is claimed"
+      },
+      "source_closure_owner": "CAU-04",
+      "source_bundle_ids": [
+        "CAU-04"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B214",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "GRF-03 synthetic known-reverse normalization/CPDAG refusal tests pass in targeted suite; no full sound-PAG-extension or admitted downstream real-data claim.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-03 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      },
+      "source_closure_owner": "GRF-03",
+      "source_bundle_ids": [
+        "GRF-03"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B215",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Native job partial Gaussian evidence and full factual controls persist/reopen correct posterior moments. Imputed-residual variant with unchanged posterior markers is rejected by numeric oracle. Historical four-base/selector reconciliation remains not_established.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-02 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "source_closure_owner": "SCM-02",
+      "source_bundle_ids": [
+        "SCM-02"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B216",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Independent ancestral-moralization oracle covers complete 200 three-node ADMGs / 2400 ordered queries; actual Rule1 and sibling sigma consumers run. Finite synthetic scope only.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-01 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      },
+      "source_closure_owner": "GRF-01",
+      "source_bundle_ids": [
+        "GRF-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B217",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "All eight action sets per three-node graph agree with latent-DAG perfect surgery under 12 queries, and actual Rule3 removes pure-confounding action. Finite synthetic scope only.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-01 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      },
+      "source_closure_owner": "GRF-01",
+      "source_bundle_ids": [
+        "GRF-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B218",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Existing GRF-03 compact temporal lag round-trip/self-lag/static-negative controls pass. Static GCM requires supported temporal expansion; no full temporal causal capability claimed.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-03 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      },
+      "source_closure_owner": "GRF-03",
+      "source_bundle_ids": [
+        "GRF-03"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B219",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "held",
+      "remaining": "Original shared environment lacks NetworkX and native exporter fails; locked NetworkX overlay rerun recorded separately. Preserve held pending owner acceptance and currentness/four-base/consumer impact; installing runtime alone does not close finding.",
+      "next_owner": {
+        "kind": "data_record",
+        "name": "Pinned NetworkX 3.6.1 runtime artifact/environment for B219 behavioral verification",
+        "appointment_status": "Canonical residual originally recorded a missing pinned NetworkX artifact. This slice now supplies an isolated locked3.6.1 native runtime and 29PASS behavioral receipt. The original shared-env failure stays nonPASS; owner acceptance, currentness/four-base and consumer-impact criteria remain pending, so held is preserved."
+      },
+      "source_closure_owner": "GRF-02",
+      "source_bundle_ids": [
+        "GRF-02"
+      ],
+      "historical_tsv_status": "held",
+      "historical_ledger_status": "held",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B220",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "No topology/cache mechanism changes. Native full26-case graph contract passes with locked NetworkX. Additional read-only warm-cache probe rejects ordinary mutation, confirms model_copy(new edges) agrees across ancestors/export/model_dump, and confirms weakref cleanup; finding-level historical selector/JUnit reconciliation and owner admission remain pending.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "GRF-02 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "source_closure_owner": "GRF-02",
+      "source_bundle_ids": [
+        "GRF-02"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B221",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Existing SCM-01 synthetic fit/root-law controls pass; they deliberately exclude DoWhy fit. Full admitted root joint law and backend validation remain limited, never inferred from synthetic fixture.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "source_closure_owner": "SCM-01",
+      "source_bundle_ids": [
+        "SCM-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B222",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Existing polynomial evaluator and twin shared-noise controls pass on synthetic saved payload. No new nonlinear posterior-abduction or full real-data fitting claim.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "source_closure_owner": "SCM-01",
+      "source_bundle_ids": [
+        "SCM-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B223",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Native dispatcher producer output-slot omission corrected at canonical GCMQuery owner. True attribution do2/observational=6 survives CAS and actual persisted ensemble consumer. Existing identical-explicit-arm and stochastic policy tests pass; real causal identification remains limited.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-02 scope owner for broader capability; E02-R2 baseline broker for current four-base replay",
+        "appointment_status": "roles identified; individual appointment is not claimed"
+      },
+      "source_closure_owner": "SCM-02",
+      "source_bundle_ids": [
+        "SCM-02"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B224",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Existing SCM-03 perfect-do/pruning/logical-stream/shift controls pass. No query-plan or world-model rewrite; actual local finite-DGP scope.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-03 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "source_closure_owner": "SCM-03",
+      "source_bundle_ids": [
+        "SCM-03"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "B225",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Existing malformed law/finiteness/support/tail/reproducible-stream controls pass. No arbitrary law or policy-authority claim; supported native stochastic law only.",
+      "next_owner": {
+        "kind": "verification_owner",
+        "name": "SCM-03 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "source_closure_owner": "SCM-03",
+      "source_bundle_ids": [
+        "SCM-03"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-001",
+      "receipt_slice": "foundry",
+      "candidate_evidence_class": "limited_bridge_missing",
+      "remaining": "partial/limited: seed laws, v1 envelope replay and persisted compiler/Scientist artifact readback established; runtime salt-consumer binding not established",
+      "next_owner": "F/G",
+      "source_closure_owner": "FRY-01",
+      "source_bundle_ids": [
+        "FRY-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-002",
+      "receipt_slice": "foundry",
+      "candidate_evidence_class": "bounded_verification",
+      "remaining": "bounded native verification evidence available; no catalog-as-authority claim; final closure belongs to G after receipt acceptance",
+      "next_owner": "F/G",
+      "source_closure_owner": "FRY-01",
+      "source_bundle_ids": [
+        "FRY-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-003",
+      "receipt_slice": "economics",
+      "candidate_evidence_class": "limited_bounded",
+      "remaining": "Actual registered compiler/kernel/persisted tax and labor readback established for default profile. Diagnostic adapter-to-native bridge_missing; combined x64 profile55PASS4FAIL retained.",
+      "next_owner": "F economic owner/C native adapter consumer/G",
+      "source_closure_owner": "FRY-03",
+      "source_bundle_ids": [
+        "FRY-03"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-004",
+      "receipt_slice": "economics",
+      "candidate_evidence_class": "held_semantic_owner",
+      "remaining": "Default-profile synthetic baseline objectives/gradients verified; caller/profile/objective principal decision and adapter-to-native bridge remain pending. Mixed-profile FAIL has no inherited attribution.",
+      "next_owner": "Economic caller/principal semantic owner/G; C adapter discovery",
+      "source_closure_owner": "ECO-01",
+      "source_bundle_ids": [
+        "ECO-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-007",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Local package retirement regression retained. External installed loader/resource owner appointment and installed-artifact receipt remain pending with C; no wheel closure claimed.",
+      "next_owner": {
+        "kind": "owner_appointment",
+        "name": "Packaging and external-loader owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "source_closure_owner": "GRF-01",
+      "source_bundle_ids": [
+        "GRF-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-016",
+      "receipt_slice": "cau",
+      "candidate_evidence_class": "limited",
+      "remaining": "Current supported old/dedicated adapter and metadata controls pass. Frozen production plan replay/native first-party caller completeness remains not established. Ledger residual references DoWhy while source CAU-05 defines DiD migration: G must reconcile by source criterion, not import a DoWhy closure into LA-016.",
+      "next_owner": {
+        "kind": "owner_appointment",
+        "name": "Native causal caller owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "source_closure_owner": "CAU-05",
+      "source_bundle_ids": [
+        "CAU-01",
+        "CAU-05"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-017",
+      "receipt_slice": "lex",
+      "candidate_evidence_class": "limited_bounded",
+      "remaining": "Native synthetic NormPack input-binding and engine/CLI refusal publication tested; actual law corpus/caller custody not established. Broad architecture UNRUN; static invocation partial/runtimefalse.",
+      "next_owner": "G local admitted corpus/caller run at candidate SHA",
+      "source_closure_owner": "LEX-01",
+      "source_bundle_ids": [
+        "LEX-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-019",
+      "receipt_slice": "graph",
+      "candidate_evidence_class": "partial_bounded",
+      "remaining": "Local canonical package imports retained. External loader/resource path and installed-artifact admission remain pending with C; no scope-wide absence inferred.",
+      "next_owner": {
+        "kind": "owner_appointment",
+        "name": "Packaging and external-loader owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "source_closure_owner": "GRF-01",
+      "source_bundle_ids": [
+        "GRF-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-020",
+      "receipt_slice": "api",
+      "candidate_evidence_class": "limited_bounded",
+      "remaining": "Supported causal facade Scientist/EvidenceBundle/pickle-FQN/import-invocation ABI verified; dynamic/external callers and blanket public ABI unknown. UtilityJudge ranking FAIL reproduced at exact base; full P41 attribution not_established.",
+      "next_owner": "C external plugins/package ABI; G integrated caller/real inputs",
+      "source_closure_owner": "API-01",
+      "source_bundle_ids": [
+        "API-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-035",
+      "receipt_slice": "economics",
+      "candidate_evidence_class": "held_semantic_owner",
+      "remaining": "Default-profile synthetic baseline objectives/gradients verified; caller/profile/objective principal decision and adapter-to-native bridge remain pending. Mixed-profile FAIL has no inherited attribution.",
+      "next_owner": "Economic caller/principal semantic owner/G; C adapter discovery",
+      "source_closure_owner": "ECO-01",
+      "source_bundle_ids": [
+        "ECO-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    },
+    {
+      "finding_id": "LA-037",
+      "receipt_slice": "foundry",
+      "candidate_evidence_class": "bounded_verification",
+      "remaining": "bounded native layout/family/public identity/compile evidence available; docs build and package distribution not exercised in this slice",
+      "next_owner": "C/G installed wheel/docs and external callers",
+      "source_closure_owner": "FRY-01",
+      "source_bundle_ids": [
+        "FRY-01"
+      ],
+      "historical_tsv_status": "partial",
+      "historical_ledger_status": "partial",
+      "finding_closure_accepted_by_this_audit": false
+    }
+  ],
+  "accepted_finding_closures": [],
+  "corrections": [
+    {
+      "slice": "foundry",
+      "state": "corrected_append_only",
+      "previous_head": "08b24f7ca7ade254c3e8b01d98178c8aafef2d41",
+      "corrected_head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "detail": "changed_paths now exactly4 implementation tests;2 handoff artifacts separated into mandatory_companions"
+    }
+  ],
+  "binding_errors": [],
+  "untransferred_raw_basis": [
+    {
+      "slice": "all",
+      "basis": "Historical cells are navigation-only; 0 raw baseline archives transferred. No baseline cell PASS accepted as candidate closure."
+    },
+    {
+      "slice": "cau",
+      "path": "/workspace/e02-F-receipts/cau-production-invocation.json",
+      "bytes": 170856211,
+      "sha256": "c2ef625b9cc2f8c01b996179177712519ba9b07fe031076fb4b0cc4b031169e7",
+      "state": "local_not_transferred; static partial/runtimefalse; full detail not_established"
+    },
+    {
+      "slice": "lex",
+      "path": "/workspace/e02-F-receipts/lex-production-invocation.json",
+      "bytes": 170856411,
+      "sha256": "e94df7e6d14e616a253c7d756489e9a1b76cad721b623693f2bc257ffc643801",
+      "state": "local_not_transferred; static partial/runtimefalse; full detail not_established"
+    },
+    {
+      "slice": "economics",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economics-candidate.log",
+      "bytes": 1189131,
+      "sha256": "f907806e2415ab4e9ebf799b3b1796a11d9bb434c046179d573e6055abff9a12",
+      "state": "ignored local raw; complete59 outcomes+4 failures deciding bytes committed; repeated successful registration captures omitted explicitly"
+    },
+    {
+      "slice": "fit",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/raw/architecture.log",
+      "bytes": 118089,
+      "sha256": "b9b2738bae8ba398b3a29bdc899ee7f160f891d959eb04e87e72c0da4b39e764",
+      "state": "ignored local raw; architectureUNRUNexit2 fullP41not_established; GsupportedNode22lockeddepsrerun"
+    },
+    {
+      "slice": "fit",
+      "path": "/workspace/e02-F-receipts/fit-tmle-production-invocation.json",
+      "state": "NOT_PRODUCED process exit137; no stdout/receipt exists; ERROR not PASS"
+    },
+    {
+      "slice": "api",
+      "path": "/workspace/e02-F-receipts/api-{base,candidate}-inputs.json",
+      "state": "scratch observed Python-open invocation denominator not transferred; tracked908/union2720 changedintersectionempty does not establish full P41 native/metadata exclusion"
+    }
+  ],
+  "limits": [
+    "Receipt audit validates source/output binding and explicit scope; it is not an integrated scientific/backend acceptance verdict.",
+    "DoWhy/EconML markers underPython3.14 are excluded/absent; no backend witness from absence. Real statsmodels/NetworkX overlays are separately identified native environments, no shim.",
+    "Common causal-output and economics-dtype follow-up slices are independent new repair classes; their receipts are outside this7-ref snapshot.",
+    "Original shared NetworkX15PASS11FAIL, graph123PASS1SKIP, nativeNetworkX29PASS and architectureUNRUN remain distinct.",
+    "No main push, force push, history rewrite or edits to audited branches performed."
+  ]
+}

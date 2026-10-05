@@ -16,6 +16,8 @@ The independent review checkpoint contains these exact executions:
 | Complete connector acquisition deadline and cleanup ownership | `58b04116e25344835f482ef79c16ce87f2d0b771` | 9 PASS |
 | Linux process supervisor, descendant reaping and bridge consumers | `ba79d141a3937541b3164db255ceda89883575ec` | 85 PASS, 22 fork warnings |
 | Bound scoped CAS admission and exact cache consumers | `34b6c191cc617d89475bdb73c3b50bc0340e4b09` | 67 PASS |
+| Queued timed sync-node cancellation before physical start | `4a68d5345ceca69a6148af082f59ae27372865de` | Independent five-case actual file witness: 5 PASS |
+| Cold trace/checkpoint recovery and private cache admission | `515054e7427467bf6e72fcfa22cc809c7cfe2c19` | 14 native PASS; independent six-case CAS oracle PASS |
 
 Commands, complete stdout and JUnit outputs are retained in
 [coordination-evidence](coordination-evidence/), with hashes in
@@ -51,3 +53,17 @@ and owns the append-only `codex/e02-integration` branch and shared closeout ledg
 The separate B acceptance checkout is for combined B verification. A alone
 changes `generation_cycle.py` and `run_lifecycle.py`; C alone changes
 `streaming.py`. B supplies contracts, test inputs and negative cases through Git.
+
+Downstream evidence is retained in [downstream](downstream/),
+[llm-review](llm-review/), [b52-oracle](b52-oracle/) and
+[b52-review](b52-review/). The cold-seed baseline and naive off-loop controls
+remain property FAIL witnesses on exact `0f24d18`; the candidate source and
+independent acceptance are separate exact `515054e` measurements. A successful
+witness process exit does not convert an observed property failure into PASS.
+
+Fetched G checkpoint `15d50bac59d06a3fb010327abf8e0c90f9ccbed0` adds B HOLD
+observations for submit/shutdown lock order, worker occupancy during user done
+callbacks, and CAS archive pathname identity. Canonical RUN/CAS follow-ups are
+pending. Earlier independent positive checks remain source-bound and do not
+settle those new boundaries. The final reconciliation will preserve each
+mechanism, verification, missing-input and semantic-owner residual.

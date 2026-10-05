@@ -34,7 +34,7 @@
       "inode_before": 150971081,
       "inode_after": 150971081,
       "git_admin_record": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos189",
-      "git_admin_record_changed": false,
+      "repair_wrote_git_admin_record": false,
       "head_commit_preserved": "2522cf2ee59a0f45cebc52303a184908a4326fa1",
       "unresolved_by_construction": [
         "Trash directory enumeration denied; unregistered alternate checkout outside exact named target not ruled out.",
@@ -99,11 +99,12 @@
       "stderr": ""
     }
   ],
-  "source_pack_read": "F01-F15 complete through five independent read-only partitions; source-reported observations only",
+  "source_pack_read": {"status": "five independent helper partitions reported complete F01-F15 reading", "predicate_basis": "consumer_asserted", "use": "intake navigation only; no scientific or product gate depends on reading attestation"},
   "limitations": [
     "Initial missing-lefthook push and hook skip were observed but have no retained operational output; neither is used as a deciding gate. Fresh install and remote readback outputs above replace those assertions.",
     "Node install reports ignored dependency build scripts; successful install does not establish scanner/typecheck or product behavior.",
     "Published remote was base c40d4aca at recorded readback, not startup commit.",
-    "No product commits accepted or findings closed."
+    "No product commits accepted or findings closed.",
+    "Independent readback found the old Git admin record, index and HEAD log present; before-operation byte hashes were not captured, so byte equality across repair is not established."
   ]
 }

@@ -23,8 +23,9 @@ text и index binding; product closure и VM receipt custody остаются
 лимит показа не задаёт множество и не определяет владельцев. Владельцы
 берутся из [bundle owners](../execution-organization/bundle-owners.tsv) и
 [finding owners](../execution-organization/finding-owners.tsv). Полный
-transferred source pack F01–F15 полностью прочитан независимыми helpers по
-раздельным партициям; locator summaries служат навигацией.
+Для transferred source pack F01–F15 получены reports о полном чтении пяти
+раздельных helper-партиций. Эти reports служат intake-навигацией; scientific
+predicates проверяются по source bytes, коду и deciding outputs.
 
 ## Состояние рабочей среды
 
@@ -36,8 +37,9 @@ Retrospective resume-проверка точных branch/path вернула `U
 `/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos`
 недоступна. Это исторический результат в startup receipt. Исследование
 установило dangling symlink к отсутствующему именованному checkout в Trash.
-G переместил только symlink в reversible quarantine; Git admin record,
-index, refs и reflogs сохранены. Повторный admission вернул `admitted`,
+G переместил только symlink в reversible quarantine. Независимый readback
+нашёл Git admin record, index и HEAD log; их до/после byte equality не
+установлена. Повторный admission вернул `admitted`,
 exit 0. [Operations receipt](operations.json) связывает exact selectors,
 решение, полный локальный output и границы наблюдения. Бывшие checkout bytes
 и dirty state не восстановлены; перечисление Trash недоступно.

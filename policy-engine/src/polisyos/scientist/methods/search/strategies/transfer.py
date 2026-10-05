@@ -595,6 +595,7 @@ class TransferLearningManager:
                     isinstance(raw, bool)
                     or not math.isfinite(float(raw))
                     or not bound.lower <= float(raw) <= bound.upper
+                    or (bound.dtype == ParameterType.INTEGER and not float(raw).is_integer())
                 ):
                     return "physical parameters differ from the persisted source basis"
             expected = space.normalize(evaluation.params)

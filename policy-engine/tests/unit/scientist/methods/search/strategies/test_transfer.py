@@ -26,7 +26,11 @@ from polisyos.scientist.methods.search.strategies.transfer import (
     TransferHistoryError,
     TransferLearningManager,
 )
-from polisyos.scientist.methods.search.strategies.types import Evaluation, ParameterBounds
+from polisyos.scientist.methods.search.strategies.types import (
+    Evaluation,
+    ParameterBounds,
+    ParameterType,
+)
 
 
 def test_real_cas_history_registration_preserves_finite_numeric_values(tmp_path):
@@ -275,6 +279,53 @@ def test_original_and_history_cannot_share_a_false_normalized_coordinate(tmp_pat
         rejected.metadata["transfer_error"]
     )
     assert originals[0].metadata["params"] == rejected.params == {"x": 0.1}
+
+
+@pytest.mark.parametrize("dtype,x", [(ParameterType.CONTINUOUS, 1.5), (ParameterType.INTEGER, 0.1)])
+def test_actual_candidate_must_be_in_the_persisted_attainable_domain(tmp_path, dtype, x):
+    store, index, _, source, evaluations, originals = _measured_history(tmp_path)
+    space = SearchSpace([ParameterBounds(name="x", lower=0.0, upper=1.0, dtype=dtype)])
+    source.space_hash = space.sobol_space_fingerprint()
+    source.bounds = {"x": {"lower": 0.0, "upper": 1.0, "dtype": dtype.value}}
+    compatibility = evaluations[0].metadata["warm_start_compatibility"]
+    compatibility["search_space_fingerprint"] = source.space_hash
+    compatibility["context_fingerprint"] = source.numeric_context_fingerprint()
+    candidate_ref = store.put_json(
+        {"params": {"x": x}},
+        PutOptions(kind="search.candidate", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    raw_score = 100.0 * x * x
+    original = originals[0].model_copy(
+        update={
+            "candidate_ref": candidate_ref,
+            "selection_metrics": {"score": raw_score},
+            "metadata": {
+                **originals[0].metadata,
+                "params": {"x": x},
+                "warm_start_compatibility": compatibility,
+            },
+        }
+    )
+    evaluation = evaluations[0]
+    evaluation.candidate_id = str(candidate_ref.artifact_id)
+    evaluation.params = {"x": x}
+    evaluation.params_normalized = space.normalize(evaluation.params)
+    evaluation.scalar_score = raw_score
+    evaluation.objectives = [
+        ObjectiveValue(name="score", raw_value=raw_score, direction=OptimizationDirection.MINIMIZE)
+    ]
+    evaluation.provenance_ref = str(persist_benchmark_evaluation(store, original).artifact_id)
+    source.history_ref = TransferLearningManager(store, index).register_run(source, [evaluation])
+    reader = TransferLearningManager(store, index)
+    (rejected,) = reader.get_warm_start_evaluations(
+        [source], target_fingerprint=source.model_copy(update={"run_id": "target"})
+    )
+    assert not rejected.is_valid
+    assert "physical parameters differ from the persisted source basis" in (
+        rejected.metadata["transfer_error"]
+    )
+    assert reader.last_restore_report.accepted_rows == 0
 
 
 def test_unsupported_candidate_input_basis_is_a_visible_refusal(tmp_path):

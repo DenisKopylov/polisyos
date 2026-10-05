@@ -9,12 +9,10 @@ import contextvars
 import functools
 import os
 import threading
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
-
-T = TypeVar("T")
 
 _EXECUTOR_LOCK = threading.Lock()
 _RUN_CORO_SYNC_EXECUTOR: concurrent.futures.ThreadPoolExecutor | None = None

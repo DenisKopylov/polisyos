@@ -3,10 +3,36 @@ from __future__ import annotations
 import asyncio
 import time
 from contextvars import ContextVar
+from typing import get_type_hints
 
 import pytest
 
 from polisyos.common.async_tools import get_shared_executor, run_blocking_async, run_coro_sync
+
+
+def test_function_type_parameters_resolve_without_module_typevar() -> None:
+    """All four helpers resolve their own generic identities after cleanup."""
+    from collections.abc import Awaitable, Callable
+
+    from polisyos.common import async_tools
+
+    helpers = (
+        async_tools._await_awaitable,
+        async_tools._run_coro_in_fresh_loop,
+        async_tools.run_coro_sync,
+        async_tools.run_blocking_async,
+    )
+    for helper in helpers:
+        (parameter,) = helper.__type_params__
+        hints = get_type_hints(
+            helper,
+            globalns={**vars(async_tools), "Awaitable": Awaitable, "Callable": Callable},
+            localns={"T": parameter},
+        )
+        assert hints["return"] is parameter
+    assert len({helper.__type_params__[0] for helper in helpers}) == 4
+    assert not hasattr(async_tools, "T")
+    assert not hasattr(async_tools, "TypeVar")
 
 
 def test_run_coro_sync_returns_result_without_running_loop() -> None:
@@ -77,7 +103,7 @@ def test_run_blocking_async_preserves_inner_timeout_message() -> None:
     async def _exercise() -> None:
         await run_blocking_async(_raise_inner_timeout, timeout_seconds=5.0)
 
-    with pytest.raises(TimeoutError, match="^inner worker timeout$"):
+    with pytest.raises(TimeoutError, match=r"^inner worker timeout$"):
         asyncio.run(_exercise())
 
 

@@ -28,15 +28,12 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     _ObservationRuntimeMetrics,
     _SourceBudgetWindow,
 )
-from polisyos.data_forge.domains.catalog.batch.core_sources import (
-    api as _api,
-    loaders as _loaders,
-    registry as _registry,
-    transformers as _transformers,
-    validators as _validators,
-    writers as _writers,
-)
-
+from polisyos.data_forge.domains.catalog.batch.core_sources import api as _api
+from polisyos.data_forge.domains.catalog.batch.core_sources import loaders as _loaders
+from polisyos.data_forge.domains.catalog.batch.core_sources import registry as _registry
+from polisyos.data_forge.domains.catalog.batch.core_sources import transformers as _transformers
+from polisyos.data_forge.domains.catalog.batch.core_sources import validators as _validators
+from polisyos.data_forge.domains.catalog.batch.core_sources import writers as _writers
 
 # Only names still used by the compatibility window are exported.  Every
 # entry names its owning leaf; no module-global census or broadcast is used.
@@ -110,8 +107,8 @@ _LOCAL_NAMES = frozenset(
 
 @contextmanager
 def _temporary_compatibility_overrides() -> Iterator[None]:
-    """Apply only explicitly supported facade overrides for one call."""
-    applied: list[tuple[ModuleType, str, Any]] = []
+    """Bind only supported facade overrides to this execution context."""
+    overrides_by_module: dict[ModuleType, dict[str, Any]] = {}
     for name, (module, owner_name) in _BINDINGS.items():
         if name in _LOCAL_NAMES or name not in globals():
             continue
@@ -119,16 +116,19 @@ def _temporary_compatibility_overrides() -> Iterator[None]:
         current = getattr(module, owner_name, None)
         if replacement is current:
             continue
-        applied.append((module, owner_name, current))
-        setattr(module, owner_name, replacement)
+        overrides_by_module.setdefault(module, {})[owner_name] = replacement
+
+    applied: list[tuple[Any, Any]] = []
     try:
+        for module, overrides in overrides_by_module.items():
+            context_overrides = module._COMPATIBILITY_OVERRIDES
+            current = context_overrides.get() or {}
+            token = context_overrides.set({**current, **overrides})
+            applied.append((context_overrides, token))
         yield
     finally:
-        for module, owner_name, current in reversed(applied):
-            if current is None:
-                delattr(module, owner_name)
-            else:
-                setattr(module, owner_name, current)
+        for context_overrides, token in reversed(applied):
+            context_overrides.reset(token)
 
 
 def _compatibility_delegate(name: str, target: Any) -> Any:

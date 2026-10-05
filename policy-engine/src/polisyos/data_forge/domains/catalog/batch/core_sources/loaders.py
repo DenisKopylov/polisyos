@@ -15,6 +15,7 @@ import re
 import time
 import zipfile
 from collections import OrderedDict, defaultdict, deque
+from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from importlib import import_module
@@ -102,14 +103,31 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 __OWNER_BOUND_PROXIES: dict[str, Any] = {}
+_COMPATIBILITY_OVERRIDES: ContextVar[dict[str, Any] | None] = ContextVar(
+    f"{__name__}.compatibility_overrides", default=None
+)
 
 
 def __resolve_implementation_dependency(name: str, owner: str) -> Any:
     """Resolve a split-module dependency without facade-global injection."""
+    if owner == __name__.rsplit(".", maxsplit=1)[-1]:
+        compatibility_overrides = _COMPATIBILITY_OVERRIDES.get()
+        if compatibility_overrides is not None and name in compatibility_overrides:
+            return compatibility_overrides[name]
+        override = globals().get(name)
+        if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
+            return override
+        if name in globals():
+            return globals()[name]
+        return getattr(import_module(f"{__package__}.{owner}"), name)
+
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override
     module = import_module(f"{__package__}.{owner}")
+    compatibility_overrides = module._COMPATIBILITY_OVERRIDES.get()
+    if compatibility_overrides is not None and name in compatibility_overrides:
+        return compatibility_overrides[name]
     return getattr(module, name)
 
 
@@ -354,7 +372,7 @@ def _load_wvs_bulk_duckdb(
     Returns ``{indicator_code: [aggregated_rows]}`` for all requested indicators.
     Uses DuckDB's columnar CSV reader for 10x speedup vs Python csv.DictReader.
     """
-    csv_path = _wvs_bulk_csv_path()
+    csv_path = __resolve_implementation_dependency("_wvs_bulk_csv_path", "loaders")()
     if not csv_path.exists():
         raise RuntimeError(f"WVS bulk CSV is required: {csv_path}")
     if not indicators:
@@ -402,7 +420,9 @@ def _load_wvs_bulk_duckdb(
         result = {}
         for ind in indicators:
             try:
-                result[ind] = _load_wvs_bulk_rows(
+                result[ind] = __resolve_implementation_dependency(
+                    "_load_wvs_bulk_rows", "loaders"
+                )(
                     ind,
                     country_scope=country_scope,
                     year_window=year_window,
@@ -1284,7 +1304,9 @@ def _bulk_query_rows(
     where: list[str] = []
     params: list[Any] = [str(normalized_path)]
     country_column = _bulk_country_column(source, lower_map)
-    country_values = _bulk_country_values(source, countries)
+    country_values = __resolve_implementation_dependency("_bulk_country_values", "loaders")(
+        source, countries
+    )
     if country_column and country_values:
         placeholders = ", ".join("?" for _ in country_values)
         where.append(
@@ -1724,7 +1746,7 @@ def _load_wvs_bulk_rows(
     year_window: tuple[int, int] | None = None,
 ) -> list[dict[str, Any]]:
     indicator = str(raw_variable or "").strip().upper()
-    csv_path = _wvs_bulk_csv_path()
+    csv_path = __resolve_implementation_dependency("_wvs_bulk_csv_path", "loaders")()
     if not indicator:
         return []
     if not csv_path.exists():

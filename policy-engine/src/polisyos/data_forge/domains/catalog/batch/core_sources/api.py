@@ -15,6 +15,7 @@ import re
 import time
 import zipfile
 from collections import OrderedDict, defaultdict, deque
+from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from importlib import import_module
@@ -44,12 +45,12 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     _ObservationRuntimeMetrics,
     _SourceBudgetWindow,
 )
+from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
 from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
     _ConnectorSessionCache,
     _ObservationCapabilityCache,
     _ObservationFetchDeduper,
 )
-from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     country_scope_members,
     iso2_to_iso3,
@@ -209,14 +210,31 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
 
 
 __OWNER_BOUND_PROXIES: dict[str, Any] = {}
+_COMPATIBILITY_OVERRIDES: ContextVar[dict[str, Any] | None] = ContextVar(
+    f"{__name__}.compatibility_overrides", default=None
+)
 
 
 def __resolve_implementation_dependency(name: str, owner: str) -> Any:
     """Resolve a split-module dependency without facade-global injection."""
+    if owner == __name__.rsplit(".", maxsplit=1)[-1]:
+        compatibility_overrides = _COMPATIBILITY_OVERRIDES.get()
+        if compatibility_overrides is not None and name in compatibility_overrides:
+            return compatibility_overrides[name]
+        override = globals().get(name)
+        if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
+            return override
+        if name in globals():
+            return globals()[name]
+        return getattr(import_module(f"{__package__}.{owner}"), name)
+
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override
     module = import_module(f"{__package__}.{owner}")
+    compatibility_overrides = module._COMPATIBILITY_OVERRIDES.get()
+    if compatibility_overrides is not None and name in compatibility_overrides:
+        return compatibility_overrides[name]
     return getattr(module, name)
 
 
@@ -320,7 +338,9 @@ def run_core_sources_ingest(config: DatasetBatchConfig) -> CoreSourcesIngestStat
 async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
     """Async entrypoint for ingesting registry/observation data used by DatasetRegistry."""
     started_at = datetime.now(UTC).isoformat()
-    stats = await _run_core_sources_ingest_async(config)
+    stats = await __resolve_implementation_dependency(
+        "_run_core_sources_ingest_async", "api"
+    )(config)
     write_stage_manifest(
         manifest_path=config.manifests_dir / "core_sources_ingest.json",
         stage="core_sources_ingest",
@@ -370,7 +390,9 @@ async def _run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSour
             catalog_alignments,
             config=config,
         )
-        ingest_stats = await _ingest_catalog_observations(config.db_path, plans, config=config)
+        ingest_stats = await __resolve_implementation_dependency(
+            "_ingest_catalog_observations", "api"
+        )(config.db_path, plans, config=config)
         stats.observations += ingest_stats.observations
         stats.observations_attempted += ingest_stats.observations_attempted
         stats.observations_inserted += ingest_stats.observations_inserted
@@ -496,7 +518,9 @@ async def _ingest_catalog_observations(
             "Using legacy serial observation ingest because POLISYOS_DATASET_LEGACY_SERIAL is enabled"
         )
         return await _ingest_catalog_observations_legacy(db_path, plans, config=config)
-    return await _ingest_catalog_observations_parallel(db_path, plans, config=config)
+    return await __resolve_implementation_dependency(
+        "_ingest_catalog_observations_parallel", "api"
+    )(db_path, plans, config=config)
 
 
 async def _ingest_catalog_observations_parallel(
@@ -1884,7 +1908,9 @@ async def _invoke_fetch_observation_rows(
     budget_wait_observer: Any | None = None,
 ) -> list[dict[str, Any]]:
     try:
-        return await _fetch_observation_rows(
+        return await __resolve_implementation_dependency(
+            "_fetch_observation_rows", "api"
+        )(
             shard,
             cache,
             config=config,
@@ -1908,7 +1934,9 @@ async def _invoke_fetch_observation_rows(
         )
         if not unexpected_policy_args:
             raise
-        return await _fetch_observation_rows(shard, cache, config=config)  # type: ignore[call-arg]
+        return await __resolve_implementation_dependency(
+            "_fetch_observation_rows", "api"
+        )(shard, cache, config=config)  # type: ignore[call-arg]
 
 
 def _counts_toward_observation_failure_budget(exc: Exception) -> bool:

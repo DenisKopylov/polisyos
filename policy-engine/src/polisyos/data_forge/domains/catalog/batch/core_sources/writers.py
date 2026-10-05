@@ -15,6 +15,7 @@ import re
 import time
 import zipfile
 from collections import OrderedDict, defaultdict, deque
+from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from importlib import import_module
@@ -105,14 +106,31 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 __OWNER_BOUND_PROXIES: dict[str, Any] = {}
+_COMPATIBILITY_OVERRIDES: ContextVar[dict[str, Any] | None] = ContextVar(
+    f"{__name__}.compatibility_overrides", default=None
+)
 
 
 def __resolve_implementation_dependency(name: str, owner: str) -> Any:
     """Resolve a split-module dependency without facade-global injection."""
+    if owner == __name__.rsplit(".", maxsplit=1)[-1]:
+        compatibility_overrides = _COMPATIBILITY_OVERRIDES.get()
+        if compatibility_overrides is not None and name in compatibility_overrides:
+            return compatibility_overrides[name]
+        override = globals().get(name)
+        if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
+            return override
+        if name in globals():
+            return globals()[name]
+        return getattr(import_module(f"{__package__}.{owner}"), name)
+
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override
     module = import_module(f"{__package__}.{owner}")
+    compatibility_overrides = module._COMPATIBILITY_OVERRIDES.get()
+    if compatibility_overrides is not None and name in compatibility_overrides:
+        return compatibility_overrides[name]
     return getattr(module, name)
 
 
@@ -954,7 +972,9 @@ async def _legacy_ingest_observations(db_path: Path) -> CoreSourcesIngestStats:
                         )
                         _merge_observation_stats(
                             stats,
-                            _insert_generic_observations(
+                            __resolve_implementation_dependency(
+                                "_insert_generic_observations", "writers"
+                            )(
                                 con=con,
                                 plan=ObservationPlan(
                                     dataset_id="WB_WGI",
@@ -989,7 +1009,9 @@ async def _legacy_ingest_observations(db_path: Path) -> CoreSourcesIngestStats:
                         )
                         _merge_observation_stats(
                             stats,
-                            _insert_generic_observations(
+                            __resolve_implementation_dependency(
+                                "_insert_generic_observations", "writers"
+                            )(
                                 con=con,
                                 plan=ObservationPlan(
                                     dataset_id="WB_WDI",
@@ -1035,7 +1057,9 @@ async def _legacy_ingest_observations(db_path: Path) -> CoreSourcesIngestStats:
                             continue
                         _merge_observation_stats(
                             stats,
-                            _insert_generic_observations(
+                            __resolve_implementation_dependency(
+                                "_insert_generic_observations", "writers"
+                            )(
                                 con=con,
                                 plan=ObservationPlan(
                                     dataset_id="WVS_W7",

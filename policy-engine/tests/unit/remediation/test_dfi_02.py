@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import asyncio
 
-from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
-from polisyos.data_forge.domains.catalog.batch.core_sources import api, loaders, transformers
+from polisyos.data_forge.domains.catalog.batch import pipeline
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     CoreSourcesIngestStats,
 )
-from polisyos.data_forge.domains.catalog.batch import pipeline
+from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+from polisyos.data_forge.domains.catalog.batch.core_sources import api, loaders, transformers
 from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
 
 
@@ -94,9 +94,74 @@ def test_facade_override_is_scoped_to_supported_loader_binding(monkeypatch) -> N
     from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
 
     original = transformers._to_iso3
-    replacement = lambda _country: "BOUND"
+
+    def replacement(_country: str) -> str:
+        return "BOUND"
+
     monkeypatch.setattr(facade, "_to_iso3", replacement)
 
     assert facade._bulk_country_values("ilo", ("UA",)) == ["BOUND"]
 
+    assert transformers._to_iso3 is original
+
+
+def test_concurrent_facade_overrides_are_isolated_per_ingest(monkeypatch, tmp_path) -> None:
+    from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
+
+    original = transformers._to_iso3
+    entered_a = asyncio.Event()
+    entered_b = asyncio.Event()
+    sampled_a = asyncio.Event()
+    release_a = asyncio.Event()
+    sampled_b = asyncio.Event()
+    release_b = asyncio.Event()
+    results: dict[str, list[str]] = {}
+
+    async def _controlled_ingest(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
+        label = config.snapshot_root.name
+        if label == "a":
+            entered_a.set()
+            await asyncio.wait_for(entered_b.wait(), timeout=5)
+        else:
+            entered_b.set()
+            await asyncio.wait_for(sampled_a.wait(), timeout=5)
+
+        results[label] = loaders._bulk_country_values("ilo", ("UA",))
+        if label == "a":
+            sampled_a.set()
+            await asyncio.wait_for(release_a.wait(), timeout=5)
+        else:
+            sampled_b.set()
+            await asyncio.wait_for(release_b.wait(), timeout=5)
+        return CoreSourcesIngestStats()
+
+    async def _exercise() -> None:
+        monkeypatch.setattr(facade, "_run_core_sources_ingest_async", _controlled_ingest)
+        monkeypatch.setattr(facade, "_to_iso3", lambda _country: "A")
+        config_a = DatasetBatchConfig(
+            snapshot_root=tmp_path / "a",
+            stages=frozenset({"core_sources_ingest"}),
+        )
+        task_a = asyncio.create_task(facade.run_core_sources_ingest_async(config_a))
+        await asyncio.wait_for(entered_a.wait(), timeout=5)
+
+        monkeypatch.setattr(facade, "_to_iso3", lambda _country: "B")
+        config_b = DatasetBatchConfig(
+            snapshot_root=tmp_path / "b",
+            stages=frozenset({"core_sources_ingest"}),
+        )
+        task_b = asyncio.create_task(facade.run_core_sources_ingest_async(config_b))
+        await asyncio.wait_for(sampled_b.wait(), timeout=5)
+
+        release_a.set()
+        await task_a
+        release_b.set()
+        await task_b
+
+    try:
+        asyncio.run(_exercise())
+    finally:
+        monkeypatch.setattr(transformers, "_to_iso3", original)
+
+    assert results == {"a": ["A"], "b": ["B"]}
     assert transformers._to_iso3 is original

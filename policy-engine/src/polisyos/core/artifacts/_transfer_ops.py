@@ -7,6 +7,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import tarfile
 import tempfile
 from contextlib import suppress
@@ -276,6 +277,17 @@ def _publish_directory_generation(staging_root: Path, target: Path) -> None:
         raise
     if previous_root.exists():
         shutil.rmtree(previous_root, ignore_errors=True)
+
+
+def _archive_output_mode(target: Path) -> int | None:
+    """Admit a missing or regular output entry without following an alias."""
+    try:
+        status = target.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(status.st_mode):
+        raise ValueError(f"Export archive target must be a regular file: {target}")
+    return stat.S_IMODE(status.st_mode)
 
 
 def _publish_archive_generation(staging_path: Path, target: Path) -> None:
@@ -553,7 +565,7 @@ def export_subgraph(
     if compress:
         archive_path = normalize_archive_path(target)
         archive_path.parent.mkdir(parents=True, exist_ok=True)
-        previous_mode = archive_path.stat().st_mode & 0o7777 if archive_path.exists() else None
+        previous_mode = _archive_output_mode(archive_path)
         staging_root = Path(
             tempfile.mkdtemp(prefix=f".{archive_path.name}.staging-", dir=archive_path.parent)
         )

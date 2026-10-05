@@ -56,6 +56,17 @@ Interrupted publication uses a durable pending intent. Affected reads raise
 `ArtifactTransactionPendingError` until an exact retry reconciles bytes and
 claims; the importer does not promise one transaction for an entire archive.
 
+## Archive output entries
+
+Compressed exports accept a missing output entry or an existing regular file.
+They reject a symlink, including a dangling link, and nonregular entries before
+creating a private archive stage. Refusal preserves the supplied entry and any
+existing referent package. A regular replacement retains the existing file mode;
+publication still closes and syncs the archive before replacement, then syncs its
+parent directory. A parent sync failure reports published bytes with unconfirmed
+durability. This entry check does not promise parent-path isolation, protection
+against hostile concurrent path swaps, or preservation of owner and ACL metadata.
+
 ## Current State
 
 - Last updated: 2026-06-16

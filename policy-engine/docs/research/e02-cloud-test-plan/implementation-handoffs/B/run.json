@@ -2386,5 +2386,13 @@
         "bytes": 569
       }
     ]
+  },
+  "canonical_finding_locator_qualification": {
+    "effective_canonical_finding": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+    "qualification_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-canonical-locator-qualification.json",
+    "qualification_sha256": "36f21986055e6743cf26400ac2c50ed5d797b2dff59b65170addb346f32c1ef9",
+    "captured_review_sha256": "6ef8d5e659ef6d3d1b782d9238636c87ee4cc8406e6e4e2c40bb45f3441e87f4",
+    "historical_occurrence_count": 3,
+    "resolution": "Current effective locator qualifies only the enumerated historical metadata fields; captured source/runtime evidence bytes and grades unchanged."
   }
 }

@@ -1,0 +1,18 @@
+target_sha=86584ad12436b10153efcf955e3eb7da3bdbc26d
+...........                                                              [100%]
+=============================== warnings summary ===============================
+../../../workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+11 passed, 1 warning in 5.67s
+candidate_test_exit=0
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+malformed_base '{}' error ValueError RL checkpoint base state is invalid unchanged True
+malformed_base '[]' error AttributeError 'list' object has no attribute 'get' unchanged True
+malformed_base 'null' error AttributeError 'NoneType' object has no attribute 'get' unchanged True
+malformed_base '{"model_state":null}' error ValueError RL checkpoint base state is invalid unchanged True
+malformed_base '{"strategy_name":"RandomSearchStrategy","iteration":0,"rng_state":{},"model_state":null,"metadata":{}}' error ValueError Python random state is missing unchanged True
+direct_probe_exit=0

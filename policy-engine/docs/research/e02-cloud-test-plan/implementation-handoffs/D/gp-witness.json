@@ -16,9 +16,10 @@
     "c961ba89f127964559ac5c71ab0130243f5cb4bf",
     "052e763253580519d5913a92ad5ccc9a1989e7e3",
     "26c049225d0bff0ff3a9922a7363818011d6324a",
-    "eadbc690ede2c3e183c8c781550d6f682e5323b3"
+    "eadbc690ede2c3e183c8c781550d6f682e5323b3",
+    "b672ea64022f5713338f015b4b530cf65e17241c"
   ],
-  "candidate_tree_sha": "03c3588c3f909ce841165f48339802b387d38522",
+  "candidate_tree_sha": "2be3c296b4825c85c7e05c6a0da1c92d14bd563b",
   "branch": "codex/e02-D-gp-witness",
   "pull_request": null,
   "changed_paths": [
@@ -31,7 +32,9 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-replay-locked.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-legacy-admission-locked.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-replay-latest.txt",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-legacy-admission-latest.txt"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-legacy-admission-latest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-latest.txt"
   ],
   "baseline_cells": [
     "F02-P095",
@@ -234,6 +237,50 @@
       "outcome": "PASS",
       "exit_code": 0,
       "output": "1 file already formatted\nAll checks passed!"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -k future_refit_clock -vv --tb=short --log-cli-level=WARNING",
+      "target_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.7",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "input_closure": "real fitted8 GP fixture; previous4 refusal variants plus positive last_train_size1 incompatible with8row corpus; no claim marker equality suffices; prior direct trap probe shows admitted continuation full-refits",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "passed": 4,
+      "failed": 1,
+      "deselected": 9,
+      "skipped": 0,
+      "pytest_wall_s": 6.39,
+      "wall_s": 9.548540089000198,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-locked.txt",
+      "output_sha256": "f5f6767afc0f357be91d3e3c0d22332b670d43076ec95572d4c6b9d6e727c6ac"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-fce2a4c/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -k future_refit_clock -vv --tb=short --log-cli-level=WARNING",
+      "target_sha": "fce2a4cdb7c54613e6f55e9901b9d15479d176db",
+      "test_sha": "b672ea64022f5713338f015b4b530cf65e17241c",
+      "environment": {
+        "python": "3.14.2",
+        "torch": "2.14.1+cu130",
+        "botorch": "0.18.1",
+        "gpytorch": "1.15.2"
+      },
+      "input_closure": "real fitted8 GP fixture; previous4 refusal variants plus positive last_train_size1 incompatible with8row corpus; no claim marker equality suffices; prior direct trap probe shows admitted continuation full-refits",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "passed": 4,
+      "failed": 1,
+      "deselected": 9,
+      "skipped": 0,
+      "pytest_wall_s": 6.62,
+      "wall_s": 10.607255672000065,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-growth-counter-latest.txt",
+      "output_sha256": "49e9fa03a78f6b4acd3d96b36b696a9989af699e2a20b676eee7c592b5ec37c8"
     }
   ],
   "property": {
@@ -257,7 +304,7 @@
     "refusal_basis": "Future refit_iteration999999, changed acquisition policy, absent/None acquisition basis and checkpoint_version0 all refuse before model/Python RNG/localTorch RNG/iteration mutate."
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "BOUNDed PASS on exact fce2a4c: full11 numerical+intrinsic tests plus focused4 admission cases (13 unique union) in both actual CPU backends; no skips. B114/B115 and CTL-02 bounded continuation witness, no full finding closure or production-history claim.",
+  "capability_state_or_finding_state": "PARTIAL on exactfce2a4c: bounded numerical/intrinsic replay and4 atomic legacy/future refusals PASS in both backends; positive growth-counter corruption last_train_size1/fitted8 still admitted (focused4PASS1FAIL both). No finding closure.",
   "findings": [
     {
       "ids": [
@@ -292,10 +339,21 @@
       "bucket": "same persisted next-action state-completeness class P40, intersects CTL-02",
       "actual": "Earlier numerical asks were compared under caller reseeding; default BoTorch initializer consumes global randomness beyond options.seed, so saved instance Torch RNG alone did not establish actual replay.",
       "verification": "Exact fce2a4c own seeded/stably ranked restart policy and seeded qEI sampler exercise single/batch/single actual asks without external reseed; external global draws ignored, own state consumed/preserved, global state unchanged, removal negative discriminates."
+    },
+    {
+      "ids": [
+        "B114",
+        "B115"
+      ],
+      "bucket": "same refit schedule/corpus state-completeness class P40 widened during admission review",
+      "actual": "Real fitted8 checkpoint admits positive last_train_size1; same-corpus continuation sees8>1*1.2 and calls forbidden full GP refit despite saved numerical model/corpus markers.",
+      "verification": "Both actual backends focused5 admission tests4PASS1FAIL; direct actual no-refit trap confirms continuation consequence.",
+      "next_owner": "search_owner; admit only feasible last-full-fit size relative to fitted corpus under current growth refit schedule; preserve legitimate conditioned9/full8 checkpoint."
     }
   ],
   "reviewer": "gp_witness independent numerical, intrinsic replay and state-admission reviewer; production GP authored by search_owner",
   "limitations_and_next_owner": [
+    "Await exact search_owner correction SHA for positive growth-counter/corpus invariant, then rerun unchanged full14 witness in both actual backends. Earlier13 unique PASS union remains bounded evidence, not global admission closure.",
     "Full11 tests ran at26c049225; focused4 atomic-refusal cases ran at eadbc690 (two extra legacy variants only). Their union13 unique tests passed in each backend; no claim of one full13 pytest execution.",
     "Bounded sequential CPU1D8-9-point numerical and batch2 witness only. Production history source admission/context semantics and transfer bridge not established here; transfer_owner owns bridge workflow.",
     "GPU execution and other backend versions unrun; missing optional backend is never PASS. Cross-version backend identity mismatch is intentionally refused, not migrated.",

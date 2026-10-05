@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "finding_ids": [
+    "B14",
+    "B40"
+  ],
+  "reviewer": "adapters_probe, independent read-only",
+  "target_sha": "6c2cab488368932479677bc036ffad25657c0367",
+  "target_tree_sha": "9ab42758250e3c2f34f41bb5abc0d07d269b17f8",
+  "module": "/workspace/e02-B-run-review-candidate/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+  "module_sha256": "1be5359cc7a17818d362b5b6af9f270b45813b5e0223084f825e2c042118ab3c",
+  "source_boundaries": {
+    "thread_async": "/workspace/e02-B-run-review-candidate/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:1483",
+    "timed_wait": "/workspace/e02-B-run-review-candidate/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:1501",
+    "sync_control": "/workspace/e02-B-run-review-candidate/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:933"
+  },
+  "command": "PYTHONPATH=/workspace/e02-B-run-review-candidate/policy-engine/src:/workspace/e02-B-run-review-candidate/policy-engine/product:/workspace/e02-B-run-review-candidate/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-run-queued-review.py /tmp/e02-run-queued-6c-evidence 6c2cab488368932479677bc036ffad25657c0367",
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cwd": "/workspace/e02-B-adapters",
+    "data": "isolated synthetic actual-node filesystem writes; no production data, DB, ports or services",
+    "input_closure": "fresh empty evidence directory + gated actual repository _SharedExecutor(max_workers=4) deliberately saturated by4 started blockers; exact6c node timeout functions. Local monkeypatch selects real thread route and isolated executor; no source edits."
+  },
+  "outcome": "FAIL",
+  "deciding_output": "5 cases:3PASS/2FAIL. async queued deadline and caller cancellation physically execute node after boundary; sync queued deadline never starts; running thread controls physically continue as bounded limitation. Owned ctx.store writes denied by revocation in all5 cases.",
+  "output_refs": {
+    "/tmp/e02-run-queued-review.py": "81bc54f522e2a40ffd432d21eebc783561c21f6bf7a68c4665b13e26ce0330a1",
+    "/tmp/e02-run-queued-6c.log": "9c2e456766955e88bb513fd8946eb042a734fd7bfe3b6fb8eb9ecbfdb49ff23c",
+    "/tmp/e02-run-queued-6c-evidence/observations.json": "e9f07f9e92915f307824823013837d19e0f69cba47995f9c862c9f0c255a2ae1"
+  },
+  "observations": [
+    {
+      "mode": "sync",
+      "termination": "deadline",
+      "was_running_at_boundary": false,
+      "terminal": "NodeTimeoutError",
+      "unstarted_at_boundary": true,
+      "outstanding_before_release": 4,
+      "physically_executed_after_boundary": false,
+      "physical_events": [],
+      "physical_file": "/tmp/e02-run-queued-6c-evidence/sync-deadline-queued.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": true,
+      "pass": true
+    },
+    {
+      "mode": "async",
+      "termination": "deadline",
+      "was_running_at_boundary": false,
+      "terminal": "NodeTimeoutError",
+      "unstarted_at_boundary": true,
+      "outstanding_before_release": 5,
+      "physically_executed_after_boundary": true,
+      "physical_events": [
+        {
+          "event": "physical_execute",
+          "monotonic": 4868.299836803
+        },
+        {
+          "event": "physical_finish",
+          "monotonic": 4868.299928105
+        }
+      ],
+      "physical_file": "/tmp/e02-run-queued-6c-evidence/async-deadline-queued.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": true,
+      "pass": false
+    },
+    {
+      "mode": "async",
+      "termination": "caller-cancel",
+      "was_running_at_boundary": false,
+      "terminal": "CancelledError",
+      "unstarted_at_boundary": true,
+      "outstanding_before_release": 5,
+      "physically_executed_after_boundary": true,
+      "physical_events": [
+        {
+          "event": "physical_execute",
+          "monotonic": 4868.301686806
+        },
+        {
+          "event": "physical_finish",
+          "monotonic": 4868.301817381
+        }
+      ],
+      "physical_file": "/tmp/e02-run-queued-6c-evidence/async-caller-cancel-queued.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": true,
+      "pass": false
+    },
+    {
+      "mode": "async",
+      "termination": "deadline",
+      "was_running_at_boundary": true,
+      "terminal": "NodeTimeoutError",
+      "unstarted_at_boundary": false,
+      "outstanding_before_release": 1,
+      "physically_executed_after_boundary": true,
+      "physical_events": [
+        {
+          "event": "physical_execute",
+          "monotonic": 4868.302448553
+        },
+        {
+          "event": "physical_finish",
+          "monotonic": 4868.352721953
+        }
+      ],
+      "physical_file": "/tmp/e02-run-queued-6c-evidence/async-deadline-running.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": false,
+      "pass": true
+    },
+    {
+      "mode": "async",
+      "termination": "caller-cancel",
+      "was_running_at_boundary": true,
+      "terminal": "CancelledError",
+      "unstarted_at_boundary": false,
+      "outstanding_before_release": 1,
+      "physically_executed_after_boundary": true,
+      "physical_events": [
+        {
+          "event": "physical_execute",
+          "monotonic": 4868.353549884
+        },
+        {
+          "event": "physical_finish",
+          "monotonic": 4868.353729963
+        }
+      ],
+      "physical_file": "/tmp/e02-run-queued-6c-evidence/async-caller-cancel-running.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": false,
+      "pass": true
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "decision": "blocking avoidable queued-start ownership escape on6c; classification-only prior review does not establish this invariant",
+  "next_owner": "RUN author: retain underlying concurrent Future and cancel pending job synchronously for thread-only expiry/cancellation. Validate no future-wrapper callback forwarding race; keep genuineasync task semantics and declared running-thread limitation. Repeat same oracle on next frozen candidate; publish full moderate driver/outputs."
+}

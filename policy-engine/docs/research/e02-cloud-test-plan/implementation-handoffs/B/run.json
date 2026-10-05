@@ -16,16 +16,181 @@
     "3e95056bca6d0c15ab7778573172491628f48596",
     "ba79d141a3937541b3164db255ceda89883575ec",
     "ec8d20c76b49ab00fc72094982447c02001d3036",
-    "6c2cab488368932479677bc036ffad25657c0367"
+    "6c2cab488368932479677bc036ffad25657c0367",
+    "dfd31e978f11b4b801f5c8bb4a14747a0b25df26",
+    "0cf61d9234580819a1a27ff441266a026d8f6049",
+    "4a68d5345ceca69a6148af082f59ae27372865de"
   ],
-  "candidate_tree_sha": "9ab42758250e3c2f34f41bb5abc0d07d269b17f8",
+  "candidate_tree_sha": "b5ec67fdc834099180485d0430ad78a725d1f9cc",
   "branch": "codex/e02-B-run",
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/33",
   "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__raised-invalid.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__actual-deadline.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/full.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/observations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__raised-invalid.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/B39-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/full.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/native.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/observations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/probe.py",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
     "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-owned-process-cleanup.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-queued-thread-cancellation.toml",
     "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-retry-error-identity.toml",
     "policy-engine/src/polisyos/common/README.md",
     "policy-engine/src/polisyos/common/async_tools.py",
@@ -502,6 +667,53 @@
       "wall_s": 27.56026122200001,
       "max_rss_kib": 575448,
       "output": "........................................................................ [ 60%]\n................................................                         [100%]\n=============================== warnings summary ===============================\ntests/unit/scientist/orchestration/engine/test_retry.py: 50 warnings\ntests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning\n  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=30959) is multi-threaded, use of fork() may lead to deadlocks in the child.\n    self.pid = os.fork()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n120 passed, 51 warnings in 22.72s\n"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/remediation/test_run_03.py",
+        "tests/unit/scientist/orchestration/engine/test_retry_integration.py"
+      ],
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "real Linux fork/subprocess descendants and isolated pytest tmp_path files; no ports, DB or external services"
+      },
+      "target_sha": "4a68d5345ceca69a6148af082f59ae27372865de",
+      "target_tree": "b5ec67fdc834099180485d0430ad78a725d1f9cc",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 27.552604329999667,
+      "max_rss_kib": 575452,
+      "output": "........................................................................ [ 59%]\n..................................................                       [100%]\n=============================== warnings summary ===============================\ntests/unit/scientist/orchestration/engine/test_retry.py: 50 warnings\ntests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning\n  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=40750) is multi-threaded, use of fork() may lead to deadlocks in the child.\n    self.pid = os.fork()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n122 passed, 51 warnings in 22.75s\n"
     }
   ],
   "property": {
@@ -522,7 +734,7 @@
     ]
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "bounded LA-057/B69/Linux process/B95/retry identity properties verified; B14/B40 broader residuals explicit; no finding closure self-minted",
+  "capability_state_or_finding_state": "Bounded bridge/typevar/Linux process/context/retry identity and queued-thread properties verified. B14/B40 served-worker/total-deadline and running external-effects residuals remain explicit; no closure self-minted.",
   "pattern_pass": [
     "P29 runtime+removal discriminator",
     "P31 shared executor admission chokepoint",
@@ -534,11 +746,11 @@
     {
       "finding_id": "B14",
       "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
-      "state": "bounded_process_late_write_verified_with_served_worker_residual",
-      "scope_and_limitations": "Linux owned child/grandchild and escaped group are terminated/reaped, actual delayed filesystem write cannot occur; context-owned late-write tests pass. Arbitrary noncooperative thread/coroutine/served worker cancellation and completed external effects remain outside this bounded process contract.",
+      "state": "bounded_process_and_queued_thread_refusal_verified_with_served_worker_residual",
+      "scope_and_limitations": "Linux owned descendants/grandchildren/new-session tree are killed and reaped; unstarted async-thread job is synchronously cancelled on timeout or caller cancellation and cannot execute a raw file write after same-turn pool release. Already running arbitrary thread/coroutine/served-worker effects and completed external effects remain outside the bounded contract.",
       "next_owner": "B runtime worker owner; A served lifecycle consumer",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"late or timeout\"",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "4a68d5345ceca69a6148af082f59ae27372865de"
     },
     {
       "finding_id": "B24",
@@ -547,7 +759,7 @@
       "scope_and_limitations": "Actual small/1MiB sync+async fork transport, compute cutoff, send/serialization/start/setup faults, descendants/grandchildren and cancellation pass. Same original descendant input fails when supervisor ownership is removed. macOS/native non-Linux reaping remains local G; caller multithread-fork warning is explicit.",
       "next_owner": "G independent Linux acceptance and local macOS exact candidate",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"fork_transport or serialization_failure or descendant or worker_send\"",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "4a68d5345ceca69a6148af082f59ae27372865de"
     },
     {
       "finding_id": "B39",
@@ -556,16 +768,16 @@
       "scope_and_limitations": "Original category/code survives real sync+async fork IPC: permanent return/raise1, validation/contract failures terminal, explicit transient ValueError and custom policy codes obey policy. Immediate provider TimeoutError retries across direct/thread/fork/genuineasync, actual thread/async-thread/genuineasync expiry is terminal1. Writer120 and independent reviewer47 are separate matrices. External effects, arbitrary engine-specific control signals and broader serialization formats remain outside this bounded private transport contract.",
       "next_owner": "G independent bounded admission; external-action owner for idempotency",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"fork_permanent_error_shape or fork_exception_preserves or provider_timeout or wrapper_expiration\"",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "4a68d5345ceca69a6148af082f59ae27372865de"
     },
     {
       "finding_id": "B40",
       "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
       "state": "mechanism_gap_unfixed",
-      "scope_and_limitations": "Untimed synchronous node async delegate still resolves shared helper default while direct sync has no helper deadline. Timed async-thread now owns one Future and includes its queue wait, but total workflow nested queue/init/attempt deadline and arbitrary late writes remain unclosed.",
+      "scope_and_limitations": "Timed async-thread owns one real Future and cancels unstarted compute before refusal; queue admission no longer escapes. Untimed sync-node async delegate still resolves shared helper default while direct sync has no helper deadline; total workflow queue/init/attempt deadline and arbitrary running late effects remain unclosed.",
       "next_owner": "B deadline owner with A top-level producer/served consumer",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/common/test_async_tools.py",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "4a68d5345ceca69a6148af082f59ae27372865de"
     },
     {
       "finding_id": "B69",
@@ -574,7 +786,7 @@
       "scope_and_limitations": "At actual pool bound4 nested bridge work returns42 or explicit RuntimeError before unsupported submission; all coroutine finally paths complete and later direct work executes. Property removal with same names/types/inputs makes discriminator fail. Capacity-free nested consumers are preserved. Arbitrary user callbacks/noncooperative external work are not a general deadlock-free runtime proof.",
       "next_owner": "G independent acceptance; C consumer if unsupported nested route needs async continuation",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py::test_nested_shared_executor_work_is_rejected_before_pool_saturation tests/unit/common/test_async_tools.py::test_cooperative_timeout_releases_shared_coroutine_worker tests/unit/fabric/data_plane/test_orchestrator.py",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "4a68d5345ceca69a6148af082f59ae27372865de"
     },
     {
       "finding_id": "B95",
@@ -583,7 +795,7 @@
       "scope_and_limitations": "Two distinct concurrent requests preserve actual ContextVar request-A/request-B through direct sync, forced real thread fallback, Linux fork supervisor and genuine async nodes; outer context restores and original state remains unchanged. This proves propagation, not authorization/tenant authority; non-Linux launch remains local G.",
       "next_owner": "G independent bounded propagation acceptance; local G non-Linux process",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py::test_concurrent_request_contexts_match_across_retry_routes",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "4a68d5345ceca69a6148af082f59ae27372865de"
     },
     {
       "finding_id": "B96",
@@ -592,7 +804,7 @@
       "scope_and_limitations": "Existing mutation-to-returned-fail fresh baseline and real trace spend controls pass; raised mutation, cancellation, declared checkpoint continuation and full workflow external effects remain bounded.",
       "next_owner": "G regression/admission; B continuation-contract owner",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "4a68d5345ceca69a6148af082f59ae27372865de"
     },
     {
       "finding_id": "LA-057",
@@ -601,7 +813,7 @@
       "scope_and_limitations": "Only stale module T/TypeVar removed. All four local generic identities and real helper bodies preserved; complete tracked Python/config caller census retained in run-typevar receipt. External opaque dynamic callers and packaging not established.",
       "next_owner": "G typecheck/package scope decision",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py::test_function_type_parameters_resolve_without_module_typevar",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "4a68d5345ceca69a6148af082f59ae27372865de"
     }
   ],
   "limitations_and_next_owner": [
@@ -609,18 +821,20 @@
     "A: whole served-worker/current-write and total lifecycle deadlines still require A-owned generation_cycle.py/run_lifecycle.py contracts; files untouched.",
     "B40: untimed synchronous node through async delegate still uses shared helper default; total workflow queue/startup/attempt deadline is separate. Timed async-thread attempt now includes its one queue wait.",
     "Thread and coroutine cancellation remains cooperative; external side-effect idempotency/rollback/checkpoint continuation is not proved by retry classification.",
-    "Shared serializer and C streaming source untouched. Full production dataset unnecessary for generic retry/process input."
+    "Shared serializer and C streaming source untouched. Full production dataset unnecessary for generic retry/process input.",
+    "This new slice closes only queued/unstarted thread admission; root/genuineasync shielding and common async bridge sources stay unchanged. Same-turn actual release verifies no deferred asyncio cancellation proxy."
   ],
   "receipt_corrections": [
     "Full slice-base-to-last-implementation footprint includes earlier run-typevar evidence companion.",
     "Property-removal shell command now contains executable multiline Python source.",
     "Production invocation scanner ran and exited3 with UNRESOLVED/partial instrument status; it was not UNRUN."
   ],
-  "latest_checkpoint_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+  "latest_checkpoint_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
   "checkpoint_receipts": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json"
   ],
   "source_and_residual_refs": {
     "canonical_cards_source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
@@ -1440,10 +1654,93 @@
   "publication": {
     "branch": "codex/e02-B-run",
     "verified_remote_head_before_pr": "9a509ccf3b1c1274a6df14c8be06dd57cb4ce70a",
-    "source_implementation_sha": "6c2cab488368932479677bc036ffad25657c0367",
+    "source_implementation_sha": "4a68d5345ceca69a6148af082f59ae27372865de",
     "pr": "https://github.com/DenisKopylov/polisyos/pull/33",
     "pr_state": "draft; no merge/main push/history rewrite",
     "hook_validation": "Installed own ignored frontend dependencies with frozen lockfile; pre-commit and pre-push hooks executed normally; frontend typecheck passed.",
-    "app_attachment": "Child app attach tool was called but did not return; bounded orchestration cell terminated, root app attachment requested separately."
+    "app_attachment": "Root confirmed native app attachment success."
+  },
+  "independent_queued_review": {
+    "reviewer": "/root/adapters_probe (read-only immutable source)",
+    "candidate_sha": "4a68d5345ceca69a6148af082f59ae27372865de",
+    "candidate_tree_sha": "b5ec67fdc834099180485d0430ad78a725d1f9cc",
+    "result": "Unchanged independent5-case driver:6c baseline3PASS/2FAIL,4a candidate5PASS/0FAIL; physical execution/raw-write/store outputs retained. Already running thread effects remain the declared limitation.",
+    "source_verification": "Reviewer verified actual retry source SHA256 against4a commit before/after; supervisor/sharedwaiter/genuineasync path byte-identical to6c.",
+    "receipt_sha256": "e7ed94229117c1f2fcb7bbc53e720988aa27d5206b11ac13aaa12fd3aaf97e08",
+    "artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-caller-cancel-queued.physical",
+        "sha256": "b6e2c3ec3f45f139f5775606eea5f79cf82a645d4150964cb448c56258232f3a",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-caller-cancel-running.physical",
+        "sha256": "1d742cc249eee004baa1ceff72d8651184940343db0b4afd5434ece46dd00882",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-deadline-queued.physical",
+        "sha256": "225ef8faf120435d3d7b06bb2b2d5011a14d0c8c216190fc0650b22596a32773",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-deadline-running.physical",
+        "sha256": "ad077f9c67921464ef693be1c3917e346f8bc531c8d693d90e282bc34ea9973e",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/observations.json",
+        "sha256": "e9f07f9e92915f307824823013837d19e0f69cba47995f9c862c9f0c255a2ae1",
+        "bytes": 3687
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base-independent-review.json",
+        "sha256": "27964f85cc5a152c5344420c684ac34c2c0ebcf296bfb7a355c2ef0d1e34348a",
+        "bytes": 6383
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base.log",
+        "sha256": "9c2e456766955e88bb513fd8946eb042a734fd7bfe3b6fb8eb9ecbfdb49ff23c",
+        "bytes": 2715
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/async-caller-cancel-running.physical",
+        "sha256": "e1f416b584245d1ecad8f291ccef9b8305aae8cb5dab00cd3f8513597028dd16",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/async-deadline-running.physical",
+        "sha256": "43dee42a5bbf796c6a67410b3d57a65e89cea7150866651996a39be0cbf0a32a",
+        "bytes": 116
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/observations.json",
+        "sha256": "c29f9a8e88eb0840d6ad6da400cefe0d85dab387669beaa792bebd48dfa14e06",
+        "bytes": 3267
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate-independent-review.json",
+        "sha256": "e7ed94229117c1f2fcb7bbc53e720988aa27d5206b11ac13aaa12fd3aaf97e08",
+        "bytes": 8303
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate.log",
+        "sha256": "4c9f7db764ae39ce2971ae0b83d8b65c1b497127eb457c36cfb4c84d94b82c29",
+        "bytes": 2463
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/probe.py",
+        "sha256": "81bc54f522e2a40ffd432d21eebc783561c21f6bf7a68c4665b13e26ce0330a1",
+        "bytes": 5237
+      }
+    ]
+  },
+  "local_g_candidate": {
+    "sha": "4a68d5345ceca69a6148af082f59ae27372865de",
+    "branch": "codex/e02-B-run",
+    "cwd": "policy-engine",
+    "command": "PYTHONPATH=src:. .venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+    "required_environment_receipt": "record actual macOS/Python/installed libraries + conftest/lock/config identity; Linux-only supervisor controls are platform limited and not macOS evidence",
+    "dataset": "not required for these generic fixtures"
   }
 }

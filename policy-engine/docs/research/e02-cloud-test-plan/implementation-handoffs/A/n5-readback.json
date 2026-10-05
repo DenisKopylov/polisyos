@@ -1,0 +1,95 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "n5-readback",
+  "closure_ids": ["B04"],
+  "bundle_ids": ["CYC-02"],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "cb608bf35a13dd816a8e3cfb4fbb68d044a48f42",
+    "53f6d51f1db9995ca26c19c1c462a3891622c877"
+  ],
+  "candidate_tree_sha": "11fa6cc5ea7924138c38337e8cbc2f0f82efccaa",
+  "branch": "codex/e02-A-n5-readback",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/remediation/test_cyc_02.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F08-P067",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "finding": "B04",
+      "state": "FAILED",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt:398",
+      "limitation": "Historical source-reported route only; raw archives_received=0, so this is not a c40 candidate verdict."
+    }
+  ],
+  "checks": [
+    {
+      "command": "cd policy-engine && env JAX_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 JAX_PLATFORM_NAME=cpu XLA_FLAGS='--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1' PYTHONPATH=<candidate-policy-engine>/src <Python-3.14.3-venv>/bin/python -m pytest -q tests/unit/remediation/test_cyc_02.py::test_n5_result_reopens_and_n8_consumes_it_across_processes",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "macOS arm64; /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python; Python 3.14.3; numerical thread variables all 1; JAX CPU",
+      "input_closure": "Real _cyc01_owner_bound_n5_case through JointSimulationPort and JointSimulationHorizonController, isolated tmp FileSystemCAS; producer child exits before consumer child constructs a new FileSystemCAS. The candidate generation_cycle.py module path and Python version are asserted inside both processes. No production data is used.",
+      "outcome": "FAIL",
+      "output": "Expected semantic RED on c40 source: missing result, foreign WMR, and altered blob were blocked; N8 returned value_conditional for a changed sibling simulation_ref, a receipt-valid trajectory identity that differs from the sole selected EngineDecision, and a receipt whose engine_kind differs from the sole selected EngineDecision. Full output: /Users/deniskopylov/.codex/worktrees/e02-a-n5-readback/polisyos/_build/e02-A-custody/a_w01_queue/n5-readback-red-rerun.log@sha256:011629b085ad96c528ad19c1cabe8472f650e4fac9dc778d962a8715f7c4e2c72. This run preceded the final missing-sibling-ref and zero/two-selected controls added in commit 53f6d51; those additions have collection/lint evidence only."
+    },
+    {
+      "command": "cd policy-engine && python -m ruff check tests/unit/remediation/test_cyc_02.py && python -m compileall -q tests/unit/remediation/test_cyc_02.py && PYTHONPATH=<candidate-policy-engine>/src python -m pytest --collect-only -q tests/unit/remediation/test_cyc_02.py::test_k_sim_limitation_remains_a_usable_simulation_input",
+      "target_sha": "53f6d51f1db9995ca26c19c1c462a3891622c877",
+      "environment": "Root A Python 3.14.3 virtual environment; ruff module invocation; candidate source path set explicitly for pytest collection.",
+      "input_closure": "Test file at candidate tree 11fa6cc5; no runtime producer execution (collect-only).",
+      "outcome": "PASS",
+      "output": "All checks passed; tests/unit/remediation/test_cyc_02.py: 1 collected."
+    },
+    {
+      "command": "cd policy-engine && env JAX_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 JAX_PLATFORM_NAME=cpu XLA_FLAGS='--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1' PYTHONPATH=<root-A-policy-engine>/src <Python-3.14.3-venv>/bin/python -m pytest -q tests/unit/remediation/test_cyc_02.py::test_n5_result_reopens_and_n8_consumes_it_across_processes",
+      "target_sha": "e7d034756cb11522c65f602e021fccef5bc6245c",
+      "environment": "Root A-custody checkpoint; Python 3.14.3; numerical thread variables all 1; JAX CPU.",
+      "input_closure": "Root-run target at source checkpoint e7d034756; test file blob d6c3fe6bb14e623738968996cf989444fb49b2fa (same as test implementation commit cb608bf, before the additional eight-line EvalSafety digest assertions in 53f6d51).",
+      "outcome": "PASS",
+      "output": "Independently run by root: 1 passed in 56.66s. Complete output: /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/_build/e02-A-custody/n5-binding/green-target.txt@sha256:bd87ad3ac36974efc1a6e7fa6117d398fed5d7434723b1a93c7a680318b6c441. This is a dependency check on root's source-fix checkpoint, not a GREEN claim for this leaf's final candidate tree."
+    }
+  ],
+  "property": {
+    "statement": "A real N5 result persisted in FileSystemCAS must reopen in a separate process with the same content-bound numeric witness and limitations; N8 may return only a low-grade simulate_only conditional observation after the persisted result, outer simulation digest, WMR, atom/outcome bindings, and selected-engine identities agree.",
+    "runtime_path": [
+      "JointSimulationPort invokes JointSimulationHorizonController and persists JointSimulationResult",
+      "FileSystemCAS manifest and canonical result bytes, addressed by full CASArtifactRef including manifest profile",
+      "SimulationPortObservation carries simulation_result_ref and sibling simulation_ref into the cycle",
+      "_DefaultSimulationBoundFoundryValuePort invokes _conditional_simulation_value_observation and load_joint_simulation_result",
+      "simulation_evaluation_input_ref is the separate EvalSafety consumer checked for absent and wrong sibling digests"
+    ],
+    "proxy_divergence": "At c40, CAS byte integrity plus a valid content-bound receipt did not imply that the outer SimulationPortObservation described that same result or selected engine. N8 still returned value_conditional if only simulation_ref changed, if a trajectory's engine identity diverged from the sole selected EngineDecision, or if the valid receipt engine diverged. A positive status/number or content receipt alone was therefore a proxy for the intended consumer-binding property.",
+    "negative_controls": [
+      "Absent CAS result artifact",
+      "Foreign WMR content hash",
+      "Altered persisted blob",
+      "Changed sibling simulation_ref digest",
+      "Missing sibling simulation_ref",
+      "Receipt-valid trajectory engine/method/objective identity differing from the one selected EngineDecision",
+      "Receipt-valid receipt.engine_kind differing from the one selected EngineDecision",
+      "Receipt-valid result with zero selected engine decisions",
+      "Receipt-valid result with two selected engine decisions",
+      "Positive K_sim observation must remain value_conditional, simulate_only, low grade, and carry no value or method-selection receipt",
+      "EvalSafety input ref must return None for missing or mismatched sibling digest while accepting the valid persisted input"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B04 remains partial pending integration and exact-candidate acceptance. The leaf contributes a behavioral two-process test and EvalSafety sibling-digest negative; the c40 run is a semantic RED showing the source divergence. The root source fix is a separate dependency, not a source change in this leaf. B05's full downstream authority/action refusal chain and B08's zero/comparator/replication semantics remain partial.",
+  "dependency_commits": [
+    {
+      "commit": "e7d034756cb11522c65f602e021fccef5bc6245c",
+      "branch": "codex/e02-A-custody",
+      "role": "Root-owned shared-consumer source fix for the observed sibling digest and selected-engine binding gaps; dependency only, not present in this leaf candidate tree."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Root owns the shared generation_cycle.py mechanism. Root should cherry-pick test commit 53f6d51 and run the full targeted CYC-02 wave once against the combined immutable candidate; this leaf does not claim GREEN for tree 11fa6cc5.",
+    "ValuePortObservation.value_ref remains only an artifact ID and does not retain the CAS manifest-profile digest; use the full simulation_result_ref carried on the cycle record for reopen identity.",
+    "The physical-run preimage/authenticated execution provenance is unavailable; the test proves persisted content binding and cross-process readback, not independent truth of the model's causal structure or empirical effects.",
+    "K_sim remains candidate simulation-only input, not K_world, empirical evidence, promotion authority, or external action authorization.",
+    "B05 requires broader downstream authority/promotion/action consumer probes; B08 still needs missing/zero/comparator/replication semantics. Keep both partial until their discriminators are exercised.",
+    "Synthetic fixture only; no production dataset or served HTTP route was used."
+  ]
+}

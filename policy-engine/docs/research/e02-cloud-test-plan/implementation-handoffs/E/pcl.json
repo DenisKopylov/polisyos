@@ -266,7 +266,7 @@
       "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
       "input_closure": "All tests in these explicitly selected Python suites; 81 executed calls, 0 failures/errors/skips; native NumPy producer, JSON report readback, real receipt reconciliation, forecast-owner CAS importer.",
       "outcome": "PASS",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-native.log",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-native.txt",
       "wall_s": 17.442,
       "max_rss_kib": 515628
     },
@@ -276,7 +276,7 @@
       "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
       "input_closure": "Isolated copy of exact candidate curve.py with only completeness guard removed; both permutation tests fail with fields/metrics preserved. Wrapper asserts pytest exit 1.",
       "outcome": "PASS",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-removal.log",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-removal.txt",
       "wall_s": 2.541,
       "max_rss_kib": 207812
     },
@@ -286,7 +286,7 @@
       "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
       "input_closure": "Exact git-show curve/continuous source bytes at slice base, actual unchanged native IR; analytic 100-observation fixture. Reproduces baseline gaps, not baseline package success.",
       "outcome": "PASS",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-base-reproduction.log",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-base-reproduction.txt",
       "wall_s": 1.445,
       "max_rss_kib": 159484
     },
@@ -296,7 +296,7 @@
       "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
       "input_closure": "Exact changed source/test files.",
       "outcome": "PASS",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-ruff.log"
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-ruff.txt"
     },
     {
       "command": "PYTHONPATH=src .venv/bin/python -m tools.cli architecture guardrails check",
@@ -304,7 +304,7 @@
       "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
       "input_closure": "Full architecture scan including unchanged repository files; exit 2. No exact slice-base/disjoint full-input proof, so attribution not_established.",
       "outcome": "FAIL",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-architecture.log",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-architecture.txt",
       "wall_s": 237.762,
       "max_rss_kib": 1106044,
       "exit_code": 2,
@@ -317,7 +317,7 @@
       "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
       "input_closure": "Full tracked Python src/tools/tests static scan; final JSON absent, SIGKILL observed. No candidate static or runtime invocation verdict.",
       "outcome": "ERROR",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-invocation.log",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-invocation.txt",
       "wall_s": 183.329,
       "max_rss_kib": 6615936,
       "exit_code": -9,
@@ -426,7 +426,7 @@
     "pnpm_worktree": "10.33.2"
   },
   "development_characterization": {
-    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-property-red.log",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-property-red.txt",
     "source_under_test_sha": "23b3e9447494b3404f004286516377c3632ff947",
     "test_state": "uncommitted characterization tests before property fix; exact standalone baseline reproducer is the portable deciding code-gap witness",
     "outcome": "Observed 16 intended failures before source fix; no historical candidate test-PASS claim."

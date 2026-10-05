@@ -1,0 +1,5 @@
+argv=[".venv/bin/python", "-m", "pytest", "tests/unit/calibration", "tests/unit/scientist/methods/backtesting/test_calibration_curve.py", "tests/unit/ir/analytics/test_calibration_diagnostics_report.py", "tests/unit/remediation/test_frc_02_owner.py", "-q"]
+........................................................................ [ 88%]
+.........                                                                [100%]
+
+wall_s=17.442 max_rss_kib=515628 exit=0

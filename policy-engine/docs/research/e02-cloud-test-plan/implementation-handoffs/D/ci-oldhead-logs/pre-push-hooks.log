@@ -1,0 +1,16 @@
+{"argv": ["npm", "exec", "--yes", "--package=node@22", "--", "policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook", "run", "pre-push", "--no-auto-install"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+╭─────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-push │
+╰─────────────────────────────────╯
+┃  typecheck ❯ 
+
+
+> @polisyos/runtime-dashboard@0.1.0 typecheck /workspace/e02-D-ci-triage/policy-engine/apps/runtime-dashboard
+> tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.tools.json --noEmit
+
+
+                                      
+  ────────────────────────────────────
+summary: (done in 36.76 seconds)      
+✓ typecheck (36.76 seconds)
+{"exit_code": 0, "elapsed_s": 37.214, "max_rss_kib": 1791100}

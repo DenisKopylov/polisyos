@@ -1,0 +1,23 @@
+import concurrent.futures,copy,hashlib,json,pathlib,subprocess,sys
+candidate=sys.argv[1];prefix='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/'
+def gitbytes(path):return subprocess.check_output(['git','show',candidate+':'+prefix+path])
+m=json.loads(gitbytes('ci-oldhead-map.json'));assert m['claims']['predicate_basis']=='independently_reconciled';jobids=[j['job_id'] for j in m['jobs']];assert set(jobids)=={111797145215,111797145328,111797143594,111797143332}
+def read(i):
+ raw=(pathlib.Path(sys.argv[2])/f'{i}.log').read_bytes();metadata=json.loads(subprocess.check_output(['gh','api',f'repos/DenisKopylov/polisyos/actions/jobs/{i}']));e=json.loads(gitbytes(f'ci-oldhead-logs/job-{i}-excerpt.json'));return i,raw,metadata,e
+with concurrent.futures.ThreadPoolExecutor() as executor:received=list(executor.map(read,jobids))
+def validate(items):
+ for i,raw,metadata,e in items:
+  assert metadata['id']==e['job_id']==i;assert metadata['head_sha']==m['head_sha'];assert metadata['conclusion']=='failure';assert hashlib.sha256(raw).hexdigest()==e['source_utf8_sha256'];assert len(raw)==e['source_utf8_bytes'];lines=raw.splitlines(keepends=True)
+  for r in e['ranges']:
+   a,b=r['lines'];start,end=r['bytes'];expected=b''.join(lines[a-1:b]);assert raw[start:end]==expected==r['content'].encode()
+  assert e['head_sha']==m['head_sha'] and e['checkout_sha']==m['checkout_sha']
+ return True
+validate(received)
+unit=next(meta for i,raw,meta,e in received if i==111797145215);unitstep=next(s for s in unit['steps'] if s['name']=='Run fast unit suite');assert unitstep['conclusion']=='skipped';assert m['claims']['unit_suite'].startswith('SKIP')
+broken=copy.deepcopy(received);broken[0][3]['ranges'][-1]['content']=broken[0][3]['ranges'][-1]['content'].replace('[ARCH007]','[ARCH008]',1)
+try:validate(broken)
+except AssertionError:counterfeit='REJECTED'
+else:raise AssertionError('counterfeit source content accepted with intact declarations')
+for p,s in m['source_refs'].items():assert hashlib.sha256(subprocess.check_output(['git','show',s['commit']+':'+p])).hexdigest()==s['sha256']
+assert subprocess.check_output(['git','rev-parse',m['head_sha']+'^{tree}'])==subprocess.check_output(['git','rev-parse',m['checkout_sha']+'^{tree}'])
+print(json.dumps({'result':'PASS','candidate_sha':candidate,'fresh_GitHub_job_sources_reconciled':len(received),'source_refs':len(m['source_refs']),'actual_unit_step':unitstep['conclusion'],'counterfeit_source_keep_markers':counterfeit,'inherited_red':'not_established'}))

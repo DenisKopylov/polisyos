@@ -1,0 +1,34 @@
+Credential query parameters redacted from complete tooling-error output; no deciding source bytes received by this CLI attempt.
+{"argv": ["python3", "/tmp/e02_ci_verify.py", "150c8f2d27c9218ee3a8ae0067ccbe467e6d7052"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+Get "https://productionresultssa5.blob.core.windows.net/actions-results/1acd1b80-10ae-8706-9e96-9b5ea7e527a5/workflow-job-run-5ad20113-8fb0-59f0-9906-be47446cfe65/logs/job/job-logs.txt?<signed_redirect_query_redacted>": Forbidden
+Get "https://productionresultssa18.blob.core.windows.net/actions-results/7b0e7156-9b0b-8d15-a4fb-1957e748fa4d/workflow-job-run-6fcf684d-75a2-59f1-b601-d8938210295b/logs/job/job-logs.txt?<signed_redirect_query_redacted>": Forbidden
+Get "https://productionresultssa18.blob.core.windows.net/actions-results/7b0e7156-9b0b-8d15-a4fb-1957e748fa4d/workflow-job-run-b4c0f7ca-f9cb-508d-a2e4-2c7fcca8fa7a/logs/job/job-logs.txt?<signed_redirect_query_redacted>": Forbidden
+Get "https://productionresultssa5.blob.core.windows.net/actions-results/1acd1b80-10ae-8706-9e96-9b5ea7e527a5/workflow-job-run-1b1e7272-7081-5a49-844f-4f82c37c69ed/logs/job/job-logs.txt?<signed_redirect_query_redacted>": Forbidden
+Traceback (most recent call last):
+  File "/tmp/e02_ci_verify.py", line 7, in <module>
+    with concurrent.futures.ThreadPoolExecutor() as executor:received=list(executor.map(read,jobids))
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02_ci_verify.py", line 6, in read
+    raw=subprocess.check_output(['gh','api',f'repos/DenisKopylov/polisyos/actions/jobs/{i}/logs']);metadata=json.loads(subprocess.check_output(['gh','api',f'repos/DenisKopylov/polisyos/actions/jobs/{i}']));e=json.loads(gitbytes(f'ci-oldhead-logs/job-{i}-excerpt.json'));return i,raw,metadata,e
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['gh', 'api', 'repos/DenisKopylov/polisyos/actions/jobs/111797145215/logs']' returned non-zero exit status 1.
+{"exit_code": 1, "elapsed_s": 1.534, "max_rss_kib": 26368}

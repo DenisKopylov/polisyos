@@ -1,0 +1,58 @@
+[
+  {
+    "job_id": 111797145215,
+    "installed_distribution_rows": 164,
+    "profile": "minimal",
+    "actual_versions": {
+      "pytest": "9.0.2",
+      "pytest-benchmark": "5.2.3",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "duckdb": "1.4.3",
+      "pyyaml": "6.0.3",
+      "click": "8.3.1"
+    },
+    "source_log_utf8_sha256": "182466d56c3c29f9818239c6b0ba64936bc08807861a601125d4f50f4def30e9",
+    "source_log_utf8_bytes": 46025
+  },
+  {
+    "job_id": 111797145328,
+    "installed_distribution_rows": 184,
+    "profile": "docs",
+    "actual_versions": {
+      "pytest": "9.0.2",
+      "pytest-benchmark": "5.2.3",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "duckdb": "1.4.3",
+      "pyyaml": "6.0.3",
+      "click": "8.3.1"
+    },
+    "source_log_utf8_sha256": "efd7a5435f54042e297a5f975a89ebec3cf8392e2563df80e7efe911f5cf3763",
+    "source_log_utf8_bytes": 44126
+  },
+  {
+    "job_id": 111797143594,
+    "installed_distribution_rows": 162,
+    "profile": "extras:test runtime causal-discovery sandbox",
+    "actual_versions": {
+      "pytest": "9.0.2",
+      "pytest-benchmark": "5.2.3",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "duckdb": "1.4.3",
+      "pyyaml": "6.0.3",
+      "click": "8.3.1"
+    },
+    "source_log_utf8_sha256": "c2d09a5cc43a0ce1af1887973680b9c113b615bb347193b42f59aec0ffd7766a",
+    "source_log_utf8_bytes": 67801
+  },
+  {
+    "job_id": 111797143332,
+    "installed_distribution_rows": 0,
+    "profile": "Lychee-only",
+    "actual_versions": {},
+    "source_log_utf8_sha256": "14838b71e8761c42cf9615cd9ec649879e5aa88421b3a80849ce773d72c67016",
+    "source_log_utf8_bytes": 37320
+  }
+]

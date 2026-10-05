@@ -184,7 +184,7 @@ def test_async_thread_refusal_cancels_queued_compute_before_pool_release(
 ):
     from polisyos.common import async_tools
 
-    executor = async_tools._SharedExecutor(max_workers=4)
+    executor = async_tools._SharedExecutor(max_workers=4, thread_name_prefix="queued-refusal")
     release = threading.Event()
     ready = threading.Barrier(5)
     submitted = threading.Event()

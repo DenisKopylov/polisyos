@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "/workspace/e02-E-frc/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/remediation/test_frc_02_owner.py",
+    "tests/unit/remediation/test_frc_02.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp=/workspace/e02-E-frc/_build/e02-frc/producer-tmp",
+    "-o",
+    "cache_dir=/workspace/e02-E-frc/_build/e02-frc/producer-cache"
+  ],
+  "cwd": "/workspace/e02-E-frc/policy-engine",
+  "target_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+  "exit_code": 0,
+  "wall_s": 22.744275515000027,
+  "pytest_process_maxrss_kib": 493528,
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.14.2",
+  "distribution_versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10"
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-E-frc/policy-engine/src",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "JAX_PLATFORMS": null,
+    "PYTEST_ADDOPTS": null
+  }
+}

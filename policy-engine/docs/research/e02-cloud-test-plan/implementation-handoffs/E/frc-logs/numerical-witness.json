@@ -1,0 +1,100 @@
+{
+  "scope": "bounded synthetic fixture; real registered ETS NumPy execution",
+  "fixture_path": "/workspace/e02-E-frc/policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+  "cases": [
+    {
+      "fixture_label": "in_profile",
+      "source_artifact_id": "sha256:9dd0e49ba706a4604b4ff53226a726e88bd420a1b902a50e646e0140f5892ccc",
+      "method_fqn": "forecasting.univariate.exponential_smoothing@1.0.0",
+      "rule_metadata": {
+        "method_ref": "forecasting.univariate.exponential_smoothing",
+        "method_version": "1.0.0",
+        "rule_version_ref": "rolling-origin-residual-conformal.v1",
+        "calibration_rule_version": "1.0"
+      },
+      "point_forecast": [
+        20.0,
+        21.0,
+        22.0
+      ],
+      "predictive_intervals": [
+        [
+          20.0,
+          20.0
+        ],
+        [
+          21.0,
+          21.0
+        ],
+        [
+          22.0,
+          22.0
+        ]
+      ],
+      "empirical_numerator": 3,
+      "empirical_denominator": 3,
+      "empirical_coverage": 1.0,
+      "empirical_suitability": "supported",
+      "backtest_report_id": "sha256:1ff3615940708952200c931543a031e3282f2f57a9835cc89b39ebe43d85d0ec",
+      "context_bound": false,
+      "usable_for_calibration": false,
+      "failure_codes": [
+        "explicit_context_missing"
+      ],
+      "authority_scope": "predictive_only",
+      "authority_denials": [
+        "causal_effect_authority",
+        "treatment_assignment_authority",
+        "s10_authority"
+      ],
+      "bridge_status": "bridge_pending"
+    },
+    {
+      "fixture_label": "out_of_profile",
+      "source_artifact_id": "sha256:975c6106f22e381ddac4b0a3412a41dc36b9919e679f7600d320b728dc34e1e7",
+      "method_fqn": "forecasting.univariate.exponential_smoothing@1.0.0",
+      "rule_metadata": {
+        "method_ref": "forecasting.univariate.exponential_smoothing",
+        "method_version": "1.0.0",
+        "rule_version_ref": "rolling-origin-residual-conformal.v1",
+        "calibration_rule_version": "1.0"
+      },
+      "point_forecast": [
+        20.0,
+        21.0,
+        22.0
+      ],
+      "predictive_intervals": [
+        [
+          20.0,
+          20.0
+        ],
+        [
+          21.0,
+          21.0
+        ],
+        [
+          22.0,
+          22.0
+        ]
+      ],
+      "empirical_numerator": 0,
+      "empirical_denominator": 3,
+      "empirical_coverage": 0.0,
+      "empirical_suitability": "limited",
+      "backtest_report_id": "sha256:0132cea0d6e2e24d9ea1ed3643aa1481bd0955f13f307a5c94d46bb9551f3e52",
+      "context_bound": false,
+      "usable_for_calibration": false,
+      "failure_codes": [
+        "explicit_context_missing"
+      ],
+      "authority_scope": "predictive_only",
+      "authority_denials": [
+        "causal_effect_authority",
+        "treatment_assignment_authority",
+        "s10_authority"
+      ],
+      "bridge_status": "bridge_pending"
+    }
+  ]
+}

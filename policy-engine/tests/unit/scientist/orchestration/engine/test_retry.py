@@ -178,6 +178,73 @@ def test_wrapper_expiration_is_terminal_without_another_attempt(
     assert attempts_path.read_text().splitlines() == ["attempt"]
 
 
+@pytest.mark.parametrize("refusal", ["deadline", "cancellation"])
+def test_async_thread_refusal_cancels_queued_compute_before_pool_release(
+    tmp_path, ctx, state, refusal, monkeypatch
+):
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=4)
+    release = threading.Event()
+    ready = threading.Barrier(5)
+    submitted = threading.Event()
+    raw_write = tmp_path / "late-queued-write"
+
+    def _block_worker():
+        ready.wait(timeout=2.0)
+        assert release.wait(timeout=5.0)
+
+    class _QueuedNode:
+        def execute(self, _ctx, passed_state):
+            raw_write.write_text("compute ran after refusal")
+            return _ok_outcome(passed_state)
+
+    blockers = [executor.submit(_block_worker) for _ in range(4)]
+    original_submit = executor.submit
+
+    def _observe_submission(*args, **kwargs):
+        future = original_submit(*args, **kwargs)
+        submitted.set()
+        return future
+
+    monkeypatch.setattr(executor, "submit", _observe_submission)
+    monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
+    monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+
+    async def _run():
+        task = asyncio.create_task(
+            execute_with_retry_async(
+                _QueuedNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.05 if refusal == "deadline" else 2.0,
+                alias="queued-refusal",
+            )
+        )
+        while not submitted.is_set():
+            await asyncio.sleep(0)
+        if refusal == "cancellation":
+            task.cancel()
+        error = NodeTimeoutError if refusal == "deadline" else asyncio.CancelledError
+        with pytest.raises(error):
+            await task
+        # Do not yield the loop between refusal and releasing occupied workers.
+        # asyncio Future.cancel forwards to its concurrent Future in a callback;
+        # that deferred action can lose this real admission race.
+        release.set()
+        executor.shutdown(wait=True)
+        assert not raw_write.exists(), "queued compute wrote after execution was refused"
+
+    try:
+        ready.wait(timeout=2.0)
+        asyncio.run(_run())
+        assert all(blocker.result() is None for blocker in blockers)
+    finally:
+        release.set()
+        executor.shutdown(wait=True)
+
+
 @pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork unavailable")
 @pytest.mark.parametrize("mode", ["sync", "async"])
 @pytest.mark.parametrize("shape", ["return", "raise"])

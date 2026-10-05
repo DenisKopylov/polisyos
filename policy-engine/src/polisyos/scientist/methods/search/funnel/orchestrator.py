@@ -132,10 +132,9 @@ def _stable_candidate_hash(candidate: dict[str, Any]) -> str:
 
 
 def _is_volatile_cache_key(key: str) -> bool:
-    normalized = key.casefold()
-    return normalized in _CACHE_VOLATILE_CONTEXT_KEYS or normalized.endswith(
-        ("_at", "_ts", "_timestamp")
-    )
+    # Time-role fields such as valid_at and observation_timestamp are input
+    # identity. Only named orchestration timestamps may be discarded.
+    return key.casefold() in _CACHE_VOLATILE_CONTEXT_KEYS
 
 
 def _cache_identity_value(value: Any) -> Any:

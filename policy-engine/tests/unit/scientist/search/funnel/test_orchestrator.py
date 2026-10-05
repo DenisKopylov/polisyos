@@ -980,3 +980,102 @@ def test_real_l2_defer_projection_is_independent_of_optional_stage_verdict():
         assert observations == []
         projections.append((output["objective_value"], output["feedback"]["verdict"]))
     assert projections[0] == projections[1]
+
+
+def test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty():
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+
+    for key in (
+        "subject_id",
+        "value_slot",
+        "input_signature",
+        "procedure_id",
+        "rule_version",
+        "population_scope",
+        "valid_at",
+        "rule_effective_at",
+        "observation_timestamp",
+    ):
+        observations = []
+        orch = FunnelOrchestrator([Level3MediumFidelity(_bootstrap_workflow(observations))])
+        candidate = {"candidate_id": "scope-time-control"}
+        context = {**_bootstrap_context(), key: "basis-a"}
+        first = orch.submit(candidate, context)
+        initial = orch.advance(first, policy="full")
+        changed = orch.submit(candidate, {**context, key: "basis-b"})
+        assert changed is not first, key
+        assert changed.stage_results == {}, key
+        orch.advance(changed, policy="full")
+        assert len(observations) == 2, key
+        assert orch.get_outcome(first).trace == initial.trace
+
+
+def test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap(
+    tmp_path,
+):
+    from polisyos.scientist.methods.search.calibration_report import (
+        FunnelCalibrationReport,
+        load_funnel_calibration_report,
+        persist_funnel_calibration_report,
+    )
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+    from polisyos.scientist.methods.search.stages import CorrelationTracker
+    from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+        _resolve_runtime_correlation_tracker,
+    )
+
+    for relation in ("empty", "aligned", "opposite"):
+        store = FileSystemCAS(tmp_path / relation)
+        tracker = CorrelationTracker()
+        if relation != "empty":
+            for index in range(3):
+                observations = []
+                engine = _bootstrap_workflow(observations)
+                cheap_context = {
+                    **_bootstrap_context(),
+                    "data": list(range(1 + index, 121 + index)),
+                }
+                expensive_index = index if relation == "aligned" else 2 - index
+                full_context = {
+                    **_bootstrap_context(),
+                    "data": list(range(1 + expensive_index, 121 + expensive_index)),
+                }
+                candidate = {"candidate_id": f"paired-{index}"}
+                cheap = Level3MediumFidelity(engine).evaluate(candidate, cheap_context)
+                full = Level4FullFidelity(engine).evaluate(candidate, full_context)
+                tracker.record(cheap, full, f"paired-{index}")
+        expected = tracker.compute_metrics()
+        report = FunnelCalibrationReport(
+            current_mode=tracker.routing_mode(),
+            routing_health=expected,
+            metadata={
+                "correlation_tracker_snapshot": tracker.to_snapshot().model_dump(mode="json")
+            },
+        )
+        report_ref = persist_funnel_calibration_report(store, report)
+        reopened_store = FileSystemCAS(tmp_path / relation)
+        restored = _resolve_runtime_correlation_tracker(
+            load_funnel_calibration_report(reopened_store, report_ref)
+        )
+        assert restored is not None
+        assert restored.compute_metrics() == expected
+        assert restored.routing_mode() == expected["routing_mode"]
+        assert expected["sample_count"] == (0 if relation == "empty" else 3)
+        assert expected["calibration_state"] == (
+            "not_established" if relation == "empty" else "observed"
+        )
+        assert expected["routing_mode"] == ("normal" if relation == "aligned" else "no_promotion")
+        calls = []
+        orch = FunnelOrchestrator(
+            [
+                Level6PromotionStage(
+                    promotion_runner=lambda *args, calls=calls: calls.append("write")
+                )
+            ],
+            correlation_tracker=restored,
+        )
+        outcome = orch.advance(orch.submit({"candidate_id": relation}, {}), policy="full")
+        if relation != "aligned":
+            assert calls == []
+            assert outcome.final_action == "defer_to_human"

@@ -2,7 +2,8 @@
   "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "D",
   "slice": "transfer-generation",
-  "closure_ids": [
+  "closure_ids": [],
+  "covered_finding_ids": [
     "B129",
     "B133",
     "B134"

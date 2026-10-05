@@ -23,7 +23,7 @@
         "EMP",
         "REP"
       ],
-      "placement": "local_with_served_cloud_checkpoints",
+      "placement": "local_authoring_served_and_production_checks_optional_linux_control",
       "leaf_capacity_assumption": 20,
       "initial_feature_writers": 2,
       "maximum_feature_writers_proposal": 4
@@ -44,7 +44,7 @@
         "NET",
         "LLM"
       ],
-      "placement": "local_authoring_frequent_cloud_runtime_feedback",
+      "placement": "cloud_authoring_runtime_feedback_local_data_dependent_acceptance",
       "leaf_capacity_assumption": 20,
       "initial_feature_writers": 2,
       "maximum_feature_writers_proposal": 4
@@ -85,7 +85,7 @@
         "TRN",
         "STR"
       ],
-      "placement": "local_with_real_backend_checkpoints",
+      "placement": "cloud_authoring_backend_checks_local_data_dependent_acceptance",
       "leaf_capacity_assumption": 20,
       "initial_feature_writers": 2,
       "maximum_feature_writers_proposal": 4
@@ -103,7 +103,7 @@
         "DDM",
         "DOE"
       ],
-      "placement": "local_authoring_frequent_cloud_numerical_feedback",
+      "placement": "cloud_authoring_numerical_feedback_local_data_dependent_acceptance",
       "leaf_capacity_assumption": 20,
       "initial_feature_writers": 2,
       "maximum_feature_writers_proposal": 4
@@ -121,7 +121,7 @@
         "LEX",
         "FIT"
       ],
-      "placement": "local_with_early_cloud_method_validation",
+      "placement": "cloud_authoring_method_validation_local_data_dependent_acceptance",
       "leaf_capacity_assumption": 20,
       "initial_feature_writers": 2,
       "maximum_feature_writers_proposal": 4
@@ -130,7 +130,7 @@
       "id": "G",
       "name": "Интеграция и независимая приёмка",
       "bundle_prefixes": [],
-      "placement": "local_coordination_cloud_frozen_closeout",
+      "placement": "local_continuous_integration_and_data_checks_cloud_frozen_closeout",
       "leaf_capacity_assumption": 20,
       "initial_feature_writers": 0,
       "maximum_feature_writers_proposal": 0,

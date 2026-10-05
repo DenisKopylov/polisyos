@@ -112,7 +112,7 @@
     }
   ],
   "local_artifact_sha256": {
-    "allocation.json": "6cc9f60e772d0874e2f64cf55037bb483f74347ce8125e3e836a5bd2af590c2c",
+    "allocation.json": "0fd353725c481c28e379010fbf0f5a6921b830586be5a09501b73f0320c07597",
     "bundle-owners.tsv": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
     "finding-owners.tsv": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
     "verify_organization.py": "7e976ea629ef1fc733e5824a6d730ef8b4eeac8f9f93d32e22f3798003af2649"

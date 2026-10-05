@@ -1,0 +1,70 @@
+{
+  "schema": "policyos.e02.B.independent_review_process_custody_qualification.v1",
+  "created_git_worktree_count": 4,
+  "created_worktree_set_complete": true,
+  "precreation_custody": "not_established",
+  "fact": "Leaf dur_probe created allfourdetached reviewcheckouts withgitworktreeadd --detach without firstexecutingregisteredprecreationadmission. No precreationreceipt exists.",
+  "current_checkpoint_predicate": "independently_reconciled currentdetached identity/backlinks/tree/SHA/clean-state only; notpriorcreationadmission",
+  "current_checkpoints": [
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/admissions/b52-oracle-current-checkpoint.json",
+      "sha256": "8972561d7e1d845193790ac4114e585d912b2d12d6cfa907c33e0950d9409ddf",
+      "checkout": "/workspace/e02-B-b52-oracle",
+      "source_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+      "source_tree": "c96b348f8d71b7a02f3b9052514911d26da0f634",
+      "started_at": "2026-10-05T15:32:32.121356+00:00",
+      "finished_at": "2026-10-05T15:32:32.173563+00:00",
+      "status": "current_detached_identity_verified",
+      "precreation_custody": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/admissions/b52-review515-current-checkpoint.json",
+      "sha256": "616c1573982bb1a1aa7e4a699f586c516110f5244e5a0da8ffcb4bda956a0c42",
+      "checkout": "/workspace/e02-B-b52-review515",
+      "source_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "source_tree": "bad622f8ba09cad03e4b7899c07982380efcfa81",
+      "started_at": "2026-10-05T15:32:32.174030+00:00",
+      "finished_at": "2026-10-05T15:32:32.230031+00:00",
+      "status": "current_detached_identity_verified",
+      "precreation_custody": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/admissions/cas-alias-base-current-checkpoint.json",
+      "sha256": "031d766d87c860c83b234dfa5d2ef73fc7ab8b5babb0fddf103e5e0bf06eee2f",
+      "checkout": "/workspace/e02-B-cas-alias-base",
+      "source_sha": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+      "source_tree": "69fbb88446ff432bd88815dc14d28be7b33df1f8",
+      "started_at": "2026-10-05T15:32:32.230398+00:00",
+      "finished_at": "2026-10-05T15:32:32.280692+00:00",
+      "status": "current_detached_identity_verified",
+      "precreation_custody": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/admissions/cas-alias-fix-current-checkpoint.json",
+      "sha256": "29fbeb4393b1a048f5d7fb2e09b6de214efa9768b50611a1afe2ee729b0cea7b",
+      "checkout": "/workspace/e02-B-cas-alias-fix",
+      "source_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "source_tree": "613e40b149ec448c5b202cc8b5edd811e2e35a68",
+      "started_at": "2026-10-05T15:32:32.281079+00:00",
+      "finished_at": "2026-10-05T15:32:32.335539+00:00",
+      "status": "current_detached_identity_verified",
+      "precreation_custody": "not_established"
+    }
+  ],
+  "preserved_evidence_packets": [
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-oracle/receipt.json",
+      "sha256": "4f50189a7444566b2528e5f4be9a48f3f59272632541b828760b156860e20c15"
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-review515/receipt.json",
+      "sha256": "77745f7b0de9b9a2f53a80561326a42aa4d5bda99ed1f8f01d596a17b9f70611"
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/receipt.json",
+      "sha256": "785be8143fc0247d8b86d0534c72efa243cb6bfe2bdad5dd67ed5a193762a16b"
+    }
+  ],
+  "effect": "Actualfilesystem/process/source/test decidingobservations remainSHA-bound with explicit custodyqualification. They do not prove requiredprecreationprocessadmission.",
+  "next_owner": "G mustcreate exactfreshadmittedcheckout andrerunrequiredsource/testcandidate forprocessadmission; no backdating, branchattachment, rewritingornewlocaltree performed."
+}

@@ -1,0 +1,143 @@
+{
+  "schema": "policyos.e02.detached_review_current_identity_checkpoint.v1",
+  "checkpoint_mode": "current_read_only_identity_observation",
+  "started_at": "2026-10-05T15:32:32.121356+00:00",
+  "finished_at": "2026-10-05T15:32:32.173563+00:00",
+  "precreation_admission_receipt": null,
+  "precreation_custody": "not_established",
+  "precreation_fact": "Required registered precreation admission was not performed before these detached review checkouts were created. This checkpoint is current-only and is not backdated or promoted to prior admission.",
+  "requested_path": "/workspace/e02-B-b52-oracle",
+  "expected_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "branch": null,
+  "attachment_kind": "detached",
+  "observed_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "observed_tree": "c96b348f8d71b7a02f3b9052514911d26da0f634",
+  "source_clean": true,
+  "repository_common_dir": "/workspace/polisyos/.git",
+  "git_admin_dir": "/workspace/polisyos/.git/worktrees/e02-B-b52-oracle",
+  "path_resolved": "/workspace/e02-B-b52-oracle",
+  "path_is_directory_lstat": true,
+  "git_toplevel": "/workspace/e02-B-b52-oracle",
+  "matching_registration": [
+    [
+      "worktree /workspace/e02-B-b52-oracle",
+      "HEAD 0f24d18d988f579db20a84c734a587abe6cabe20",
+      "detached"
+    ]
+  ],
+  "git_marker": "gitdir: /workspace/polisyos/.git/worktrees/e02-B-b52-oracle\n",
+  "admin_HEAD": "0f24d18d988f579db20a84c734a587abe6cabe20\n",
+  "admin_gitdir_backlink": "/workspace/e02-B-b52-oracle/.git\n",
+  "admin_commondir": "../..\n",
+  "git_repository_environment_overrides": [],
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-b52-oracle",
+        "rev-parse",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "stdout": "0f24d18d988f579db20a84c734a587abe6cabe20\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-b52-oracle",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "returncode": 0,
+      "stdout": "c96b348f8d71b7a02f3b9052514911d26da0f634\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-b52-oracle",
+        "symbolic-ref",
+        "-q",
+        "--short",
+        "HEAD"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-b52-oracle",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "returncode": 0,
+      "stdout": "/workspace/e02-B-b52-oracle\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-b52-oracle",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "returncode": 0,
+      "stdout": "/workspace/polisyos/.git\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-b52-oracle",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "returncode": 0,
+      "stdout": "/workspace/polisyos/.git/worktrees/e02-B-b52-oracle\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-b52-oracle",
+        "status",
+        "--porcelain=v1"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-B-b52-oracle",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "returncode": 0,
+      "stdout": "worktree /workspace/polisyos\nHEAD 0a4b9cd48068454bb8ce95b5ae69bf5c323ee924\nbranch refs/heads/work\n\nworktree /workspace/e02-B-acceptance\nHEAD 3ff43423067253ae9cea0b2d22f28ac3807dd080\nbranch refs/heads/codex/e02-B-acceptance\n\nworktree /workspace/e02-B-adapters\nHEAD d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83\nbranch refs/heads/codex/e02-B-adapters\n\nworktree /workspace/e02-B-b52-oracle\nHEAD 0f24d18d988f579db20a84c734a587abe6cabe20\ndetached\n\nworktree /workspace/e02-B-b52-review515\nHEAD 515054e7427467bf6e72fcfa22cc809c7cfe2c19\ndetached\n\nworktree /workspace/e02-B-cas\nHEAD 3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6\nbranch refs/heads/codex/e02-B-cas\n\nworktree /workspace/e02-B-cas-alias-base\nHEAD cef751539b0c3244fcfdc6c06dc64177f70aa56e\ndetached\n\nworktree /workspace/e02-B-cas-alias-fix\nHEAD 3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6\ndetached\n\nworktree /workspace/e02-B-cmp-res\nHEAD e3f0103c167beb42a8aff2db6a81de12b79ae565\nbranch refs/heads/codex/e02-B-cmp-res\n\nworktree /workspace/e02-B-coordination\nHEAD 50746f1680395e8774bb12157e9a9ab86f295561\nbranch refs/heads/codex/e02-B-coordination\n\nworktree /workspace/e02-B-dur-ledger\nHEAD f3b9f054c86218b431ab927b56100164842db64a\nbranch refs/heads/codex/e02-B-dur-ledger\n\nworktree /workspace/e02-B-exe-state\nHEAD 79abecd30a4e14aa36d6e3b91ffa7591632b92f1\nbranch refs/heads/codex/e02-B-exe-state\n\nworktree /workspace/e02-B-run\nHEAD b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2\nbranch refs/heads/codex/e02-B-run\n\nworktree /workspace/e02-B-run-review-base\nHEAD ab310be19f310a6055797a2af56bf1ffae01f555\ndetached\n\nworktree /workspace/e02-B-run-review-candidate\nHEAD 6c2cab488368932479677bc036ffad25657c0367\ndetached\n\nworktree /workspace/e02-cas-contract-base36\nHEAD 36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6\ndetached\n\n",
+      "stderr": ""
+    }
+  ],
+  "predicate_basis": "independently_reconciled_current_identity_only",
+  "official_named_branch_resume": "not_applicable_to_detached_attachment; no substitute branch selector fabricated",
+  "limits": [
+    "No precreation custody evidence or named-lane admission exists.",
+    "Sequential current observation is not atomic or a reservation; no safety claim about unrelated registration pruning."
+  ],
+  "current_identity_matches": true,
+  "status": "current_detached_identity_verified"
+}

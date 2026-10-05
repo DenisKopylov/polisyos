@@ -1,0 +1,109 @@
+{
+  "schema": "policyos.e02.integration_operations.v1",
+  "publisher": "G",
+  "recorded_date": "2026-10-05",
+  "target_sha": "1ee319bf1b60fe5f0fe40dbd043b25864ba80422",
+  "workspace_admission": {
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "-m",
+      "tools.devx.workspace.doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-integration",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+    "target_sha": "1ee319bf1b60fe5f0fe40dbd043b25864ba80422",
+    "exit": 0,
+    "wall_seconds": 2.152,
+    "status": "admitted",
+    "complete_verdict": true,
+    "findings": [],
+    "unresolved_inputs": [],
+    "stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/raw/startup/admission-after-link-quarantine.stdout.json@sha256:acda4d30f95192843c835cde3a6ae7d2594e78b470b535ff185e142a3de9bfbc",
+    "stderr": "",
+    "operation": {
+      "operation": "quarantine_exact_dangling_symlink_only",
+      "old_path": "/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos",
+      "archive_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/raw/startup/p41-r13d-slice-base-2522-dangling-link",
+      "symlink_target": "/Users/deniskopylov/.Trash/E02R2-P41-slice-base-2522-20260926/polisyos",
+      "inode_before": 150971081,
+      "inode_after": 150971081,
+      "git_admin_record": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos189",
+      "git_admin_record_changed": false,
+      "head_commit_preserved": "2522cf2ee59a0f45cebc52303a184908a4326fa1",
+      "unresolved_by_construction": [
+        "Trash directory enumeration denied; unregistered alternate checkout outside exact named target not ruled out.",
+        "Former checkout bytes/dirty state not reconstructed."
+      ],
+      "rollback": "rename archived symlink back to exact old_path only if that path is still absent."
+    },
+    "env_added": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "predicate_basis": "recomputed",
+    "deciding_output_availability": "complete local ignored raw; remote reviewer requires bytes or exact rerun",
+    "unresolved_by_construction": [
+      {
+        "boundary": "moved_directories_outside_registered_paths",
+        "detail": "No wider filesystem/mount search; missing registered directories do not prove abandonment or prune safety."
+      },
+      {
+        "boundary": "non_atomic_observation",
+        "detail": "Git and filesystem reads are sequential, not an atomic snapshot; changes after or between reads can escape observation."
+      },
+      {
+        "boundary": "name_reservation",
+        "detail": "This read-only command reserves nothing. Root serializes commissioning, reruns immediately before creation and reads back exact attachment afterward."
+      },
+      {
+        "boundary": "external_prompt_writers",
+        "detail": "Receipt does not intercept or enforce arbitrary commissioning prompts."
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "install-readback",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "install",
+        "--frozen-lockfile"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+      "target_sha": "1ee319bf1b60fe5f0fe40dbd043b25864ba80422",
+      "exit": 0,
+      "wall_seconds": 6.566,
+      "stdout": "Scope: all 6 workspace projects\nLockfile is up to date, resolution step is skipped\nAlready up to date\n\napps/runtime-dashboard prepare$ node ../../tools/devx/install_repo_hooks.mjs\napps/runtime-dashboard prepare: Done\n╭ Warning ─────────────────────────────────────────────────────────────────────╮\n│                                                                              │\n│   Ignored build scripts: @sentry/cli@2.58.5, esbuild@0.25.12,                │\n│   esbuild@0.27.7, lefthook@2.1.6, msw@2.14.2, unrs-resolver@1.11.1.          │\n│   Run \"pnpm approve-builds\" to pick which dependencies should be allowed     │\n│   to run scripts.                                                            │\n│                                                                              │\n╰──────────────────────────────────────────────────────────────────────────────╯\nDone in 6.4s using pnpm v10.33.2\n",
+      "stderr": ""
+    },
+    {
+      "name": "published-head-readback",
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "refs/heads/codex/e02-integration"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+      "target_sha": "1ee319bf1b60fe5f0fe40dbd043b25864ba80422",
+      "exit": 0,
+      "wall_seconds": 0.57,
+      "stdout": "c40d4acae1ce58b597267255026d9356565828fd\trefs/heads/codex/e02-integration\n",
+      "stderr": ""
+    }
+  ],
+  "source_pack_read": "F01-F15 complete through five independent read-only partitions; source-reported observations only",
+  "limitations": [
+    "Initial missing-lefthook push and hook skip were observed but have no retained operational output; neither is used as a deciding gate. Fresh install and remote readback outputs above replace those assertions.",
+    "Node install reports ignored dependency build scripts; successful install does not establish scanner/typecheck or product behavior.",
+    "Published remote was base c40d4aca at recorded readback, not startup commit.",
+    "No product commits accepted or findings closed."
+  ]
+}

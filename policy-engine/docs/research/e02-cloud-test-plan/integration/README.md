@@ -23,8 +23,8 @@ text и index binding; product closure и VM receipt custody остаются
 лимит показа не задаёт множество и не определяет владельцев. Владельцы
 берутся из [bundle owners](../execution-organization/bundle-owners.tsv) и
 [finding owners](../execution-organization/finding-owners.tsv). Полный
-transferred source pack F01–F15 читается независимыми helpers по раздельным
-партициям; locator summaries служат навигацией.
+transferred source pack F01–F15 полностью прочитан независимыми helpers по
+раздельным партициям; locator summaries служат навигацией.
 
 ## Состояние рабочей среды
 
@@ -34,25 +34,28 @@ transferred source pack F01–F15 читается независимыми help
 Retrospective resume-проверка точных branch/path вернула `UNRUN`, exit 2:
 старая регистрация
 `/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos`
-недоступна. Admission не установлен; регистрации автоматически не очищаются.
-Read-only reviews и журнал кандидата могут продолжаться, интеграция product
-commits ждёт разрешения этой границы. Полный deciding output хранится локально
-в ignored `raw/`, его identity записана в receipt.
+недоступна. Это исторический результат в startup receipt. Исследование
+установило dangling symlink к отсутствующему именованному checkout в Trash.
+G переместил только symlink в reversible quarantine; Git admin record,
+index, refs и reflogs сохранены. Повторный admission вернул `admitted`,
+exit 0. [Operations receipt](operations.json) связывает exact selectors,
+решение, полный локальный output и границы наблюдения. Бывшие checkout bytes
+и dirty state не восстановлены; перечисление Trash недоступно.
 
-`corepack pnpm install --frozen-lockfile` выполнен до доверия TypeScript
-scanner. Первый push остановился на отсутствующем `lefthook`; после установки
-ветка опубликована и remote SHA прочитан обратно. Pre-push typecheck на
-checkpoint без новых файлов был `skip: no matching push files`, не PASS.
+Свежий `corepack pnpm install --frozen-lockfile` и live remote readback
+записаны в operations receipt. На момент readback опубликован base `c40d4aca…`;
+startup commit ещё локальный. Наличие dependencies само по себе не доказывает
+typecheck; hook skip не используется как PASS.
 
 ## Приёмка поступающих slices
 
 Git — обязательный канал. G fetch-ит exact topic/PR head, читает committed
 `implementation-handoffs/<unit>/<slice>.json`, связывает slice base,
 implementation commits, candidate tree и полный diff с tests/companions.
-На observed `codex/e02-D-orchestration@c40d4aca…` handoff отсутствует;
-эта ветка пока не implementation delivery. Отсутствие относится только
-к перечисленным fetched refs и их tracked handoff subtree, не к чужим
-локальным checkout, unpublished commits или inaccessible PR.
+Первые fetched B/D receipts проверяются по immutable candidates: B RUN,
+D baseline map, RL checkpoint, transfer generation и GP witness. До
+завершения independent checks они остаются очередью. E FRC и D funnel
+изменения обнаружены; на первом fetched head committed handoff отсутствовал.
 
 В независимую очередь идут отдельные вопросы:
 
@@ -109,6 +112,6 @@ P29/P32/P33/P37/P38: runtime property, content binding, independent oracle
 P40: второй escape того же класса требует расширения механизма либо
 declared bounded residual с falsifier. P41: красный атрибутируется только
 на slice-base. Существующие риски — отсутствующие VM deciding bytes,
-незамкнутые served producers, held public-IR decisions и UNRUN workspace
-admission. Acceptance signal — проверенный конкретный slice и consumed
+незамкнутые served producers и held public-IR decisions. Workspace admission
+теперь установлен для точной G пары. Acceptance signal — проверенный slice и consumed
 artifact/readback, не число jobs или цвет baseline.

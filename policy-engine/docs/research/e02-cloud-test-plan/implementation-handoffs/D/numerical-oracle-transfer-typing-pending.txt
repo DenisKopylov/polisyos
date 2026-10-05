@@ -1,0 +1,9 @@
+target_sha=57d0b809a3b28c6780ad91bfb4decf44f454c737
+serialized_stage_a_passed 'false' restored [(True, True, None)]
+report TransferRestoreReport(loaded_rows=4, accepted_rows=4, rejected_rows=0, selected_rows=4, excluded_run_ids=())
+Traceback (most recent call last):
+  File "<string>", line 15, in <module>
+    assert not selected or not selected[0].is_valid,'malformed boolean outcome became valid observation'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: malformed boolean outcome became valid observation
+malformed_outcome_probe_exit=1

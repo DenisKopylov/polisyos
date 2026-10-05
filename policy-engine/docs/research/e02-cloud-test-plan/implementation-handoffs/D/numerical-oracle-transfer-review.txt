@@ -1,0 +1,38 @@
+final_transfer_target_sha=5f2d3498d075a5fd59aaee35964e8a8c9d6b7ce3
+...................................................................      [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+67 passed, 2 warnings in 11.86s
+final_transfer_suite_exit=0
+independent_mutation candidate_content restored [(False, {'x': 0.1}, (0.1,), 'actual candidate parameters differ from the transferred observation')]
+report TransferRestoreReport(loaded_rows=4, accepted_rows=3, rejected_rows=1, selected_rows=4, excluded_run_ids=())
+independent_mutation stage_boolean restored [(False, {'x': 0.1}, (0.1,), 'stage_a_passed must be a boolean')]
+report TransferRestoreReport(loaded_rows=4, accepted_rows=3, rejected_rows=1, selected_rows=4, excluded_run_ids=())
+final_transfer_discriminators_exit=0
+typed_domain_target_sha=5f2d3498d075a5fd59aaee35964e8a8c9d6b7ce3
+typed_domain_case integer_fraction physical {'x': 1.2} canonical_expected (0.6,) restored_valid False reason physical parameters differ from the persisted source basis
+typed_domain_case integer_point physical {'x': 1.0} canonical_expected (0.5,) restored_valid True reason None
+typed_domain_case category_log physical {'kind': 'A', 'rate': 0.01} canonical_expected (1.0, 0.0, 0.5) restored_valid True reason None
+typed_domain_case bound_order_changed physical {'kind': 'A', 'rate': 0.01} canonical_expected (1.0, 0.0, 0.5) restored_valid False reason unsupported source parameter basis: space identity differs
+typed_domain_probe_exit=0
+final_transfer_physical_source_sha=830ddd02dcfbdc6b93492d740b397581b79c82fc
+......................................................................   [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+70 passed, 2 warnings in 11.65s
+final_physical_transfer_suite_exit=0
+final_independent_mutation candidate_content restored [(False, {'x': 0.1}, (0.1,), 'actual candidate parameters differ from the transferred observation')]
+report TransferRestoreReport(loaded_rows=4, accepted_rows=3, rejected_rows=1, selected_rows=4, excluded_run_ids=())
+final_independent_mutation stage_boolean restored [(False, {'x': 0.1}, (0.1,), 'stage_a_passed must be a boolean')]
+report TransferRestoreReport(loaded_rows=4, accepted_rows=3, rejected_rows=1, selected_rows=4, excluded_run_ids=())
+final_physical_transfer_discriminators_exit=0

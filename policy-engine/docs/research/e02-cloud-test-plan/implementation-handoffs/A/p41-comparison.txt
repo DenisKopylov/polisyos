@@ -1,0 +1,40 @@
+comparison_repository=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos
+comparison_repo_head=5dc2d1bac1b2993f6eb7bab778ba5896f8afe207
+base_source=c40d4acae1ce58b597267255026d9356565828fd
+candidate_source=e7d034756cb11522c65f602e021fccef5bc6245c
+base_raw_bytes=115262 lines=1991 sha256=e4cd720fca791f7471d387368e2b2d605dedc6813229ebb6066df8581bfbb8d3
+base_findings deep_import=151 generated_mismatch=2
+candidate_raw_bytes=115246 lines=1991 sha256=cf18007dc62717fb7418be445b544ab6c8852450da687ac2890a36e95d216057
+candidate_findings deep_import=151 generated_mismatch=2
+base_prefix_occurrences=2
+candidate_prefix_occurrences=2
+normalized_base_bytes=115148
+normalized_candidate_bytes=115148
+normalized_byte_equal=True
+c40_to_e7_changed_path_count=9
+base_python_blob_denominator=2697
+deep_import_module_denominator=2696
+deep_import_changed_source_intersection=1 ['policy-engine/src/polisyos/runtime/quality/generation_cycle.py']
+deep_import_changed_module_intersection=[('policy-engine/src/polisyos/runtime/quality/generation_cycle.py', 'polisyos.runtime.quality.generation_cycle')]
+trust_source_candidate_denominator=145
+trust_changed_candidate_intersection=1 ['policy-engine/src/polisyos/runtime/quality/generation_cycle.py']
+changed_paths_begin
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-misbound-helper-removal.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-normal.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-removal.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-source-identity.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/sim-01.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline.json
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline.md
+M	policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+M	policy-engine/tests/unit/remediation/test_cyc_02.py
+changed_paths_end
+generation_cycle_base_blob=bytes:578822 sha256:8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44
+generation_cycle_candidate_blob=bytes:579981 sha256:e20b90617563432226a02d24f0b51e8f52dac3116fc6bac0a3a674351c319d7f
+generation_cycle_import_nodes_equal=True
+base_manifest_required_family_count=4
+base_manifest_required_families=['runtime-openapi-snapshot', 'runtime-api-client', 'runtime-dashboard-api-types', 'trust-claim-posture-register']
+base_manifest_required_output_count=6
+base_manifest_required_outputs=['schemas/runtime_api_v1.openapi.json', 'packages/runtime-api-client/types.ts', 'packages/runtime-api-client/canonicalRuntimeApiClient.ts', 'packages/runtime-api-client/canonicalRuntimeApiClient.js', 'apps/runtime-dashboard/src/api/types.ts', 'apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json']
+base_tracked_tree_paths=13542
+candidate_tracked_tree_paths=13549

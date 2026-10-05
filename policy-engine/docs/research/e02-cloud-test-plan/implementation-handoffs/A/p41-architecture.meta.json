@@ -1,0 +1,26 @@
+{
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-guardrails-base/polisyos/policy-engine",
+  "argv": [
+    ".venv/bin/polisyos-tools",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "exit_code": 1,
+  "wall_seconds": 260.266,
+  "log_path": "/Users/deniskopylov/.codex/worktrees/e02-a-guardrails-base/polisyos/policy-engine/_build/e02-A-guardrails-base/n5-binding/architecture.txt",
+  "log_bytes": 115262,
+  "log_lines": 1991,
+  "log_sha256": "e4cd720fca791f7471d387368e2b2d605dedc6813229ebb6066df8581bfbb8d3",
+  "path": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0cn7X2j:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+  "uv_on_path": "uv 0.10.6 (Homebrew 2026-02-24)",
+  "runner_python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "gate_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-guardrails-base/polisyos/policy-engine/.venv/bin/polisyos-tools",
+  "gate_executable_shebang": "#!/Users/deniskopylov/.codex/worktrees/e02-a-guardrails-base/polisyos/policy-engine/.venv/bin/python",
+  "gate_python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "gate_python_version": "Python 3.14.3",
+  "gate_branch": "codex/e02-A-guardrails-base",
+  "gate_head": "c40d4acae1ce58b597267255026d9356565828fd",
+  "corepack_pnpm": "10.33.2"
+}

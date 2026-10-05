@@ -1,0 +1,3 @@
+2026-10-05 14:08:08.359 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-05 14:08:08.370 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+{'exception': 'TimeoutError', 'message': 'Connection creation timed out after 0.01s', 'available_permits': 1, 'own_connection_deadline_preserved': True}

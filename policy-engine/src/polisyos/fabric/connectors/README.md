@@ -55,6 +55,24 @@ retrieval, and streaming.
   `polisyos.fabric.data_plane.streaming`, `polisyos.runtime.http.services.control`,
   and `polisyos.data_forge.domains.catalog.batch.core_sources_ingest`.
 
+## Pool Acquisition and Cleanup
+
+`ConnectionPool` uses `PoolConfig.acquire_timeout_seconds` as one absolute
+deadline for semaphore admission, connection establishment, and health
+validation. Expiry raises `PoolExhaustedError`; a shorter connection timeout
+still raises its connection `TimeoutError`. Set the acquisition timeout for
+the complete acquisition path rather than treating it as a queue-only limit.
+
+Cancellation and timeout retain the physical handle and its permit until
+disconnect finishes. Cleanup can therefore finish after the acquisition
+deadline. A cancelled semaphore waiter cannot remove another acquisition's
+ownership, and `close_all()` waits for admitted acquisitions and cleanup to
+settle before declaring the pool closed. If disconnect fails, retry cleanup;
+the failed attempt retains ownership and prevents replacement admission.
+
+The pool module is `internal` under the public-surface manifest's default
+rule; this change does not add or remove a facade export.
+
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).

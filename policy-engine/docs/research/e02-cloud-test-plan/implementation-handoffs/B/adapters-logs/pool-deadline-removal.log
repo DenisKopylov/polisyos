@@ -1,0 +1,51 @@
+CANDIDATE 58b04116e25344835f482ef79c16ce87f2d0b771; MUTATION ConnectionPool._acquire_owned = ConnectionPool._acquire_owned_before_deadline; module source/deadline markers remain unchanged
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-adapters/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-adapters/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 2 items
+
+tests/unit/fabric/connectors/test_pool_e02.py::test_acquire_deadline_covers_network_work[connect] FAILED [ 50%]
+tests/unit/fabric/connectors/test_pool_e02.py::test_acquire_deadline_covers_network_work[health] FAILED [100%]
+
+=================================== FAILURES ===================================
+______________ test_acquire_deadline_covers_network_work[connect] ______________
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:488: in wait_for
+    return await fut
+           ^^^^^^^^^
+E   asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+tests/unit/fabric/connectors/test_pool_e02.py:79: in test_acquire_deadline_covers_network_work
+    await asyncio.wait_for(asyncio.shield(task), timeout=0.15)
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:487: in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/timeouts.py:114: in __aexit__
+    raise TimeoutError from exc_val
+E   TimeoutError
+______________ test_acquire_deadline_covers_network_work[health] _______________
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:488: in wait_for
+    return await fut
+           ^^^^^^^^^
+E   asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+tests/unit/fabric/connectors/test_pool_e02.py:79: in test_acquire_deadline_covers_network_work
+    await asyncio.wait_for(asyncio.shield(task), timeout=0.15)
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:487: in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/timeouts.py:114: in __aexit__
+    raise TimeoutError from exc_val
+E   TimeoutError
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/connectors/test_pool_e02.py::test_acquire_deadline_covers_network_work[connect]
+FAILED tests/unit/fabric/connectors/test_pool_e02.py::test_acquire_deadline_covers_network_work[health]
+============================== 2 failed in 0.42s ===============================

@@ -1,0 +1,33 @@
+id = "2026-10-05-e02-net01-pool-acquisition"
+title = "Bound connector acquisition and retain cleanup ownership"
+type = "fixed"
+component = "fabric-connectors"
+owner = "team-polisyos"
+summary = "Connector pools enforce the acquisition deadline through connect and health validation, and shutdown waits for admitted acquisitions even when a semaphore waiter is cancelled."
+evidence = [
+  "tests/unit/fabric/connectors/test_pool_e02.py",
+  "src/polisyos/fabric/connectors/README.md",
+]
+compatibility = "The configured acquisition timeout now covers semaphore waiting, connect, and health validation together. The pool reports its deadline as PoolExhaustedError; a shorter connection timeout retains TimeoutError. Cleanup may finish after that deadline while retaining the physical connection and permit."
+change_class = "internal"
+surface_classification = "internal: polisyos.fabric.connectors.pool under the public-surface manifest default rule"
+migration = "Review acquire_timeout_seconds as the complete acquisition budget. No configuration fields or exports change."
+api = "ConnectionPool.acquire and close_all retain their signatures."
+limitations = "A disconnect that has not settled still retains ownership and can delay shutdown; the deadline does not authorize abandoning a live handle."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "net01-pool-complete-acquisition-deadline"
+change_class = "internal"
+impact = "internal"
+surface = "internal: polisyos.fabric.connectors.pool"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Pool acquisition uses one deadline through admission, connect, and validation, and retains physical ownership until cleanup settles."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []

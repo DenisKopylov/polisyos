@@ -1,0 +1,10 @@
+id = "2026-10-05-e02-funnel-continuation-basis"
+title = "Keep funnel pauses bound to their stopping condition"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Funnel retries preserve deferred work unless a frontier freeze is lifted or capacity improves after a budget-owned pause; unrelated spend no longer creates a successor that skips a deferring stage."
+compatibility = "Stage-owned deferrals and timeout retries remain paused when their prerequisites have no reevaluable discriminator. Changed scientific inputs still receive a separate evaluation."
+surface_classification = "internal: scientist multi-fidelity funnel runtime"
+limitations = "This change grants no publication or resource-owner authority. The scheduler rechecks every resumed expensive transition; stage-specific resume events and alternate cheaper plans need their own owner contract."
+evidence = ["src/polisyos/scientist/methods/search/funnel/orchestrator.py", "tests/unit/scientist/search/funnel/test_orchestrator.py"]

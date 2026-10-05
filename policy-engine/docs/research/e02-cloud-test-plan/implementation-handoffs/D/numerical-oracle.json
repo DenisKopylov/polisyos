@@ -1,0 +1,389 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "numerical-oracle",
+  "closure_ids": [],
+  "observed_ids": [
+    "B108",
+    "B109",
+    "B110",
+    "B111",
+    "B112",
+    "B113",
+    "B127",
+    "B41",
+    "B122"
+  ],
+  "bundle_ids": [
+    "OPT-01",
+    "OPT-02",
+    "STP-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "d61ff66521cf52b95bddc51dc24c9b368b6b5451"
+  ],
+  "candidate_tree_sha": "051ab181b4f82b8c068bdb645a9b4e89842c6cc0",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-baseline.txt",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P022",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "source_file": "received/F01.txt",
+      "source_line": "139"
+    },
+    {
+      "id": "F02-P029",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence.py",
+      "state": "PASS",
+      "source_file": "received/F02.txt",
+      "source_line": "157"
+    },
+    {
+      "id": "F02-P057",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "state": "FAILED",
+      "source_file": "received/F02.txt",
+      "source_line": "185"
+    },
+    {
+      "id": "F02-P095",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "state": "PASS",
+      "source_file": "received/F02.txt",
+      "source_line": "223"
+    },
+    {
+      "id": "F03-P018",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "state": "PASS",
+      "source_file": "received/F03.txt",
+      "source_line": "148"
+    },
+    {
+      "id": "F03-P026",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+      "state": "PASS",
+      "source_file": "received/F03.txt",
+      "source_line": "156"
+    },
+    {
+      "id": "F04-P120",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+      "state": "PASS",
+      "source_file": "received/F04.txt",
+      "source_line": "330"
+    },
+    {
+      "id": "F05-P042",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "source_file": "received/F05.txt",
+      "source_line": "452"
+    },
+    {
+      "id": "F06-P032",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "state": "PASS",
+      "source_file": "received/F06.txt",
+      "source_line": "216"
+    },
+    {
+      "id": "F06-P046",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+      "state": "PASS",
+      "source_file": "received/F06.txt",
+      "source_line": "230"
+    },
+    {
+      "id": "F06-P080",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "state": "PASS",
+      "source_file": "received/F06.txt",
+      "source_line": "264"
+    },
+    {
+      "id": "F06-P112",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "state": "PASS",
+      "source_file": "received/F06.txt",
+      "source_line": "296"
+    },
+    {
+      "id": "F08-P061",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "state": "FAILED",
+      "source_file": "received/F08.txt",
+      "source_line": "184"
+    },
+    {
+      "id": "F08-P096",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "state": "PASS",
+      "source_file": "received/F08.txt",
+      "source_line": "219"
+    },
+    {
+      "id": "F08-P120",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+      "state": "PASS",
+      "source_file": "received/F08.txt",
+      "source_line": "243"
+    },
+    {
+      "id": "F09-P025",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "state": "PASS",
+      "source_file": "received/F09.txt",
+      "source_line": "141"
+    },
+    {
+      "id": "F09-P032",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "source_file": "received/F09.txt",
+      "source_line": "148"
+    },
+    {
+      "id": "F09-P035",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+      "state": "PASS",
+      "source_file": "received/F09.txt",
+      "source_line": "151"
+    },
+    {
+      "id": "F10-P086",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "state": "PASS",
+      "source_file": "received/F10.txt",
+      "source_line": "206"
+    },
+    {
+      "id": "F11-P031",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "source_file": "received/F11.txt",
+      "source_line": "160"
+    },
+    {
+      "id": "F11-P034",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+      "state": "PASS",
+      "source_file": "received/F11.txt",
+      "source_line": "163"
+    },
+    {
+      "id": "F12-P024",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "state": "PASS",
+      "source_file": "received/F12.txt",
+      "source_line": "609"
+    },
+    {
+      "id": "F12-P063",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "state": "PASS",
+      "source_file": "received/F12.txt",
+      "source_line": "648"
+    },
+    {
+      "id": "F13-P031",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+      "state": "PASS",
+      "source_file": "received/F13.txt",
+      "source_line": "158"
+    },
+    {
+      "id": "F13-P108",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "state": "PASS",
+      "source_file": "received/F13.txt",
+      "source_line": "235"
+    },
+    {
+      "id": "F14-P022",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "state": "PASS",
+      "source_file": "received/F14.txt",
+      "source_line": "372"
+    },
+    {
+      "id": "F15-P028",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "state": "PASS",
+      "source_file": "received/F15.txt",
+      "source_line": "183"
+    },
+    {
+      "id": "F15-P069",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "state": "FAILED",
+      "source_file": "received/F15.txt",
+      "source_line": "224"
+    },
+    {
+      "id": "F15-P142",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+      "state": "PASS",
+      "source_file": "received/F15.txt",
+      "source_line": "297"
+    }
+  ],
+  "source_basis": {
+    "bundles": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/{OPT-01,OPT-02,STP-01}.md@c40d4acae1ce58b597267255026d9356565828fd",
+    "residual": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#B108,B109,B110,B111,B112,B113,B127,B41,B122",
+    "source_grade": "Historical Fxx compact text is navigation only; zero raw archives transferred. New deciding output is retained here.",
+    "test_sources": {
+      "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py": "0845ff4d85b58443c78e23be781517f3aa504312e731e8d7113de24e5d087553",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py": "b4ebd567cad037fc227b9d36e7b20cbf9b5f7eccfc2b7a4289d6327304b979c1",
+      "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py": "25cd649c77280e7023ddc8eec87bdec666a863298dfd2bc53d1ec94a7f646c44",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py": "8e44385cab57e85aced43732da4b2d461b132725a319960625da644db615735e"
+    }
+  },
+  "environment": {
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cwd": "/workspace/e02-D-oracle/policy-engine",
+    "PYTHONPATH": "/workspace/e02-D-oracle/policy-engine/src",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "torch": "2.14.1",
+      "botorch": "0.18.1",
+      "gpytorch": "1.15.2",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "ruff": "0.14.10"
+    }
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-oracle/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py --tb=short -ra",
+      "target_sha": "d61ff66521cf52b95bddc51dc24c9b368b6b5451",
+      "production_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "shared absolute Python; isolated oracle source PYTHONPATH; no production mutations",
+      "input_closure": "Four tracked mirrored oracle files; actual Pareto, adapter, native strategy, objective/stopping and convergence modules plus their normal imports. Analytic finite lattice and declared embeddings; no production history/data. Runtime ran just before commit; source/tests were unchanged at commit and read back from branch.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output": "9 failed, 49 passed, 1 warning in 7.47s",
+      "log_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-baseline.txt@d61ff66521cf52b95bddc51dc24c9b368b6b5451",
+      "log_sha256": "227ab20a78d4b13c05f53ccda882dd308f3289915247d0758e2592b93a8be2f1"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "target_sha": "d61ff66521cf52b95bddc51dc24c9b368b6b5451",
+      "environment": "ruff 0.14.10",
+      "input_closure": "Exact four new oracle test files",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    }
+  ],
+  "property": {
+    "statement": "Independently verify strict Pareto membership and tied IDs; full metric/split/unit/direction coordinates; invalid-input assessment; measured-parameter and complete-ID training data; canonical discrete action coordinates/pending accounting; signed finite plateau and fresh compatible embeddings.",
+    "runtime_path": [
+      "BenchmarkEvaluation -> ParetoPromoter.compute_front -> ParetoFront JSON round-trip -> is_dominated",
+      "Autotune SearchSpace -> BayesianCandidateGenerator.generate -> native BayesianOptimizer.suggest -> PolicyCandidate",
+      "Actual history/benchmark params -> evaluation adapters -> native _prepare_training_data tensors",
+      "BudgetDeficitObjective.evaluate -> minimization normalized_value",
+      "ImprovementPlateau.check -> StoppingCondition",
+      "Declared embedder -> ConvergenceDetector.check_with_text -> ConvergenceState"
+    ],
+    "proxy_divergence": [
+      "Adapter availability=True with failed first suggestion and unchanged current_best.",
+      "Complete finite input assessment cannot prevent overflow of derived hypervolume.",
+      "Two distinct candidate IDs/Sobol proposals execute the same pending integer action.",
+      "Two stored embeddings are not a current consecutive pair after current measurement failure."
+    ],
+    "negative_controls": [
+      "NaN/Inf/missing metrics in every 3-input permutation preserve explicit omission reasons.",
+      "Same discrete action deduplicates while changed continuous input and explicit replicate IDs remain distinct.",
+      "Missing result remains invalid; actual measured zero remains valid; closed benchmark split is refused.",
+      "Failure/absence/dimension/model/version/orthogonal embedding changes block semantic convergence; two fresh matching observations restore it.",
+      "In-memory removal of Pareto membership/freshness predicates retains DTO/record markers while the independent property assertions fail.",
+      "Optional dependency absence is injected only as a negative adapter control; positive suggestions use the real installed stack."
+    ],
+    "finite_lattice_denominator": {
+      "dimensions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "values": [
+        -1,
+        0,
+        1
+      ],
+      "ordered_pair_count": 7380,
+      "executor": "numerical_oracle agent",
+      "basis": "Every ordered pair on the complete {-1,0,1} lattice for each dimension; direct weak-all/strict-any definition. This is a bounded mathematical oracle, not production history."
+    }
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "FAIL_BOUNDED_ORACLE; no finding closure claimed",
+  "finding_results": {
+    "B108": "PASS_BOUNDED aliases/sign/true zero/unusable values; typed units and served consumer remain unestablished",
+    "B109": "PASS_BOUNDED strict finite lattice and public 1–4D directions/tie IDs; global runtime provider remains unestablished",
+    "B110": "PASS_BOUNDED split/unit/direction coordinate artifact and is_dominated JSON round-trip",
+    "B111": "FAIL_BOUNDED finite ±1e308 hypervolume overflow raises; invalid metric permutation controls PASS",
+    "B112": "FAIL actual first suggestion lacks adapter Sobol sampler identity; optional dependency absence control PASS",
+    "B113": "PASS_BOUNDED physical params/full IDs/splits/absence/direction/training tensors on declared analytic fixtures",
+    "B127": "FAIL actual Sobol/random coordinates stay relaxed and initial suggest repeats pending binary action; same-action/continuous/replicate controls PASS",
+    "B41": "PASS_BOUNDED current compatible semantic pair with failure/absence/dimension/model/version controls",
+    "B122": "Finite signed cases PASS; 4 nonfinite histories silently return unannotated continuation FAIL; accepted near-zero and nonfinite policy remains principal-held"
+  },
+  "pattern_pass": [
+    "P10/P29/P33: independent analytic expected outputs, real paths and semantic-removal controls.",
+    "P35: complete bounded lattice and full baseline route/cell selection; no production census claim.",
+    "P37/P38: primitive runtime observations recomputed; explicit proxy divergence retained.",
+    "P41: new tests run against exact admitted slice base; recorded FAIL is never labeled inherited green.",
+    "P40: finite HV overflow and silent nonfinite plateau are existing declared residual classes, not new closure claims."
+  ],
+  "limitations_and_next_owner": [
+    "Search owner received exact failures and owns production repair; this branch modifies tests/evidence only.",
+    "B122 accepted near-zero scale and nonfinite stopping policy remains principal (Denis); no semantic scale chosen by oracle.",
+    "B111 extreme finite hypervolume and direct champion/persistence/publication residuals stay open; no CAS/provider/global frontier claim.",
+    "No production history, served evaluator, or end-to-end policy recommendation was measured.",
+    "Torch emits its documented Python-3.14 JIT deprecation warning; tests otherwise executed using installed real dependencies.",
+    "Historical baseline cells do not substitute for this candidate evidence; four historical whole-file replays were not performed."
+  ]
+}

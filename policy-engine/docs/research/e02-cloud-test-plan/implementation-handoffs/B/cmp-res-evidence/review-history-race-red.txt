@@ -1,0 +1,31 @@
+target_sha=e9f9738c1d0cd1cb4166718fe4cc5f76b7c15f9a
+command=['/workspace/polisyos/policy-engine/.venv/bin/python', '-m', 'pytest', '-o', 'addopts=', '-q', '--tb=short', '--show-capture=no', 'tests/unit/foundry/methods/backends/test_checkpointing_execution.py', '-k', 'history_only']
+exit=1 wall_s=2.258
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_failed_history_only_save_cannot_delete_a_peer_published_sidecar _____
+src/polisyos/foundry/methods/backends/checkpointing.py:263: in load
+    node_results_payload = _deserialise_state(
+src/polisyos/foundry/methods/backends/checkpointing.py:1009: in _deserialise_state
+    return {key: _deserialise_state(value, base_dir) for key, value in payload.items()}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/checkpointing.py:1011: in _deserialise_state
+    return [_deserialise_state(value, base_dir) for value in payload]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/checkpointing.py:1009: in _deserialise_state
+    return {key: _deserialise_state(value, base_dir) for key, value in payload.items()}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/checkpointing.py:985: in _deserialise_state
+    raise CheckpointLoadError(f"Checkpoint sidecar missing: {sidecar_path}")
+E   polisyos.foundry.methods.backends.checkpointing.CheckpointLoadError: Checkpoint sidecar missing: /tmp/pytest-of-agent/pytest-56/test_failed_history_only_save_0/checkpoint_history_race__WyJub2RlX3Jlc3VsdHMiLCIwIiwib3V0cHV0Il0.npy
+
+The above exception was the direct cause of the following exception:
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:388: in test_failed_history_only_save_cannot_delete_a_peer_published_sidecar
+    loaded = ChainCheckpoint.load(path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/checkpointing.py:288: in load
+    raise CheckpointLoadError(f"Failed to load checkpoint at {path}: {exc}") from exc
+E   polisyos.foundry.methods.backends.checkpointing.CheckpointLoadError: Failed to load checkpoint at /tmp/pytest-of-agent/pytest-56/test_failed_history_only_save_0/checkpoint_history_race.json: Checkpoint sidecar missing: /tmp/pytest-of-agent/pytest-56/test_failed_history_only_save_0/checkpoint_history_race__WyJub2RlX3Jlc3VsdHMiLCIwIiwib3V0cHV0Il0.npy
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_failed_history_only_save_cannot_delete_a_peer_published_sidecar
+1 failed, 5 deselected in 0.28s

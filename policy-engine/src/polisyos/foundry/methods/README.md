@@ -79,6 +79,36 @@ typed discovery, versioning, dispatch, and evidence.
 - `_internal/` is private implementation code. Do not import it from outside
   the package or document it as public API.
 
+## Checkpoint Execution Contract
+
+[backends/checkpointing.py](backends/checkpointing.py) is an internal direct
+execution API. It uses the sequential executor's parameter and slot-binding
+helpers: static parameters, node parameters, and call overrides retain that
+precedence, while the runtime seed stays separate from method parameters.
+Completed node results retain their original slot outputs, timing, and
+reproducibility on resume. Execution identity includes the effective request;
+a checkpoint with a different request or completed occurrence prefix is rejected.
+
+Persistence publishes NumPy sidecars before atomically replacing the JSON
+manifest. Writers hold the same filesystem lock through publication and any
+pre-publication rollback. If directory fsync fails after manifest replacement,
+`CheckpointSaveError` reports uncertain durability and the published manifest's
+sidecars remain available. Callers must not interpret that error as proof that
+the previous manifest is still current.
+
+Historical checkpoints without a bound execution identity are rejected for
+resume. An identity-bound checkpoint missing per-node history retains its
+intermediate state, exposes `checkpoint_per_node_history_missing` in the result
+contract, and does not fabricate original results. Missing slot-producing
+history cannot satisfy a downstream binding. External FX-provider bindings
+are unsupported and fail the canonical binding adapter's provider check.
+
+This direct API has no established product orchestration bridge or served
+checkpoint surface. The native execution and filesystem witnesses are in
+[test_checkpointing_execution.py](../../../../tests/unit/foundry/methods/backends/test_checkpointing_execution.py);
+they establish bounded replay and publication behavior, not power-loss durability
+after a failed fsync or scientific validity of a method's output.
+
 ## Extension Points
 
 - External method packages use the `polisyos.foundry_methods` entry-point group

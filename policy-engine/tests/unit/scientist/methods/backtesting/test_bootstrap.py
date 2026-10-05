@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import json
+from dataclasses import asdict
+
 import numpy as np
 import pytest
+
 from polisyos.scientist.methods.backtesting.bootstrap import (
+    BootstrapCI,
     BootstrapValidationError,
     bootstrap_metric,
     bootstrap_scenario_metrics,
@@ -83,6 +88,95 @@ class TestBootstrapMetric:
                 seed=42,
             )
 
+    @pytest.mark.parametrize(("statistic", "expected"), [("mean", 3.0), ("median", 0.0)])
+    def test_executed_named_statistic_survives_consumer_readback(
+        self, tmp_path, statistic, expected
+    ):
+        ci = bootstrap_metric(
+            [0.0, 0.0, 9.0],
+            metric="same_display_name",
+            statistic=statistic,
+            n_bootstrap=20,
+            seed=42,
+        )
+        output = tmp_path / "bootstrap.json"
+        output.write_text(json.dumps(asdict(ci)), encoding="utf-8")
+        reopened = BootstrapCI(**json.loads(output.read_text(encoding="utf-8")))
+
+        assert reopened.metric == "same_display_name"
+        assert reopened.point_estimate == expected
+        assert reopened.statistic == statistic
+        assert reopened.statistic_identity_basis == "recomputed"
+
+    def test_same_named_callables_keep_declared_identity_and_its_limit(self, tmp_path):
+        def quantile_statistic(quantile):
+            def statistic(values):
+                return float(np.quantile(values, quantile))
+
+            return statistic
+
+        median = quantile_statistic(0.5)
+        maximum = quantile_statistic(1.0)
+        assert median.__qualname__ == maximum.__qualname__
+        results = [
+            bootstrap_metric(
+                [0.0, 0.0, 9.0],
+                metric="same_display_name",
+                statistic=statistic,
+                statistic_id=statistic_id,
+                n_bootstrap=20,
+                seed=42,
+            )
+            for statistic, statistic_id in [(median, "quantile:0.5"), (maximum, "quantile:1.0")]
+        ]
+        output = tmp_path / "custom-bootstrap.json"
+        output.write_text(json.dumps([asdict(ci) for ci in results]), encoding="utf-8")
+        reopened = [
+            BootstrapCI(**payload) for payload in json.loads(output.read_text(encoding="utf-8"))
+        ]
+
+        assert [ci.point_estimate for ci in reopened] == [0.0, 9.0]
+        assert [ci.statistic for ci in reopened] == ["quantile:0.5", "quantile:1.0"]
+        assert {ci.statistic_identity_basis for ci in reopened} == {"consumer_asserted"}
+
+        # The helper cannot establish arbitrary callable semantics from a name,
+        # code address, or even a caller's duplicate declaration.
+        undeclared = [
+            bootstrap_metric([0.0, 0.0, 9.0], statistic=fn, n_bootstrap=1, seed=42)
+            for fn in (median, maximum)
+        ]
+        assert [ci.point_estimate for ci in undeclared] == [0.0, 9.0]
+        assert all(ci.statistic is None for ci in undeclared)
+        assert {ci.statistic_identity_basis for ci in undeclared} == {"not_established"}
+        duplicate_ids = [
+            bootstrap_metric(
+                [0.0, 0.0, 9.0],
+                statistic=fn,
+                statistic_id="same-declaration",
+                n_bootstrap=1,
+                seed=42,
+            )
+            for fn in (median, maximum)
+        ]
+        assert [ci.point_estimate for ci in duplicate_ids] == [0.0, 9.0]
+        assert {ci.statistic_identity_basis for ci in duplicate_ids} == {"consumer_asserted"}
+
+    @pytest.mark.parametrize("statistic_id", ["", "  ", 7])
+    def test_invalid_callable_identity_is_rejected_before_statistic_execution(self, statistic_id):
+        def forbidden_statistic(_values):
+            raise AssertionError("invalid identity reached expensive statistical work")
+
+        with pytest.raises(BootstrapValidationError, match="statistic_id"):
+            bootstrap_metric(
+                [1.0, 2.0], statistic=forbidden_statistic, statistic_id=statistic_id, n_bootstrap=1
+            )
+
+    def test_named_statistic_cannot_be_relabelled_by_callable_identity(self):
+        with pytest.raises(BootstrapValidationError, match="statistic_id"):
+            bootstrap_metric(
+                [0.0, 0.0, 9.0], statistic="mean", statistic_id="median", n_bootstrap=1
+            )
+
 
 class TestBootstrapScenarioMetrics:
     def test_produces_mae_and_rmse(self):
@@ -117,3 +211,5 @@ class TestBootstrapScenarioMetrics:
         assert result.point_estimate == float(np.sqrt(np.mean(arr**2)))
         assert result.lower == expected_lower
         assert result.upper == expected_upper
+        assert result.statistic == "root_mean_square"
+        assert result.statistic_identity_basis == "consumer_asserted"

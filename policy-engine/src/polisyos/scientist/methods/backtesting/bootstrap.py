@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 
@@ -22,7 +23,12 @@ StatisticFn = Callable[[np.ndarray], float]
 
 @dataclass(frozen=True)
 class BootstrapCI:
-    """Bootstrap confidence interval result."""
+    """Bootstrap confidence interval with the performed statistic's identity.
+
+    ``statistic`` is the resolved builtin selector or a caller-declared identity
+    for a custom callable. Arbitrary callable identity remains unestablished
+    when no declaration is supplied; declarations do not verify its semantics.
+    """
 
     metric: str
     point_estimate: float
@@ -30,6 +36,10 @@ class BootstrapCI:
     upper: float
     confidence_level: float
     n_bootstrap: int
+    statistic: str | None = None
+    statistic_identity_basis: Literal["recomputed", "consumer_asserted", "not_established"] = (
+        "not_established"
+    )
 
 
 def bootstrap_metric(
@@ -37,6 +47,7 @@ def bootstrap_metric(
     *,
     metric: str = "mean",
     statistic: str | StatisticFn = "mean",
+    statistic_id: str | None = None,
     confidence_level: float = 0.95,
     n_bootstrap: int = 1000,
     seed: int | None = None,
@@ -50,7 +61,13 @@ def bootstrap_metric(
     metric:
         Name label for the metric.
     statistic:
-        One of "mean", "median", "std".
+        One of "mean", "median", "std", or a custom callable.
+    statistic_id:
+        Optional identity declaration for a custom callable's scientific
+        definition. It is retained as ``consumer_asserted``, never inferred
+        from a callable's name or treated as verified functional identity.
+        Builtin selectors already have a resolved identity and reject this
+        argument. Omitting it preserves anonymous callable support.
     confidence_level:
         CI level (default 0.95).
     n_bootstrap:
@@ -83,6 +100,16 @@ def bootstrap_metric(
         )
 
     stat_fn = _resolve_statistic(statistic)
+    if statistic_id is not None and (not isinstance(statistic_id, str) or not statistic_id.strip()):
+        raise BootstrapValidationError(
+            "statistic_id must be a non-empty string when supplied",
+            code="invalid_statistic_id",
+        )
+    if not callable(statistic) and statistic_id is not None:
+        raise BootstrapValidationError(
+            "statistic_id is only supported for custom callable statistics",
+            code="builtin_statistic_id_override",
+        )
     point = _evaluate_statistic(stat_fn, arr)
 
     rng = np.random.default_rng(seed)
@@ -107,6 +134,14 @@ def bootstrap_metric(
         upper=upper,
         confidence_level=confidence_level,
         n_bootstrap=n_bootstrap,
+        statistic=statistic_id if callable(statistic) else statistic,
+        statistic_identity_basis=(
+            "consumer_asserted"
+            if callable(statistic) and statistic_id is not None
+            else "not_established"
+            if callable(statistic)
+            else "recomputed"
+        ),
     )
 
 
@@ -133,6 +168,7 @@ def bootstrap_scenario_metrics(
         arr,
         metric="rmse",
         statistic=_rmse_statistic,
+        statistic_id="root_mean_square",
         confidence_level=confidence_level,
         n_bootstrap=n_bootstrap,
         seed=seed,

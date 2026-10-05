@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.scientist.methods.autotune.models import BenchmarkSplitManifest
+from polisyos.scientist.methods.doe.designs import AdversarialStrategy
 from polisyos.scientist.methods.doe.designs import ParameterSpec as DOEParameterSpec
 from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
 from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
@@ -230,7 +231,13 @@ def test_constraint_critic_surfaces_budget_and_not_assessed_findings() -> None:
 
 
 def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
-    worker = ScenarioAdversaryWorker(ScenarioAdversaryConfig(max_scenarios=3, collect_top_k=2))
+    worker = ScenarioAdversaryWorker(
+        ScenarioAdversaryConfig(
+            max_scenarios=3,
+            collect_top_k=2,
+            strategy=AdversarialStrategy.GRID_EXTREME,
+        )
+    )
     surface = ScenarioAttackSurface(
         candidate_id="candidate_policy",
         parameter_specs=[
@@ -243,7 +250,9 @@ def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
             selection_ids=["a"],
             holdout_ids=["b"],
         ),
-        vulnerability_threshold=0.5,
+        # The composite normalizes maximized GDP growth to -GDP growth.
+        # A value >= -0.5 therefore identifies GDP growth <= 0.5.
+        vulnerability_threshold=-0.5,
     )
     bundle = worker.propose(surface, run_id="adv_test", budget_state=BudgetState())
 
@@ -265,8 +274,14 @@ def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
     )
 
     assert result.compiled_plan.parameter_specs
-    assert result.stress_test_report.total_scenarios_evaluated >= 1
-    assert result.stress_test_report.vulnerabilities
+    report = result.stress_test_report
+    assert report.total_scenarios_evaluated == 1
+    assert report.worst_case_objective == 0.0
+    assert report.worst_case_parameters == {"shock": 0.0, "noise": 0.0}
+    assert report.high_count == 1
+    assert len(report.vulnerabilities) == 1
+    assert report.vulnerabilities[0].objective_value == 0.0
+    assert report.vulnerabilities[0].parameter_values == {"shock": 0.0, "noise": 0.0}
 
 
 @pytest.mark.asyncio

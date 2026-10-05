@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+
 from polisyos.fabric.connectors.contracts import (
     DataSchema,
     FieldSpec,
@@ -210,6 +211,224 @@ def test_run_replay_mode_does_not_fallback_to_live_after_fixture_failure(
 
     assert live_calls == []
 
+
+
+def _make_real_replay_case(tmp_path, fixture_body: bytes | None):
+    import base64
+    from datetime import UTC, datetime
+    from typing import cast
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
+    from polisyos.fabric.connectors.testing.simulator import (
+        SimulatorFixture,
+        _canonicalize_url,
+        _request_hash,
+    )
+    from polisyos.fabric.data_plane.replay_store import RecordSession, ReplayStore
+    from polisyos.fabric.ingestion import resolve_ingestion_dependencies
+    from polisyos.ir.connectors import DataVersion, FetchResult, QualityTier, VersionStrategy
+
+    connector_id = "test.http_replay"
+    dataset_id = "rows"
+    url = "https://replay-fixture.invalid/data"
+    canonical_url = _canonicalize_url(url, None)
+    request_hash = _request_hash("GET", canonical_url, "none", b"")
+    fixtures = []
+    if fixture_body is not None:
+        fixtures.append(
+            SimulatorFixture(
+                status_code=200,
+                headers={"Content-Type": "application/json"},
+                body=base64.b64encode(fixture_body).decode("ascii"),
+                captured_at="2026-09-26T00:00:00+00:00",
+                request_url=canonical_url,
+                request_method="GET",
+                request_hash=request_hash,
+                connector_id=connector_id,
+                dataset_id=dataset_id,
+            ).to_dict()
+        )
+    cas_root = tmp_path / "cas"
+    replay_ref = ReplayStore(FileSystemCAS(cas_root)).save_record_session(
+        RecordSession(session_id="test-replay-session", fixtures=fixtures)
+    )
+
+    class _HTTPFixtureConnector:
+        metadata = None
+
+        async def fetch(self, handle, request):
+            import aiohttp
+
+            del request
+            async with aiohttp.ClientSession() as session:
+                async with session.get(handle.config.url) as response:
+                    rows = await response.json()
+            now = datetime.now(UTC)
+            digest = "sha256:" + "a" * 64
+            return FetchResult(
+                data=rows,
+                row_count=len(rows),
+                schema_id="test.http-replay",
+                schema_version="1.0.0",
+                version=DataVersion(
+                    strategy=VersionStrategy.CONTENT_HASH,
+                    value=digest,
+                    timestamp=now,
+                    content_hash=digest,
+                ),
+                fetched_at=now,
+                completeness=1.0,
+                quality_tier=QualityTier.BRONZE,
+            )
+
+    class _Registry:
+        def get(self, requested_connector_id: str) -> _HTTPFixtureConnector:
+            assert requested_connector_id == connector_id
+            return _HTTPFixtureConnector()
+
+        async def get_connection(
+            self,
+            requested_connector_id: str,
+            config: ConnectionConfig,
+        ) -> ConnectionHandle:
+            return ConnectionHandle(connector_id=requested_connector_id, config=config)
+
+        async def release_connection(
+            self,
+            requested_connector_id: str,
+            handle: ConnectionHandle,
+        ) -> None:
+            del requested_connector_id, handle
+
+    return {
+        "cas_root": cas_root,
+        "replay_ref": str(replay_ref.artifact_id),
+        "dependencies": resolve_ingestion_dependencies(registry=cast("Any", _Registry())),
+        "connection_config": ConnectionConfig(url=url),
+        "connector_id": connector_id,
+        "dataset_id": dataset_id,
+        "url": url,
+        "canonical_url": canonical_url,
+    }
+
+
+def _capture_replay_boundaries(monkeypatch):
+    import aiohttp
+
+    from polisyos.fabric.connectors.testing import simulator as simulator_mod
+
+    simulators = []
+    native_requests: list[tuple[str, str]] = []
+    ordinary_ingestion_calls: list[bool] = []
+    actual_simulator = simulator_mod.APISimulator
+
+    def _capture_simulator(**kwargs):
+        simulator = actual_simulator(**kwargs)
+        simulators.append(simulator)
+        return simulator
+
+    async def _forbid_native_request(self, method: str, url: str, **kwargs):
+        del self, kwargs
+        native_requests.append((method, url))
+        raise AssertionError("native transport must not run outside replay simulation")
+
+    def _ordinary_ingestion(**kwargs):
+        del kwargs
+        ordinary_ingestion_calls.append(True)
+        raise AssertionError("replay must not call ordinary ingestion")
+
+    monkeypatch.setattr(aiohttp.ClientSession, "_request", _forbid_native_request)
+    monkeypatch.setattr(simulator_mod, "APISimulator", _capture_simulator)
+    monkeypatch.setattr(
+        "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+        _ordinary_ingestion,
+    )
+    return simulators, native_requests, ordinary_ingestion_calls
+
+
+@pytest.mark.parametrize(
+    ("fixture_body", "expected_error"),
+    [
+        (None, "missing"),
+        (b"not-json", "corrupt"),
+    ],
+    ids=["missing-fixture", "corrupt-fixture"],
+)
+def test_run_replay_mode_fixture_failure_stays_in_replay_transport(
+    monkeypatch,
+    tmp_path,
+    fixture_body,
+    expected_error,
+) -> None:
+    """Real replay owner fails closed through the simulator, without live egress."""
+    import json
+
+    from polisyos.fabric.connectors.testing.simulator import MissingFixtureError
+    from polisyos.fabric.data_plane import modes as modes_mod
+
+    case = _make_real_replay_case(tmp_path, fixture_body)
+    simulators, native_requests, ordinary_calls = _capture_replay_boundaries(monkeypatch)
+    error_type = MissingFixtureError if expected_error == "missing" else json.JSONDecodeError
+
+    with pytest.raises(error_type):
+        modes_mod.run_replay_mode(
+            connector_manifest={
+                "datasets": [
+                    {
+                        "connector_id": case["connector_id"],
+                        "dataset_id": case["dataset_id"],
+                    }
+                ],
+            },
+            source="test",
+            license_name="MIT",
+            cas_root=case["cas_root"],
+            replay_ref=case["replay_ref"],
+            connection_config=case["connection_config"],
+            produce_snapshot=False,
+            ingestion_dependencies=case["dependencies"],
+        )
+
+    assert len(simulators) == 1
+    assert simulators[0].call_count == 1
+    assert simulators[0].call_log[0]["url"] == case["canonical_url"]
+    assert native_requests == []
+    assert ordinary_calls == []
+
+
+def test_run_replay_mode_uses_recorded_bytes_without_native_transport(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    """A real stored response is replayed through the same runtime owner."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+
+    case = _make_real_replay_case(tmp_path, b'[{"value":7}]')
+    simulators, native_requests, ordinary_calls = _capture_replay_boundaries(monkeypatch)
+    result = modes_mod.run_replay_mode(
+        connector_manifest={
+            "datasets": [
+                {"connector_id": case["connector_id"], "dataset_id": case["dataset_id"]},
+            ],
+        },
+        source="test",
+        license_name="MIT",
+        cas_root=case["cas_root"],
+        replay_ref=case["replay_ref"],
+        connection_config=case["connection_config"],
+        produce_snapshot=False,
+        ingestion_dependencies=case["dependencies"],
+    )
+
+    assert result.mode_effective == "replay"
+    assert result.datasets_fetched == 1
+    assert result.evidence_bundle_ref is not None
+    assert len(simulators) == 1
+    assert simulators[0].call_count == 1
+    assert simulators[0].call_log[0]["url"] == case["canonical_url"]
+    assert native_requests == []
+    assert ordinary_calls == []
 
 def test_run_streaming_windowed_legacy_path_uses_async_store_adapter(
     monkeypatch,

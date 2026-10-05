@@ -4513,10 +4513,12 @@ class ControlPlaneService(
         )
 
         mode = request.execution_mode
+        if request.replay_ref is not None:
+            mode = "replay"
         record_ref: str | None = None
         try:
             # Record/replay takes priority over execution mode dispatch
-            if request.replay_ref:
+            if request.replay_ref is not None:
                 from polisyos.fabric.data_plane.modes import run_replay_mode
 
                 result = run_replay_mode(
@@ -4607,7 +4609,7 @@ class ControlPlaneService(
                 message=f"Successfully ingested {result.datasets_fetched} dataset(s).",
                 warnings=result.warnings,
                 cursor_ref=result.cursor_ref,
-                mode_effective=mode,
+                mode_effective=result.mode_effective or mode,
                 record_ref=record_ref,
                 input_bindings_ref=input_bindings_ref,
             )

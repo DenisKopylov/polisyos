@@ -1,0 +1,60 @@
+{
+  "formatter": "ruff 0.14.10",
+  "base_sha": "3911345b2fec2c54ae03529bc29b214e79db6aee",
+  "format_output": "4 files reformatted\n",
+  "paths": [
+    {
+      "path": "src/polisyos/scientist/methods/autotune/warm_start.py",
+      "before_bytes_sha256": "55fac092a2ed477e5ea856b9c3beda8ac17db5395534f75ec24fb634aa815d12",
+      "after_bytes_sha256": "893ed5a55734fdc53f24b7ad73f1fd2a3d42af391461afc1229e9862aa17b6fc",
+      "before_ast_sha256": "db92e0db654789011206e0e0e17922161f2061c3bedf948449c22ef286062214",
+      "after_ast_sha256": "db92e0db654789011206e0e0e17922161f2061c3bedf948449c22ef286062214",
+      "AST_equal": true
+    },
+    {
+      "path": "src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "before_bytes_sha256": "2bd8f88b7b950e43f0e37b460daec8ce88205c27c588817fa04e67cbef435fe9",
+      "after_bytes_sha256": "8287e4c55943f6fedbfd47d0b946c5e3360bf63eb4066ab21903f1333027fc3b",
+      "before_ast_sha256": "d93828625966365b56cadc4175ffd4ef6a836aff2141b02aca8c215c7e424e19",
+      "after_ast_sha256": "d93828625966365b56cadc4175ffd4ef6a836aff2141b02aca8c215c7e424e19",
+      "AST_equal": true
+    },
+    {
+      "path": "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "before_bytes_sha256": "54f4b2af8fa1ef942318d153a0597492163b87239564ff75b76457652773c56c",
+      "after_bytes_sha256": "bf62fc0f94852961164a26c735384f1aeaf55af02b4f04464a1c229b7c54a059",
+      "before_ast_sha256": "f811b8f13adbeffd4cba0493b5d1d64449afdf19259cae5552c3160ca5c18bf0",
+      "after_ast_sha256": "f811b8f13adbeffd4cba0493b5d1d64449afdf19259cae5552c3160ca5c18bf0",
+      "AST_equal": true
+    },
+    {
+      "path": "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "before_bytes_sha256": "1802b4cf923c2bbbd367e9dbef37fe1be42791c90c39e2631707c74bb865be84",
+      "after_bytes_sha256": "e3fa26645131fb3708198d21489a27b6fb9a86338eff9b7bb8a87459f429f594",
+      "before_ast_sha256": "24f954126977205b36f9ee75f0aeca3f35528e5fbec75b4709df9b90aca48a3a",
+      "after_ast_sha256": "24f954126977205b36f9ee75f0aeca3f35528e5fbec75b4709df9b90aca48a3a",
+      "AST_equal": true
+    }
+  ],
+  "format_implementation_sha": "efb83beac94d716f901a1fb72bea9b23fa13d1ae",
+  "format_implementation_tree": "96b99edc7fd8b5906a0bf6486b9d00b14e7c9c94",
+  "closure_ids": [],
+  "covered_finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134"
+  ],
+  "behavior_freeze_sha": "830ddd02dcfbdc6b93492d740b397581b79c82fc",
+  "checks": [
+    "ruff0.14.10formatcheck4PASS",
+    "ruff0.14.10check4PASS",
+    "gitdiffcheckPASS",
+    "exactASTsame4"
+  ],
+  "release_fragment": "policy-engine/release-fragments/unreleased/2026-10-05-e02-transfer-restoration.toml",
+  "release_fragment_parse": "PASS"
+}

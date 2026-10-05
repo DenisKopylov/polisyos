@@ -1,0 +1,55 @@
+{
+  "source_sha": "4b01ba7342915cad1cb251d5bb7e6963b0285f2d",
+  "test_sha": "052e763253580519d5913a92ad5ccc9a1989e7e3",
+  "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-4b01ba7/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "results": [
+    {
+      "case": "config-refit-interval",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "reason": "GP checkpoint is incompatible: configuration changed"
+    },
+    {
+      "case": "space-basis",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "reason": "Strategy checkpoint is incompatible: search space changed"
+    },
+    {
+      "case": "backend-version",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "reason": "GP checkpoint is incompatible: numerical backend changed"
+    },
+    {
+      "case": "corpus-shape",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "reason": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+    },
+    {
+      "case": "corpus-nonfinite",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "reason": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+    },
+    {
+      "case": "negative-refit-size",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "reason": "GP checkpoint is incompatible: refit counters are invalid"
+    },
+    {
+      "case": "refit-time-future",
+      "result": "ADMITTED",
+      "last_refit_iteration": 999999
+    },
+    {
+      "case": "model-bytes-corruption",
+      "result": "REJECTED",
+      "exception": "UnpicklingError",
+      "reason": "Weights only load failed. In PyTorch 2.6, we changed the default value of the `weights_only` argument in `torch.load` from `False` to `True`. Re-running `torch.load` with `weights_only` set to `False` will likely succeed, but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.\nPlease file an issue with the following so that we can make `weights_only=True` compatible with your use case: WeightsUnpickler error: \n\nUnsupported operand 112\n\nCheck the documentation of torch.load to learn more about types accepted by default with weights_only https://pytorch.org/docs/stable/generated/torch.load.html."
+    }
+  ]
+}

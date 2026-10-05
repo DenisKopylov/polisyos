@@ -1,0 +1,12 @@
+id = "2026-10-05-search-gp-acquisition-replay"
+title = "Confine GP acquisition randomness to its checkpointed instance"
+type = "changed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Single and batch Bayesian acquisitions use locally seeded Sobol pools, stable top-score restart selection, and an explicitly seeded batch sampler. The numerical optimizer receives these initial conditions rather than drawing restarts from global torch state."
+evidence = ["tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py"]
+compatibility = "The versioned sobol_ranked_restarts_v1 acquisition policy changes restart selection from BoTorch's probabilistic selection to the best finite pool scores, retaining Sobol order for ties. Checkpoints without this exact policy binding are refused."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.methods.search.strategies"
+migration = "Use new checkpoints with identical optimizer configuration and backend versions. Restarting an older checkpoint as a fresh run requires an explicit caller operation."
+limitations = "Replay concerns numerical continuation in the admitted environment, not cross-backend bit equivalence or scientific optimality. Insufficient finite acquisition scores use the configured failure behavior."

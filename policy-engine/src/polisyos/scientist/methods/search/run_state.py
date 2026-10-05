@@ -54,6 +54,7 @@ class SearchRunState:
     budget_available: bool = False
     budget_snapshot: dict[str, float] = field(default_factory=dict)
     policy_evaluation_errors: int = 0
+    stopping_limitations: list[dict[str, Any]] = field(default_factory=list)
     generation_transition: GenerationTransition | None = None
     pareto_projection: ParetoViewProjection | None = None
 

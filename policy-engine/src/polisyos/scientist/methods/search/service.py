@@ -27,6 +27,8 @@ from polisyos.scientist.methods.search.run_state import (
     GenerationTransition,
     _EvaluationDisposition,
 )
+from polisyos.scientist.methods.search.stopping import _stopping_limitations
+from polisyos.scientist.methods.search.strategies.errors import StrategyError
 
 logger = get_logger(__name__)
 
@@ -196,10 +198,15 @@ class _NativeSearchServiceDriver:
                 self._stop(stopping_reason)
                 break
 
-            batch, generated, stopping_reason = self._prepare_batch(
-                initial_context=initial_context,
-                initial_candidate=candidate_to_seed,
-            )
+            try:
+                batch, generated, stopping_reason = self._prepare_batch(
+                    initial_context=initial_context,
+                    initial_candidate=candidate_to_seed,
+                )
+            except StrategyError as exc:
+                stopping_reason = f"candidate_generation_unavailable: {exc}"
+                self._stop(stopping_reason)
+                break
             candidate_to_seed = None
             if stopping_reason is not None:
                 self._stop(stopping_reason)
@@ -231,6 +238,9 @@ class _NativeSearchServiceDriver:
             [self.controller._to_history_dict(item) for item in self.controller._history],
             self.controller._stopping_state(),
         )
+        for limitation in _stopping_limitations(self.controller._config.stopping.name, stop_check):
+            if limitation not in self.controller._run_state.stopping_limitations:
+                self.controller._run_state.stopping_limitations.append(deepcopy(limitation))
         return stop_check.reason if stop_check.should_stop else None
 
     def _prepare_batch(

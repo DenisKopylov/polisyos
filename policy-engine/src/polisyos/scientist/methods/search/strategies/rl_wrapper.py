@@ -156,8 +156,4 @@ class RLStrategyWrapper:
 
     def _explore_random(self) -> PolicyCandidate:
         vector = tuple(self._rng.random() for _ in range(self._space.dim))
-        return PolicyCandidate(
-            params=self._space.denormalize(vector),
-            params_normalized=vector,
-            source_strategy="rl_exploration",
-        )
+        return self._space.candidate_from_vector(vector, source_strategy="rl_exploration")

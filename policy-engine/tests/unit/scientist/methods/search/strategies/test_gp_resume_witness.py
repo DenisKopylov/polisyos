@@ -378,3 +378,115 @@ def test_refit_trap_rejects_reset_counter_with_model_markers_intact(
     _forbid_refit(monkeypatch)
     with pytest.raises(AssertionError, match="forbidden full GP refit"):
         restored.suggest(scene.evaluations)
+
+
+def test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws(
+    fitted_scene: _Scene, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Actual next asks consume the persisted instance stream and leave global RNG alone."""
+    torch = require_torch()
+    scene = fitted_scene
+    control, restored = _new(scene.space), _new(scene.space)
+    for strategy in (control, restored):
+        strategy.set_state(StrategyState.from_artifact(scene.artifact))
+    _forbid_refit(monkeypatch)
+
+    def ask(strategy: BayesianOptimizer, *, batch: bool) -> list[PolicyCandidate]:
+        global_before = torch.random.get_rng_state().clone()
+        local_before = strategy._torch_rng.get_state().clone()
+        if batch:
+            candidates = strategy.suggest_batch(scene.evaluations, batch_size=2)
+            assert len(candidates) == 2
+            assert all(c.source_strategy == "batch_qei" for c in candidates)
+            assert all(
+                c.predicted_mean is not None and c.predicted_std is not None for c in candidates
+            )
+        else:
+            candidates = [strategy.suggest(scene.evaluations)]
+            _assert_candidate(candidates[0])
+        assert torch.equal(torch.random.get_rng_state(), global_before)
+        assert not torch.equal(strategy._torch_rng.get_state(), local_before)
+        _assert_gp_corpus(strategy, scene.evaluations)
+        return candidates
+
+    # No manual_seed/fork_rng surrounds these asks. Unrelated global draws
+    # between matching calls must affect neither the next single ask nor qEI.
+    for batch in (False, True, False):
+        expected = ask(control, batch=batch)
+        torch.rand(137, dtype=torch.float64)
+        actual = ask(restored, batch=batch)
+        for wanted, got in zip(expected, actual, strict=True):
+            assert got.params_normalized == pytest.approx(wanted.params_normalized, abs=1e-8)
+            assert got.predicted_mean == pytest.approx(wanted.predicted_mean, abs=1e-9)
+            assert got.predicted_std == pytest.approx(wanted.predicted_std, abs=1e-9)
+        assert torch.equal(control._torch_rng.get_state(), restored._torch_rng.get_state())
+        _assert_same_model(control._model, restored._model)
+        _LOG.warning(
+            "intrinsic_replay %s",
+            json.dumps(
+                {
+                    "owner": owner.__file__,
+                    "batch": batch,
+                    "asks": [c.params_normalized for c in actual],
+                    "global_rng_unchanged": True,
+                    "local_rng_equal": True,
+                },
+                sort_keys=True,
+            ),
+        )
+
+
+def test_removing_local_acquisition_rng_keeps_gp_markers_but_oracle_detects_global_draw(
+    fitted_scene: _Scene, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A real numerical ask with a global seed draw cannot pass the intrinsic replay oracle."""
+    torch = require_torch()
+    scene = fitted_scene
+    restored = _new(scene.space)
+    restored.set_state(StrategyState.from_artifact(scene.artifact))
+    _forbid_refit(monkeypatch)
+    assert restored.get_state().model_state is not None
+    local_before = restored._torch_rng.get_state().clone()
+    global_before = torch.random.get_rng_state().clone()
+    monkeypatch.setattr(
+        restored, "_next_acquisition_seed", lambda: int(torch.randint(0, 2**31 - 1, (1,)).item())
+    )
+    _assert_candidate(restored.suggest(scene.evaluations))
+    _assert_same_model(scene.fitted._model, restored._model)
+    assert torch.equal(restored._torch_rng.get_state(), local_before)
+    with pytest.raises(AssertionError):
+        assert torch.equal(torch.random.get_rng_state(), global_before)
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("last_refit_iteration", 999999),
+        ("acquisition_replay_policy", "old_unconfined_policy"),
+        ("acquisition_replay_policy", None),
+        ("gp_checkpoint_version", 0),
+        ("last_train_size", 1),
+    ],
+)
+def test_future_refit_clock_and_old_acquisition_policy_refuse_atomically(
+    fitted_scene: _Scene, field: str, value: Any
+) -> None:
+    """Persisted model markers cannot authorize an impossible clock or obsolete ask policy."""
+    torch = require_torch()
+    scene = fitted_scene
+    restored = _new(scene.space)
+    restored.set_state(StrategyState.from_artifact(scene.artifact))
+    state = StrategyState.from_artifact(scene.artifact)
+    assert state.model_state is not None
+    state.metadata[field] = value
+    model_before = restored._model
+    rng_before = restored._rng.getstate()
+    torch_before = restored._torch_rng.get_state().clone()
+    iteration_before = restored._iteration
+    with pytest.raises(ValueError, match="incompatible"):
+        restored.set_state(state)
+    assert restored._model is model_before
+    assert restored._rng.getstate() == rng_before
+    assert torch.equal(restored._torch_rng.get_state(), torch_before)
+    assert restored._iteration == iteration_before
+    _assert_same_model(scene.fitted._model, restored._model)

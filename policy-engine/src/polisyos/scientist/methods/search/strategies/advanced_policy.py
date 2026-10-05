@@ -305,9 +305,8 @@ class BOHBSampler:
                 jitter = self._rng.gauss(0.0, 0.12)
                 vector.append(min(1.0, max(0.0, value + jitter)))
             candidates.append(
-                PolicyCandidate(
-                    params=self._space.denormalize(tuple(vector)),
-                    params_normalized=tuple(vector),
+                self._space.candidate_from_vector(
+                    tuple(vector),
                     source_strategy="bohb",
                     metadata={"fidelity": min_fidelity, "elite_parent": base.candidate_id},
                 )
@@ -316,9 +315,8 @@ class BOHBSampler:
 
     def _random_candidate(self, source: str, fidelity: int) -> PolicyCandidate:
         vector = tuple(self._rng.random() for _ in range(self._space.dim))
-        return PolicyCandidate(
-            params=self._space.denormalize(vector),
-            params_normalized=vector,
+        return self._space.candidate_from_vector(
+            vector,
             source_strategy=source,
             metadata={"fidelity": fidelity},
         )
@@ -341,9 +339,8 @@ class CMAESExplorer:
                 for mean, sigma in zip(self._mean, self._sigma, strict=False)
             )
             candidates.append(
-                PolicyCandidate(
-                    params=self._space.denormalize(vector),
-                    params_normalized=vector,
+                self._space.candidate_from_vector(
+                    vector,
                     source_strategy="cma_es",
                 )
             )

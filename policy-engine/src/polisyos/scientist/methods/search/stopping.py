@@ -125,6 +125,8 @@ class ImprovementPlateau(StoppingCriterion):
     ):
         if patience < 1:
             raise ValueError("patience must be >= 1")
+        if not isfinite(min_improvement):
+            raise ValueError("min_improvement must be finite")
         self._patience = patience
         self._min_improvement = min_improvement
         self._objective_key = objective_key
@@ -143,6 +145,18 @@ class ImprovementPlateau(StoppingCriterion):
 
         if len(values) < self._patience + 1:
             return StoppingCondition(should_stop=False)
+        invalid_indices = [index for index, value in enumerate(values) if not isfinite(value)]
+        if invalid_indices:
+            return StoppingCondition(
+                should_stop=False,
+                reason="Improvement plateau unavailable: non-finite objective history",
+                details={
+                    "predicate_basis": "not_established",
+                    "limitation": "non_finite_objective_history",
+                    "objective_key": self._objective_key,
+                    "invalid_indices": invalid_indices,
+                },
+            )
 
         recent_values = values[-self._patience :]
         historical_values = values[: -self._patience]
@@ -158,6 +172,17 @@ class ImprovementPlateau(StoppingCriterion):
             improvement = signed_improvement
         else:
             improvement = signed_improvement / abs(best_historical)
+
+        if not isfinite(improvement):
+            return StoppingCondition(
+                should_stop=False,
+                reason="Improvement plateau unavailable: non-finite derived improvement",
+                details={
+                    "predicate_basis": "not_established",
+                    "limitation": "non_finite_derived_improvement",
+                    "objective_key": self._objective_key,
+                },
+            )
 
         if improvement < self._min_improvement:
             return StoppingCondition(
@@ -286,15 +311,23 @@ class CompositeStoppingCriterion(StoppingCriterion):
         return "composite"
 
     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
+        limitations = []
         for criterion in self._criteria:
             result = criterion.check(history, state)
+            limitations.extend(_stopping_limitations(criterion.name, result))
             if result.should_stop:
                 return StoppingCondition(
                     should_stop=True,
                     reason=f"[{criterion.name}] {result.reason}",
-                    details={"triggered_by": criterion.name, **result.details},
+                    details={
+                        "triggered_by": criterion.name,
+                        **result.details,
+                        "limitations": limitations,
+                    },
                 )
-        return StoppingCondition(should_stop=False)
+        return StoppingCondition(
+            should_stop=False, details={"limitations": limitations} if limitations else {}
+        )
 
     def reset(self) -> None:
         for criterion in self._criteria:
@@ -303,9 +336,7 @@ class CompositeStoppingCriterion(StoppingCriterion):
     def state_keys(self) -> tuple[str, ...]:
         """Return the de-duplicated state keys required by child criteria."""
         return tuple(
-            dict.fromkeys(
-                key for criterion in self._criteria for key in criterion.state_keys()
-            )
+            dict.fromkeys(key for criterion in self._criteria for key in criterion.state_keys())
         )
 
 
@@ -323,14 +354,24 @@ class AllStoppingCriteria(StoppingCriterion):
 
     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         results = [c.check(history, state) for c in self._criteria]
+        limitations = [
+            limitation
+            for criterion, result in zip(self._criteria, results, strict=True)
+            for limitation in _stopping_limitations(criterion.name, result)
+        ]
         if all(r.should_stop for r in results):
             reasons = [r.reason for r in results if r.reason]
             return StoppingCondition(
                 should_stop=True,
                 reason=" AND ".join(reasons),
-                details={"triggered_by": [c.name for c in self._criteria]},
+                details={
+                    "triggered_by": [c.name for c in self._criteria],
+                    "limitations": limitations,
+                },
             )
-        return StoppingCondition(should_stop=False)
+        return StoppingCondition(
+            should_stop=False, details={"limitations": limitations} if limitations else {}
+        )
 
     def reset(self) -> None:
         for criterion in self._criteria:
@@ -339,9 +380,7 @@ class AllStoppingCriteria(StoppingCriterion):
     def state_keys(self) -> tuple[str, ...]:
         """Return the de-duplicated state keys required by child criteria."""
         return tuple(
-            dict.fromkeys(
-                key for criterion in self._criteria for key in criterion.state_keys()
-            )
+            dict.fromkeys(key for criterion in self._criteria for key in criterion.state_keys())
         )
 
 
@@ -396,3 +435,11 @@ class StoppingPresets:
                 MaxIterations(max_iter),
             ]
         )
+
+
+def _stopping_limitations(name: str, result: StoppingCondition) -> list[dict[str, Any]]:
+    """Carry only declared unavailable predicates through criterion composition."""
+    limitations = list(result.details.get("limitations", []))
+    if result.details.get("predicate_basis") == "not_established":
+        limitations.append({"criterion": name, "reason": result.reason, "details": result.details})
+    return limitations

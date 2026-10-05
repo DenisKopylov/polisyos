@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import io
+import json
 import math
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
+from datetime import datetime
+from importlib.metadata import version
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 
 # Imported lazily through _deps to keep module importable without optional stack.
 from polisyos.scientist.methods.search.strategies._deps import (
@@ -17,6 +21,7 @@ from polisyos.scientist.methods.search.strategies._deps import (
     Normalize,
     ProbabilityOfImprovement,
     SingleTaskGP,
+    SobolQMCNormalSampler,
     Standardize,
     UpperConfidenceBound,
     fit_gpytorch_mll,
@@ -26,12 +31,16 @@ from polisyos.scientist.methods.search.strategies._deps import (
     require_torch,
 )
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
-from polisyos.scientist.methods.search.strategies.errors import OptionalDependencyUnavailableError
+from polisyos.scientist.methods.search.strategies.errors import (
+    OptionalDependencyUnavailableError,
+    StrategyError,
+)
 from polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter
 from polisyos.scientist.methods.search.strategies.runtime import apply_torch_runtime_settings
 from polisyos.scientist.methods.search.strategies.types import (
     AcquisitionType,
     Evaluation,
+    EvaluationStatus,
     PolicyCandidate,
     StrategyState,
 )
@@ -39,6 +48,7 @@ from polisyos.scientist.methods.search.strategies.types import (
 logger = get_logger(__name__)
 
 _WARM_COMPATIBILITY_METADATA = "warm_start_compatibility"
+_ACQUISITION_REPLAY_POLICY = "sobol_ranked_restarts_v1"
 _WARM_COMPATIBILITY_FIELDS = (
     "search_space_fingerprint",
     "input_transform_fingerprint",
@@ -100,6 +110,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._warm_context_fingerprint: str | None = None
         self._fitted_train_X: Any = None
         self._fitted_train_y_bo: Any = None
+        self._refit_train_X: Any = None
+        self._refit_train_y_bo: Any = None
         self._last_refit_iteration: int = -1
         self._last_train_size: int = 0
 
@@ -158,22 +170,32 @@ class BayesianOptimizer(BaseSearchStrategy):
     ) -> PolicyCandidate:
         self._iteration = len(evaluations)
         pending = pending or []
+        occupied = [
+            *pending,
+            *self._completed_candidates(evaluations),
+        ]
         training_corpus = self._effective_training_corpus(evaluations)
 
         if len(training_corpus) < self._config.n_initial:
-            return self._sobol_candidate(len(evaluations), source="sobol_init")
+            for _ in range(20):
+                result = self._sobol_candidate(
+                    max(len(evaluations), self._sobol_cursor), source="sobol_init"
+                )
+                if not self._is_duplicate(result, occupied):
+                    return result
+            return self._non_duplicate_random(occupied, source="random_initial_duplicate_avoidance")
 
         if not self._botorch_ready:
-            return self._non_duplicate_random(pending, source="random_no_botorch")
+            return self._non_duplicate_random(occupied, source="random_no_botorch")
 
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
-                return self._non_duplicate_random(pending, source="random_hard_limit")
+                return self._non_duplicate_random(occupied, source="random_hard_limit")
 
             train_set = self._select_training_subset(evaluations)
             if len(train_set) < 3:
-                return self._non_duplicate_random(pending, source="random_insufficient_data")
+                return self._non_duplicate_random(occupied, source="random_insufficient_data")
 
             try:
                 X, y_bo = self._prepare_training_data(train_set)
@@ -192,10 +214,10 @@ class BayesianOptimizer(BaseSearchStrategy):
                 logger.warning("BayesianOptimizer failed; fallback to random: {}", exc)
                 if not self._config.fallback_on_failure:
                     raise
-                result = self._non_duplicate_random(pending, source="random_fallback")
+                result = self._non_duplicate_random(occupied, source="random_fallback")
 
-        if self._is_duplicate(result, pending):
-            return self._non_duplicate_random(pending, source="random_duplicate_avoidance")
+        if self._is_duplicate(result, occupied):
+            return self._non_duplicate_random(occupied, source="random_duplicate_avoidance")
         return result
 
     def suggest_batch(
@@ -203,77 +225,110 @@ class BayesianOptimizer(BaseSearchStrategy):
     ) -> list[PolicyCandidate]:
         if batch_size < 1:
             return []
+        self._iteration = len(evaluations)
 
         training_corpus = self._effective_training_corpus(evaluations)
         if len(training_corpus) < self._config.n_initial:
-            return [
-                self._sobol_candidate(len(evaluations) + idx, source="sobol_init")
-                for idx in range(batch_size)
-            ]
+            candidates: list[PolicyCandidate] = []
+            for _ in range(batch_size):
+                candidates.append(self.suggest(evaluations, pending=candidates))
+            return candidates
 
         if not self._botorch_ready:
-            return [
-                self._non_duplicate_random([], source="random_no_botorch")
-                for _ in range(batch_size)
-            ]
+            return self._random_batch(evaluations, batch_size, "random_no_botorch")
 
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
-                return [
-                    self._non_duplicate_random([], source="random_hard_limit")
-                    for _ in range(batch_size)
-                ]
+                return self._random_batch(evaluations, batch_size, "random_hard_limit")
 
             train_set = self._select_training_subset(evaluations)
             if len(train_set) < 3:
-                return [
-                    self._non_duplicate_random([], source="random_insufficient_data")
-                    for _ in range(batch_size)
-                ]
+                return self._random_batch(evaluations, batch_size, "random_insufficient_data")
 
             try:
                 X, y_bo = self._prepare_training_data(train_set)
                 self._fit_gp(X, y_bo)
                 restarts, raw_samples = self._effective_optim_params(soft_limit=soft)
                 best_f = y_bo.max()
-                acq = qExpectedImprovement(model=self._model, best_f=best_f)
+                sampler = SobolQMCNormalSampler(
+                    sample_shape=self._torch.Size([128]), seed=self._next_acquisition_seed()
+                )
+                acq = qExpectedImprovement(model=self._model, best_f=best_f, sampler=sampler)
+                bounds = self._space.to_botorch_bounds().to(self._device)
+                initial_conditions = self._acquisition_initial_conditions(
+                    acq, bounds, batch_size, restarts, raw_samples
+                )
                 candidates, _ = optimize_acqf(
                     acq_function=acq,
-                    bounds=self._space.to_botorch_bounds().to(self._device),
+                    bounds=bounds,
                     q=batch_size,
                     num_restarts=restarts,
-                    raw_samples=raw_samples,
+                    batch_initial_conditions=initial_conditions,
                 )
                 output: list[PolicyCandidate] = []
+                occupied = self._completed_candidates(evaluations)
                 for idx in range(batch_size):
-                    output.append(
-                        self._tensor_to_candidate(
-                            candidates[idx],
-                            source="batch_qei",
+                    candidate = self._tensor_to_candidate(candidates[idx], source="batch_qei")
+                    if self._is_duplicate(candidate, [*occupied, *output]):
+                        candidate = self._non_duplicate_random(
+                            [*occupied, *output], source="random_batch_duplicate_avoidance"
                         )
-                    )
+                    output.append(candidate)
                 return output
             except Exception as exc:
                 logger.warning("Bayesian batch optimization failed; random fallback: {}", exc)
-                return [
-                    self._non_duplicate_random([], source="random_batch_fallback")
-                    for _ in range(batch_size)
-                ]
+                if not self._config.fallback_on_failure:
+                    raise
+                return self._random_batch(evaluations, batch_size, "random_batch_fallback")
+
+    def _completed_candidates(self, evaluations: list[Evaluation]) -> list[PolicyCandidate]:
+        return [
+            PolicyCandidate(params=e.params, metadata=e.metadata)
+            for e in [*self._warm_evals, *evaluations]
+            if e.params
+        ]
+
+    def _random_batch(
+        self, evaluations: list[Evaluation], batch_size: int, source: str
+    ) -> list[PolicyCandidate]:
+        occupied = self._completed_candidates(evaluations)
+        output: list[PolicyCandidate] = []
+        for _ in range(batch_size):
+            output.append(self._non_duplicate_random([*occupied, *output], source=source))
+        return output
 
     def get_state(self) -> StrategyState:
+        """Persist the numerical model and the corpus/refit basis of its next ask."""
+        base_state = super().get_state()
         model_state: bytes | None = None
         if self._model is not None and self._botorch_ready:
             buffer = io.BytesIO()
             self._torch.save(self._model.state_dict(), buffer)
             model_state = buffer.getvalue()
 
-        metadata: dict[str, Any] = {"config": asdict(self._config)}
-        if self._train_X is not None and self._train_y_bo is not None:
-            metadata["train_X"] = self._train_X.tolist()
-            metadata["train_y_bo"] = self._train_y_bo.tolist()
+        metadata: dict[str, Any] = {
+            **base_state.metadata,
+            "gp_checkpoint_version": 1,
+            "acquisition_replay_policy": _ACQUISITION_REPLAY_POLICY,
+            "config": asdict(self._config),
+            "last_refit_iteration": self._last_refit_iteration,
+            "last_train_size": self._last_train_size,
+            "warm_evaluations": [self._warm_checkpoint_record(e) for e in self._warm_evals],
+            "warm_context_fingerprint": self._warm_context_fingerprint,
+        }
+        if model_state is not None:
+            if self._fitted_train_X is None or self._fitted_train_y_bo is None:
+                raise ValueError("GP checkpoint is incompatible: fitted corpus is missing")
+            metadata["train_X"] = self._fitted_train_X.tolist()
+            metadata["train_y_bo"] = self._fitted_train_y_bo.tolist()
+            if self._refit_train_X is None or self._refit_train_y_bo is None:
+                raise ValueError("GP checkpoint is incompatible: full-refit corpus is missing")
+            metadata["refit_train_X"] = self._refit_train_X.tolist()
+            metadata["refit_train_y_bo"] = self._refit_train_y_bo.tolist()
+            metadata["backend"] = self._backend_identity()
 
-        rng_state = super().get_state().rng_state
+        rng_state = base_state.rng_state
         if self._torch_rng is not None:
             rng_state = {
                 **rng_state,
@@ -288,34 +343,186 @@ class BayesianOptimizer(BaseSearchStrategy):
         )
 
     def set_state(self, state: StrategyState) -> None:
-        super().set_state(state)
-        if not self._botorch_ready:
-            return
-        torch_rng_state = state.rng_state.get("torch")
-        if self._torch_rng is not None and torch_rng_state is not None:
-            self._torch_rng.set_state(self._torch.tensor(torch_rng_state, dtype=self._torch.uint8))
+        """Restore an admitted continuation without refitting or losing warm data."""
+        metadata = state.metadata
+        if not isinstance(state.rng_state, Mapping):
+            raise ValueError("GP checkpoint RNG state must be an object")
+        if not isinstance(metadata, Mapping) or metadata.get("gp_checkpoint_version") != 1:
+            raise ValueError("GP checkpoint is incompatible: replay basis is missing")
+        if metadata.get("acquisition_replay_policy") != _ACQUISITION_REPLAY_POLICY:
+            raise ValueError("GP checkpoint is incompatible: acquisition replay policy changed")
+        config = metadata.get("config")
+        if not isinstance(config, Mapping) or set(config) != set(asdict(self._config)):
+            raise ValueError("GP checkpoint is incompatible: configuration is missing")
+        if any(
+            config[key] != value for key, value in asdict(self._config).items() if key != "seed"
+        ):
+            raise ValueError("GP checkpoint is incompatible: configuration changed")
+        if config.get("seed") != metadata.get("seed"):
+            raise ValueError("GP checkpoint is incompatible: seed basis changed")
+        last_refit = metadata.get("last_refit_iteration")
+        last_size = metadata.get("last_train_size")
+        if (
+            isinstance(last_refit, bool)
+            or not isinstance(last_refit, int)
+            or last_refit < -1
+            or not isinstance(state.iteration, int)
+            or last_refit > state.iteration
+            or isinstance(last_size, bool)
+            or not isinstance(last_size, int)
+            or last_size < 0
+        ):
+            raise ValueError("GP checkpoint is incompatible: refit counters are invalid")
+        warm_payloads = metadata.get("warm_evaluations")
+        if not isinstance(warm_payloads, list):
+            raise ValueError("GP checkpoint is incompatible: warm corpus is missing")
+        warm_evals = [self._warm_from_checkpoint(payload) for payload in warm_payloads]
+        warm_context = metadata.get("warm_context_fingerprint")
+        if warm_context is not None and (not isinstance(warm_context, str) or not warm_context):
+            raise ValueError("GP checkpoint is incompatible: warm context is invalid")
+        if any(self._warm_compatibility(e)[-1] != warm_context for e in warm_evals):
+            raise ValueError("GP checkpoint is incompatible: warm context changed")
 
-        train_X_list = state.metadata.get("train_X")
-        train_y_list = state.metadata.get("train_y_bo")
-        if train_X_list is None or train_y_list is None:
-            return
-        self._train_X = self._torch.tensor(train_X_list, dtype=self._torch.float64)
-        self._train_y_bo = self._torch.tensor(train_y_list, dtype=self._torch.float64)
-        if self._device != "cpu":
-            self._train_X = self._train_X.to(self._device)
-            self._train_y_bo = self._train_y_bo.to(self._device)
-        self._fitted_train_X = self._train_X.clone()
-        self._fitted_train_y_bo = self._train_y_bo.clone()
-        if state.model_state is None:
-            return
-        self._model = SingleTaskGP(
-            train_X=self._train_X,
-            train_Y=self._train_y_bo,
-            input_transform=Normalize(d=self._train_X.shape[-1]),
-            outcome_transform=Standardize(m=1),
-        )
-        buffer = io.BytesIO(state.model_state)
-        self._model.load_state_dict(self._torch.load(buffer))
+        torch_rng = None
+        torch_rng_state = state.rng_state.get("torch")
+        if self._torch_rng is not None:
+            if not isinstance(torch_rng_state, list) or any(
+                type(value) is not int or not 0 <= value <= 255 for value in torch_rng_state
+            ):
+                raise ValueError("GP checkpoint is incompatible: torch RNG state is invalid")
+            torch_rng = self._torch.Generator()
+            torch_rng.set_state(self._torch.tensor(torch_rng_state, dtype=self._torch.uint8))
+
+        train_X = train_y = model = None
+        refit_X = refit_y = None
+        if state.model_state is not None:
+            if not self._botorch_ready or metadata.get("backend") != self._backend_identity():
+                raise ValueError("GP checkpoint is incompatible: numerical backend changed")
+            try:
+                train_X = self._torch.tensor(
+                    metadata.get("train_X"), dtype=self._torch.float64, device=self._device
+                )
+                train_y = self._torch.tensor(
+                    metadata.get("train_y_bo"), dtype=self._torch.float64, device=self._device
+                )
+                refit_X = self._torch.tensor(
+                    metadata.get("refit_train_X"), dtype=self._torch.float64, device=self._device
+                )
+                refit_y = self._torch.tensor(
+                    metadata.get("refit_train_y_bo"), dtype=self._torch.float64, device=self._device
+                )
+            except (TypeError, ValueError, RuntimeError) as exc:
+                raise ValueError("GP checkpoint is incompatible: fitted corpus is invalid") from exc
+            if (
+                train_X.ndim != 2
+                or train_X.shape[1] != self._space.dim
+                or train_X.shape[0] < 1
+                or train_y.shape != (train_X.shape[0], 1)
+                or not self._torch.isfinite(train_X).all()
+                or not self._torch.isfinite(train_y).all()
+                or not ((train_X >= 0) & (train_X <= 1)).all()
+                or not 0 < last_size <= train_X.shape[0]
+                or train_X.shape[0] > last_size * 1.2
+                or last_refit < 0
+                or (
+                    self._config.refit_interval > 0
+                    and state.iteration - last_refit >= self._config.refit_interval
+                )
+                or refit_X.shape != (last_size, self._space.dim)
+                or refit_y.shape != (last_size, 1)
+                or not self._torch.isfinite(refit_X).all()
+                or not self._torch.isfinite(refit_y).all()
+                or not self._torch.equal(refit_X, train_X[:last_size])
+                or not self._torch.equal(refit_y, train_y[:last_size])
+            ):
+                raise ValueError("GP checkpoint is incompatible: fitted corpus shape/basis changed")
+            try:
+                model = SingleTaskGP(
+                    train_X=train_X,
+                    train_Y=train_y,
+                    input_transform=Normalize(d=train_X.shape[-1]),
+                    outcome_transform=Standardize(m=1),
+                )
+                buffer = io.BytesIO(state.model_state)
+                model.load_state_dict(
+                    self._torch.load(buffer, weights_only=True, map_location=self._device)
+                )
+            except Exception as exc:
+                raise ValueError(
+                    "GP checkpoint is incompatible: numerical model is invalid"
+                ) from exc
+        elif (
+            last_size != 0
+            or last_refit != -1
+            or any(
+                key in metadata
+                for key in ("train_X", "train_y_bo", "refit_train_X", "refit_train_y_bo")
+            )
+        ):
+            raise ValueError("GP checkpoint is incompatible: model/corpus mismatch")
+
+        # Validate all numerical/corpus fields before the canonical owner
+        # changes its RNG and Sobol stream. The rebuilt model is still local.
+        super().set_state(state)
+        self._model = model
+        self._train_X, self._train_y_bo = train_X, train_y
+        self._fitted_train_X = train_X.clone() if train_X is not None else None
+        self._fitted_train_y_bo = train_y.clone() if train_y is not None else None
+        self._refit_train_X = refit_X
+        self._refit_train_y_bo = refit_y
+        self._last_refit_iteration, self._last_train_size = last_refit, last_size
+        self._warm_evals = warm_evals
+        self._warm_evaluation_ids = {id(e) for e in warm_evals}
+        self._warm_context_fingerprint = warm_context
+        self._config.seed = config["seed"]
+        if torch_rng is not None:
+            self._torch_rng = torch_rng
+
+    @staticmethod
+    def _backend_identity() -> dict[str, str]:
+        return {name: version(name) for name in ("torch", "botorch", "gpytorch")}
+
+    @staticmethod
+    def _warm_checkpoint_record(evaluation: Evaluation) -> dict[str, Any]:
+        record = asdict(evaluation)
+        record["timestamp"] = evaluation.timestamp.isoformat()
+        record["status"] = evaluation.status.value
+        for objective in record["objectives"]:
+            objective["direction"] = objective["direction"].value
+        # Refuse lossy coercion of provenance, replica IDs, or scientific data.
+        json.dumps(record, allow_nan=False)
+        return record
+
+    def _warm_from_checkpoint(self, payload: Any) -> Evaluation:
+        try:
+            if not isinstance(payload, Mapping):
+                raise ValueError("warm evaluation must be an object")
+            record = dict(payload)
+            record["timestamp"] = datetime.fromisoformat(record["timestamp"])
+            record["status"] = EvaluationStatus(record["status"])
+            record["params_normalized"] = tuple(record["params_normalized"])
+            record["objectives"] = [
+                ObjectiveValue(
+                    **{**objective, "direction": OptimizationDirection(objective["direction"])}
+                )
+                for objective in record["objectives"]
+            ]
+            evaluation = Evaluation(**record)
+            if (
+                not isinstance(evaluation.candidate_id, str)
+                or not evaluation.candidate_id
+                or not isinstance(evaluation.params, dict)
+                or not isinstance(evaluation.metadata, dict)
+                or not evaluation.is_valid
+                or not math.isfinite(evaluation.scalar_score)
+                or self._origin_ref(evaluation) is None
+                or not self._has_compatible_params(evaluation)
+                or self._warm_compatibility(evaluation) is None
+            ):
+                raise ValueError("warm evaluation binding changed")
+            return evaluation
+        except (KeyError, TypeError, ValueError, OverflowError) as exc:
+            raise ValueError("GP checkpoint is incompatible: warm evaluation is invalid") from exc
 
     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
         filtered = self._effective_training_corpus(evaluations)
@@ -329,9 +536,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         sampled = older[::step][: self._config.max_train_size - recent_n]
         return sampled + recent
 
-    def _effective_training_corpus(
-        self, evaluations: list[Evaluation]
-    ) -> list[Evaluation]:
+    def _effective_training_corpus(self, evaluations: list[Evaluation]) -> list[Evaluation]:
         """Combine compatible warm/current records without double-counting artifacts."""
         corpus: list[Evaluation] = []
         seen: set[tuple[Any, ...]] = set()
@@ -363,8 +568,25 @@ class BayesianOptimizer(BaseSearchStrategy):
             normalized = tuple(float(value) for value in evaluation.params_normalized)
         except (TypeError, ValueError, OverflowError):
             return False
-        return len(normalized) == self._space.dim and all(
-            math.isfinite(value) and 0.0 <= value <= 1.0 for value in normalized
+        if not (
+            len(normalized) == self._space.dim
+            and all(math.isfinite(value) and 0.0 <= value <= 1.0 for value in normalized)
+        ):
+            return False
+        if not isinstance(evaluation.params, Mapping) or not all(
+            bound.name in evaluation.params for bound in self._space.bounds
+        ):
+            return False
+        try:
+            self._space.validate_params(dict(evaluation.params))
+            actual = self._space.normalize(dict(evaluation.params))
+        except (TypeError, ValueError, OverflowError):
+            return False
+        # This is encoding roundoff tolerance, not an action deduplication
+        # tolerance. Physical continuous inputs still compare without rounding.
+        return all(
+            math.isclose(left, right, rel_tol=0.0, abs_tol=1e-12)
+            for left, right in zip(normalized, actual, strict=True)
         )
 
     def _warm_compatibility(self, evaluation: Evaluation) -> tuple[str, ...] | None:
@@ -456,9 +678,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             or not self._model_train_x_matches_fitted(previous_X)
             or not self._is_append_update(X, y_bo)
         ):
-            logger.info(
-                "Bayesian GP corpus changed outside append-only update; refitting model"
-            )
+            logger.info("Bayesian GP corpus changed outside append-only update; refitting model")
             self._fit_full_gp(X, y_bo)
             return
 
@@ -482,9 +702,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             self._fitted_train_X = X.detach().clone()
             self._fitted_train_y_bo = y_bo.detach().clone()
         except Exception as exc:
-            logger.warning(
-                "Bayesian GP conditioning unavailable; using bounded refit: {}", exc
-            )
+            logger.warning("Bayesian GP conditioning unavailable; using bounded refit: {}", exc)
             self._fit_full_gp(X, y_bo)
 
     def _fit_full_gp(self, X, y_bo) -> None:
@@ -499,6 +717,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         fit_gpytorch_mll(mll)
         self._fitted_train_X = X.detach().clone()
         self._fitted_train_y_bo = y_bo.detach().clone()
+        self._refit_train_X = X.detach().clone()
+        self._refit_train_y_bo = y_bo.detach().clone()
         self._last_refit_iteration = self._iteration
         self._last_train_size = X.shape[0]
 
@@ -602,13 +822,46 @@ class BayesianOptimizer(BaseSearchStrategy):
             acq = ExpectedImprovement(model=self._model, best_f=best_f)
 
         restarts, raw_samples = self._effective_optim_params(soft_limit=soft_limit)
+        bounds = self._space.to_botorch_bounds().to(self._device)
+        initial_conditions = self._acquisition_initial_conditions(
+            acq, bounds, 1, restarts, raw_samples
+        )
         return optimize_acqf(
             acq_function=acq,
-            bounds=self._space.to_botorch_bounds().to(self._device),
+            bounds=bounds,
             q=1,
             num_restarts=restarts,
-            raw_samples=raw_samples,
+            batch_initial_conditions=initial_conditions,
         )
+
+    def _next_acquisition_seed(self) -> int:
+        """Advance only the checkpointed instance stream, never torch's global RNG."""
+        return int(self._torch.randint(0, 2**31 - 1, (1,), generator=self._torch_rng).item())
+
+    def _acquisition_initial_conditions(self, acquisition, bounds, q, restarts, raw_samples):
+        """Rank a locally seeded Sobol pool with stable ties before deterministic optimization.
+
+        This is a versioned acquisition policy: the best finite pool values select
+        restarts, and equal values retain Sobol order. It replaces BoTorch's global
+        random restart selection rather than merely passing a seed to that selector.
+        """
+        torch = self._torch
+        count = max(restarts, raw_samples)
+        dimension = bounds.shape[-1]
+        engine = torch.quasirandom.SobolEngine(
+            dimension=q * dimension, scramble=True, seed=self._next_acquisition_seed()
+        )
+        pool = engine.draw(count, dtype=bounds.dtype).to(bounds.device).reshape(count, q, dimension)
+        pool = bounds[0] + (bounds[1] - bounds[0]) * pool
+        with torch.no_grad():
+            scores = acquisition(pool).reshape(-1)
+        if scores.numel() != count:
+            raise StrategyError("Acquisition restart scores do not match the candidate pool")
+        finite = torch.isfinite(scores)
+        if int(finite.sum().item()) < restarts:
+            raise StrategyError("Insufficient finite acquisition scores for ranked restarts")
+        ranked = scores.masked_fill(~finite, -torch.inf).argsort(descending=True, stable=True)
+        return pool[ranked[:restarts]].detach()
 
     def _effective_optim_params(self, soft_limit: bool) -> tuple[int, int]:
         if not soft_limit:
@@ -625,7 +878,9 @@ class BayesianOptimizer(BaseSearchStrategy):
             candidate = self._random_candidate(source=source)
             if not self._is_duplicate(candidate, pending):
                 return candidate
-        return self._random_candidate(source=source)
+        raise StrategyError(
+            f"Unable to propose an unoccupied execution after {attempts} random attempts"
+        )
 
     def _is_duplicate(self, candidate: PolicyCandidate, pending: list[PolicyCandidate]) -> bool:
         candidate_execution = self._effective_execution(candidate)
@@ -643,13 +898,13 @@ class BayesianOptimizer(BaseSearchStrategy):
 
     def _effective_execution(self, candidate: PolicyCandidate) -> dict[str, Any] | None:
         """Resolve a proposal to the typed parameters that will actually run."""
+        if candidate.params:
+            return dict(candidate.params)
         if candidate.params_normalized is not None:
             try:
                 return self._space.denormalize(candidate.params_normalized)
             except (TypeError, ValueError):
                 return None
-        if candidate.params:
-            return dict(candidate.params)
         return None
 
     @staticmethod
@@ -673,18 +928,19 @@ class BayesianOptimizer(BaseSearchStrategy):
     ) -> PolicyCandidate:
         vector = tuple(float(value) for value in tensor.detach().cpu().tolist())
         params = self._space.denormalize(vector)
+        normalized = self._space.normalize(params)
         predicted_mean: float | None = None
         predicted_std: float | None = None
         if self._model is not None:
             with self._torch.no_grad():
-                posterior = self._model.posterior(tensor.unsqueeze(0))
+                executed = self._torch.tensor(normalized, dtype=tensor.dtype, device=tensor.device)
+                posterior = self._model.posterior(executed.unsqueeze(0))
                 mean_bo = float(posterior.mean.squeeze().item())
                 std_bo = float(posterior.variance.sqrt().squeeze().item())
                 predicted_mean = -mean_bo
                 predicted_std = abs(std_bo)
-        return PolicyCandidate(
-            params=params,
-            params_normalized=vector,
+        return self._space.candidate_from_vector(
+            vector,
             acquisition_value=acquisition_value,
             predicted_mean=predicted_mean,
             predicted_std=predicted_std,

@@ -33,6 +33,7 @@ try:  # pragma: no cover - environment dependent
     from botorch.models.transforms.input import Normalize
     from botorch.models.transforms.outcome import Standardize
     from botorch.optim import optimize_acqf
+    from botorch.sampling.normal import SobolQMCNormalSampler
     from botorch.utils.multi_objective.box_decompositions import NondominatedPartitioning
     from botorch.utils.multi_objective.pareto import is_non_dominated
     from gpytorch.mlls import ExactMarginalLogLikelihood, SumMarginalLogLikelihood
@@ -49,6 +50,7 @@ except Exception as exc:  # pragma: no cover - environment dependent
     Normalize = None  # type: ignore[assignment]
     Standardize = None  # type: ignore[assignment]
     optimize_acqf = None  # type: ignore[assignment]
+    SobolQMCNormalSampler = None  # type: ignore[assignment]
     NondominatedPartitioning = None  # type: ignore[assignment]
     is_non_dominated = None  # type: ignore[assignment]
     ExactMarginalLogLikelihood = None  # type: ignore[assignment]

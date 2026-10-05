@@ -17,6 +17,7 @@ import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import BoundedLivenessConfig
+from polisyos.core.errors import ErrorCategory
 from polisyos.core.run.context import RunContext
 from polisyos.core.run.manifest import RunManifest
 from polisyos.scientist.orchestration.engine import retry as retry_module
@@ -63,6 +64,99 @@ def _fail_outcome(state, code="node.exception"):
         artifacts=[],
         error=NodeError(code=code, message="fail"),
     )
+
+
+class _TransientTransportValueError(ValueError):
+    default_category = ErrorCategory.TRANSIENT
+    code = "node.transport"
+
+
+class _ValidationTransportError(RuntimeError):
+    default_category = ErrorCategory.VALIDATION
+
+
+class _CodedTransportError(RuntimeError):
+    code = "node.action"
+
+
+class _ErrorTransportNode:
+    """Record real compute attempts outside the forked object's memory."""
+
+    def __init__(self, attempts_path, error=None, *, return_failure=False, recover=True) -> None:
+        self.attempts_path = attempts_path
+        self.error = error
+        self.return_failure = return_failure
+        self.recover = recover
+
+    def execute(self, _ctx, state):
+        with self.attempts_path.open("a") as attempts:
+            attempts.write("attempt\n")
+        if self.return_failure:
+            return _fail_outcome(state, code="node.invalid_state")
+        if not self.recover or len(self.attempts_path.read_text().splitlines()) == 1:
+            raise self.error
+        return _ok_outcome(state)
+
+
+@pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork unavailable")
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("shape", ["return", "raise"])
+def test_fork_permanent_error_shape_keeps_one_real_attempt(tmp_path, ctx, state, mode, shape):
+    attempts_path = tmp_path / "attempts"
+    node = _ErrorTransportNode(
+        attempts_path,
+        ValueError("invalid input contract"),
+        return_failure=shape == "return",
+        recover=False,
+    )
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": 2.0,
+        "alias": "transport-permanent",
+    }
+    if shape == "raise":
+        with pytest.raises(RetryExhaustedError):
+            _execute_retry_mode(mode, node, ctx, state, **kwargs)
+    else:
+        outcome = _execute_retry_mode(mode, node, ctx, state, **kwargs)
+        assert outcome.status == "fail"
+    assert attempts_path.read_text().splitlines() == ["attempt"]
+
+
+@pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork unavailable")
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize(
+    ("error", "retry_on", "expected_attempts"),
+    [
+        (_ValidationTransportError("temporary sounding message"), ["node.exception"], 1),
+        (AttributeError("invalid node contract"), ["node.exception"], 1),
+        (LookupError("invalid lookup contract"), ["node.exception"], 1),
+        (_TransientTransportValueError("invalid sounding value"), ["node.transport"], 2),
+        (_CodedTransportError("custom code"), ["node.action"], 2),
+        (_CodedTransportError("custom code"), ["node.exception"], 1),
+        (OSError("ValueError: fatal sounding message"), ["node.exception"], 2),
+        (ValueError("ConnectionError: transient sounding message"), ["node.exception"], 1),
+    ],
+)
+def test_fork_exception_preserves_category_and_policy_code(
+    tmp_path, ctx, state, mode, error, retry_on, expected_attempts
+):
+    attempts_path = tmp_path / "attempts"
+    node = _ErrorTransportNode(attempts_path, error)
+    kwargs = {
+        "retry_policy": RetryPolicy(
+            max_retries=2, backoff_base_s=0.1, jitter="none", retry_on=retry_on
+        ),
+        "timeout_s": 2.0,
+        "alias": "transport-classified",
+    }
+    if expected_attempts == 1:
+        with pytest.raises(RetryExhaustedError):
+            _execute_retry_mode(mode, node, ctx, state, **kwargs)
+    else:
+        outcome = _execute_retry_mode(mode, node, ctx, state, **kwargs)
+        assert outcome.status == "ok"
+    assert len(attempts_path.read_text().splitlines()) == expected_attempts
 
 
 # ---------------------------------------------------------------------------

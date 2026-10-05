@@ -1,0 +1,45 @@
+{"argv": ["python", "/tmp/e02-final-artifact50cb/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py", "--repo", "/workspace/e02-D-ci-triage", "--target", "50cb10df97d39ad0ec7957799e24b4aa67474559", "--base", "c40d4acae1ce58b597267255026d9356565828fd", "--output", "/tmp/e02-final-artifacts50cb.json"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+{
+  "schema": "e02-independent-git-artifact-verification/v1",
+  "target_sha": "50cb10df97d39ad0ec7957799e24b4aa67474559",
+  "target_tree": "716c7a0e87d3c7a17046a99644ec06aedf143547",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "scope": {
+    "tracked_D_json_files": 70,
+    "changed_json_files": 70,
+    "changed_release_fragments": 13
+  },
+  "checks": {
+    "json_files_parsed": 71,
+    "git_object_claims_checked": 142,
+    "unique_reference_claims": 897,
+    "available_reference_claims": 853,
+    "sha256_claims_checked": 272,
+    "size_claims_checked": 232,
+    "git_blob_claims_checked": 62,
+    "inline_utf8_sha256_claims_checked": 3,
+    "json_pointer_string_claims_checked": 1,
+    "release_fragments_parsed": 13,
+    "byte_line_locators_checked": 185
+  },
+  "sha256_declarations": 571,
+  "sha256_declarations_with_byte_locator": 414,
+  "errors": [],
+  "limitation_counts": {
+    "hash_without_byte_locator": 157,
+    "unavailable_raw_or_external": 36
+  },
+  "outcome": "PASS",
+  "interpretation": "Git byte/reference/census/syntax reconciliation only. No native runtime replay, closure verdict, authority admission, or unavailable raw-byte verification.",
+  "census": {
+    "finding_owner_rows": 45,
+    "bundle_owners": 17,
+    "route_rows": 456,
+    "distinct_primary_cells": 115,
+    "states": {
+      "PASS": 112,
+      "FAILED": 3
+    }
+  }
+}
+{"exit_code": 0, "elapsed_s": 2.488, "max_rss_kib": 42744}

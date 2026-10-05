@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import math
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -407,12 +408,12 @@ class TransferLearningManager:
 
         cache_key = str(history_ref.artifact_id) if history_ref is not None else run_id
         if cache_key in self._eval_cache:
-            return list(self._eval_cache[cache_key])
+            return deepcopy(self._eval_cache[cache_key])
 
         if history_ref is not None:
             evals = self._read_history(history_ref)
             self._eval_cache[cache_key] = evals
-            return list(evals)
+            return deepcopy(evals)
 
         # Legacy callers may only have a run_id.  Keep this compatibility path
         # while ensuring newly discovered snapshots use the direct path above.
@@ -427,7 +428,7 @@ class TransferLearningManager:
                     continue
                 evals = self._read_history(history_ref)
                 self._eval_cache[str(history_ref.artifact_id)] = evals
-                return list(evals)
+                return deepcopy(evals)
         return []
 
     def _read_history(self, ref: ArtifactRef) -> list[dict[str, Any]]:

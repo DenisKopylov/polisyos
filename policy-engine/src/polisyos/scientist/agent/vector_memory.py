@@ -8,8 +8,11 @@ neighbor search.  Supports CAS persistence via ``save_to_artifact`` /
 from __future__ import annotations
 
 import logging
+import math
 import tempfile
+from copy import deepcopy
 from pathlib import Path
+from threading import RLock
 from typing import TYPE_CHECKING, Any
 
 try:
@@ -56,6 +59,7 @@ class VectorMemoryStore:
         self._max_elements = max_elements
         self._ef_construction = ef_construction
         self._M = M
+        self._generation_lock = RLock()
 
         self._index = self._new_index()
 
@@ -68,7 +72,8 @@ class VectorMemoryStore:
         return self._dim
 
     def __len__(self) -> int:
-        return len(self._keys)
+        with self._generation_lock:
+            return len(self._keys)
 
     def _new_index(self) -> Any:
         """Create an empty native index for the current configuration."""
@@ -103,10 +108,21 @@ class VectorMemoryStore:
 
         If the key already exists, it is overwritten.
         """
+        with self._generation_lock:
+            self._add(key, embedding, deepcopy(metadata) if metadata is not None else {})
+
+    def _add(self, key: str, embedding: list[float], metadata: dict[str, Any]) -> None:
+        """Mutate one native generation while its readers are excluded."""
+        if not isinstance(key, str) or not key:
+            raise ValueError("Vector memory key must be a non-empty string")
+        if not isinstance(metadata, dict):
+            raise ValueError("Vector memory metadata must be an object")
         if len(embedding) != self._dim:
             raise ValueError(
                 f"Embedding dimension mismatch: expected {self._dim}, got {len(embedding)}"
             )
+        if not all(math.isfinite(float(value)) for value in embedding):
+            raise ValueError("Vector memory embedding must contain finite values")
 
         idx = self._key_to_idx.get(key)
         if idx is not None:
@@ -117,7 +133,7 @@ class VectorMemoryStore:
             except Exception:
                 self._restore_index_bytes(snapshot)
                 raise
-            self._metadata[idx] = metadata or {}
+            self._metadata[idx] = metadata
             return
 
         if len(self._keys) >= self._max_elements:
@@ -136,7 +152,7 @@ class VectorMemoryStore:
                 self._restore_index_bytes(snapshot)
             raise
         self._keys.append(key)
-        self._metadata.append(metadata or {})
+        self._metadata.append(metadata)
         self._key_to_idx[key] = idx
 
     def query(
@@ -157,17 +173,22 @@ class VectorMemoryStore:
         -------
         list of (key, distance, metadata) tuples, sorted by distance ascending.
         """
-        if len(self._keys) == 0:
-            return []
+        with self._generation_lock:
+            if len(embedding) != self._dim:
+                raise ValueError("Query embedding dimension does not match vector memory")
+            if not all(math.isfinite(float(value)) for value in embedding):
+                raise ValueError("Query embedding must contain finite values")
+            if not self._keys or top_k <= 0:
+                return []
 
-        effective_k = min(top_k, len(self._keys))
-        labels, distances = self._index.knn_query([embedding], k=effective_k)
+            effective_k = min(top_k, len(self._keys))
+            labels, distances = self._index.knn_query([embedding], k=effective_k)
 
-        results: list[tuple[str, float, dict[str, Any]]] = []
-        for label, dist in zip(labels[0], distances[0]):
-            idx = int(label)
-            if 0 <= idx < len(self._keys):
-                results.append((self._keys[idx], float(dist), self._metadata[idx]))
+            results: list[tuple[str, float, dict[str, Any]]] = []
+            for label, dist in zip(labels[0], distances[0]):
+                idx = int(label)
+                if 0 <= idx < len(self._keys):
+                    results.append((self._keys[idx], float(dist), deepcopy(self._metadata[idx])))
         return results
 
     def save_to_artifact(self, store: ArtifactStore) -> ArtifactRef:
@@ -180,26 +201,17 @@ class VectorMemoryStore:
         """
         from polisyos.core.artifacts.store import PutOptions
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            index_path = Path(tmpdir) / "hnsw.index"
-            self._index.save_index(str(index_path))
-            index_bytes = index_path.read_bytes()
-
-        payload = {
-            "dim": self._dim,
-            "max_elements": self._max_elements,
-            "ef_construction": self._ef_construction,
-            "M": self._M,
-            "keys": self._keys,
-            "metadata": self._metadata,
-            "index_bytes_len": len(index_bytes),
-        }
-
-        # Store metadata as JSON
-        meta_ref = store.put_json(
-            payload,
-            PutOptions(kind="vector_memory.meta", media_type="application/json"),
-        )
+        with self._generation_lock:
+            index_bytes = self._save_index_bytes()
+            payload = {
+                "dim": self._dim,
+                "max_elements": self._max_elements,
+                "ef_construction": self._ef_construction,
+                "M": self._M,
+                "keys": list(self._keys),
+                "metadata": deepcopy(self._metadata),
+                "index_bytes_len": len(index_bytes),
+            }
 
         # Store index as raw bytes
         index_ref = store.put_bytes(
@@ -231,9 +243,17 @@ class VectorMemoryStore:
             raise ValueError("Vector memory bundle keys and metadata must be lists")
         if len(keys) != len(metadata):
             raise ValueError("Vector memory bundle keys and metadata lengths differ")
+        if not all(isinstance(key, str) and key for key in keys) or len(set(keys)) != len(keys):
+            raise ValueError("Vector memory bundle keys must be unique non-empty strings")
+        if not all(isinstance(item, dict) for item in metadata):
+            raise ValueError("Vector memory bundle metadata entries must be objects")
+        if dim <= 0 or max_elements < len(keys) or max_elements <= 0:
+            raise ValueError("Vector memory bundle configuration is inconsistent")
 
         index_artifact_id = bundle["index_artifact_id"]
         index_bytes = store.get_bytes(index_artifact_id)
+        if bundle.get("index_bytes_len", len(index_bytes)) != len(index_bytes):
+            raise ValueError("Vector memory bundle native byte length differs")
 
         with tempfile.TemporaryDirectory() as tmpdir:
             index_path = Path(tmpdir) / "hnsw.index"
@@ -245,12 +265,22 @@ class VectorMemoryStore:
             )
             candidate_index.set_ef(50)
 
+        if set(candidate_index.get_ids_list()) != set(range(len(keys))):
+            raise ValueError("Vector memory native labels do not match the metadata generation")
+        if keys:
+            vectors = candidate_index.get_items(list(range(len(keys))))
+            if vectors.shape != (len(keys), dim) or not all(
+                math.isfinite(float(value)) for vector in vectors for value in vector
+            ):
+                raise ValueError("Vector memory native vectors do not match the declared dimension")
+
         # Publish only after every native and metadata check has succeeded.
-        self._dim = dim
-        self._max_elements = max_elements
-        self._ef_construction = ef_construction
-        self._M = M
-        self._keys = list(keys)
-        self._metadata = list(metadata)
-        self._key_to_idx = {k: i for i, k in enumerate(self._keys)}
-        self._index = candidate_index
+        with self._generation_lock:
+            self._dim = dim
+            self._max_elements = max_elements
+            self._ef_construction = ef_construction
+            self._M = M
+            self._keys = list(keys)
+            self._metadata = deepcopy(metadata)
+            self._key_to_idx = {k: i for i, k in enumerate(self._keys)}
+            self._index = candidate_index

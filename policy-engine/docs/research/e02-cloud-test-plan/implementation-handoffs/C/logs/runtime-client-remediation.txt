@@ -1,0 +1,28 @@
+$ cd policy-engine && corepack pnpm --filter @polisyos/runtime-api-client run test:remediation
+exit_code=0
+
+> @polisyos/runtime-api-client@0.1.0 test:remediation /Users/deniskopylov/.codex/worktrees/e02-c-client/polisyos/policy-engine/packages/runtime-api-client
+> node --test remediation.test.mjs
+
+TAP version 13
+# Subtest: package generation keeps raw client intermediates outside the output family
+ok 1 - package generation keeps raw client intermediates outside the output family
+  ---
+  duration_ms: 2255.478833
+  type: 'test'
+  ...
+# Subtest: the committed package surface does not retain raw generated twins
+ok 2 - the committed package surface does not retain raw generated twins
+  ---
+  duration_ms: 0.11475
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2341.105458

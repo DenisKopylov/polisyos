@@ -1,0 +1,101 @@
+[
+  {
+    "id": "@polisyos/runtime-api-client@0.1.0",
+    "name": "@polisyos/runtime-api-client",
+    "version": "0.1.0",
+    "size": 123006,
+    "unpackedSize": 1138530,
+    "shasum": "ca74418a53c3f3b0124a0435e224740de9dd2c29",
+    "integrity": "sha512-boPznFj7mx1lUMSH5swhhZzpUTEw4vci7YUaWkKm10KAc6cROCiwikSvFl9bqkL9ZYfJ34Y7tpq0Ys9ruvtlZg==",
+    "filename": "polisyos-runtime-api-client-0.1.0.tgz",
+    "files": [
+      {
+        "path": ".prettierignore",
+        "size": 9,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 7829,
+        "mode": 420
+      },
+      {
+        "path": "canonicalRuntimeApiClient.js",
+        "size": 31276,
+        "mode": 420
+      },
+      {
+        "path": "canonicalRuntimeApiClient.ts",
+        "size": 108061,
+        "mode": 420
+      },
+      {
+        "path": "eslint.config.mjs",
+        "size": 953,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 1549,
+        "mode": 420
+      },
+      {
+        "path": "remediation.test.mjs",
+        "size": 3081,
+        "mode": 420
+      },
+      {
+        "path": "runtimeApiClient.test.mjs",
+        "size": 6555,
+        "mode": 420
+      },
+      {
+        "path": "runtimeApiClient.type-test.ts",
+        "size": 3333,
+        "mode": 420
+      },
+      {
+        "path": "scripts/canonicalize-runtime-client.mjs",
+        "size": 5240,
+        "mode": 420
+      },
+      {
+        "path": "scripts/canonicalize-runtime-client.test.mjs",
+        "size": 2103,
+        "mode": 420
+      },
+      {
+        "path": "scripts/check-architecture.mjs",
+        "size": 3751,
+        "mode": 420
+      },
+      {
+        "path": "scripts/generate-runtime-api-client.sh",
+        "size": 2417,
+        "mode": 420
+      },
+      {
+        "path": "scripts/normalize-recursive-openapi-types.mjs",
+        "size": 7296,
+        "mode": 420
+      },
+      {
+        "path": "scripts/normalize-recursive-openapi-types.test.mjs",
+        "size": 3105,
+        "mode": 420
+      },
+      {
+        "path": "tsconfig.json",
+        "size": 429,
+        "mode": 420
+      },
+      {
+        "path": "types.ts",
+        "size": 951543,
+        "mode": 420
+      }
+    ],
+    "entryCount": 17,
+    "bundled": []
+  }
+]

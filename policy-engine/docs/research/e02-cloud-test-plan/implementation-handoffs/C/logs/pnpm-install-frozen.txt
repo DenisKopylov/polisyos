@@ -1,0 +1,16 @@
+Scope: all 6 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1215
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1215, reused 639, downloaded 0, added 0
+Progress: resolved 1215, reused 1213, downloaded 0, added 145
+Progress: resolved 1215, reused 1213, downloaded 0, added 282
+Progress: resolved 1215, reused 1213, downloaded 0, added 536
+Progress: resolved 1215, reused 1213, downloaded 0, added 655
+Progress: resolved 1215, reused 1213, downloaded 0, added 911
+Progress: resolved 1215, reused 1213, downloaded 0, added 1083
+Progress: resolved 1215, reused 1213, downloaded 0, added 1211
+Progress: resolved 1215, reused 1213, downloaded 0, added 1215, done
+
+Done in 11.1s using pnpm v10.33.2

@@ -1,0 +1,274 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "client",
+  "closure_ids": [
+    "LA-043",
+    "LA-044"
+  ],
+  "bundle_ids": [
+    "CLI-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "e39cbcff2e879d3763ab88873164f3d535541b87"
+  ],
+  "candidate_tree_sha": "3f5a9905892bdc2932b084a39401e34e3c10c72e",
+  "branch": "codex/e02-C-client",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/repo_quality/tools/test_runtime_client_generated_artifact_probe.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P039",
+      "findings": [
+        "LA-043",
+        "LA-044"
+      ],
+      "source_ref": "research_main",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/repo_quality/tools/test_runtime_contract_measurement.py",
+      "state": "PASS",
+      "calls": "5/5",
+      "receipt_status": "reconciled"
+    },
+    {
+      "id": "F04-P064",
+      "findings": [
+        "LA-043",
+        "LA-044"
+      ],
+      "source_ref": "research_main",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/repo_quality/tools/test_generated_client_station.py",
+      "state": "PASS",
+      "calls": "2/2",
+      "receipt_status": "valid_reconciled_parent"
+    },
+    {
+      "id": "F11-P048",
+      "findings": [
+        "LA-043",
+        "LA-044"
+      ],
+      "source_ref": "main",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/repo_quality/tools/test_runtime_contract_measurement.py",
+      "state": "PASS",
+      "calls": "3/3",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "id": "F12-P070",
+      "findings": [
+        "LA-043",
+        "LA-044"
+      ],
+      "source_ref": "main",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/repo_quality/tools/test_generated_client_station.py",
+      "state": "PASS",
+      "calls": "2/2",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "id": "F13-P075",
+      "findings": [
+        "LA-043",
+        "LA-044"
+      ],
+      "source_ref": "integration_head",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/repo_quality/tools/test_generated_client_station.py",
+      "state": "PASS",
+      "calls": "2/2",
+      "receipt_status": "valid_reconciled"
+    },
+    {
+      "id": "F14-P048",
+      "findings": [
+        "LA-043",
+        "LA-044"
+      ],
+      "source_ref": "integration_head",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/repo_quality/tools/test_runtime_contract_measurement.py",
+      "state": "PASS",
+      "calls": "5/5",
+      "receipt_status": "valid_reconciled"
+    }
+  ],
+  "checks": [
+    {
+      "command": "corepack pnpm install --frozen-lockfile",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "Darwin arm64; Node v22.22.2; Corepack pnpm v10.33.2; isolated candidate source archive",
+      "input_closure": "source/policy-engine/pnpm-lock.yaml sha256 436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "outcome": "PASS",
+      "output": "logs/pnpm-install-frozen.txt: all 6 workspace projects, 1,215 packages, frozen lockfile current."
+    },
+    {
+      "command": "python3 -m pytest -q tests/repo_quality/tools/test_runtime_client_generated_artifact_probe.py",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "isolated candidate archive; frozen pnpm workspace links; Python test runner",
+      "input_closure": "committed test and architecture/generated_artifacts.toml runtime-api-client family at candidate tree 3f5a9905892bdc2932b084a39401e34e3c10c72e",
+      "outcome": "PASS",
+      "output": "logs/pytest-runtime-client-generated-artifact-probe.txt; one test passed."
+    },
+    {
+      "command": "_check_runtime_client_family_drift(repo_root, openapi_path) with committed schema; repeat against isolated copy whose canonicalRuntimeApiClient.js contains appended stale bytes",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "Darwin arm64; worktree Corepack pnpm v10.33.2; local Python stdlib runner",
+      "input_closure": "schemas/runtime_api_v1.openapi.json sha256 73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a; clean and stale JS sha256s recorded in logs/runtime-client-freshness-control.txt",
+      "outcome": "PASS",
+      "output": "Clean control returned []; corrupted-copy control reported exactly Runtime API client drift detected: packages/runtime-api-client/canonicalRuntimeApiClient.js is outdated."
+    },
+    {
+      "command": "corepack pnpm --filter @polisyos/runtime-api-client run test:remediation",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "Darwin arm64; Node v22.22.2; Corepack pnpm v10.33.2",
+      "input_closure": "package-owned canonical generator and custom OpenAPI override fixture at candidate tree",
+      "outcome": "PASS",
+      "output": "logs/runtime-client-remediation.txt records two passing tests; override witness appeared only in the canonical TypeScript output family and raw committed twins remain absent."
+    },
+    {
+      "command": "ruff check and ruff format --check tests/repo_quality/tools/test_runtime_client_generated_artifact_probe.py",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "read-only existing workspace Python tool environment",
+      "input_closure": "policy-engine/tests/repo_quality/tools/test_runtime_client_generated_artifact_probe.py",
+      "outcome": "PASS",
+      "output": "logs/ruff-runtime-client-probe.txt: ruff check passes and format --check reports one file already formatted."
+    },
+    {
+      "command": "npm pack --ignore-scripts --json --pack-destination <candidate-scratch>/packed",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "Darwin arm64; Node v22.22.2; npm v10.9.7; independent archived candidate source",
+      "input_closure": "@polisyos/runtime-api-client@0.1.0 at candidate source; package.json and generated family in source/policy-engine",
+      "outcome": "PASS",
+      "output": "logs/npm-pack.json: 17 entries, 123006-byte tarball, raw runtimeApiClient.ts/js absent; tar sha256 7b24fddfbabc3f9483dcbd2cead0030aa82738c252c8dd0e5367907cc4d7dece. Probe handoff reports candidate archive byte-identical to base archive."
+    },
+    {
+      "command": "Enumerate actual candidate tar members; then run logs/make_tampered_candidate_pack.py with an added package/runtimeApiClient.js while copying original package.json bytes unchanged",
+      "target_sha": "7b24fddfbabc3f9483dcbd2cead0030aa82738c252c8dd0e5367907cc4d7dece",
+      "environment": "isolated candidate pack oracle; Python tarfile and gzip",
+      "input_closure": "candidate and tampered tarballs in local scratch; candidate sha256 7b24fddfbabc3f9483dcbd2cead0030aa82738c252c8dd0e5367907cc4d7dece; tampered sha256 1f517d51a9bdf74c1aa9315b50e7b3e63338266f33278f043a52c6409edd956f",
+      "outcome": "PASS",
+      "output": "logs/packed-surface-positive.txt reports PASS at 17 entries and no raw files. The deliberate tamper is rejected at 18 entries and identifies runtimeApiClient.js; see logs/packed-surface-tamper-create.txt and logs/packed-surface-tamper-expected-fail.txt."
+    },
+    {
+      "command": "npm install candidate tarball in isolated consumer; node installed-consumer.mjs",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "Darwin arm64; Node v22.22.2; npm v10.9.7; isolated consumer directory",
+      "input_closure": "candidate tar sha256 7b24fddfbabc3f9483dcbd2cead0030aa82738c252c8dd0e5367907cc4d7dece; consumer package-lock and installed-consumer.mjs in local scratch",
+      "outcome": "PASS",
+      "output": "logs/npm-install-tarball.txt and logs/npm-installed-consumer.txt: installed root import resolved canonicalRuntimeApiClient.js, listRuns request/response/query/header checks passed, raw runtimeApiClient.js absent, raw subpath rejected with ERR_PACKAGE_PATH_NOT_EXPORTED."
+    },
+    {
+      "command": "corepack pnpm --dir packages/runtime-api-client exec tsc -p <candidate-scratch>/consumer/tsconfig.json",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "Darwin arm64; Node v22.22.2; Corepack pnpm v10.33.2; installed candidate tarball",
+      "input_closure": "candidate package TypeScript declarations plus installed-consumer-types.ts; npm-installed type consumer in local scratch",
+      "outcome": "PASS",
+      "output": "logs/npm-installed-type-consumer.txt is empty; command exit 0. Root and /types imports typecheck, and numeric status is rejected as required by the probe."
+    },
+    {
+      "command": "Installed workspace import/route probes for apps/runtime-dashboard and packages/atlas-ui",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "Darwin arm64; Node v22.22.2; frozen pnpm workspace install in candidate source copy",
+      "input_closure": "candidate runtime-api-client package linked into runtime-dashboard and atlas-ui",
+      "outcome": "PASS",
+      "output": "logs/workspace-dashboard-installed-link.txt and logs/workspace-atlas-ui-installed-link.txt resolve package root to canonicalRuntimeApiClient.js and pass listRuns route behavior."
+    },
+    {
+      "command": "uv sync --offline --extra runtime --extra ml",
+      "target_sha": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "environment": "Darwin arm64; CPython 3.14.3; offline uv cache",
+      "input_closure": "locked policy-engine Python environment in the client worktree",
+      "outcome": "ERROR",
+      "output": "logs/uv-sync-offline-limitation.txt records the exact failure: the locked jaxlib==0.8.2 CPython 3.14 macOS arm64 wheel is absent from the offline cache. This blocks the full private Python environment/architecture freshness invocation, not the client generator or product."
+    }
+  ],
+  "property": {
+    "statement": "The registered package-owned runtime client generator recomputes the manifest-declared three-file family from the committed OpenAPI v1.0.0 schema; the published package contains canonical root/type surfaces without raw twins, and installed consumers resolve and execute those surfaces.",
+    "runtime_path": [
+      "schemas/runtime_api_v1.openapi.json",
+      "packages/runtime-api-client/scripts/generate-runtime-api-client.sh (openapi-typescript, runtime client producer, canonicalizer)",
+      "packages/runtime-api-client/types.ts, canonicalRuntimeApiClient.ts, canonicalRuntimeApiClient.js",
+      "architecture/generated_artifacts.toml runtime-api-client output_probe_command and generic generated-family byte comparison",
+      "npm pack archive and package export map",
+      "installed ESM/type consumer, apps/runtime-dashboard, packages/atlas-ui"
+    ],
+    "owner_mapping": {
+      "manifest_outputs": [
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "generator_scratch_only": [
+        "runtimeApiClient.ts",
+        "runtimeApiClient.js"
+      ],
+      "renamed_owner_finding": "Legacy runtimeApiClient.ts/js are temporary generator outputs only and are absent as package-owned/published members; canonicalRuntimeApiClient.ts/js are the manifest-declared, package-exported members present in the real archive.",
+      "public_export_targets": [
+        "main: ./canonicalRuntimeApiClient.js",
+        "types: ./canonicalRuntimeApiClient.ts",
+        "exports['.'].import: ./canonicalRuntimeApiClient.js",
+        "exports['.'].types: ./canonicalRuntimeApiClient.ts"
+      ],
+      "actual_archive_readback": "logs/npm-pack.json lists canonicalRuntimeApiClient.ts/js and no raw runtimeApiClient.ts/js; the raw-member tamper witness injects runtimeApiClient.js and is rejected at 18 members."
+    },
+    "authority_purpose": "The package transports Runtime API calls and data; it does not issue policy authority or a PolicyOS publication signature.",
+    "provenance": {
+      "candidate_commit": "e39cbcff2e879d3763ab88873164f3d535541b87",
+      "candidate_tree_sha": "3f5a9905892bdc2932b084a39401e34e3c10c72e",
+      "candidate_source_copy": "/Users/deniskopylov/.codex/scratch/e02-c-installed-probe-20261005/candidate-e39cbcff2e879d3763ab88873164f3d535541b87/source/policy-engine",
+      "source_handoff": {
+        "path": "/Users/deniskopylov/.codex/scratch/e02-c-installed-probe-20261005/candidate-e39cbcff2e879d3763ab88873164f3d535541b87/HANDOFF.md",
+        "sha256": "05337380baa516c00e04f1b48689ee5f8f667bb3e2154dc9b6ef5eb701c3f0e0"
+      },
+      "input_identity": {
+        "schema_path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "schema_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+        "openapi_version": "3.1.0",
+        "api_info_version": "1.0.0",
+        "lockfile_path": "policy-engine/pnpm-lock.yaml",
+        "lockfile_sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+        "tracked_file_denominator": "13,515 tracked files in policy-engine; 42 suffix buckets, enumerated in logs/tracked-filetype-denominator.txt"
+      },
+      "package_artifact": {
+        "name": "@polisyos/runtime-api-client",
+        "version": "0.1.0",
+        "candidate_tarball_path": "/Users/deniskopylov/.codex/scratch/e02-c-installed-probe-20261005/candidate-e39cbcff2e879d3763ab88873164f3d535541b87/packed/polisyos-runtime-api-client-0.1.0.tgz",
+        "candidate_tarball_sha256": "7b24fddfbabc3f9483dcbd2cead0030aa82738c252c8dd0e5367907cc4d7dece",
+        "candidate_tarball_bytes": 123006,
+        "tampered_tarball_path": "/Users/deniskopylov/.codex/scratch/e02-c-installed-probe-20261005/candidate-e39cbcff2e879d3763ab88873164f3d535541b87/packed/polisyos-runtime-api-client-0.1.0-tampered.tgz",
+        "tampered_tarball_sha256": "1f517d51a9bdf74c1aa9315b50e7b3e63338266f33278f043a52c6409edd956f",
+        "git_policy": "Tarballs and larger raw source/install trees remain outside Git in local scratch; their paths and SHA-256 identities are preserved here."
+      },
+      "committed_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/logs/"
+    },
+    "rule_schema_version": {
+      "openapi": "3.1.0",
+      "api_schema": "Runtime API v1.0.0",
+      "package": "@polisyos/runtime-api-client@0.1.0",
+      "generated_artifact_family": "runtime-api-client"
+    },
+    "time_roles": "Snapshot evidence for candidate e39 only; no validity interval or later deployment claim is asserted.",
+    "proxy_divergence": "Package export-map metadata or workspace source imports alone could look correct while a published archive contains a raw runtimeApiClient.js twin. The real archive-member oracle passes at 17 entries, then detects an injected package/runtimeApiClient.js as an 18th entry while package.json bytes remain unchanged.",
+    "negative_controls": [
+      "Generic generated-family gate ran the real registered package generator and rejected exactly the stale canonicalRuntimeApiClient.js expected-byte member; the scratch oracle bytes were restored and read back.",
+      "Actual candidate tar-member census found zero raw runtimeApiClient.ts/js members; a tar copy with package/runtimeApiClient.js injected was rejected at 18 entries and named the raw JS path.",
+      "Installed ESM consumer resolved canonicalRuntimeApiClient.js and rejected @polisyos/runtime-api-client/runtimeApiClient.js with ERR_PACKAGE_PATH_NOT_EXPORTED.",
+      "Installed TypeScript consumer verified root and /types imports and required numeric status to be a compile-time error."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "partial: the C/client slice supplies candidate evidence for package-owned generation, output freshness, publication, installation, import behavior, and selected workspace consumers. LA-043 and LA-044 remain partial; baseline semantic adequacy is not established and no finding closure or ledger promotion is claimed.",
+  "limitations_and_next_owner": [
+    "The E02 baseline query still reports LA-043/LA-044 partial, route grade candidate_unverified, semantic_adequacy not_established, and raw_archives_received=0. Root/G and the finding ledger owner retain closure disposition; this candidate does not blanket-close either finding.",
+    "The generic freshness negative test restores and reads back the scratch expected JS bytes but does not rerun freshness after restoration. The separate clean checker control passed; the test's post-restore behavior is a bounded non-blocker.",
+    "The full isolated Python environment could not be provisioned offline because the locked jaxlib==0.8.2 CPython 3.14 macOS wheel is absent from cache. This is an environment limit, not a product defect; the actual package generator, generic byte check, installed package proof, and focused tests ran.",
+    "The package tarballs and archived source/install tree are retained outside Git at the cited local scratch paths. Committed logs are complete and moderate; binary/raw evidence stays local and is identified by SHA-256."
+  ]
+}

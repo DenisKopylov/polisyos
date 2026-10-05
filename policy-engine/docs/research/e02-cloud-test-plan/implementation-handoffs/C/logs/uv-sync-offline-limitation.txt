@@ -1,0 +1,9 @@
+$ cd policy-engine && uv sync --offline --extra runtime --extra ml
+exit_code=1
+Resolved 418 packages in 10ms
+  × Failed to download `jaxlib==0.8.2`
+  ╰─▶ Network connectivity is disabled, but the
+      requested data wasn't found in the cache for:
+      `https://files.pythonhosted.org/packages/d8/9d/dca93d916bf8664d7a2bb73ea3d219028dabbe382c31774348963287356a/jaxlib-0.8.2-cp314-cp314-macosx_11_0_arm64.whl`
+  help: `jaxlib` (v0.8.2) was included because `policy-engine` (v0.1.0)
+        depends on `jaxlib`

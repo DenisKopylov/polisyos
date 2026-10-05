@@ -1,0 +1,7 @@
+$ cd policy-engine
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check tests/repo_quality/tools/test_runtime_client_generated_artifact_probe.py
+exit_code=0
+All checks passed!
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check tests/repo_quality/tools/test_runtime_client_generated_artifact_probe.py
+exit_code=0
+1 file already formatted

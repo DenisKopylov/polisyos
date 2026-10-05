@@ -1,0 +1,1 @@
+{"archive": "/Users/deniskopylov/.codex/scratch/e02-c-installed-probe-20261005/candidate-e39cbcff2e879d3763ab88873164f3d535541b87/packed/polisyos-runtime-api-client-0.1.0-tampered.tgz", "files": 18, "raw_files": ["runtimeApiClient.js"], "required_missing": [], "state": "FAIL"}

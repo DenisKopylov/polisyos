@@ -1,0 +1,20 @@
+{
+  "candidate_commit": "e39cbcff2e879d3763ab88873164f3d535541b87",
+  "checker": "tools/ops_runners/runtime/check_runtime_api_contract.py::_check_runtime_client_family_drift",
+  "clean_control": {
+    "case": "clean",
+    "repo_root": "/Users/deniskopylov/.codex/worktrees/e02-c-client/polisyos/policy-engine",
+    "openapi_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+    "canonical_js_sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+    "violations": []
+  },
+  "stale_byte_negative_control": {
+    "case": "stale_copy",
+    "repo_root": "/Users/deniskopylov/.codex/worktrees/e02-c-client/polisyos/policy-engine/.tmp_e02_c_client_agent/drift_probe/probe_001/policy-engine",
+    "openapi_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+    "canonical_js_sha256": "fa8733eb41c1fbe5c51431a219595f68de3de18501eec4751a1cb89c3a5380d4",
+    "violations": [
+      "Runtime API client drift detected: packages/runtime-api-client/canonicalRuntimeApiClient.js is outdated."
+    ]
+  }
+}

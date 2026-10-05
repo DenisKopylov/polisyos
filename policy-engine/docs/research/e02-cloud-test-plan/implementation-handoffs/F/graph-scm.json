@@ -497,5 +497,11 @@
     "NEW_repair_class": "Canonical GCM producer omitted declared native output slot. Same-object alias repairs actual dispatcher-to-CAS-to-ensemble path, independently verified with property-removal counterexample.",
     "declared_limited_class": "Missing DoWhy/EconML marker-excluded backend, finite synthetic-vs-real-data and full PAG/temporal limits, B219 owner-held state, external installed-loader/resource admission, and broad architecture UNRUN are explicit residuals; no parallel shim or broad closure."
   },
-  "delivery_notes": "Implementation source is frozen at672f541313c550e96544728ed397daf330c04442. This handoff is a separate later commit; G receives code and all moderate deciding logs through the topic branch/PR. Complete architecture deciding stdout118246 bytes is included to make the UNRUN result independently inspectable."
+  "delivery_notes": "Implementation source is frozen at672f541313c550e96544728ed397daf330c04442. This handoff is a separate later commit; G receives code and all moderate deciding logs through the topic branch/PR. Complete architecture deciding stdout118246 bytes is included to make the UNRUN result independently inspectable.",
+  "log_byte_handling": {
+    "file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-contract-targeted.txt",
+    "original_sha256": "a699396fbb044192f704ad400acaa6c2a4ae764db28c43fb0555613365935e88",
+    "committed_sha256": "ce6fa910981e4e3d851ac3acf416a8d16b76d5fa3e77f0c7970ebae20e748982",
+    "normalization": "Removed trailing spaces/tabs/CR from captured pytest lines for git whitespace compliance; complete lines, errors, cases and outcome preserved. No deciding content omitted."
+  }
 }

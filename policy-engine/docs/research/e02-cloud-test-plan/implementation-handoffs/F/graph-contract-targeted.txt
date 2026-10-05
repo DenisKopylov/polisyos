@@ -27,12 +27,12 @@ edge_order = ('directed', 'bidirected')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:183: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:183:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -67,12 +67,12 @@ edge_order = ('bidirected', 'directed')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:183: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:183:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -107,12 +107,12 @@ edge_order = ('lag1', 'lag2')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:183: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:183:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -147,12 +147,12 @@ edge_order = ('lag2', 'lag1')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:183: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:183:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -186,12 +186,12 @@ edge_order = ('same_alpha', 'same_alpha_duplicate', 'same_zeta')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:237: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -225,12 +225,12 @@ edge_order = ('same_alpha', 'same_zeta', 'same_alpha_duplicate')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:237: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -264,12 +264,12 @@ edge_order = ('same_alpha_duplicate', 'same_alpha', 'same_zeta')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:237: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -303,12 +303,12 @@ edge_order = ('same_alpha_duplicate', 'same_zeta', 'same_alpha')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:237: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -342,12 +342,12 @@ edge_order = ('same_zeta', 'same_alpha', 'same_alpha_duplicate')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:237: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -381,12 +381,12 @@ edge_order = ('same_zeta', 'same_alpha_duplicate', 'same_alpha')
             nodes=["X", "Y"],
             edges=_mixed_edge_variants(edge_order),
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:237: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 
@@ -412,12 +412,12 @@ ___________ test_causal_graph_networkx_preserves_single_edge_payload ___________
             nodes=["A", "B"],
             edges=[edge],
         )
-    
+
 >       exported = graph.to_networkx()
                    ^^^^^^^^^^^^^^^^^^^
 
-tests/unit/ir/test_causal_graph_contract.py:296: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_causal_graph_contract.py:296:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.DAG: 'dag'>, nodes=['A', 'B'], edges=[CausalEdge(src='A',...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
 

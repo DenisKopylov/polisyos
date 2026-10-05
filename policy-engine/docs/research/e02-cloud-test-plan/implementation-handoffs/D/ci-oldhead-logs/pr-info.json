@@ -1,0 +1,9 @@
+{
+  "url": "https://github.com/DenisKopylov/polisyos/pull/10",
+  "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "merge_commit_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+  "head": "codex/e02-D-orchestration",
+  "draft": true,
+  "changed_files": 6
+}

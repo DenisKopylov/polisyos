@@ -1,0 +1,330 @@
+{
+  "schema": "policyos.e02.ci_old_head_census.v1",
+  "unit": "D",
+  "pr": "https://github.com/DenisKopylov/polisyos/pull/10",
+  "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+  "checkout_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "head_checkout_tree": "b0d58f50f992a4ee1c8d04200681e3d087e6607a",
+  "head_checkout_tree_delta_paths": [],
+  "head_diff_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map-handoff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-rl-checkpoint.json",
+    "policy-engine/release-fragments/unreleased/2026-10-05-search-rl-checkpoint.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_wrapper.py"
+  ],
+  "jobs": [
+    {
+      "job_id": 111797145215,
+      "run_id": 37320234846,
+      "name": "Fast PR / Python quality and unit",
+      "first_stop": "Enforce import policy",
+      "command": "uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml",
+      "outcome": "FAIL",
+      "classification": "source_architecture_policy_mismatch",
+      "decision": "21 unadjudicated ARCH001/ARCH006/ARCH007 imports; lapsed cover0; scanner completed full AST parse. Fast unit suite SKIPPED.",
+      "complete_input_denominator": {
+        "policy": "architecture/imports/policy.toml(v2)",
+        "exceptions": "architecture/imports/exceptions.toml",
+        "files": "Every src/**/*.py excluding __pycache__",
+        "source_py_count": 2697,
+        "pathset_sha256": "6a01099123fd46a09195e235bba13430f72235a82b2de29cf9d642b7701bcc09",
+        "CI_parse_cache": "hits0 misses2697",
+        "changed_input_intersection": [
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py"
+        ]
+      },
+      "touched_path_impact": "None of21 reported offending locations is the changed RL wrapper. Complete scan includes that wrapper, so this is not an inherited-red exclusion. Future private-helper/import gate checks remain required.",
+      "next_owner": "G architecture/import-policy coordinator routes all21 named import edges to canonical Foundry/DataForge/Runtime/Scientist owners; D owns any new touched-path private-helper issue. No blanket exception or weakened scanner.",
+      "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "checkout_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+      "environment": {
+        "job_id": 111797145215,
+        "installed_distribution_rows": 164,
+        "profile": "minimal",
+        "actual_versions": {
+          "pytest": "9.0.2",
+          "pytest-benchmark": "5.2.3",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5",
+          "duckdb": "1.4.3",
+          "pyyaml": "6.0.3",
+          "click": "8.3.1"
+        },
+        "source_log_utf8_sha256": "182466d56c3c29f9818239c6b0ba64936bc08807861a601125d4f50f4def30e9",
+        "source_log_utf8_bytes": 46025
+      },
+      "excerpt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797145215-excerpt.json",
+      "inherited_red": "not_established",
+      "exact_slice_base_CI_env_replay": "UNRUN",
+      "current_final_candidate_verdict": "UNRUN; fresh checks required after root publication"
+    },
+    {
+      "job_id": 111797145328,
+      "run_id": 37320234846,
+      "name": "Fast PR / Docs quality",
+      "first_stop": "Run path-aware docs drift gate",
+      "command": "uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref c40d4acae1ce58b597267255026d9356565828fd",
+      "outcome": "FAIL",
+      "classification": "docs_governance_baseline_and_publication_debt",
+      "decision": "Freshness exception expired2026-06-30 before CI2026-10-05; expected0 observed10; output hash changed a303...->459cc...; strict docs build and later lifecycle/docstring gates SKIPPED.",
+      "complete_input_denominator": {
+        "outer_gate": "Git base/head changed-path classification (all6 old-head changed paths), gate dispatch/CLI, Python environment.",
+        "freshness_inner_gate": "Resolved mkdocs.yml INHERIT/nav/not_in_nav publication set + generated reference allowlist, linked published targets, actual .yml workflow inventories, metadata regexes, exception TOML, dt.date.today().",
+        "published_file_count": 470,
+        "published_pathset_sha256": "fe549cc9e3ca906b1fefa4b1507113bf2f371b2435174bbc6d6f0156392d781c",
+        "workflow_yml_inventory_count": 12,
+        "census_basis": "Current admitted-base publication resolver; oldhead6 changed paths leave resolver/config/published Markdown and workflow inventories byte-identical. This is source-census evidence, not exact CI environment replay."
+      },
+      "touched_path_impact": "Changed handoff JSON activates outer docs gate. Published-doc accuracy scope excludes those JSON artifacts; actual10 violation details are not emitted by the freshness wrapper, so their individual cause is not established by this job excerpt.",
+      "next_owner": "G routes published-doc correctness and expiry ruling to team-docs (exception owner). Repair truthful publication metadata/navigation under owner; do not refresh the exception count/hash/date merely to green this PR.",
+      "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "checkout_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+      "environment": {
+        "job_id": 111797145328,
+        "installed_distribution_rows": 184,
+        "profile": "docs",
+        "actual_versions": {
+          "pytest": "9.0.2",
+          "pytest-benchmark": "5.2.3",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5",
+          "duckdb": "1.4.3",
+          "pyyaml": "6.0.3",
+          "click": "8.3.1"
+        },
+        "source_log_utf8_sha256": "efd7a5435f54042e297a5f975a89ebec3cf8392e2563df80e7efe911f5cf3763",
+        "source_log_utf8_bytes": 44126
+      },
+      "excerpt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797145328-excerpt.json",
+      "inherited_red": "not_established",
+      "exact_slice_base_CI_env_replay": "UNRUN",
+      "current_final_candidate_verdict": "UNRUN; fresh checks required after root publication"
+    },
+    {
+      "job_id": 111797143594,
+      "run_id": 37320234710,
+      "name": "Core Runtime / Performance Smoke",
+      "first_stop": "Run performance smoke benchmarks",
+      "command": "uv run pytest tests/performance/test_overhead.py tests/performance/test_scientist_runtime_paths.py tests/performance/test_runtime_hot_paths.py --benchmark-only --benchmark-json=core-runtime-benchmarks.json --benchmark-warmup=on --benchmark-min-rounds=5 -q",
+      "outcome": "FAIL",
+      "classification": "missing_fixture_input_before_benchmark",
+      "decision": "Six hot-path cases fail building runtime API fixture: missing dataset_catalog.duckdb -> catalog_fetch_source_unreadable. No failure is a recorded timing threshold violation. Nonbenchmark cases SKIPPED intentionally; benchmark JSON written but upload step SKIPPED.",
+      "complete_input_denominator": {
+        "declared_tests": [
+          "tests/performance/test_overhead.py",
+          "tests/performance/test_scientist_runtime_paths.py",
+          "tests/performance/test_runtime_hot_paths.py"
+        ],
+        "runtime_source_inputs": "Full source tree and pytest helper/fixture/config imports; exact dynamic transitively executed denominator not established from logs. The6 failing stacks name runtime_http helper→ControlPlaneService→DatasetCatalogGraph→DatasetCatalogStore source identity.",
+        "missing_file": "policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "missing_file_bytes": "not_established",
+        "runtime_chain_source_refs": [
+          "policy-engine/tests/_helpers/runtime_http.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py"
+        ]
+      },
+      "touched_path_impact": "Oldhead changes no named fixture/catalog chain files. Shared runtime import denominator is not proven disjoint; no exact CI3.14.7/base replay, hence no inherited-red designation.",
+      "next_owner": "G/A canonical runtime fixture+ControlPlaneService owner with DataForge catalog owner must admit a bounded read-only, content-bound catalog fixture or explicitly schedule exact local data-dependent check. Preserve catalog source identity fail-closed behavior; do not copy production dataset into cloud or change product catalog acceptance.",
+      "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "checkout_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+      "environment": {
+        "job_id": 111797143594,
+        "installed_distribution_rows": 162,
+        "profile": "extras:test runtime causal-discovery sandbox",
+        "actual_versions": {
+          "pytest": "9.0.2",
+          "pytest-benchmark": "5.2.3",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5",
+          "duckdb": "1.4.3",
+          "pyyaml": "6.0.3",
+          "click": "8.3.1"
+        },
+        "source_log_utf8_sha256": "c2d09a5cc43a0ce1af1887973680b9c113b615bb347193b42f59aec0ffd7766a",
+        "source_log_utf8_bytes": 67801
+      },
+      "excerpt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797143594-excerpt.json",
+      "inherited_red": "not_established",
+      "exact_slice_base_CI_env_replay": "UNRUN",
+      "current_final_candidate_verdict": "UNRUN; fresh checks required after root publication"
+    },
+    {
+      "job_id": 111797143332,
+      "run_id": 37320234710,
+      "name": "Core Runtime / Link Check",
+      "first_stop": "Check documentation links",
+      "command": "lychee --offline --config lychee.toml policy-engine/docs/ policy-engine/README.md policy-engine/CONTRIBUTING.md",
+      "outcome": "FAIL",
+      "classification": "local_reference_and_historical_log_extraction_debt",
+      "decision": "Lychee0.23.0 completes offline crawl: total5702, successful3358, excluded2316, errors28, timeout0/redirect0/unknown0. Errors20 absolute Mac scratch references and8 literal shell benchmark file URIs in received transcripts.",
+      "complete_input_denominator": {
+        "declared_paths": [
+          "policy-engine/docs/ (recursive)",
+          "policy-engine/README.md",
+          "policy-engine/CONTRIBUTING.md",
+          "lychee.toml",
+          "lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411",
+          "Lychee0.23.0"
+        ],
+        "tracked_docs_all_filetypes": 3843,
+        "actual_extracted_URL_observations": 5702,
+        "exact_filetype_parser_input_set": "not supplied by job output; no claim to equate all tracked docs with parsed URL set.",
+        "config_exclusions": "Pinned lychee.toml; no added exclusions."
+      },
+      "touched_path_impact": "No error listed in changed handoff paths. Whole declared docs directory includes them; no exact offline base replay, so not inherited. External network liveness is not exercised by this offline gate.",
+      "next_owner": "G/team-docs and E02 evidence custodians separate navigable documentation from historical literal execution/source references without modifying received raw transcripts, Mac scratch evidence or broadening exclusions to mask debt.",
+      "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "checkout_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+      "environment": {
+        "job_id": 111797143332,
+        "installed_distribution_rows": 0,
+        "profile": "Lychee-only",
+        "actual_versions": {},
+        "source_log_utf8_sha256": "14838b71e8761c42cf9615cd9ec649879e5aa88421b3a80849ce773d72c67016",
+        "source_log_utf8_bytes": 37320
+      },
+      "excerpt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797143332-excerpt.json",
+      "inherited_red": "not_established",
+      "exact_slice_base_CI_env_replay": "UNRUN",
+      "current_final_candidate_verdict": "UNRUN; fresh checks required after root publication"
+    }
+  ],
+  "CI_environment": {
+    "python": "3.14.7",
+    "uv": "0.9.21",
+    "runner": "GitHub hosted Ubuntu24.04.5",
+    "image": "ubuntu-24.04 20260927.320.1",
+    "setup": "success in all four requested jobs",
+    "profile_source": ".github/actions/setup-policy-engine-python/action.yml@588b754c702ba0b28afcaf452107616ab4b5c7cc",
+    "uv_lock_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+    "node_action_warning": "Node20-targeted actions forced Node24; observed warning, no attributed failure",
+    "full_installed_environment": "Only recorded selected package versions retained; complete decoded job source inventory retrievable by job ID and bound by full UTF-8 source SHA256."
+  },
+  "source_refs": {
+    ".github/workflows/abi.yml": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "efa0bf5c6fa830d524cfa3e28ce4a43933f12b858041de08de612b0cb3369519",
+      "unchanged_from_slice_base": true
+    },
+    ".github/workflows/core-runtime-release-gate.yml": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "71c72764b77c22ec8bd5112e9258bea99d0a38220cf42b993086627abc27cfff",
+      "unchanged_from_slice_base": true
+    },
+    ".github/actions/setup-policy-engine-python/action.yml": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "32958e0c11c8e6a1ccf5118a2c72ec86db5d16a33428e24989f2fdb6a13e7c62",
+      "unchanged_from_slice_base": true
+    },
+    "lychee.toml": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "91c1b80e1c9e5c123dfa257f11eabc15b086151fdd5583cdada14574693c1bff",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/uv.lock": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/pytest.ini": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/architecture/imports/policy.toml": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/architecture/imports/exceptions.toml": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/tools/quality/lint/lint_imports.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "199041448fbd4d5fd7b5b7a188d62a561bc9dd120ee13f129498dbeadc8b2af8",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/architecture/exceptions/docs_freshness.toml": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "aaea4ef9cfa72d3e2b6a80c70f62ed91e0e33b03514568ffc0c1a1e8e1cc2bfe",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/mkdocs.yml": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "6c0f5281f0d25246dde5a3963dfcbfa1c6f7d6e6ae9df36fd457973bb6d4e567",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/tools/quality/validation/check_docs_gate.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "15261d32e37037a961b774c9440aaa5b1a0dd4f48f06e543fe5ebedf6e3396f2",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/tools/quality/validation/check_docs_freshness_baseline.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "1523b3639cb956b55b0a9a6c84cd3ff40f74bfbc434243a7b17beb520f1b06b6",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/tools/quality/validation/check_docs_accuracy.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "2bbe2e794d089510fa2e8d86b446e1ded6b09c1eadd650fb5cc03e5a68acc26b",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/tests/performance/test_overhead.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "09cff15ead3967ee68bbaa42727f208ac80c13dc1a822bcf772a4c9790cb8685",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/tests/performance/test_scientist_runtime_paths.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "b7658c6cece8b69e65de84ae123eeacea638f101a90fbc21f5995e4dab63c3ea",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/tests/performance/test_runtime_hot_paths.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/tests/_helpers/runtime_http.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/src/polisyos/runtime/quality/substrate_registry.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "a2a4f06452428a225b393941ae16cf3cb42043c01a38679bb725595818cb9f62",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "eaebbe358294cb227faa417fa23cefc12b881b2e298137dd4abbded4099a1ab2",
+      "unchanged_from_slice_base": true
+    },
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py": {
+      "commit": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "unchanged_from_slice_base": true
+    }
+  },
+  "claims": {
+    "predicate_basis": "independently_reconciled decoded source logs with job metadata and immutable Git tree/source paths",
+    "required_CI_checks": "preserved",
+    "unit_suite": "SKIP after first import gate stop; neither FAIL nor PASS observed",
+    "finding_closure": [],
+    "source_repairs": "none",
+    "inherited_red": "not_established for every requested job"
+  },
+  "scope": "The4 requested old-head CI jobs only; other red/cancelled jobs and future final candidate not adjudicated."
+}

@@ -124,7 +124,7 @@ def test_phase8_complexity_exceptions_have_no_data_forge_legacy_god_files() -> N
 def test_phase8_ukraine_console_entrypoint_targets_data_forge() -> None:
     project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
 
-    assert project["scripts"]["ukraine-data"] == "polisyos.data_forge.domains.ukraine.cli:main"
+    assert project["scripts"]["ukraine-data"] == "tools.ops_runners.ukraine_data.cli:main"
 
 
 def test_phase8_fabric_and_foundry_use_data_forge_read_api_only() -> None:

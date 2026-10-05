@@ -6,12 +6,16 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.data_forge.domains.ukraine.models import StageId
 from polisyos.data_forge.domains.ukraine.orchestrator import (
     UkraineDataOrchestrator,
     load_pipeline_config,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def _parse_stage(value: str) -> StageId:
@@ -87,11 +91,16 @@ def _emit(payload: object) -> None:
     sys.stdout.write("\n")
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(
+    argv: list[str] | None = None,
+    *,
+    orchestrator_factory: Callable[..., UkraineDataOrchestrator] | None = None,
+) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     config = load_pipeline_config(args.config, root=args.root)
-    orchestrator = UkraineDataOrchestrator(config, workspace_root=args.workspace_root)
+    factory = orchestrator_factory or UkraineDataOrchestrator
+    orchestrator = factory(config, workspace_root=args.workspace_root)
 
     if args.command == "bootstrap-server":
         summary = orchestrator.bootstrap_server(write_capabilities=args.write_capabilities)

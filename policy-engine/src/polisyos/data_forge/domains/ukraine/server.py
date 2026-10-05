@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import re
 import shlex
 import shutil
 import socket
@@ -11,6 +12,7 @@ import subprocess
 import sys
 from collections.abc import Callable
 from pathlib import Path
+from typing import Literal
 
 from polisyos.data_forge.domains.ukraine.manifests import (
     PartAGateManifest,
@@ -23,6 +25,13 @@ from polisyos.data_forge.domains.ukraine.resources import free_disk_gib, total_r
 PartAGateRunner = Callable[[ServerConfig, Path | None], PartAGateManifest]
 BootstrapScriptRenderer = Callable[[ServerConfig, BuildRootConfig], str]
 ServerCapabilityProbe = Callable[[ServerConfig], ServerCapabilityManifest]
+PartAGateStatus = Literal["failed", "passed", "skipped"]
+
+_PYTEST_SUMMARY_LINE = re.compile(
+    r"^(?:\d+\s+\w+(?:,\s*)?)+\s+in\s+\d+(?:\.\d+)?s$",
+    re.IGNORECASE,
+)
+_PYTEST_SKIPPED_COUNT = re.compile(r"(?:^|,\s*)(\d+)\s+skipped\b", re.IGNORECASE)
 
 
 class LocalExecutionBlockedError(RuntimeError):
@@ -108,6 +117,34 @@ def is_repository_checkout(repo_root: Path | None) -> bool:
     )
 
 
+def classify_part_a_gate_result(
+    returncode: int,
+    stdout: str,
+) -> tuple[PartAGateStatus, bool, bool]:
+    """Classify pytest status from its exit code and terminal summary.
+
+    The returned tuple is ``(status, passed, skipped)``. A skip is present
+    only when pytest's terminal summary reports a positive skip count; a
+    textual ``0 skipped`` does not turn a successful gate into a skipped one.
+    A nonzero exit remains failed even when the run also contains skips.
+    """
+
+    skipped = False
+    for line in reversed(stdout.splitlines()):
+        summary = line.strip().strip("= ")
+        if not _PYTEST_SUMMARY_LINE.fullmatch(summary):
+            continue
+        skip_match = _PYTEST_SKIPPED_COUNT.search(summary)
+        skipped = skip_match is not None and int(skip_match.group(1)) > 0
+        break
+
+    if returncode != 0:
+        return "failed", False, skipped
+    if skipped:
+        return "skipped", False, True
+    return "passed", True, False
+
+
 def probe_local_server_capabilities(config: ServerConfig) -> ServerCapabilityManifest:
     """Probe local packages and binary prerequisites for the server manifest."""
 
@@ -182,8 +219,7 @@ def run_part_a_gate(
         check=False,
     )
     stdout = completed.stdout or ""
-    skipped = "SKIPPED" in stdout or " skipped" in stdout.lower()
-    passed = completed.returncode == 0 and not skipped
+    status, passed, skipped = classify_part_a_gate_result(completed.returncode, stdout)
     notes = []
     if stdout.strip():
         notes.append(stdout.strip()[-5000:])
@@ -191,7 +227,7 @@ def run_part_a_gate(
     if stderr:
         notes.append(stderr[-2000:])
     return PartAGateManifest(
-        status="passed" if passed else ("skipped" if skipped else "failed"),
+        status=status,
         command=command,
         server_only=True,
         passed=passed,
@@ -205,9 +241,11 @@ __all__ = [
     "BootstrapScriptRenderer",
     "LocalExecutionBlockedError",
     "PartAGateRunner",
+    "PartAGateStatus",
     "ServerCapabilityProbe",
     "assert_server_execution_allowed",
     "build_bootstrap_script",
+    "classify_part_a_gate_result",
     "is_repository_checkout",
     "probe_local_server_capabilities",
     "run_part_a_gate",

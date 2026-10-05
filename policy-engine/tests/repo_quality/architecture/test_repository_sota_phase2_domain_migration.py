@@ -168,7 +168,7 @@ def test_phase2_production_entrypoints_target_new_facades() -> None:
     )
     runtime_control = "\n".join(path.read_text(encoding="utf-8") for path in runtime_control_paths)
 
-    assert project["scripts"]["ukraine-data"] == "polisyos.data_forge.domains.ukraine.cli:main"
+    assert project["scripts"]["ukraine-data"] == "tools.ops_runners.ukraine_data.cli:main"
     assert "polisyos.data_forge.domains.legal.batch" in cloud_runner
     assert "polisyos.lex.batch" not in cloud_runner
     assert "from polisyos.data_forge.read_api.legal" in runtime_control

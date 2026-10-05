@@ -211,7 +211,7 @@ polisyos = "tools.ops_runners.runtime_cli:main"
 polisyos-causal-capabilities = "polisyos.foundry.methods.catalog.causal.capabilities:main"
 polisyos-foundry = "tools.ops_runners.runtime_cli:foundry_main"
 polisyos-tools = "tools.cli:main"
-ukraine-data = "polisyos.data_forge.domains.ukraine.cli:main"
+ukraine-data = "tools.ops_runners.ukraine_data.cli:main"
 
 [dependency-groups]
 dev = [

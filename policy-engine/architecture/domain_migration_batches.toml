@@ -107,7 +107,7 @@ target_paths = [
   "src/polisyos/data_forge/read_api/ukraine.py",
 ]
 public_facades = ["polisyos.data_forge.read_api.ukraine"]
-entrypoints = ["ukraine-data = polisyos.data_forge.domains.ukraine.cli:main"]
+entrypoints = ["ukraine-data = tools.ops_runners.ukraine_data.cli:main"]
 shim_ids = []
 evidence_paths = [
   "tests/_data/data_forge/ukraine_shadow/baseline",

@@ -20,6 +20,7 @@ from polisyos.data_forge.domains.ukraine.orchestrator import (
 )
 from polisyos.data_forge.domains.ukraine.server import (
     PartAGateRunner,
+    classify_part_a_gate_result,
     is_repository_checkout,
 )
 from polisyos.data_forge.domains.ukraine.server import (
@@ -68,8 +69,7 @@ def _run_repository_gate(config: ServerConfig, workspace_root: Path | None) -> P
         check=False,
     )
     stdout = completed.stdout or ""
-    skipped = "SKIPPED" in stdout or " skipped" in stdout.lower()
-    passed = completed.returncode == 0 and not skipped
+    status, passed, skipped = classify_part_a_gate_result(completed.returncode, stdout)
     notes: list[str] = []
     if stdout.strip():
         notes.append(stdout.strip()[-5000:])
@@ -77,7 +77,7 @@ def _run_repository_gate(config: ServerConfig, workspace_root: Path | None) -> P
     if stderr:
         notes.append(stderr[-2000:])
     return PartAGateManifest(
-        status="passed" if passed else ("skipped" if skipped else "failed"),
+        status=status,
         command=command,
         server_only=True,
         passed=passed,

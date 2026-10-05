@@ -13,7 +13,7 @@
   "authority_purpose": "G intake navigation and claim review. No finding acceptance, compatibility ruling, promotion authority, production statistical equivalence, or merge readiness is supplied.",
   "review_independence": "Reviewer authored the search mechanisms and does not replace their independent GP/numerical reviews. This is a separate cross-owner closeout wording/dependency review; production and shared matrix files were not written.",
   "matrix_review": {
-    "reviewed_index_sha": "a6111740692b010f6ba444e33e2153fc349f8da7",
+    "reviewed_index_sha": "1b1454f6e32dbf2f23df5f1e58e68fe43a27f7d5",
     "complete_allocated_D_ids": 45,
     "exact_ID_set": true,
     "all45_partial_no_closures": true,
@@ -64,7 +64,35 @@
       "state": "root_reported_source_freeze; independent_aggregate_reconciliation_pending",
       "note": "Parent supplied this exact frozen runtime candidate after public canon facade/import corrections. Owner evidence remains bound to its exact behavior/check SHAs; root must attach final aggregate checks, changed-input reconciliation and G acceptance. No future acceptance SHA or broad PASS is claimed here."
     },
-    "index_sha256": "c63a8eb72f2407e217c06b6abdb7cdd44905750e95e966d46d01d221a2b4525a"
+    "index_sha256": "552c3a9c172d33492319cd78e5fb57def3d8838a595cbecae23fd4f3e01f2253",
+    "predecessor_index_sha": "a6111740692b010f6ba444e33e2153fc349f8da7",
+    "final_index_compaction": "Duplicate baseline/owner payloads replaced by immutable Git identities and JSON pointers; owned23 mechanism/oracle/residual/missing-input/next-owner preserved, B111 additive receipt now pinned7ced. No source or criteria change.",
+    "index_validation": {
+      "canonical_45_ID_join": "PASS",
+      "canonical_closure_owner_and_bundle_join": "PASS",
+      "complete_17_bundle_allocation": "PASS",
+      "456_route_115_cell_15_job_join": "PASS",
+      "immutable_receipt_bytes_loaded_from_Git": "PASS",
+      "owner_behavior_SHA_trees_resolve": "PASS",
+      "new_product_execution": "none; index consistency only",
+      "finding_acceptance": "not_established",
+      "deciding_command": "python /tmp/e02-D-final-index/build_index.py; embedded generic JSON-pointer verification below against immutable Git receipt bytes",
+      "pointer_verification_source": "resolved = 0\nfor row in index['findings']:\n    refs = (row['engineering']['owner_receipt_refs']\n            + [layer['receipt_ref'] for layer in row['engineering']['supplemental_receipt_layers']]\n            + [row['canonical_baseline']])\n    for ref in refs:\n        identity = index['owner_receipts'][ref['receipt']]['identity']\n        raw = subprocess.check_output(['git', 'show', identity['commit'] + ':' + identity['path']])\n        assert hashlib.sha256(raw).hexdigest() == identity['sha256']\n        source = json.loads(raw)\n        for segment in ref['json_pointer'].split('/')[1:]:\n            segment = segment.replace('~1', '/').replace('~0', '~')\n            source = source[int(segment)] if isinstance(source, list) else source[segment]\n        resolved += 1\nassert resolved == 137\nprint('resolved exact owner/baseline JSON pointers', resolved)\nprint('uniqueIDs', len({r['finding_id'] for r in index['findings']}), 'bundleIDs', len(index['bundle_ids']))\n",
+      "prior_observation": {
+        "index_commit": "a6111740692b010f6ba444e33e2153fc349f8da7",
+        "complete_deciding_output": "resolved exact owner/baseline JSON pointers 136\nuniqueIDs 45 bundleIDs 17 cellUnion 115\n",
+        "delta": "Compact references replace copied tracked payloads; one immutable B111 final-contract-review residual pointer added."
+      },
+      "complete_deciding_output": "resolved exact owner/baseline JSON pointers 137\nuniqueIDs 45 bundleIDs 17\n",
+      "environment": "Python3.12.14 stdlib/Git; no shared environment writes or product test execution.",
+      "scope": "Consistency observation only.137 per-finding references resolve to exact pinned Git bytes and declared SHA256. Product positive/removal controls remain complete in each pinned owner receipt /checks; no product gate or new finding closure derives from pointer resolution."
+    },
+    "independent_compacted_pointer_validation": {
+      "references": 137,
+      "unique_pinned_receipts": 15,
+      "all_SHA256_and_JSON_pointers": "PASS; reviewer recomputed directly from immutable Git objects",
+      "observation": "Refined compact successor retains exact own23 fields; complete predecessor baselinecell sets already independently compared, successor baseline pointers content-bound to unchanged baseline receipt."
+    }
   },
   "checks_read": [
     {

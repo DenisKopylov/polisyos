@@ -1,0 +1,49 @@
+........................................................................ [  5%]
+........................................................................ [ 10%]
+........................................................................ [ 16%]
+........................................................................ [ 21%]
+........................................................................ [ 27%]
+........................................................................ [ 32%]
+........................................................................ [ 38%]
+........................................................................ [ 43%]
+........................................................................ [ 49%]
+..F..................................................................... [ 54%]
+........................................................................ [ 60%]
+........................................................................ [ 65%]
+........................................................................ [ 71%]
+........................................................................ [ 76%]
+........................................................................ [ 82%]
+........................................................................ [ 87%]
+........................................................................ [ 92%]
+........................................................................ [ 98%]
+....................x                                                    [100%]
+=================================== FAILURES ===================================
+________________ test_import_enforces_existing_tenant_ownership ________________
+tests/unit/remediation/test_cas_02.py:438: in test_import_enforces_existing_tenant_ownership
+    with pytest.raises(PermissionError, match="not owned by tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'PermissionError'>
+=============================== warnings summary ===============================
+tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters
+  tests/unit/remediation/test_cas_01.py:772: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_lock_registry_is_bounded_without_evicting_active_waiters(
+
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py: 1 warning
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py: 1 warning
+tests/unit/scientist/orchestration/engine/test_retry.py: 42 warnings
+tests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+    self.pid = os.fork()
+
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py: 1 warning
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py: 1 warning
+tests/unit/scientist/orchestration/engine/test_retry.py: 50 warnings
+tests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=78389) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+XFAIL tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_cannot_erase_actual_provider_cost - B66/B68: producer-bound accounting settlement is missing after initiator cancellation
+FAILED tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership
+1 failed, 1315 passed, 1 xfailed, 99 warnings in 211.57s (0:03:31)

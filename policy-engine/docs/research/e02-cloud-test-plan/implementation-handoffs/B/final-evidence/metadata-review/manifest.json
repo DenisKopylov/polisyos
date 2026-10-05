@@ -1,0 +1,24 @@
+{
+  "schema": "policyos.e02.B_final_metadata_review_custody.v1",
+  "final_head": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "files": {
+    "review.py": {
+      "bytes": 15737,
+      "sha256": "0f2e016dad21c8c2710290c5d8cd60cc45eea32f0f35c44eb01ccc506a2d892a"
+    },
+    "review.json": {
+      "bytes": 19984,
+      "sha256": "c5138503f731f8e2c7a5be855a759e9af291b0817aa64ba29ba122d3e1153831"
+    },
+    "stdout.txt": {
+      "bytes": 1109,
+      "sha256": "2d5a0485ff12b2e45227445e423e702ac3d80471272ac79d3cb120acbaec72a2"
+    },
+    "command.json": {
+      "bytes": 396,
+      "sha256": "a09b8e5ed192a00aa09a0ffc6ce6baef95786b2c2445fa0e7d705206d9313cd3"
+    }
+  },
+  "no_runtime_execution": true,
+  "no_source_edits_or_new_worktrees": true
+}

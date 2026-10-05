@@ -1,0 +1,3453 @@
+{
+  "schema": "policyos.e02.B_owner_reconciliation.v1",
+  "final_head": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "final_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "source_tables": [
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv@a3daffbe867ddfe9eede5e5990687283b552952a",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@a3daffbe867ddfe9eede5e5990687283b552952a"
+  ],
+  "source_table_blobs": {
+    "bundle-owners": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+    "finding-owners": "515c70d29f59f3175521642e72d04f1aaffc72d7"
+  },
+  "denominators": {
+    "all_bundles": 127,
+    "all_findings": 282,
+    "B_bundles": 25,
+    "B_findings": 60
+  },
+  "families": {
+    "adapters": {
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "ordered_receipts": [
+        {
+          "priority": 0,
+          "kind": "main",
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "finding_count": 15,
+          "advertised_bundles": [
+            "JIT-01",
+            "LLM-01",
+            "LLM-02",
+            "NET-01",
+            "NET-02",
+            "WIRE-01"
+          ],
+          "explicit_source_identity": {
+            "implementation_commits": [
+              "8be155b255591b7fac8e9747ad9081246305fef8",
+              "2540c3247a5ff60d9880d8eb9869b10e1a229112",
+              "58b04116e25344835f482ef79c16ce87f2d0b771",
+              "d9d61af6359033a08835cf5cc3fecb41c8e6967f"
+            ],
+            "candidate_sha": "d9d61af6359033a08835cf5cc3fecb41c8e6967f",
+            "candidate_tree_sha": "2f320f79e56aa1da71dad92f171d9dbac5a72d2d"
+          }
+        },
+        {
+          "priority": 1,
+          "kind": "overlay",
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "finding_count": 15,
+          "advertised_bundles": [
+            "JIT-01",
+            "LLM-01",
+            "LLM-02",
+            "NET-01",
+            "NET-02",
+            "WIRE-01"
+          ],
+          "explicit_source_identity": {
+            "implementation_commits": [
+              "242437452f07e74be81584cfc332f91bd07d282a",
+              "88e27af5f3aedac68fdbe268ec87e17f239d755f"
+            ],
+            "candidate_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+            "candidate_tree_sha": "e8d319521938bca8306425d45cd6543865fd2c6d"
+          }
+        }
+      ],
+      "finding_count": 15,
+      "canonical_owned_bundles": [
+        "JIT-01",
+        "LLM-01",
+        "LLM-02",
+        "NET-01",
+        "NET-02",
+        "WIRE-01"
+      ],
+      "advertised_bundles": [
+        "JIT-01",
+        "LLM-01",
+        "LLM-02",
+        "NET-01",
+        "NET-02",
+        "WIRE-01"
+      ],
+      "explicit_final_source_point": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+      "source_point_declared_in_ordered_receipts": true,
+      "head_is_ancestor_of_final": true
+    },
+    "cas": {
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "ordered_receipts": [
+        {
+          "priority": 0,
+          "kind": "main",
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+          "finding_count": 8,
+          "advertised_bundles": [
+            "CAS-02"
+          ],
+          "explicit_source_identity": {
+            "implementation_commits": [
+              "a1ed35181947b23d64eb2a4cd25488f97d30bf01",
+              "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+              "bc52270ef2ff65e15faf6f407c569432a765fbf4",
+              "46283ae1cbcaa775cebac51f0361262f64b5b206"
+            ],
+            "candidate_tree_sha": "93cde666e1a95970bad1a6875eb9f8ccf6b56714"
+          }
+        },
+        {
+          "priority": 1,
+          "kind": "overlay",
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+          "finding_count": 8,
+          "advertised_bundles": [
+            "CAS-02"
+          ],
+          "explicit_source_identity": {
+            "implementation_commits": [
+              "22684400ded9e996b0e91facb168b71a4af6c913",
+              "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6"
+            ],
+            "candidate_tree_sha": "613e40b149ec448c5b202cc8b5edd811e2e35a68"
+          }
+        }
+      ],
+      "finding_count": 8,
+      "canonical_owned_bundles": [
+        "CAS-01",
+        "CAS-02",
+        "CAS-03"
+      ],
+      "advertised_bundles": [
+        "CAS-02"
+      ],
+      "explicit_final_source_point": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "source_point_declared_in_ordered_receipts": true,
+      "head_is_ancestor_of_final": true
+    },
+    "cmp": {
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "ordered_receipts": [
+        {
+          "priority": 0,
+          "kind": "main",
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "finding_count": 11,
+          "advertised_bundles": [
+            "CMP-01",
+            "CMP-02",
+            "CMP-03",
+            "RES-03",
+            "RES-04"
+          ],
+          "explicit_source_identity": {
+            "implementation_commits": [
+              "236349107399b2016e7b7d2e20ba0f552b99aba4",
+              "fe1449957e06e9c62fae481c18cc07ab03ef65fb",
+              "e9f9738c1d0cd1cb4166718fe4cc5f76b7c15f9a",
+              "d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+              "436e7beb61fb35237533d9a8e00a8aae4760fb8c"
+            ],
+            "candidate_tree_sha": "81074c43bc1bc23483e5d77671d25c1d898ff96d"
+          }
+        }
+      ],
+      "finding_count": 11,
+      "canonical_owned_bundles": [
+        "CMP-01",
+        "CMP-02",
+        "CMP-03",
+        "RES-03",
+        "RES-04"
+      ],
+      "advertised_bundles": [
+        "CMP-01",
+        "CMP-02",
+        "CMP-03",
+        "RES-03",
+        "RES-04"
+      ],
+      "explicit_final_source_point": "436e7beb61fb35237533d9a8e00a8aae4760fb8c",
+      "source_point_declared_in_ordered_receipts": true,
+      "head_is_ancestor_of_final": true
+    },
+    "dur": {
+      "head": "f3b9f054c86218b431ab927b56100164842db64a",
+      "ordered_receipts": [
+        {
+          "priority": 0,
+          "kind": "main",
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a",
+          "receipt_blob": "b8dce78e5b0b722f719a8b08da8208ca4f9b5ce6",
+          "finding_count": 3,
+          "advertised_bundles": [
+            "DUR-01",
+            "DUR-02"
+          ],
+          "explicit_source_identity": {
+            "implementation_commits": [
+              "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
+              "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5"
+            ],
+            "candidate_tree_sha": "f0331553f28fc39ffbd2d75d41a334a5fe5acc0a"
+          }
+        }
+      ],
+      "finding_count": 3,
+      "canonical_owned_bundles": [
+        "DUR-01",
+        "DUR-02"
+      ],
+      "advertised_bundles": [
+        "DUR-01",
+        "DUR-02"
+      ],
+      "explicit_final_source_point": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+      "source_point_declared_in_ordered_receipts": true,
+      "head_is_ancestor_of_final": true
+    },
+    "exe": {
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "ordered_receipts": [
+        {
+          "priority": 0,
+          "kind": "main",
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "finding_count": 15,
+          "advertised_bundles": [
+            "EXE-01",
+            "EXE-02",
+            "RES-01",
+            "RES-02",
+            "STA-01",
+            "STA-02"
+          ],
+          "explicit_source_identity": {
+            "implementation_commits": [
+              "1d87e30c6859d945dd84310aafeb64905be529ae",
+              "a33898206b4b7421fa06f3444d8d53fb5e1bd174"
+            ],
+            "candidate_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174",
+            "candidate_tree_sha": "d92cd6b5872325949a3cadb7917b10792b68b1ea"
+          }
+        },
+        {
+          "priority": 1,
+          "kind": "overlay",
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "df7e1520804b544a6d188aed6f192dbe0ad12a65",
+          "finding_count": 2,
+          "advertised_bundles": [
+            "EXE-01",
+            "STA-02"
+          ],
+          "explicit_source_identity": {
+            "source_sha": "94f378200d8684d61737f0561eccafea6eaa843f",
+            "implementation_commits": [
+              "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+              "b75ea829d4b76285a399d75249117764211447b0",
+              "c52c2e584444d712ded7f9349b537527dad02824",
+              "94f378200d8684d61737f0561eccafea6eaa843f",
+              "bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4"
+            ],
+            "candidate_sha": "bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4",
+            "candidate_tree_sha": "cedb439ea3e629884ea672fad487f3e2b6fdac72"
+          }
+        }
+      ],
+      "finding_count": 15,
+      "canonical_owned_bundles": [
+        "EXE-01",
+        "EXE-02",
+        "RES-01",
+        "RES-02",
+        "STA-01",
+        "STA-02"
+      ],
+      "advertised_bundles": [
+        "EXE-01",
+        "EXE-02",
+        "RES-01",
+        "RES-02",
+        "STA-01",
+        "STA-02"
+      ],
+      "explicit_final_source_point": "94f378200d8684d61737f0561eccafea6eaa843f",
+      "source_point_declared_in_ordered_receipts": true,
+      "head_is_ancestor_of_final": true
+    },
+    "run": {
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "ordered_receipts": [
+        {
+          "priority": 0,
+          "kind": "main",
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+          "finding_count": 8,
+          "advertised_bundles": [
+            "RUN-01",
+            "RUN-02",
+            "RUN-03"
+          ],
+          "explicit_source_identity": {
+            "implementation_commits": [
+              "3ff71ee11ce8ae19ef284adb0ddd0fe2778ba470",
+              "418b1f061459e40976d2666b5b62dce21d8c4833",
+              "d834b9c06dcb94e9689a2685f8826e4ea6c31c8b",
+              "3e95056bca6d0c15ab7778573172491628f48596",
+              "ba79d141a3937541b3164db255ceda89883575ec",
+              "ec8d20c76b49ab00fc72094982447c02001d3036",
+              "6c2cab488368932479677bc036ffad25657c0367",
+              "dfd31e978f11b4b801f5c8bb4a14747a0b25df26",
+              "0cf61d9234580819a1a27ff441266a026d8f6049",
+              "4a68d5345ceca69a6148af082f59ae27372865de",
+              "a9672a8609410af37582cdef6849e496e1a02e1a",
+              "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+            ],
+            "candidate_tree_sha": "0e881900f0526546364fe5336a6dd6d469185320"
+          }
+        }
+      ],
+      "finding_count": 8,
+      "canonical_owned_bundles": [
+        "RUN-01",
+        "RUN-02",
+        "RUN-03"
+      ],
+      "advertised_bundles": [
+        "RUN-01",
+        "RUN-02",
+        "RUN-03"
+      ],
+      "explicit_final_source_point": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "source_point_declared_in_ordered_receipts": true,
+      "head_is_ancestor_of_final": true
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "B13",
+      "canonical_bundle": "RES-03",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 0,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 0,
+          "priority": 0,
+          "disposition_sha256": "d5fb9c92d2233a5dc58de3a9a30e1c04922501a27ae7ec66f012603b5495a018"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B13",
+        "bundle_id": "RES-03",
+        "canonical_source_status": "partial",
+        "disposition": "component_verified_served_input_blocked",
+        "basis": "fresh_component_wave_and_served_cloud_limit@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Async level success collection, exact errors and dependency-scope retained by existing native component tests. Final served TestClient witness fails app startup before consumer.",
+        "residual_and_next_owner": "A/G local admitted catalog/published input replay; no complete served closure",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B13",
+        "unit": "B",
+        "docx_analytical_package": "P02",
+        "source_closure_owner": "RES-03",
+        "source_bundle_ids": "RES-03",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B14",
+      "canonical_bundle": "RUN-01",
+      "unit": "B",
+      "family": "run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "disposition_index": 0,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+          "disposition_index": 0,
+          "priority": 0,
+          "disposition_sha256": "02092b768dbcb411aa6139205108820758070b162463d74be83dcfe933f6bfe5"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B14",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "bounded_process_and_queued_thread_refusal_verified_with_served_worker_residual",
+        "scope_and_limitations": "Linux owned descendants/grandchildren/new-session tree are killed and reaped; unstarted async-thread job is synchronously cancelled on timeout or caller cancellation and cannot execute a raw file write after same-turn pool release. Already running arbitrary thread/coroutine/served-worker effects and completed external effects remain outside the bounded contract.",
+        "next_owner": "B runtime worker owner; A served lifecycle consumer",
+        "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"late or timeout or queued\"",
+        "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B14",
+        "unit": "B",
+        "docx_analytical_package": "P09",
+        "source_closure_owner": "RUN-01",
+        "source_bundle_ids": "RUN-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B148",
+      "canonical_bundle": "CAS-02",
+      "unit": "B",
+      "family": "cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "disposition_index": 0,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+          "disposition_index": 0,
+          "priority": 0,
+          "disposition_sha256": "5e20bc5e44c8a6a1e88cde08e08b1b1029768b9a0783a8633624573b83aa329b"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+          "disposition_index": 0,
+          "priority": 1,
+          "disposition_sha256": "5e20bc5e44c8a6a1e88cde08e08b1b1029768b9a0783a8633624573b83aa329b"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B148",
+        "canonical_bundle": [
+          "CAS-02"
+        ],
+        "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B148",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B148",
+        "disposition": "partial; scoped declared bound-context mismatch refused before any new put/resume/import intent and claims; native passive exact-cache and unbound legitimate reuse preserved; pending import typed refusal + exact-byte retry verified; four-base source criterion and unbound policy decision remain open",
+        "baseline_cell_ids": [
+          "F01-P051",
+          "F09-P055",
+          "F14-P061"
+        ]
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B148",
+        "unit": "B",
+        "docx_analytical_package": "P10",
+        "source_closure_owner": "CAS-02",
+        "source_bundle_ids": "CAS-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B149",
+      "canonical_bundle": "CAS-02",
+      "unit": "B",
+      "family": "cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "disposition_index": 1,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+          "disposition_index": 1,
+          "priority": 0,
+          "disposition_sha256": "f94ba0770abbc6df53f06093e1d36f9bdc824d522668257a91a77d731b4270d6"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+          "disposition_index": 1,
+          "priority": 1,
+          "disposition_sha256": "b21f94dfab4f2db88bb7a13e7496a6a6233b45e854c3c2ac4a27b9b1eff838cc"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B149",
+        "canonical_bundle": [
+          "CAS-02"
+        ],
+        "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B149",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B149",
+        "disposition": "partial; staged archive old/new-byte publication and current directory export fsync failure/inventory verified; independent old/new import consumers and property-removal negatives retained; no complete four-base closure; normalized archive output admission now refuses all nonregular entries before staging, with actual inode/type/referent consumer preservation; root/DUR bounded class accepted, no full historical closure",
+        "baseline_cell_ids": [
+          "F01-P051",
+          "F09-P055",
+          "F14-P061"
+        ]
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B149",
+        "unit": "B",
+        "docx_analytical_package": "P10",
+        "source_closure_owner": "CAS-02",
+        "source_bundle_ids": "CAS-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B150",
+      "canonical_bundle": "CAS-01",
+      "unit": "B",
+      "family": "cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "disposition_index": 2,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+          "disposition_index": 2,
+          "priority": 0,
+          "disposition_sha256": "f54b42bc759c700cc99c162974b1ef2455d6872949ee2fa56ee30fb327aabfef"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+          "disposition_index": 2,
+          "priority": 1,
+          "disposition_sha256": "f54b42bc759c700cc99c162974b1ef2455d6872949ee2fa56ee30fb327aabfef"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B150",
+        "canonical_bundle": [
+          "CAS-01"
+        ],
+        "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B150",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B150",
+        "disposition": "preserve closed_bounded; distinct views/honest refs fresh regression passes, no broader backend/custody claim",
+        "baseline_cell_ids": [
+          "F01-P072",
+          "F01-P077",
+          "F02-P073",
+          "F04-P043",
+          "F04-P101",
+          "F04-P136",
+          "F05-P095",
+          "F06-P095",
+          "F06-P143",
+          "F08-P074",
+          "F08-P129",
+          "F09-P048",
+          "F09-P074",
+          "F10-P072",
+          "F10-P073",
+          "F12-P120",
+          "F13-P084",
+          "F14-P052",
+          "F15-P085",
+          "F15-P090",
+          "F15-P117",
+          "F15-P158"
+        ]
+      },
+      "canonical_source_status": "closed",
+      "canonical_owner_row": {
+        "finding_id": "B150",
+        "unit": "B",
+        "docx_analytical_package": "P10",
+        "source_closure_owner": "CAS-01",
+        "source_bundle_ids": "CAS-01",
+        "source_status": "closed"
+      }
+    },
+    {
+      "finding_id": "B151",
+      "canonical_bundle": "CAS-01",
+      "unit": "B",
+      "family": "cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "disposition_index": 3,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+          "disposition_index": 3,
+          "priority": 0,
+          "disposition_sha256": "0f1bb275c82910e2c5408e88d23bb79701b7bf72ea7de793b07563a74c5d7fdd"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+          "disposition_index": 3,
+          "priority": 1,
+          "disposition_sha256": "0f1bb275c82910e2c5408e88d23bb79701b7bf72ea7de793b07563a74c5d7fdd"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B151",
+        "canonical_bundle": [
+          "CAS-01"
+        ],
+        "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B151",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B151",
+        "disposition": "partial; existing corrupt-blob retry negative passes, full source-card four-base witness remains unestablished",
+        "baseline_cell_ids": [
+          "F01-P072",
+          "F01-P077",
+          "F02-P073",
+          "F04-P043",
+          "F04-P101",
+          "F04-P136",
+          "F05-P095",
+          "F06-P095",
+          "F06-P143",
+          "F08-P074",
+          "F08-P129",
+          "F09-P048",
+          "F09-P074",
+          "F10-P072",
+          "F10-P073",
+          "F12-P120",
+          "F13-P084",
+          "F14-P052",
+          "F15-P085",
+          "F15-P090",
+          "F15-P117",
+          "F15-P158"
+        ]
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B151",
+        "unit": "B",
+        "docx_analytical_package": "P10",
+        "source_closure_owner": "CAS-01",
+        "source_bundle_ids": "CAS-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B152",
+      "canonical_bundle": "CAS-03",
+      "unit": "B",
+      "family": "cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "disposition_index": 4,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+          "disposition_index": 4,
+          "priority": 0,
+          "disposition_sha256": "4c8ee30a01cf12c1742dc1a774fabd3c1857c01a29aa929152b514b67ccda78c"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+          "disposition_index": 4,
+          "priority": 1,
+          "disposition_sha256": "4c8ee30a01cf12c1742dc1a774fabd3c1857c01a29aa929152b514b67ccda78c"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B152",
+        "canonical_bundle": [
+          "CAS-03"
+        ],
+        "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B152",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B152",
+        "disposition": "partial; one snapshot/hash + actual Ed25519 control passes; wrong byte_size selected-view negative still absent from admitted cohort",
+        "baseline_cell_ids": [
+          "F02-P052",
+          "F08-P055",
+          "F13-P060"
+        ]
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B152",
+        "unit": "B",
+        "docx_analytical_package": "P10",
+        "source_closure_owner": "CAS-03",
+        "source_bundle_ids": "CAS-03",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B153",
+      "canonical_bundle": "CAS-01",
+      "unit": "B",
+      "family": "cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "disposition_index": 5,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+          "disposition_index": 5,
+          "priority": 0,
+          "disposition_sha256": "947cad0a84078a09a30db085cbb7d519d95027425e1ed1d2478e03a28f4f2971"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+          "disposition_index": 5,
+          "priority": 1,
+          "disposition_sha256": "947cad0a84078a09a30db085cbb7d519d95027425e1ed1d2478e03a28f4f2971"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B153",
+        "canonical_bundle": [
+          "CAS-01"
+        ],
+        "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B153",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B153",
+        "disposition": "preserve closed_bounded; existing active-waiter/striped lock bounded behavioral tests pass",
+        "baseline_cell_ids": [
+          "F01-P072",
+          "F01-P077",
+          "F02-P073",
+          "F04-P043",
+          "F04-P101",
+          "F04-P136",
+          "F05-P095",
+          "F06-P095",
+          "F06-P143",
+          "F08-P074",
+          "F08-P129",
+          "F09-P048",
+          "F09-P074",
+          "F10-P072",
+          "F10-P073",
+          "F12-P120",
+          "F13-P084",
+          "F14-P052",
+          "F15-P085",
+          "F15-P090",
+          "F15-P117",
+          "F15-P158"
+        ]
+      },
+      "canonical_source_status": "closed",
+      "canonical_owner_row": {
+        "finding_id": "B153",
+        "unit": "B",
+        "docx_analytical_package": "P10",
+        "source_closure_owner": "CAS-01",
+        "source_bundle_ids": "CAS-01",
+        "source_status": "closed"
+      }
+    },
+    {
+      "finding_id": "B154",
+      "canonical_bundle": "CAS-03",
+      "unit": "B",
+      "family": "cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "disposition_index": 6,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+          "disposition_index": 6,
+          "priority": 0,
+          "disposition_sha256": "cf410c6f1fa46d01ac2abfd703f975b84dcabfe80760ebe762cdf3747906b2e9"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+          "disposition_index": 6,
+          "priority": 1,
+          "disposition_sha256": "cf410c6f1fa46d01ac2abfd703f975b84dcabfe80760ebe762cdf3747906b2e9"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B154",
+        "canonical_bundle": [
+          "CAS-03"
+        ],
+        "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B154",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B154",
+        "disposition": "partial; local element/batch controls pass; all-confirmations production publisher consumer remains missing; no global authority closure",
+        "baseline_cell_ids": [
+          "F02-P052",
+          "F08-P055",
+          "F13-P060"
+        ]
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B154",
+        "unit": "B",
+        "docx_analytical_package": "P10",
+        "source_closure_owner": "CAS-03",
+        "source_bundle_ids": "CAS-03",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B155",
+      "canonical_bundle": "CAS-03",
+      "unit": "B",
+      "family": "cas",
+      "head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+      "disposition_index": 7,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "b48646a232649d19a9ad264a914ca4b933f050a4",
+          "disposition_index": 7,
+          "priority": 0,
+          "disposition_sha256": "270fea50ecd8e027467e2c74a0fb48ee8a616ce6356c1b34c83463b9d2bd4580"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@f1db5d0d76fb93825a433bf8139235a93b213606",
+          "receipt_blob": "efceb2df6ededca75542263bf138426d5b520a11",
+          "disposition_index": 7,
+          "priority": 1,
+          "disposition_sha256": "270fea50ecd8e027467e2c74a0fb48ee8a616ce6356c1b34c83463b9d2bd4580"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B155",
+        "canonical_bundle": [
+          "CAS-03"
+        ],
+        "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#B155",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B155",
+        "disposition": "partial; pending/lazy iterable tests pass; actual default filesystem name census remains eager and uninterruptible at cancellation",
+        "baseline_cell_ids": [
+          "F02-P052",
+          "F08-P055",
+          "F13-P060"
+        ]
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B155",
+        "unit": "B",
+        "docx_analytical_package": "P10",
+        "source_closure_owner": "CAS-03",
+        "source_bundle_ids": "CAS-03",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B24",
+      "canonical_bundle": "RUN-02",
+      "unit": "B",
+      "family": "run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "disposition_index": 1,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+          "disposition_index": 1,
+          "priority": 0,
+          "disposition_sha256": "47034d0c78b0cd1f303ea744014e2411d3f99f7fa3834ed9e5e1b2c2583552e2"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B24",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "bounded_linux_transport_and_descendant_cleanup_verified",
+        "scope_and_limitations": "Actual small/1MiB sync+async fork transport, compute cutoff, send/serialization/start/setup faults, descendants/grandchildren and cancellation pass. Same original descendant input fails when supervisor ownership is removed. macOS/native non-Linux reaping remains local G; caller multithread-fork warning is explicit.",
+        "next_owner": "G independent Linux acceptance and local macOS exact candidate",
+        "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"fork_transport or serialization_failure or descendant or worker_send\"",
+        "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B24",
+        "unit": "B",
+        "docx_analytical_package": "P09",
+        "source_closure_owner": "RUN-02",
+        "source_bundle_ids": "RUN-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B37",
+      "canonical_bundle": "DUR-01",
+      "unit": "B",
+      "family": "dur",
+      "head": "f3b9f054c86218b431ab927b56100164842db64a",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a",
+      "disposition_index": 0,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a",
+          "receipt_blob": "b8dce78e5b0b722f719a8b08da8208ca4f9b5ce6",
+          "disposition_index": 0,
+          "priority": 0,
+          "disposition_sha256": "f45079860df9de1ac4c26a1b9491a90786974c0a20fe68eb3f32bbd9e717535c"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B37",
+        "status": "partial",
+        "mechanism": "fixed_class_supplied_incomplete_snapshot_and_cold_publication",
+        "verification": "94 candidate cases including 61 new process/intake controls pass; independent root94 pass; removal20 failures and pinned base14 failures retained",
+        "remaining": "Full four-base replay, physical power loss, multi-host filesystem semantics, valid forged accounting, deployed ledger factory and operation-idempotent ambiguous spend retry are not established."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B37",
+        "unit": "B",
+        "docx_analytical_package": "P10",
+        "source_closure_owner": "DUR-01",
+        "source_bundle_ids": "DUR-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B38",
+      "canonical_bundle": "DUR-02",
+      "unit": "B",
+      "family": "dur",
+      "head": "f3b9f054c86218b431ab927b56100164842db64a",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a",
+      "disposition_index": 1,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a",
+          "receipt_blob": "b8dce78e5b0b722f719a8b08da8208ca4f9b5ce6",
+          "disposition_index": 1,
+          "priority": 0,
+          "disposition_sha256": "be6e8ac83e5cce7ca7f1594a13827ba67a332e917a7cfe9259069a6d3c14b85d"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B38",
+        "status": "partial",
+        "mechanism": "no change; current owner/attempt/valid-lease SQL fence, context propagation and transactional terminal/progress/event path already present",
+        "verification": "Current real SQLite and guarded worker controls pass in32-case DUR02 wave; stale refused, current completes, event fault rolls back terminal/progress",
+        "remaining": "Frozen historical four-base replay, PostgreSQL/live backend and external side-effect semantics not established; no production lease justified from this bounded witness."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B38",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "DUR-02",
+        "source_bundle_ids": "DUR-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B39",
+      "canonical_bundle": "RUN-03",
+      "unit": "B",
+      "family": "run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "disposition_index": 2,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+          "disposition_index": 2,
+          "priority": 0,
+          "disposition_sha256": "6020bdce263374876bab4f55e2f37347a197b575e792e440df39e4f591a8202d"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B39",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "bounded_retry_identity_and_deadline_error_distinction_verified",
+        "scope_and_limitations": "Original category/code survives real sync+async fork IPC: permanent return/raise1, validation/contract failures terminal, explicit transient ValueError and custom policy codes obey policy. Immediate provider TimeoutError retries across direct/thread/fork/genuineasync, actual thread/async-thread/genuineasync expiry is terminal1. Writer120 and independent reviewer47 are separate matrices. External effects, arbitrary engine-specific control signals and broader serialization formats remain outside this bounded private transport contract.",
+        "next_owner": "G independent bounded admission; external-action owner for idempotency",
+        "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"fork_permanent_error_shape or fork_exception_preserves or provider_timeout or wrapper_expiration\"",
+        "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B39",
+        "unit": "B",
+        "docx_analytical_package": "P09",
+        "source_closure_owner": "RUN-03",
+        "source_bundle_ids": "RUN-03",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B40",
+      "canonical_bundle": "RUN-01",
+      "unit": "B",
+      "family": "run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "disposition_index": 3,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+          "disposition_index": 3,
+          "priority": 0,
+          "disposition_sha256": "59905eb196b8620d0d681369858d3a469083e65279bdde2c5e3735faea8a5083"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B40",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "mechanism_gap_unfixed",
+        "scope_and_limitations": "Timed async-thread owns one real Future and cancels unstarted compute before refusal; queue admission no longer escapes. Untimed sync-node async delegate still resolves shared helper default while direct sync has no helper deadline; total workflow queue/init/attempt deadline and arbitrary running late effects remain unclosed.",
+        "next_owner": "B deadline owner with A top-level producer/served consumer",
+        "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/common/test_async_tools.py",
+        "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B40",
+        "unit": "B",
+        "docx_analytical_package": "P09",
+        "source_closure_owner": "RUN-01",
+        "source_bundle_ids": "RUN-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B42",
+      "canonical_bundle": "CMP-01",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 1,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 1,
+          "priority": 0,
+          "disposition_sha256": "8c0d80ed80a0b31658af3bfc1ffc4e61c3f8ac5d64f32790a70c9c1a382c4d99"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B42",
+        "bundle_id": "CMP-01",
+        "canonical_source_status": "partial",
+        "disposition": "existing_mechanism_bounded_verified",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Both fresh process import orders run the common wrapper and real two-node registry chain.",
+        "residual_and_next_owner": "Optional-dependency absent negative and historical replay not freshly established",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B42",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "CMP-01",
+        "source_bundle_ids": "CMP-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B43",
+      "canonical_bundle": "CMP-01",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 2,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 2,
+          "priority": 0,
+          "disposition_sha256": "4fe840ec4037face77a744095a466748e80b41bc0f7bac6e60214b00f80db107"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B43",
+        "bundle_id": "CMP-01",
+        "canonical_source_status": "partial",
+        "disposition": "existing_mechanism_bounded_verified",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Declaration-only requires edge, independent sibling effective level, real execution wrapper and cycle rejection verified.",
+        "residual_and_next_owner": "Actual independent branch runtime overlap timing is not measured here; supported-mode/historical scope remains bounded",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B43",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "CMP-01",
+        "source_bundle_ids": "CMP-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B44",
+      "canonical_bundle": "CMP-01",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 3,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 3,
+          "priority": 0,
+          "disposition_sha256": "e82457cbeee21876efb134a2e6deed47de3c99957ed0f07c398d913740381187"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B44",
+        "bundle_id": "CMP-01",
+        "canonical_source_status": "partial",
+        "disposition": "sibling_checkpoint_payload_repaired",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Existing actual sequential/async static/dynamic/override oracle passed. Checkpoint sibling now shares canonical payload/materialization and separates runtime seed; native negative unknown parameter and override invalidation pass.",
+        "residual_and_next_owner": "Full tracing/reproducibility parity across every supported executor and historical four-base replay not claimed",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B44",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "CMP-01",
+        "source_bundle_ids": "CMP-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B45",
+      "canonical_bundle": "CMP-02",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 4,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 4,
+          "priority": 0,
+          "disposition_sha256": "fb9614ef556a620fc53f7adbb5cea95381fdf35d0facb102cee3f63501435887"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B45",
+        "bundle_id": "CMP-02",
+        "canonical_source_status": "partial",
+        "disposition": "existing_policy_bounded_verified",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "WARN exposes duplicate-target warnings; STRICT rejects duplicate target; distinct slots and explicit merge compose successfully.",
+        "residual_and_next_owner": "WARN acceptance is recorded policy. Runtime merge semantics under arbitrary UUID rebuilding not established; no new scientific authority rule invented",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B45",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "CMP-02",
+        "source_bundle_ids": "CMP-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B46",
+      "canonical_bundle": "CMP-02",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 5,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 5,
+          "priority": 0,
+          "disposition_sha256": "482ae72cfe1537b075a5b476e712ac7f1bed855e35dac3a5cf819d5193b8e1ac"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B46",
+        "bundle_id": "CMP-02",
+        "canonical_source_status": "partial",
+        "disposition": "existing_mechanism_bounded_verified",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Occurrence-order validator accepts estimate/sensitivity/estimate and reports early sensitivity even with later estimate in WARN and STRICT.",
+        "residual_and_next_owner": "Validator witness uses its real validator with a duck chain and existing method metadata heuristics; full runtime semantic decision not established",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B46",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "CMP-02",
+        "source_bundle_ids": "CMP-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B47",
+      "canonical_bundle": "CMP-03",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 6,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 6,
+          "priority": 0,
+          "disposition_sha256": "c6617ea77b31d4647649acb51646f4cda04c10b5f0dbfba060e05d674224df3e"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B47",
+        "bundle_id": "CMP-03",
+        "canonical_source_status": "partial",
+        "disposition": "existing_mechanism_bounded_verified",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Actual SlotSpec auto matching finds augmenting assignment; neutral renames preserve feasibility; impossible matching rejected.",
+        "residual_and_next_owner": "Bounded existing compatibility model; no arbitrary global scientific-semantic adequacy or historical replay claim",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B47",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "CMP-03",
+        "source_bundle_ids": "CMP-03",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B48",
+      "canonical_bundle": "CMP-03",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 7,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 7,
+          "priority": 0,
+          "disposition_sha256": "4dfa9f73759c7e1a59318c34ec31b706d3a1a7a44b083402dd0a62f9c10727f0"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B48",
+        "bundle_id": "CMP-03",
+        "canonical_source_status": "partial",
+        "disposition": "existing_mechanism_bounded_verified",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Manual/auto actual typed slot paths apply same semantic mismatch, completeness, unit/shape/contract rejection controls.",
+        "residual_and_next_owner": "Existing semantic rules only; no new domain owner decision invented; historical four-base replay remains pending",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B48",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "CMP-03",
+        "source_bundle_ids": "CMP-03",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B49",
+      "canonical_bundle": "JIT-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 0,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 0,
+          "priority": 0,
+          "disposition_sha256": "e528e2b650381c2285f29ab04ff57dc18ad8dce36f44a4ce18e0d0a444603b65"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 0,
+          "priority": 1,
+          "disposition_sha256": "53e26abf1c91578ca690aeecf0d7a1fa61e49db5ab879c8802cc8eedcd8b61fa"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B49",
+        "bundle_id": "JIT-01",
+        "disposition": "bounded_verified",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1299-L1314",
+        "criterion_sha256": "a57f0c542d38e1825f69a100bc9d5fa6770a76111033b2440ebb37314c0af406",
+        "baseline_cell_ids": [
+          "F01-P003",
+          "F01-P084",
+          "F02-P078",
+          "F08-P086",
+          "F13-P097"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Real CPU invocation preserves warm kernel identity while scale2->3 changes x10 output20->30 and old callable remains20.",
+        "limitations": [
+          "No physical Metal/GPU backend run.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "jit"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B49",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "JIT-01",
+        "source_bundle_ids": "JIT-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B50",
+      "canonical_bundle": "JIT-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 1,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 1,
+          "priority": 0,
+          "disposition_sha256": "66f9416c404cb890a87987243b053a973b1955b8ff07d70a6ca23d88e21ac5ba"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 1,
+          "priority": 1,
+          "disposition_sha256": "0aeeb629ea79420798836b514e1ebccd6c6da59cdc3f9c4f06dcdf4b7c111cf8"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B50",
+        "bundle_id": "JIT-01",
+        "disposition": "bounded_verified",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1315-L1330",
+        "criterion_sha256": "7ad6aecc286e2b9c3b88875d276eb03097526f3460541fff6290d69d677b8cc9",
+        "baseline_cell_ids": [
+          "F01-P003",
+          "F01-P084",
+          "F02-P078",
+          "F08-P086",
+          "F13-P097"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Failed actual kernel publication unblocks both joined owners with CompilationError, clears flight, and subsequent real invocation rebuilds successfully.",
+        "limitations": [
+          "Static/shape/dtype/backend-declaration fingerprint axes checked; no different physical accelerator.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "jit"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B50",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "JIT-01",
+        "source_bundle_ids": "JIT-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B51",
+      "canonical_bundle": "EXE-01",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 0,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 0,
+          "priority": 0,
+          "disposition_sha256": "a2bc20aeffb9bb04d1b98a4cc31416c1f4d80ba7d65048c8418881c2b45b5ddd"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B51",
+        "source_bundle": "EXE-01",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1331",
+        "disposition": "bounded_native_witness",
+        "deciding_selectors": [
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not"
+        ],
+        "scope_and_remaining_work": "Native hit does not rerun producer with exhausted compute budget; read budget gates hit, miss still fails. Complete card permission-change/corruption and four-base acceptance remain with G.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B51",
+        "unit": "B",
+        "docx_analytical_package": "P13",
+        "source_closure_owner": "EXE-01",
+        "source_bundle_ids": "EXE-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B52",
+      "canonical_bundle": "EXE-01",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 0,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 1,
+          "priority": 0,
+          "disposition_sha256": "78b74d745b5070237dedf3d0fccead6f2237df54fe00552f28fda29d8523bccf"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "df7e1520804b544a6d188aed6f192dbe0ad12a65",
+          "disposition_index": 0,
+          "priority": 1,
+          "disposition_sha256": "660770482f923422f240f979ec30cfc94fa801dbf8116c223c229fce4387424d"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B52",
+        "finding_id": "B52",
+        "source_bundle": "EXE-01",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1347",
+        "disposition": "mechanism_fixed_bounded",
+        "predicate_basis": "recomputed",
+        "source_test_checkpoint": "94f378200d8684d61737f0561eccafea6eaa843f",
+        "production_checkpoint": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+        "deciding_selectors": [
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_io_does_not_block_independent_coroutine",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_put_does_not_block_and_failed_entry_is_not_published",
+          "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_cancelled_async_cache_write_finishes_without_recovery_admission",
+          "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state[async]",
+          "policy-engine/tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker",
+          "policy-engine/tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_preserves_real_read_and_custody_checks",
+          "policy-engine/tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_respects_read_budget_before_recovery_io",
+          "policy-engine/tests/integration/scientist/test_async_cache_recovery.py::test_workflow_body_receives_only_deadline_remaining_after_startup",
+          "policy-engine/tests/integration/scientist/test_async_cache_recovery.py::test_expired_startup_never_starts_recovery_or_producer",
+          "policy-engine/tests/integration/scientist/test_async_cache_recovery.py::test_bounded_read_timeout_without_workflow_deadline_quarantines_cache",
+          "policy-engine/tests/integration/scientist/test_async_cache_recovery.py::test_superseded_recovery_cannot_replace_current_owner_cache"
+        ],
+        "scope_and_remaining_work": "Supersedes only prior B52 synchronous cold trace/checkpoint seeding limit. Both recovery inlets now use one bounded off-loop worker-private cache with caller context, read-budget gate and absolute workflow deadline through iteration/read/index. Only successful uncancelled unexpired current-owner await publishes; actual cached state assignments/deletions preserve unrelated current values without producer duplication. Entered backend operations and early workflow/state persistence may outlive deadline; thread-affine stores, full reentrant execute, current institutional authority, full served data and latency profiling remain unverified.",
+        "evidence_refs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/final-wave.txt",
+            "target_sha": "b75ea829d4b76285a399d75249117764211447b0",
+            "outcome": "FAIL",
+            "scope": "All14 B52 native tests PASS within actual270PASS1FAIL whole-wave; failure was own B60 assertion, not renamed whole-wave PASS.",
+            "sha256": "dd064a7bbe6d835bb4e6d9f346ec5d982f05880f7e4f3b1ebfbe76526d88c5d9",
+            "bytes": 45492
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/final-base.txt",
+            "target_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+            "outcome": "FAIL",
+            "scope": "Twelve source-independent exactbase cases9FAIL3PASS; process precreation custody not established, qualification pinned.",
+            "sha256": "f7b9a783cb8fd1fb86b9e25a6e01ffb0d9864737aee7a212007414986bfa5698",
+            "bytes": 10021
+          },
+          {
+            "reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/receipt.json@b7c089f4e2a26ff3d3030f4e68abbf79a0c5676f",
+            "scope": "Actual baseline vs naive off-loop late cache/native state consumer discriminator and real scope/chmod/tamper negatives; precreation custody not established."
+          },
+          {
+            "reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/receipt.json@fbc826c5efc7e57c6086fbb7c85fd14a016b1608",
+            "scope": "Independent exact51514nativePASS+6realCAScases, no source blockers; precreation custody not established."
+          },
+          {
+            "reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/qualification.json@2fe743de5f39f0f622db83318a123cb547a67470",
+            "sha256": "abf0b82d330c37aa36f720f8b1b7494fe8d566cd4ab00b9ea0c4b8a98db042af",
+            "scope": "Current identity checkpoints do not prove historical admission; G fresh admitted rerun needed for that criterion."
+          }
+        ],
+        "residuals": [
+          "An already-entered synchronous backend operation, including its nested internal reads, may finish after deadline/cancel; no worker termination or full workflow wall cap claim. Future seed boundary reads/index admission stop at the absolute deadline.",
+          "Initial workflow/state persistence still uses its existing async-store wait. Configured workflow expiry is observed before seed/admission and body receives only residual time; early persistence itself is not interrupted at that workflow deadline.",
+          "Without configured workflow deadline, existing helper default30s is a bounded cache-read wait/bypass limit. The private timed-out cache is quarantined, not admitted later.",
+          "Thread-affine or unsupported arbitrary stores need their own connection ownership boundary; existing shared worker/FileSystemCAS path is the measured supported path.",
+          "Current institutional permission authority, large CPU serialization and latency p95/p99/full served dataset behavior remain unmeasured; no cache speedup/RSS improvement or full finding closure claim.",
+          "The cache recovery owner fence does not establish full concurrent reentrant execute support; executor-wide state/deadline fields remain mutable.",
+          "Static invocation has five new unresolved deferred/construction paths. Native real path witnesses establish this bounded mechanism, not repository-wide runtime invocation/admission.",
+          "Leaf has no fresh green20-file result after the test-only semantic correction. Root plans final combined cohort at its exact frozen joint checkpoint; do not replace the two leaf failures by that future result.",
+          "B61 consumed-source immutable snapshot/version custody remains held; selection timestamp validation is an oracle correction, not a source identity contract."
+        ],
+        "finding_closure": "not_established by this slice; closure_ids empty; B52 source status partial retained. Independent G process admission/final joint acceptance and broader required reconciliation remain."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B52",
+        "unit": "B",
+        "docx_analytical_package": "P13",
+        "source_closure_owner": "EXE-01",
+        "source_bundle_ids": "EXE-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B53",
+      "canonical_bundle": "JIT-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 2,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 2,
+          "priority": 0,
+          "disposition_sha256": "c630877a43996db127416df7c89f3f05b790a2ad81ea4bc897b2d2475c1ed71e"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 2,
+          "priority": 1,
+          "disposition_sha256": "845668698bec92c002beaf8fbc6b97c7afc7ffc39d41bd02958a6c16b3cb74c3"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B53",
+        "bundle_id": "JIT-01",
+        "disposition": "bounded_verified",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1363-L1378",
+        "criterion_sha256": "822a520a40d553ba76bbdcd4df727cbc9798a14f09ec3a91fc8adf8f267291ee",
+        "baseline_cell_ids": [
+          "F01-P003",
+          "F01-P084",
+          "F02-P078",
+          "F08-P086",
+          "F13-P097"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Native suite observes preparation outside trace and actual per-execution work; unknown shape refuses; native warm-kernel fixture invokes real code.",
+        "limitations": [
+          "No production batch/JAX accelerator performance measurement.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "jit"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B53",
+        "unit": "B",
+        "docx_analytical_package": "P12",
+        "source_closure_owner": "JIT-01",
+        "source_bundle_ids": "JIT-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B55",
+      "canonical_bundle": "EXE-01",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 2,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 2,
+          "priority": 0,
+          "disposition_sha256": "66914bd838292557fd1b8526bbeeb15645351933ea6b0d5edb1c3b24b132be4e"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B55",
+        "source_bundle": "EXE-01",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1395",
+        "disposition": "bounded_real_cas_witness",
+        "deciding_selectors": [
+          "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_real_cas_fail_fast_rechecks_queued_work_and_continue_commits_peers",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_fail_fast_rechecks_cancellation_after_semaphore_acquire",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_metric_failure_after_semaphore_acquire_releases_slot"
+        ],
+        "scope_and_remaining_work": "Four native queued nodes at max_parallelism=1: fail_fast producer counts 1/0/0/0 with empty returned/durable state; continue 1/1/1/1 and durable successful b/c/d. Slot/error controls passed. No broad distributed guarantee.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B55",
+        "unit": "B",
+        "docx_analytical_package": "P13",
+        "source_closure_owner": "EXE-01",
+        "source_bundle_ids": "EXE-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B57",
+      "canonical_bundle": "STA-01",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 3,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 3,
+          "priority": 0,
+          "disposition_sha256": "2323894135ab6cc59e871f4953aa335e492f7485f81f57f38dd8ee1308a12557"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B57",
+        "source_bundle": "STA-01",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1543",
+        "disposition": "bounded_real_cas_and_process_witness",
+        "deciding_selectors": [
+          "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state",
+          "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_spawned_worker_wire_rebases_operations_and_detects_removed_journal"
+        ],
+        "scope_and_remaining_work": "Reopened cold index replays equal assignments/null/deletion onto current unrelated state; cold invocation has same state. Actual spawned worker uses production serialization and merge. Status/payload survive journal removal while current unrelated value rolls back, so semantic oracle detects the removal.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B57",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "STA-01",
+        "source_bundle_ids": "STA-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B58",
+      "canonical_bundle": "STA-01",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 4,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 4,
+          "priority": 0,
+          "disposition_sha256": "0af372bf14de86535bc9aab47aa8f2b6c65846992c5a878d431a369b9e45e83e"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B58",
+        "source_bundle": "STA-01",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1559",
+        "disposition": "bounded_real_cas_and_process_witness",
+        "deciding_selectors": [
+          "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state",
+          "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_spawned_worker_wire_rebases_operations_and_detects_removed_journal"
+        ],
+        "scope_and_remaining_work": "Declared deletion survives native cache and actual spawned worker transport. Current wire implementation already carries typed mutation sidecar; historic omission is not treated as a new current bug. No operated Temporal/Ray or arbitrary custom mutable graph claim.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B58",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "STA-01",
+        "source_bundle_ids": "STA-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B59",
+      "canonical_bundle": "STA-01",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 5,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 5,
+          "priority": 0,
+          "disposition_sha256": "ad915baab9864e1c39dc1bd1051061abfd1dd76f7935ccacca4bc3cdf76cc125"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B59",
+        "source_bundle": "STA-01",
+        "source_status_retained": "closed",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1573",
+        "disposition": "existing_bounded_closed_scope_regression",
+        "deciding_selectors": [
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+          "policy-engine/tests/unit/remediation/test_exe_02.py::test_readiness_launch_pair_isolates_nested_mutable_state"
+        ],
+        "scope_and_remaining_work": "Retain original closed status only for declared-leaf dict/list/Pydantic nested isolation. Existing native branch/merge and readiness tests passed; do not extend to arbitrary cycles/custom mutables or all failed-sibling worlds.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "closed",
+      "canonical_owner_row": {
+        "finding_id": "B59",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "STA-01",
+        "source_bundle_ids": "STA-01",
+        "source_status": "closed"
+      }
+    },
+    {
+      "finding_id": "B60",
+      "canonical_bundle": "STA-02",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 1,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 6,
+          "priority": 0,
+          "disposition_sha256": "b3dd5d98b2de185d5d6905bba43f9081ae45714443cb85793570b0f59577b6ef"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "df7e1520804b544a6d188aed6f192dbe0ad12a65",
+          "disposition_index": 1,
+          "priority": 1,
+          "disposition_sha256": "41a70cd5cec0836ffec93469b14a273fa0ecd229e23b185c73d3944f56ee8e2e"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B60",
+        "finding_id": "B60",
+        "source_bundle": "STA-02",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1587",
+        "disposition": "bounded_native_source_recomputation_witness",
+        "predicate_basis": "recomputed",
+        "source_test_checkpoint": "94f378200d8684d61737f0561eccafea6eaa843f",
+        "deciding_selectors": [
+          "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_cache_hit_replays_b60_bundle_request_and_graph_binding",
+          "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_source_unbound_bundle_reselects_configured_source",
+          "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_resolve_parameters_recomputes_existing_bundle_from_changed_prepared_source"
+        ],
+        "scope_and_remaining_work": "Configured source re-selection for a legacy unbound v1 bundle remains unchanged. The prior own immutable-ID equality oracle conflated fresh producer selection_timestamp with semantic bundle identity. Two actual CAS DTOs differed only in selection_timestamp; final test separates actual calls by more than1s, validates independent parsed UTC windows, compares every other DTO field, verifies both CAS graphs/inputs, checks params and exact selector call1, and retains valid-artifact/current-DB-physically-missing refusal. No new consumed-source law, production mechanism, authority or full-data claim; B61 held rule remains unchanged.",
+        "evidence_refs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/selection-positive.txt",
+            "target_sha": "94f378200d8684d61737f0561eccafea6eaa843f",
+            "outcome": "PASS",
+            "scope": "Whole affected native file5PASS, actual CAS/DuckDB source consumer.",
+            "sha256": "fdb75267190a3a21b66b2621dc6e6a3f8aa124df3ec20ddb11a147511b294527",
+            "bytes": 1791
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/selection-timestamp-negative.py",
+            "target_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+            "scope": "Runnable exact prior own equality assertion falsifier with1.01s native selector pause.",
+            "sha256": "c805f845a49e73c1f9e046b07924feb89a07a4b2583b59f48864c3d5659e7cec",
+            "bytes": 2448
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/selection-timestamp-negative.json",
+            "target_sha": "0f24d18d988f579db20a84c734a587abe6cabe20",
+            "outcome": "PASS",
+            "scope": "Harness expected assertion failure; actual DTOdiff onlyselection_timestamp; not product PASS. Old detached checkout precreation custody not established.",
+            "sha256": "a0ddf7eae75d84023be0aa93ab4c3212d1b47dd01fb3dc6b11260f47a41e6493",
+            "bytes": 6995
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/bundle-first.json",
+            "scope": "Actual second-wave first CAS payload.",
+            "sha256": "317c58be291a92932e25c2591eb23e5c81f39e2595c073c7bd017bdba1dfe0ab",
+            "bytes": 1976
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-cold-seed-evidence/bundle-second.json",
+            "scope": "Actual second-wave replay CAS payload.",
+            "sha256": "3fe18445db6b7462a5abd5547deff5185b0018efec52dd78f6fd434842745e75",
+            "bytes": 1976
+          }
+        ],
+        "residuals": [
+          "Legacy unbound v1 bundle still cannot prove consumed-source selector-read binding; configured current source is reselected.",
+          "B61 consumed-source immutable snapshot/version custody held; no new authority rule from selection-time validation.",
+          "No production-history, served/full-data or full finding closure claim; no fresh20-file leaf green result after own test-only correction.",
+          "Exact prior-source timestamp falsifier used DUR detached0f checkout with precreation custody not_established; qualification applies."
+        ],
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B60",
+        "unit": "B",
+        "docx_analytical_package": "P14",
+        "source_closure_owner": "STA-02",
+        "source_bundle_ids": "STA-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B61",
+      "canonical_bundle": "STA-02",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 7,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 7,
+          "priority": 0,
+          "disposition_sha256": "a600259dd5f32fddb31ea08c429dbed050cb265bf56a589f9d9a9052a35f050f"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B61",
+        "source_bundle": "STA-02",
+        "source_status_retained": "held",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1601",
+        "disposition": "held_data_record_owner_decision",
+        "deciding_selectors": [
+          "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+        ],
+        "scope_and_remaining_work": "Technical prepared-read witnesses bind source digest/transaction identity. They do not supply the SKG owner immutable/versioned data_record, authority, provenance/custody and exact consumed bytes/query/run scope. Preserve held/data_record; SKG owner and local G must provide that contract before semantic closure.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "held",
+      "canonical_owner_row": {
+        "finding_id": "B61",
+        "unit": "B",
+        "docx_analytical_package": "P14",
+        "source_closure_owner": "STA-02",
+        "source_bundle_ids": "STA-02",
+        "source_status": "held"
+      }
+    },
+    {
+      "finding_id": "B62",
+      "canonical_bundle": "STA-02",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 8,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 8,
+          "priority": 0,
+          "disposition_sha256": "5c3e2555943c70db546899268080c304328b313081d62273228126c0b0fb9008"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B62",
+        "source_bundle": "STA-02",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1615",
+        "disposition": "bounded_native_presence_witness",
+        "deciding_selectors": [
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_preserves_presence_and_nested_missing_semantics",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_applies_only_declared_consumer_default"
+        ],
+        "scope_and_remaining_work": "Canonical key tests distinguish absent/null/nested presence and declared consumer defaults. No specific production wrong-result history or complete four-base claim.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B62",
+        "unit": "B",
+        "docx_analytical_package": "P14",
+        "source_closure_owner": "STA-02",
+        "source_bundle_ids": "STA-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B63",
+      "canonical_bundle": "RES-01",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 9,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 9,
+          "priority": 0,
+          "disposition_sha256": "16d8ee8d7ad25859c306c8a755defea05753bf5ef081c6e7336823284552fbef"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B63",
+        "source_bundle": "RES-01",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1629",
+        "disposition": "bounded_local_recovery_witness_external_backend_not_established",
+        "deciding_selectors": [
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_seed_from_trace",
+          "policy-engine/tests/unit/remediation/test_res_01.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+          "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state"
+        ],
+        "scope_and_remaining_work": "Real trace-to-CAS reopen bridge now recovers async outputs; native cache index and checkpoint recovery tests passed. Operated Temporal/Ray seed lifecycle and large-history throughput/memory remain not_established.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B63",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "RES-01",
+        "source_bundle_ids": "RES-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B64",
+      "canonical_bundle": "LLM-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 3,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 3,
+          "priority": 0,
+          "disposition_sha256": "71f744a1be8f52e41da2074f17094bac29ac9326a95d43480b4df14fd071cbd2"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 3,
+          "priority": 1,
+          "disposition_sha256": "5cad392c9174ffa94929393a5571762dbc2602c0be5b041892cea90b952cf536"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B64",
+        "bundle_id": "LLM-01",
+        "disposition": "bounded_verified",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1649-L1668",
+        "criterion_sha256": "2a59c0ad6e7cf7bae7c4a39c950f089c911176a6da86c8646cce73dda9466f73",
+        "baseline_cell_ids": [
+          "F01-P026",
+          "F03-P066",
+          "F03-P091",
+          "F05-P047",
+          "F07-P027",
+          "F07-P084",
+          "F10-P031",
+          "F13-P104",
+          "F15-P032"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Native named prompt/provider/Gateway payload checks preserve supported context and reject incompatible context before external call.",
+        "limitations": [
+          "Synthetic provider/Gateway path; no actual billable vendor call.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "llm"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B64",
+        "unit": "B",
+        "docx_analytical_package": "P15",
+        "source_closure_owner": "LLM-01",
+        "source_bundle_ids": "LLM-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B65",
+      "canonical_bundle": "LLM-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 4,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 4,
+          "priority": 0,
+          "disposition_sha256": "630dec0eb67e64f0aba2caeb00a2fb0e2b4c6ab06d3340964d24fb48f823f982"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 4,
+          "priority": 1,
+          "disposition_sha256": "0aeef46b72adc6a278b61dafc140df2aec20998aa5f04afcc443a3e15ed5f8ac"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B65",
+        "bundle_id": "LLM-01",
+        "disposition": "bounded_verified",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1669-L1688",
+        "criterion_sha256": "f21a5d7d62b538e3466fe46778cbd8e27c2e3fa333cfb0b3a367b8fa6c731b76",
+        "baseline_cell_ids": [
+          "F01-P026",
+          "F03-P066",
+          "F03-P091",
+          "F05-P047",
+          "F07-P027",
+          "F07-P084",
+          "F10-P031",
+          "F13-P104",
+          "F15-P032"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Optional metrics failure preserves successful response; mandatory accounting failure carries received response/event and is visible.",
+        "limitations": [
+          "Cancellation-surviving mandatory settlement remains B66/B68.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "llm"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B65",
+        "unit": "B",
+        "docx_analytical_package": "P15",
+        "source_closure_owner": "LLM-01",
+        "source_bundle_ids": "LLM-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B66",
+      "canonical_bundle": "LLM-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 5,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 5,
+          "priority": 0,
+          "disposition_sha256": "c43d470ab726950221ed71cb9f5a771c16ac2df0ee1609cc6cb621142d03238c"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 5,
+          "priority": 1,
+          "disposition_sha256": "16936ab760164c60e6cfdfc0a6fe744e807e8b444778be97ee4e6180fb7283ca"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B66",
+        "bundle_id": "LLM-01",
+        "disposition": "partial_producer_capability_missing",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1689-L1708",
+        "criterion_sha256": "397fc3ab86c9c5243288fde7c7396afd3146df75bf74bb39973870a9d22c47a5",
+        "baseline_cell_ids": [
+          "F01-P026",
+          "F03-P066",
+          "F03-P091",
+          "F05-P047",
+          "F07-P027",
+          "F07-P084",
+          "F10-P031",
+          "F13-P104",
+          "F15-P032"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Normal miss/reuse/expiry/retry accounts actual provider usage once; cancellation falsifier receives cost0.02 while trace total remains0.",
+        "limitations": [
+          "Missing canonical producer-owned durable settlement outcome/event identity and cancellation-surviving trace/accounting/budget bridge; strict XFAIL declares the known residual, direct --runxfail remains FAIL.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "B LLM canonical producer owner + G review: design producer-owned settlement; same negative test must become PASS without arbitrary follower charge or discarded accounting errors.",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "llm",
+            "llm-accounting-base",
+            "llm-accounting-negative"
+          ]
+        },
+        "check_refs": [
+          "native-full15",
+          "llm-residual"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B66",
+        "unit": "B",
+        "docx_analytical_package": "P15",
+        "source_closure_owner": "LLM-01",
+        "source_bundle_ids": "LLM-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B67",
+      "canonical_bundle": "LLM-02",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 6,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 6,
+          "priority": 0,
+          "disposition_sha256": "931aaec9b67c291ff454706d16a8e6db7482308d4746019456c781eb14a4955d"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 6,
+          "priority": 1,
+          "disposition_sha256": "940a7ff69a9f0e5bc6d57f388ab3c9858098d9a003dbaa2b3dd2b5f78088d7d5"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B67",
+        "bundle_id": "LLM-02",
+        "disposition": "partial_authority_input_missing",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1709-L1728",
+        "criterion_sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278",
+        "baseline_cell_ids": [
+          "F01-P026",
+          "F05-P047",
+          "F07-P027",
+          "F10-P031",
+          "F15-P032"
+        ],
+        "predicate_basis": "consumer_asserted",
+        "verified_behavior": "Packet byte/hash binding recomputed and cache axes discriminate version/scope/permission/seed/parameters/model.",
+        "limitations": [
+          "cache_reuse.allowed/current permission/ref/immutability metadata are supplied by caller; actual current authorizer/resolver is not established. Functional consumer checks do not close permission authority.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "Canonical cache packet producer/current permission owner + G: establish authorizer/ref binding contract and replay actual denied/moved-version case.",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "llm"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B67",
+        "unit": "B",
+        "docx_analytical_package": "P15",
+        "source_closure_owner": "LLM-02",
+        "source_bundle_ids": "LLM-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B68",
+      "canonical_bundle": "LLM-02",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 7,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 7,
+          "priority": 0,
+          "disposition_sha256": "a786e174305c701ccd06aa91474ff0a309815a842abb78e28147471b993c0ea3"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 7,
+          "priority": 1,
+          "disposition_sha256": "2c14057c76dc508795a1017bc1cb3982bbf502472bd9c6e4790bb3caf6bf169b"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B68",
+        "bundle_id": "LLM-02",
+        "disposition": "partial_accounting_and_authority",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1729-L1748",
+        "criterion_sha256": "444a26030aad6d955907fee063845e8938c8348c5c7d970d3d4da6a1c2e3da62",
+        "baseline_cell_ids": [
+          "F01-P026",
+          "F05-P047",
+          "F07-P027",
+          "F10-P031",
+          "F15-P032"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Single shared provider flight; initiating waiter cancellation preserves follower; deadline clears flight; actual retry succeeds.",
+        "limitations": [
+          "Within supplied allowed context; shared-flight cancellation still loses producer cost settlement as B66 and authority admission remains B67.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "Same canonical producer settlement/permission owners as B66/B67; G exact-candidate rerun of direct cancellation falsifier.",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "llm",
+            "llm-accounting-negative"
+          ]
+        },
+        "check_refs": [
+          "native-full15",
+          "llm-residual"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B68",
+        "unit": "B",
+        "docx_analytical_package": "P15",
+        "source_closure_owner": "LLM-02",
+        "source_bundle_ids": "LLM-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B69",
+      "canonical_bundle": "RUN-01",
+      "unit": "B",
+      "family": "run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "disposition_index": 4,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+          "disposition_index": 4,
+          "priority": 0,
+          "disposition_sha256": "db98155154d606d41dccb0cefc6aa5fbf4f30e0bd1aec97c8416fc6651ece5b9"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B69",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "bounded_unfinished_job_and_shutdown_property_verified_with_callback_capacity_residual",
+        "scope_and_limitations": "Actual ordinary pool4 body reentry refuses at unfinished-job bound; functional spare-worker consumers retained. Concurrent submit/shutdown cancellation no longer reverses admission/base lock ownership; completion/cancellation/rejection reservation release once. Four user done callbacks can physically occupy all four workers after outstanding count0: nested submits accepted but no inner execution, bounded waits expire. Blocking nested waits from user done callbacks unsupported; no general physical availability or deadlock-free claim. Candidate125 native/63 consumer are separate green suites; unchanged3-case independent oracle retains that explicit callback FAIL and spare3/4 positive.",
+        "next_owner": "G bounded lock-order/admission acceptance; runtime callback consumer owner if physical callback lifecycle support is required",
+        "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/fabric/data_plane/test_orchestrator.py; PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-run/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/probe.py --target b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2 --output /tmp/e02-executor-G-fresh",
+        "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B69",
+        "unit": "B",
+        "docx_analytical_package": "P09",
+        "source_closure_owner": "RUN-01",
+        "source_bundle_ids": "RUN-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B70",
+      "canonical_bundle": "RES-01",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 10,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 10,
+          "priority": 0,
+          "disposition_sha256": "92a125112f5988334bd5181fdf5194634d28d546c378d8b705c7531c6362a64d"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B70",
+        "source_bundle": "RES-01",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1873",
+        "disposition": "bounded_local_double_resume_witness_external_backend_not_established",
+        "deciding_selectors": [
+          "policy-engine/tests/unit/remediation/test_res_01.py::test_resume_preserves_origin_fingerprint_across_two_stops",
+          "policy-engine/tests/unit/remediation/test_res_01.py",
+          "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py"
+        ],
+        "scope_and_remaining_work": "Native A/B/C double resume and persisted origin workflow fingerprint tested; fresh-reader publication and completed-workflow cases pass. Operated Temporal/Ray and arbitrary custom-hook recovery remain not_established.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B70",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "RES-01",
+        "source_bundle_ids": "RES-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B71",
+      "canonical_bundle": "RES-01",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 11,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 11,
+          "priority": 0,
+          "disposition_sha256": "ec719c514c991f2ad133fcb2a5fbc58257c5061a27dfe2f57ed9ff3f4e5ce46a"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B71",
+        "source_bundle": "RES-01",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1889",
+        "disposition": "bounded_native_checkpoint_witness_external_backend_not_established",
+        "deciding_selectors": [
+          "policy-engine/tests/unit/remediation/test_res_01.py::test_full_valid_state_resumes_without_unnecessary_cache_seed",
+          "policy-engine/tests/unit/remediation/test_res_01.py::test_resume_rejects_missing_state_written_by_completed_node",
+          "policy-engine/tests/unit/remediation/test_res_01.py::test_allow_replay_rebuilds_completed_nodes_for_missing_state",
+          "policy-engine/tests/unit/remediation/test_res_01.py::test_changed_functional_input_remains_incompatible_with_checkpoint"
+        ],
+        "scope_and_remaining_work": "Actual WorkflowExecutor/CASCheckpointHook emits completion evidence; fixture strips only optional recovery refs/local seed trace, keeps real origin/status and immutable original trace. Sufficient state resumes C without cache seed; missing output rejected, explicit replay rebuilds, changed functional input rejected. Operated Temporal/Ray external state sufficiency not_established.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B71",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "RES-01",
+        "source_bundle_ids": "RES-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B72",
+      "canonical_bundle": "RES-02",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 12,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 12,
+          "priority": 0,
+          "disposition_sha256": "2a65b4c770e57bff2d35a55258b16b461f5d4dded6e189620a230ad7f6f66ef6"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B72",
+        "source_bundle": "RES-02",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1905",
+        "disposition": "bounded_native_skip_width_witness",
+        "deciding_selectors": [
+          "policy-engine/tests/integration/scientist/test_execution_state_replay.py::test_native_skip_has_same_persisted_completion_and_resume_semantics_at_each_width",
+          "policy-engine/tests/unit/remediation/test_res_02.py"
+        ],
+        "scope_and_remaining_work": "Native skip at widths one/two never becomes completed producer; actual persisted completed set and resumed producer counts checked. Condition stability and generic skip replay policy not newly decided.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B72",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "RES-02",
+        "source_bundle_ids": "RES-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B73",
+      "canonical_bundle": "RES-02",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 13,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 13,
+          "priority": 0,
+          "disposition_sha256": "7df02d198d903229b72b8a6049e1587c3a4678219cbb7b6a0efbc6cc136bab9e"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B73",
+        "source_bundle": "RES-02",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1921",
+        "disposition": "bounded_reopened_cas_frontier_and_cache_witness",
+        "deciding_selectors": [
+          "policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier",
+          "policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer",
+          "policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_parallel_tier_rejects_node_only_hook_before_any_side_effect"
+        ],
+        "scope_and_remaining_work": "Fresh processes independently read old/complete durable head, history, state and frontier; marker-retaining frontier removal still detected. Both peer CAS entry bytes/node/key/journal are independently resolved. Successful output is reusable before state commit, so producer counts reflect new truthful trace bridge while original frontier and exact increment/state/compensation assertions stay. Live distributed/external exactly-once and kill-during-filesystem-publication remain not_established.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B73",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "RES-02",
+        "source_bundle_ids": "RES-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B74",
+      "canonical_bundle": "RES-04",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 8,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 8,
+          "priority": 0,
+          "disposition_sha256": "401284adf15fbe8629e9eda817ccb1395020758b4f6a8077b1f8c8e5c188ec2e"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B74",
+        "bundle_id": "RES-04",
+        "canonical_source_status": "partial",
+        "disposition": "native_request_identity_repaired",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Native static params/overrides, changed initial input and exact prefix check use canonical effective request; cold and unchanged warm replay retain values.",
+        "residual_and_next_owner": "Residual ledger dependency/model/version-selective invalidation and unrelated-input reusable-work acceptance are not fully exercised",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B74",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "RES-04",
+        "source_bundle_ids": "RES-04",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B75",
+      "canonical_bundle": "RES-04",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 9,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 9,
+          "priority": 0,
+          "disposition_sha256": "d2e35da89962579e4f695a1826eaf512ef6abbc2a3626771187a256c064d79b3"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B75",
+        "bundle_id": "RES-04",
+        "canonical_source_status": "partial",
+        "disposition": "native_original_history_repaired",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Native multiply/add retains6 then7 with original seed/backend/reproducibility and real restored slot outputs; missing history declares limitation and no synthetic node results.",
+        "residual_and_next_owner": "Historical incomplete-prefix continuation with re-persistence and all version/provenance miss combinations not established; no served authority consumer asserted",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B75",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "RES-04",
+        "source_bundle_ids": "RES-04",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B76",
+      "canonical_bundle": "RES-04",
+      "unit": "B",
+      "family": "cmp",
+      "head": "e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+      "disposition_index": 10,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cmp-res.json@e3f0103c167beb42a8aff2db6a81de12b79ae565",
+          "receipt_blob": "fbfd58e03bec4d162d1bd2089a6c5618548eab19",
+          "disposition_index": 10,
+          "priority": 0,
+          "disposition_sha256": "597b88fb5b790bf8503d9ba671f69c512dd6e008b124ddae8cee546711fd5d9e"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B76",
+        "bundle_id": "RES-04",
+        "canonical_source_status": "partial",
+        "disposition": "native_publication_ownership_repaired",
+        "basis": "fresh_wave@d7c9122a60330ce30cee7720c90caf4d8fb07ade",
+        "verified_scope": "Real sidecar/manifest boundary after directory-fsync failure preserves readable new generation; rollback all state/history sidecars under writer lock; four process writers/concurrent reader, thread history race, missing/foreign/path/symlink controls pass.",
+        "residual_and_next_owner": "Power loss after failed fsync is uncertain and returns SaveError. Generic distributed checkpoint, state-merge conflict policy and full product CAS are outside this direct API witness",
+        "finding_full_closure_asserted": false
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B76",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "RES-04",
+        "source_bundle_ids": "RES-04",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B77",
+      "canonical_bundle": "EXE-02",
+      "unit": "B",
+      "family": "exe",
+      "head": "70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+      "disposition_index": 14,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@70d05813159bf3dd66ef0df5b9bbe0a07cb4882c",
+          "receipt_blob": "57b4aa190c5e6b0565fcb31672189860a9acab0c",
+          "disposition_index": 14,
+          "priority": 0,
+          "disposition_sha256": "30c8a33880b12a88161622c7dd6e2570144f32d73390f0106d3d5a8b0501958a"
+        }
+      ],
+      "effective_disposition": {
+        "id": "B77",
+        "source_bundle": "EXE-02",
+        "source_status_retained": "partial",
+        "canonical_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L1985",
+        "disposition": "bounded_native_readiness_witness",
+        "deciding_selectors": [
+          "policy-engine/tests/unit/remediation/test_exe_02.py::test_independent_successor_starts_before_slow_sibling",
+          "policy-engine/tests/unit/remediation/test_exe_02.py::test_unordered_read_write_overlap_keeps_tier_barrier",
+          "policy-engine/tests/unit/remediation/test_exe_02.py::test_declared_dependency_keeps_successor_after_b_and_overlap"
+        ],
+        "scope_and_remaining_work": "Actual readiness scheduler starts C after A before unrelated B; dependency and read/write conflict controls retain barrier. Other readiness tests preserve snapshot/journal isolation. No general scientific-repeat/seed/artifact production data acceptance claim.",
+        "finding_closure": "not_established by this slice; independent G acceptance and full required reconciliation remain"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B77",
+        "unit": "B",
+        "docx_analytical_package": "P13",
+        "source_closure_owner": "EXE-02",
+        "source_bundle_ids": "EXE-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B78",
+      "canonical_bundle": "DUR-02",
+      "unit": "B",
+      "family": "dur",
+      "head": "f3b9f054c86218b431ab927b56100164842db64a",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a",
+      "disposition_index": 2,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/dur-ledger.json@f3b9f054c86218b431ab927b56100164842db64a",
+          "receipt_blob": "b8dce78e5b0b722f719a8b08da8208ca4f9b5ce6",
+          "disposition_index": 2,
+          "priority": 0,
+          "disposition_sha256": "7768d6e306b2a158123d0745dd3502a0714f25d20574049a4c1cdeced2c8a069"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B78",
+        "status": "partial",
+        "mechanism": "no change; post-dispatch PrimaryExecutionOutcomeUnknownError avoids blind local effect replay; pre-dispatch authority distinguishes typed transient and access/contract failures",
+        "verification": "Real FallbackWorkflowRunner with bounded effect-log/typed health collaborators passes current owner/remediation controls in32-case DUR02 wave",
+        "remaining": "Actual Ray/Temporal outcome reconciliation/external exactly-once and full deadline/budget handover remain unestablished; no production lease justified from current witness."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B78",
+        "unit": "B",
+        "docx_analytical_package": "P11",
+        "source_closure_owner": "DUR-02",
+        "source_bundle_ids": "DUR-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B87",
+      "canonical_bundle": "NET-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 8,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 8,
+          "priority": 0,
+          "disposition_sha256": "283846c9a50c5bbbfd241cd781826aa6e78b4691b61e6d6f5a621ab6eb7159c6"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 8,
+          "priority": 1,
+          "disposition_sha256": "02761329826f7976a7e3281558a6052ed2e3849ee56b3f1ed4077c2748ace6a3"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B87",
+        "bundle_id": "NET-01",
+        "disposition": "bounded_verified_class_fix",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2263-L2274",
+        "criterion_sha256": "6e2bbb77d53fcdc1c29b51651016758e2e2b05b5f51bec0cf69a00d20f4e8996",
+        "baseline_cell_ids": [
+          "F02-P004",
+          "F04-P009",
+          "F06-P010",
+          "F06-P020",
+          "F07-P008",
+          "F08-P010",
+          "F11-P015",
+          "F12-P008",
+          "F13-P010",
+          "F15-P004"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Native streaming failures retain physical ownership; failed disconnect retry + release/close share one handle and permit until cleanup finishes.",
+        "limitations": [
+          "C-owned streaming.py unchanged; synthetic connector exercises actual handle/process-task lifecycle. No live vendor transport. P40 widening acceptance belongs to G.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "net",
+            "pool-candidate",
+            "independent-pool-review"
+          ]
+        },
+        "check_refs": [
+          "native-full15",
+          "late-handle-final",
+          "independent-cmp",
+          "removal-deadline",
+          "removal-successful-registration"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B87",
+        "unit": "B",
+        "docx_analytical_package": "P17",
+        "source_closure_owner": "NET-01",
+        "source_bundle_ids": "NET-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B89",
+      "canonical_bundle": "NET-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 9,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 9,
+          "priority": 0,
+          "disposition_sha256": "065b349caaa3822ed1f480b5c3a632530d4fa441418795fdf34985d4c4c53439"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 9,
+          "priority": 1,
+          "disposition_sha256": "1ddbe20cfb7b769d5ec656e07f6bfda31982654eda735a024faef47262dd9a8f"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B89",
+        "bundle_id": "NET-01",
+        "disposition": "bounded_verified_class_fix",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2405-L2418",
+        "criterion_sha256": "43cfad4b987c5efbb7cc52c98e8a7d84508a7d4d6e64395cc926086c91f3de1a",
+        "baseline_cell_ids": [
+          "F02-P004",
+          "F04-P009",
+          "F06-P010",
+          "F06-P020",
+          "F07-P008",
+          "F08-P010",
+          "F11-P015",
+          "F12-P008",
+          "F13-P010",
+          "F15-P004"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Per-invocation registration prevents cancelled unadmitted waiter from decrementing another real connecting owner; cleanup blocks close and replacement until disconnect settles, including repeated cancellation.",
+        "limitations": [
+          "Class invariant widened through admitted acquire ownership, not sample-instance counter workaround; unresolved physical disconnect cannot be abandoned.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "pool-base",
+            "pool-candidate",
+            "registration-mechanism-removal",
+            "net",
+            "independent-pool-review"
+          ]
+        },
+        "check_refs": [
+          "native-full15",
+          "late-handle-final",
+          "independent-cmp",
+          "removal-deadline",
+          "removal-successful-registration"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B89",
+        "unit": "B",
+        "docx_analytical_package": "P17",
+        "source_closure_owner": "NET-01",
+        "source_bundle_ids": "NET-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B90",
+      "canonical_bundle": "NET-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 10,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 10,
+          "priority": 0,
+          "disposition_sha256": "1d6dfd37082cfdd48c6f60b6f2491ef8a28f260d8cf8e264795d8b551f1febbb"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 10,
+          "priority": 1,
+          "disposition_sha256": "140c2001645183950ced6b7aaa1f68c73d2e4bc8f0c23e91232b408dac65a53c"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B90",
+        "bundle_id": "NET-01",
+        "disposition": "mechanism_fixed_bounded",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2419-L2434",
+        "criterion_sha256": "40d664e5fe4a6a8f7559b5a5faf15b49ac0b739e538d9377c00e76e8a3dd26ee",
+        "baseline_cell_ids": [
+          "F02-P004",
+          "F04-P009",
+          "F06-P010",
+          "F06-P020",
+          "F07-P008",
+          "F08-P010",
+          "F11-P015",
+          "F12-P008",
+          "F13-P010",
+          "F15-P004"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Single absolute monotonic deadline recomputed before work/retry and final metadata publication; suppress-connect/health cannot publish late returned handle. Successful publication and acquire registration settle atomically, with no subsequent await. Pending failed disconnect retains handle/permit through honest retry. Shorter connection timeout and provider primary ValueError remain intact.",
+        "limitations": [
+          "Entered connector work and disconnect can suppress cancellation or remain blocked. No hard wall-time/physical cancellation/drain bound, live TCP or vendor latency claim.",
+          "Final publication is a scoped internal handle-admission boundary, not a transport/provider or institutional permission law.",
+          "Candidate acceptance is separate from formal finding closure; source four-base/full serving/input custody scope remains open and G must independently accept exact candidate."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "pool-base",
+            "pool-candidate",
+            "deadline-mechanism-removal",
+            "connection-timeout-preservation",
+            "net",
+            "independent-pool-review"
+          ]
+        },
+        "check_refs": [
+          "native-full15",
+          "late-handle-final",
+          "independent-cmp",
+          "removal-deadline",
+          "removal-successful-registration"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B90",
+        "unit": "B",
+        "docx_analytical_package": "P17",
+        "source_closure_owner": "NET-01",
+        "source_bundle_ids": "NET-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B91",
+      "canonical_bundle": "NET-02",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 11,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 11,
+          "priority": 0,
+          "disposition_sha256": "24834e8b7515800eca422974fc9e0367476fec666e1c25d5bf60808efda999c9"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 11,
+          "priority": 1,
+          "disposition_sha256": "4d503117493a6b73ab57f8d9ab49f4552ee33e5e4ef69f0e3fc56afa9d33d8c6"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B91",
+        "bundle_id": "NET-02",
+        "disposition": "bounded_verified",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2435-L2448",
+        "criterion_sha256": "9635f3793b099112dd1dc8fbd0a83231afe05d27cd97e8eab1a0479a577ce6a4",
+        "baseline_cell_ids": [
+          "F04-P021",
+          "F06-P037",
+          "F08-P029",
+          "F10-P024",
+          "F13-P024"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Native fractional/default-capacity/weighted/cancellation/cooldown pacing checks + independent weighted long-term token law.",
+        "limitations": [
+          "Native reusable selectors provide canonical repeatable evidence; additional earlier ad hoc executable not preserved, no formal closure rests on it. No vendor-specific rate contract.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "net",
+            "regulator-weighted-pressure"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B91",
+        "unit": "B",
+        "docx_analytical_package": "P17",
+        "source_closure_owner": "NET-02",
+        "source_bundle_ids": "NET-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B92",
+      "canonical_bundle": "NET-02",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 12,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 12,
+          "priority": 0,
+          "disposition_sha256": "991fc05df0c95ea31fc21dc15163f6d0935ab6de25d9c1279f1c3c728f43cf3a"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 12,
+          "priority": 1,
+          "disposition_sha256": "46ddeaf7262ceb01183317ae80e5f7d1a5251c7cc775b48ddb16149a57f53cfd"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B92",
+        "bundle_id": "NET-02",
+        "disposition": "bounded_verified",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2449-L2462",
+        "criterion_sha256": "37097e7bc91e5b288c7e2c05359674ea52fac78804c3ea54b8a928c84a95cbea",
+        "baseline_cell_ids": [
+          "F04-P021",
+          "F06-P037",
+          "F08-P029",
+          "F10-P024",
+          "F13-P024"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Actual stale CLOSED and HALF_OPEN completion cannot steal new-generation recovery; cancellation releases current slot; repeated lease finalization rejects.",
+        "limitations": [
+          "Real in-process state machine and leases exercised; no live downstream HTTP vendor.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "net",
+            "regulator-weighted-pressure"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B92",
+        "unit": "B",
+        "docx_analytical_package": "P17",
+        "source_closure_owner": "NET-02",
+        "source_bundle_ids": "NET-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B93",
+      "canonical_bundle": "NET-02",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 13,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 13,
+          "priority": 0,
+          "disposition_sha256": "8c246fca7962dcd767e901cec5b2b8bc94f4a5a35d73f96c57b6dfaef9258c39"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 13,
+          "priority": 1,
+          "disposition_sha256": "6c4cba961522498a150344024ae585a9173c66fbe9781c50763bbaf019f27c60"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B93",
+        "bundle_id": "NET-02",
+        "disposition": "bounded_verified_ledger_binding_mismatch",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2463-L2476",
+        "criterion_sha256": "f07d58727fcd6d01cb3768ec794500785fa052cd388988920e2033fc198ab803",
+        "baseline_cell_ids": [
+          "F04-P021",
+          "F06-P037",
+          "F08-P029",
+          "F10-P024",
+          "F13-P024"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Cooldown/OPEN native pressure and TTL controls; executable actual HALF_OPEN lease survives expiry/pressure and typed protected-capacity refusal, with real post-quiescence replacement acquisition.",
+        "limitations": [
+          "Canonical B_r19 source and p_triage criterion concern bounded live regulator state; residual/card_discriminator_review instead describes duck-type isinstance/lookalike. Preserve mapping mismatch; G must reconcile dependent ledger fields before formal acceptance.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G + residual ledger owner: reconcile B93 card_discriminator_review with canonical NET-02 protected-state criterion; rerun committed registry-half-open.py on admitted candidate.",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "net",
+            "registry-half-open"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B93",
+        "unit": "B",
+        "docx_analytical_package": "P17",
+        "source_closure_owner": "NET-02",
+        "source_bundle_ids": "NET-02",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B94",
+      "canonical_bundle": "WIRE-01",
+      "unit": "B",
+      "family": "adapters",
+      "head": "3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+      "disposition_index": 14,
+      "priority": 1,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "44b0b4aa8f6cb737ff6daf558cf04933792661c4",
+          "disposition_index": 14,
+          "priority": 0,
+          "disposition_sha256": "f91580f8b772f599964e4f6c44ff787a7faac5f5675123d1f229871b34465b8f"
+        },
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline.json@3d18f37a5953f577c99260442a5e9afbc308a1d6",
+          "receipt_blob": "8a0ac34185df793a7fcefe52b687cbbeb8ed3047",
+          "disposition_index": 14,
+          "priority": 1,
+          "disposition_sha256": "14d762481170ac32d30f901bf446892249a2e4c97a8779d189fecbe7bb3d2a7a"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B94",
+        "bundle_id": "WIRE-01",
+        "disposition": "bounded_verified",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2477-L2492",
+        "criterion_sha256": "da315729082384722dd083535cd9f7e944d8ff25aaa8856ca4ab8fc1f1d99bc7",
+        "baseline_cell_ids": [
+          "F03-P023",
+          "F03-P074",
+          "F06-P041",
+          "F07-P023",
+          "F07-P067",
+          "F10-P027",
+          "F13-P027",
+          "F15-P087"
+        ],
+        "predicate_basis": "recomputed",
+        "verified_behavior": "Filesystem-written typed ExperimentState and OutputAwareNodeOutcome survive cold/warm orjson+stdlib serialization and real merge_tier_outcomes; Decimal tuples/nested bytes/ArtifactRef exact; foreign alias and tampered digest reject.",
+        "limitations": [
+          "Codec/actual tier consumer filesystem path exercised. Live Ray/Temporal bridge services UNRUN; digest integrity does not grant authority.",
+          "Candidate acceptance is separate from finding closure; four-base replay UNRUN."
+        ],
+        "next_owner": "G acceptance and formal closure owner",
+        "prior_check_refs": {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters.json@d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+          "ids": [
+            "wire"
+          ]
+        },
+        "check_refs": [
+          "native-full15"
+        ],
+        "preserved_scope": "Previous exact criterion/bounded disposition retained; current whole-file regression is not four-base/full-data/authority closure."
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B94",
+        "unit": "B",
+        "docx_analytical_package": "P18",
+        "source_closure_owner": "WIRE-01",
+        "source_bundle_ids": "WIRE-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B95",
+      "canonical_bundle": "RUN-01",
+      "unit": "B",
+      "family": "run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "disposition_index": 5,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+          "disposition_index": 5,
+          "priority": 0,
+          "disposition_sha256": "b51b6ab781ef59c70e089273645249da9e5273a2fafa49471e6dfb9a14caf083"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B95",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "bounded_concurrent_context_propagation_verified",
+        "scope_and_limitations": "Two distinct concurrent requests preserve actual ContextVar request-A/request-B through direct sync, forced real thread fallback, Linux fork supervisor and genuine async nodes; outer context restores and original state remains unchanged. This proves propagation, not authorization/tenant authority; non-Linux launch remains local G.",
+        "next_owner": "G independent bounded propagation acceptance; local G non-Linux process",
+        "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py::test_concurrent_request_contexts_match_across_retry_routes",
+        "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B95",
+        "unit": "B",
+        "docx_analytical_package": "P09",
+        "source_closure_owner": "RUN-01",
+        "source_bundle_ids": "RUN-01",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "B96",
+      "canonical_bundle": "RUN-03",
+      "unit": "B",
+      "family": "run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "disposition_index": 6,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+          "disposition_index": 6,
+          "priority": 0,
+          "disposition_sha256": "ae7dda9f65ae5067677fc0d6a6df63d71b643df16ec902e412928c0bd5391fa8"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "B96",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "existing_bounded_retry_baseline_verified",
+        "scope_and_limitations": "Existing mutation-to-returned-fail fresh baseline and real trace spend controls pass; raised mutation, cancellation, declared checkpoint continuation and full workflow external effects remain bounded.",
+        "next_owner": "G regression/admission; B continuation-contract owner",
+        "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+        "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "B96",
+        "unit": "B",
+        "docx_analytical_package": "P09",
+        "source_closure_owner": "RUN-03",
+        "source_bundle_ids": "RUN-03",
+        "source_status": "partial"
+      }
+    },
+    {
+      "finding_id": "LA-057",
+      "canonical_bundle": "RUN-01",
+      "unit": "B",
+      "family": "run",
+      "head": "0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+      "disposition_index": 7,
+      "priority": 0,
+      "ordered_disposition_history": [
+        {
+          "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json@0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3",
+          "receipt_blob": "4eb16144d11d54390d9a58415a108546bfc34fae",
+          "disposition_index": 7,
+          "priority": 0,
+          "disposition_sha256": "4ec9ded634ef7e1e64400b748a260111912d959b44359b923d9b4a72bb11cdf8"
+        }
+      ],
+      "effective_disposition": {
+        "finding_id": "LA-057",
+        "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "bounded_cleanup_verified_pending_independent_admission",
+        "scope_and_limitations": "Only stale module T/TypeVar removed. All four local generic identities and real helper bodies preserved; complete tracked Python/config caller census retained in run-typevar receipt. External opaque dynamic callers and packaging not established.",
+        "next_owner": "G typecheck/package scope decision",
+        "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py::test_function_type_parameters_resolve_without_module_typevar",
+        "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
+      },
+      "canonical_source_status": "partial",
+      "canonical_owner_row": {
+        "finding_id": "LA-057",
+        "unit": "B",
+        "docx_analytical_package": "P09",
+        "source_closure_owner": "RUN-01",
+        "source_bundle_ids": "RUN-01",
+        "source_status": "partial"
+      }
+    }
+  ],
+  "canonical_owned_bundles": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "DUR-01",
+    "DUR-02",
+    "EXE-01",
+    "EXE-02",
+    "JIT-01",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02",
+    "RES-01",
+    "RES-02",
+    "RES-03",
+    "RES-04",
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "STA-01",
+    "STA-02",
+    "WIRE-01"
+  ],
+  "errors": [],
+  "warnings": [
+    {
+      "kind": "advertised_bundle_scope_mismatch",
+      "family": "cas",
+      "missing_advertised_bundles": [
+        "CAS-01",
+        "CAS-03"
+      ],
+      "extra_advertised_bundles": [],
+      "note": "Criterion-owner join is explicit; never treat closure_ids as scope."
+    }
+  ],
+  "bookkeeping_outcome": "PASS_with_declaration_warnings",
+  "formal_closure_or_runtime_acceptance": "not_established_by_this_metadata_join",
+  "overlay_policy": "Base entry plus explicit CLI overlays in order; only the same family's per-ID entries supersede. No directory walk or arbitrary last JSON.",
+  "lineage_limit": "Ancestor flags disclose merge state; they are not a substitute for code/input/content review."
+}

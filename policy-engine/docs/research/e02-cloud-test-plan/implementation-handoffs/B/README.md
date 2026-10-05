@@ -1,85 +1,84 @@
 # Cloud B evidence and acceptance
 
-Cloud B owns the 25 bundles and 60 findings assigned by
-`execution-organization/bundle-owners.tsv` and `finding-owners.tsv`.
-This directory records bounded runtime evidence and review. It does not change
-the shared residual ledger or assert that all findings are closed.
+B owns the canonical 25 bundles and60 findings. The six published families and
+all effective source-bound rows are in [FINAL-REPORT.md](FINAL-REPORT.md) and
+[the full reconciliation](final-evidence/reconciliation.json). G owns acceptance,
+integration and shared finding closure; B coordination asserts no new closure.
 
-The independent review checkpoint contains these exact executions:
+The final runtime source is `a3daffbe867ddfe9eede5e5990687283b552952a`, tree
+`78f41aecb81d2e27ed89346328c90be1b4da6041`, from the six exact published owner
+heads on base `c40d4acae1ce58b597267255026d9356565828fd`. All protected A/C
+source paths remain unchanged. The fetchable B union is verification input,
+separate from G integration. [Family heads, source points and PRs](final-evidence/family-manifest.json)
+are explicit; source and receipt commits remain distinct.
 
-| Property | Frozen implementation | Independent result |
-| --- | --- | --- |
-| Persisted budget intake and real filesystem/process publication | `53f57da31b6a15397d5dcd9c03d49dc70b8c6daf` | 94 PASS |
-| Complete CAS archive publication | `9e8574b7c7afeec474e5a0e77c5142da4004d279` | 41 PASS |
-| Checkpoint execution and locked publication/rollback | `d7c9122a60330ce30cee7720c90caf4d8fb07ade` | 28 PASS |
-| Async cache publication and fresh consumer replay | `a33898206b4b7421fa06f3444d8d53fb5e1bd174` | 9 PASS |
-| Complete connector acquisition deadline and cleanup ownership | `58b04116e25344835f482ef79c16ce87f2d0b771` | 9 PASS |
-| Linux process supervisor, descendant reaping and bridge consumers | `ba79d141a3937541b3164db255ceda89883575ec` | 85 PASS, 22 fork warnings |
-| Bound scoped CAS admission and exact cache consumers | `34b6c191cc617d89475bdb73c3b50bc0340e4b09` | 67 PASS |
-| Queued timed sync-node cancellation before physical start | `4a68d5345ceca69a6148af082f59ae27372865de` | Independent five-case actual file witness: 5 PASS |
-| Cold trace/checkpoint recovery and private cache admission | `515054e7427467bf6e72fcfa22cc809c7cfe2c19` | 14 native PASS; independent six-case CAS oracle PASS |
+The actual common native run exercised74 whole files /1317 JUnit cases:
+**1315 PASS,1 FAIL,1 strict XFAIL**,99 warnings. Source SHA/tree and clean attached
+status were unchanged. The CAS tenant-import failure remains the explicit
+unbound-policy residual; the LLM XFAIL retains cancellation cost loss. Neither
+is a passing criterion. Complete [stdout](final-evidence/native.txt),
+[JUnit](final-evidence/cohort.xml), [argv/environment/module-origin/resource wrapper](final-evidence/native-wrapper.json)
+and [initial input bytes](final-evidence/cohort.json) are transferred intact.
+The first harness attempt bypassed virtualenv and stopped before collection;
+its original bytes are [qualified UNRUN](final-evidence/initial-unrun/qualification.json).
+The successful test execution uses the same actual venv path for identity and
+pytest, with fresh tmp/cache paths and metrics port0, without imposed process
+or numerical quotas.
 
-Commands, complete stdout and JUnit outputs are retained in
-[coordination-evidence](coordination-evidence/), with hashes in
-[evidence-index.json](coordination-evidence/evidence-index.json). The common
-interpreter is Python 3.14.2 at
-`/workspace/polisyos/policy-engine/.venv/bin/python`; each execution imports its
-own checkout with `PYTHONPATH=src:.` from that checkout's `policy-engine` directory.
-The bounded tests use isolated temporary filesystem roots, databases or process
-fixtures. They do not require the full production dataset.
+Supported Node22.22.0 architecture actually **FAILS**:154 violations (1baseline
+drift,151deep imports,1stale OpenAPI,1stale trust register). Both observed client
+generator families are clean; separate Atlas retirement gate was not run.
+Full [output](final-evidence/architecture.txt), [categories](final-evidence/architecture-summary.json)
+and [environment/resources](final-evidence/architecture-wrapper.json) are retained.
+No inherited-red classification is asserted without the required exact-base
+replay and full input-denominator disjointness proof.
 
-The exact EXE static invocation diagnostic also completed on
-`a33898206b4b7421fa06f3444d8d53fb5e1bd174`: exit 0, no static regressions, partial
-coverage, `runtime_invocation_established=false`. Its full stdout and wrapper
-are committed; the 170,857,261-byte raw graph remains ignored and untransferred.
-The raw hash and exact rerun command are retained. Static reachability does not
-establish HTTP, factory, callback or deployed runtime invocation.
+The final pool widens absolute deadline admission and atomically settles
+successful publication/registration. Independent real lock, cancellation-
+suppressing connector and pending-disconnect controls plus property-removal
+negatives are committed in the owner successor. This does not assert physical
+work/drain wall limits or universal external cancellation behavior. After that
+upstream change, the unchanged actual streaming startup probe was rerun on the
+final union: [negative FAIL](final-evidence/stream-consumer-negative.txt) and
+[healthy-disconnect control PASS](final-evidence/stream-consumer-control.txt).
+Pending cleanup survives in the pool, while registry owner transfer is absent;
+C alone repairs streaming.py. A alone repairs generation_cycle.py/run_lifecycle.py.
+The [downstream contracts](downstream/downstream-contracts.json), real test inputs
+and negative cases are handed off through Git.
 
-The initial architecture measurement on untouched base
-`c40d4acae1ce58b597267255026d9356565828fd` returned exit 2 / UNRUN because generator
-inputs were unavailable. Its complete log is retained. Later slice gate results
-are recorded in their own receipts; none are automatically classified as
-inherited failures.
+Earlier independent real filesystem/process/cache/checkpoint/retry probes and
+full deciding outputs remain in [coordination-evidence](coordination-evidence/),
+[downstream](downstream/), [llm-review](llm-review/), [b52-oracle](b52-oracle/),
+[b52-review](b52-review/) and [cas-alias-review](cas-alias-review/). Their exact
+source identities remain historical executions, not candidate PASS inheritance.
+Static raw graphs are ignored/untransferred with recorded hashes/rerun commands;
+coverage is partial and runtime invocation is not established by graph output.
 
-The baseline index resolves all 189 B-routed cells: 180 reported PASS and nine
-reported FAILED. All 15 transferred UTF-8 receipt hashes were independently
-checked. These counts describe historical source observations. Raw baseline
-archives were not transferred, and their reported outcomes do not establish
-behavior of a new candidate. Exact cell/source/environment locators are in
-[baseline-resolution.json](coordination-evidence/baseline-resolution.json).
+The baseline resolves all189 B-routed cells (180source-reported PASS,9FAILED)
+and verifies all15 transferred source receipt hashes. Original raw archives were
+not transferred. [Complete baseline identity/context](coordination-evidence/baseline-resolution.json)
+provides navigation only. [Final metadata controls](final-evidence/metadata-review/)
+verify complete25/60 membership,189 contexts,74 input blob bindings and explicit
+ordered overlays. The CAS01/03 advertisement warning remains visible. DUR B37
+and CMP B44/B74/B75/B76 closure declarations are slice proposals; metadata and
+test counts do not formally close source findings.
 
-G fetches the published slice heads and separate handoffs, reviews the evidence,
-and owns the append-only `codex/e02-integration` branch and shared closeout ledger.
-The separate B acceptance checkout is for combined B verification. A alone
-changes `generation_cycle.py` and `run_lifecycle.py`; C alone changes
-`streaming.py`. B supplies contracts, test inputs and negative cases through Git.
+[Full427-path footprint](final-evidence/footprint.json) and
+[all-owner blob/mode conformance](final-evidence/footprint-conformance.json)
+verify9 production files,19tests and complete companions/evidence. Root's
+16 original [creation/resume receipts](final-evidence/admission/) are transferred.
+Seven detached historical review/baseline worktrees lack precreation admission;
+current custody qualifications do not backdate it. `all_checkouts_admitted=false`.
+G needs a fresh admitted replay if this historical process criterion is decisive.
+The final root acceptance lane has its actual admission and frozen before/after
+records. See [independent complete receipt audit](final-evidence/receipt-audit.json).
 
-Downstream evidence is retained in [downstream](downstream/),
-[llm-review](llm-review/), [b52-oracle](b52-oracle/) and
-[b52-review](b52-review/). The cold-seed baseline and naive off-loop controls
-remain property FAIL witnesses on exact `0f24d18`; the candidate source and
-independent acceptance are separate exact `515054e` measurements. A successful
-witness process exit does not convert an observed property failure into PASS.
-
-RUN submit/shutdown lock-order fix `b439fe9` and CAS regular output-entry
-admission `3b2bcc6` passed separate native and independent runtime checks. Four
-occupied user done callbacks still falsify general physical worker availability;
-that measured boundary remains held. Fetched G checkpoint
-`46748d3d0815b48df1e0d5ed39ffcdff4e251435` adds a real NET-01 late-handle
-admission counterexample when a connector suppresses cancellation. The owner
-reproduced it on Linux and is widening the common admission boundary before the
-final source freeze. No physical cleanup deadline is asserted.
-
-Seven detached historical review/baseline worktrees lack saved precreation
-admission: DUR four, adapters two, CAS one. Current identity checkpoints and
-complete evidence bytes remain source-bound, while historical admission is
-`not_established`; G needs a fresh admitted replay if that protocol criterion is
-decisive. See [admission-qualifications](admission-qualifications/), the published
-RUN custody companion and CAS workspace qualification.
-
-[Metadata tools](verification-tools/) explicitly join all25 B bundles/all60 B
-findings and prepare74 whole native files. [Independent metadata control](metadata-review/)
-rejects a missing B37 row even while its declaration remains present. These
-checks establish bookkeeping and input binding; final runtime execution and
-formal finding closure remain separate. CAS01/03 advertisement warnings are
-retained, and no earlier PASS is carried to the final union.
+[Exact local G candidates and input requirements](final-evidence/local-G-candidates.json)
+retain B13 catalog/served scope, C cleanup ownership, LLM settlement/authorizer,
+B61 data_record law, B69 physical callback capacity, B40 total workflow deadline,
+CAS selected-view/eager census and live distributed/Metal/history limits. Full
+production data stays local read-only. Latest reviewed dependency checkpoint is
+G46748d3d0815b48df1e0d5ed39ffcdff4e251435; its late-handle counterexample is
+independently reproduced and addressed, while G's final integration decision
+remains separate. [Transfer index](final-evidence/transfer-index.json) binds all
+complete deciding bytes. `main` was not pushed and history was not rewritten.

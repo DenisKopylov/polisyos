@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.B_final_consumer_replay_transfer.v1",
+  "candidate_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "candidate_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "source_unchanged": true,
+  "complete_replay_admitted": true,
+  "driver_sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31",
+  "driver_committed_head": "71738215335a5e093c631359d5f2a965e275340a",
+  "artifacts": [
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-final-a3daffbe.json",
+      "bytes": 12058,
+      "sha256": "0bc877fa43baac10103e884c95adfc0ea3b1775675982e4ceaa0753414ae6fbf"
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-final-a3daffbe.negative.txt",
+      "bytes": 2132,
+      "sha256": "e5df7f58385145f8eef837f6614861dd18731c4827b7b01a2973b5da5fce7da5"
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-final-a3daffbe.control.txt",
+      "bytes": 1726,
+      "sha256": "c2adc54d7606393a7d898b281dabb04eeac6f8f39d935b91f2162e34a78e4d64"
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-final-a3daffbe.environment.txt",
+      "bytes": 2144,
+      "sha256": "315a553b76019e1955f52f6c9ef0102486f8b701661ee564d617edf114509dae"
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/run-final-stream-consumer.py",
+      "bytes": 8778,
+      "sha256": "b77a041a2eb5f7ac41d3db4bde0e5d87e2506eeb09198952ae903453dec51320"
+    }
+  ],
+  "actual_results": [
+    {
+      "label": "negative",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py"
+      ],
+      "cwd": "/workspace/e02-B-acceptance/policy-engine",
+      "exit_code": 1,
+      "actual_outcome": "FAIL",
+      "wall_seconds": 1.251639833999434,
+      "max_rss_kib": 137028,
+      "oracle": {
+        "pool_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "streaming_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "failure": {
+          "type": "PoolExhaustedError",
+          "message": "Connection pool 'stream-stream.jsonl-unpublished-health' exhausted. Could not acquire connection within 0.03s",
+          "notes": [
+            "stream session startup cleanup remains pending after retry: RuntimeError('Connection cleanup remains pending for the closed pool')"
+          ]
+        },
+        "pending_pool_owners": [
+          {
+            "pending_permit": true,
+            "closed": false
+          }
+        ],
+        "registry_pending_pool_count": 0,
+        "active_acquires": 0,
+        "semaphore_value": 0,
+        "disconnect_calls": 2,
+        "registry_retry_disconnects": 0,
+        "pool_pending_after_registry_retry": 1,
+        "property_actual_registry_cleanup_completes": false
+      }
+    },
+    {
+      "label": "control",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py",
+        "--disconnect-ok"
+      ],
+      "cwd": "/workspace/e02-B-acceptance/policy-engine",
+      "exit_code": 0,
+      "actual_outcome": "PASS",
+      "wall_seconds": 1.2304546279992792,
+      "max_rss_kib": 137160,
+      "oracle": {
+        "pool_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "streaming_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "failure": {
+          "type": "PoolExhaustedError",
+          "message": "Connection pool 'stream-stream.jsonl-unpublished-health' exhausted. Could not acquire connection within 0.03s",
+          "notes": []
+        },
+        "pending_pool_owners": [],
+        "registry_pending_pool_count": 0,
+        "active_acquires": 0,
+        "semaphore_value": 1,
+        "disconnect_calls": 1,
+        "registry_retry_disconnects": 0,
+        "pool_pending_after_registry_retry": 0,
+        "property_actual_registry_cleanup_completes": true
+      }
+    }
+  ],
+  "native_environment": "environment.txt actual interpreter/module origins+SHA256; full packet records source-input Git blobs, selected env, fixtures, wait4 resources and complete source before/after",
+  "limits": [
+    "Bounded upstream consumer cleanup transfer test, not full served stream.",
+    "No C streaming source edits, no production dataset or broad pytest execution.",
+    "The actual current exits/oracles stand alone; no previous d0 outcome inherited.",
+    "No hard wall-time guarantee for uncooperative physical cleanup/drain and no all-external-cancellation-suppression claim.",
+    "Root B frozen union replay, distinct from G integration."
+  ]
+}

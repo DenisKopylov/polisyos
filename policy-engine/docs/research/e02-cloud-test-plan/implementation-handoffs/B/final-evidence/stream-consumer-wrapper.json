@@ -1,0 +1,245 @@
+{
+  "schema": "policyos.e02.B_final_upstream_consumer_replay.v1",
+  "wrapper": {
+    "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/run-final-stream-consumer.py",
+    "bytes": 8778,
+    "sha256": "b77a041a2eb5f7ac41d3db4bde0e5d87e2506eeb09198952ae903453dec51320"
+  },
+  "source_before": {
+    "sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+    "branch": "codex/e02-B-acceptance",
+    "status_porcelain": ""
+  },
+  "driver": {
+    "path": "/workspace/e02-B-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py",
+    "bytes": 3454,
+    "sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31"
+  },
+  "driver_committed_head": "71738215335a5e093c631359d5f2a965e275340a",
+  "driver_git_blob": "aab41d3c00a1e83db7ae353b4d156863d36778d6",
+  "source_inputs": [
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/base.py",
+      "bytes": 19819,
+      "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5",
+      "repository_path": "policy-engine/src/polisyos/fabric/connectors/base.py",
+      "git_blob": "791d3927acc040a7932e69a4886339f08b190bb1"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "bytes": 42269,
+      "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2",
+      "repository_path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "git_blob": "c5e2bc062c0a8aa75bdc8ab44007d9bf93ff6b57"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/registry.py",
+      "bytes": 769,
+      "sha256": "9b1d8efbd3dcff030db88ab7a28080beb0877adf1ac78e270292cf26b45ded05",
+      "repository_path": "policy-engine/src/polisyos/fabric/connectors/registry.py",
+      "git_blob": "fb7d08d06747eaa81bc30fbdd03a290721f3ed9c"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+      "bytes": 35875,
+      "sha256": "08d9e9da61ed238233af222e009d139853db60ddf1e4975efe546a02a61e5f2f",
+      "repository_path": "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+      "git_blob": "fe1be7f203a0db865e9ecc6a6fad43963234d8a5"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "bytes": 29359,
+      "sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+      "repository_path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "git_blob": "71d21e8f8d4517c602efc2662106f35d45f0ebc4"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "bytes": 9344,
+      "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48",
+      "repository_path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "git_blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c"
+    },
+    {
+      "path": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "bytes": 108192,
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3",
+      "repository_path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6"
+    }
+  ],
+  "selected_environment": {
+    "PYTHONPATH": "/workspace/e02-B-acceptance/policy-engine/src:/workspace/e02-B-acceptance/policy-engine/product",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "TMPDIR": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/e02-B-stream-final-66uf4tej"
+  },
+  "fixtures": {
+    "connector_url": "https://stream.invalid",
+    "dataset_id": "unpublished-health",
+    "max_connections": 1,
+    "pool_acquire_timeout_seconds": 0.03,
+    "pool_connection_timeout_seconds": 0.5,
+    "outer_driver_wait_for_seconds": 0.5,
+    "network_input": "typed adversarial connector fixture; no remote network operation",
+    "consumer": "actual StreamingSourceSession.create, ConnectionPool and ConnectorRegistry.shutdown_async",
+    "negative": "persistent physical disconnect OSError until registry retry observation, then explicit cleanup rescue",
+    "control": "same unchanged driver with --disconnect-ok",
+    "isolation": "each driver is a fresh separate OS process, singleton registry and actual pool instance; metrics port 0; temporary directory outside checkout"
+  },
+  "checks": [
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py"
+      ],
+      "cwd": "/workspace/e02-B-acceptance/policy-engine",
+      "start_utc": "2026-10-05T16:42:29.202000+00:00",
+      "end_utc": "2026-10-05T16:42:30.453625+00:00",
+      "exit_code": 1,
+      "wall_seconds": 1.251639833999434,
+      "pid": 80260,
+      "resource_method": "direct os.wait4 child rusage; Linux max RSS in KiB",
+      "resources": {
+        "max_rss_kib": 137028,
+        "user_seconds": 1.4985439999999999,
+        "system_seconds": 0.16115,
+        "minor_page_faults": 45910,
+        "major_page_faults": 0,
+        "voluntary_context_switches": 8,
+        "involuntary_context_switches": 86
+      },
+      "full_stdout_stderr": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-final-a3daffbe.negative.txt",
+        "bytes": 2132,
+        "sha256": "e5df7f58385145f8eef837f6614861dd18731c4827b7b01a2973b5da5fce7da5"
+      },
+      "label": "negative",
+      "actual_printed_oracle": {
+        "pool_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "streaming_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "failure": {
+          "type": "PoolExhaustedError",
+          "message": "Connection pool 'stream-stream.jsonl-unpublished-health' exhausted. Could not acquire connection within 0.03s",
+          "notes": [
+            "stream session startup cleanup remains pending after retry: RuntimeError('Connection cleanup remains pending for the closed pool')"
+          ]
+        },
+        "pending_pool_owners": [
+          {
+            "pending_permit": true,
+            "closed": false
+          }
+        ],
+        "registry_pending_pool_count": 0,
+        "active_acquires": 0,
+        "semaphore_value": 0,
+        "disconnect_calls": 2,
+        "registry_retry_disconnects": 0,
+        "pool_pending_after_registry_retry": 1,
+        "property_actual_registry_cleanup_completes": false
+      },
+      "actual_outcome": "FAIL"
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py",
+        "--disconnect-ok"
+      ],
+      "cwd": "/workspace/e02-B-acceptance/policy-engine",
+      "start_utc": "2026-10-05T16:42:30.454073+00:00",
+      "end_utc": "2026-10-05T16:42:31.684516+00:00",
+      "exit_code": 0,
+      "wall_seconds": 1.2304546279992792,
+      "pid": 80266,
+      "resource_method": "direct os.wait4 child rusage; Linux max RSS in KiB",
+      "resources": {
+        "max_rss_kib": 137160,
+        "user_seconds": 1.5010590000000001,
+        "system_seconds": 0.12825,
+        "minor_page_faults": 45902,
+        "major_page_faults": 0,
+        "voluntary_context_switches": 9,
+        "involuntary_context_switches": 25
+      },
+      "full_stdout_stderr": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-final-a3daffbe.control.txt",
+        "bytes": 1726,
+        "sha256": "c2adc54d7606393a7d898b281dabb04eeac6f8f39d935b91f2162e34a78e4d64"
+      },
+      "label": "control",
+      "actual_printed_oracle": {
+        "pool_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "streaming_source": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "failure": {
+          "type": "PoolExhaustedError",
+          "message": "Connection pool 'stream-stream.jsonl-unpublished-health' exhausted. Could not acquire connection within 0.03s",
+          "notes": []
+        },
+        "pending_pool_owners": [],
+        "registry_pending_pool_count": 0,
+        "active_acquires": 0,
+        "semaphore_value": 1,
+        "disconnect_calls": 1,
+        "registry_retry_disconnects": 0,
+        "pool_pending_after_registry_retry": 0,
+        "property_actual_registry_cleanup_completes": true
+      },
+      "actual_outcome": "PASS"
+    }
+  ],
+  "limits": [
+    "Bounded upstream consumer cleanup transfer test, not full served stream.",
+    "No C streaming source edits, no production dataset or broad pytest execution.",
+    "The actual current exits/oracles stand alone; no previous d0 outcome inherited.",
+    "No hard wall-time guarantee for uncooperative physical cleanup/drain and no all-external-cancellation-suppression claim.",
+    "Root B frozen union replay, distinct from G integration."
+  ],
+  "native_environment_probe": {
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-c",
+      "import hashlib,importlib,importlib.metadata,json,platform,sys; names=['polisyos.fabric.connectors.base', 'polisyos.fabric.connectors.pool', 'polisyos.fabric.connectors.registry', 'polisyos.fabric.connectors.registry_core_parts', 'polisyos.fabric.connectors._registry_lifecycle', 'polisyos.fabric.connectors.sources.event_stream', 'polisyos.fabric.data_plane.streaming']; result={\"python_executable\":sys.executable,\"python_version\":sys.version,\"platform\":platform.platform(),\"packages\":{name:importlib.metadata.version(name) for name in [\"pydantic\",\"duckdb\",\"numpy\"]},\"modules\":[]};\nfor name in names:\n m=importlib.import_module(name); p=m.__file__; result[\"modules\"].append({\"name\":name,\"origin\":p,\"sha256\":hashlib.sha256(open(p,\"rb\").read()).hexdigest()})\nprint(json.dumps(result,indent=2))"
+    ],
+    "cwd": "/workspace/e02-B-acceptance/policy-engine",
+    "start_utc": "2026-10-05T16:42:28.008476+00:00",
+    "end_utc": "2026-10-05T16:42:29.201901+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.1934174039997743,
+    "pid": 80253,
+    "resource_method": "direct os.wait4 child rusage; Linux max RSS in KiB",
+    "resources": {
+      "max_rss_kib": 135920,
+      "user_seconds": 1.465325,
+      "system_seconds": 0.152885,
+      "minor_page_faults": 42376,
+      "major_page_faults": 0,
+      "voluntary_context_switches": 12,
+      "involuntary_context_switches": 29
+    },
+    "full_stdout_stderr": {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/stream-unpublished-final-a3daffbe.environment.txt",
+      "bytes": 2144,
+      "sha256": "315a553b76019e1955f52f6c9ef0102486f8b701661ee564d617edf114509dae"
+    }
+  },
+  "actual_status": "COMPLETED two actual consumer driver executions",
+  "source_after": {
+    "sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+    "branch": "codex/e02-B-acceptance",
+    "status_porcelain": ""
+  },
+  "source_unchanged": true,
+  "source_input_hashes_unchanged": true,
+  "driver_after": {
+    "path": "/workspace/e02-B-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py",
+    "bytes": 3454,
+    "sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31"
+  },
+  "driver_unchanged": true,
+  "complete_replay_admitted": true,
+  "ended_utc": "2026-10-05T16:42:31.729567+00:00"
+}

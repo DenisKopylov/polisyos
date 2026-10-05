@@ -1,0 +1,26 @@
+{
+  "target_sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "target_tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+  "review_outcome": "PASS",
+  "whole_file_denominator": 74,
+  "junit_case_denominator": 1317,
+  "case_outcomes": {
+    "PASS": 1315,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0,
+    "XFAIL": 1
+  },
+  "strict_xfail_count": 1,
+  "strict_xpass_count": 0,
+  "warning_counts": {
+    "PytestWarning": 1,
+    "RuntimeWarning": 45,
+    "DeprecationWarning": 53
+  },
+  "new_unadvertised_nonpass_count": 0,
+  "production_module_denominator": 9,
+  "source_unchanged": true,
+  "audit_issues": [],
+  "unresolved_by_construction": []
+}

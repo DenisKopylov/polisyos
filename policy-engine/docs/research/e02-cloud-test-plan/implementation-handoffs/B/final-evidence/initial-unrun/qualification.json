@@ -1,0 +1,11 @@
+{
+  "schema": "policyos.e02.B.harness_attempt_qualification.v1",
+  "frozen_source": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "wrapper_source": "898a28dc9c6cddb84be0747326c5a9f5fd43ed81",
+  "recorded_wrapper_outcome": "FAIL",
+  "qualified_outcome": "UNRUN",
+  "actual_test_collection_or_execution": false,
+  "actual_output": "Base interpreter reached by resolving virtualenv symlink: No module named pytest; child exit1, wall0.015239870999721461s, no JUnit. Product property not exercised.",
+  "corrected_wrapper_source": "71738215335a5e093c631359d5f2a965e275340a",
+  "correction": "Preserve absolute virtualenv invocation path for both environment preflight and pytest child; same frozen source and initial cohort bytes; fresh output directory native-venv."
+}

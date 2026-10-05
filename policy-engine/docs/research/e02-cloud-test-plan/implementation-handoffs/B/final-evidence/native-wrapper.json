@@ -1,0 +1,230 @@
+{
+  "schema": "policyos.e02.B_native_execution.v1",
+  "started_utc": "2026-10-05T16:35:37.902875+00:00",
+  "finished_utc": "2026-10-05T16:39:41.820415+00:00",
+  "wall_s": 243.8732552849997,
+  "command_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "-ra",
+    "--basetemp",
+    "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native-venv/tmp",
+    "-o",
+    "cache_dir=/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native-venv/pytest-cache",
+    "--junitxml",
+    "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/native-venv/cohort.xml",
+    "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+    "tests/integration/scientist/test_async_cache_recovery.py",
+    "tests/integration/scientist/test_checkpoint_resume.py",
+    "tests/integration/scientist/test_execution_state_replay.py",
+    "tests/unit/common/test_async_tools.py",
+    "tests/unit/core/artifacts/backends/test_caching_store.py",
+    "tests/unit/core/artifacts/backends/test_config.py",
+    "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+    "tests/unit/core/artifacts/test_import_tenant_context.py",
+    "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+    "tests/unit/core/artifacts/test_ownership_history.py",
+    "tests/unit/core/artifacts/test_transfer_output_paths.py",
+    "tests/unit/core/artifacts/test_transfer_publication.py",
+    "tests/unit/core/phase0/test_artifact_export_import.py",
+    "tests/unit/fabric/connectors/test_pool_e02.py",
+    "tests/unit/fabric/connectors/test_registry.py",
+    "tests/unit/fabric/connectors/test_resilience.py",
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+    "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "tests/unit/foundry/methods/test_compiler.py",
+    "tests/unit/foundry/methods/test_compiler_e02.py",
+    "tests/unit/foundry/methods/test_composer.py",
+    "tests/unit/foundry/methods/test_composer_hardening.py",
+    "tests/unit/foundry/methods/test_linker.py",
+    "tests/unit/foundry/methods/test_semantic_validator.py",
+    "tests/unit/foundry/runtime/test_executor_snapshots.py",
+    "tests/unit/ir/analytics/test_ncm.py",
+    "tests/unit/remediation/test_cas_01.py",
+    "tests/unit/remediation/test_cas_02.py",
+    "tests/unit/remediation/test_cas_03.py",
+    "tests/unit/remediation/test_cmp_01.py",
+    "tests/unit/remediation/test_cmp_02.py",
+    "tests/unit/remediation/test_cmp_03.py",
+    "tests/unit/remediation/test_dur_02.py",
+    "tests/unit/remediation/test_exe_02.py",
+    "tests/unit/remediation/test_jit_01.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/remediation/test_res_01.py",
+    "tests/unit/remediation/test_res_02.py",
+    "tests/unit/remediation/test_res_03.py",
+    "tests/unit/remediation/test_res_04.py",
+    "tests/unit/remediation/test_run_03.py",
+    "tests/unit/remediation/test_wire_01.py",
+    "tests/unit/runtime/http/test_acquisition_control_worker.py",
+    "tests/unit/runtime/quality/test_authority_reconciliation.py",
+    "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+    "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py",
+    "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_retry.py",
+    "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+    "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+    "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+  ],
+  "resource_measurement": "os.wait4 on the actual pytest child PID",
+  "max_rss_kib": 1098680,
+  "user_cpu_s": 177.90828,
+  "system_cpu_s": 24.749784,
+  "cwd": "/workspace/e02-B-acceptance/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:product",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "interpreter": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "sys_path": [
+      "",
+      "/workspace/e02-B-acceptance/policy-engine/src",
+      "/workspace/e02-B-acceptance/policy-engine/product",
+      "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python314.zip",
+      "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14",
+      "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+      "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "/workspace/polisyos/policy-engine",
+      "/workspace/polisyos/policy-engine/src"
+    ],
+    "versions": {
+      "pytest": "9.0.2",
+      "numpy": "2.3.5",
+      "orjson": "3.11.5",
+      "pydantic": "2.12.5",
+      "jax": "0.8.2",
+      "duckdb": "1.4.3"
+    },
+    "module_origins": {
+      "polisyos": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/__init__.py",
+      "pytest": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+      "numpy": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+      "orjson": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/orjson/__init__.py",
+      "pydantic": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+      "jax": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/__init__.py",
+      "duckdb": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/duckdb/__init__.py"
+    },
+    "changed_source_origins": {
+      "polisyos.common.async_tools": {
+        "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/common/async_tools.py",
+        "expected": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/common/async_tools.py",
+        "matches_expected": true,
+        "sha256": "86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e"
+      },
+      "polisyos.core.artifacts._transfer_ops": {
+        "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "expected": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "matches_expected": true,
+        "sha256": "3771014659e216013acca8c6f69805a891439a9ac1ce029eeb3d5210fbceab5a"
+      },
+      "polisyos.core.artifacts.store": {
+        "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/core/artifacts/store.py",
+        "expected": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/core/artifacts/store.py",
+        "matches_expected": true,
+        "sha256": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10"
+      },
+      "polisyos.fabric.connectors.pool": {
+        "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "expected": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "matches_expected": true,
+        "sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2"
+      },
+      "polisyos.foundry.methods.backends.checkpointing": {
+        "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "expected": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "matches_expected": true,
+        "sha256": "3a0a7ebcebb64691383112f30c1be2e3e839e602e1c87850bb8d82ca488d94ec"
+      },
+      "polisyos.scientist.orchestration.engine.async_executor": {
+        "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "expected": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "matches_expected": true,
+        "sha256": "94761f9dd1d6b712aa065f174582cfb500f22cbec79b8dd8a1a62ce055bd8e26"
+      },
+      "polisyos.scientist.orchestration.engine.budget_ledger": {
+        "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "expected": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "matches_expected": true,
+        "sha256": "12d2d4629c3c2a26eaef50433c4099ef968e81913d030c5e2c3ce5e7c9de9e17"
+      },
+      "polisyos.scientist.orchestration.engine.idempotency": {
+        "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "expected": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "matches_expected": true,
+        "sha256": "5d30cda9b442db46083bde9b895bff1dd4cb1418931053ed3a3e3625bf251aab"
+      },
+      "polisyos.scientist.orchestration.engine.retry": {
+        "origin": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "expected": "/workspace/e02-B-acceptance/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "matches_expected": true,
+        "sha256": "202bc6bf3255e20595bf6a5058f7285eb681e71bf37b0db74e925f66ef06f970"
+      }
+    }
+  },
+  "source_before": {
+    "sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+    "branch": "refs/heads/codex/e02-B-acceptance",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "a3daffbe867ddfe9eede5e5990687283b552952a",
+    "tree": "78f41aecb81d2e27ed89346328c90be1b4da6041",
+    "branch": "refs/heads/codex/e02-B-acceptance",
+    "status": ""
+  },
+  "source_base": "c40d4acae1ce58b597267255026d9356565828fd",
+  "source_unchanged": true,
+  "exit_code": 1,
+  "whole_file_count": 74,
+  "outputs": {
+    "native.txt": {
+      "bytes": 4100,
+      "sha256": "50643581b0a769ecabdf3d850590427d0c1a72a9600c392f8ab89775a574f264"
+    },
+    "cohort.xml": {
+      "bytes": 212359,
+      "sha256": "db8b70f8a6d8540a73ba4478e6360964b0d8802cc0e16c31a22f026ad270edd1"
+    }
+  },
+  "input": {
+    "path": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/final-a3/cohort.json",
+    "sha256": "fcfb269d55fe69d425954f2117ca78a997b00c09778fa6f6449bcc37d3013ec8",
+    "bytes": 128571,
+    "hash_basis": "Initial bytes parsed to construct this argv"
+  },
+  "resource_policy": "No imposed process or numerical worker quota; isolated test tmp/cache/metrics port.",
+  "measurement_error": null,
+  "outcome": "FAIL",
+  "scope": "Actual affected native whole-file execution; formal closure, full production and live optional backends not established."
+}

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/e02-B-cas-final-a3-metadata-review/review.py"
+  ],
+  "cwd": "/workspace/e02-B-cas",
+  "stdout_path": "/tmp/e02-B-cas-final-a3-metadata-review/stdout.txt",
+  "stderr": "",
+  "exit_code": 0,
+  "runtime_execution_performed": false,
+  "note": "Executed once; read-only Git/JSON/AST custody verification, no tests and no earlier utility/fault controls rerun."
+}

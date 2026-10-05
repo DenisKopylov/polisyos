@@ -443,6 +443,7 @@ class TestParetoFront:
             "schema_version",
             "members",
             "hypervolume",
+            "hypervolume_assessment",
             "reference_point",
             "coordinate_schema",
             "coordinate_reference_point",

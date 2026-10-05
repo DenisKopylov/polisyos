@@ -15,6 +15,10 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 if TYPE_CHECKING:
+    from polisyos.scientist.methods.search.adapters import (
+        LegacySearchServiceAdapter,
+        OrchestratorFunnelService,
+    )
     from polisyos.scientist.methods.search.funnel.orchestrator import (
         FunnelOutcome,
         FunnelTicket,
@@ -73,6 +77,25 @@ class ParetoBasisScope(BaseModel):
         return self
 
 
+class HypervolumeAssessment(BaseModel):
+    """Distinguish a computed hypervolume from an unavailable numeric result."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["assessed", "unavailable"]
+    predicate_basis: Literal["recomputed", "not_established"]
+    limitation: Literal["non_finite_derived_hypervolume"] | None = None
+
+    @model_validator(mode="after")
+    def _validate_basis(self) -> HypervolumeAssessment:
+        if self.status == "assessed":
+            if self.predicate_basis != "recomputed" or self.limitation is not None:
+                raise ValueError("assessed hypervolume requires a recomputed numeric basis")
+        elif self.predicate_basis != "not_established" or self.limitation is None:
+            raise ValueError("unavailable hypervolume requires an explicit limitation")
+        return self
+
+
 class ParetoViewAssessment(BaseModel):
     """Persist which eligible entries could be compared in one Pareto view."""
 
@@ -96,6 +119,7 @@ class ParetoViewAssessment(BaseModel):
     missing_coordinate_ids_by_candidate_hash: dict[str, list[str]] = Field(default_factory=dict)
     non_finite_coordinate_ids_by_candidate_hash: dict[str, list[str]] = Field(default_factory=dict)
     unresolved_axis_contract_candidate_hashes: list[str] = Field(default_factory=list)
+    hypervolume_assessment: HypervolumeAssessment | None = None
 
     @model_validator(mode="after")
     def _validate_coverage(self) -> ParetoViewAssessment:
@@ -273,6 +297,7 @@ __all__ = [
     "CandidateProposal",
     "EvaluationBundle",
     "FunnelService",
+    "HypervolumeAssessment",
     "LegacySearchServiceAdapter",
     "OrchestratorFunnelService",
     "ParetoBasisScope",

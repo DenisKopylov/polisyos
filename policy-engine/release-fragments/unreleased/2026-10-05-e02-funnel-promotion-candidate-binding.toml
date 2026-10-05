@@ -1,0 +1,10 @@
+id = "2026-10-05-e02-funnel-promotion-candidate-binding"
+title = "Require the current candidate binding at native promotion commit"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "The policy runtime's inner promotion owner recheck requires an ArtifactRef matching the candidate immediately before promotion writes. Missing, malformed or mismatched candidate context now defers instead of passing the check."
+compatibility = "The native producer already supplies the matching ArtifactRef. Normal allowed promotion continues through both owner checks; callers that lose or corrupt that binding are rejected at the commit boundary."
+surface_classification = "internal: scientist policy runtime promotion callback"
+limitations = "This check binds the native callback's current candidate. It does not establish an owner-evidence contract for arbitrary generic Level 6 callbacks or production publication in the test harness."
+evidence = ["src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "tests/unit/scientist/search/funnel/test_level6_promotion.py"]

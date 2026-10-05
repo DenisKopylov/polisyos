@@ -1,0 +1,26 @@
+{
+  "python": "3.14.7",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "packages": {
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "hnswlib": "0.8.0",
+    "pymoo": "0.6.1.6",
+    "pytest": "9.0.2",
+    "pytest-benchmark": "5.2.3",
+    "pytest-xdist": "3.8.0",
+    "hypothesis": "6.151.2",
+    "ruff": "0.14.10",
+    "jax": "0.8.2"
+  },
+  "numerical_environment_overrides": {},
+  "torch_execution": {
+    "cuda_available": false,
+    "cuda_build": "12.8",
+    "native_default_threads_before_product_import": 5
+  }
+}

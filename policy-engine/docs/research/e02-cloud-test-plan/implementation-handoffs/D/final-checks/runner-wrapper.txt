@@ -1,0 +1,43 @@
+"""Run one exact-candidate check and retain complete moderate stdout/stderr."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import resource
+import subprocess
+import sys
+import time
+
+stem = Path(sys.argv[1])
+argv = sys.argv[2:]
+sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+tree = subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip()
+dirty = subprocess.check_output(['git', 'status', '--porcelain'], text=True)
+if dirty:
+    raise SystemExit('Refusing uncommitted candidate inputs: ' + dirty)
+stem.parent.mkdir(parents=True, exist_ok=True)
+start = time.monotonic()
+with stem.with_suffix('.log').open('wb') as output:
+    result = subprocess.run(argv, stdout=output, stderr=subprocess.STDOUT)
+elapsed = time.monotonic() - start
+end_sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+data = stem.with_suffix('.log').read_bytes()
+record = {
+    'argv': argv, 'cwd': os.getcwd(), 'target_sha': sha, 'candidate_tree_sha': tree,
+    'end_sha': end_sha, 'immutable_commit_unchanged': end_sha == sha,
+    'exit_code': result.returncode, 'wall_s': elapsed,
+    'peak_rss_kib': resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,
+    'output_path': str(stem.with_suffix('.log')), 'output_bytes': len(data),
+    'output_sha256': hashlib.sha256(data).hexdigest(),
+    'numerical_environment_overrides': {
+        k: os.environ[k] for k in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS',
+                                   'NUMEXPR_NUM_THREADS', 'POLISYOS_PYTEST_WORKERS')
+        if k in os.environ
+    },
+    'PYTHONPATH': os.environ.get('PYTHONPATH'),
+}
+stem.with_suffix('.json').write_text(json.dumps(record, indent=2) + '\n')
+print(json.dumps(record), flush=True)
+if end_sha != sha:
+    raise SystemExit('Candidate changed while check ran')
+raise SystemExit(result.returncode)

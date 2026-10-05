@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/performance/test_scientist_runtime_paths.py::test_scientist_search_pareto_hot_path",
+    "tests/performance/test_scientist_runtime_paths.py::test_scientist_autotune_pareto_front_hot_path"
+  ],
+  "cwd": "/workspace/e02-D-orchestration/policy-engine",
+  "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "candidate_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+  "end_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "immutable_commit_unchanged": true,
+  "exit_code": 0,
+  "wall_s": 17.396018030999585,
+  "peak_rss_kib": 1265632,
+  "output_path": "/workspace/e02-D-receipts/final-performance.log",
+  "output_bytes": 2173,
+  "output_sha256": "3540122bf1f5cde373b5344c4e168f5c0db158f511eb413cab198f3814f701c2",
+  "numerical_environment_overrides": {},
+  "PYTHONPATH": "src"
+}

@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/agent/test_vector_memory.py",
+    "tests/unit/scientist/methods/autotune/test_warm_start.py",
+    "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "-ra"
+  ],
+  "cwd": "/workspace/e02-D-orchestration/policy-engine",
+  "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "candidate_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+  "end_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "immutable_commit_unchanged": true,
+  "exit_code": 0,
+  "wall_s": 16.369717155000217,
+  "peak_rss_kib": 1229400,
+  "output_path": "/workspace/e02-D-receipts/final-transfer-consumers.log",
+  "output_bytes": 1504,
+  "output_sha256": "75074f5deaa6f6b2e578217eed7becb5589681bbd4b2878a17df7b0d68286844",
+  "numerical_environment_overrides": {},
+  "PYTHONPATH": "src"
+}

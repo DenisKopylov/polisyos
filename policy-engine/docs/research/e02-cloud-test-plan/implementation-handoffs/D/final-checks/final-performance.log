@@ -1,0 +1,19 @@
+..                                                                       [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+-------------------------------------------------------------------------------------------------------- benchmark: 2 tests -------------------------------------------------------------------------------------------------------
+Name (time in us)                                        Min                   Max                  Mean             StdDev                Median                IQR            Outliers          OPS            Rounds  Iterations
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+test_scientist_search_pareto_hot_path                16.3100 (1.0)        157.9740 (1.0)         27.0659 (1.0)       8.0760 (1.0)         26.2135 (1.0)      10.1890 (1.0)      1127;154  36,946.8009 (1.0)        5090           1
+test_scientist_autotune_pareto_front_hot_path     1,326.1570 (81.31)    1,631.1250 (10.33)    1,373.0737 (50.73)    26.9127 (3.33)     1,371.9180 (52.34)    33.3810 (3.28)        159;8     728.2930 (0.02)        610           1
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-c",
+    "import subprocess,sys; files=subprocess.check_output([\"git\",\"diff\",\"--name-only\",\"c40d4acae1ce58b597267255026d9356565828fd\",\"--\",\"*.py\"],text=True).splitlines(); print(\"Complete changed Python input denominator\",len(files),flush=True); r1=subprocess.call([sys.executable,\"-m\",\"ruff\",\"check\",*files]); r2=subprocess.call([sys.executable,\"-m\",\"ruff\",\"format\",\"--check\",*files]);sys.exit(r1 or r2)"
+  ],
+  "cwd": "/workspace/e02-D-orchestration",
+  "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "candidate_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+  "end_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "immutable_commit_unchanged": true,
+  "exit_code": 1,
+  "wall_s": 0.28167376199962746,
+  "peak_rss_kib": 41776,
+  "output_path": "/workspace/e02-D-receipts/final-ruff.log",
+  "output_bytes": 820,
+  "output_sha256": "fce2f33a9fe4354c3ab8c156ca430149e3e20fc1fe93d2ff6d242b6b5a70ab7d",
+  "numerical_environment_overrides": {},
+  "PYTHONPATH": null
+}

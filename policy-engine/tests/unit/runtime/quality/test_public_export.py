@@ -3,6 +3,7 @@ from __future__ import annotations
 # ruff: noqa: S101
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -569,9 +570,14 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleRun,
+        PendingN8ValuePort,
+    )
     from tests.unit.runtime.quality.test_generation_cycle import (
         _budget,
         _CgfGenerationPort,
+        _StableShadowGrounding,
     )
 
     monkeypatch.setattr(
@@ -583,6 +589,8 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
     problem = _open_world_problem()
     run = await GenerationCycleController(
         generation_port=_CgfGenerationPort(),
+        grounding_port=_StableShadowGrounding(),
+        value_port=PendingN8ValuePort(),
         promotion_runtime=runtime,
         repo_root=REPO_ROOT,
     ).run(
@@ -590,8 +598,14 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
         budget_state=_budget(),
         max_cycles=1,
     )
+    assert run.terminal_status == "completed", run.blocked_reason
+    assert run.cycles[-1].terminal_kind == "grounded_abstention"
+    assert run.cycles[-1].voi_decision.next_action == "stop"
+    assert run.cycles[-1].refinement_decision.decision == "abstain"
+    assert run.cycles[-1].search_iteration.status == "abstained"
     assert run.promotion_port.receipts == ()
     assert run.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
+    assert run.promotion_port.pre_n9_open_world_gates
     projector = getattr(public_export_module, "project_pre_n9_open_world_limitations", None)
     assert callable(projector)
     limitations = projector(
@@ -624,11 +638,69 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
     ):
         assert forbidden not in rendered
 
+    class _BlockedOpenWorldController(GenerationCycleController):
+        """Emit a coherent blocked VOI decision through the real N6 run path."""
+
+        _blocked_reason = "public_owr_projection_blocked_probe"
+
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "blocked", "reason": self._blocked_reason}
+            )
+
+    blocked_run = await _BlockedOpenWorldController(
+        generation_port=_CgfGenerationPort(),
+        grounding_port=_StableShadowGrounding(),
+        value_port=PendingN8ValuePort(),
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    ).run(
+        problem,
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+    assert blocked_run.terminal_status == "blocked"
+    assert blocked_run.blocked_reason == _BlockedOpenWorldController._blocked_reason
+    assert blocked_run.cycles[-1].terminal_kind == "grounded_abstention"
+    assert blocked_run.cycles[-1].voi_decision.next_action == "blocked"
+    assert blocked_run.cycles[-1].refinement_decision.decision == "block_candidate"
+    assert blocked_run.cycles[-1].search_iteration.status == "blocked_no_retry"
+    assert blocked_run.candidate_summaries == run.candidate_summaries
+    assert blocked_run.promotion_port.reason == (
+        f"generation_cycle_blocked_before_n9:{_BlockedOpenWorldController._blocked_reason}"
+    )
+    assert blocked_run.promotion_port.pre_n9_open_world_gates == ()
+
+    # Parse a persisted-shaped artifact with only the N9 port transplanted.
+    # Terminal and N6 cycle evidence remain exactly as the controller emitted it.
+    blocked_payload = blocked_run.model_dump(mode="json")
+    blocked_payload["promotion_port"] = run.promotion_port.model_dump(mode="json")
+    blocked_with_retained_owr = GenerationCycleRun.model_validate(blocked_payload)
+    assert blocked_with_retained_owr.terminal_status == "blocked"
+    assert blocked_with_retained_owr.blocked_reason == _BlockedOpenWorldController._blocked_reason
+    assert blocked_with_retained_owr.cycles == blocked_run.cycles
+    assert blocked_with_retained_owr.promotion_port.pre_n9_open_world_gates == (
+        run.promotion_port.pre_n9_open_world_gates
+    )
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="blocked_generation_cycle_n9_admission_mismatch",
+    ):
+        projector(
+            run=blocked_with_retained_owr,
+            design_problem=problem,
+            resolver=runtime.resolver,
+            repo_root=REPO_ROOT,
+        )
+
     foreign_problem = problem.model_copy(
         update={"design_problem_id": "public_open_world_problem_foreign"}
     )
     foreign_run = await GenerationCycleController(
         generation_port=_CgfGenerationPort(),
+        grounding_port=_StableShadowGrounding(),
+        value_port=PendingN8ValuePort(),
         promotion_runtime=runtime,
         repo_root=REPO_ROOT,
     ).run(
@@ -636,7 +708,12 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
         budget_state=_budget(),
         max_cycles=1,
     )
-    transplanted = foreign_run.model_copy(update={"promotion_port": run.promotion_port})
+    assert foreign_run.terminal_status == "completed", foreign_run.blocked_reason
+    assert foreign_run.cycles[-1].terminal_kind == "grounded_abstention"
+    assert foreign_run.cycles[-1].voi_decision.next_action == "stop"
+    foreign_payload = foreign_run.model_dump(mode="json")
+    foreign_payload["promotion_port"] = run.promotion_port.model_dump(mode="json")
+    transplanted = GenerationCycleRun.model_validate(foreign_payload)
     with pytest.raises(
         PublicExportRedactionError,
         match="open_world_vector_query_mismatch",

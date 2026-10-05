@@ -332,8 +332,7 @@ def _resolve_stochastic_distribution(distribution: str) -> _StochasticDistributi
         args = tuple(float(item) for item in raw_args)
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            "stochastic distribution has non-numeric arguments: "
-            f"{distribution!r}"
+            f"stochastic distribution has non-numeric arguments: {distribution!r}"
         ) from exc
     if not all(math.isfinite(value) for value in args):
         raise ValueError(f"stochastic distribution arguments must be finite: {distribution!r}")
@@ -922,16 +921,12 @@ def _linear_gaussian_posterior(
         if raw_posterior is not None and not isinstance(raw_posterior, Mapping):
             return None
         coefficients = (
-            raw_posterior
-            if isinstance(raw_posterior, Mapping)
-            else params.get("coefficients", {})
+            raw_posterior if isinstance(raw_posterior, Mapping) else params.get("coefficients", {})
         )
         if not isinstance(coefficients, Mapping):
             coefficients = {}
         try:
-            intercept = float(
-                coefficients.get("__intercept__", params.get("intercept", 0.0))
-            )
+            intercept = float(coefficients.get("__intercept__", params.get("intercept", 0.0)))
             for parent in parents_map.get(node, []):
                 if parent not in node_index:
                     return None
@@ -981,9 +976,7 @@ def _linear_gaussian_posterior(
         return None
     if np.any(eigenvalues < -1.0e-8):
         return None
-    posterior_covariance = (
-        eigenvectors @ np.diag(np.clip(eigenvalues, 0.0, None)) @ eigenvectors.T
-    )
+    posterior_covariance = eigenvectors @ np.diag(np.clip(eigenvalues, 0.0, None)) @ eigenvectors.T
     if not np.isfinite(posterior_mean).all() or not np.isfinite(posterior_covariance).all():
         return None
     return _LinearGaussianPosterior(
@@ -1006,10 +999,7 @@ def _draw_linear_gaussian_noises(
             posterior.covariance,
             check_valid="raise",
         )
-    return {
-        node: float(value)
-        for node, value in zip(posterior.node_order, draw, strict=True)
-    }
+    return {node: float(value) for node, value in zip(posterior.node_order, draw, strict=True)}
 
 
 _INTERVENTION_UNSET = object()
@@ -1098,16 +1088,11 @@ def _required_missing_root_nodes(
             )
         )
     parents_map = _parents_by_node(scm_spec)
-    roots = {
-        node for node in active_nodes if not parents_map.get(node)
-    }
+    roots = {node for node in active_nodes if not parents_map.get(node)}
     all_arms_replace_natural = all(
         _intervention_replaces_natural(intervention) for intervention in interventions
     )
-    directly_intervened_root = (
-        query.treatment_variable in roots
-        and all_arms_replace_natural
-    )
+    directly_intervened_root = query.treatment_variable in roots and all_arms_replace_natural
     return sorted(
         root
         for root in roots
@@ -1162,8 +1147,7 @@ def _simulate_samples(
     order = [node for node in full_order if node in active_nodes]
     streams = logical_streams or _LogicalStreamFactory.from_generator(rng)
     node_rngs = {
-        node: streams.generator(namespace=stream_namespace, label=f"node:{node}")
-        for node in order
+        node: streams.generator(namespace=stream_namespace, label=f"node:{node}") for node in order
     }
     root_index_rng = streams.generator(
         namespace=stream_namespace,
@@ -1270,7 +1254,9 @@ def _simulate_samples(
                 baseline = (
                     0.0
                     if _intervention_replaces_natural(intervention)
-                    else float(condition[node]) if node in condition else float(value)
+                    else float(condition[node])
+                    if node in condition
+                    else float(value)
                 )
                 value = _apply_intervention(
                     current_value=baseline,
@@ -1587,9 +1573,7 @@ class GCMQuery:
             )
             samples = treated - baseline
             abduction_diagnostic = (
-                treated_abduction
-                if not treated_abduction.gate_eligible
-                else baseline_abduction
+                treated_abduction if not treated_abduction.gate_eligible else baseline_abduction
             )
         else:
             samples, _, abduction_diagnostic = _simulate_samples(
@@ -1646,6 +1630,9 @@ class GCMQuery:
             )
 
         output: dict[str, Any] = {
+            # The dispatcher binds the declared slot; Scientist consumers retain
+            # the historical query_result key on the full method output.
+            "causal_query_result": query_result,
             "query_result": query_result,
             "envelope": envelope,
             "warnings": warnings,

@@ -1,0 +1,87 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "plugin-training",
+  "closure_ids": ["LA-023"],
+  "bundle_ids": ["PLG-02", "PLG-03"],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": ["6e05749123250949cd0fb34c3c0e04a0cbbdd2b0"],
+  "candidate_tree_sha": "1ff5a966ec6b7149eaba208b0bc625b9ec603183",
+  "branch": "codex/e02-C-plugin-training",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/plugins/cli.py",
+    "policy-engine/tests/unit/remediation/test_plg_02.py",
+    "policy-engine/tests/unit/remediation/test_plg_03.py"
+  ],
+  "baseline_cells": [
+    {"id": "F03-P096", "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b", "status": "PASS", "receipt_status": "valid_bound", "route_grade": "candidate_unverified", "semantic_adequacy": "not_established"},
+    {"id": "F04-P059", "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b", "status": "PASS", "receipt_status": "valid_reconciled_parent", "route_grade": "candidate_unverified", "semantic_adequacy": "not_established"},
+    {"id": "F04-P131", "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b", "status": "PASS", "receipt_status": "valid_reconciled_parent", "route_grade": "candidate_unverified", "semantic_adequacy": "not_established"},
+    {"id": "F08-P127", "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2", "status": "PASS", "receipt_status": "valid_reconciled", "route_grade": "candidate_unverified", "semantic_adequacy": "not_established"},
+    {"id": "F09-P098", "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2", "status": "PASS", "receipt_status": "valid_reconciled", "route_grade": "candidate_unverified", "semantic_adequacy": "not_established"},
+    {"id": "F15-P111", "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2", "status": "PASS", "receipt_status": "valid", "route_grade": "candidate_unverified", "semantic_adequacy": "not_established"},
+    {"id": "F15-P152", "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2", "status": "PASS", "receipt_status": "valid", "route_grade": "candidate_unverified", "semantic_adequacy": "not_established"}
+  ],
+  "checks": [
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/plugins/cli.py tests/unit/remediation/test_plg_02.py tests/unit/remediation/test_plg_03.py",
+      "target_sha": "6e05749123250949cd0fb34c3c0e04a0cbbdd2b0",
+      "environment": "Python from the original read-only project .venv; cwd=/Users/deniskopylov/.codex/worktrees/e02-c-plugin-training/policy-engine; no explicit environment overrides",
+      "input_closure": "The three committed changed paths at candidate tree 1ff5a966ec6b7149eaba208b0bc625b9ec603183.",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "git diff --check",
+      "target_sha": "6e05749123250949cd0fb34c3c0e04a0cbbdd2b0",
+      "environment": "Git in the attached worktree; checked immediately before staging/commit against the candidate patch whose tree equals target commit tree.",
+      "input_closure": "The three committed changed paths.",
+      "outcome": "PASS",
+      "output": "No whitespace errors (empty output)."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_plg_02.py tests/unit/remediation/test_plg_03.py::test_missing_optimizer_stage_remains_typed_bridge_pending -q",
+      "target_sha": "6e05749123250949cd0fb34c3c0e04a0cbbdd2b0",
+      "environment": "Original project .venv; cwd=/Users/deniskopylov/.codex/worktrees/e02-c-plugin-training/policy-engine; inherited host environment with no explicit overrides; no production input; the subprocess config and output were under pytest tmp_path.",
+      "input_closure": "The unsupported Economics profile fixture (10 agents) exercises the API and module CLI blocked path; a separate 10-agent Economics fixture with ppo_epochs=0 exercises the absent optimizer-stage blocker. No trainer or artifact mocks in these tests.",
+      "outcome": "PASS",
+      "output": "2 passed; existing plugin duplicate-registration RuntimeWarning and Equinox LayerNorm deprecation warnings."
+    },
+    {
+      "command": "env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 JAX_PLATFORMS=cpu JAX_PLATFORM_NAME=cpu XLA_FLAGS='--xla_cpu_multi_thread_eigen=true intra_op_parallelism_threads=1' PYTHONPATH='/Users/deniskopylov/.codex/worktrees/e02-c-plugin-training/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-plugin-training/policy-engine' /usr/bin/time -l /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact -q",
+      "target_sha": "6e05749123250949cd0fb34c3c0e04a0cbbdd2b0",
+      "environment": "Python=/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python; CPU-only JAX; OMP_NUM_THREADS=1, OPENBLAS_NUM_THREADS=1, MKL_NUM_THREADS=1, JAX_PLATFORMS=cpu, JAX_PLATFORM_NAME=cpu, XLA_FLAGS='--xla_cpu_multi_thread_eigen=true intra_op_parallelism_threads=1'; PYTHONPATH points first to this worktree src then product root; no fixed timeout imposed; run completed naturally.",
+      "input_closure": "No production data. Seed=7; ten-agent built-in Economics composite; native PPO config n_episodes=1, steps_per_episode=2, horizon=12, ppo_epochs=1, learning_rate=0.01; actor seeded with PRNGKey(7); persisted artifact in pytest tmp_path. Consumer replay used the same initial composite state and seed, one HARD_DISCRETE step, and the trained actor. The full output and /usr/bin/time -l receipt are committed beside this handoff in plugin-training-ppo-learning-oracle.log.",
+      "outcome": "PASS",
+      "output": "Exit 0; one test passed. Initial and trained policy actions differ; actual Economics consumer outputs match the independent action-to-consumption oracle and differ from each other. Full output: docs/research/e02-cloud-test-plan/implementation-handoffs/C/plugin-training-ppo-learning-oracle.log."
+    }
+  ],
+  "property": {
+    "statement": "For the admitted built-in Economics-only composite, the existing native PPO trainer produces an observable parameter/action update; running the initial and learned policies through the real hard-discrete Economics adapter on the same initial state changes consumed Economics consumption, and both consumer outputs match a separately calculated deterministic action-to-consumption oracle. At the API boundary, unsupported profiles and missing optimizer stages remain typed bridge_pending and do not report successful training. The module CLI is verified for an unsupported profile; the exact missing-stage reason has not been exercised through that process surface.",
+    "runtime_path": [
+      "producer: PolisySimulator.train -> EconomicsTrainingAdapter.train -> train_actor_critic_with_artifact (existing native PPO trainer)",
+      "artifact: AgentPolicyArtifact stored and read back through the existing policy artifact CAS contract in pytest tmp_path",
+      "bridge: EconomicsTrainingAdapter.make_executor -> _EconomicsTemporalConsumptionMechanism -> real CompositeExecutor Economics transition",
+      "consumer: EconomicsTrainingAdapter.run returns CompositeState whose Economics agents.consumption is compared with a direct action/sigmoid/budget/minimum/active-mask oracle",
+      "surface: TrainingResult from PolisySimulator API; module CLI is tested for an unsupported profile returning exit status 1 without printing completion or creating output; exact missing-stage reason at the process surface is not separately tested"
+    ],
+    "proxy_divergence": "Before the CLI change, cmd_train returned None and main discarded the blocked result, so an unsupported training request could print bridge_pending while the module process exited successfully. The process property is failure status for a blocked request; the old implementation tested no exit status. The changed module CLI test now proves return code 1, typed blocker output, no completion message, and no output directory.",
+    "negative_controls": [
+      "test_module_cli_returns_failure_for_a_blocked_train_request: unsupported Economics profile remains bridge_pending at the process boundary (exit 1; no output artifact).",
+      "test_missing_optimizer_stage_remains_typed_bridge_pending: ppo_epochs=0 yields training_update_not_observed with no policy, loss history, or artifact.",
+      "The real PPO consumer test uses initial and trained policies on the identical start state/seed and independently computes the expected HARD_DISCRETE consumption for both; matching the oracle and requiring a nonzero consumption delta rejects unchanged or mis-consumed learning."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "partial: the single built-in Economics training path has a real producer, persisted/read-back artifact, bridge, consumer, API/CLI surface, negative blocker tests, and behavioral learning oracle; LA-023 remains partial/candidate_unverified overall and is not closed.",
+  "limitations_and_next_owner": [
+    "The worktree admission gate exited 2 because of unrelated stale registry records. The user explicitly authorized continuing from the verified clean attached C worktree; stale records were left untouched. The implementation and test receipt are pinned to the actual candidate tree and commit, not to a pristine-base run.",
+    "The seven baseline cells are source-reported compact-text locators only: the finding query reports zero matching source blocks and zero received raw archives; every route remains candidate_unverified and semantic_adequacy=not_established. They are navigation context, not acceptance evidence.",
+    "The admitted bridge remains one built-in Economics-only profile. Cross-domain compatibility, RNG/continuation semantics, and the retirement boundary plus caller migration remain unresolved; unsupported profiles and absent update stages remain typed bridge_pending.",
+    "Producer/stage/ABI policy remains unresolved and is not replaced by a new trainer or speculative contract. No cross-domain, continuation, retirement, or full production-data claims are made.",
+    "The CLI blocker probe uses an unsupported labor-market-disabled Economics profile. The separate ppo_epochs=0 probe verifies the API's training_update_not_observed reason, but that exact stage reason has not been asserted through a subprocess CLI invocation; the CLI return-code path is reason-agnostic and no ladder-specific code was added.",
+    "This bounded synthetic fixture establishes training behavior only. It does not establish policy publication authority, recommendation admissibility, source-law freshness, or a real-world time-role claim.",
+    "Next owner: independent reviewer on implementation commit 6e05749123250949cd0fb34c3c0e04a0cbbdd2b0; then the PLG-03 / LA-023 owner must resolve the named residuals before declaring closure. No PR was created or pushed."
+  ]
+}

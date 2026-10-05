@@ -1,0 +1,29 @@
+.                                                                        [100%]
+=============================== warnings summary ===============================
+tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact
+tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact
+tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact
+tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact
+tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/equinox/nn/_normalisation.py:92: UserWarning: LayerNorm(elementwise_affine=...) is deprecated in favour of LayerNorm(use_weight=...) and use_bias
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+       20.40 real        23.12 user         1.80 sys
+           987365376  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              211886  page reclaims
+                6647  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                2842  voluntary context switches
+               90837  involuntary context switches
+        149244131327  instructions retired
+         73519999581  cycles elapsed
+           887588616  peak memory footprint

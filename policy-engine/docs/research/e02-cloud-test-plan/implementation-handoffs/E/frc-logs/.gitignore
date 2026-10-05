@@ -1,1 +1,4 @@
 raw/
+!producer.log
+!bridge.log
+!frc01.log

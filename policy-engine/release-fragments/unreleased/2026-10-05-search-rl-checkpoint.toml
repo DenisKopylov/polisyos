@@ -1,0 +1,12 @@
+id = "2026-10-05-search-rl-checkpoint"
+title = "Restore exploration and base strategy state together"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Persist the exploration wrapper with the canonical Python RNG codec and restore its embedded base strategy before continuing candidate generation."
+evidence = ["tests/unit/scientist/methods/search/strategies/test_rl_wrapper.py"]
+compatibility = "New wrapper checkpoints bind the search space and LinearDecay schedule. Legacy wrapper checkpoints lacking a replay basis and arbitrary callable schedules are refused explicitly; ordinary candidate generation is unchanged."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.methods.search.strategies.rl_wrapper"
+migration = "Start a fresh search for legacy wrapper checkpoints. Resume new checkpoints with the same search space and LinearDecay parameters."
+limitations = "No production RL wrapper caller is established by this bounded replay change; custom schedule codecs remain unsupported."

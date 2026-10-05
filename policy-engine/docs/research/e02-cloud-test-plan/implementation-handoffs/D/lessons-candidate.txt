@@ -1,0 +1,53 @@
+{"source_sha": "6d1916ce2d41c3af81b00710acebc56c332b26f0", "test_sha": "6d1916ce2d41c3af81b00710acebc56c332b26f0", "argv": ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "tests/unit/scientist/methods/search/test_lesson_query_persistence.py", "tests/unit/scientist/search/test_lessons.py", "tests/unit/scientist/search/test_lesson_transfer.py", "-vv", "--tb=short", "--durations=10"], "cwd": "/workspace/e02-D-lessons/policy-engine", "PYTHONPATH": "/workspace/e02-D-lessons/policy-engine/src", "environment": "locked Python3.14.7 pytest9.0.2 FileSystemCAS isolated tmp", "input_closure": "typed and JSON context->native SearchController.run generator hints; actual CAS/source_card->find/project/materialize->query consumer; age100d/TTL90d cold,warm,reopen; projected trust/source/min_confidence/stage filters; source-producer version refs; full CAS regular-file byte enumeration; retention access sidecar removal and postfilter deletion negatives"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-D-lessons/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-D-lessons/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 19 items
+
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_nested_context_and_explicit_override_reach_real_lesson_consumer PASSED [  5%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_transfer_query_filters_before_materialization_and_after_restart PASSED [ 10%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes PASSED [ 15%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_stale_transfer_preserves_evidence_age_before_and_after_materialization PASSED [ 21%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_new_producer_evidence_version_has_its_own_refs_and_clock PASSED [ 26%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_access_writes_are_throttled_and_corrupt_retention_hint_cannot_change_evidence PASSED [ 31%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_removing_evidence_clock_keeps_markers_but_oracle_detects_rejuvenation PASSED [ 36%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_post_projection_filter_rejects_before_cas_and_removal_is_detected PASSED [ 42%]
+tests/unit/scientist/search/test_lessons.py::test_lesson_registry_dedupes_and_tracks_occurrences PASSED [ 47%]
+tests/unit/scientist/search/test_lessons.py::test_lesson_registry_invalidate_and_gc PASSED [ 52%]
+tests/unit/scientist/search/test_lessons.py::test_lesson_from_failure_card_preserves_failure_metadata PASSED [ 57%]
+tests/unit/scientist/search/test_lessons.py::test_repeated_reads_do_not_restore_confidence_without_new_evidence PASSED [ 63%]
+tests/unit/scientist/search/test_lesson_transfer.py::test_resolve_transfer_context_preserves_typed_base_until_explicit_override PASSED [ 68%]
+tests/unit/scientist/search/test_lesson_transfer.py::test_query_with_transfer_reapplies_source_trust_and_confidence_filters PASSED [ 73%]
+tests/unit/scientist/search/test_lesson_transfer.py::test_query_with_transfer_materializes_cross_domain_same_tenant PASSED [ 78%]
+tests/unit/scientist/search/test_lesson_transfer.py::test_same_domain_same_tenant_reuse_stays_local PASSED [ 84%]
+tests/unit/scientist/search/test_lesson_transfer.py::test_cross_tenant_transfer_denied_by_default PASSED [ 89%]
+tests/unit/scientist/search/test_lesson_transfer.py::test_ttl_demotes_old_lessons_before_archive PASSED [ 94%]
+tests/unit/scientist/search/test_lesson_transfer.py::test_invalidation_beats_transfer_materialization PASSED [100%]
+
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 10 durations =============================
+0.02s call     tests/unit/scientist/search/test_lessons.py::test_lesson_registry_invalidate_and_gc
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_transfer_query_filters_before_materialization_and_after_restart
+0.02s call     tests/unit/scientist/search/test_lesson_transfer.py::test_query_with_transfer_reapplies_source_trust_and_confidence_filters
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_stale_transfer_preserves_evidence_age_before_and_after_materialization
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_new_producer_evidence_version_has_its_own_refs_and_clock
+0.02s call     tests/unit/scientist/search/test_lesson_transfer.py::test_query_with_transfer_materializes_cross_domain_same_tenant
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_post_projection_filter_rejects_before_cas_and_removal_is_detected
+0.02s call     tests/unit/scientist/search/test_lessons.py::test_lesson_registry_dedupes_and_tracks_occurrences
+0.01s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes
+0.01s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_nested_context_and_explicit_override_reach_real_lesson_consumer
+======================== 19 passed, 2 warnings in 7.73s ========================
+{"exit_code": 0, "wall_s": 11.887755332999859}

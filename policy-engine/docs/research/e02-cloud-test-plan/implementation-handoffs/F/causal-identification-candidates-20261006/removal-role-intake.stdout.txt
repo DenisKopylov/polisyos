@@ -1,0 +1,61 @@
+{"base_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76", "candidate_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6", "canonical_function": "polisyos.scientist.governance.passes.confidence_pass.ConfidencePass.validate", "function_object_preserved": true, "original_code_sha256": "4f4811a57910008e0deb91de6929f92e6df829f94572149d0127d194778e7dc3", "provider_path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py", "provider_source_sha256": "63c43ff6299b1c753684c116eb01a651f089a1e3ac6e9df3fa97ac7abfeee934", "removal": "role_intake", "removed_code_sha256": "a84d31780efc62a0f0bc9d0016b0443dae8a5fe3162d22db1337341bc2506c4a", "source_files_written": false}
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_fake_or_relabelled_causal_ref_cannot_pass_any_gate_ratio[0.0-artifacts_index-ensemble] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-184/test_fake_or_relabelled_causal0')
+source = 'ensemble', location = 'artifacts_index', min_ratio = 0.0
+
+    @pytest.mark.parametrize("source", ["causal", "ensemble"])
+    @pytest.mark.parametrize("location", ["artifacts_index", "top_level"])
+    @pytest.mark.parametrize("min_ratio", [0.0, 0.5, 1.0])
+    def test_fake_or_relabelled_causal_ref_cannot_pass_any_gate_ratio(
+        tmp_path, source, location, min_ratio
+    ) -> None:
+        writer = FileSystemCAS(tmp_path)
+        ref = persist_uncertainty_envelope(writer, _envelope(source))
+        state = (
+            {"artifacts_index": {"causal_envelope_ref": ref}}
+            if location == "artifacts_index"
+            else {"causal_envelope_ref": ref}
+        )
+        issues = ConfidencePass().validate(
+            _context(FileSystemCAS(tmp_path), state, min_ratio=min_ratio)
+        )
+>       assert len(_candidate_blockers(issues)) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = _candidate_blockers([])
+
+tests/unit/scientist/governance/test_causal_confidence_candidate.py:76: AssertionError
+_ test_fake_or_relabelled_causal_ref_cannot_pass_any_gate_ratio[0.0-top_level-ensemble] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-184/test_fake_or_relabelled_causal1')
+source = 'ensemble', location = 'top_level', min_ratio = 0.0
+
+    @pytest.mark.parametrize("source", ["causal", "ensemble"])
+    @pytest.mark.parametrize("location", ["artifacts_index", "top_level"])
+    @pytest.mark.parametrize("min_ratio", [0.0, 0.5, 1.0])
+    def test_fake_or_relabelled_causal_ref_cannot_pass_any_gate_ratio(
+        tmp_path, source, location, min_ratio
+    ) -> None:
+        writer = FileSystemCAS(tmp_path)
+        ref = persist_uncertainty_envelope(writer, _envelope(source))
+        state = (
+            {"artifacts_index": {"causal_envelope_ref": ref}}
+            if location == "artifacts_index"
+            else {"causal_envelope_ref": ref}
+        )
+        issues = ConfidencePass().validate(
+            _context(FileSystemCAS(tmp_path), state, min_ratio=min_ratio)
+        )
+>       assert len(_candidate_blockers(issues)) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = _candidate_blockers([])
+
+tests/unit/scientist/governance/test_causal_confidence_candidate.py:76: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/governance/test_causal_confidence_candidate.py::test_fake_or_relabelled_causal_ref_cannot_pass_any_gate_ratio[0.0-artifacts_index-ensemble]
+FAILED tests/unit/scientist/governance/test_causal_confidence_candidate.py::test_fake_or_relabelled_causal_ref_cannot_pass_any_gate_ratio[0.0-top_level-ensemble]
+2 failed, 10 deselected in 6.67s

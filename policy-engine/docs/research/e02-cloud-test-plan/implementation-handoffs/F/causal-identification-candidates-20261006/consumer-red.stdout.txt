@@ -1,0 +1,318 @@
+{"blockers": [], "case": "missing", "envelope_ref": "sha256:5e6ebf3374cafb7bf32c59c645aa48c6b0c93cac27499221d29f38b4391d1e0c", "gate_eligible": true, "report_ref": "sha256:1ee1b03b9136192bfa015f695c4231d7545de56258ab6bc07b09be4933528766"}
+F{"blockers": [], "case": "absent_ref", "envelope_ref": "sha256:5e6ebf3374cafb7bf32c59c645aa48c6b0c93cac27499221d29f38b4391d1e0c", "gate_eligible": true, "report_ref": "sha256:2963d886ec93c63616746e8478923926fb6d2a3bfd7dae8d1cd3f0ed665b748b"}
+F{"blockers": [], "case": "self_stamped", "envelope_ref": "sha256:5e6ebf3374cafb7bf32c59c645aa48c6b0c93cac27499221d29f38b4391d1e0c", "gate_eligible": true, "report_ref": "sha256:800283bff934b0c88dfa36b8471072926e00ca1856531c2d4d324d2ba4acef42"}
+F{"blockers": [], "case": "wrong_source", "envelope_ref": "sha256:5e6ebf3374cafb7bf32c59c645aa48c6b0c93cac27499221d29f38b4391d1e0c", "gate_eligible": true, "report_ref": "sha256:3f8ad0eb1ea636f450d2faf554158c820d1b07db21a1dbcd0cfa7f85112b9efc"}
+F{"blockers": [], "case": "wrong_graph", "envelope_ref": "sha256:5e6ebf3374cafb7bf32c59c645aa48c6b0c93cac27499221d29f38b4391d1e0c", "gate_eligible": true, "report_ref": "sha256:edd6b292fd99b0dc947031c534a6c7b2b310f03acd2f613ba34117c7a83ee61f"}
+F{"blockers": [], "case": "wrong_estimand", "envelope_ref": "sha256:5e6ebf3374cafb7bf32c59c645aa48c6b0c93cac27499221d29f38b4391d1e0c", "gate_eligible": true, "report_ref": "sha256:d8fac90f8eaec0e93f2db65c086a2a56893626b21d44966058f4f0efcc30bcc7"}
+F{"blockers": [], "case": "wrong_target", "envelope_ref": "sha256:5e6ebf3374cafb7bf32c59c645aa48c6b0c93cac27499221d29f38b4391d1e0c", "gate_eligible": true, "report_ref": "sha256:ec6004efd7a0a4551c1a58aa8f65ea3fe36844952af4110b5147801805acbf66"}
+F.
+=================================== FAILURES ===================================
+_ test_unverified_identification_stays_nongating_at_persisted_consumer[missing] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-167/test_unverified_identification0')
+case = 'missing'
+
+    @pytest.mark.parametrize("case", CASES)
+    def test_unverified_identification_stays_nongating_at_persisted_consumer(
+        tmp_path, case: str
+    ) -> None:
+        store_path = tmp_path / "cas"
+        writer = FileSystemCAS(store_path)
+        report_ref = persist_causal_effect_report(writer, _report(CASES[case]))
+        # Reopen actual persisted bytes through fresh reader instances; keep SUCCESS,
+        # numerical interval and self-attested estimator markers unchanged.
+        reader = FileSystemCAS(store_path)
+        reopened_report = load_causal_effect_report(reader, report_ref)
+        assert reopened_report.status is EstimationStatus.SUCCESS
+        assert reopened_report.confidence_interval == (9.9, 10.1)
+        envelope = reopened_report.to_uncertainty_envelope()
+        assert envelope is not None
+        envelope_ref = persist_uncertainty_envelope(writer, envelope)
+        fresh_reader = FileSystemCAS(store_path)
+        persisted_envelope = load_uncertainty_envelope(fresh_reader, envelope_ref)
+        ctx = PassContext(
+            ir=None,
+            state={"_store": fresh_reader, "artifacts_index": {"causal_envelope_ref": envelope_ref}},
+            registry_bundle=None,
+            profile=ValidationProfile.strict(),
+            run_id=f"identification-{case}",
+        )
+        issues = ConfidencePass().validate(ctx)
+        blockers = [issue.code for issue in issues if issue.severity is IssueSeverity.BLOCKER]
+        print(json.dumps({"case": case, "report_ref": str(report_ref.artifact_id),
+                          "envelope_ref": str(envelope_ref.artifact_id),
+                          "gate_eligible": persisted_envelope.gate_eligible,
+                          "blockers": blockers}, sort_keys=True))
+>       assert persisted_envelope.gate_eligible is False, "unverified identification admitted"
+E       AssertionError: unverified identification admitted
+E       assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...inference_method': 'asymptotic', 'p_value': None, 'placebo_p_value': None, 'status': 'success', 'status_reason': None}).gate_eligible
+
+/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py:94: AssertionError
+_ test_unverified_identification_stays_nongating_at_persisted_consumer[absent_ref] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-167/test_unverified_identification1')
+case = 'absent_ref'
+
+    @pytest.mark.parametrize("case", CASES)
+    def test_unverified_identification_stays_nongating_at_persisted_consumer(
+        tmp_path, case: str
+    ) -> None:
+        store_path = tmp_path / "cas"
+        writer = FileSystemCAS(store_path)
+        report_ref = persist_causal_effect_report(writer, _report(CASES[case]))
+        # Reopen actual persisted bytes through fresh reader instances; keep SUCCESS,
+        # numerical interval and self-attested estimator markers unchanged.
+        reader = FileSystemCAS(store_path)
+        reopened_report = load_causal_effect_report(reader, report_ref)
+        assert reopened_report.status is EstimationStatus.SUCCESS
+        assert reopened_report.confidence_interval == (9.9, 10.1)
+        envelope = reopened_report.to_uncertainty_envelope()
+        assert envelope is not None
+        envelope_ref = persist_uncertainty_envelope(writer, envelope)
+        fresh_reader = FileSystemCAS(store_path)
+        persisted_envelope = load_uncertainty_envelope(fresh_reader, envelope_ref)
+        ctx = PassContext(
+            ir=None,
+            state={"_store": fresh_reader, "artifacts_index": {"causal_envelope_ref": envelope_ref}},
+            registry_bundle=None,
+            profile=ValidationProfile.strict(),
+            run_id=f"identification-{case}",
+        )
+        issues = ConfidencePass().validate(ctx)
+        blockers = [issue.code for issue in issues if issue.severity is IssueSeverity.BLOCKER]
+        print(json.dumps({"case": case, "report_ref": str(report_ref.artifact_id),
+                          "envelope_ref": str(envelope_ref.artifact_id),
+                          "gate_eligible": persisted_envelope.gate_eligible,
+                          "blockers": blockers}, sort_keys=True))
+>       assert persisted_envelope.gate_eligible is False, "unverified identification admitted"
+E       AssertionError: unverified identification admitted
+E       assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...inference_method': 'asymptotic', 'p_value': None, 'placebo_p_value': None, 'status': 'success', 'status_reason': None}).gate_eligible
+
+/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py:94: AssertionError
+_ test_unverified_identification_stays_nongating_at_persisted_consumer[self_stamped] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-167/test_unverified_identification2')
+case = 'self_stamped'
+
+    @pytest.mark.parametrize("case", CASES)
+    def test_unverified_identification_stays_nongating_at_persisted_consumer(
+        tmp_path, case: str
+    ) -> None:
+        store_path = tmp_path / "cas"
+        writer = FileSystemCAS(store_path)
+        report_ref = persist_causal_effect_report(writer, _report(CASES[case]))
+        # Reopen actual persisted bytes through fresh reader instances; keep SUCCESS,
+        # numerical interval and self-attested estimator markers unchanged.
+        reader = FileSystemCAS(store_path)
+        reopened_report = load_causal_effect_report(reader, report_ref)
+        assert reopened_report.status is EstimationStatus.SUCCESS
+        assert reopened_report.confidence_interval == (9.9, 10.1)
+        envelope = reopened_report.to_uncertainty_envelope()
+        assert envelope is not None
+        envelope_ref = persist_uncertainty_envelope(writer, envelope)
+        fresh_reader = FileSystemCAS(store_path)
+        persisted_envelope = load_uncertainty_envelope(fresh_reader, envelope_ref)
+        ctx = PassContext(
+            ir=None,
+            state={"_store": fresh_reader, "artifacts_index": {"causal_envelope_ref": envelope_ref}},
+            registry_bundle=None,
+            profile=ValidationProfile.strict(),
+            run_id=f"identification-{case}",
+        )
+        issues = ConfidencePass().validate(ctx)
+        blockers = [issue.code for issue in issues if issue.severity is IssueSeverity.BLOCKER]
+        print(json.dumps({"case": case, "report_ref": str(report_ref.artifact_id),
+                          "envelope_ref": str(envelope_ref.artifact_id),
+                          "gate_eligible": persisted_envelope.gate_eligible,
+                          "blockers": blockers}, sort_keys=True))
+>       assert persisted_envelope.gate_eligible is False, "unverified identification admitted"
+E       AssertionError: unverified identification admitted
+E       assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...inference_method': 'asymptotic', 'p_value': None, 'placebo_p_value': None, 'status': 'success', 'status_reason': None}).gate_eligible
+
+/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py:94: AssertionError
+_ test_unverified_identification_stays_nongating_at_persisted_consumer[wrong_source] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-167/test_unverified_identification3')
+case = 'wrong_source'
+
+    @pytest.mark.parametrize("case", CASES)
+    def test_unverified_identification_stays_nongating_at_persisted_consumer(
+        tmp_path, case: str
+    ) -> None:
+        store_path = tmp_path / "cas"
+        writer = FileSystemCAS(store_path)
+        report_ref = persist_causal_effect_report(writer, _report(CASES[case]))
+        # Reopen actual persisted bytes through fresh reader instances; keep SUCCESS,
+        # numerical interval and self-attested estimator markers unchanged.
+        reader = FileSystemCAS(store_path)
+        reopened_report = load_causal_effect_report(reader, report_ref)
+        assert reopened_report.status is EstimationStatus.SUCCESS
+        assert reopened_report.confidence_interval == (9.9, 10.1)
+        envelope = reopened_report.to_uncertainty_envelope()
+        assert envelope is not None
+        envelope_ref = persist_uncertainty_envelope(writer, envelope)
+        fresh_reader = FileSystemCAS(store_path)
+        persisted_envelope = load_uncertainty_envelope(fresh_reader, envelope_ref)
+        ctx = PassContext(
+            ir=None,
+            state={"_store": fresh_reader, "artifacts_index": {"causal_envelope_ref": envelope_ref}},
+            registry_bundle=None,
+            profile=ValidationProfile.strict(),
+            run_id=f"identification-{case}",
+        )
+        issues = ConfidencePass().validate(ctx)
+        blockers = [issue.code for issue in issues if issue.severity is IssueSeverity.BLOCKER]
+        print(json.dumps({"case": case, "report_ref": str(report_ref.artifact_id),
+                          "envelope_ref": str(envelope_ref.artifact_id),
+                          "gate_eligible": persisted_envelope.gate_eligible,
+                          "blockers": blockers}, sort_keys=True))
+>       assert persisted_envelope.gate_eligible is False, "unverified identification admitted"
+E       AssertionError: unverified identification admitted
+E       assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...inference_method': 'asymptotic', 'p_value': None, 'placebo_p_value': None, 'status': 'success', 'status_reason': None}).gate_eligible
+
+/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py:94: AssertionError
+_ test_unverified_identification_stays_nongating_at_persisted_consumer[wrong_graph] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-167/test_unverified_identification4')
+case = 'wrong_graph'
+
+    @pytest.mark.parametrize("case", CASES)
+    def test_unverified_identification_stays_nongating_at_persisted_consumer(
+        tmp_path, case: str
+    ) -> None:
+        store_path = tmp_path / "cas"
+        writer = FileSystemCAS(store_path)
+        report_ref = persist_causal_effect_report(writer, _report(CASES[case]))
+        # Reopen actual persisted bytes through fresh reader instances; keep SUCCESS,
+        # numerical interval and self-attested estimator markers unchanged.
+        reader = FileSystemCAS(store_path)
+        reopened_report = load_causal_effect_report(reader, report_ref)
+        assert reopened_report.status is EstimationStatus.SUCCESS
+        assert reopened_report.confidence_interval == (9.9, 10.1)
+        envelope = reopened_report.to_uncertainty_envelope()
+        assert envelope is not None
+        envelope_ref = persist_uncertainty_envelope(writer, envelope)
+        fresh_reader = FileSystemCAS(store_path)
+        persisted_envelope = load_uncertainty_envelope(fresh_reader, envelope_ref)
+        ctx = PassContext(
+            ir=None,
+            state={"_store": fresh_reader, "artifacts_index": {"causal_envelope_ref": envelope_ref}},
+            registry_bundle=None,
+            profile=ValidationProfile.strict(),
+            run_id=f"identification-{case}",
+        )
+        issues = ConfidencePass().validate(ctx)
+        blockers = [issue.code for issue in issues if issue.severity is IssueSeverity.BLOCKER]
+        print(json.dumps({"case": case, "report_ref": str(report_ref.artifact_id),
+                          "envelope_ref": str(envelope_ref.artifact_id),
+                          "gate_eligible": persisted_envelope.gate_eligible,
+                          "blockers": blockers}, sort_keys=True))
+>       assert persisted_envelope.gate_eligible is False, "unverified identification admitted"
+E       AssertionError: unverified identification admitted
+E       assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...inference_method': 'asymptotic', 'p_value': None, 'placebo_p_value': None, 'status': 'success', 'status_reason': None}).gate_eligible
+
+/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py:94: AssertionError
+_ test_unverified_identification_stays_nongating_at_persisted_consumer[wrong_estimand] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-167/test_unverified_identification5')
+case = 'wrong_estimand'
+
+    @pytest.mark.parametrize("case", CASES)
+    def test_unverified_identification_stays_nongating_at_persisted_consumer(
+        tmp_path, case: str
+    ) -> None:
+        store_path = tmp_path / "cas"
+        writer = FileSystemCAS(store_path)
+        report_ref = persist_causal_effect_report(writer, _report(CASES[case]))
+        # Reopen actual persisted bytes through fresh reader instances; keep SUCCESS,
+        # numerical interval and self-attested estimator markers unchanged.
+        reader = FileSystemCAS(store_path)
+        reopened_report = load_causal_effect_report(reader, report_ref)
+        assert reopened_report.status is EstimationStatus.SUCCESS
+        assert reopened_report.confidence_interval == (9.9, 10.1)
+        envelope = reopened_report.to_uncertainty_envelope()
+        assert envelope is not None
+        envelope_ref = persist_uncertainty_envelope(writer, envelope)
+        fresh_reader = FileSystemCAS(store_path)
+        persisted_envelope = load_uncertainty_envelope(fresh_reader, envelope_ref)
+        ctx = PassContext(
+            ir=None,
+            state={"_store": fresh_reader, "artifacts_index": {"causal_envelope_ref": envelope_ref}},
+            registry_bundle=None,
+            profile=ValidationProfile.strict(),
+            run_id=f"identification-{case}",
+        )
+        issues = ConfidencePass().validate(ctx)
+        blockers = [issue.code for issue in issues if issue.severity is IssueSeverity.BLOCKER]
+        print(json.dumps({"case": case, "report_ref": str(report_ref.artifact_id),
+                          "envelope_ref": str(envelope_ref.artifact_id),
+                          "gate_eligible": persisted_envelope.gate_eligible,
+                          "blockers": blockers}, sort_keys=True))
+>       assert persisted_envelope.gate_eligible is False, "unverified identification admitted"
+E       AssertionError: unverified identification admitted
+E       assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...inference_method': 'asymptotic', 'p_value': None, 'placebo_p_value': None, 'status': 'success', 'status_reason': None}).gate_eligible
+
+/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py:94: AssertionError
+_ test_unverified_identification_stays_nongating_at_persisted_consumer[wrong_target] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-167/test_unverified_identification6')
+case = 'wrong_target'
+
+    @pytest.mark.parametrize("case", CASES)
+    def test_unverified_identification_stays_nongating_at_persisted_consumer(
+        tmp_path, case: str
+    ) -> None:
+        store_path = tmp_path / "cas"
+        writer = FileSystemCAS(store_path)
+        report_ref = persist_causal_effect_report(writer, _report(CASES[case]))
+        # Reopen actual persisted bytes through fresh reader instances; keep SUCCESS,
+        # numerical interval and self-attested estimator markers unchanged.
+        reader = FileSystemCAS(store_path)
+        reopened_report = load_causal_effect_report(reader, report_ref)
+        assert reopened_report.status is EstimationStatus.SUCCESS
+        assert reopened_report.confidence_interval == (9.9, 10.1)
+        envelope = reopened_report.to_uncertainty_envelope()
+        assert envelope is not None
+        envelope_ref = persist_uncertainty_envelope(writer, envelope)
+        fresh_reader = FileSystemCAS(store_path)
+        persisted_envelope = load_uncertainty_envelope(fresh_reader, envelope_ref)
+        ctx = PassContext(
+            ir=None,
+            state={"_store": fresh_reader, "artifacts_index": {"causal_envelope_ref": envelope_ref}},
+            registry_bundle=None,
+            profile=ValidationProfile.strict(),
+            run_id=f"identification-{case}",
+        )
+        issues = ConfidencePass().validate(ctx)
+        blockers = [issue.code for issue in issues if issue.severity is IssueSeverity.BLOCKER]
+        print(json.dumps({"case": case, "report_ref": str(report_ref.artifact_id),
+                          "envelope_ref": str(envelope_ref.artifact_id),
+                          "gate_eligible": persisted_envelope.gate_eligible,
+                          "blockers": blockers}, sort_keys=True))
+>       assert persisted_envelope.gate_eligible is False, "unverified identification admitted"
+E       AssertionError: unverified identification admitted
+E       assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...inference_method': 'asymptotic', 'p_value': None, 'placebo_p_value': None, 'status': 'success', 'status_reason': None}).gate_eligible
+
+/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py:94: AssertionError
+=============================== warnings summary ===============================
+../../../tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py:22
+  /tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py:22: DeprecationWarning: polisyos.scientist.governance.profiles is deprecated; use polisyos.core.governance.profiles
+    from polisyos.scientist.governance.profiles import ValidationProfile
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py::test_unverified_identification_stays_nongating_at_persisted_consumer[missing]
+FAILED ../../../tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py::test_unverified_identification_stays_nongating_at_persisted_consumer[absent_ref]
+FAILED ../../../tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py::test_unverified_identification_stays_nongating_at_persisted_consumer[self_stamped]
+FAILED ../../../tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py::test_unverified_identification_stays_nongating_at_persisted_consumer[wrong_source]
+FAILED ../../../tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py::test_unverified_identification_stays_nongating_at_persisted_consumer[wrong_graph]
+FAILED ../../../tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py::test_unverified_identification_stays_nongating_at_persisted_consumer[wrong_estimand]
+FAILED ../../../tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py::test_unverified_identification_stays_nongating_at_persisted_consumer[wrong_target]
+7 failed, 1 passed, 1 warning in 2.90s

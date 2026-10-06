@@ -1,0 +1,1203 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "causal-identification-candidates-20261006",
+  "closure_ids": [],
+  "finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "related_finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "bundle_ids": [
+    "FIT-01"
+  ],
+  "slice_base_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+  "implementation_commits": [
+    "2577a3fa7f11fdaf596d30b364d6ad527d4430b6"
+  ],
+  "candidate_tree_sha": "1f288ae61c12a3b8d13578d9d69f0fd8ec68346a",
+  "branch": "codex/e02-F-tmle-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/50",
+  "changed_paths": [
+    "policy-engine/docs/reference/ir/causal-identification-candidates.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-confidence-candidates.toml",
+    "policy-engine/src/polisyos/ir/analytics/causal.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+    "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+    "policy-engine/tests/unit/scientist/governance/test_causal_confidence_candidate.py"
+  ],
+  "source_identity": [
+    {
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "path": "policy-engine/docs/reference/ir/causal-identification-candidates.md",
+      "git_blob": "ff68c3556156753552532fc61a20ae0381e8721c",
+      "bytes": 5141,
+      "sha256": "7b48abfd5dae7a5d1e43c4976ce14bfa96a4b90c4f89a5cd499daa7978491f02"
+    },
+    {
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-confidence-candidates.toml",
+      "git_blob": "106fc6c6d902a675c93dc03b166f8e4b552f83d6",
+      "bytes": 2541,
+      "sha256": "46d3ada55247a11cf0ff8fd679d5d7b221e0c32a663ad84dfd0d35340fb43ce2"
+    },
+    {
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "git_blob": "d3cc48fc4e4251408bb3c5977bfd605ddb060b72",
+      "bytes": 76411,
+      "sha256": "76919f3009f48af4c908f0e79a225ed260494119155a57f61e4afdd4f70814fa"
+    },
+    {
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+      "git_blob": "51904add154cf5b2505e72b3e20cf80f2778fc24",
+      "bytes": 10607,
+      "sha256": "63c43ff6299b1c753684c116eb01a651f089a1e3ac6e9df3fa97ac7abfeee934"
+    },
+    {
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+      "git_blob": "cb8e1cae411b7fd2a48a230b3194a7f7f61529a5",
+      "bytes": 3544,
+      "sha256": "161cdefb4cede557cd81a3c7958778a30fb95c250077af007d4be32545db46f3"
+    },
+    {
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "path": "policy-engine/tests/unit/scientist/governance/test_causal_confidence_candidate.py",
+      "git_blob": "d6cbb52e5d8228c85830ebe0d45211431d86c6d5",
+      "bytes": 6195,
+      "sha256": "59773498d72d51ed9acda1485b0c733a2e28cd91937925708d54b6a40110c06c"
+    }
+  ],
+  "environment": {
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "ruff": "0.14.10",
+    "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+    "author_overrides": {
+      "PYTHONPATH": "src:."
+    },
+    "artificial_cpu_process_thread_quota_introduced": false,
+    "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py",
+        "tests/unit/foundry/methods/test_value_evidence.py::test_projection_binding_is_intrinsically_nonproduction",
+        "tests/unit/foundry/methods/test_value_evidence.py::test_verified_native_intervals_remain_projectable"
+      ],
+      "target_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": {
+        "providers": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "own_blob": "6ada4b5b0444780b97bbb06f8fcb980a78f8911a",
+            "G_blob": "6ada4b5b0444780b97bbb06f8fcb980a78f8911a",
+            "own_matches_G": true,
+            "bytes": 75816,
+            "sha256": "494115ebd281156c564252b2f9e14d196553aafbccebe43fc05f0258243de8d7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "own_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "G_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "own_matches_G": true,
+            "bytes": 84428,
+            "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "own_blob": "92b3175c93a9b35c543456a8f107153ce42798bf",
+            "G_blob": "92b3175c93a9b35c543456a8f107153ce42798bf",
+            "own_matches_G": true,
+            "bytes": 9356,
+            "sha256": "008a5457867cac6808157eb4d8d22b6ab34a148a3826059ba44451244a0a65b5"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "own_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "G_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "own_matches_G": true,
+            "bytes": 18448,
+            "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+            "own_blob": "db0afa517f18e19a595d8085a5cea89b1a4cf2fb",
+            "G_blob": "db0afa517f18e19a595d8085a5cea89b1a4cf2fb",
+            "own_matches_G": true,
+            "bytes": 38213,
+            "sha256": "1f99fbfc5119d3355d4ba705a59212fe6cf05dce75d58d469872ed7365f6ab73"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/test_value_evidence.py",
+            "own_blob": "b2b3d53a5845c4cf006c669db78f5aa7017e4c1a",
+            "G_blob": "b2b3d53a5845c4cf006c669db78f5aa7017e4c1a",
+            "own_matches_G": true,
+            "bytes": 19771,
+            "sha256": "d81e7d908c3eeebde6fcee02b0a32e888cac031ab9b0ebf1e1ab86aae5416f7e"
+          }
+        ],
+        "scratch_test": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/test_causal_identification_consumer.py",
+          "original_path": "/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py",
+          "bytes": 9361,
+          "sha256": "f5e642c34a078ac4f5ed54e64d8ce30ae62eb7557270d6f11b8916fd4989ad08"
+        },
+        "G_source": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+        "full_invocation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-deciding.json"
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-deciding.stdout.txt.json",
+      "expected_outcome": "FAIL",
+      "measurements": {
+        "passed": 9,
+        "failed": 10,
+        "errors": 0,
+        "skipped": 0,
+        "warnings": 0,
+        "exit_code": 1,
+        "wall_seconds": 11.398841429996537
+      },
+      "property_observation": "Actual report/persist/fresh-reader/ConfidencePass accepts unverified SUCCESS+CI and self-issued proof labels at the slice base; controls retain nonproduction value limits."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/root-review-confidence/cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/root-review-confidence/tmp",
+        "tests/unit/ir/analytics/test_causal_identification_candidate.py",
+        "tests/unit/scientist/governance/test_causal_confidence_candidate.py",
+        "tests/unit/scientist/governance/test_confidence_pass.py"
+      ],
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": {
+        "source_tree": "1f288ae61c12a3b8d13578d9d69f0fd8ec68346a",
+        "test_paths": [
+          "tests/unit/ir/analytics/test_causal_identification_candidate.py",
+          "tests/unit/scientist/governance/test_causal_confidence_candidate.py",
+          "tests/unit/scientist/governance/test_confidence_pass.py"
+        ],
+        "review_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/root-review-receipt.json"
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/root-review-stdout",
+      "reviewer": "root independent of FIT author",
+      "actual_review_environment": {
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp"
+      },
+      "actual_review_cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "measurements": {
+        "passed": 63,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "warnings": 1,
+        "exit_code": 0,
+        "wall_seconds": 16.93538689801062,
+        "pytest_seconds": 9.29
+      },
+      "warning_scope": "Existing test_confidence_pass imports the deprecated Scientist profile facade; warning retained, not suppressed or used for P41 attribution."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "removal_plugin",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates"
+      ],
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": {
+        "plugin": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal_plugin.py",
+          "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal_plugin.py",
+          "bytes": 3894,
+          "sha256": "16c3a81f9b214c2f1d6237f9a6bdd340ca4b67a5999f847166624b87f418681c"
+        },
+        "loaded_mutation": {
+          "base_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "candidate_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+          "canonical_function": "polisyos.ir.analytics.causal.CausalEffectReport.to_uncertainty_envelope",
+          "function_object_preserved": true,
+          "original_code_sha256": "b38bb9ceb8e5f27aeadf587f1075f1f2acd7c7235e2e114c115acf2dbce47a87",
+          "provider_path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+          "provider_source_sha256": "76919f3009f48af4c908f0e79a225ed260494119155a57f61e4afdd4f70814fa",
+          "removal": "emission",
+          "removed_code_sha256": "48618a3fa62c1b08ba1c616d58c40655a2a120da9dde9260eb1bb15b09b2c9c0",
+          "source_files_written": false
+        },
+        "test_paths_at": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+        "process_local_only": true
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal-emission.stdout.txt",
+      "expected_outcome": "FAIL",
+      "environment_overrides": {
+        "PYTHONPATH": "/tmp/e02-F-continuation-20261006/envelope:src:.",
+        "E02_REMOVAL_MODE": "emission"
+      },
+      "measurements": {
+        "failed": 36,
+        "passed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 1,
+        "pytest_seconds": 0.21
+      },
+      "property_observation": "Removing the runtime property on the same canonical function object while retaining metadata/status/CI causes actual consumer assertions to fail."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "removal_plugin",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/governance/test_causal_confidence_candidate.py::test_fake_or_relabelled_causal_ref_cannot_pass_any_gate_ratio",
+        "-k",
+        "0.0 and ensemble"
+      ],
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": {
+        "plugin": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal_plugin.py",
+          "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal_plugin.py",
+          "bytes": 3894,
+          "sha256": "16c3a81f9b214c2f1d6237f9a6bdd340ca4b67a5999f847166624b87f418681c"
+        },
+        "loaded_mutation": {
+          "base_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "candidate_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+          "canonical_function": "polisyos.scientist.governance.passes.confidence_pass.ConfidencePass.validate",
+          "function_object_preserved": true,
+          "original_code_sha256": "4f4811a57910008e0deb91de6929f92e6df829f94572149d0127d194778e7dc3",
+          "provider_path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+          "provider_source_sha256": "63c43ff6299b1c753684c116eb01a651f089a1e3ac6e9df3fa97ac7abfeee934",
+          "removal": "role_intake",
+          "removed_code_sha256": "a84d31780efc62a0f0bc9d0016b0443dae8a5fe3162d22db1337341bc2506c4a",
+          "source_files_written": false
+        },
+        "test_paths_at": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+        "process_local_only": true
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal-role-intake.stdout.txt",
+      "expected_outcome": "FAIL",
+      "environment_overrides": {
+        "PYTHONPATH": "/tmp/e02-F-continuation-20261006/envelope:src:.",
+        "E02_REMOVAL_MODE": "role_intake"
+      },
+      "measurements": {
+        "failed": 2,
+        "passed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 1,
+        "pytest_seconds": 6.67
+      },
+      "property_observation": "Removing the runtime property on the same canonical function object while retaining metadata/status/CI causes actual consumer assertions to fail."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "removal_plugin",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/governance/test_causal_confidence_candidate.py::test_unresolved_causal_input_remains_candidate_without_store_or_bytes"
+      ],
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": {
+        "plugin": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal_plugin.py",
+          "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal_plugin.py",
+          "bytes": 3894,
+          "sha256": "16c3a81f9b214c2f1d6237f9a6bdd340ca4b67a5999f847166624b87f418681c"
+        },
+        "loaded_mutation": {
+          "base_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "candidate_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+          "canonical_function": "polisyos.scientist.governance.passes.confidence_pass._resolve_causal_envelope_ref",
+          "function_object_preserved": true,
+          "original_code_sha256": "8f6480c221880a4a23f22e04182c61a67dfbf63ceb6fb4b7c629893e178d5bc4",
+          "provider_path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+          "provider_source_sha256": "63c43ff6299b1c753684c116eb01a651f089a1e3ac6e9df3fa97ac7abfeee934",
+          "removal": "reference_shape",
+          "removed_code_sha256": "efad8e0620b0d3cfcb574ee5761bd0778c2fa95977dc70ee5d4e1bb2debc71c0",
+          "source_files_written": false
+        },
+        "test_paths_at": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+        "process_local_only": true
+      },
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal-reference-shape.stdout.txt",
+      "expected_outcome": "FAIL",
+      "environment_overrides": {
+        "PYTHONPATH": "/tmp/e02-F-continuation-20261006/envelope:src:.",
+        "E02_REMOVAL_MODE": "reference_shape"
+      },
+      "measurements": {
+        "failed": 2,
+        "passed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 1,
+        "pytest_seconds": 7.98
+      },
+      "property_observation": "Removing the runtime property on the same canonical function object while retaining metadata/status/CI causes actual consumer assertions to fail."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/ir/analytics/causal.py",
+        "src/polisyos/scientist/governance/passes/confidence_pass.py",
+        "tests/unit/ir/analytics/test_causal_identification_candidate.py",
+        "tests/unit/scientist/governance/test_causal_confidence_candidate.py"
+      ],
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": {
+        "paths": [
+          {
+            "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "git_blob": "d3cc48fc4e4251408bb3c5977bfd605ddb060b72",
+            "bytes": 76411,
+            "sha256": "76919f3009f48af4c908f0e79a225ed260494119155a57f61e4afdd4f70814fa"
+          },
+          {
+            "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "git_blob": "51904add154cf5b2505e72b3e20cf80f2778fc24",
+            "bytes": 10607,
+            "sha256": "63c43ff6299b1c753684c116eb01a651f089a1e3ac6e9df3fa97ac7abfeee934"
+          },
+          {
+            "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+            "path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+            "git_blob": "cb8e1cae411b7fd2a48a230b3194a7f7f61529a5",
+            "bytes": 3544,
+            "sha256": "161cdefb4cede557cd81a3c7958778a30fb95c250077af007d4be32545db46f3"
+          },
+          {
+            "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+            "path": "policy-engine/tests/unit/scientist/governance/test_causal_confidence_candidate.py",
+            "git_blob": "d6cbb52e5d8228c85830ebe0d45211431d86c6d5",
+            "bytes": 6195,
+            "sha256": "59773498d72d51ed9acda1485b0c733a2e28cd91937925708d54b6a40110c06c"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": "All checks passed!\n",
+      "measurements": {
+        "exit_code": 0
+      },
+      "scope": "Four owned Python paths; actual frozen native Ruff invocation, no broader lint claim."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/envelope/verify_fragment.py"
+      ],
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": {
+        "fragment": {
+          "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-confidence-candidates.toml",
+          "git_blob": "106fc6c6d902a675c93dc03b166f8e4b552f83d6",
+          "bytes": 2541,
+          "sha256": "46d3ada55247a11cf0ff8fd679d5d7b221e0c32a663ad84dfd0d35340fb43ce2"
+        },
+        "policy": {
+          "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+          "path": "policy-engine/architecture/gates/compatibility_release.toml",
+          "git_blob": "c146111155f3be917cc34f107522deecf6529024",
+          "bytes": 5278,
+          "sha256": "ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3"
+        },
+        "validator": {
+          "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+          "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+          "git_blob": "bf4b94548619f4dcce395806a5ec70ea54b4847a",
+          "bytes": 26585,
+          "sha256": "2b7ce18983e59a02ddeef457dfc5a39f83129514707b03da45099018f0104b75"
+        },
+        "replayer": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/verify_fragment.py",
+          "original_path": "/tmp/e02-F-continuation-20261006/envelope/verify_fragment.py",
+          "bytes": 1067,
+          "sha256": "4f6f947584008361718dd735bb3ce73f3a823ed37c58f39d53f26ba0a82ebb2d"
+        }
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/fragment-frozen.stdout.txt",
+      "measurements": {
+        "fragments": 1,
+        "structured_records": 1,
+        "contract_errors": 0,
+        "findings": 0,
+        "exit_code": 0
+      },
+      "invocation_fidelity": "Frozen source actual one-fragment validator invocation with PYTHONPATH=src:.; prior unrecorded command preserved as historical output only."
+    },
+    {
+      "command": "Existing accepted causal-identification issuer/revision/context/fresh-challenge positive consumer admission",
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": "Current G owner-source inspection only; no production source packet or accepted ID issuer contract.",
+      "outcome": "UNRUN",
+      "output": "No accepted identification issuer and lower-layer verification bridge supplied; typed plan/proof presence does not establish authority.",
+      "capability": "verification_missing/bridge_missing"
+    },
+    {
+      "command": "Current common RunCausalEvaluationNode admitted TMLE study with all models/repeats/seeds/folds/competing jobs under existing outer pool budget",
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": "Prior LocalWorkerPool synthetic StudyNode fixture is not a production study; no substitute scheduler or self-issued safety admission.",
+      "outcome": "UNRUN",
+      "output": "B56 remains limited: actual admitted typed TMLE input/report and Runtime safety/context/source packet missing.",
+      "capability": "bridge_missing"
+    },
+    {
+      "command": "Architecture guardrails/full integration on composed immutable root candidate",
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "ruff": "0.14.10",
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "author_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "artificial_cpu_process_thread_quota_introduced": false,
+        "backend_profile": "native Python 3.14; DoWhy/EconML baseline markers excluded; enum construction is not backend execution"
+      },
+      "input_closure": "Current slice consists of six leased paths; full composed source/measurement denominator belongs to root.",
+      "outcome": "UNRUN",
+      "output": "Not executed by this slice. Root owns the composed integration checks; no inherited-red attribution or blanket gate claim.",
+      "p41_attribution": "not_established"
+    }
+  ],
+  "property": {
+    "statement": "Shared causal numerical SUCCESS+CI stays a non-gating candidate, and actual ConfidencePass causal-purpose intake cannot admit unverified data/graph/estimand/target assertions by a producer flag, source relabel, proof presence, unresolved ref, healthy metric dilution or a zero ratio.",
+    "runtime_path": [
+      "StandardDifferenceInDifferences -> CausalEffectReport",
+      "persist_causal_effect_report -> fresh FileSystemCAS reader",
+      "canonical report.to_uncertainty_envelope -> persist_uncertainty_envelope -> fresh reader",
+      "ConfidencePass.validate with actual causal_envelope_ref in artifacts_index or top-level state",
+      "existing ComplianceIssue BLOCKER/CONFIDENCE_GATE_ELIGIBILITY_LOW"
+    ],
+    "proxy_divergence": "A resolved producer ProofBundle declaring identified/A0_trusted/current verifier and wrong graph/query/source resolved successfully at base while SUCCESS+CI made the envelope eligible and ConfidencePass emitted no blocker. The declarations did not verify identification.",
+    "negative_controls": [
+      "10 genuine preimplementation adversarial failures; 9 controls pass",
+      "36 schema-enum report families retain numerical values while candidate (not 36 estimator/backend executions)",
+      "source relabel/index-top roles/ratio 0-.5-1 and healthy-metric dilution",
+      "malformed string/unresolved ref/no storage retains consumer role",
+      "three actual source-derived in-memory removals keep class/function/metadata identity and fail"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_axes": {
+    "candidate_emission_and_intake": "recomputed",
+    "causal_identification": "not_established",
+    "source_issuer_revision_currentness": "not_established",
+    "B56_production_workload": "not_established"
+  },
+  "capability_state_or_finding_state": "Bounded candidate emission/intake implemented and independently reviewed; positive identification verification_missing/bridge_missing; B56 limited.",
+  "per_id": [
+    {
+      "finding_id": "B54",
+      "outcome": "UNRUN",
+      "state": "unchanged prior technical closure",
+      "criterion": "Prior content-bound fit basis/cold-warm readers/bounded logistic targeting/conditional regular-IID EIF proofs are byte-identical; this continuation neither repeats nor claims a new closure.",
+      "prior_primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json@f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "provider_and_test_identity": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+          "prior": {
+            "git_ref": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          "current": {
+            "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          "same_bytes": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+          "prior": {
+            "git_ref": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          "current": {
+            "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          "same_bytes": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+          "prior": {
+            "git_ref": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "530b90c8d360ba7c140d5401dbf3788ed544e9e6",
+            "bytes": 25128,
+            "sha256": "eb22ba69dbcb3b7782ce0dde4da68b8f094e755c36e4129b0bdc20f0f6037b00"
+          },
+          "current": {
+            "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "530b90c8d360ba7c140d5401dbf3788ed544e9e6",
+            "bytes": 25128,
+            "sha256": "eb22ba69dbcb3b7782ce0dde4da68b8f094e755c36e4129b0bdc20f0f6037b00"
+          },
+          "same_bytes": true
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+          "prior": {
+            "git_ref": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+            "git_blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5",
+            "bytes": 18330,
+            "sha256": "7b7da64baf54cdf94752c63f52fd2dda05eeec4469f81f09ae61a5515d5a3f04"
+          },
+          "current": {
+            "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+            "git_blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5",
+            "bytes": 18330,
+            "sha256": "7b7da64baf54cdf94752c63f52fd2dda05eeec4469f81f09ae61a5515d5a3f04"
+          },
+          "same_bytes": true
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+          "prior": {
+            "git_ref": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+            "git_blob": "0626e60b8d59ea97b2a78646a0688cc8e2474367",
+            "bytes": 8608,
+            "sha256": "dc6364a0a7045219711e0bfbc4ce674888e15c556533be3933d7a6f9d4ac3476"
+          },
+          "current": {
+            "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+            "git_blob": "0626e60b8d59ea97b2a78646a0688cc8e2474367",
+            "bytes": 8608,
+            "sha256": "dc6364a0a7045219711e0bfbc4ce674888e15c556533be3933d7a6f9d4ac3476"
+          },
+          "same_bytes": true
+        }
+      ]
+    },
+    {
+      "finding_id": "B56",
+      "outcome": "UNRUN",
+      "state": "limited",
+      "criterion": "Every fold under the existing outer admitted workload budget; actual production TMLE common-study input/report and current Runtime admission packet unavailable.",
+      "check_refs": [
+        8
+      ],
+      "next_owner": "Existing Runtime evaluation-safety/common Scientist consumer owner; G actual admitted study on exact integrated candidate."
+    }
+  ],
+  "G_dependency_inspection": {
+    "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+    "sources": [
+      {
+        "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+        "path": "policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py",
+        "git_blob": "d775ab73429e8c668aa99b91af070e6ef92ad46a",
+        "bytes": 36958,
+        "sha256": "9d239d7e00a8868eea29ee1e966cdfa7b33b9011d4289fb551775bed137d2256"
+      },
+      {
+        "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+        "path": "policy-engine/src/polisyos/runtime/quality/ir_analytics_bridge.py",
+        "git_blob": "263500ec882aab2d7dc57909fefc48d4b88125dd",
+        "bytes": 39129,
+        "sha256": "628b65c19ac5a6df19624bb9a283dc47d18546918f03c21f40eb1ffe9dd2a4b8"
+      },
+      {
+        "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+        "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "git_blob": "22f30b69ff2d839bd6e58d0313d223a3940cd9a9",
+        "bytes": 271376,
+        "sha256": "0c6ffce1b7bb451b19a95a23d4a8e4437b1728c21ac5de5e7384546dd7dfd551"
+      },
+      {
+        "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "git_blob": "b7e2f72a9cd8352da62a2c04208a58776592b8a4",
+        "bytes": 293905,
+        "sha256": "21b53b3e001138e7d086b3daa0897103e439dd3ad7c62315f9b90eff4b76b34a"
+      },
+      {
+        "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+        "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+        "git_blob": "2fddba3f792e94f9d43e1dd3e1ef77278e0fd1ae",
+        "bytes": 228175,
+        "sha256": "e0a8910b4d5d6459330c94d7b095f0d0ce78d2229470938bc09a4b2bbd9e9f18"
+      },
+      {
+        "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+        "path": "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+        "git_blob": "94397a35096ebf010e23709bf878338f8e74584a",
+        "bytes": 74649,
+        "sha256": "4a10d5b3ce90a12794fa5b4d53a8a0eca913cbf7450583c5cb592617aaafa098"
+      },
+      {
+        "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+        "git_blob": "87c522211207190c37aba176a721e29f3c51c1f2",
+        "bytes": 57879,
+        "sha256": "12bdb46a7dc26bd4f18075ad88d054f2cd1666d3cd0e3b370314f6ee8b6f3934"
+      }
+    ],
+    "scope": "Bounded inspected current owner routes, not a repository-wide absence census.",
+    "findings": [
+      "Evaluation-safety verifier/revision/fresh challenge serves attempted evaluation safety, not causal identification.",
+      "IdentificationPlanRef and ProofBundle are producer plan/proof descriptions, not an accepted independently verified admission.",
+      "Inspected confidence-ledger code-owned promotion producers cover calibration/data trust, no causal-ID issuer route supplied.",
+      "FoundryMethodOutputConsumer is expressly descriptive_only and forbids causal identification/production recommendations.",
+      "Actual Foundry value projection is Literal contract_only_nonproduction and production_value_eligible false; CausalEffectReport has no value-projection capability."
+    ]
+  },
+  "owner_packet": {
+    "identification": [
+      "Existing accepted scientific identification owner and independently appointed verifier route, current verifier revision head.",
+      "Resolved exact data/source/graph/query contrast/target population/environment/time and assumption provenance.",
+      "Verifier result on those bytes, including non-identification and current validity/revision checks.",
+      "Lower-layer consumer binding an existing Runtime result to a fresh challenge, without IR importing Runtime or caller-issued seals."
+    ],
+    "B56": [
+      "Admitted current Runtime safety context/verifier/revision/source/target/fresh challenge.",
+      "Existing common owner typed TMLE raw-X/treatment/outcome input-to-report bridge.",
+      "Actual admitted study with complete models/repeats/seeds/folds/competing jobs and existing LocalWorkerPool outer budget."
+    ],
+    "falsifier": "Keep SUCCESS/point/CI/proof labels and substitute/remove resolved source, graph, estimand, target, issuer, verifier revision or fresh challenge. Consumer must remain non-gating."
+  },
+  "limitations_and_next_owner": [
+    "Positive causal identification authority UNRUN until accepted existing owner/verifier and lower-layer verification bridge are supplied. No new issuer/enum/authority subsystem.",
+    "Confidence intake property applies when this pass executes and a causal-purpose ref is offered; no claim every workflow selects it.",
+    "Arbitrarily mislabeled artifact offered solely as a noncausal simulation metric without causal consumer role is outside this finite intake window and establishes no causal authority.",
+    "Native DID known parallel-panel ATT3 is a synthetic numerical property, not admitted-real-data identification.",
+    "B54 prior math/cache evidence preserved by exact bytes; B56 existing four-job/repeat/seed/all-fold pool fixture is not current production study. No new global scheduler or cloud quota.",
+    "DoWhy/EconML baseline Python3.14 marker exclusions do not count as backend witnesses.",
+    "Whole architecture/composed integration and full production positive owned by root/G; no P41 inherited claim."
+  ],
+  "closure_id_semantics": "No new full finding closure. Prior B54 remains closed only in its original technical scope; B56 and identification authority remain limited/UNRUN.",
+  "p40_bucket_rule": "Unverified shared emission and consumer-role intake are the same authority class: structural candidate cap covers the declared causal-purpose window. An arbitrary false noncausal role is the named finite residual requiring accepted identification issuer/bridge, not another local flag repair.",
+  "historical_harness_observations": {
+    "consumer-class-red": "Invalid ComputeBackend.CPU fixture; direct raw fixture PutOptions omission. Other actual negatives remain observations; not whole product verdict.",
+    "consumer-class-deciding": "Two direct fixture TypeErrors; not product failures.",
+    "consumer-final-red": "Two raw direct fixture CanonViolation errors due forbid_floats; not identification consumer verdict.",
+    "consumer-deciding": "ProofBundle fixture missing required fields; 9 actual negative failures and 9 controls, not whole product verdict.",
+    "consumer-final-deciding": "Corrected full deciding base: 10 genuine FAIL +9 controls PASS, no skips/errors.",
+    "implementation-native-first": "4 fixture media_type omissions +1 exact-float comparison fixture +2 genuine reference-shape intake escapes. The actual shape defect was repaired generally before freeze.",
+    "implementation-native-second": "75PASS1deprecation warning before final formatting/import-order commit; not frozen deciding SHA evidence."
+  },
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-class-deciding.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-class-deciding.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-class-deciding.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-class-deciding.stdout.txt",
+      "bytes": 23359,
+      "sha256": "8327d1668703c50f8ea34bd75649abafa5bbc4d567781d0703f2b84dd1960078",
+      "decoded": {
+        "bytes": 22649,
+        "sha256": "9c43820a831544b8152e362fa68825af14986cb752f4f6b6b89d967e7284185e"
+      },
+      "encoding": "json-text-utf8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-class-red.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-class-red.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-class-red.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-class-red.stdout.txt",
+      "bytes": 24921,
+      "sha256": "1662c6cff33eb277fb3bb016272f7f7f78a38bb9a1b90c8424368a64788ea170",
+      "decoded": {
+        "bytes": 24179,
+        "sha256": "f93152a9e01e950fcc1f11af7f82b8d5967c4fa9a68c6eb9e7c585eb7d93c851"
+      },
+      "encoding": "json-text-utf8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-deciding.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-deciding.json",
+      "bytes": 4438,
+      "sha256": "ea22eddf5c638a22de7041fad161754fd6a85d4fde9dfa9bb03890f858138dfa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-deciding.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-deciding.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-deciding.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-deciding.stdout.txt",
+      "bytes": 26812,
+      "sha256": "fc4ffdb4f84103142df782be1196d7d04cc8db864dc2d30cff7db47e22821b07",
+      "decoded": {
+        "bytes": 25979,
+        "sha256": "4a20977952a54f1715e64c04bc92741af96bc035f21f886e9f444590ad6b2cde"
+      },
+      "encoding": "json-text-utf8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-deciding.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-final-deciding.json",
+      "bytes": 4583,
+      "sha256": "4a4cb86e21a39b08009bcb333dc866242a5ed289bfa30aa83b766f140d2d7f61"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-deciding.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-final-deciding.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-deciding.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-final-deciding.stdout.txt",
+      "bytes": 27856,
+      "sha256": "6fd00cfd44f2fed3d29a2725ebe9e8f8a8eec11e8f2d03a64ab9712933b481a0",
+      "decoded": {
+        "bytes": 26973,
+        "sha256": "d7954904ea2157d452c48614c2b778cfc125c54a4e5fa246b6ad2857ae987bf1"
+      },
+      "encoding": "json-text-utf8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-red.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-final-red.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-red.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-final-red.stdout.txt",
+      "bytes": 27114,
+      "sha256": "2722b80013395ff500e9dac6a76bb26ead0a0fc697a21425e254dfd894ac2cd3",
+      "decoded": {
+        "bytes": 26338,
+        "sha256": "102e5b298837238ffaed6e4bd05e1b435391b7f7eaa50b1223b0bdf2b650d2c3"
+      },
+      "encoding": "json-text-utf8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-red.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-red.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-red.stdout.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/consumer-red.stdout.txt",
+      "bytes": 21354,
+      "sha256": "65f57e3c798fd0d6aa7ee49e3d1e261bf2023411b9aa507e4847fc0c8ef65be2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/direct-consumer-deciding.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/direct-consumer-deciding.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/direct-consumer-deciding.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/direct-consumer-deciding.stdout.txt",
+      "bytes": 4555,
+      "sha256": "7ae54a06f1bec63b8f0a9694d6af009489592cba20955d2f665f4ff2b29e52f9",
+      "decoded": {
+        "bytes": 4367,
+        "sha256": "0cf782a78aa7f206419271797b78238db25ddaff0410c36d8cdcc5b2bc2fe87f"
+      },
+      "encoding": "json-text-utf8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/fragment.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/fragment.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/fragment.stdout.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/fragment.stdout.txt",
+      "bytes": 80,
+      "sha256": "065416c1ca61adfa73c2814bab82f3e68d9212d45e1d2158cfcb5b25abd34bc7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/implementation-native-first.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/implementation-native-first.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/implementation-native-first.stdout.txt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/implementation-native-first.stdout.txt",
+      "bytes": 9765,
+      "sha256": "ad07e56d3a4b01097861f20acf2e6f05b5891e1ed998e323a34bae64096f8d31",
+      "decoded": {
+        "bytes": 9515,
+        "sha256": "900bb1591f9b5bd7ec888346164123b173b18b7c1a70a3ca509eef99ec2802cc"
+      },
+      "encoding": "json-text-utf8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/implementation-native-second.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/implementation-native-second.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/implementation-native-second.stdout.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/implementation-native-second.stdout.txt",
+      "bytes": 695,
+      "sha256": "72b02704aab82e43a18a47802fa6ddd23dca7c07dbfa359a9c37134c7ef6c088"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal-emission.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal-emission.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal-emission.stdout.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal-emission.stdout.txt",
+      "bytes": 57236,
+      "sha256": "accaa60e87dfeb14aec677753117a845f1fff6fdbc25e86002eb5dd74f228f3c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal-reference-shape.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal-reference-shape.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal-reference-shape.stdout.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal-reference-shape.stdout.txt",
+      "bytes": 2924,
+      "sha256": "794c66075a39f39becc728ef25388ece06ab17dab4af30800209cf449cb5cba3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal-role-intake.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal-role-intake.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal-role-intake.stdout.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal-role-intake.stdout.txt",
+      "bytes": 3764,
+      "sha256": "02de3c0a4ab4b6f52771a19dc8d27e494510332febca8ba53255ffee2ca9338d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/removal_plugin.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/removal_plugin.py",
+      "bytes": 3894,
+      "sha256": "16c3a81f9b214c2f1d6237f9a6bdd340ca4b67a5999f847166624b87f418681c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/replay_consumer.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/replay_consumer.py",
+      "bytes": 4450,
+      "sha256": "ff603d85385c34299f310c83b6b535198dd64962c469553417ae4f1902ec2087"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/test_causal_identification_consumer.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py",
+      "bytes": 9361,
+      "sha256": "f5e642c34a078ac4f5ed54e64d8ce30ae62eb7557270d6f11b8916fd4989ad08"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/root-review-receipt.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/root-review-confidence/receipt.json",
+      "bytes": 1278,
+      "sha256": "b823c3c712f6086d8a5b104291d8de62aeb2ab50c817cca45072d9797fcbd0c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/root-review-stdout",
+      "original_path": "/tmp/e02-F-continuation-20261006/root-review-confidence/stdout",
+      "bytes": 615,
+      "sha256": "0ad2dfe29d9cadbf91ab448c3896b4b52eeeb76f0e7aa9fdcf2586ca08436e55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/root-review-stderr",
+      "original_path": "/tmp/e02-F-continuation-20261006/root-review-confidence/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/verify_fragment.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/verify_fragment.py",
+      "bytes": 1067,
+      "sha256": "4f6f947584008361718dd735bb3ce73f3a823ed37c58f39d53f26ba0a82ebb2d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/fragment-frozen.stdout.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/fragment-frozen.stdout.txt",
+      "bytes": 80,
+      "sha256": "065416c1ca61adfa73c2814bab82f3e68d9212d45e1d2158cfcb5b25abd34bc7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/fragment-frozen.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/fragment-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "artifact_policy": "Complete moderate original outputs and unique scratch replayers preserved. Tracebacks with source whitespace are losslessly JSON-escaped to preserve every decoded byte while passing diff checks; decoded bytes/hash recorded. Tracked source/card/TSV bodies and derived views are referenced by Git identity, not copied.",
+  "further_verification": "Root-approved final focused neighbor-method/IR/value projection delta wave pending; no claim it has run in this early receipt.",
+  "baseline_navigation": {
+    "source": "policy-engine/docs/research/e02-cloud-test-plan/results@f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+    "first_query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit F --failures-only --limit 30",
+    "specific_queries": [
+      "--finding B54",
+      "--finding B56"
+    ],
+    "routed_cells": [
+      "F01-P016",
+      "F01-P109",
+      "F06-P031",
+      "F09-P024",
+      "F09-P111",
+      "F12-P023",
+      "F14-P128",
+      "F15-P021"
+    ],
+    "grade": "source_reported compact text only; raw archives absent; not a candidate verdict",
+    "existing_complete_query_receipts": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/B54-baseline-query.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/B56-baseline-query.json"
+    ]
+  },
+  "baseline_cells": [
+    {
+      "finding_id": "B54",
+      "cell_ids": [
+        "F01-P016",
+        "F01-P109",
+        "F06-P031",
+        "F09-P024",
+        "F09-P111",
+        "F12-P023",
+        "F14-P128",
+        "F15-P021"
+      ],
+      "source_grade": "source_reported compact text only; raw archives absent; not a candidate verdict",
+      "existing_complete_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/B54-baseline-query.json"
+    },
+    {
+      "finding_id": "B56",
+      "cell_ids": [
+        "F01-P016",
+        "F01-P109",
+        "F06-P031",
+        "F09-P024",
+        "F09-P111",
+        "F12-P023",
+        "F14-P128",
+        "F15-P021"
+      ],
+      "source_grade": "source_reported compact text only; raw archives absent; not a candidate verdict",
+      "existing_complete_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/B56-baseline-query.json"
+    }
+  ],
+  "lossless_encoded_outputs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-class-deciding.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-class-red.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-deciding.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-deciding.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-red.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/direct-consumer-deciding.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/implementation-native-first.stdout.txt.json"
+  ]
+}

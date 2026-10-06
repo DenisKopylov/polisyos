@@ -104,17 +104,22 @@ workflow deadline. A cancelled or superseded recovery cannot publish a late inde
 The same deadline covers trace iteration, entry verification, index admission,
 and the residual workflow body. Read-budget admission precedes recovery reads;
 compute-budget admission applies to a cache miss.
-When no owner deadline is configured, recovery, cache reads and cache publication
-explicitly select the shared executor's unbounded wait. They do not inherit its
-default timeout. Checkpoint publication and already-entered backend operations
-retain their separate durability and cancellation contracts.
+One original monotonic deadline covers admission, recovery, cache reads, artifact
+I/O, checkpoint publication and finalization. A per-operation minimum timeout
+cannot renew an expired workflow budget. The executor also retains its original
+caller cancellation state across these boundaries; a hook that suppresses
+cancellation cannot authorize a later successful workflow publication.
+When no owner deadline is configured, shared-executor operations explicitly
+select an unbounded wait and do not inherit the helper's default timeout.
 
 The synchronous store must support access from the shared executor, matching the
 existing async artifact-store adapter contract. Already-entered synchronous
 backend I/O can finish after cancellation or expiry. Its private recovery state
-stays isolated, and expiry prevents subsequent cache reads and index admission.
-This boundary does not establish preemption of arbitrary backend calls or concurrent
-reentrant execution on one executor instance.
+stays isolated, and expiry prevents subsequent reads and admission. A checkpoint
+or finalizer already entered may still publish: timeout reports an unknown
+execution outcome instead of promising rollback. This boundary does not establish
+preemption of arbitrary backend calls or concurrent reentrant execution on one
+executor instance.
 
 Successful cache persistence emits `NODE_CACHE_STORE` with the verified immutable
 entry reference. A fresh store/context uses that trace reference to recover the
@@ -123,6 +128,22 @@ state, including explicit same-value assignments, null and permitted deletions.
 Cache verification and replay retain the full `ArtifactRef`, including its selected
 manifest profile. Distinct views of the same blob receive independent custody
 checks; a verified default view cannot authorize another producer's view.
+
+The current journal algorithm is `1.2`. It records operations against the live
+finite JSON graph, including held references after list insertion, removal or
+reparenting. Shared targets carry an operation group with one encoded intent so
+replay applies it once per current target while preserving current neighboring
+values. Ordinary producer
+mutations require their declared `state_writes`; nested branches can narrow that
+grant. Local synchronous, asynchronous and remote worker entries enforce the same
+scope. After settlement, the executor returns a detached editable completed state;
+the original producer view retains its guard.
+
+Legacy `1.0` and `1.1` cache journals admit only direct primitive model or mapping
+set/delete operations. Nested or container intents become cache misses, allowing
+the producer to execute against current state. This compatibility boundary does
+not promise persisted Python object identity or a sandbox for arbitrary Python
+objects and explicit base-class mutators.
 
 Run the real storage consumer checks from the repository root:
 

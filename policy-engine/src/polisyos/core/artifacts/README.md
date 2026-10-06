@@ -53,6 +53,13 @@ environment fingerprints.
 
 ## Current State
 
+The async adapters accept explicit `unbounded=True` for an owner without a
+deadline. Omitted or `None` timeout retains the established helper default;
+combining a finite timeout with `unbounded=True` refuses before backend access.
+Workflow consumers carry their original deadline through the adapter. Native
+async backends retain their own scheduling policy; this option does not preempt
+already-entered filesystem calls or roll back a completed publication.
+
 - Last updated: 2026-10-06
 - The package still serves as the CAS source of truth for audit exports, runtime lineage, and registry bundles.
 - The tree now explicitly includes `protocol.py` and the `environment_parts.py` facade alongside the capture/comparison helpers.

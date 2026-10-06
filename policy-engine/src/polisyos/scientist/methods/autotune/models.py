@@ -10,12 +10,13 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, Protocol, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Protocol, Self, TypeVar, cast, get_args
 
 from pydantic import (
     ConfigDict,
     Field,
     SerializerFunctionWrapHandler,
+    TypeAdapter,
     model_serializer,
 )
 
@@ -36,12 +37,15 @@ from polisyos.core.canon.canon_json import CanonSpec
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
 
+    from pydantic.fields import FieldInfo
+
     from polisyos.core.artifacts.protocol import ArtifactStore
 
     _ValidatorFunc = TypeVar("_ValidatorFunc", bound=Callable[..., object])
 
     class _PydanticBaseModel:
         model_config: ClassVar[ConfigDict]
+        model_fields: ClassVar[dict[str, FieldInfo]]
 
         def __init__(self, /, **data: object) -> None: ...
 
@@ -87,24 +91,47 @@ class BenchmarkSplit(str, Enum):
     SENTINEL = "sentinel"
 
 
-class MutationArtifact(_PydanticBaseModel):
+def _has_numeric_primitive(annotation: object) -> bool:
+    return annotation in (bool, int, float) or any(
+        _has_numeric_primitive(argument) for argument in get_args(annotation)
+    )
+
+
+class _AutotuneModel(_PydanticBaseModel):
+    """Admit declared numeric primitives before Pydantic can coerce evidence."""
+
+    model_config = ConfigDict(allow_inf_nan=False)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _validate_numeric_primitives(cls, payload: Any) -> Any:
+        if isinstance(payload, dict):
+            for name, field in cls.model_fields.items():
+                if name in payload and _has_numeric_primitive(field.annotation):
+                    TypeAdapter(
+                        field.annotation, config=ConfigDict(strict=True, allow_inf_nan=False)
+                    ).validate_python(payload[name])
+        return payload
+
+
+class MutationArtifact(_AutotuneModel):
     """Mutation artifact public type."""
 
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
-    artifact_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
-    search_space_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    artifact_version: str = Field(default="1.0", strict=True, pattern=r"^\d+\.\d+$")
+    search_space_version: str = Field(default="1.0", strict=True, pattern=r"^\d+\.\d+$")
     notes: list[str] = Field(default_factory=list)
 
 
-class BenchmarkSplitManifest(_PydanticBaseModel):
+class BenchmarkSplitManifest(_AutotuneModel):
     """Assignment manifest for benchmark split ids."""
 
     model_config = ConfigDict(extra="forbid")
 
     suite_id: str = Field(..., min_length=1, max_length=128)
-    suite_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    suite_version: str = Field(default="1.0", strict=True, pattern=r"^\d+\.\d+$")
     id_field: str = Field(default="id", min_length=1, max_length=128)
     selection_ids: list[str] = Field(default_factory=list)
     holdout_ids: list[str] = Field(default_factory=list)
@@ -149,13 +176,13 @@ class BenchmarkSplitManifest(_PydanticBaseModel):
         return None
 
 
-class BenchmarkSuite(_PydanticBaseModel):
+class BenchmarkSuite(_AutotuneModel):
     """Benchmark suite public type."""
 
     model_config = ConfigDict(extra="forbid")
 
     suite_id: str = Field(..., min_length=1, max_length=128)
-    suite_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    suite_version: str = Field(default="1.0", strict=True, pattern=r"^\d+\.\d+$")
     kind: str = Field(default="generic", min_length=1, max_length=128)
     dataset_path: str | None = None
     split_manifest_path: str | None = None
@@ -174,7 +201,7 @@ class BenchmarkSuite(_PydanticBaseModel):
         return self
 
 
-class BenchmarkComparisonBasis(_PydanticBaseModel):
+class BenchmarkComparisonBasis(_AutotuneModel):
     """Bind a technical comparison to consumed inputs and the executed evaluator build.
 
     This record establishes reproducible comparison identity, not appointment
@@ -200,14 +227,14 @@ class BenchmarkComparisonBasis(_PydanticBaseModel):
         return self
 
 
-class BenchmarkEvaluation(_PydanticBaseModel):
+class BenchmarkEvaluation(_AutotuneModel):
     """Benchmark evaluation public type."""
 
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
     suite_id: str = Field(..., min_length=1, max_length=128)
-    suite_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    suite_version: str = Field(default="1.0", strict=True, pattern=r"^\d+\.\d+$")
     candidate_ref: ArtifactRef
     selection_metrics: dict[str, float] = Field(default_factory=dict)
     holdout_metrics: dict[str, float] = Field(default_factory=dict)
@@ -265,7 +292,7 @@ class BenchmarkEvaluation(_PydanticBaseModel):
         return int(self.sample_counts.get(split.value, 0))
 
 
-class PromotionPolicy(_PydanticBaseModel):
+class PromotionPolicy(_AutotuneModel):
     """Promotion rule that decides when a candidate may replace the current champion."""
 
     model_config = ConfigDict(extra="forbid")
@@ -288,7 +315,7 @@ class PromotionPolicy(_PydanticBaseModel):
         return payload
 
 
-class ChampionPointer(_PydanticBaseModel):
+class ChampionPointer(_AutotuneModel):
     """Champion pointer public type."""
 
     model_config = ConfigDict(extra="forbid")
@@ -297,13 +324,13 @@ class ChampionPointer(_PydanticBaseModel):
     candidate_ref: ArtifactRef
     evaluation_ref: ArtifactRef
     metrics: dict[str, float] = Field(default_factory=dict)
-    suite_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    suite_version: str = Field(default="1.0", strict=True, pattern=r"^\d+\.\d+$")
     promoted_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    search_space_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    search_space_version: str = Field(default="1.0", strict=True, pattern=r"^\d+\.\d+$")
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-class PromotionDecision(_PydanticBaseModel):
+class PromotionDecision(_AutotuneModel):
     """Promotion decision public type."""
 
     model_config = ConfigDict(extra="forbid")

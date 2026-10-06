@@ -200,6 +200,7 @@ def test_ten_same_issue_case_occurrences_remain_ten_after_presentation(
     observed = _recompute_stress_test_report(presentation)
     assert len(observed.vulnerabilities) == cap
     assert observed.robustness_score == 22 / 32
+    assert observed.scenario_evidence.violated_scenarios == 10
 
 
 def test_empty_component_stays_incomplete_beside_a_complete_case_set(tmp_path: Path) -> None:
@@ -229,4 +230,3 @@ def test_empty_component_stays_incomplete_beside_a_complete_case_set(tmp_path: P
         from_canonical_bytes(FileSystemCAS(tmp_path / "cas").get_bytes(ref.artifact_id))
     )
     assert restored.set_adequacy_status == "partial" and restored.is_robust is False
-    assert observed.scenario_evidence.violated_scenarios == 10

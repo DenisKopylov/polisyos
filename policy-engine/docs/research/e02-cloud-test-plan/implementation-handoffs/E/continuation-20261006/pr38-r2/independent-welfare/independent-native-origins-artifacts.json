@@ -1,0 +1,153 @@
+{
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src",
+    "backend": "native NumPy GE inverse",
+    "no_artificial_caps": true
+  },
+  "source_origin": "/workspace/e02-E-backtest-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+  "source_sha256": "457623e5b861c3bf8089d1460fe22f15b7175e8be72088f6673b5584d153225f",
+  "all_origins_exact": true,
+  "polisyos_origin_count": 808,
+  "results": [
+    {
+      "cas": "/tmp/pytest-of-agent/pytest-215/native-welfare-independent0/cas",
+      "source_ref": {
+        "artifact_id": "sha256:26b9377313b3860e0ec5bbe67e1a7333944fbd154f0453c8b7e9fbfbc11e74d0",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "bundle_ref": {
+        "artifact_id": "sha256:f6611a8ec29fea01f3905404a6af50cdd15797aa4d658227532473b329cfa5e2",
+        "kind": "ir.welfare_bundle",
+        "media_type": "application/json"
+      },
+      "receipt_ref": {
+        "artifact_id": "sha256:1b1c37a8a3735a8a8a75a6697a928ae940eb0d34f6c171d38798ee036a2d8455",
+        "kind": "foundry.welfare_draw_outcomes",
+        "media_type": "application/json"
+      },
+      "sample_ref": {
+        "artifact_id": "sha256:35589da3beee70f53f6e415528dedca9d90518169cd297497fef0f207da7a45e",
+        "kind": "ir.welfare_sample_bundle",
+        "media_type": "application/json"
+      },
+      "propagation_report_ref": "sha256:f30a4a04a1bd170636575f0034ca46a5700563843ea205f96a15845d2938ddbd",
+      "requested": 128,
+      "attempted": 128,
+      "successful": 92,
+      "failed": 36,
+      "nominal_point": 2.6666666666666665,
+      "credible_interval": null,
+      "robust_interval": null,
+      "gate_eligible": false,
+      "draw_summary": {
+        "conditional_welfare_ge_mean": 0.0,
+        "conditional_welfare_mean": 2.0,
+        "conditional_welfare_pe_mean": 2.0,
+        "conditional_welfare_std": 0.0,
+        "estimate_scope": "conditional_on_all_outputs_finite",
+        "welfare_ge_mean": null,
+        "welfare_mean": null,
+        "welfare_pe_mean": null,
+        "welfare_std": null
+      }
+    },
+    {
+      "cas": "/tmp/pytest-of-agent/pytest-215/test_native_numpy_law_preserve0/cas",
+      "source_ref": {
+        "artifact_id": "sha256:46a9c8a71ea2ee1d32c8fe668fd2e7a68072cdf13446ce20935ebfe879346ef5",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "bundle_ref": {
+        "artifact_id": "sha256:5159f16aed4eb308ee395ec51895a5d0dd656176eed114b986a7c708f574347c",
+        "kind": "ir.welfare_bundle",
+        "media_type": "application/json"
+      },
+      "receipt_ref": {
+        "artifact_id": "sha256:361489871737c0569edb13a28cb601af51cb503fdafc6f563978200e2c12046f",
+        "kind": "foundry.welfare_draw_outcomes",
+        "media_type": "application/json"
+      },
+      "sample_ref": {
+        "artifact_id": "sha256:1c0d699b8fbfdd2be8faa5568701bb600b4c36060df810770acb3685f10876d6",
+        "kind": "ir.welfare_sample_bundle",
+        "media_type": "application/json"
+      },
+      "propagation_report_ref": "sha256:e744625c370ac5cb35b842fd55ebb3d5ce5c50b5688b4e0a77f3d570c128ebe1",
+      "requested": 128,
+      "attempted": 128,
+      "successful": 128,
+      "failed": 0,
+      "nominal_point": 2.6666666666666665,
+      "credible_interval": [
+        2.0,
+        2.000000000000002
+      ],
+      "robust_interval": null,
+      "gate_eligible": false,
+      "draw_summary": {
+        "conditional_welfare_ge_mean": null,
+        "conditional_welfare_mean": null,
+        "conditional_welfare_pe_mean": null,
+        "conditional_welfare_std": null,
+        "estimate_scope": "all_requested_draws",
+        "welfare_ge_mean": 1.5959455978986625e-15,
+        "welfare_mean": 2.0000000000000018,
+        "welfare_pe_mean": 2.0,
+        "welfare_std": 1.014503308166385e-15
+      }
+    },
+    {
+      "cas": "/tmp/pytest-of-agent/pytest-215/test_native_numpy_law_preserve1/cas",
+      "source_ref": {
+        "artifact_id": "sha256:0ca8f5fadc92109ad94a5fea66ffa8fb91daeb320bd93c0033ec47f915014f62",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "bundle_ref": {
+        "artifact_id": "sha256:fa72779551ee0b31627ef8d66797f4e6bea8dca21c97445ff7ad1b28a24fcd8c",
+        "kind": "ir.welfare_bundle",
+        "media_type": "application/json"
+      },
+      "receipt_ref": {
+        "artifact_id": "sha256:506edada066b2a72314733e53da81e95e01dc6a3186f24e1b502cc9049f0751f",
+        "kind": "foundry.welfare_draw_outcomes",
+        "media_type": "application/json"
+      },
+      "sample_ref": {
+        "artifact_id": "sha256:68b332f8039cdef4a3c2e28a30b76fdb9108662f9b4e72009aa481a97fedb6a9",
+        "kind": "ir.welfare_sample_bundle",
+        "media_type": "application/json"
+      },
+      "propagation_report_ref": "sha256:8157c9e1e133b3408d4359e8b8a72931e728fc91c6ba8bc5d537693101943a53",
+      "requested": 128,
+      "attempted": 128,
+      "successful": 128,
+      "failed": 0,
+      "nominal_point": 2.6666666666666665,
+      "credible_interval": [
+        -2e-40,
+        2.0
+      ],
+      "robust_interval": null,
+      "gate_eligible": false,
+      "draw_summary": {
+        "conditional_welfare_ge_mean": null,
+        "conditional_welfare_mean": null,
+        "conditional_welfare_pe_mean": null,
+        "conditional_welfare_std": null,
+        "estimate_scope": "all_requested_draws",
+        "welfare_ge_mean": -1.4375,
+        "welfare_mean": 0.5625,
+        "welfare_pe_mean": 2.0,
+        "welfare_std": 0.899218410621135
+      }
+    }
+  ]
+}

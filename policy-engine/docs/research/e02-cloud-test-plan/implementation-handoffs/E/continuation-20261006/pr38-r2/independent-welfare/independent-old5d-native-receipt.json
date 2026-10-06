@@ -1,0 +1,53 @@
+{
+  "label": "independent-old5d-native",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_old5d.py"
+  ],
+  "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 14.73393338599999,
+  "maxrss_kib": 752168,
+  "source_base": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+  "source_candidate": "884681db485b7466b183a206f83bbe0635f86ca3",
+  "source_tree": "b9cdce22cd8af3bee3cda176207242a8381cbe1b",
+  "before": {
+    "head": "2acc4c8116fdf12e3ce9ca76e203a6e4f00e90d4",
+    "tree": "ec5e9c2c57d9236f36b21b97bfe9eae48aca1121",
+    "src_file_count": 2914,
+    "src_sha256": "a6d6cd51c2d05d009344979e3b180d21cb49a3f5c8bd087a0e733feae0cd536d",
+    "changed_source_sha256": {
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md": "72584b73befc1aee9ed95d97785a4cf2e7f465d49eeab43dc00155d6ac8fa9ae",
+      "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": "92b8ba4e7ab8c99d510bd889776798fba6e5c41794911bbb72e540443f224203",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md": "913a97bf924a20bbe8f083abbeb5ccdd236354911a537760a9970f0672f7c95e",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": "457623e5b861c3bf8089d1460fe22f15b7175e8be72088f6673b5584d153225f"
+    },
+    "diff_from_frozen": ""
+  },
+  "after": {
+    "head": "2acc4c8116fdf12e3ce9ca76e203a6e4f00e90d4",
+    "tree": "ec5e9c2c57d9236f36b21b97bfe9eae48aca1121",
+    "src_file_count": 2914,
+    "src_sha256": "a6d6cd51c2d05d009344979e3b180d21cb49a3f5c8bd087a0e733feae0cd536d",
+    "changed_source_sha256": {
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md": "72584b73befc1aee9ed95d97785a4cf2e7f465d49eeab43dc00155d6ac8fa9ae",
+      "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": "92b8ba4e7ab8c99d510bd889776798fba6e5c41794911bbb72e540443f224203",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md": "913a97bf924a20bbe8f083abbeb5ccdd236354911a537760a9970f0672f7c95e",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": "457623e5b861c3bf8089d1460fe22f15b7175e8be72088f6673b5584d153225f"
+    },
+    "diff_from_frozen": ""
+  },
+  "source_unchanged": true,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src",
+    "UV_NO_SYNC": "1",
+    "WELFARE_REVIEW_OUTPUT": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-native-origins-artifacts.json",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "stdout_sha256": "62f4efabc392c616a4da1b0d063d1ed958810c8b5684c0aab462ebf1872868d8"
+}

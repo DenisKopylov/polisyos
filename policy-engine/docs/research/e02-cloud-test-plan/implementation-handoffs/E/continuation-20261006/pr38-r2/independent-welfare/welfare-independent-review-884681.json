@@ -1,0 +1,400 @@
+{
+  "review_type": "independent bounded numerical/property/consumer verification; read-only source; no children",
+  "disposition": "GO_bounded_code",
+  "source": {
+    "base": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+    "candidate": "884681db485b7466b183a206f83bbe0635f86ca3",
+    "tree": "b9cdce22cd8af3bee3cda176207242a8381cbe1b",
+    "lane": "/workspace/e02-E-backtest-20261006",
+    "documentation_only_head": "2acc4c8116fdf12e3ce9ca76e203a6e4f00e90d4",
+    "source_and_tests_delta_after_freeze": "empty",
+    "welfare_sha256": "457623e5b861c3bf8089d1460fe22f15b7175e8be72088f6673b5584d153225f",
+    "tracked_source_count": 2914,
+    "aggregate_tracked_source_sha256": "a6d6cd51c2d05d009344979e3b180d21cb49a3f5c8bd087a0e733feae0cd536d",
+    "all_runs_source_hashes_unchanged": true,
+    "all_imported_polisyos_origins_exact": true,
+    "imported_polisyos_count": 808
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src",
+    "backend": "native NumPy GE inverse",
+    "no_artificial_caps": true
+  },
+  "scope": {
+    "actual_caller": "PropagateWelfareNode.execute \u2192 _admit_welfare_sampling_laws \u2192 native simulation GE inverse \u2192 _propagate_credible_interval \u2192 persisted draw/sample/report/bundle \u2192 fresh _load_welfare_draw_outcomes and _load_verified_welfare_samples",
+    "property_locations": {
+      "source_law_admission": "propagate_welfare.py:650",
+      "nominal_callback": "propagate_welfare.py:677",
+      "fresh_empirical_source_rows": "propagate_welfare.py:199",
+      "persisted_source_edges": "propagate_welfare.py:338",
+      "outer_bound_limitation": "propagate_welfare.py:3643"
+    },
+    "sampler_law": "one declared finite empirical carrier; never infer cross-input independence or joint law",
+    "backend": "actual NumPy GE inverse, exact persisted finite posterior draws"
+  },
+  "independent_oracle": {
+    "input_atoms": [
+      0.0,
+      1.0
+    ],
+    "source_weights": [
+      3.0,
+      1.0
+    ],
+    "row_axis": "independent_row",
+    "seed": 31415,
+    "N": 128,
+    "uniforms": "np.random.default_rng(31415).random(128)",
+    "law": "A=0 iff U<3/4, else A=1",
+    "native_welfare": "2/(1-A)",
+    "success_count": 92,
+    "success_value": 2.0,
+    "failure_count": 36,
+    "failure_type": "LinAlgError",
+    "unconditional_evaluator_mean": "undefined unless an owner supplies a completion rule on singular support",
+    "nominal_point": "2/(1-.25)=2.6666666666666665; deterministic and distinct"
+  },
+  "observed_native": {
+    "requested": 128,
+    "attempted": 128,
+    "success": 92,
+    "failed": 36,
+    "unattempted": 0,
+    "all_draw_indices_preserved": true,
+    "failure_indices_match_independent_draw_oracle": true,
+    "all_failure_outputs_typed_simulation_exception_LinAlgError": true,
+    "conditional_means": {
+      "welfare": 2.0,
+      "PE": 2.0,
+      "GE": 0.0
+    },
+    "unconditional_moments": null,
+    "credible_interval": null,
+    "robust_interval": null,
+    "gate_eligible": false,
+    "fresh_cas_verified_artifacts": [
+      "source envelope",
+      "welfare bundle",
+      "per-draw outcomes",
+      "sample arrays",
+      "propagation report"
+    ],
+    "deciding_full_artifacts": "native-ge-deciding-artifacts.json"
+  },
+  "independent_controls": {
+    "distinct_passed": 18,
+    "initial_run": "16 PASS +2 harness FAIL; original harness retained",
+    "delta_rerun": "2 PASS,16 deselected after harness-only corrections; source unchanged",
+    "harness_corrections": [
+      "ParametricFitCarrier construction needed required parameters before actual Node could run",
+      "missing joint law has additional existing deterministic finite-difference diagnostics, not all callbacks nominal"
+    ],
+    "negative_individual_laws": [
+      "missing carrier",
+      "unsupported QuantileSummaryCarrier",
+      "zero weights",
+      "representationally collapsed positive mass",
+      "family/payload mismatch"
+    ],
+    "individual_negative_callback_count": 0,
+    "native_atom_controls": [
+      1e-15,
+      1e+40
+    ],
+    "exact_cdf_controls": [
+      "zero-mass row never selected",
+      "left/right inverse CDF boundary",
+      "nextafter(1,0)",
+      "weight rescaling preserves probabilities but changes content identity"
+    ],
+    "fresh_cas_corruptions": [
+      "probabilities",
+      "sample axis",
+      "carrier digest",
+      "row index/row identity",
+      "missing empirical row",
+      "missing persisted source edge",
+      "wrong source kind"
+    ],
+    "marker_preserving_property_removal": "false [.5,.5] probabilities rejected with genuine producer kind/schema/content-bound source edge; accepted only when _reconcile_welfare_empirical_rows is removed",
+    "all_negative_CAS_bytes_valid": true
+  },
+  "missing_joint_law": {
+    "test": "missing_joint_law",
+    "evaluator_calls": 6,
+    "deterministic_parameter_calls": [
+      {
+        "B": 0.25,
+        "A": 0.25
+      },
+      {
+        "B": 0.25,
+        "A": 0.25
+      },
+      {
+        "B": 0.39433756729740643,
+        "A": 0.25
+      },
+      {
+        "B": 0.10566243270259354,
+        "A": 0.25
+      },
+      {
+        "B": 0.25,
+        "A": 0.39433756729740643
+      },
+      {
+        "B": 0.25,
+        "A": 0.10566243270259354
+      }
+    ],
+    "nominal_calls": 1,
+    "gradient_base_calls": 1,
+    "finite_difference_calls": 4,
+    "stochastic_attempts": 0,
+    "unattempted": 128,
+    "gate_eligible": false
+  },
+  "missing_joint_law_limit": "No stochastic draws, 128 unattempted, no credible/outer interval, non-gating. Existing deterministic sensitivity diagnostics perform one nominal, one repeated gradient base, four finite-difference probes. Six total callbacks are recorded separately and are not claimed as zero callbacks or six nominal evaluations.",
+  "siblings": {
+    "targeted_tests_passed": 11,
+    "tests": [
+      "test_welfare_empirical_law.py native source/readback controls",
+      "test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare"
+    ],
+    "property": "actual configured B197 calibration report/CAS consumer preserving full covariance and tied A-B nullspace across Delta and MC; no author CAL producer self-review"
+  },
+  "style": {
+    "ruff": "PASS",
+    "format": "PASS"
+  },
+  "fresh_old_source_falsifier": {
+    "source": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+    "tree": "ba48381b0cf671c316e2cffa4be6568fd945011a",
+    "exact_old_welfare_blob_sha256": "f9421a672185153e7a55e1f0944f25a30e1a7950b3c978ac332fae12091625e8",
+    "source_origin": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/old5d-git-blob-overlay/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "full_tracked_source_blobs_verified": {
+      "base": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "tree": "ba48381b0cf671c316e2cffa4be6568fd945011a",
+      "tracked_source_file_count": 2915,
+      "tracked_source_aggregate_sha256": "ce9091b2f4c9a6c41cf8fafc3629277055f27e8dea23263e5125e20bf02aa47f",
+      "all_actual_source_bytes_match_exact_git_blobs": true,
+      "overlay": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/old5d-git-blob-overlay",
+      "notes": "Native run source_file_count included preexisting transient __pycache__ files from failed setup; this tracked-only Git-blobs attestation is the code denominator. No numerical replay inherited from an earlier run."
+    },
+    "fresh_native_outcome": "EXPECTED_PROPERTY_FAIL",
+    "observed": {
+      "out_of_atom_count": 128,
+      "failed": 0,
+      "success": 128,
+      "support_complete": true,
+      "false_credible_interval": [
+        1.633592975478295,
+        6.75557213759838
+      ],
+      "false_robust_interval": [
+        2.6666666666666665,
+        2.6666666666666665
+      ],
+      "first_five_sampled_inputs": [
+        0.03941344949768805,
+        -0.0914232805310935,
+        0.049434914545351316,
+        0.428050553739559,
+        0.46853844643908094
+      ],
+      "sampled_input_list_sha256": "2a239acb821e501ac6e3b3ad4240301b1540e6fb740d2825b2993756a116a052"
+    },
+    "same_input_artifact_content": "native atom source ref sha256:26b9377313b3860e0ec5bbe67e1a7333944fbd154f0453c8b7e9fbfbc11e74d0",
+    "fixture": "our independent fixture, not author results loop",
+    "first_setup_attempt": "ERROR before numerical invocation because exact overlay omitted declared architecture registry; preserved log/receipt; next fresh run includes exact tracked architecture and executes native backend",
+    "status_is_property_outcome_not_finding_closure": true
+  },
+  "limitations_and_next_owner": [
+    {
+      "owner": "Uncertainty/IR source-law semantic owner",
+      "remaining": "admit source law and multi-input joint carrier; no product law inferred; no wire semantics ratified by this code"
+    },
+    {
+      "owner": "Welfare GE bound producer",
+      "remaining": "supply valid lower/upper multipliers for varying GE coefficients before claiming an outer bound; current nominal inverse is not a bound"
+    },
+    {
+      "owner": "G/local data owner",
+      "remaining": "production history/source-law or served consumer checks require exact production data and local read-only recipe; synthetic backend evidence is mathematical only"
+    },
+    {
+      "owner": "Root/G",
+      "remaining": "verify exact aggregate frozen candidate once after integration; this independent review does not transfer PASS to changed source/consumers"
+    }
+  ],
+  "finding_closure": "not asserted; historical ledger statuses unchanged; code GO is independent of closure and source-law authority",
+  "run_receipts": {
+    "independent-native": "independent-native-receipt.json",
+    "diagnostic-corrections": "diagnostic-corrections-receipt.json",
+    "targeted-siblings": "targeted-siblings-receipt.json",
+    "style": "style-receipt.json",
+    "format": "format-receipt.json",
+    "independent-old5d": "independent-old5d-receipt.json",
+    "independent-old5d-native": "independent-old5d-native-receipt.json",
+    "deciding-export": "deciding-export-receipt.json"
+  },
+  "cleanup": {
+    "performed": "none; native Trash absent",
+    "preserve": [
+      "review JSON/scripts/full stdout/receipts",
+      "native-ge-deciding-artifacts.json",
+      "production data/code/documentation"
+    ],
+    "exact_reproducible_candidates": [
+      "/tmp/pytest-of-agent/pytest-215",
+      "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/old5d-git-blob-overlay",
+      "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-cas"
+    ],
+    "instruction": "only move finished reproducible fixtures/overlay to Trash after deciding outputs are saved; do not permanently delete or empty Trash; shared interpreter remains in active use"
+  },
+  "assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/deciding-export-receipt.json",
+      "bytes": 2962,
+      "sha256": "c9e13d577398b27a178134b5d05688c83134342bb1bc6df0c3c109d4a731aadd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/deciding-export.log",
+      "bytes": 260,
+      "sha256": "687f9f4ab6c0f6a77c1e1cc914240109e2e7efe6135a446dd8c5cdc386142c68"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/diagnostic-corrections-origins-artifacts.json",
+      "bytes": 1650,
+      "sha256": "f0ba6e8ff3ca9000010d3cacd8c7e01a8574c12056ce22af16c3d15097204894"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/diagnostic-corrections-receipt.json",
+      "bytes": 3077,
+      "sha256": "5e57526694614b804cdbdfa83aac96a58a59e3c0feffc559d523ac16b37d816e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/diagnostic-corrections.log",
+      "bytes": 113,
+      "sha256": "b9392eb81275572e8a1b985946ca71f3f67427c9e640973664f8bd8fa6e9785b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/export_deciding.py",
+      "bytes": 1410,
+      "sha256": "4ced6e02824132bd6fcceddee75f00fd865d25232aa3822c9bfe4046d7951655"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/format-receipt.json",
+      "bytes": 3036,
+      "sha256": "d4704819a93d731f229dcd01c531c7bc3b2dd5dbcd03a58b1e6f9708dd91088a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/format.log",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-native-origins-artifacts.json",
+      "bytes": 5883,
+      "sha256": "f4b948d88276313ee0d285b83365372026165ff85e9247f329789a035769718f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-native-receipt.json",
+      "bytes": 3047,
+      "sha256": "503d4a239849f81dbe9c2bc014b6d3c247872415f6673efa69fdc1ae6ca9b2d5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-native.log",
+      "bytes": 4067,
+      "sha256": "277adb41b4f8e4bcf8cc3eb5bec2f9ab1e99a40d0eb871937097fa7420d02cb0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-native-receipt.json",
+      "bytes": 2982,
+      "sha256": "172c9709b34016ab2d4462c0f7022347fc5543c20f06af35ca8ccab5da4dd36a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-native.log",
+      "bytes": 3716,
+      "sha256": "62f4efabc392c616a4da1b0d063d1ed958810c8b5684c0aab462ebf1872868d8"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-receipt.json",
+      "bytes": 2968,
+      "sha256": "9d6ba85b88e55756ffeb9b9db9aee99eb584d507f016b29f8fca93a72c24e348"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-result.json",
+      "bytes": 3715,
+      "sha256": "cde753bcb839deaff80c88fdb4ed747956c5420fa609a9e3983172a31fb086e2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d-source-provenance.json",
+      "bytes": 643,
+      "sha256": "82f881adae6c29b80bd1d698698ccabee064ce9668bcde3e74361eab3f0e14e6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent-old5d.log",
+      "bytes": 3122,
+      "sha256": "1cb7f007f7d15dd0932c1663b0e4198500a3fc8af597862d4a67e20fd12d8575"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_old5d.initial.py",
+      "bytes": 3314,
+      "sha256": "d29361d50e1859b02f604d09f2d3544b9aedb318902b2d45eca1bfd965bd51eb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_old5d.py",
+      "bytes": 3343,
+      "sha256": "e0f9348e283aa66f10897accebcbf3a1842ef176a2a76608a7a5fed93f4620b8"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_welfare_tests.initial.py",
+      "bytes": 15075,
+      "sha256": "a393141b5939b957502dbffd4629847414e17e75b3742715a881813e2c977694"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/independent_welfare_tests.py",
+      "bytes": 15595,
+      "sha256": "4d8b043cecd974837e72e9dd6272fae11599115f6bb6431e2abbfcab6f759607"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/native-ge-deciding-artifacts.json",
+      "bytes": 156544,
+      "sha256": "27e2a7e9d65712edc915b8413ab01b706dfb63e3cb69fa6e9dc7f4a6311267cb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/run_review.py",
+      "bytes": 2465,
+      "sha256": "f06183637c5a32ba49ad52b79dbe79f1a8cedef318a1ff5560c52476727002c3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/style-receipt.json",
+      "bytes": 3018,
+      "sha256": "33ba88ea3636b859a3911b536e89848df6367c28a412d7134c39c804a258a4da"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/style.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/targeted-siblings-receipt.json",
+      "bytes": 3169,
+      "sha256": "ca743536bde07f06f7cb47cc7d49ef80daf40f379a2454d6395f383dab1bc970"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare/targeted-siblings.log",
+      "bytes": 597,
+      "sha256": "a724f99f2d06eaefcebf20c9e264f36d6544d0d87603425fada615f255202a42"
+    }
+  ],
+  "asset_count": 27,
+  "asset_bytes": 245816
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": "e02.D.search-state.v2",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "verified_source_sha": "35d2654368be05b70cfec506fd04568df63d9fc0",
+  "verified_source_tree": "a7a535c2b9885e712482d9aecc594a6dc78c6c70",
+  "finding_ids": [
+    "B112",
+    "B124",
+    "B125",
+    "B126",
+    "B127"
+  ],
+  "closure_ids": [],
+  "predicate_basis": "recomputed_bounded_runtime",
+  "environment": {
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "ruff": "0.14.10",
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "PYTHONPATH": "src:."
+  },
+  "checks": {
+    "search-published-baseline.txt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/search-published-baseline.txt",
+      "sha256": "79009073528eb1bc6883e0bb3adcc75a0a5dd8ecfa659c927a90c0dd735c9af4",
+      "bytes": 4979,
+      "deciding_output": "1 failed, 72 passed, 8 warnings in 6.06s"
+    },
+    "search-contract-baseline.txt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/search-contract-baseline.txt",
+      "sha256": "82753c838868246ddfdc0379bb8070113ac644da9c4330a7b24c2df47059ccbc",
+      "bytes": 18736,
+      "deciding_output": "20 failed, 1 passed, 2 warnings in 7.03s"
+    },
+    "search-state-35d2654.txt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/search-state-35d2654.txt",
+      "sha256": "d909e1de2d93ff83fd4f7c022af3d8fc944b693d7d7de58a9f2da56f8f5e9dd6",
+      "bytes": 665,
+      "deciding_output": "51 passed, 2 warnings in 0.32s"
+    }
+  },
+  "candidate_command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/remediation/test_ctl_02.py",
+    "tests/unit/remediation/test_opt_02.py",
+    "tests/unit/scientist/search/strategies/test_space_codec.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+  ],
+  "candidate_result": "51 PASS; no skips",
+  "limitations": [
+    "This is the common state/action slice, not complete Q1/GP/OPT01 or finding closure.",
+    "Fitted GP, RL nested state and transferred source admission remain subsequent work.",
+    "Only the Base/Random/Sobol and public adapter routes are checked here; no all-strategy or deployed-caller claim.",
+    "No inherited-red attribution or scientific optimization quality claim."
+  ]
+}

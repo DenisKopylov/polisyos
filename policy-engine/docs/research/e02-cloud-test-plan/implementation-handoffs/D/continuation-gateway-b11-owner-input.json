@@ -1,0 +1,57 @@
+{
+  "schema": "policyos.e02.owner_integration_request.v1",
+  "unit": "D",
+  "to": "B W09 Gateway response-text decoder owner",
+  "closure_ids": [],
+  "finding_ids": [
+    "B120"
+  ],
+  "bundle_ids": [
+    "CTL-03"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "candidate_sha": "04bc57aa74c58d24af1921976158d8e6e32283a0",
+  "candidate_tree_sha": "e7a57f986d8022b16a05b613947e8c76e067e906",
+  "state": "mechanism_gap",
+  "classification": "current_product_FAIL",
+  "same_class": "P40 reported-cost invalid-present/nonzero-underflow, at existing HTTP text decoder; no new D mechanism or permission subsystem.",
+  "source_seam": {
+    "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "ref": "04bc57aa74c58d24af1921976158d8e6e32283a0",
+    "symbol": "GatewayLLMClient._post_json",
+    "line": 508,
+    "operation": "decoded = json.loads(raw_text)",
+    "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7"
+  },
+  "existing_consumer": {
+    "path": "policy-engine/src/polisyos/core/llm/response.py",
+    "ref": "04bc57aa74c58d24af1921976158d8e6e32283a0",
+    "symbols": [
+      "_as_float",
+      "_extract_cost_usd",
+      "extract_llm_response_data"
+    ],
+    "contract": "Validates every present declared USD alternative/component, signed/nonfinite/malformed values and nonzero conversion-to-zero when original value survives. No downstream cast can recover an already discarded raw lexeme."
+  },
+  "actual_input_ref": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py@04bc57aa74c58d24af1921976158d8e6e32283a0#response_text",
+  "actual_test_sha256": "ebc3b9dcc195f865d1c7c76735ce4b4b3dc1aff3c537afcc214b872e8cbcdcc3",
+  "transport": "TextGateway overrides _ensure_session only; _post_json is inherited unchanged. Raw cost lexemes are unquoted JSON numeric literals, not a predecoded dict.",
+  "falsifier": "usage.cost_usd=1e-1000 in actual response.text becomes raw float0.0 and native B1.1 settles amount0.0 then releases reserved capacity. Both signs and all five declared USD fields in usage/payload lose the original value in the complete20-case denominator.",
+  "minimum_integrate_contract": "Preserve the exact original numeric value/sign of declared provider USD fields through actual response-text decoding into the retained raw/typed envelope before any binary-float normalization. Lossless Decimal/lexeme preservation or explicit invalid-present representation must let strict consumer refusal run. A nonzero/invalid-present input cannot become successful zero, absent legacy tariff fallback or a free-cache grant. Genuine numeric zero and supported finite paid values retain current receipt behavior. Owner selects canonical decoder representation; D does not add another decoder/store or synthetic billing rate.",
+  "rerun": {
+    "test_ref": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py@04bc57aa74c58d24af1921976158d8e6e32283a0",
+    "command_template": "PYTHONPATH=src:. TIKTOKEN_CACHE_DIR=/workspace/e02-D2-receipts/tokenizer /workspace/e02-D-locked-env/bin/python -m pytest -q -ra tests/integration/core/llm/test_gateway_response_text_cost.py --basetemp <fresh-nonexistent-path> --junitxml <fresh-output-path>",
+    "checks": "Capture exact new B producer source/tree, all actual loaded consumer origins, complete24 stdout/JUnit and fresh B1.1 ledger bytes. No dict-only or _post_json replacement. Invalid/nonzero-underflow refuses before zero receipt;0/0.0/1 reopen exactly.",
+    "status": "UNRUN until B publishes its correction"
+  },
+  "evidence_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current.json",
+  "complete_output_bundle": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current-proof/output.json.gz",
+    "sha256": "adcf6dbb5b9a627043dfc6215742068fbf99879f6b241e108ff1238f1413290d"
+  },
+  "payload_commit": "08c53946395b53be61ea1ac7b22ac37060b6cfde",
+  "canonical_baseline_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json@d259a0102b143c83b145ad9d1b0e5d128eca72f0#/findings/B120",
+  "previous_request_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-owner-requests.json@04bc57aa74c58d24af1921976158d8e6e32283a0#/requests/1",
+  "boundary": "B owns Gateway decode, enforcer, middleware and ledger. D evidence-only task preserves canonical B1.1. Current failure needs no invoice, deployment or authority appointment; external billing authority remains outside the bounded reported-input verdict.",
+  "P41": "No inherited-red claim; exact current failure is retained."
+}

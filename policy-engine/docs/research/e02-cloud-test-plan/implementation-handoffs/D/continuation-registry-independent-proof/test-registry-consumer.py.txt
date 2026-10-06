@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.security import get_current_tenant_id_or_none, tenant_scope
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
@@ -20,6 +21,7 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveKind,
     PolicyEvaluationVector,
 )
+from polisyos.scientist.policy_design.output import load_policy_frontier_report
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.policy_design.search import HierarchicalSearchConfig
 from tests.unit.scientist.nodes.builtins.planning.test_run_hierarchical_policy_search import (
@@ -68,6 +70,7 @@ def execute(root, monkeypatch, *, configured=True):
         calls.append(
             {
                 "candidate_hash": parsed.candidate_hash(),
+                "actual_payload": dict(payload),
                 "context": dict(context),
                 "ambient_tenant": get_current_tenant_id_or_none(),
                 "money_currency": amount.currency,
@@ -118,7 +121,23 @@ def execute(root, monkeypatch, *, configured=True):
 
 def custody_oracle(root, item, result, reads):
     snapshot = ParetoRegistry(root).get_snapshot("independent")
-    assert set(snapshot.entries) == {item.candidate_hash()}
+    structured = {
+        s.candidate.candidate_hash()
+        for s in result.state.structure_candidates
+        if s.accepted
+    }
+    evaluated = set()
+    for native_result in result.state.parameter_search_results.values():
+        for row in native_result.history:
+            parsed = PolicyCandidateSchema.model_validate(
+                {k: v for k, v in row.candidate.items() if k != "candidate_hash"}
+            )
+            subject = parsed.candidate_hash()
+            assert row.policy_evaluation.candidate_id == parsed.candidate_id
+            assert row.policy_evaluation.metadata["candidate_hash"] == subject
+            evaluated.add(subject)
+    assert len(evaluated) == 1
+    assert set(snapshot.entries) == evaluated == structured
     assert result.pareto_projection == snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     assert result.pareto_projection.ranked_frontier_hashes == ()
     assert result.pareto_projection.assessment.status == "basis_limited"
@@ -128,7 +147,7 @@ def custody_oracle(root, item, result, reads):
 
 
 def test_actual_parameterless_callback_has_fresh_disk_custody_and_scoped_seed_reads(
-    tmp_path, monkeypatch
+    tmp_path, monkeypatch, execution_context, minimal_state
 ):
     root = tmp_path / "registry"
     item, result, reads, calls = execute(root, monkeypatch)
@@ -136,14 +155,41 @@ def test_actual_parameterless_callback_has_fresh_disk_custody_and_scoped_seed_re
     assert len(calls) == 1
     assert calls[0]["ambient_tenant"] == "actual-tenant"
     assert calls[0]["context"]["cell_id"] == "trace-cell"
-    assert calls[0]["candidate_hash"] == item.candidate_hash()
+    assert (
+        calls[0]["candidate_hash"]
+        == result.state.structure_candidates[0].candidate.candidate_hash()
+    )
     assert len(next(iter(result.state.parameter_search_results.values())).history) == 1
+    ref = module._persist_frontier_report(
+        execution_context,
+        state=minimal_state,
+        loop_id="independent",
+        search_result=result,
+    )
+    fresh_report = load_policy_frontier_report(FileSystemCAS(tmp_path), ref)
+    assert set(fresh_report.source_feasible_candidate_hashes) == set(snapshot.entries)
+    assert fresh_report.global_frontier == []
+    assert (
+        fresh_report.view_projections["global_feasible"].assessment.status
+        == "basis_limited"
+    )
+    structured = result.state.structure_candidates[0].candidate
+    assert structured.trinity_bundle.model_dump(
+        mode="json"
+    ) == item.trinity_bundle.model_dump(mode="json")
     record(
         "native-positive",
         {
             "reads": reads,
             "calls": calls,
             "snapshot": snapshot.model_dump(mode="json"),
+            "report_ref": ref.model_dump(mode="json"),
+            "fresh_report": fresh_report.model_dump(mode="json"),
+            "input_candidate_hash": item.candidate_hash(),
+            "input_metadata": item.metadata,
+            "evaluated_candidate_hash": structured.candidate_hash(),
+            "evaluated_metadata": structured.metadata,
+            "policy_payload_equal_before_structure_enrichment": True,
             "global_rank_authority": "not established",
             "default_producer": "not exercised",
         },
@@ -208,7 +254,10 @@ def test_removing_tenant_scope_fails_real_seed_routing_with_text_markers_retaine
     assert len(calls) == 1 and calls[0]["context"][
         "tenant_hash"
     ] == anonymize_tenant_id("actual-tenant")
-    assert calls[0]["candidate_hash"] == item.candidate_hash()
+    assert (
+        calls[0]["candidate_hash"]
+        == result.state.structure_candidates[0].candidate.candidate_hash()
+    )
     assert len(ParetoRegistry(root).get_snapshot("independent").entries) == 1
     with pytest.raises(AssertionError):
         custody_oracle(root, item, result, reads)

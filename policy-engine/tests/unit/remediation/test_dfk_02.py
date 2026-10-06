@@ -332,6 +332,12 @@ sources:
     ("row", "error_fragment"),
     [
         ("family: fixture\n", "Field required"),
+        ("not-a-mapping\n", "mapping"),
+        (
+            'name: ""\n    family: fixture\n    wave: A\n'
+            "    endpoint: https://example.invalid\n    connector_id: fixture\n",
+            "string_pattern_mismatch",
+        ),
         (
             "name: fixture\n    family: fixture\n    wave: A\n    endpoint: https://example.invalid\n"
             "    connector_id: fixture\n    enabled: 'false'\n",
@@ -367,8 +373,33 @@ def test_registry_parser_rejects_rows_that_would_be_silently_omitted_or_coerced(
     registry_path = tmp_path / "invalid-source-registry.yaml"
     registry_path.write_text(f"version: 1\nsources:\n  - {row}", encoding="utf-8")
 
-    with pytest.raises(ValueError, match=error_fragment):
-        load_catalog_source_registry(registry_path)
+    for loader in (load_catalog_source_registry, load_source_registry):
+        with pytest.raises(ValueError, match=error_fragment):
+            loader(registry_path)
+
+
+def test_registry_parser_rejects_truthy_text_for_every_boolean_field(tmp_path) -> None:
+    boolean_fields = tuple(
+        name
+        for name, field in CatalogSourceRegistryEntry.model_fields.items()
+        if field.annotation is bool
+    )
+    assert boolean_fields
+
+    for field_name in boolean_fields:
+        registry_path = tmp_path / f"invalid-{field_name}-registry.yaml"
+        registry_path.write_text(
+            "version: 1\nsources:\n"
+            "  - name: source\n"
+            "    family: fixture\n"
+            "    wave: A\n"
+            "    endpoint: https://example.invalid/source\n"
+            f"    {field_name}: 'false'\n",
+            encoding="utf-8",
+        )
+        for loader in (load_catalog_source_registry, load_source_registry):
+            with pytest.raises(ValueError):
+                loader(registry_path)
 
 
 def test_registry_parser_preserves_execution_tier_dependent_defaults(tmp_path) -> None:

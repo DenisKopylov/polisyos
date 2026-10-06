@@ -14,11 +14,16 @@ from polisyos.core.contracts.control import (
     FetchPlanFallback,
     MetricCandidate,
 )
+from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
 from polisyos.data_forge.domains.catalog.knowledge.types import (
+    DatasetRecord,
     DatasetSearchResult,
+    DistributionRecord,
     MetricBindingMatch,
     ResolvedFetchTarget,
 )
+from polisyos.data_forge.domains.catalog.registry import load_catalog_source_registry
 from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolveResult
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest, FetchResult
@@ -46,6 +51,7 @@ class _BindingCatalog:
                 request_dataset_id="NY.GDP.MKTP.CD",
                 confidence=0.92,
                 execution_tier="fetchable",
+                source="worldbank",
                 title="GDP per capita",
             )
         ]
@@ -85,6 +91,7 @@ class _NoneProfileBindingCatalog:
             request_dataset_id = "NY.GDP.MKTP.CD"
             confidence = 0.92
             execution_tier = "fetchable"
+            source = "worldbank"
             title = "GDP per capita"
 
         return [_Binding()]
@@ -170,6 +177,21 @@ class _UnregisteredSourceBindingCatalog:
         ]
 
 
+class _MissingSourceBindingCatalog:
+    def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
+        if metric_name != "gdp":
+            return []
+        return [
+            MetricBindingMatch(
+                metric_id="gdp",
+                catalog_dataset_id="catalog-gdp-unbound",
+                connector_id="fixture.fetch",
+                request_dataset_id="unbound-dataset",
+                execution_tier="fetchable",
+            )
+        ]
+
+
 class _UnregisteredSourceFallbackCatalog:
     def find_by_polisyos_metric(self, metric_name: str, *, top_k: int = 20):
         if metric_name != "gdp":
@@ -224,7 +246,9 @@ def test_catalog_resolution_uses_request_dataset_id(tmp_path) -> None:
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
     service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_BindingCatalog())
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="gdp")], run_profile="prod_full"
+    )
     assert len(plans) == 1
     assert plans[0].dataset_id == "NY.GDP.MKTP.CD"
     assert plans[0].connector_id == "worldbank.wdi"
@@ -236,7 +260,9 @@ def test_catalog_resolution_skips_unfetchable_targets(tmp_path) -> None:
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
     service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_TargetCatalog())
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="gdp")], run_profile="prod_full"
+    )
     assert plans == []
     assert candidates == []
 
@@ -249,7 +275,9 @@ def test_catalog_resolution_rejects_catalog_only_metric_bindings(tmp_path) -> No
         dataset_catalog=_CatalogOnlyBindingCatalog(),
     )
 
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="gdp")], run_profile="prod_full"
+    )
 
     assert plans == []
     assert candidates == []
@@ -265,7 +293,8 @@ def test_public_catalog_resolution_rejects_disabled_source_bindings(tmp_path, mo
     monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
 
     outcome = service.resolve(
-        DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane")
+        DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"),
+        run_profile="prod_full",
     )
 
     assert outcome.fetch_plans == []
@@ -282,7 +311,8 @@ def test_public_catalog_resolution_rejects_disabled_source_fallbacks(tmp_path, m
     monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
 
     outcome = service.resolve(
-        DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane")
+        DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"),
+        run_profile="prod_full",
     )
 
     assert outcome.fetch_plans == []
@@ -304,7 +334,10 @@ def test_public_catalog_resolution_holds_unregistered_source_ids(
     monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
 
     with pytest.raises(catalog_read_api.CatalogSelectionError) as caught:
-        service.resolve(DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"))
+        service.resolve(
+            DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"),
+            run_profile="prod_full",
+        )
 
     assert caught.value.code == "catalog_source_unregistered"
 
@@ -315,7 +348,9 @@ def test_catalog_resolution_applies_rolling_window_defaults_for_rest_sources(tmp
     service = RetrievalService(
         curated_dir=curated_dir, dataset_catalog=_RollingWindowBindingCatalog()
     )
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="health_outcomes")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="health_outcomes")], run_profile="prod_full"
+    )
 
     assert len(plans) == 1
     assert len(candidates) == 1
@@ -333,12 +368,242 @@ def test_catalog_resolution_preserves_none_profile_id(tmp_path) -> None:
         curated_dir=curated_dir, dataset_catalog=_NoneProfileBindingCatalog()
     )
 
-    plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+    plans, candidates = service._resolve_via_catalog(
+        [DataNeed(metric="gdp")], run_profile="prod_full"
+    )
 
     assert len(plans) == 1
     assert len(candidates) == 1
     assert plans[0].profile_id is None
     assert candidates[0].profile_id is None
+
+
+def test_public_retrieval_uses_profile_selection_for_real_catalog_artifact(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: seed\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.test/seed\n"
+        "    enabled: true\n"
+        "    execution_tier: catalog\n"
+        "    run_lane: catalog\n"
+        "    publish_blocking: false\n"
+        "  - name: dependent\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.test/dependent\n"
+        "    enabled: true\n"
+        "    execution_tier: transport_ready\n"
+        "    run_lane: empirical\n"
+        "    publish_blocking: true\n"
+        "    seed_from: seed\n"
+        "  - name: unrelated\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.test/unrelated\n"
+        "    enabled: true\n"
+        "    execution_tier: fetchable\n"
+        "    run_lane: empirical\n"
+        "    publish_blocking: false\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        catalog_read_api,
+        "load_catalog_source_registry",
+        lambda: load_catalog_source_registry(registry_path),
+    )
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+
+    db_path = tmp_path / "dataset_catalog.duckdb"
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="ds-dependent",
+                    title="Dependent source dataset",
+                    source="dependent",
+                    dataset_id="dependent-request-id",
+                    source_dataset_id="dependent-request-id",
+                    execution_tier="transport_ready",
+                    polisyos_metrics=["policy_metric"],
+                    preferred_distribution_id="dist-dependent",
+                    distributions=[
+                        DistributionRecord(
+                            id="dist-dependent",
+                            connector_type="fixture.fetch",
+                            profile_id="fixture_profile",
+                            source_locator="dependent-request-id",
+                            parser_supported=True,
+                            machine_readable=True,
+                        )
+                    ],
+                ),
+                DatasetRecord(
+                    id="ds-unrelated",
+                    title="Unrelated source dataset",
+                    source="unrelated",
+                    dataset_id="unrelated-request-id",
+                    source_dataset_id="unrelated-request-id",
+                    execution_tier="fetchable",
+                    polisyos_metrics=["unrelated_metric"],
+                    preferred_distribution_id="dist-unrelated",
+                    distributions=[
+                        DistributionRecord(
+                            id="dist-unrelated",
+                            connector_type="fixture.fetch",
+                            profile_id="fixture_profile",
+                            source_locator="unrelated-request-id",
+                            parser_supported=True,
+                            machine_readable=True,
+                        )
+                    ],
+                ),
+            ]
+        ),
+        db_path=db_path,
+    )
+    catalog = DatasetCatalogGraph(db_path=db_path, index_dir=tmp_path / "index")
+    service = RetrievalService(curated_dir=tmp_path / "curated", dataset_catalog=catalog)
+
+    try:
+        selected = load_catalog_source_registry(registry_path).enabled_sources(
+            run_profile="prod_core_blocking"
+        )
+        assert tuple(source.source_id for source in selected) == ("seed", "dependent")
+
+        dependent_outcome = service.resolve(
+            DataResolveRequest(data_needs=[DataNeed(metric="policy_metric")], mode="fastlane"),
+            run_profile="prod_core_blocking",
+        )
+        assert [plan.dataset_id for plan in dependent_outcome.fetch_plans] == [
+            "dependent-request-id"
+        ]
+        assert dependent_outcome.fetch_plans[0].metadata["source"] == "dependent"
+
+        unrelated_outcome = service.resolve(
+            DataResolveRequest(data_needs=[DataNeed(metric="unrelated_metric")], mode="fastlane"),
+            run_profile="prod_core_blocking",
+        )
+        assert unrelated_outcome.fetch_plans == []
+    finally:
+        catalog.close()
+
+
+def test_public_retrieval_holds_catalog_resolution_without_profile(tmp_path, monkeypatch) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_BindingCatalog())
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+
+    with pytest.raises(catalog_read_api.CatalogSelectionError) as caught:
+        service.resolve(DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"))
+
+    assert caught.value.code == "catalog_run_profile_unresolved"
+
+
+def test_public_retrieval_holds_unknown_profile(tmp_path, monkeypatch) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_BindingCatalog())
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+
+    with pytest.raises(catalog_read_api.CatalogSelectionError) as caught:
+        service.resolve(
+            DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"),
+            run_profile="unknown_profile",
+        )
+
+    assert caught.value.code == "unsupported_run_profile"
+
+
+def test_public_retrieval_holds_binding_without_source_identity(tmp_path, monkeypatch) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(
+        curated_dir=curated_dir, dataset_catalog=_MissingSourceBindingCatalog()
+    )
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+
+    with pytest.raises(catalog_read_api.CatalogSelectionError) as caught:
+        service.resolve(
+            DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"),
+            run_profile="prod_full",
+        )
+
+    assert caught.value.code == "catalog_source_identity_unresolved"
+
+
+@pytest.mark.parametrize(
+    ("seed_rows", "expected_code"),
+    [
+        ("", "dependency_missing"),
+        (
+            "  - name: seed\n"
+            "    family: fixture\n"
+            "    wave: A\n"
+            "    endpoint: https://example.test/seed\n"
+            "    enabled: false\n"
+            "    execution_tier: catalog\n"
+            "    run_lane: catalog\n"
+            "    publish_blocking: false\n",
+            "dependency_disabled",
+        ),
+        (
+            "  - name: seed\n"
+            "    family: fixture\n"
+            "    wave: A\n"
+            "    endpoint: https://example.test/seed\n"
+            "    enabled: true\n"
+            "    execution_tier: catalog\n"
+            "    run_lane: catalog\n"
+            "    publish_blocking: false\n"
+            "    seed_from: worldbank\n",
+            "dependency_cycle",
+        ),
+    ],
+)
+def test_public_retrieval_rejects_missing_disabled_or_cyclic_seed(
+    tmp_path,
+    monkeypatch,
+    seed_rows: str,
+    expected_code: str,
+) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: worldbank\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.test/worldbank\n"
+        "    enabled: true\n"
+        "    execution_tier: transport_ready\n"
+        "    run_lane: empirical\n"
+        "    publish_blocking: true\n"
+        "    seed_from: seed\n" + seed_rows,
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        catalog_read_api,
+        "load_catalog_source_registry",
+        lambda: load_catalog_source_registry(registry_path),
+    )
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_BindingCatalog())
+
+    with pytest.raises(catalog_read_api.CatalogSelectionError) as caught:
+        service.resolve(
+            DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"),
+            run_profile="prod_core_blocking",
+        )
+
+    assert caught.value.code == expected_code
 
 
 def test_retrieval_service_bounds_local_index_docs(tmp_path) -> None:

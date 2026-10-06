@@ -42,7 +42,9 @@ def _load_json(path: Path) -> dict[str, object]:
     return payload if isinstance(payload, dict) else {}
 
 
-def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path, dict[str, bool]]:
+def _write_consumer_readiness_manifest(
+    config: DatasetBatchConfig,
+) -> tuple[Path, dict[str, bool], dict[str, str]]:
     qc_payload = _load_json(config.qc_report_path)
     benchmark_payload = _load_json(config.benchmark_report_path)
     benchmark_metrics = (
@@ -53,7 +55,7 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
     evaluation_mode = (
         str(benchmark_payload.get("evaluation_mode") or "full-ready").strip() or "full-ready"
     )
-    qc_passed = bool(qc_payload.get("passed")) if qc_payload else False
+    qc_passed = qc_payload.get("passed") is True
     thresholds = readiness_thresholds_for_profile(config.run_profile)
     source_preflight_payload = (
         benchmark_payload.get("source_preflight")
@@ -70,11 +72,30 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
         for spec in config.load_registry().sources
         if spec.enabled and spec.publish_blocking and spec.run_lane == "empirical"
     ]
-    blocking_source_statuses = {
-        str(case.get("source") or ""): str(case.get("status") or "")
-        for case in source_preflight_cases
-        if isinstance(case, dict) and str(case.get("source") or "").strip()
-    }
+    blocking_source_names = {spec.name for spec in blocking_specs}
+    blocking_source_statuses: dict[str, str] = {}
+    blocking_source_readiness: dict[str, bool] = {}
+    for index, case in enumerate(source_preflight_cases):
+        if not isinstance(case, dict):
+            raise RuntimeError(f"Dataset publish blocked: invalid source preflight row {index}")
+        source = case.get("source")
+        status = case.get("status")
+        if not isinstance(source, str) or not source.strip():
+            raise RuntimeError(f"Dataset publish blocked: invalid source identity in row {index}")
+        if source not in blocking_source_names:
+            raise RuntimeError(
+                f"Dataset publish blocked: unexpected blocking source status ({source})"
+            )
+        if source in blocking_source_statuses:
+            raise RuntimeError(
+                f"Dataset publish blocked: duplicate blocking source status ({source})"
+            )
+        if not isinstance(status, str) or not status.strip():
+            raise RuntimeError(
+                f"Dataset publish blocked: invalid blocking source status ({source})"
+            )
+        blocking_source_statuses[source] = status
+        blocking_source_readiness[source] = case.get("ready") is True
     missing_blocking_statuses = sorted(
         spec.name for spec in blocking_specs if spec.name not in blocking_source_statuses
     )
@@ -116,6 +137,10 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
         "equivalence_ready": (
             bulk_equivalence_mismatch_rate <= 2.0 and bulk_equivalence_blocking_sources_total <= 0
         ),
+        "blocking_sources_ready": (
+            set(blocking_source_statuses) == blocking_source_names
+            and all(blocking_source_readiness.get(name) is True for name in blocking_source_names)
+        ),
     }
     readiness["consumer_ready"] = all(readiness.values())
     readiness["full_publish_ready"] = (
@@ -145,6 +170,7 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
         "promoted_sources": list(config.promoted_sources),
         "run_profile": config.run_profile,
         "blocking_source_statuses": blocking_source_statuses,
+        "blocking_source_readiness": blocking_source_readiness,
         "evaluation_mode": evaluation_mode,
         "publish_mode": (
             "full-ready"
@@ -157,13 +183,15 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
     config.consumer_readiness_path.parent.mkdir(parents=True, exist_ok=True)
     with open(config.consumer_readiness_path, "w", encoding="utf-8") as fh:
         json.dump(payload, fh, ensure_ascii=False, indent=2)
-    return config.consumer_readiness_path, readiness
+    return config.consumer_readiness_path, readiness, blocking_source_statuses
 
 
 def run_publish(config: DatasetBatchConfig) -> Path:
     """Write publish manifest with final dataset artifacts and checksums."""
     started_at = datetime.now(UTC).isoformat()
-    consumer_readiness_path, readiness = _write_consumer_readiness_manifest(config)
+    consumer_readiness_path, readiness, blocking_source_statuses = (
+        _write_consumer_readiness_manifest(config)
+    )
     if not readiness["consumer_ready"]:
         failed = sorted(name for name, passed in readiness.items() if not passed)
         raise RuntimeError(
@@ -219,10 +247,6 @@ def run_publish(config: DatasetBatchConfig) -> Path:
                 )
                 if key in metrics
             }
-            source_publish_blocking = {
-                str(key): bool(value)
-                for key, value in (metrics.get("source_publish_blocking") or {}).items()
-            }
             rest_rows_by_source = {
                 str(key): int(value)
                 for key, value in (metrics.get("rest_rows_by_source") or {}).items()
@@ -235,20 +259,8 @@ def run_publish(config: DatasetBatchConfig) -> Path:
     evaluation_mode = (
         str(benchmark_payload.get("evaluation_mode") or "full-ready").strip() or "full-ready"
     )
-    source_preflight_payload = (
-        benchmark_payload.get("source_preflight")
-        if isinstance(benchmark_payload.get("source_preflight"), dict)
-        else {}
-    )
-    source_cases = (
-        source_preflight_payload.get("sources")
-        if isinstance(source_preflight_payload.get("sources"), list)
-        else []
-    )
-    blocking_source_statuses = {
-        str(case.get("source") or ""): str(case.get("status") or "")
-        for case in source_cases
-        if isinstance(case, dict) and str(case.get("source") or "").strip()
+    source_publish_blocking = {
+        spec.name: spec.publish_blocking for spec in config.load_registry().sources
     }
 
     manifest_path = write_publish_manifest(

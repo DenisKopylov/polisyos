@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+import pytest
+
 from polisyos.data_forge.domains.catalog.batch.benchmark import READINESS_THRESHOLDS
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
@@ -71,8 +73,9 @@ def _write_qc_and_benchmark(
     transport=100.0,
     foundry=100.0,
     source_preflight=100.0,
-    qc_passed=True,
+    qc_passed: object = True,
     source_status: str = "complete",
+    source_cases: list[dict[str, object]] | None = None,
     evaluation_mode: str = "full-ready",
     mismatch_rate: float = 0.0,
     blocking_mismatch_sources: int = 0,
@@ -118,7 +121,9 @@ def _write_qc_and_benchmark(
                 },
                 "thresholds": READINESS_THRESHOLDS,
                 "source_preflight": {
-                    "sources": [
+                    "sources": source_cases
+                    if source_cases is not None
+                    else [
                         {
                             "source": "worldbank",
                             "status": source_status,
@@ -211,6 +216,123 @@ def test_run_publish_blocks_when_blocking_source_status_is_missing(tmp_path) -> 
         assert "missing blocking source statuses" in str(exc)
     else:
         raise AssertionError("Expected missing source status gate to block")
+
+
+def test_run_publish_blocks_unready_blocking_source_below_percentage_gate(tmp_path) -> None:
+    source_names = tuple(f"blocking_{index:02d}" for index in range(12))
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        + "".join(
+            f"  - name: {source_name}\n"
+            "    family: fixture\n"
+            "    wave: A\n"
+            f"    endpoint: https://example.test/{source_name}\n"
+            "    enabled: true\n"
+            "    execution_tier: transport_ready\n"
+            "    run_lane: empirical\n"
+            "    publish_blocking: true\n"
+            for source_name in source_names
+        ),
+        encoding="utf-8",
+    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+    _build_publish_fixture(config)
+    ready_sources = source_names[:-1]
+    readiness_pct = round(len(ready_sources) * 100 / len(source_names), 2)
+    _write_qc_and_benchmark(
+        config,
+        source_preflight=readiness_pct,
+        source_cases=[
+            {
+                "source": source_name,
+                "status": "complete" if source_name in ready_sources else "failed_with_manifest",
+                "ready": source_name in ready_sources,
+            }
+            for source_name in source_names
+        ],
+    )
+
+    try:
+        run_publish(config)
+    except RuntimeError as exc:
+        assert "consumer readiness failed" in str(exc)
+    else:
+        raise AssertionError("Expected one unready blocking source to prevent publish")
+
+    with open(config.consumer_readiness_path, encoding="utf-8") as fh:
+        readiness_payload = json.load(fh)
+    assert readiness_payload["readiness"]["source_preflight_ready"] is True
+    assert readiness_payload["readiness"]["blocking_sources_ready"] is False
+    assert readiness_payload["readiness"]["consumer_ready"] is False
+
+
+@pytest.mark.parametrize(
+    ("qc_passed", "source_ready"),
+    [("false", True), (True, "false")],
+)
+def test_run_publish_requires_boolean_admission_values(
+    tmp_path,
+    qc_passed: object,
+    source_ready: object,
+) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+    _build_publish_fixture(config)
+    _write_qc_and_benchmark(
+        config,
+        qc_passed=qc_passed,
+        source_preflight=100.0,
+        source_cases=[
+            {
+                "source": "worldbank",
+                "status": "complete",
+                "ready": source_ready,
+            }
+        ],
+    )
+
+    try:
+        run_publish(config)
+    except RuntimeError as exc:
+        assert "consumer readiness failed" in str(exc)
+    else:
+        raise AssertionError("Expected malformed boolean admission to prevent publish")
+
+
+@pytest.mark.parametrize(
+    ("source_cases", "expected_reason"),
+    [
+        (
+            [
+                {"source": "worldbank", "status": "complete", "ready": True},
+                {"source": "worldbank", "status": "complete", "ready": True},
+            ],
+            "duplicate blocking source status",
+        ),
+        (
+            [
+                {"source": "worldbank", "status": "complete", "ready": True},
+                {"source": "unregistered", "status": "complete", "ready": True},
+            ],
+            "unexpected blocking source status",
+        ),
+    ],
+)
+def test_run_publish_requires_exact_blocking_source_membership(
+    tmp_path,
+    source_cases: list[dict[str, object]],
+    expected_reason: str,
+) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+    _build_publish_fixture(config)
+    _write_qc_and_benchmark(config, source_cases=source_cases)
+
+    with pytest.raises(RuntimeError, match=expected_reason):
+        run_publish(config)
 
 
 def test_run_publish_allows_core_ready_snapshot(tmp_path) -> None:

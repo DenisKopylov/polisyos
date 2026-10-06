@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.data_forge.domains.catalog.selection import CatalogRunProfile
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
 
@@ -207,7 +208,8 @@ class RetrievalService:
         self._index_size_bytes = 0
         self._docs_added_last_run = 0
         self._last_updated: datetime | None = None
-        self._catalog_source_policies: dict[str, Any] | None = None
+        self._catalog_source_registry: Any | None = None
+        self._catalog_source_selections: dict[str, frozenset[str]] = {}
         self._max_local_index_docs = max(1, max_local_index_docs)
         self._max_promotion_candidates = max(1, max_promotion_candidates)
         self._state_lock = threading.RLock()
@@ -217,35 +219,43 @@ class RetrievalService:
         """Return the exact artifact store owned by the fetch executor."""
         return self._artifact_store
 
+    def _catalog_registry(self) -> Any:
+        if self._catalog_source_registry is None:
+            self._catalog_source_registry = catalog_read_api.load_catalog_source_registry()
+        return self._catalog_source_registry
+
     def _source_policy(self, source_name: str) -> Any | None:
         normalized = (source_name or "").strip()
         if not normalized:
             return None
-        if self._catalog_source_policies is None:
-            try:
-                registry = catalog_read_api.load_catalog_source_registry()
-            except Exception:
-                logger.debug(
-                    "Failed to load dataset source registry for retrieval policy lookup",
-                    exc_info=True,
-                )
-                self._catalog_source_policies = {}
-            else:
-                self._catalog_source_policies = {spec.source_id: spec for spec in registry.sources}
-        return self._catalog_source_policies.get(normalized)
+        return self._catalog_registry().source_by_id(normalized)
 
-    def _catalog_source_is_enabled(self, source_name: str) -> bool:
-        """Require explicit catalog source identities and reject disabled sources."""
+    def _selected_catalog_source_ids(self, run_profile: str | None) -> frozenset[str]:
+        if run_profile is None:
+            raise catalog_read_api.CatalogSelectionError("catalog_run_profile_unresolved")
+        cached = self._catalog_source_selections.get(run_profile)
+        if cached is not None:
+            return cached
+        registry = self._catalog_registry()
+        selected = registry.enabled_sources(run_profile=run_profile)
+        selected_ids = frozenset(source.source_id for source in selected)
+        self._catalog_source_selections[run_profile] = selected_ids
+        return selected_ids
+
+    def _catalog_source_is_enabled(self, source_name: str, *, run_profile: str | None) -> bool:
+        """Require registered, enabled sources selected by the caller's run profile."""
         normalized = source_name.strip()
         if not normalized:
-            return True
+            raise catalog_read_api.CatalogSelectionError("catalog_source_identity_unresolved")
         policy = self._source_policy(normalized)
         if policy is None:
             raise catalog_read_api.CatalogSelectionError(
                 "catalog_source_unregistered",
                 normalized,
             )
-        return policy.enabled
+        if not policy.enabled:
+            return False
+        return normalized in self._selected_catalog_source_ids(run_profile)
 
     def _catalog_date_window(
         self,
@@ -262,7 +272,12 @@ class RetrievalService:
         date_start = date_end - timedelta(days=int(policy.default_lookback_days))
         return date_start.isoformat(), date_end.isoformat(), policy
 
-    def resolve(self, request: DataResolveRequest) -> ResolveOutcome:
+    def resolve(
+        self,
+        request: DataResolveRequest,
+        *,
+        run_profile: CatalogRunProfile | None = None,
+    ) -> ResolveOutcome:
         started = time.perf_counter()
         warnings: list[str] = []
         candidates: list[MetricCandidate] = []
@@ -305,7 +320,10 @@ class RetrievalService:
 
             if unresolved and self._dataset_catalog is not None:
                 phase_start = time.perf_counter()
-                catalog_plans, catalog_candidates = self._resolve_via_catalog(unresolved)
+                catalog_plans, catalog_candidates = self._resolve_via_catalog(
+                    unresolved,
+                    run_profile=run_profile,
+                )
                 fetch_plans.extend(catalog_plans)
                 candidates.extend(catalog_candidates)
                 resolved_metrics = {plan.metric_id for plan in fetch_plans}
@@ -748,6 +766,8 @@ class RetrievalService:
     def _resolve_via_catalog(
         self,
         unresolved: list[DataNeed],
+        *,
+        run_profile: CatalogRunProfile | None = None,
     ) -> tuple[list[FetchPlan], list[MetricCandidate]]:
         """Try to resolve data needs via DatasetCatalogGraph."""
         plans: list[FetchPlan] = []
@@ -779,7 +799,7 @@ class RetrievalService:
                     if not connector_id or not request_dataset_id:
                         continue
                     source_name = str(getattr(binding, "source", "") or "")
-                    if not self._catalog_source_is_enabled(source_name):
+                    if not self._catalog_source_is_enabled(source_name, run_profile=run_profile):
                         continue
                     resolved_rows.append(
                         {
@@ -831,7 +851,7 @@ class RetrievalService:
                     ):
                         continue
                     source_name = str(getattr(result, "source", "") or "")
-                    if not self._catalog_source_is_enabled(source_name):
+                    if not self._catalog_source_is_enabled(source_name, run_profile=run_profile):
                         continue
                     resolved_rows.append(
                         {

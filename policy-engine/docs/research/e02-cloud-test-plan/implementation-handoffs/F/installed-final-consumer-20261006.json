@@ -1,0 +1,786 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "installed-final-consumer-20261006",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA-001",
+    "LA-002",
+    "LA-037"
+  ],
+  "bundle_ids": [
+    "FRY-01",
+    "API-01",
+    "FIT-01"
+  ],
+  "change_kind": "verification_companion_only",
+  "slice_base_sha": "ec92b95a4402ed5bcda3d57841f12c270c1f2722",
+  "implementation_commits": [],
+  "changed_paths": [],
+  "candidate_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "candidate_tree_sha": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "candidate_binding_role": "External common/API scientific candidate8236 already published; not own receipt branch tree and no ancestry/code-carry claim.",
+  "external_tested_source": {
+    "sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+    "branch": "codex/e02-F-api-20261006",
+    "pull_request": "https://github.com/DenisKopylov/polisyos/pull/59"
+  },
+  "branch": "codex/e02-F-fry-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/60",
+  "baseline_cells": [],
+  "baseline_basis": "Exact published historical installed receipt3dde on source5cd; full historical logs remain fetchable Git refs within committed extraction. No invented E02 baseline cell mapping.",
+  "checks": [
+    {
+      "command": "python3 verify_and_capture_final_wave.py installed-config.json preflight",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "Read-only Git plus original archives/sites, stdlib hash/ZIP/tar; no scientific backend invocation.",
+      "input_closure": "Complete3452 Git product paths+7 actual HATCH resources=3459; source wheel/rebuilt wheel/sdist/both sites and28 final Git carrier copies.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/preflight.stdout.txt.json",
+      "full_proof": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/independent-preflight.json"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/launch_independent_wave.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"configured_external_worker_python\": \"/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python\", \"app_python\": \"3.14.7\", \"actual_worker_python\": \"3.12.14/DoWhy0.14\", \"own_site\": \"wheel\"}",
+      "input_closure": "Exact final Git selected consumers; configured6-fold TMLE once plus default15fold once; genuine DoWhy/GCM/native MethodJob→typed CAS→fresh isolated reader. Synthetic inputs, no production data.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.stderr.txt.json",
+      "actual_census": {
+        "pass": 199,
+        "fail": 0,
+        "error": 0,
+        "skip": 0,
+        "deselected": 5,
+        "warnings": 90
+      },
+      "warnings_basis": "All90 optional LGBM feature-name warnings retained separately:Classifier30/Regressor60, on default15fold. Historical14 runtime+1instrumentation versus current0runtime+0instrumentation; no warning suppression."
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel raw_keys",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"wheel\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-raw_keys.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-raw_keys.stderr.txt.json",
+      "property_removed": "raw_keys"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel no_raw_numeric",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"wheel\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_raw_numeric.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_raw_numeric.stderr.txt.json",
+      "property_removed": "no_raw_numeric"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel no_consumption",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"wheel\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_consumption.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_consumption.stderr.txt.json",
+      "property_removed": "no_consumption"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel broad_identity_skip",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"wheel\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-broad_identity_skip.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-broad_identity_skip.stderr.txt.json",
+      "property_removed": "broad_identity_skip"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/launch_independent_wave.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"configured_external_worker_python\": \"/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python\", \"app_python\": \"3.14.7\", \"actual_worker_python\": \"3.12.14/DoWhy0.14\", \"own_site\": \"sdist\"}",
+      "input_closure": "Exact final Git selected consumers; configured6-fold TMLE once plus default15fold once; genuine DoWhy/GCM/native MethodJob→typed CAS→fresh isolated reader. Synthetic inputs, no production data.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.stderr.txt.json",
+      "actual_census": {
+        "pass": 199,
+        "fail": 0,
+        "error": 0,
+        "skip": 0,
+        "deselected": 5,
+        "warnings": 90
+      },
+      "warnings_basis": "All90 optional LGBM feature-name warnings retained separately:Classifier30/Regressor60, on default15fold. Historical14 runtime+1instrumentation versus current0runtime+0instrumentation; no warning suppression."
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist raw_keys",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"sdist\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-raw_keys.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-raw_keys.stderr.txt.json",
+      "property_removed": "raw_keys"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist no_raw_numeric",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"sdist\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_raw_numeric.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_raw_numeric.stderr.txt.json",
+      "property_removed": "no_raw_numeric"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist no_consumption",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"sdist\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_consumption.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_consumption.stderr.txt.json",
+      "property_removed": "no_consumption"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json sdist broad_identity_skip",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "{\"cwd\": \"/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer\", \"PYTHONPATH\": \"absent\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"app_python\": \"3.14.7\", \"own_site\": \"sdist\"}",
+      "input_closure": "Actual installed native Dispatcher/Monitor, own real pytest/SDK properties; memory code replacement preserves identity/name/doc/signature; no estimator/worker replay.",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "negative_control_detected": true,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-broad_identity_skip.stdout.txt.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-broad_identity_skip.stderr.txt.json",
+      "property_removed": "broad_identity_skip"
+    },
+    {
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261006/foundry/installed-final-wave/collect_installed_denominator.py /tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json wheel",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "PYTHONPATH absent; own installed Python -I; literal readonly thirdparty site only. cwd=/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer",
+      "input_closure": "Actual wheel collection with same exact native selectors/substitution/expression; full199 selected sequence equal previous executed wave, five explicit source-only/static/computed-import deselections.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-collection.stdout.txt.json",
+      "semantic_runtime_witness": false
+    },
+    {
+      "command": "python3 finalize_installed_review.py installed-config.json",
+      "target_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "environment": "Read-only original source/tree+archives/both sites/carriers/full native/removal outputs; no numerical rerun.",
+      "input_closure": "All3459/site files+7resources, all3archive hashes and28carrier hashes after native/removals; full warning memberships/report/census and actual value refusal depth.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/finalize.stdout.txt.json",
+      "full_proof": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/review.json"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.cli workspace doctor --worktree-admission resume --branch codex/e02-F-fry-20261006 --path /workspace/e02-F-fry-20261006",
+      "target_sha": "ec92b95a4402ed5bcda3d57841f12c270c1f2722",
+      "environment": "Readonly Python3.14.7; cwd own Fry/policy-engine; PYTHONPATH=src:.; exact already admitted matching branch/path; no checkout creation.",
+      "input_closure": "Complete workspace admission resume selectors, Git registrations/admin files/live branch/backlinks; current own publication baseec92.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/own-publication-admission.stdout.json",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/own-publication-admission.stderr.txt.json"
+    }
+  ],
+  "property": {
+    "statement": "The exact final composed distribution runs native producer→typed CAS→fresh-reader consumer contracts in two isolated installed profiles; normalized aliases emit no false runtime anomaly while real malformed/missing/numeric sidecars remain detectable.",
+    "runtime_path": [
+      "Actual MethodJob factory/registered native DoWhy/GCM/HTE-TMLE producer",
+      "typed CAS artifacts",
+      "fresh own installed Python -I reader",
+      "canonical output projection/Confidence/value refusal boundary"
+    ],
+    "proxy_divergence": "All archive byte checks can pass while native raw alias monitor emits14 false runtime anomalies; actual native consumers and retained-marker removals distinguish that property. SUCCESS+CI+fake/swapped identification markers still cannot grant gate/value authority.",
+    "negative_controls": [
+      "Eight actual installed raw-key/raw-numeric/consumed-source/broad-identity memory removals detected as FAIL",
+      "Native missing/malformed canonical slots and separate raw diagnostics",
+      "Real TMLE CAS missing/fake/swapped basis remains non-gating with Confidence blockers",
+      "Value upstream unresolved contract refuses before guard312"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "limited",
+  "bounded_check_outcome": "PASS",
+  "finding_outcomes": {},
+  "authoritative_for": [
+    "Exact8236 selected installed native consumer behavior/source custody/full warning membership"
+  ],
+  "may_not_use_for": [
+    "G integration/acceptance",
+    "35finding closure",
+    "admitted production data conclusions",
+    "Node/identification/value authority positive",
+    "B56 aggregate budget",
+    "global CI/P41 PASS"
+  ],
+  "limitations_and_next_owner": [
+    "Python3.14 app has no DoWhy/EconML; actual configured external Python3.12 DoWhy0.14 executes. No positive absent-backend witness or parallel shim.",
+    "Worker explicit interpreter configuration only; automatic unconfigured interpreter discovery is not claimed.",
+    "Declared historical fourteen runtime anomalies were compared on same two actual consumer test memberships; all ordinary/negative diagnostics and all raw warnings retained.",
+    "Native configured TMLE sixfold runs once per site; native default compatibility fifteenfold once per site, without claiming regular-IID synthetic property on admitted real data.",
+    "Causal Value intake refuses upstream unresolved output contract; gate_eligible guard312 is not reached and no genuinely admitted causal Value positive witness is supplied.",
+    "Shared output counters are observed through genuine native OTel SDK; production exporter/configuration/name policy remains unmeasured.",
+    "Custom projection copying/class wrappers keep conservative diagnostics; no unsupported normalization-source provenance is invented.",
+    "Whole genuine admitted Runtime Node/identification authority/production-positive/aggregate common study budget B56 remain UNRUN.",
+    "No public export census38 UNKNOWN/FAIL, full schema Core/Feedback drift, broad input scanner/style/globalP41 FAIL is converted to PASS. Root/primary owners retain those exact decisions.",
+    "No G checkout/integration/code acceptance or entire35-finding closure is asserted."
+  ],
+  "complete_independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/review.json",
+  "derived_warning_classifier_gap": "Original auxiliary lightgbm-only classifier recorded0 while full90 raw LGBM* messages were preserved. Independent final derived classification is90; source/runtime/numeric unchanged, no repeat.",
+  "retained_auxiliary_error": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/auxiliary-display-error.json",
+  "transport_model": "Own topic publishes these verification docs only; G separately fetches exact API/common8236 source. Root normal-merges docs carrier; no blind cumulative-code cherry-pick or assumed chat access.",
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-independent-consumer-proof.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-installed-proof.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removals.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-raw_keys.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-raw_keys.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_raw_numeric.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_raw_numeric.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_consumption.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_consumption.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-broad_identity_skip.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-broad_identity_skip.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-independent-consumer-proof.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-installed-proof.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removals.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-raw_keys.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-raw_keys.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_raw_numeric.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_raw_numeric.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_consumption.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_consumption.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-broad_identity_skip.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-broad_identity_skip.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/independent-preflight.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/packet-record-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/preflight.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/preflight.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-collection-denominator.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/auxiliary-display-error.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-collection.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-collection.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/historical-warning-memberships.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/extract_historical_warnings.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/test_installed_native_boundaries.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/launch_independent_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/verify_and_capture_final_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/remove_installed_monitor_property.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/remove_installed_count_property.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/capture_installed_removals.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/collect_installed_denominator.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/finalize_installed_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/finalize.stdout.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/finalize.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/own-publication-admission.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/own-publication-admission.stderr.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/transfer-selection.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/package_installed_receipt.py"
+  ],
+  "content_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.json",
+      "bytes": 14939,
+      "sha256": "53bff0869bee5eb73785cd3e6c2223ab3be0a0576f9105e92d66927a0920f4bd",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-native.json",
+      "original_bytes": 14939,
+      "original_sha256": "53bff0869bee5eb73785cd3e6c2223ab3be0a0576f9105e92d66927a0920f4bd",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-independent-consumer-proof.json",
+      "bytes": 123143,
+      "sha256": "85d3385abe16d25dd541065afa8f34b6d8290d02055ebdb9b8b9d26cbc6aa5b9",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-independent-consumer-proof.json",
+      "original_bytes": 123143,
+      "original_sha256": "85d3385abe16d25dd541065afa8f34b6d8290d02055ebdb9b8b9d26cbc6aa5b9",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-installed-proof.json",
+      "bytes": 190440,
+      "sha256": "25900a789f3760fb21190bc3cf11900bdb3fe3d115b0ea069a7718c5347f7476",
+      "original_path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-installed-proof.json",
+      "original_bytes": 190440,
+      "original_sha256": "25900a789f3760fb21190bc3cf11900bdb3fe3d115b0ea069a7718c5347f7476",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removals.json",
+      "bytes": 8405,
+      "sha256": "32f5f080b075b43ee07620133251b73f76c806eed5a025490edfa3383b15d799",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removals.json",
+      "original_bytes": 8405,
+      "original_sha256": "32f5f080b075b43ee07620133251b73f76c806eed5a025490edfa3383b15d799",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.stdout.txt.json",
+      "bytes": 1416659,
+      "sha256": "93bed8bf2d7d098fb232448d19b8d2fef76ebc27db9d4deee584bcfa3fcbe021",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-native.stdout.txt",
+      "original_bytes": 1396547,
+      "original_sha256": "310dd8c9ea444ac804eb874b7c603c25958f9ca84128c3a9af0d5af9a310ca51",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-native.stderr.txt.json",
+      "bytes": 16870,
+      "sha256": "3bdeeed06feac37ff6f12c9f3aa062d3a1a5d5b993c4248fbbe9d53e919352b3",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-native.stderr.txt",
+      "original_bytes": 16576,
+      "original_sha256": "623320ad7799d36dc4efecf96602b36ae5358d0b943297abb37a5ca7285246f3",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-raw_keys.stdout.txt.json",
+      "bytes": 2169,
+      "sha256": "dd6f4df2905523f18d1d6e0618848f509eb9599c2b6322fb10aec31aa9a204e8",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-raw_keys.stdout.txt",
+      "original_bytes": 1926,
+      "original_sha256": "45291d5dca5c2d21dcd3d61b07d88228bb64f65b0eaf6de1f6fa84210f08d9e6",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-raw_keys.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-raw_keys.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_raw_numeric.stdout.txt.json",
+      "bytes": 1826,
+      "sha256": "6b90801257911e521b7d6747543b242a24b0b1d0b722c073fc1ec6157e742f43",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_raw_numeric.stdout.txt",
+      "original_bytes": 1587,
+      "original_sha256": "75d0f3f191ef93a1bcdff3d451e730bafc1997c43397d41e5d8953917aeed3cc",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_raw_numeric.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_raw_numeric.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_consumption.stdout.txt.json",
+      "bytes": 6778,
+      "sha256": "073aa947b7813f75da164892a61de87eab30d47f499a139337c6284a0659a0e2",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_consumption.stdout.txt",
+      "original_bytes": 6293,
+      "original_sha256": "f7d88d0d666d01c31e7ca146ee689c59c15d359fb4575be240489085f979b94a",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-no_consumption.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_consumption.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-broad_identity_skip.stdout.txt.json",
+      "bytes": 3328,
+      "sha256": "e227c2c422d6c68b3aedcbf2d4e76ebda424127af954fc886ba427f0a25bddd1",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-broad_identity_skip.stdout.txt",
+      "original_bytes": 3009,
+      "original_sha256": "7f963aa43988021a56df9f9744321b974c98f0f122041462f4ccb45a7a6c9e85",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-removal-broad_identity_skip.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-broad_identity_skip.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.json",
+      "bytes": 14940,
+      "sha256": "0af04e93ebe6a5752fae5e85c5363d373d6f76bd165d7376ff23659186d4de84",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-native.json",
+      "original_bytes": 14940,
+      "original_sha256": "0af04e93ebe6a5752fae5e85c5363d373d6f76bd165d7376ff23659186d4de84",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-independent-consumer-proof.json",
+      "bytes": 123143,
+      "sha256": "fd0f1352a6755cc2ecbc5aee3fb7616138d8fc22db25770bde016eaa25e36bb0",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-independent-consumer-proof.json",
+      "original_bytes": 123143,
+      "original_sha256": "fd0f1352a6755cc2ecbc5aee3fb7616138d8fc22db25770bde016eaa25e36bb0",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-installed-proof.json",
+      "bytes": 190440,
+      "sha256": "f69ea3c3d0b6427080dbaa22039ad443e5663ce29565868bdf442c7261935662",
+      "original_path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-installed-proof.json",
+      "original_bytes": 190440,
+      "original_sha256": "f69ea3c3d0b6427080dbaa22039ad443e5663ce29565868bdf442c7261935662",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removals.json",
+      "bytes": 8403,
+      "sha256": "506da601c0fa70b3ad5eb8c3b631686d2cbfa3cc5f7055f2f9834cd8508bb795",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removals.json",
+      "original_bytes": 8403,
+      "original_sha256": "506da601c0fa70b3ad5eb8c3b631686d2cbfa3cc5f7055f2f9834cd8508bb795",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.stdout.txt.json",
+      "bytes": 1416660,
+      "sha256": "65a2160a49dd6b7f38488a771db78324c18ecb252b89d3c5fc6b82f5e3a3e000",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-native.stdout.txt",
+      "original_bytes": 1396548,
+      "original_sha256": "7ea1f0a2794fa0d171180cb26e66f8345595606a642f9bf3de8bd333f9c2c834",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-native.stderr.txt.json",
+      "bytes": 16870,
+      "sha256": "e9f787c031774aac7b65e47e8a882e3cf74356b4ec79e265fd7ea9cbb9048d2b",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-native.stderr.txt",
+      "original_bytes": 16576,
+      "original_sha256": "1c51a0b35b5eeb658c91c2fe112ca5e548db7913a498789c667b9dd742d614c2",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-raw_keys.stdout.txt.json",
+      "bytes": 2168,
+      "sha256": "fccffdda1ea95211b4f1b922f33a336a6b00119f99d412ab2e7e259752542ff2",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-raw_keys.stdout.txt",
+      "original_bytes": 1926,
+      "original_sha256": "b25a3c9a2500bffca87b96c2b45567dd55a3c2b534b4386a8058aae22ae59fc5",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-raw_keys.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-raw_keys.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_raw_numeric.stdout.txt.json",
+      "bytes": 1826,
+      "sha256": "4ae0e76acc361e6fdade5d5504412d05fb102eef4a22fef05a90b751467b55bc",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_raw_numeric.stdout.txt",
+      "original_bytes": 1587,
+      "original_sha256": "eb9a707d56e43bb5400d8287ff87b442b8dd3e67d998289ab5f842227fb67582",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_raw_numeric.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_raw_numeric.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_consumption.stdout.txt.json",
+      "bytes": 6778,
+      "sha256": "5269b41ba74d7016d76fe002b85cc484e1a8f84dcd157ca21c670b0ed2e39767",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_consumption.stdout.txt",
+      "original_bytes": 6293,
+      "original_sha256": "40245db223263bc24fd27cc8f6d4e27233b1a76913979f553d1a432a52f91418",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-no_consumption.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_consumption.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-broad_identity_skip.stdout.txt.json",
+      "bytes": 3328,
+      "sha256": "2835d939694ad8f74f968abc5dd552bd6a458e20ed43076d689ef3fab87d4237",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-broad_identity_skip.stdout.txt",
+      "original_bytes": 3009,
+      "original_sha256": "5135a2467b5703d2dfe6644742e3282d4bc8c222e17ec717561c851d6ce12191",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/sdist-removal-broad_identity_skip.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-broad_identity_skip.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/review.json",
+      "bytes": 26315,
+      "sha256": "d8ed8bf50d8097d2621bab578814e8acefd5c3b6e399a4fc0e0e89d93b1daae2",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/review.json",
+      "original_bytes": 26315,
+      "original_sha256": "d8ed8bf50d8097d2621bab578814e8acefd5c3b6e399a4fc0e0e89d93b1daae2",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/independent-preflight.json",
+      "bytes": 15762,
+      "sha256": "50f4e8899b242b6404da264fc7fd42a43d47a7dfcb9cbff43f58077cfd124b15",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/independent-preflight.json",
+      "original_bytes": 15762,
+      "original_sha256": "50f4e8899b242b6404da264fc7fd42a43d47a7dfcb9cbff43f58077cfd124b15",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/packet-record-readback.json",
+      "bytes": 472,
+      "sha256": "135618cdcd120b5580395578f7b73bfc1134afcc3a521c55af110aee8619d51b",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/packet-record-readback.json",
+      "original_bytes": 472,
+      "original_sha256": "135618cdcd120b5580395578f7b73bfc1134afcc3a521c55af110aee8619d51b",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/preflight.stdout.txt.json",
+      "bytes": 345,
+      "sha256": "37c0dc0e26d6f8ad58f2913889ecde285d679132827fa3198ece25d05b9c314e",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/preflight.stdout.txt",
+      "original_bytes": 130,
+      "original_sha256": "0b0450f0170e73ab0c61e58398c2407a06ed600584242fafbb73752492c3ff8d",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/preflight.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/preflight.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-collection-denominator.json",
+      "bytes": 23047,
+      "sha256": "83af9cfae1dca53da20015502fab8a511cef4e3f2464f43a1ce5437319fa00e3",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-collection-denominator.json",
+      "original_bytes": 23047,
+      "original_sha256": "83af9cfae1dca53da20015502fab8a511cef4e3f2464f43a1ce5437319fa00e3",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/auxiliary-display-error.json",
+      "bytes": 2286,
+      "sha256": "909ca911b7765f8ed20d04a6e91cb2c3e5a15dfe39d56c5ae2c203fbae3ea7ec",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/auxiliary-display-error.json",
+      "original_bytes": 2286,
+      "original_sha256": "909ca911b7765f8ed20d04a6e91cb2c3e5a15dfe39d56c5ae2c203fbae3ea7ec",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-collection.stdout.txt.json",
+      "bytes": 21705,
+      "sha256": "5ae802fb3e94c2f37b18c37943ccc82eb83b93f1bf0c503049e837f35a1f398b",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-collection.stdout.txt",
+      "original_bytes": 21283,
+      "original_sha256": "d513013622d45dbed9cfecad3c8a3e3c8a993b08ffebb664a53b0d14d8fb1811",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/wheel-collection.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-collection.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/historical-warning-memberships.stdout.json",
+      "bytes": 45356,
+      "sha256": "977780776f65adfbd7702ae8d0a5d6f8b6b7acaacaf755d788aad34e9c089370",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/historical-warning-memberships.stdout.json",
+      "original_bytes": 45356,
+      "original_sha256": "977780776f65adfbd7702ae8d0a5d6f8b6b7acaacaf755d788aad34e9c089370",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/extract_historical_warnings.py",
+      "bytes": 5676,
+      "sha256": "3c245f9d3ca46d0137ab2528db18ed009f30462cf372cc6969a1218fa1872aef",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/extract_historical_warnings.py",
+      "original_bytes": 5676,
+      "original_sha256": "3c245f9d3ca46d0137ab2528db18ed009f30462cf372cc6969a1218fa1872aef",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/test_installed_native_boundaries.py",
+      "bytes": 7999,
+      "sha256": "94ab10cf0c664eecde748f42008c76e5d0a13601657606e9c62d947a1c13bbfa",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/test_installed_native_boundaries.py",
+      "original_bytes": 7999,
+      "original_sha256": "94ab10cf0c664eecde748f42008c76e5d0a13601657606e9c62d947a1c13bbfa",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/launch_independent_wave.py",
+      "bytes": 6162,
+      "sha256": "6b3e507842c765b3ded6862ebadcf803e78df1ae40f7d559e4d85a4ac4a8da0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/launch_independent_wave.py",
+      "original_bytes": 6162,
+      "original_sha256": "6b3e507842c765b3ded6862ebadcf803e78df1ae40f7d559e4d85a4ac4a8da0f",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/verify_and_capture_final_wave.py",
+      "bytes": 8718,
+      "sha256": "8597ccefc8fd0ed0d9bdbbd5b332931bea07fcc093a15fa16cf10567e1852d9e",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/verify_and_capture_final_wave.py",
+      "original_bytes": 8718,
+      "original_sha256": "8597ccefc8fd0ed0d9bdbbd5b332931bea07fcc093a15fa16cf10567e1852d9e",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/remove_installed_monitor_property.py",
+      "bytes": 2180,
+      "sha256": "f4c84c9e4dd68ed1fac6bf6197089f7c79adead9dd9eb28f757095784403655e",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py",
+      "original_bytes": 2180,
+      "original_sha256": "f4c84c9e4dd68ed1fac6bf6197089f7c79adead9dd9eb28f757095784403655e",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/remove_installed_count_property.py",
+      "bytes": 2402,
+      "sha256": "db50f472562f61fa4432cb3ed0eee4a92ef9e189d050ee5706b0209c2433feca",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py",
+      "original_bytes": 2402,
+      "original_sha256": "db50f472562f61fa4432cb3ed0eee4a92ef9e189d050ee5706b0209c2433feca",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/capture_installed_removals.py",
+      "bytes": 3465,
+      "sha256": "cb70acfdebdbfc7d7f961a4e59ae219e456ba6cbe00779a14a4eb1a4a2f63208",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/capture_installed_removals.py",
+      "original_bytes": 3465,
+      "original_sha256": "cb70acfdebdbfc7d7f961a4e59ae219e456ba6cbe00779a14a4eb1a4a2f63208",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/collect_installed_denominator.py",
+      "bytes": 2666,
+      "sha256": "3b5f2122e1f32e34bbac749fa929db1c45f07fb5ae00ce4e39ac7f1188718c82",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/collect_installed_denominator.py",
+      "original_bytes": 2666,
+      "original_sha256": "3b5f2122e1f32e34bbac749fa929db1c45f07fb5ae00ce4e39ac7f1188718c82",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/finalize_installed_review.py",
+      "bytes": 13816,
+      "sha256": "f50928df327055b065528a34a3ab076f1cd7b04cd0eef3246cce8624f041f9ea",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/finalize_installed_review.py",
+      "original_bytes": 13816,
+      "original_sha256": "f50928df327055b065528a34a3ab076f1cd7b04cd0eef3246cce8624f041f9ea",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/finalize.stdout.txt.json",
+      "bytes": 558,
+      "sha256": "094a699167629e2f4e734f9ddda83811e0b8c45c32e64c14bceb969d4d99a038",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/finalize.stdout.txt",
+      "original_bytes": 333,
+      "original_sha256": "38ff652c4342cb2bd002bb9cdcf4fafd790bb8debfc316c4edefa32dfc507ba7",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/finalize.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/finalize.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/own-publication-admission.stdout.json",
+      "bytes": 147898,
+      "sha256": "1cabdc583ce84d3b47d3422f2f68011cc26b623785ebfaf634fdf622fb0b3676",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/own-publication-admission.stdout.json",
+      "original_bytes": 147898,
+      "original_sha256": "1cabdc583ce84d3b47d3422f2f68011cc26b623785ebfaf634fdf622fb0b3676",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/own-publication-admission.stderr.txt.json",
+      "bytes": 198,
+      "sha256": "03bf37547ffa686622b1197f941ccafa4e0e590640b1e26b8bdb1fc07d903b0f",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/own-publication-admission.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "format": "lossless_utf8_output_json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/transfer-selection.json",
+      "bytes": 11760,
+      "sha256": "5304946a14442dd215d4cc286103d5d896ee23dccb27c05a759e858fab284140",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/transfer-selection.json",
+      "original_bytes": 11760,
+      "original_sha256": "5304946a14442dd215d4cc286103d5d896ee23dccb27c05a759e858fab284140",
+      "format": "verbatim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006/package_installed_receipt.py",
+      "bytes": 11946,
+      "sha256": "163081c3f08d68047245e040c3e5a8dcc6386a5401828e60ce552ccabb3d9708",
+      "original_path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/package_installed_receipt.py",
+      "original_bytes": 11946,
+      "original_sha256": "163081c3f08d68047245e040c3e5a8dcc6386a5401828e60ce552ccabb3d9708",
+      "format": "verbatim"
+    }
+  ],
+  "evidence_path_mapping": "Original scratch paths inside verbatim receipts are provenance, not G intake paths. content_refs maps each to committed lossless companion with original/encoded hashes.",
+  "product_source_delta": "None; no release/API/IR/schema/lock/global inventory mutation."
+}

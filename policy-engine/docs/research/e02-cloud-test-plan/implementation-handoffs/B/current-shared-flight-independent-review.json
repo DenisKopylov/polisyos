@@ -678,7 +678,7 @@
     },
     {
       "id": "complete-source-delta-review",
-      "command": "git diff a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9 b138b0d10237d4704c1cf59dec502be4b745b3a1 -- <complete eight changed paths listed in source-review.json>; full four production deltas and surrounding callers/ledger read",
+      "command": "git diff a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9 b138b0d10237d4704c1cf59dec502be4b745b3a1 -- policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml policy-engine/src/polisyos/core/llm/README.md policy-engine/src/polisyos/core/llm/settlement.py policy-engine/src/polisyos/core/llm/traced_client.py policy-engine/src/polisyos/scientist/orchestration/llm/README.md policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
       "target_sha": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
       "environment": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/source-review.json",
@@ -715,7 +715,14 @@
         "sha256": "59e32c9ea1e9989387e85ad207b7969069f5a0b49e51c73d712fe35594302540",
         "git_blob": "f6aab14e5551bbc8a327abeac32b4444037c46d5"
       },
-      "qualification": "Bounded nonblocking source review, not a static compiler invocation or universal financial closure."
+      "qualification": "Bounded nonblocking source review, not a static compiler invocation or universal financial closure.",
+      "command_role": "Exact complete read-only delta command executed at receipt correction; output derives from immutable Git objects and is not duplicated as stored source. All chunks were independently read before the native freeze.",
+      "source_delta_output_identity": {
+        "bytes": 58620,
+        "sha256": "867aefc7017306eb7ec94e00db23b62f77159c300812e0fa9c02631fb965c7fe",
+        "exit": 0,
+        "full_path_denominator": 8
+      }
     },
     {
       "id": "independent-data-only-custody-and-physical-quantity-audit",

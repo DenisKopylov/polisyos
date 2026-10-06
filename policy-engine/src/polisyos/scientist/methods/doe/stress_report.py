@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from enum import Enum
 from math import isfinite
-from typing import Literal
+from typing import Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator, model_validator
 
@@ -16,7 +16,7 @@ def admit_objective_threshold(value: object) -> float | None:
     if type(value) not in {int, float}:
         raise ValueError("vulnerability_threshold must be a finite number, not a coerced value")
     try:
-        threshold = float(value)
+        threshold = float(cast("int | float", value))
     except (OverflowError, ValueError) as exc:
         raise ValueError("vulnerability_threshold must be finite") from exc
     if not isfinite(threshold):
@@ -137,7 +137,7 @@ class StressTestReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     report_id: str
 
     total_scenarios_evaluated: int = 0
@@ -171,14 +171,30 @@ class StressTestReport(BaseModel):
     cas_artifact_id: str | None = None
     metadata: dict[str, object] = Field(default_factory=dict)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _admit_schema_contract(cls, value: object) -> object:
+        if isinstance(value, dict) and value.get("schema_version", "1.0") == "1.0":
+            if "scenario_evidence" in value or "scenario_evidence_components" in value:
+                raise ValueError("scenario evidence requires StressTestReport schema 1.1")
+        return value
+
     @model_validator(mode="after")
     def _validate_scenario_evidence(self) -> StressTestReport:
         evidence = self.scenario_evidence
         if evidence is None:
+            if self.schema_version == "1.1" and (
+                self.robustness_score is not None or self.set_adequacy_status != "partial"
+            ):
+                raise ValueError(
+                    "schema 1.1 without scenario basis must be unavailable and partial"
+                )
             return self
         if evidence.assessment_rule == "component_assessments":
-            components = list(self.scenario_evidence_components.values())
-            if not components or any(item is None for item in components):
+            components = [
+                item for item in self.scenario_evidence_components.values() if item is not None
+            ]
+            if not components or len(components) != len(self.scenario_evidence_components):
                 raise ValueError("aggregate scenario evidence requires every component basis")
             for name in (
                 "attempted",

@@ -2178,65 +2178,100 @@ def test_n6_stop_projection_covers_canonical_terminal_denominator():
 
 
 @pytest.mark.parametrize("schema_version", ["v3", "v4", "v5"])
-@pytest.mark.parametrize("view_profile_token", ["a", "f"])
+@pytest.mark.parametrize("view_profile_case", ["a", "f"])
 def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     schema_version,
-    view_profile_token,
+    view_profile_case,
     tmp_path,
     monkeypatch,
 ):
-    """Execution replay uses the selected N5 input as profile owner (V3-V5)."""
+    """Selected-view replay joins a candidate profile to a persisted context owner.
+
+    V4/V5 bind a typed candidate profile to the real context-job CAS owner.
+    The N5 input/source/result loaders remain unit-controlled stubs, so this
+    test does not claim complete N4/N5 producer capability.
+    """
     from types import SimpleNamespace
 
     from polisyos.core import canon
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
         CandidateSimulationContextHandoff,
+        CandidateSimulationContextInputs,
         CandidateSimulationExecutionV3,
         CandidateSimulationExecutionV4,
         CandidateSimulationExecutionV5,
         CandidateSimulationN5InputV3,
         CandidateSimulationN5InputV4,
         CandidateSimulationN5InputV5,
+        CandidateSimulationScenarioProfile,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+        build_cycle_substrate_context,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
     )
     from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
         N4CandidateScenarioSourceRecordV2,
     )
-
-    token = view_profile_token
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        derive_candidate_scenario_atom,
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from tests.unit.runtime.quality.test_cycle_substrate import (
+        _authenticated_tenant_scope,
+        _TestCurrentJobExecutionOwner,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import _cyc01_owner_bound_n5_case
 
     def ref(artifact_token, kind):
         return ArtifactRef(
             artifact_id="sha256:" + artifact_token * 64,
             kind=kind,
             media_type="application/json",
-            manifest_profile_sha256="sha256:" + token * 64,
+            manifest_profile_sha256="sha256:" + view_profile_case * 64,
         )
 
     job_id = f"job-{schema_version}-execution"
     run_id = f"run-{schema_version}-execution"
     tenant_id = "tenant-execution-roundtrip"
     cell_id = "cell-execution-roundtrip"
-    context_hash = "sha256:" + "8" * 64
-    profile_hash = "sha256:" + "9" * 64
-    world_hash = "sha256:" + "b" * 64
-    input_ref = ref("1", "runtime.quality.candidate_simulation_n5_input")
     n4_kind = (
         "runtime.generation_source_handoff"
         if schema_version == "v3"
         else "runtime.quality.n4_candidate_scenario_source"
     )
     n4_ref = ref("2", n4_kind)
+    result_ref = ref("6", "polisyos.runtime.joint_simulation_result")
+
+    input_types = {
+        "v3": CandidateSimulationN5InputV3,
+        "v4": CandidateSimulationN5InputV4,
+        "v5": CandidateSimulationN5InputV5,
+    }
+    execution_types = {
+        "v3": CandidateSimulationExecutionV3,
+        "v4": CandidateSimulationExecutionV4,
+        "v5": CandidateSimulationExecutionV5,
+    }
+
+    context_hash = "sha256:" + "8" * 64
+    profile_hash = "sha256:" + "9" * 64
+    world_hash = "sha256:" + "b" * 64
+    input_ref = ref("1", "runtime.quality.candidate_simulation_n5_input")
     context_ref = ref("3", "runtime.quality.cycle_substrate_context_job")
     declaration_ref = ref(
         "4", "runtime.quality.candidate_simulation_model_declaration"
     )
-    # Both profile-token cases refer to the same NCM bytes/ArtifactID but select
-    # different well-formed manifest-profile hashes.
     ncm_ref = ref("5", "ir.ncm_spec")
-    result_ref = ref("6", "polisyos.runtime.joint_simulation_result")
     materialization = SimpleNamespace(
         context_hash=context_hash,
         world_model_record_hash=world_hash,
@@ -2250,17 +2285,6 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         profile_id=f"profile-{schema_version}",
         content_hash=profile_hash,
     )
-
-    input_types = {
-        "v3": CandidateSimulationN5InputV3,
-        "v4": CandidateSimulationN5InputV4,
-        "v5": CandidateSimulationN5InputV5,
-    }
-    execution_types = {
-        "v3": CandidateSimulationExecutionV3,
-        "v4": CandidateSimulationExecutionV4,
-        "v5": CandidateSimulationExecutionV5,
-    }
     input_fields = {
         "n4_source_ref": n4_ref,
         "context_job_ref": context_ref,
@@ -2284,44 +2308,331 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
                 "ncm_ref": ncm_ref,
             }
         )
-    input_record = input_types[schema_version].model_construct(**input_fields)
-    handoff = CandidateSimulationContextHandoff.model_construct(
-        context=SimpleNamespace(content_hash=context_hash),
-        context_job_ref=context_ref,
-        profile=profile,
-        profile_config_ref=input_record.profile_config_ref,
-        job_id=job_id,
-        run_id=run_id,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-        model_declaration_ref=(declaration_ref if schema_version == "v5" else None),
-        ncm_ref=(ncm_ref if schema_version == "v5" else None),
-    )
-    simulation = SimulationPortObservation(
-        candidate_id=input_record.original_candidate_id,
-        status="joint_simulated",
-        simulation_ref="sha256:" + "f" * 64,
-        simulation_result_ref=result_ref,
-        k_world_ref_before=world_hash,
-        k_world_ref_after=world_hash,
-    )
-    repository = GenerationSourceRepository(
-        FileSystemCAS(tmp_path / f"execution-{schema_version}-cas")
-    )
+    if schema_version == "v3":
+        input_record = input_types[schema_version].model_construct(**input_fields)
+        handoff = CandidateSimulationContextHandoff.model_construct(
+            context=SimpleNamespace(content_hash=context_hash),
+            context_job_ref=context_ref,
+            profile=profile,
+            profile_config_ref=input_record.profile_config_ref,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            model_declaration_ref=declaration_ref,
+            ncm_ref=ncm_ref,
+        )
+        simulation = SimulationPortObservation(
+            candidate_id=input_record.original_candidate_id,
+            status="joint_simulated",
+            simulation_ref="sha256:" + "f" * 64,
+            simulation_result_ref=result_ref,
+            k_world_ref_before=world_hash,
+            k_world_ref_after=world_hash,
+        )
+        repository = GenerationSourceRepository(
+            FileSystemCAS(tmp_path / f"execution-{schema_version}-cas")
+        )
+
+    if schema_version in {"v4", "v5"}:
+        problem, source_context, source_candidate = _cyc01_owner_bound_n5_case()
+        problem_ref = cycle_job_design_problem_ref(problem)
+        atom = source_candidate.atom.model_copy(
+            update={"problem_frame_ref": problem_ref}
+        )
+        atom = atom.model_copy(
+            update={"content_hash": intervention_atom_content_hash(atom)}
+        )
+        source_candidate = SimpleNamespace(
+            candidate_id="candidate_" + atom.content_hash.removeprefix("sha256:")[:16],
+            atom=atom,
+        )
+        target_world_slot = atom.target_world_slots[0]
+        outcome_variable = problem.outcome_of_interest.target_variable
+        parameter_id = next(iter(atom.direct_effect_bundle.params))
+        target_binding = source_context.world_model_record.slot_binding(target_world_slot)
+        unit_id = (
+            target_binding.unit
+            if target_binding and target_binding.unit
+            else "synthetic_score"
+        )
+
+        store = FileSystemCAS(
+            tmp_path / f"execution-{schema_version}-cas",
+            ownership_enforced=True,
+            ownership_requires_scope=True,
+        )
+        repository = GenerationSourceRepository(store)
+
+        def in_scope(operation, *args, **kwargs):
+            with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+                return operation(*args, **kwargs)
+
+        def hashed_model(model_type, payload):
+            draft = model_type.model_construct(
+                **payload,
+                content_hash="sha256:" + "0" * 64,
+            )
+            return model_type.model_validate(
+                {
+                    **payload,
+                    "content_hash": gy_content_hash(
+                        draft.model_dump(mode="json", exclude={"content_hash"})
+                    ),
+                }
+            )
+
+        context = build_cycle_substrate_context(
+            design_problem_ref=problem_ref,
+            domain=source_context.domain,
+            substrate_registry=source_context.substrate_registry,
+            selected_registry_entry_hashes=source_context.selected_registry_entry_hashes,
+            world_model_record=source_context.world_model_record,
+            intervention_substrate=source_context.intervention_substrate,
+            candidate_levers=source_context.candidate_levers,
+            transport_context=source_context.transport_context,
+            source_pack_content_hash=source_context.source_pack_content_hash,
+            substrate_input_content_hash=source_context.substrate_input_content_hash,
+        )
+        context_inputs = CandidateSimulationContextInputs(
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=context.world_model_record,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=context.candidate_levers,
+            transport_context=context.transport_context,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        )
+        rule = CandidateScenarioSetToRule(
+            operator_kind=atom.operator_kind.trinity_kind,
+            parameter_id=parameter_id,
+            target_world_slot=target_world_slot,
+            unit_id=unit_id,
+            minimum=0,
+            maximum=1,
+        )
+        n5 = CandidateScenarioN5Config(
+            budget_ref=f"budget://selected-view/{schema_version}",
+            horizon=HorizonSpec(start=0, end=0, step=1),
+            baseline_state={target_world_slot: 0.0, outcome_variable: 0.0},
+            seed=7,
+            replications=2,
+        )
+        profile = hashed_model(
+            CandidateSimulationScenarioProfile,
+            {
+                "profile_id": f"profile-{schema_version}",
+                "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+                "context_inputs": context_inputs,
+                "rule": rule,
+                "n5": n5,
+                "limitations": (
+                    "scenario_only",
+                    "real_profile_not_established",
+                    "real_time_not_established",
+                    "grounding_not_established",
+                    "s8_blocked",
+                    "n9_not_admitted",
+                ),
+            },
+        )
+        profile_config_ref = candidate_simulation_profile_ref(profile)
+        owner = CycleSubstrateContextArtifactOwner(
+            store=store,
+            control_store=_TestCurrentJobExecutionOwner(job_id, run_id),
+        )
+        context_ref = in_scope(
+            owner.persist_for_current_job,
+            context,
+            problem=problem,
+        )
+        context_job = in_scope(
+            owner.resolve_historical_job_artifact,
+            context_ref,
+            problem=problem,
+            expected_job_id=job_id,
+            expected_run_id=run_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+        )
+        assert (
+            context_job.job_id,
+            context_job.run_id,
+            context_job.tenant_id,
+            context_job.cell_id,
+            context_job.design_problem_ref,
+        ) == (job_id, run_id, tenant_id, cell_id, problem_ref)
+        assert context_job.problem == problem
+        assert context_job.context.content_hash == context.content_hash
+        assert (
+            context_job.context.world_model_record.world_model_record_id
+            == profile.context_inputs.world_model_record.world_model_record_id
+        )
+        assert (
+            context_job.context.world_model_record.content_hash
+            == profile.context_inputs.world_model_record.content_hash
+        )
+        declaration_ref = ref("4", "runtime.quality.candidate_simulation_model_declaration")
+        # The two cases keep the same NCM bytes/ArtifactID and vary only the
+        # selected manifest-profile hash, which this unit test preserves.
+        ncm_ref = ref("5", "ir.ncm_spec")
+        other_view_suffix = "f" if view_profile_case == "a" else "a"
+        other_ncm_ref = ArtifactRef(
+            artifact_id=ncm_ref.artifact_id,
+            kind=ncm_ref.kind,
+            media_type=ncm_ref.media_type,
+            manifest_profile_sha256="sha256:" + other_view_suffix * 64,
+        )
+        assert other_ncm_ref.artifact_id == ncm_ref.artifact_id
+        assert other_ncm_ref.manifest_profile_sha256 != ncm_ref.manifest_profile_sha256
+
+        context_hash = context_job.context.content_hash
+        world_hash = context_job.context.world_model_record.content_hash
+        profile_hash = profile.content_hash
+        candidate_id = source_candidate.candidate_id
+        materialization = SimpleNamespace(
+            profile_hash=profile_hash,
+            problem_ref=problem_ref,
+            context_hash=context_hash,
+            context_job_ref=context_ref,
+            world_model_record_hash=world_hash,
+            n4_source_ref=n4_ref,
+            candidate_id=candidate_id,
+            original_candidate_hash=atom.content_hash,
+            original_atom_hash=atom.content_hash,
+            derived_n5_atom=derive_candidate_scenario_atom(
+                atom,
+                target_world_slot=target_world_slot,
+                value=rule.maximum,
+            ),
+        )
+        input_fields = {
+            "profile": profile,
+            "profile_config_ref": profile_config_ref,
+            "n4_source_ref": n4_ref,
+            "context_job_ref": context_ref,
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "original_candidate_id": candidate_id,
+            "original_candidate_hash": atom.content_hash,
+            "original_n4_atom_hash": atom.content_hash,
+            "outcome_variable": outcome_variable,
+            "materialization": materialization,
+            "n5": profile.n5,
+        }
+        if schema_version == "v5":
+            input_fields.update(
+                {
+                    "model_declaration_ref": declaration_ref,
+                    "ncm_ref": ncm_ref,
+                }
+            )
+        # The N5 input loader is intentionally a unit stub below. Keep its
+        # returned object typed while making the persisted context owner the
+        # only authority-backed artifact in this fixture.
+        input_record = input_types[schema_version].model_construct(**input_fields)
+        handoff_fields = {
+            "context": context_job.context,
+            "context_job_ref": context_ref,
+            "profile": profile,
+            "profile_config_ref": profile_config_ref,
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+        }
+        if schema_version == "v5":
+            handoff_fields.update(
+                {
+                    "model_declaration_ref": declaration_ref,
+                    "ncm_ref": ncm_ref,
+                }
+            )
+        handoff = (
+            CandidateSimulationContextHandoff.model_construct(**handoff_fields)
+            if schema_version == "v5"
+            else CandidateSimulationContextHandoff(**handoff_fields)
+        )
+        source_v1 = SimpleNamespace(
+            context_job_ref=context_ref,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            context_hash=context_hash,
+            world_model_record_hash=world_hash,
+            cycle_problem_ref=problem_ref,
+            problem=problem,
+            profile=profile,
+            profile_config_ref=profile_config_ref,
+            candidate=source_candidate,
+            world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+        )
+        if schema_version == "v5":
+            source_v2 = N4CandidateScenarioSourceRecordV2.model_construct(
+                source_record=source_v1,
+                model_declaration_ref=declaration_ref,
+                ncm_ref=ncm_ref,
+                world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+            )
+        simulation = SimulationPortObservation(
+            candidate_id=input_record.original_candidate_id,
+            status="joint_simulated",
+            simulation_ref="sha256:" + "f" * 64,
+            simulation_result_ref=result_ref,
+            k_world_ref_before=world_hash,
+            k_world_ref_after=world_hash,
+        )
+
+    def load_input(selected_ref):
+        if schema_version != "v3":
+            assert selected_ref == input_ref
+            assert (
+                input_record.context_job_ref,
+                input_record.job_id,
+                input_record.run_id,
+                input_record.tenant_id,
+                input_record.cell_id,
+                input_record.materialization.world_model_record_hash,
+            ) == (
+                context_ref,
+                job_id,
+                run_id,
+                tenant_id,
+                cell_id,
+                world_hash,
+            )
+        return input_record
+
     monkeypatch.setattr(
         repository,
         f"_load_candidate_simulation_input_{schema_version}",
-        lambda _ref: input_record,
+        load_input,
     )
 
-    execution_ref = getattr(
+    execution_ref = in_scope(
+        getattr(
+            repository,
+            f"persist_candidate_simulation_execution_{schema_version}",
+        ),
+        input_ref=input_ref,
+        simulation=simulation,
+        handoff=handoff,
+    ) if schema_version != "v3" else getattr(
         repository, f"persist_candidate_simulation_execution_{schema_version}"
     )(
         input_ref=input_ref,
         simulation=simulation,
         handoff=handoff,
     )
-    payload = canon.from_canonical_bytes(repository.store.get_bytes(execution_ref))
+    payload = canon.from_canonical_bytes(
+        in_scope(repository.store.get_bytes, execution_ref)
+        if schema_version != "v3"
+        else repository.store.get_bytes(execution_ref)
+    )
     execution = execution_types[schema_version].model_validate(payload)
 
     assert execution.authority_purpose == "candidate_scenario_n5_only"
@@ -2362,7 +2673,11 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     expected_inputs.add(
         ("n5_result", str(result_ref.artifact_id), result_ref.manifest_profile_sha256)
     )
-    manifest = repository.store.get_manifest(execution_ref)
+    manifest = (
+        in_scope(repository.store.get_manifest, execution_ref)
+        if schema_version != "v3"
+        else repository.store.get_manifest(execution_ref)
+    )
     assert {
         (item.role, str(item.artifact_id), item.manifest_profile_sha256)
         for item in manifest.inputs
@@ -2383,32 +2698,70 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     if schema_version in {"v4", "v5"}:
         from polisyos.runtime.quality import generation_cycle as generation_cycle_module
 
-        source_candidate = SimpleNamespace(
-            candidate_id=input_record.original_candidate_id,
-            atom=SimpleNamespace(content_hash=input_record.original_candidate_hash),
-        )
-        source_v1 = SimpleNamespace(
-            context_job_ref=context_ref,
-            profile=profile,
-            profile_config_ref=input_record.profile_config_ref,
-            candidate=source_candidate,
-        )
+        def assert_source_scope(
+            selected_ref,
+            *,
+            expected_run_id,
+            expected_job_id,
+            expected_tenant_id,
+            expected_cell_id,
+        ):
+            assert selected_ref == n4_ref
+            expected_identity = (
+                expected_run_id,
+                expected_job_id,
+                expected_tenant_id,
+                expected_cell_id,
+            )
+            assert expected_identity == (
+                run_id,
+                job_id,
+                tenant_id,
+                cell_id,
+            )
+            assert (
+                source_v1.run_id,
+                source_v1.job_id,
+                source_v1.tenant_id,
+                source_v1.cell_id,
+            ) == expected_identity
+            assert source_v1.context_job_ref == context_ref
+            assert source_v1.problem == problem
+            assert source_v1.cycle_problem_ref == problem_ref
+            assert source_v1.context_hash == context_hash
+            assert source_v1.world_model_record_hash == world_hash
+            assert source_v1.profile_config_ref == input_record.profile_config_ref
+            assert source_v1.candidate.candidate_id == input_record.original_candidate_id
+            assert source_v1.candidate.atom.content_hash == input_record.original_n4_atom_hash
+            assert (
+                context_job.context.world_model_record.world_model_record_id
+                == source_v1.world_model_record_id
+            )
+
         if schema_version == "v4":
+            def load_source_v1(selected_ref, **scope):
+                assert_source_scope(selected_ref, **scope)
+                return source_v1
+
             monkeypatch.setattr(
                 repository,
                 "load_candidate_scenario_source_v1",
-                lambda *_args, **_kwargs: source_v1,
+                load_source_v1,
             )
         else:
-            source_v2 = N4CandidateScenarioSourceRecordV2.model_construct(
-                source_record=source_v1,
-                model_declaration_ref=declaration_ref,
-                ncm_ref=ncm_ref,
-            )
+            def load_source_for_n5(selected_ref, **scope):
+                assert_source_scope(selected_ref, **scope)
+                assert source_v2.model_declaration_ref == input_record.model_declaration_ref
+                assert source_v2.ncm_ref == input_record.ncm_ref
+                assert source_v2.world_model_record_id == (
+                    context_job.context.world_model_record.world_model_record_id
+                )
+                return source_v2
+
             monkeypatch.setattr(
                 repository,
                 "load_candidate_scenario_source_for_n5",
-                lambda *_args, **_kwargs: source_v2,
+                load_source_for_n5,
             )
         monkeypatch.setattr(
             generation_cycle_module,
@@ -2418,7 +2771,8 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             ),
         )
         resolver = getattr(repository, f"resolve_candidate_simulation_{schema_version}")
-        replayed = resolver(
+        replayed = in_scope(
+            resolver,
             ref=execution_ref,
             expected_run_id=run_id,
             expected_job_id=job_id,
@@ -2437,7 +2791,8 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             ValueError,
             match=f"candidate_simulation_{schema_version}_n4_source_membership_mismatch",
         ):
-            resolver(
+            in_scope(
+                resolver,
                 ref=execution_ref,
                 expected_run_id=run_id,
                 expected_job_id=job_id,
@@ -2470,7 +2825,8 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             ValueError,
             match=f"candidate_simulation_{schema_version}_execution_input_mismatch",
         ):
-            resolver(
+            in_scope(
+                resolver,
                 ref=execution_ref,
                 expected_run_id=run_id,
                 expected_job_id=job_id,
@@ -2485,7 +2841,8 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             f"_load_candidate_simulation_input_{schema_version}",
             lambda _ref: input_record,
         )
-        assert resolver(
+        assert in_scope(
+            resolver,
             ref=execution_ref,
             expected_run_id=run_id,
             expected_job_id=job_id,

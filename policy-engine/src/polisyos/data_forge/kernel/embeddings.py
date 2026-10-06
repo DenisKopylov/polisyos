@@ -118,6 +118,7 @@ def build_embedding_generation(
     embedding_dimension: int = 1024,
     embedding_batch_size: int = 32,
     thermal_pause_seconds: float = 0.0,
+    encoder: object | None = None,
     basis_kind: str = "embedding",
     projection_rule_version: str = "policyos.embedding_projection.v1",
     legacy_embeddings_path: Path | None = None,
@@ -129,14 +130,16 @@ def build_embedding_generation(
     Existing flat files are copied only as a compatibility projection and are
     never used when a selector is present.  A failed build cleans up only its
     own staging directory, leaving the previous selector and generation intact.
+    ``encoder`` lets a caller reuse the exact loaded model whose asset identity
+    it recorded while deciding whether an existing generation can be reused.
     """
     normalized_rows = _normalize_rows(rows)
-    encoder: object | None = None
     encoder_identity: GenerationIdentity | None = None
     if normalized_rows:
-        from sentence_transformers import SentenceTransformer
+        if encoder is None:
+            from sentence_transformers import SentenceTransformer
 
-        encoder = SentenceTransformer(embedding_model, device=embedding_device)
+            encoder = SentenceTransformer(embedding_model, device=embedding_device)
         encoder_identity = derive_encoder_identity(encoder)
 
     def _stage(staging: Path) -> tuple[int, int]:
@@ -693,6 +696,22 @@ def _legacy_index_matches_matrix(
     dimension: int,
 ) -> bool:
     """Prove a selector-less legacy HNSW index matches its flat matrix."""
+    return _hnsw_file_matches_matrix(
+        embeddings_path=embeddings_path,
+        index_path=index_path,
+        ids=ids,
+        dimension=dimension,
+    )
+
+
+def _hnsw_file_matches_matrix(
+    *,
+    embeddings_path: Path,
+    index_path: Path,
+    ids: tuple[str, ...],
+    dimension: int,
+) -> bool:
+    """Load a native index and compare its labels and vectors to the matrix."""
     import hnswlib
 
     with np.load(str(embeddings_path), allow_pickle=True) as payload:
@@ -920,6 +939,13 @@ def _build_selected_reference(
     if dict(persisted_basis) != dict(basis):
         raise ValueError("embedding basis sidecar is not bound to inventory")
     _validate_basis(persisted_basis, ids)
+    if status == "complete" and not _hnsw_file_matches_matrix(
+        embeddings_path=paths["embeddings"],
+        index_path=paths["index"],
+        ids=ids,
+        dimension=dimension,
+    ):
+        raise ValueError("HNSW index vectors do not match the matrix")
     return EmbeddingGenerationRef(
         generation_id=generation_id,
         status=status,

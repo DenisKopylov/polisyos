@@ -1,0 +1,225 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "dfi-emb-content-generation-20261006",
+  "closure_ids": [],
+  "bundle_ids": [
+    "DFI-01",
+    "DFI-02",
+    "DFI-03",
+    "EMB-01",
+    "EMB-02",
+    "EMB-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "f5d66898566cc472a5a3a7309ecb76f0cdb12c45"
+  ],
+  "candidate_tree_sha": "b58a865a040bfda3bf012a2a9b27d1a5cd350e1f",
+  "branch": "codex/e02-C-dfi-emb-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+    "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/kernel/README.md",
+    "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+    "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+    "policy-engine/src/polisyos/lex/knowledge/store.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_harvester_parallel.py",
+    "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+    "policy-engine/tests/unit/remediation/test_dfi_02.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py",
+    "policy-engine/tests/unit/remediation/test_emb_02.py",
+    "policy-engine/tests/unit/remediation/test_emb_03.py",
+    "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
+    "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py"
+  ],
+  "baseline_cells": [
+    "F01-P079",
+    "F01-P108",
+    "F01-P122",
+    "F02-P091",
+    "F02-P116",
+    "F02-P123",
+    "F03-P007",
+    "F03-P122",
+    "F03-P137",
+    "F04-P079",
+    "F04-P122",
+    "F04-P130",
+    "F04-P137",
+    "F05-P015",
+    "F05-P136",
+    "F06-P135",
+    "F06-P136",
+    "F06-P141",
+    "F07-P005",
+    "F07-P071",
+    "F07-P115",
+    "F08-P123",
+    "F09-P079",
+    "F09-P092",
+    "F09-P110",
+    "F09-P116",
+    "F09-P123",
+    "F09-P127",
+    "F10-P106",
+    "F10-P112",
+    "F11-P011",
+    "F11-P110",
+    "F12-P110",
+    "F13-P126",
+    "F13-P143",
+    "F13-P151",
+    "F14-P091",
+    "F14-P105",
+    "F14-P135",
+    "F14-P145",
+    "F15-P008",
+    "F15-P091",
+    "F15-P145"
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/run_focused_native_evidence.py",
+      "target_sha": "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
+      "environment": "Python 3.14 shared read-only policy-engine venv; PYTHONPATH points at this candidate worktree. Pytest loads repository conftest. The test encoder, tokenizer, vectors, DBs, and corpora are deterministic fixtures; hnswlib is the installed native binary recorded below.",
+      "input_closure": "57 focused DFI/EMB tests and the two real proving-ground search/readback consumers; temporary fixture databases and isolated tmp_path outputs only; no production corpus or pretrained model assets.",
+      "outcome": "PASS",
+      "output": "57 tests passed (57 progress dots, pytest exitstatus 0). Runtime module evidence: hnswlib 0.8.0; module and ModuleSpec origin `/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so`; SHA256 `1995d684a31ecce3f0b2f817e283c7ba0d3bd77c961c0f47f2adb552f8cddf4a`. Full output: `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/focused-tests-native-evidence-final.txt`@`e555b203ea9eed0b22d338c3605471ccb67b023741fd54dbda009657a917cfaa`.",
+      "evidence_script": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/run_focused_native_evidence.py@142a186d29917dbad60eb00eb17fb1d722c9d1e3fe437b1a680b64876accc540"
+    },
+    {
+      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/run_full_changed_ruff.py",
+      "target_sha": "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
+      "environment": "Python 3.14 shared read-only policy-engine venv; Ruff configuration resolved from policy-engine; every changed Python path from the implementation commit was checked without a select-only filter.",
+      "input_closure": "All 29 changed .py paths in implementation commit f5d66898566cc472a5a3a7309ecb76f0cdb12c45.",
+      "outcome": "FAIL",
+      "output": "Full Ruff reports 645 diagnostics. Complete output: `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/ruff-full-changed-final.txt`@`27b3898bb14585139489f5707255dd7f0c6308f008eb74773c850810960d68fd`. Diagnostic comparison references: exact slice-base JSON `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/ruff-base.json`@`3b3a4d3ff90c15eb5bd1957ae82b45f97d08d9c7e61bc5318961a15da54dc00c`; candidate JSON `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/ruff-final.json`@`9f7360695c7e010e4e07bb774df888b9b98ba63a291b250945e84296f463e3ae`. Comparison mapped 657 base diagnostics to 645 candidate diagnostics with 0 unmatched candidate diagnostics and 12 fewer findings. Changed paths overlap Ruff's complete denominator, so the failed gate is not labeled inherited or disjoint; ownership of the remaining findings is not established.",
+      "evidence_script": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/run_full_changed_ruff.py@2a374f6f21ed5f82ed58db146747d98d061f7067022ff78ac7f2ea93c239aa74"
+    },
+    {
+      "command": "git show --check --oneline f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
+      "target_sha": "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
+      "environment": "Git in the authorized C worktree.",
+      "input_closure": "Implementation commit diff.",
+      "outcome": "PASS",
+      "output": "No whitespace errors; commit subject `Harden catalog resume and embedding generations`."
+    },
+    {
+      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+      "target_sha": "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
+      "environment": "Python 3.14 shared read-only venv; import path explicitly points to this worktree. Fresh generated-artifact checks copy the repository into an isolated temporary directory.",
+      "input_closure": "Repository-wide architecture and generated-artifact checks; isolated copy had no node_modules.",
+      "outcome": "UNRUN",
+      "output": "Command exited 2 with `Architecture guardrail check UNRUN: required measurements unavailable; no complete verdict.` The generated runtime API and dashboard checks could not find `openapi-typescript` in the copied workspace and exited 254; the output also reported deep-import baseline drift and runtime generated-artifact mismatches. The complete command output was truncated by the tool and was not retained as a raw file. No architecture PASS or ownership attribution is claimed; rerun at the frozen candidate if needed for G admission."
+    }
+  ],
+  "property": {
+    "statement": "A selected source stage or embedding generation is reusable only while the current request, selected registry/configuration, producer outcome, content inputs, encoder/projection identity, current domain membership, and required output inventory still match the persisted artifact; one concurrent core-sources request cannot broadcast mutable bindings into sibling requests.",
+    "runtime_path": [
+      "core_sources_ingest facade",
+      "immutable request-scoped compatibility context",
+      "six existing core_sources leaf modules",
+      "async batch pipeline",
+      "source registry and harvester outcomes",
+      "payload/manifests/checkpoint and content-bound stage receipt",
+      "shared generation publisher and selector",
+      "Academic/Catalog/Legal actual database-backed readers and search"
+    ],
+    "proxy_divergence": "The old stat fingerprint could stay equal when same-size input bytes were changed and mtime restored; a directory or old manifest marker could exist without a complete selected source result; an index label/ID list could say v2 while a stale selector still returned the old corpus. The new negatives exercise each divergence: source outcome membership and payload bytes are re-read, required outputs and digests are recomputed, and the selector-suppression control leaves v2 metadata on disk while asserting that the real Catalog search does not return the new ds-2 record.",
+    "negative_controls": [
+      "Overlapping sibling async core-source requests bind distinct compatibility overrides; module globals remain unchanged and each result uses only its own writer/validator dependencies.",
+      "A selected two-source harvest with one failed source cannot produce a complete resumable receipt or normalize as complete; retry can complete after recovery.",
+      "Same-size/same-mtime source and output byte changes, missing required stage outputs, changed registry/configuration, and tampered receipts all force cache miss or fail closed.",
+      "HNSW save fault preserves the prior selector; late alias failure still exposes only the selected immutable generation; suppressing the selector update leaves v2 inventory present but the actual Catalog reader rejects/does not return the new ds-2 query result.",
+      "Legal content edits, encoder-weight changes, membership changes, and entity/fact/provision withdrawal invalidate stale readback; the legacy entrypoint test asserts that its supplied recording encoder is actually called and its identity is bound."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_detail": {
+    "stage_input_output_and_encoder_digests": "recomputed from current bytes and current runtime assets",
+    "domain_reader_membership": "recomputed by comparing the selected generation with rows returned by the actual fixture database readers",
+    "selected_catalog_source_set": "recomputed from the current validated catalog registry bytes and selected source configuration; no claim that this is a globally complete external source universe",
+    "production_corpus_completeness": "not_established",
+    "production_model_release_or_weight_provenance": "not_established"
+  },
+  "capability_state_or_finding_state": "All five ledger findings remain partial; this candidate supplies bounded implementation and fixture evidence but claims no finding closure. See per-finding results and residuals below. Catalog standalone benchmark/QC/publish receipt consumption remains a separate owner integration.",
+  "finding_states": [
+    {
+      "id": "LA-038",
+      "bundles": ["DFI-01", "DFI-02"],
+      "historical_status": "partial / bridge_missing",
+      "candidate_result": "The legacy facade now binds immutable request-scoped dependencies through ContextVar; six existing leaves resolve their own override. Concurrent sibling async tests pass without module-global broadcast.",
+      "remaining": "Full FQN/external importer and monkeypatch census, production source ingestion parity, and the final compatibility sunset remain not established."
+    },
+    {
+      "id": "LA-039",
+      "bundles": ["EMB-01", "EMB-02"],
+      "historical_status": "partial / verification_missing",
+      "candidate_result": "Academic/Catalog use shared encode/index and text-projection mechanisms with immutable generation publication and selector-authoritative reads. Fault controls and actual Academic/Catalog fixture searches exercise real hnswlib 0.8.0.",
+      "remaining": "Encoder fixtures are deterministic fakes; no production model assets, full source-history census, installed-wheel verification, or production corpus membership were exercised in this lane."
+    },
+    {
+      "id": "LA-040",
+      "bundles": ["EMB-03"],
+      "historical_status": "partial / producer_missing",
+      "candidate_result": "Legal generation basis binds projected content, current member IDs, inspectable encoder/tokenizer/projection assets, and required entity/fact/provision outputs; actual legal store query and content/change/withdrawal negatives pass.",
+      "remaining": "External model release/revision provenance and globally authoritative legal corpus inventory remain not established; tests use tiny fixture databases and deterministic fake assets."
+    },
+    {
+      "id": "LA-041",
+      "bundles": ["DFI-03"],
+      "historical_status": "partial / verification_missing",
+      "candidate_result": "Harvest records per-source outcomes and actual payload digests; failed selected sources block complete stage receipts and normalization. Stage skip recomputes registry/config/input basis and required content output inventory, and standalone benchmark/QC/publish producer helpers can emit/read exact receipts.",
+      "remaining": "No full production history/remote source run; caller-declared selected-source completeness is only as complete as the current validated catalog registry and is not an independent global source authority. Catalog CLI/publisher integration is owned by the Catalog author."
+    },
+    {
+      "id": "LA-042",
+      "bundles": ["EMB-03"],
+      "historical_status": "partial / bridge_missing",
+      "candidate_result": "The legacy embedding API invokes a supported supplied encoder instead of ignoring it; the test observes the actual encode call, bound identity, and legal-reader result.",
+      "remaining": "Full external FQN/notebook/config/caller census, actual pretrained encoder assets, and the semantic owner policy for supported model identities remain unresolved."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Independent review of the frozen implementation commit is pending; this receipt is not a review or closure decision.",
+    "The fixture suite uses native hnswlib 0.8.0, but a deterministic fake SentenceTransformer/tokenizer/weight fixture. Real pretrained-model asset loading and release provenance were not established.",
+    "No production dataset or full production source history was read; results are bounded to synthetic fixture inputs and actual local fixture readers.",
+    "The current validated Catalog registry anchors its selected source set, but no separate authority independently establishes the complete external source universe or all required harvested records.",
+    "Catalog author must consume `current_content_stage_receipt(config, stage)` and `run_content_stage_with_receipt(config, stage)` for standalone real benchmark/QC/publish paths and make publishers refuse unbound reports; those CLI and publisher files were outside this writer lease.",
+    "Fresh-wheel/imported-package verification remains for the root installed audit slot. Architecture guardrails returned UNRUN/exit 2 because isolated generated checks lacked node_modules/openapi-typescript; complete output was not retained. Full Ruff is FAIL with ownership not established, not an inherited-green result.",
+    "The local commit used the parent-authorized per-command `git -c core.hooksPath=/dev/null` because the worktree lacks the lefthook binary; no hook configuration or dependency installation was changed."
+  ],
+  "source_refs": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFI-01.md#LA-038",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFI-02.md#LA-038",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFI-03.md#LA-041",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMB-01.md#LA-039",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMB-02.md#LA-039",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMB-03.md#LA-040",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMB-03.md#LA-042",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv#LA-038..LA-042",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md#finding-la-038..finding-la-042"
+  ]
+}

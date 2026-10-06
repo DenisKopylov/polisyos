@@ -30,6 +30,7 @@ impact = "added"
 surface = "DoWhyIdentifyEstimate.report_from_worker_result on existing exported class"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
+deprecation_window = "Not applicable: this additive pure method preserves existing class, function and producer output addresses."
 release_note = "Producer and source-validating consumer share one complete pure typed-report projection; existing class and function pickle addresses remain canonical."
 migration_docs = ["workers/dowhy-014/README.md"]
 runbook_docs = ["workers/dowhy-014/README.md"]

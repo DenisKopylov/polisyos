@@ -14,9 +14,8 @@ import hashlib
 import inspect
 import logging
 import time
-from collections.abc import Iterator
+from collections.abc import AsyncIterator, Iterator
 from contextlib import contextmanager
-from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
@@ -36,8 +35,10 @@ from .settlement import (
     LLMSettlementAck,
     _cache_reuse_consumer_context,
     _CacheReuseOwner,
+    _completion_amount,
     _current_settlement_owner,
     _new_producer_id,
+    _observe_traced_entry,
     _producer_completion_context,
     _request_digest,
     producer_settlement,
@@ -193,6 +194,11 @@ class TracedLLMClient:
             self._detect_prompt_mode(client) if prompt_mode == "auto" else prompt_mode
         )
 
+    @property
+    def _accounting_flight_owner(self) -> _CacheReuseOwner | None:
+        """Return only the emitter admitted for this configured cache client."""
+        return self._cache_reuse_owner
+
     @contextmanager
     def _optional_span(self, *args: Any, **kwargs: Any) -> Iterator[_OptionalSpan]:
         manager = None
@@ -225,6 +231,7 @@ class TracedLLMClient:
                     )
 
     async def _await_owned_call(self, operation: Any) -> Any:
+        _observe_traced_entry(self, "preflight")
         try:
             self._require_accounting_ready()
         except BaseException:
@@ -264,6 +271,20 @@ class TracedLLMClient:
         del self._pending_accounting[event_identity]
 
     def __getattr__(self, name: str) -> Any:
+        if name == "generate_stream":
+            delegated = getattr(self._client, name)
+
+            async def unmanaged_stream(*args: Any, **kwargs: Any) -> AsyncIterator[Any]:
+                self._require_accounting_ready()
+                if self._required_accounting is not None or _current_settlement_owner() is not None:
+                    raise NotImplementedError(
+                        "streaming has no mandatory producer settlement contract; "
+                        "use generate, invoke or ainvoke"
+                    )
+                async for chunk in delegated(*args, **kwargs):
+                    yield chunk
+
+            return unmanaged_stream
         return getattr(self._client, name)
 
     def unwrap(self) -> Any:
@@ -274,6 +295,36 @@ class TracedLLMClient:
                 break
             current = next_client
         return current
+
+    def with_model(self, model_name: str) -> TracedLLMClient:
+        """Return an unmanaged model view without dropping protected accounting.
+
+        Retargeting a mandatory accounting owner has no admitted transfer
+        contract. It refuses before provider work; an unchanged model retains
+        this very owner and its pending state.
+        """
+        self._require_accounting_ready()
+        if model_name == self._model_name:
+            return self
+        if self._required_accounting is not None or _current_settlement_owner() is not None:
+            raise NotImplementedError(
+                "protected LLM model retarget requires an owner transfer contract"
+            )
+        return TracedLLMClient(
+            self._client,
+            model_name=model_name,
+            capture_prompt=self._capture_prompt,
+            max_prompt_length=self._max_prompt_length,
+            run_id=self._run_id,
+            model_variant_id=self._model_variant_id,
+            provider_name=self._provider_name,
+            call_observer=self._call_observer,
+            prompt_sanitizer=self._prompt_sanitizer,
+            tracer=self._tracer,
+            metrics=self._metrics,
+            prompt_mode=self._prompt_mode,
+            cache_reuse_owner=self._cache_reuse_owner,
+        )
 
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         """Forward gateway model preflight through the tracing wrapper."""
@@ -430,12 +481,8 @@ class TracedLLMClient:
         provider_call = not parsed.cache_hit
         billable_prompt_tokens = parsed.prompt_tokens if provider_call else 0
         billable_completion_tokens = parsed.completion_tokens if provider_call else 0
-        if provider_call:
-            billable_cost_usd = (
-                float(parsed.cost_usd) if parsed.cost_usd is not None else float(estimated_cost_usd)
-            )
-        else:
-            billable_cost_usd = 0.0
+        amount, cost_origin = _completion_amount(parsed, self._model_name)
+        billable_cost_usd = float(amount) if amount is not None else None
         cost_delta_usd = (
             float(origin_cost_usd) - float(estimated_cost_usd)
             if origin_cost_usd is not None
@@ -453,6 +500,9 @@ class TracedLLMClient:
             "origin_completion_tokens": completion_tokens,
             "origin_total_tokens": prompt_tokens + completion_tokens,
             "cost_usd": billable_cost_usd,
+            "cost_origin": cost_origin,
+            "usage_status": parsed.usage_status,
+            "cost_status": parsed.cost_status,
             "origin_cost_usd": (float(origin_cost_usd) if origin_cost_usd is not None else None),
             "estimated_cost_usd": float(estimated_cost_usd),
             "cost_delta_usd": cost_delta_usd,
@@ -486,6 +536,8 @@ class TracedLLMClient:
                     if received.status != "committed":
                         raise ValueError("mandatory settlement is unknown")
                     ack = received
+                except LLMAccountingError:
+                    raise
                 except Exception as exc:
                     event["settlement_status"] = "unknown"
                     event["producer_event"] = producer_event
@@ -519,7 +571,9 @@ class TracedLLMClient:
             billable_prompt_tokens + billable_completion_tokens,
         )
         span.set_attribute("polisyos.llm.latency_ms", latency_ms)
-        span.set_attribute("polisyos.llm.cost_usd", billable_cost_usd)
+        if billable_cost_usd is not None:
+            span.set_attribute("polisyos.llm.cost_usd", billable_cost_usd)
+        span.set_attribute("polisyos.llm.cost_origin", cost_origin)
         if origin_cost_usd is not None:
             span.set_attribute("polisyos.llm.origin_cost_usd", float(origin_cost_usd))
         span.set_attribute("polisyos.llm.estimated_cost_usd", float(estimated_cost_usd))
@@ -565,11 +619,15 @@ class TracedLLMClient:
         return settlement
 
     def invoke(self, prompt: str, **kwargs: Any) -> Any:
+        _observe_traced_entry(self, "preflight")
         self._require_accounting_ready()
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
+        owner = _current_settlement_owner()
+        producer_id = owner.attempt_id if owner is not None else None
+        producer_id = producer_id or _new_producer_id()
 
         with self._optional_span(
             f"llm.invoke.{self._model_name}",
@@ -578,6 +636,7 @@ class TracedLLMClient:
         ) as span:
             try:
                 call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
+                _observe_traced_entry(self, "delegated")
                 response = self._client.invoke(*call_args, **call_kwargs)
                 parsed = _extract_physical_provider_response_data(response)
                 provider = self._detect_provider(parsed.provider)
@@ -590,7 +649,7 @@ class TracedLLMClient:
                     "success",
                     provider,
                     response,
-                    self._completion_event(parsed, (prompt,), kwargs),
+                    self._completion_event(parsed, (prompt,), kwargs, producer_id),
                 )
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                 if _current_settlement_owner() is not None and settled is not None:
@@ -613,11 +672,15 @@ class TracedLLMClient:
         return await self._await_owned_call(self._ainvoke_owned(prompt, kwargs))
 
     async def _ainvoke_owned(self, prompt: str, kwargs: dict[str, Any]) -> Any:
+        _observe_traced_entry(self, "preflight")
         self._require_accounting_ready()
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
+        owner = _current_settlement_owner()
+        producer_id = owner.attempt_id if owner is not None else None
+        producer_id = producer_id or _new_producer_id()
 
         with self._optional_span(
             f"llm.ainvoke.{self._model_name}",
@@ -626,6 +689,7 @@ class TracedLLMClient:
         ) as span:
             try:
                 call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
+                _observe_traced_entry(self, "delegated")
                 response = await self._client.ainvoke(*call_args, **call_kwargs)
                 parsed = _extract_physical_provider_response_data(response)
                 provider = self._detect_provider(parsed.provider)
@@ -638,7 +702,7 @@ class TracedLLMClient:
                     "success",
                     provider,
                     response,
-                    self._completion_event(parsed, (prompt,), kwargs),
+                    self._completion_event(parsed, (prompt,), kwargs, producer_id),
                 )
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                 if _current_settlement_owner() is not None and settled is not None:
@@ -658,29 +722,23 @@ class TracedLLMClient:
                 raise
 
     def _completion_event(
-        self, parsed: LLMResponseData, args: tuple[Any, ...], kwargs: dict[str, Any]
+        self,
+        parsed: LLMResponseData,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+        producer_id: str,
     ) -> LLMProducerEvent:
+        amount, cost_origin = _completion_amount(parsed, self._model_name)
+        owner = _current_settlement_owner()
         return LLMProducerEvent(
-            event_id=parsed.reuse_event_id or _new_producer_id(),
-            request_digest=_request_digest({"args": args, "kwargs": kwargs}),
+            event_id=parsed.reuse_event_id or producer_id,
+            request_digest=(owner.request_digest if owner is not None else None)
+            or _request_digest({"args": args, "kwargs": kwargs}),
             response_digest="sha256:" + hashlib.sha256(str(parsed.content).encode()).hexdigest(),
             model=parsed.model or self._model_name,
             provider=self._detect_provider(parsed.provider),
-            amount=Decimal(0)
-            if parsed.cache_hit
-            else Decimal(
-                str(
-                    parsed.cost_usd
-                    if parsed.cost_usd is not None
-                    else self._estimate_cost_usd(
-                        prompt_tokens=parsed.prompt_tokens,
-                        completion_tokens=parsed.completion_tokens,
-                    )
-                )
-            ),
-            cost_origin="reuse"
-            if parsed.cache_hit
-            else ("reported" if parsed.cost_usd is not None else "estimated"),
+            amount=amount,
+            cost_origin=cost_origin,
             kind="reuse" if parsed.cache_hit else "provider",
         )
 
@@ -689,6 +747,7 @@ class TracedLLMClient:
         return await self._await_owned_call(self._generate_owned(call_args, call_kwargs))
 
     async def _generate_owned(self, call_args: tuple[Any, ...], call_kwargs: dict[str, Any]) -> Any:
+        _observe_traced_entry(self, "preflight")
         self._require_accounting_ready()
         prompt = call_args[0] if call_args else call_kwargs.get("prompt")
         prompt_kwargs = dict(call_kwargs)
@@ -697,10 +756,14 @@ class TracedLLMClient:
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
-        request_digest = _request_digest({"args": call_args, "kwargs": call_kwargs})
-        provider_id = _new_producer_id()
-        completion_recorded = False
         accounting_owner = _current_settlement_owner()
+        request_digest = (
+            accounting_owner.request_digest if accounting_owner is not None else None
+        ) or _request_digest({"args": call_args, "kwargs": call_kwargs})
+        provider_id = (
+            accounting_owner.attempt_id if accounting_owner is not None else None
+        ) or _new_producer_id()
+        completion_recorded = False
         scope = (
             "traced-owner",
             str(id(self)),
@@ -724,20 +787,7 @@ class TracedLLMClient:
                 )
                 resolved_provider = self._detect_provider(parsed.provider)
                 origin = producer_settlement(response)
-                amount = (
-                    Decimal(0)
-                    if parsed.cache_hit
-                    else Decimal(
-                        str(
-                            parsed.cost_usd
-                            if parsed.cost_usd is not None
-                            else self._estimate_cost_usd(
-                                prompt_tokens=parsed.prompt_tokens,
-                                completion_tokens=parsed.completion_tokens,
-                            )
-                        )
-                    )
-                )
+                amount, cost_origin = _completion_amount(parsed, self._model_name)
                 producer_event = LLMProducerEvent(
                     event_id=(parsed.reuse_event_id or _new_producer_id())
                     if parsed.cache_hit
@@ -747,13 +797,7 @@ class TracedLLMClient:
                     model=parsed.model or self._model_name,
                     provider=resolved_provider,
                     amount=amount,
-                    cost_origin=(
-                        "reuse"
-                        if parsed.cache_hit
-                        else "reported"
-                        if parsed.cost_usd is not None
-                        else "estimated"
-                    ),
+                    cost_origin=cost_origin,
                     kind="reuse" if parsed.cache_hit else "provider",
                     origin_event_id=origin.event.event_id if origin is not None else None,
                 )
@@ -778,6 +822,7 @@ class TracedLLMClient:
                     _cache_reuse_consumer_context(self._cache_reuse_owner, request_digest),
                     _producer_completion_context(scope, request_digest, complete),
                 ):
+                    _observe_traced_entry(self, "delegated")
                     response = self._client.generate(*sanitized_args, **sanitized_kwargs)
                     if inspect.isawaitable(response):
                         response = await response

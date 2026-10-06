@@ -1,0 +1,701 @@
+{
+  "schema": "policyos.e02.llm-affected-native.v1",
+  "harness_state": "EXECUTED",
+  "target_source_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "test_sha": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "test_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+  "test_sha256": "b2f169797b06613024bbd3665fc0c502bb82eb86eb26a9e115cf12b7982865f9",
+  "whole_test_input": {
+    "whole_files": [
+      "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+      "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+    ],
+    "scope": "Header-value typed narrowing successor; actual gateway and parser/financial knowledge consumers only. Earlier full34 stays31-targeted."
+  },
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/dev/shm/e02-B-gateway-a697-qualified/child.source.txt",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp",
+    "/dev/shm/e02-B-gateway-a697-qualified/fixtures",
+    "--junitxml",
+    "/dev/shm/e02-B-gateway-a697-qualified/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_B66_TARGET_SHA": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+    "E02_B65_CONTEXT": "/dev/shm/e02-B-gateway-a697-qualified/source-context.json",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "fixture_profile": "Unique actual /dev/shm filesystem/provider/ledger; temporary memory filesystem does not prove production storage durability. No live TCP/API/external financial authority or numerical/process/thread/CPU quota added.",
+  "actual_exit": 0,
+  "wall_seconds": 6.362405197010958,
+  "max_rss_kib": 116284,
+  "source_head_before_after": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "test_head_before_after": "a697a8312ff00edfcc766f9906dbcd2252cfcf96",
+  "actual_cases": [
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestRetryableStatus",
+      "name": "test_429_retryable",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestRetryableStatus",
+      "name": "test_500_retryable",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestRetryableStatus",
+      "name": "test_503_retryable",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestRetryableStatus",
+      "name": "test_400_not_retryable",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestRetryableStatus",
+      "name": "test_401_not_retryable",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestRetryableStatus",
+      "name": "test_404_not_retryable",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestHTTPError",
+      "name": "test_has_status",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestSessionLifecycle",
+      "name": "test_transport_failure_closes_session_before_raising",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestConnectionPooling",
+      "name": "test_session_created_lazily",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestConnectionPooling",
+      "name": "test_aclose_closes_session",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestConnectionPooling",
+      "name": "test_request_timeout_is_applied_per_call_not_pinned_to_session",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestIntelligentRetry",
+      "name": "test_4xx_no_retry",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestIntelligentRetry",
+      "name": "test_429_is_retried",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestIntelligentRetry",
+      "name": "test_provider_error_code_blocks_retry_for_insufficient_quota",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestIntelligentRetry",
+      "name": "test_retry_after_header_and_idempotency_key_are_reused",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestIntelligentRetry",
+      "name": "test_idempotency_key_is_added_even_without_retry_budget",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestUsageParsing",
+      "name": "test_total_cost_usd_is_parsed_from_usage",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestUsageParsing",
+      "name": "test_invalid_tool_call_arguments_surface_error_envelope",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestUsageParsing",
+      "name": "test_wrapped_tool_call_arguments_remain_strict",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestPresetAndPlugins",
+      "name": "test_generate_prefers_request_preset_and_merges_plugins",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestResponseFormatFallback",
+      "name": "test_response_format_unsupported_is_memoized_per_client",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestResponseFormatFallback",
+      "name": "test_response_format_fallback_is_preserved_in_response_raw",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestModelCatalog",
+      "name": "test_list_model_ids_reads_openai_models_payload",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestModelCatalog",
+      "name": "test_list_model_ids_invalid_json_degrades_to_empty_list",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_gateway_client_retry.TestModelCatalog",
+      "name": "test_list_model_ids_invalid_shape_degrades_to_empty_list",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-missing-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-invalid-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-raw-none-default-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-none-response]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-negative-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-nan-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-infinite-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-fractional-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-boolean-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-cost-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-positive-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-negative-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-input-token-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-missing-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-invalid-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-raw-none-default-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-none-response]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-negative-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-nan-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-infinite-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-fractional-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-boolean-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-cost-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-positive-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-negative-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-input-token-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-positive]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-zero]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-known-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-free-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-known-zero-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-positive]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-zero]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-known-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-free-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-known-zero-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_factory_streaming_cannot_bypass_configured_completion[required-accounting]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_factory_streaming_cannot_bypass_configured_completion[active-settlement]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_factory_streaming_cannot_bypass_configured_completion[unmanaged]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-sdk-missing-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-sdk-invalid-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-raw-none-default-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-none-response]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-negative-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-nan-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-infinite-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-fractional-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-boolean-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-cost-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-positive-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-negative-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[False-input-token-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-sdk-missing-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-sdk-invalid-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-raw-none-default-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-none-response]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-negative-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-nan-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-infinite-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-fractional-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-boolean-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-cost-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-positive-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-negative-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider[True-input-token-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-sdk-missing-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-sdk-invalid-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-raw-none-default-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-none-response]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-negative-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-nan-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-infinite-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-fractional-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-boolean-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-cost-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-positive-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-negative-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[False-input-token-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-sdk-missing-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-sdk-invalid-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-raw-none-default-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-none-response]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-negative-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-nan-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-infinite-cost]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-fractional-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-boolean-usage]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-cost-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-positive-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-negative-cost-underflow]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion[True-input-token-accessor-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate[sdk-missing-usage-generate]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate[sdk-missing-usage-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate[sdk-missing-usage-ainvoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate[entered-provider-error-generate]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate[entered-provider-error-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate[entered-provider-error-ainvoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate[reported-zero-generate]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate[reported-zero-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate[reported-zero-ainvoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_unknown_cost_settlement_e02",
+      "name": "test_durable_missing_run_refuses_before_work_without_inventing_scope",
+      "outcome": "PASS"
+    }
+  ],
+  "outcomes": {
+    "PASS": 126,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "outputs": [
+    {
+      "path": "/dev/shm/e02-B-gateway-a697-qualified/native.txt",
+      "bytes": 651467,
+      "sha256": "653cd27deccd0ca49e270a73f7e6e8b214363393bd0d9d391fcf99aacaf8e7ef"
+    },
+    {
+      "path": "/dev/shm/e02-B-gateway-a697-qualified/native.xml",
+      "bytes": 26066,
+      "sha256": "39296f961b34ae6c703f93e09926f4a64da5a28b8f2fa9c518a50ac5c0bc46d4"
+    },
+    {
+      "path": "/dev/shm/e02-B-gateway-a697-qualified/source-context.json",
+      "bytes": 27708,
+      "sha256": "1312acd0d7c5118aa49b4a7c0cccc94fdad0419ab40908fd6073397d29288bb9"
+    }
+  ],
+  "closure_ids": []
+}

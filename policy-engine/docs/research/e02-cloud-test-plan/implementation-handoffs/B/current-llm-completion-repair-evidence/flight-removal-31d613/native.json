@@ -1,0 +1,81 @@
+{
+  "schema": "policyos.e02.llm-affected-native.v1",
+  "harness_state": "EXECUTED",
+  "target_source_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+  "test_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+  "test_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+  "test_sha256": "b2f169797b06613024bbd3665fc0c502bb82eb86eb26a9e115cf12b7982865f9",
+  "whole_test_input": {
+    "actual_selectors": [
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-False]",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-True]"
+    ],
+    "execution_overlay": "Only original LLMBudgetEnforcer._observe_flight function code is replaced by no-op inside isolated interpreter, restored after pytest. Actual emitter registration, source files, typed context and ledger/provider filesystem effects remain."
+  },
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/dev/shm/e02-B-flight-removal-31d613/child.source.txt",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-False]",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-True]",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp",
+    "/dev/shm/e02-B-flight-removal-31d613/fixtures",
+    "--junitxml",
+    "/dev/shm/e02-B-flight-removal-31d613/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_B66_TARGET_SHA": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+    "E02_B65_CONTEXT": "/dev/shm/e02-B-flight-removal-31d613/source-context.json",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "fixture_profile": "Unique actual /dev/shm filesystem/provider/ledger; temporary memory filesystem does not prove production storage durability. No live TCP/API/external financial authority or numerical/process/thread/CPU quota added.",
+  "actual_exit": 1,
+  "wall_seconds": 1.7920588169945404,
+  "max_rss_kib": 114348,
+  "source_head_before_after": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+  "test_head_before_after": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+  "actual_cases": [
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-False]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-True]",
+      "outcome": "FAIL"
+    }
+  ],
+  "outcomes": {
+    "PASS": 0,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "outputs": [
+    {
+      "path": "/dev/shm/e02-B-flight-removal-31d613/native.txt",
+      "bytes": 10115,
+      "sha256": "9860c6d6bd3b691e48c8fe76f90a83b9a8a65100c584a087b08448c40f462ede"
+    },
+    {
+      "path": "/dev/shm/e02-B-flight-removal-31d613/native.xml",
+      "bytes": 1917,
+      "sha256": "69eb0a0ddf05332a1d91aaa9e25bb10a06a677166abfe79346f486f798510b58"
+    },
+    {
+      "path": "/dev/shm/e02-B-flight-removal-31d613/source-context.json",
+      "bytes": 27691,
+      "sha256": "aa97d6524217de8521f21bf351d30c0bf6ae7b3631cf784cfb90f0e66517ea5e"
+    }
+  ],
+  "closure_ids": []
+}

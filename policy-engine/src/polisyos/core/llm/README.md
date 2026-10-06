@@ -35,7 +35,11 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 
 - Last updated: 2026-04-03
 - The package still centers around `protocols.py`, `traced_client.py`, `response.py`, `cost.py`, and `retry.py`.
-- Cost telemetry falls back to shared pricing defaults when provider responses omit pricing data.
+- Response extraction distinguishes observed valid usage/cost from missing or invalid fields.
+  Numeric telemetry defaults remain available, but absent counts do not establish zero usage.
+  Reported zero and valid observed counts priced at a configured zero rate remain valid amounts.
+  An invalid reported cost cannot fall back to token pricing. Inaccessible usage/cost metadata
+  preserves an obtained response with unknown monetary evidence.
 - Asynchronous generate/ainvoke completion remains owned after initiating caller cancellation. Optional
   telemetry is isolated from required accounting. An absent durable acknowledgement is unknown,
   and cannot publish a reusable provider result. Durable budget composition is supplied by the
@@ -56,3 +60,23 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
   Known physical provider completion is always a provider event, even if its response borrows
   authentic prior cache provenance; actual cache emission remains a separate zero-extra-charge
   consumption event.
+- Producer events carry `amount=None`/`cost_origin="unknown"` when monetary evidence is missing
+  or invalid. Such an event cannot acquire a committed settlement or reusable cache publication.
+  Optional metrics can still report numeric token defaults; they do not establish a charge.
+  Trusted accounting composition fixes the attempt and request identity before provider entry.
+- The supported accounting ports are `generate`, `invoke` and `ainvoke`. Delegated
+  `generate_stream` has no settlement contract and refuses before provider entry when required
+  accounting or an active settlement owner is configured. Unmanaged streaming remains delegated.
+- `TracedLLMClient.with_model(model_name)` preserves the same client for the same model and
+  refuses a protected model change without an owner-transfer contract. Unmanaged views retain
+  tracing configuration; callers cannot unwrap away a pending accounting owner during normalization.
+
+The actual configured cache emitter records each request's opaque runtime registration before
+physical dispatch or joining a flight. Its terminal report binds that receiver's request, owner
+scope and attempt to the actual producer identity and original settlement or error. A joined
+receiver can retire only its own undispatched budget intent; denied result admission does not
+erase a known physical charge or turn the producer's unknown amount into zero. These internal
+registrations are not serialized permission or financial authority.
+The exact configured traced wrapper also reports preflight versus delegation. A refusal before
+delegation cannot manufacture a new provider event from an older pending accounting response;
+failure after entering a foreign provider remains unknown without exact completion evidence.

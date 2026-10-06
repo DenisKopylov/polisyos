@@ -1,0 +1,251 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-unknown-cost-red",
+  "closure_ids": [],
+  "finding_ids": [
+    "B66"
+  ],
+  "bundle_ids": [
+    "LLM-01"
+  ],
+  "slice_base_sha": "23e6fa3ead0f740a5549ec1d1e97e330d39c3a0c",
+  "implementation_commits": [
+    "882b543ed7e9127abd777753811ff7a3a9c0857c",
+    "6f76f7ac97c85816640354a902cf29c7c776b657"
+  ],
+  "candidate_sha": "6f76f7ac97c85816640354a902cf29c7c776b657",
+  "candidate_tree_sha": "bf3978c9fc754251d973d0d8e0f04f5681f86fec",
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "changed_paths": [
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/all-case-quantities.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/run-native.source.txt"
+  ],
+  "production_changed_paths": [],
+  "source_snapshot_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_snapshot_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "baseline_cells": [],
+  "baseline_navigation": "Historical nine B66 source cells/context in current-adapters.json@250df6ec8366659c13b72b6a33cedf4dba5ec24a remain navigation; no source-reported baseline package PASS or historical runtime carried as new DD proof.",
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "--noconftest",
+        "-c",
+        "/dev/null",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp",
+        "/tmp/e02-b66-unknown-dd-7jdlujt1/fixtures",
+        "--junitxml",
+        "/tmp/e02-b66-unknown-dd-7jdlujt1/native.xml"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_sha": "882b543ed7e9127abd777753811ff7a3a9c0857c",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "explicit_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+          "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-coordination",
+          "E02_B66_TARGET_SHA": "dd9584728bd96f204983615216efdbc58117e713",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "python": "3.14.2",
+        "pytest": "9.0.2",
+        "module_origins": "all-case-quantities.json full eight imported module paths/hash; all16 equal and actual GitDD byte guards"
+      },
+      "input_closure": {
+        "test_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "test_sha256": "8f4c01c0ad0e21dc93aee2ba88472a80e0d50486ae07ff1adb28286b6cb740e2",
+        "fixture_profile": "Unique actual /tmp filesystem/provider/ledger; no live TCP/API/external financial authority. No numerical/process/thread/CPU quota added.",
+        "driver": "current-unknown-cost-red-evidence/run-native.source.txt",
+        "whole_case_set": [
+          {
+            "classname": "",
+            "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-missing-usage]",
+            "outcome": "FAIL"
+          },
+          {
+            "classname": "",
+            "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-invalid-usage]",
+            "outcome": "FAIL"
+          },
+          {
+            "classname": "",
+            "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-raw-none-default-usage]",
+            "outcome": "FAIL"
+          },
+          {
+            "classname": "",
+            "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-none-response]",
+            "outcome": "FAIL"
+          },
+          {
+            "classname": "",
+            "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-missing-usage]",
+            "outcome": "FAIL"
+          },
+          {
+            "classname": "",
+            "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-invalid-usage]",
+            "outcome": "FAIL"
+          },
+          {
+            "classname": "",
+            "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-raw-none-default-usage]",
+            "outcome": "FAIL"
+          },
+          {
+            "classname": "",
+            "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-none-response]",
+            "outcome": "FAIL"
+          },
+          {
+            "classname": "",
+            "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-positive]",
+            "outcome": "PASS"
+          },
+          {
+            "classname": "",
+            "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-zero]",
+            "outcome": "PASS"
+          },
+          {
+            "classname": "",
+            "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-known-usage]",
+            "outcome": "PASS"
+          },
+          {
+            "classname": "",
+            "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-free-usage]",
+            "outcome": "PASS"
+          },
+          {
+            "classname": "",
+            "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-positive]",
+            "outcome": "PASS"
+          },
+          {
+            "classname": "",
+            "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-zero]",
+            "outcome": "PASS"
+          },
+          {
+            "classname": "",
+            "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-known-usage]",
+            "outcome": "PASS"
+          },
+          {
+            "classname": "",
+            "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-free-usage]",
+            "outcome": "PASS"
+          }
+        ],
+        "source_heads_before_after": {
+          "source": "dd9584728bd96f204983615216efdbc58117e713",
+          "test": "882b543ed7e9127abd777753811ff7a3a9c0857c"
+        }
+      },
+      "outcome": "FAIL",
+      "actual_exit": 1,
+      "wall_seconds": 1.0995693879958708,
+      "max_rss_kib": 64216,
+      "output": {
+        "counts": {
+          "PASS": 8,
+          "FAIL": 8,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "stdout": "current-unknown-cost-red-evidence/native.txt",
+        "junit": "current-unknown-cost-red-evidence/native.xml",
+        "wrapper": "current-unknown-cost-red-evidence/native.json",
+        "all_actual_quantities": "current-unknown-cost-red-evidence/all-case-quantities.json"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Unknown actual provider usage/cost cannot become an exact known zero charge and durable ACK; actual caller cancellation must not erase the operation obligation. Legitimate reported zero and known-priced/free-config usage remain valid.",
+    "runtime_path": [
+      "canonical Gateway parser",
+      "actual gated provider operation filesystem witness",
+      "configured Traced/CachingLLMClient",
+      "LLMBudgetEnforcer",
+      "initialized BudgetMiddleware/FileBudgetLedger",
+      "cache publication/fresh actual ledger reopen"
+    ],
+    "proxy_divergence": "Default numeric zero token telemetry is not observed provider usage. Six successful SDK missing/invalid/default usage cases commit ACK0 and cache1; None two commit ACK0 before AttributeError/cache0.",
+    "negative_controls": [
+      "Four unknown input classes each caller cancelled/not cancelled, ordinary red",
+      "Four known monetary/pricing controls each caller cancelled/not cancelled, green"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B66 reopened, actual semantic failure; no production repair in this slice",
+  "finding_dispositions": [
+    {
+      "finding_id": "B66",
+      "state": "FAIL",
+      "evidence": "complete16 actual cases, eight ordinary failures/eight controls; no ERROR/SKIP",
+      "next_owner": "same canonical LLM writer repairs producer amount-confidence/retained obligation; root and foreign reviewers adjudicate closure"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Synthetic physical provider work proves one actual local operation, not external invoicing or production SDK billing truth.",
+    "No live TCP/provider or institutional owner authority input; B67/B68 unchanged held.",
+    "None-response is separately named malformed completed-response boundary; six successful canonical decoded SDK responses independently establish unknown-cost zero-ACK defect.",
+    "Fresh ledger readback proves committed zero receipts in DD. Fresh enforcer unresolved obligation/restart gate is not yet implemented and must be reviewed with DUR owner.",
+    "DD whole cohort outcome cannot establish a future repair. Prior semantic boundary wording at23e6 does not limit this newly measured same B66 class."
+  ],
+  "pattern_pass": {
+    "P29": "real actual operation + canonical financial/cache consumer; no marker-only outcome",
+    "P35": "complete16 JUnit cases/actual diagnostic rows",
+    "P37": "operational fixture premise recomputed; external billing law not established",
+    "P40": "same producer-owned amount-truth class deeper; widen intake quantity rather than raw-field site patch"
+  },
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/all-case-quantities.json",
+      "bytes": 32819,
+      "sha256": "a92141698b24a695207ee7f66b4c75ab965c401542de930c028da2f1fce1db41"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/index.json",
+      "bytes": 1314,
+      "sha256": "022726e43c279723089f4b85afdc031c2130c470e9ac7ca8a1149609982ce3a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.json",
+      "bytes": 4927,
+      "sha256": "4fa1a14b859d9baad597b283b007c1ec0053e98cee7ac4d84fbaff6ba2e586c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.txt",
+      "bytes": 99500,
+      "sha256": "21fad5970ce6ec686940cd991b3af355ac3dba93464d33ee83cd759af2fe06cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/native.xml",
+      "bytes": 12769,
+      "sha256": "efc7904e572dde884ecee7d6c3b49711d9c1efaa8a936710127e79fc24a41ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red-evidence/run-native.source.txt",
+      "bytes": 3667,
+      "sha256": "75c88091125b2a0a7aee4e2d3312a7ef745bbb1af2ac50539607980f2f434b43"
+    }
+  ]
+}

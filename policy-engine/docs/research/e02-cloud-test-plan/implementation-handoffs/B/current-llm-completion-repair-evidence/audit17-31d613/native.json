@@ -1,0 +1,148 @@
+{
+  "schema": "policyos.e02.llm-affected-native.v1",
+  "harness_state": "EXECUTED",
+  "target_source_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+  "test_sha": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c",
+  "test_path": "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+  "test_sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949",
+  "whole_test_input": {
+    "actual_selectors": [
+      "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py"
+    ],
+    "foreign_input_ref": "8ea92be02458941e4bf8a1d1c16f2fbeee60f26c",
+    "source_scope": "Unchanged17 independent authored actual protected action/recovery tests against final source; no institutional audit law or external billing claim."
+  },
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/dev/shm/e02-B65-audit17-31d613-qualified/child.source.txt",
+    "/workspace/e02-B-current-adapters",
+    "/dev/shm/e02-B65-audit17-31d613-qualified",
+    "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+    "31d613077b1fc8e5d48ffde4af7f1ba855657b0a"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_B66_TARGET_SHA": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+    "E02_B65_CONTEXT": "/dev/shm/e02-B65-audit17-31d613-qualified/source-context.json",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "fixture_profile": "Unique actual /dev/shm filesystem/provider/ledger/protected audit; temporary memory filesystem does not prove production storage durability. No live TCP/API/external financial authority or numerical/process/thread/CPU quota added.",
+  "actual_exit": 0,
+  "wall_seconds": 2.846026414001244,
+  "max_rss_kib": 109664,
+  "source_head_before_after": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+  "test_head_before_after": "7dd59ddc2b6885ce6b917bfac6b94a0d24e2794e",
+  "actual_cases": [
+    {
+      "classname": "",
+      "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[healthy]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_real_budget_refusal_audit_restores_exact_act_without_provider_or_charge[protected-exceeded-fault]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-sync-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_CHECK-async-generate]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "",
+      "name": "test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]",
+      "outcome": "PASS"
+    }
+  ],
+  "outcomes": {
+    "PASS": 17,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "outputs": [
+    {
+      "path": "/dev/shm/e02-B65-audit17-31d613-qualified/native.txt",
+      "bytes": 516158,
+      "sha256": "143228226b7662e5cf18e06bd4c72fd4dac735fb172ed1309232f35cd293ab05"
+    },
+    {
+      "path": "/dev/shm/e02-B65-audit17-31d613-qualified/native.xml",
+      "bytes": 2614,
+      "sha256": "fe0ef93d204a6b4c871f7d116b22f88715ec6bfe0ba3a0b2bbf26ed96eafbef1"
+    },
+    {
+      "path": "/dev/shm/e02-B65-audit17-31d613-qualified/source-context.json",
+      "bytes": 51820,
+      "sha256": "053d9741feb59c3362a0e64e96659312f2de777ef17db98cd3901976d269c5da"
+    }
+  ],
+  "closure_ids": []
+}

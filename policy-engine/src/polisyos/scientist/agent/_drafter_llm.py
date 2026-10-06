@@ -44,8 +44,7 @@ class _DrafterLLMMixin:
             return llm
         model_name = self._config.critique_model
         if isinstance(llm, TracedLLMClient):
-            raw_client = getattr(llm, "_client", llm)
-            return TracedLLMClient(raw_client, model_name=model_name)
+            return llm.with_model(model_name)
         return TracedLLMClient(llm, model_name=model_name)
 
     # ------------------------------------------------------------------

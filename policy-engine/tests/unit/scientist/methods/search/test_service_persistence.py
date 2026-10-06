@@ -352,6 +352,8 @@ def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_
         }
     )
     target = _direct(FileSystemCAS(tmp_path / "cas"))
+    if mutation == "hard_limit_bool":
+        target.controller._config.max_iterations_hard_limit = 1
     before = target.controller._generator.get_state()
     with pytest.raises(ValueError):
         target.restore(bad)

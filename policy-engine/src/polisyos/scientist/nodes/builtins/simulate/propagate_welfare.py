@@ -230,7 +230,7 @@ def _reconcile_welfare_empirical_rows(
             or source_manifest.artifact_schema is None
             or source_manifest.artifact_schema.name != "ir.uncertainty_envelope"
             or source_manifest.artifact_schema.version != "1.1"
-            or not store.verify(ref).ok
+            or not store.verify(ArtifactRef.model_validate(ref.model_dump())).ok
         ):
             raise ValueError("welfare empirical source manifest is not admitted")
         envelope = load_uncertainty_envelope(store, ref)
@@ -3509,9 +3509,7 @@ def _quantile_from_envelope(u: float, env: UncertaintyEnvelope) -> float:
         coordinate = float(admit_unit_uniform(u))
         return float(law.samples[np.searchsorted(law.cumulative, coordinate, side="right")])
     bounded_u = min(max(float(u), 1e-9), 1.0 - 1e-9)
-    point = float(env.point_estimate)
-    lower = float(env.confidence_interval[0])
-    upper = float(env.confidence_interval[1])
+    point, lower, upper = _welfare_parametric_coordinates(env)
     if env.distribution_family == DistributionFamily.NORMAL:
         std = _extract_std(env)
         z_value = NormalDist().inv_cdf(bounded_u)
@@ -4503,8 +4501,7 @@ def _sample_from_envelope(rng: np.random.Generator, env: UncertaintyEnvelope) ->
     law = _admit_welfare_sampling_laws({"input": env}).get("input")
     if law is not None:
         return _draw_finite_empirical_law(rng, law)[1]
-    point = float(env.point_estimate)
-    lower, upper = float(env.confidence_interval[0]), float(env.confidence_interval[1])
+    point, lower, upper = _welfare_parametric_coordinates(env)
     if env.distribution_family == DistributionFamily.NORMAL:
         std = _extract_std(env)
         return float(rng.normal(loc=point, scale=std))
@@ -4568,12 +4565,13 @@ def _admit_welfare_sampling_laws(
                 raise _unsupported_welfare_law(name, str(exc)) from exc
             continue
         if isinstance(payload, ParametricFitCarrier):
-            if (
-                payload.family is not DistributionFamily.NORMAL
-                or envelope.distribution_family is not payload.family
-            ):
+            if envelope.distribution_family is not payload.family or payload.family not in {
+                DistributionFamily.NORMAL,
+                DistributionFamily.UNIFORM,
+            }:
                 raise _unsupported_welfare_law(name, "unsupported or mismatched parametric fit")
             _extract_std(envelope)
+            _welfare_parametric_coordinates(envelope)
         elif payload is not None:
             raise _unsupported_welfare_law(name, "unsupported distribution carrier")
         if envelope.distribution_family not in {
@@ -4585,6 +4583,23 @@ def _admit_welfare_sampling_laws(
                 name, "unsupported distribution family without an admitted carrier"
             )
     return laws
+
+
+def _welfare_parametric_coordinates(env: UncertaintyEnvelope) -> tuple[float, float, float]:
+    point = float(env.point_estimate)
+    lower, upper = (float(value) for value in env.confidence_interval)
+    payload = env.distribution_payload
+    if isinstance(payload, ParametricFitCarrier):
+        if payload.family is DistributionFamily.NORMAL:
+            point = float(payload.parameters.get("mean", payload.parameters.get("mu", point)))
+            if not math.isfinite(point):
+                raise _unsupported_welfare_law("input", "normal fit location is nonfinite")
+        elif payload.family is DistributionFamily.UNIFORM:
+            if payload.support is not None:
+                lower, upper = (float(value) for value in payload.support)
+            else:
+                lower, upper = float(payload.parameters["low"]), float(payload.parameters["high"])
+    return point, lower, upper
 
 
 def _draw_finite_empirical_law(

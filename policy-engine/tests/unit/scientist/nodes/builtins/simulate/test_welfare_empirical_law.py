@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import ExecPlanRef, Metrics, MetricsRef, SimulationResult
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -116,7 +116,7 @@ def _run_native(tmp_path, envelope=None):
 
 
 def test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values(tmp_path):
-    _, bundle, receipt, samples, _ = _run_native(tmp_path)
+    fresh, bundle, receipt, samples, _ = _run_native(tmp_path)
     uniforms = np.random.default_rng(31415).random(128)
     expected_rows = (uniforms >= 0.75).astype(int).tolist()
     values = [row["sampled_input"]["A"] for row in receipt["sampled_inputs"]]
@@ -137,6 +137,10 @@ def test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_valu
     assert samples.metadata["estimate_scope"] == "conditional_on_all_outputs_finite"
     assert bundle.credible_interval is None
     assert bundle.diagnostics["successful_draw_count"] == len(samples.welfare_draws)
+    report = from_canonical_bytes(fresh.get_bytes(bundle.diagnostics["propagation_report_ref"]))
+    assert report["draw_summary"]["welfare_mean"] is None
+    assert report["draw_summary"]["conditional_welfare_mean"] == 2.0
+    assert report["gate_eligible"] is False
 
 
 def test_native_ge_preserves_tiny_and_zero_mass_atoms_and_complete_positive_law(tmp_path):
@@ -149,6 +153,42 @@ def test_native_ge_preserves_tiny_and_zero_mass_atoms_and_complete_positive_law(
     assert receipt["failed_draw_count"] == 0
     assert set(samples.welfare_draws) == {2.0, 4.0}
     assert bundle.credible_interval == (2.0, 4.0)
+
+
+@pytest.mark.parametrize("atom", [1e-15, 1e40])
+def test_native_numpy_ge_retains_representable_small_and_large_atoms(tmp_path, atom):
+    fresh, _, receipt, samples, _ = _run_native(tmp_path, _envelope((0.0, atom), (1.0, 3.0)))
+    inputs = [row["sampled_input"]["A"] for row in receipt["sampled_inputs"]]
+    assert set(inputs) == {0.0, atom}
+    assert receipt["failed_draw_count"] == 0
+    expected = tuple(2.0 / (1.0 - value) for value in inputs)
+    assert samples.welfare_draws == expected
+    source = receipt["empirical_input_laws"]["A"]["envelope_ref"]
+    persisted = from_canonical_bytes(fresh.get_bytes(source["artifact_id"]))
+    assert persisted["distribution_payload"]["samples"] == [0.0, atom]
+
+
+def test_native_node_keeps_empty_uncertainty_noop_and_unknown_joint_law(tmp_path):
+    ctx, state, _ = _native_fixture(tmp_path)
+    state.params["welfare_config"]["input_envelopes"] = {}
+    outcome = module.PropagateWelfareNode().execute(ctx, state)
+    assert outcome.status == "skip"
+    assert ARTIFACT_WELFARE_BUNDLE_REF not in outcome.state.artifacts_index
+
+    ctx, state, source = _native_fixture(tmp_path, run_id="unknown_joint")
+    state.params["welfare_config"]["input_envelopes"]["B"] = source.model_dump(mode="json")
+    state.params["welfare_config"]["pe_sensitivity"] = {"response": {"B": 1.0}}
+    outcome = module.PropagateWelfareNode().execute(ctx, state)
+    assert outcome.status == "ok", outcome.error
+    fresh = FileSystemCAS(tmp_path)
+    bundle = load_welfare_bundle(fresh, outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
+    assert bundle.credible_interval is None
+    assert "welfare_joint_law_not_established" in bundle.warnings
+    receipt = module._load_welfare_draw_outcomes(
+        fresh, module.ArtifactRef.model_validate(bundle.diagnostics["draw_outcomes_ref"])
+    )
+    assert receipt["attempted_draw_count"] == 0
+    assert receipt["unattempted_draw_count"] == 128
 
 
 @pytest.mark.parametrize(

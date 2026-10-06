@@ -231,8 +231,8 @@
   ],
   "full_output_manifest": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/outputs.json",
-    "bytes": 242570,
-    "sha256": "b145ef4d5b1a3ad9c0bce55ee226ed591997971b499da6dc5a012a4603d7923e"
+    "bytes": 242732,
+    "sha256": "962fcbb7f741c64b203c88ec6b47e0ae7f80b6d8b1fcd0827921c52a17af06b6"
   },
   "independent_review": [
     {
@@ -482,6 +482,12 @@
       "outcome": "ERROR",
       "meaning": "Historical reviewer transfer selection uses files rather than items; first publisher KeyError captured in full, corrected metadata-only collection without source/numerical rerun.",
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006/author/publish-source-first-observer-error.stderr"
+    }
+  ],
+  "receipt_corrections": [
+    {
+      "scope": "metadata only before publication",
+      "details": "Own14 source paths are the union of exact implementation commit diffs;86 prior API slice-base receipt/source paths are separately carried, not new implementation. Complete publisher draft telemetry captured after writer finished; initial draft counts remain historical. Source0c522/tree0b308 and all deciding tests/reviews unchanged."
     }
   ]
 }

@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "duration_seconds": 0.05,
+  "finished_at": "2026-10-06T10:08:09.164813+00:00",
+  "stdout_bytes": 0,
+  "stderr_bytes": 29,
+  "frozen_inputs": {
+    "pyproject.toml": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+    "uv.lock": "85f1fb2150a4da454fee02108565381d44f56730"
+  }
+}

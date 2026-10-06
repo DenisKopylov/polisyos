@@ -1,0 +1,1344 @@
+{
+  "schema": "policyos.e02.cleanup.eligible-env-cache.v2",
+  "created_utc": "2026-10-06T19:09:01+00:00",
+  "review_scope": "Read-only eligibility audit of the 49 environment/node_modules/cache rows in cleanup-selection-v3. No candidate was moved, renamed, pruned, or deleted; no source or dependency inputs were changed. Version 2 corrects only candidate row 18 after readback of the exact late consumer command, environment setup, and committed DFI handoff; all other candidate row decisions are carried forward unchanged.",
+  "action_authorization": "NONE. This report is an eligibility recommendation for the root-owned release ledger; it is not a Trash instruction.",
+  "trash_authorized_now": false,
+  "candidate_count": 49,
+  "preserve_only_source_extraction_count": 24,
+  "eligible_after_root_release_count": 21,
+  "held_count": 28,
+  "global_release_conditions": [
+    "All owning audits and the complete C ledger must be closed; useful code and deciding evidence must be committed and read back from the final branch.",
+    "Only the exact path rows marked RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE may be considered; source extractions and other preserve-only roots are excluded.",
+    "Before any move, re-census the exact admitted roots and verify current branch/head/tree/status, category, path type, owner, and fresh device+inode. Any mismatch holds the path.",
+    "Preserve every raw probe, fixture, CAS/DB, output/readback, archive, wheel/sdist/dist, source extraction, MIG current artifact copy, original/shared environment, production data, and shared cache; do not remove a containing raw root recursively.",
+    "Keep shared UV cache intact. For candidates nested under raw/installed, any future move must target only the exact venv/buildenv directory, after non-overlap with sibling artifacts is checked.",
+    "Root must independently authorize and record a per-move Trash intent/receipt after its full-ledger review; this report grants no permission to act."
+  ],
+  "reference_index": {
+    "SEL": {
+      "kind": "raw_capture",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+      "sha256": "a48071b7d8887eeab131a88ba4d21205d6874808606cc7167c6a971e763101f7",
+      "purpose": "49-row candidate definitions and initial lstat identities; selection itself authorizes no action."
+    },
+    "INV": {
+      "kind": "raw_capture",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+      "sha256": "e0b96555683d52c15cf36e698924b1ffe84ccdfa60695ca57a5701deb68042ac",
+      "purpose": "14-worktree inventory, preserve-only roots and 24 source-extraction exclusions."
+    },
+    "CONTINUATION_FINAL": {
+      "kind": "git_commit",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "branch": "codex/e02-C-continuation-20261006",
+      "commit": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+      "status": "clean at review readback"
+    },
+    "CLIENT_FINAL": {
+      "kind": "git_commit",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos",
+      "branch": "codex/e02-C-client-20261006",
+      "commit": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+      "status": "clean at review readback"
+    },
+    "HYG_FINAL": {
+      "kind": "git_blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-final-adjudication-954078.json",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos",
+      "branch": "codex/e02-C-hygiene-20261006",
+      "commit": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+      "blob_sha256": "83ef9f2f94043b62a6fe47c0c5110bd0570e6883ea013ab54b9543fcfbd039c0",
+      "status": "branch clean at review readback; author adjudication still states pending independent review"
+    },
+    "CLIENT_HANDOFF": {
+      "kind": "git_blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos",
+      "commit": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+      "blob_sha256": "6f377d5ccbe5a21fda904e988c4f0190172f6fec26bdce42ad015512bc1fa602",
+      "purpose": "Records `corepack pnpm install --frozen-lockfile --ignore-scripts`, Node 22.22.2/pnpm 10.33.2, all six workspaces and 1,215 packages; package checks pass and outputs/readbacks are recorded."
+    },
+    "CLIENT_LOCK": {
+      "kind": "git_input",
+      "path": "policy-engine/pnpm-lock.yaml",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos",
+      "commit": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "purpose": "Frozen install input; handoff confirms it remained unchanged."
+    },
+    "CLIENT_PY_CMD": {
+      "kind": "raw_receipt",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/sync-offline.command.json",
+      "sha256": "05eb842bd89816fce637ce552ac088fcd0a053195b8a47a3ec87f8f2eb063f70",
+      "purpose": "Exact offline frozen uv sync argv and client policy-engine cwd."
+    },
+    "CLIENT_PY_RESULT": {
+      "kind": "raw_receipt",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/sync-offline.result.json",
+      "sha256": "ee44309441236816279cee36b4610d8065387b7e41b10801e1cf5c29dabc3ef1",
+      "purpose": "Exit 0, 0.745 s."
+    },
+    "CLIENT_PY_PROVENANCE": {
+      "kind": "raw_receipt",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/environment-provenance.json",
+      "sha256": "3980f315df5c742df346860bfc926abb11eed776ea9b475eca71428ce8410e89",
+      "purpose": "Exact `.venv` realpath, CPython 3.14.0 arm64, 163 locked distributions, no project install; dependency inputs pyproject b205b652… and uv.lock e6125cd8…."
+    },
+    "HYG_D2": {
+      "kind": "git_blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos",
+      "commit": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+      "blob_sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+      "purpose": "LA-013 workspace evidence: fresh frozen pnpm install, build/smoke and Atlas checks; actual workspace set five package roots plus root (six projects)."
+    },
+    "HYG_PNPM_LOG": {
+      "kind": "raw_receipt",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/.tmp/e02-c-hyg-la013-20261006/pnpm-install.log",
+      "sha256": "f3d98ace32b92eda6d4f2a590259fd5adb4a31938e8ac7bc366c0ed4d6ef29d8",
+      "purpose": "Install output: frozen lock, six workspace projects, 1,215 packages, exit 0. The committed HYG D2 adjudication ref records the exact `corepack pnpm install --frozen-lockfile` command and `policy-engine` working directory."
+    },
+    "ROOT_PY_CMD": {
+      "kind": "raw_receipt",
+      "path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/sync-offline-after-online.command.json",
+      "sha256": "ef810f891dfb072efeee20162651c761a7d4976e71ce529c595ad448115333bc",
+      "purpose": "Exact offline frozen sync argv/cwd; locked inputs are pyproject c46d8c1c… and uv.lock 85f1fb21…."
+    },
+    "ROOT_PY_RESULT": {
+      "kind": "raw_receipt",
+      "path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/sync-offline-after-online.result.json",
+      "sha256": "30ab6a03591289e7ebf2cc4fc576742fde2c355cb5155066aea652eaea0e2d7b",
+      "purpose": "Exit 0, 0.05 s after authorized online cache hydration; successful offline receipt."
+    },
+    "ROOT_PY_PROVENANCE": {
+      "kind": "raw_receipt",
+      "path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/environment-provenance.json",
+      "sha256": "8c1b7322a19670b6fdd4dabfdce78373a6e7700d0b4e0a5ea6c6f156c40017d5",
+      "purpose": "Exact continuation `.venv` realpath, CPython 3.14.0 arm64, 163 distributions, no project install; distribution-set SHA 6597115b…."
+    },
+    "BASE198_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/command-results.json",
+          "sha256": "a15ffb852af6ff48ebfa545ad875fec00460c21575fa453230b63e6f19b742ea"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/provision.stderr",
+          "sha256": "c6313b40fc98fc2399708414585164ed9478ef1ff56d4e3bfa958468aadcebd2"
+        }
+      ],
+      "purpose": "Recorded frozen sync provision with UV_PROJECT_ENVIRONMENT exactly this venv, then isolated SCL dependency-closure probe via this venv/bin/python from /tmp; exit 0."
+    },
+    "BERL_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/installed-berl-runtime.json",
+          "sha256": "a61b165dc3e8bce3f1f8a35d30cedc7853cc0cd695db16bc64e312aca1c7bbc3"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/uv-sync-base.stderr",
+          "sha256": "2faf86f62fc83369c7aa1262df713c3e7e2c2e9246e6c5b2bbba01f0fd387c5f"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/wheel-install.stderr",
+          "sha256": "534b46f81e27548e0f9403b054e18227d82ed029bf4c9d2c623674f119bb5a09"
+        }
+      ],
+      "purpose": "Runtime module origins point into candidate `berl/venv`, but captured refs do not include exact argv/cwd/sys.prefix for setup/use; no evidence that sibling `venv-parent` was used."
+    },
+    "CANON_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/canon/installed-audit-final.json",
+          "sha256": "aac2abfa7b7917cb4c0a4e827b7ef64be9901299efbad987744274e72caabbee"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/canon/installed-runtime.json",
+          "sha256": "2599133be56def1fbd934c8bc75e0f550affbeb7af7ece0d9cf6913d3ff2258c"
+        }
+      ],
+      "purpose": "Runtime results include installed origins, but selected evidence lacks exact setup and command provenance for this venv."
+    },
+    "CAT180_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/installed-catalog-consumer-probe-v2.command.json",
+          "sha256": "d72c26bd68cbdb5bb687729205b47264b4cc673c23e6ffa844219a33d1d1076e"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/install.stderr",
+          "sha256": "4ab3caa1d6301f2eb32b4341e98ac68641e8a350fb2ab8ffce3e02b572a27bf5"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/buildenv-create.stderr",
+          "sha256": "517b4d67e4249fa1cf3e1eca9e36387de8aa1d5e3256e15a65b17fb34b201390"
+        }
+      ],
+      "purpose": "The isolated v2 consumer invocation uses `venv-base/bin/python` from /tmp, but exact creation/install command for that specific venv is not captured; do not confuse sibling buildenv logs."
+    },
+    "CATALOG_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/editable-install-nobi3-command.json",
+          "sha256": "a2b1fb7aa1306e5876b7caa209796a4b6991f5257944a889c2b14ef8c38a9089"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-installed-audit-receipt.json",
+          "sha256": "0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064"
+        }
+      ],
+      "purpose": "The successful no-build-isolation editable install targets this exact venv; source extraction and audit receipt remain separate preserved siblings."
+    },
+    "DFI12190_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-12190/installed-consumer-receipt.json",
+          "sha256": "b45293290991ca560dd2c90a1b3fafaf97e01c82c82dd9d11e8c49df95b042b1"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-12190/install.stderr",
+          "sha256": "86f9f5b02ab04c72fb5c66d7ab576fdd33191a0496b730409a4cf8b900d7db4a"
+        }
+      ],
+      "purpose": "Probe evidence and environment path appear in outputs/logs, but exact run argv/cwd and sys.prefix are not in selected receipts."
+    },
+    "DFIAB441_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-sync.stderr",
+          "sha256": "fcc43293d7def6a47ef254ebc0a2147a2bb5599db411b28d978d8329dd4fe492"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/wheel-install.stderr",
+          "sha256": "edcae28791e4b870c80ee819a7370723ae680d4749620541e32cb087d77fb8a0"
+        }
+      ],
+      "purpose": "Setup logs identify this exact environment and its installed DFI wheel; the previously missing consumer run and committed handoff are now separately bound by DFI_LATE_CMD, DFI_HANDOFF, and DFI_COMPOSITION."
+    },
+    "HYGIENE_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/installed-imports.stdout",
+          "sha256": "99d04697ff6115e9038f401f6a4e0758dce8d4d8d736e06f6ae0c1d84fa96dc5"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/installed-cli-probe.json",
+          "sha256": "090ed16cc217b589b1f69c923aad27934fe60160c8772bdd3e2680f152aa9196"
+        }
+      ],
+      "purpose": "Some installed CLI probes used candidate paths, but exact environment creation/install receipt is absent from selected refs."
+    },
+    "MIG_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/install-wheel.command.json",
+          "sha256": "5d8ba88ba8cc695d219de481b0941652fb295bbb1db0874dfdf0427b787b6419"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-converter-delta.command-results.json",
+          "sha256": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-final2.command-results.json",
+          "sha256": "566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0"
+        }
+      ],
+      "purpose": "Exact offline wheel install targets this venv; isolated installed migration CLI/readbacks use it. Preserve all fixture/readback/dist/wheel/source artifacts outside this exact venv path."
+    },
+    "OBS_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-receipt.json",
+          "sha256": "81ab51f487eba3e6233fc892b0749f4adc06812cb7550f074c64ea2d6a04f1da"
+        }
+      ],
+      "purpose": "Receipt captures exact offline wheel install and installed probe/CLI argv for this venv; preserve package wheel, fixtures and readback outputs."
+    },
+    "PLUGIN_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/installed-domain-plugin-receipt.json",
+          "sha256": "334a7de0f7c29c486fb28ca78cddb9b7a4ee07319aee2d0750f630833e99daaa"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/install.stderr",
+          "sha256": "56cb534d6f8de48130a2714fe19f1403c5057cfe8407fa4800d2a1f556482e9f"
+        }
+      ],
+      "purpose": "Runtime results use installed code under candidate path, but no exact install/probe argv-cwd receipt in the selected evidence."
+    },
+    "SCHEMA_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/env-install-results.json",
+          "sha256": "55724309fe305b4d43c0b942b9d2d1f5b2ae01526707e6506d569f13cf1fbf45"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.command-results.json",
+          "sha256": "523565bdd8233d504234dff28f7261a8499754dbfc7662d9ce21b58b16146e90"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-repo-verified.command-results.json",
+          "sha256": "ac841493a5829974a130b6b80a6e3ccc2513467f08967a9406c12293d00c189f"
+        }
+      ],
+      "purpose": "Exact frozen sync and wheel install plus isolated probes use this venv; preserve source extraction, wheel/dist, fixtures and all readback receipts."
+    },
+    "CATBUILD_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/buildenv-create.stderr",
+          "sha256": "517b4d67e4249fa1cf3e1eca9e36387de8aa1d5e3256e15a65b17fb34b201390"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/buildenv-install.stderr",
+          "sha256": "bc427c6d19597d90a283e4165375050573a6e0bf8456378cdd154fb6d5143bf9"
+        }
+      ],
+      "purpose": "Logs show a created/installed sibling buildenv, but no exact build command identifies this candidate as the selected interpreter/environment."
+    },
+    "MIG_BUILD_ENV": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/command-results.json",
+          "sha256": "8e9a4d8523a281af5f2910d8843d7d1d6b46b3e7f1ff34d415b665030a0f6336"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install.stderr",
+          "sha256": "1d2b170542f3b41429af8f0f74ef63d989fa56bae4b9824b435546d28e2aaa77"
+        }
+      ],
+      "purpose": "Exact uv build command records VIRTUAL_ENV as this candidate and succeeds; archive/wheel/sdist and readback outputs are separate preserved siblings."
+    },
+    "DFI_LATE_CMD": {
+      "kind": "raw_receipt",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/command.json",
+      "sha256": "fd011f4d0f1e4981fa8dd3744b0c7dafa12b17ee77d389cd430983b8d8b05590",
+      "purpose": "Exact successful isolated consumer command whose argv[0] is the row-18 venv interpreter; cwd /tmp, -I, complete child environment, exit 0. The command receipt also hashes the separate stdout, stderr, and exit receipts and records exact candidate wheel/archive hashes."
+    },
+    "DFI_SETUP": {
+      "kind": "raw_receipts",
+      "items": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-sync.stderr",
+          "sha256": "fcc43293d7def6a47ef254ebc0a2147a2bb5599db411b28d978d8329dd4fe492"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/wheel-install.stderr",
+          "sha256": "edcae28791e4b870c80ee819a7370723ae680d4749620541e32cb087d77fb8a0"
+        }
+      ],
+      "purpose": "Frozen Python 3.14 environment creation and exact DFI wheel installation at the row-18 venv path; setup is separately linked to the successful isolated consumer command by DFI_LATE_CMD."
+    },
+    "DFI_HANDOFF": {
+      "kind": "git_blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441.json",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos",
+      "branch": "codex/e02-C-dfi-emb-20261006",
+      "commit": "40d27423aa7835bc8439f139d84ff1bc909ea14a",
+      "blob_sha256": "ca05094d1efa91667845d2f733bd4f3830faee32340be7cbfe8fcf77b85ccbd5",
+      "purpose": "Committed and read-back DFI implementation handoff at the clean final source commit; records isolated installed-wheel consumer checks and the environment profile."
+    },
+    "DFI_COMPOSITION": {
+      "kind": "git_blob",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/c2-installed-composition-receipt.json",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos",
+      "branch": "codex/e02-C-dfi-emb-20261006",
+      "commit": "40d27423aa7835bc8439f139d84ff1bc909ea14a",
+      "blob_sha256": "0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1",
+      "purpose": "Committed composition receipt records the installed DFI wheel and its isolated installed consumer evidence; candidate wheel/archive and probe outputs remain separate preserved artifacts."
+    },
+    "DFI_PUBLISH": {
+      "kind": "raw_capture",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/publication/dfi-final-push-readback.json",
+      "sha256": "ca249847f0d071405e4cb8d338dc158f8a0aee18dcc45bc7d7557e02c638d50f",
+      "purpose": "Readback of the published DFI branch/commit and clean status, confirming committed handoff evidence."
+    }
+  },
+  "candidate_items": [
+    {
+      "row": 1,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 1
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 2,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 2
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 3,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 3
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 4,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 4
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CLIENT_HANDOFF",
+        "CLIENT_LOCK",
+        "CLIENT_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the committed frozen client install and downstream package/dashboard/Atlas checks; lockfile is unchanged and outputs are committed separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 5,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 5
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CLIENT_HANDOFF",
+        "CLIENT_LOCK",
+        "CLIENT_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the committed frozen client install and downstream package/dashboard/Atlas checks; lockfile is unchanged and outputs are committed separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 6,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 6
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CLIENT_HANDOFF",
+        "CLIENT_LOCK",
+        "CLIENT_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm workspace root is covered by the committed frozen client install and downstream package/dashboard/Atlas checks; lockfile is unchanged and outputs are committed separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 7,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 7
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CLIENT_HANDOFF",
+        "CLIENT_LOCK",
+        "CLIENT_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the committed frozen client install and downstream package/dashboard/Atlas checks; lockfile is unchanged and outputs are committed separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 8,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/packages/cli/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 8
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CLIENT_HANDOFF",
+        "CLIENT_LOCK",
+        "CLIENT_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the committed frozen client install and downstream package/dashboard/Atlas checks; lockfile is unchanged and outputs are committed separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 9,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 9
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CLIENT_HANDOFF",
+        "CLIENT_LOCK",
+        "CLIENT_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the committed frozen client install and downstream package/dashboard/Atlas checks; lockfile is unchanged and outputs are committed separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 10,
+      "category": "private_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/.venv",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 10
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CLIENT_PY_CMD",
+        "CLIENT_PY_RESULT",
+        "CLIENT_PY_PROVENANCE",
+        "CLIENT_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "Exact successful offline frozen uv sync/provenance receipts bind this private venv to the client worktree; `--no-install-project` means product source is not unique environment content.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 11,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 11
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "BASE198_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "Exact frozen sync configuration creates this venv and an isolated probe runs via its interpreter; captured outputs are separate and the project is not installed.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 12,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 12
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "BERL_ENV"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "Runtime origins show this venv was imported, but captured setup/run evidence lacks a complete exact argv/cwd/sys.prefix trail. Keep while the global audit release is pending.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 13,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv-parent",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 13
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "BERL_ENV"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "The shared BERL runtime output points to sibling `berl/venv`, not `berl/venv-parent`; no exact use receipt identifies this path.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 14,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/canon/venv",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 14
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CANON_ENV"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "Installed runtime output exists, but selected capture has no exact setup/run argv and cwd tied to this venv; keep provenance unresolved.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 15,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/venv-base",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 15
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CAT180_ENV"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "An isolated v2 consumer probe used this venv, but its exact creation/install command and setup provenance are missing; preserve until reconstruction is proven.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 16,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/venv-base",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 16
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CATALOG_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "A successful exact no-build-isolation editable install targets this venv; the extracted source and the audit receipt are separate preserved siblings.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 17,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-12190/venv-vector-search",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 17
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "DFI12190_ENV"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "Probe/install output suggests this environment was used, but no selected receipt records exact invocation and sys.prefix together; keep unverified.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 18,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-vector-search",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 18
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "DFIAB441_ENV",
+        "DFI_LATE_CMD",
+        "DFI_SETUP",
+        "DFI_HANDOFF",
+        "DFI_COMPOSITION",
+        "DFI_PUBLISH",
+        "INV"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "The exact successful isolated consumer command uses this environment’s Python executable (-I, cwd /tmp, complete child environment, exit 0). Frozen setup and DFI wheel-install receipts identify the environment; committed/read-back DFI handoff and composition receipts bind the source and installed evidence. The tested CAT wheel/archive and probe outputs are separate preserved siblings, so this exact venv has no unique evidence payload.",
+      "release_scope": "Recommend only this exact venv directory after the root-owned full-ledger review and fresh identity/non-overlap checks. Preserve the parent raw/installed tree, CAT wheel, source archive, all probe inputs/outputs/readbacks, DFI source extraction, and every sibling artifact; no recursive removal. This is not current Trash authorization."
+    },
+    {
+      "row": 19,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f/venv",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 19
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No setup or run receipt was captured for this environment.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 20,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene/venv",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 20
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "HYGIENE_ENV"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "Some installed CLI output names this environment, but the selected capture lacks an exact setup/install command and complete path-specific run record.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 21,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 21
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "MIG_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "Exact wheel install and installed migration commands use this venv; retain wheel/dist, fixtures, migration readbacks and other sibling audit artifacts.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 22,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/venv-base",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 22
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "OBS_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "The install/probe receipt ties this exact venv to the isolated installed Ukraine-data probe; keep wheel and readback outputs separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 23,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/plg-a452/venv-base",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 23
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "PLUGIN_ENV"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "Installed plugin probe results exist, but exact setup/run argv and cwd are not captured for this venv.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 24,
+      "category": "installed_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 24
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "SCHEMA_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "Exact frozen sync, wheel install and isolated probes use this venv; keep the source extraction, wheel/dist, fixtures and readback outputs separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 25,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 25
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No path-specific pnpm install receipt for the continuation worktree; the authorized PNPM slot was assigned to the client lane.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 26,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 26
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No path-specific pnpm install receipt for the continuation worktree; the authorized PNPM slot was assigned to the client lane.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 27,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 27
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No path-specific pnpm install receipt for the continuation worktree; the authorized PNPM slot was assigned to the client lane.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 28,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 28
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No path-specific pnpm install receipt for the continuation worktree; the authorized PNPM slot was assigned to the client lane.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 29,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/packages/cli/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 29
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No path-specific pnpm install receipt for the continuation worktree; the authorized PNPM slot was assigned to the client lane.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 30,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 30
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No path-specific pnpm install receipt for the continuation worktree; the authorized PNPM slot was assigned to the client lane.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 31,
+      "category": "private_build_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/cat-180bb/buildenv",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 31
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "CATBUILD_ENV"
+      ],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "Creation/install logs identify a sibling catalog buildenv, but no exact build argv/environment binds use to this candidate path.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 32,
+      "category": "private_build_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 32
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "MIG_BUILD_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "The successful exact uv build records VIRTUAL_ENV as this environment; generated wheel/archive/readbacks are separate preserved siblings.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 33,
+      "category": "private_python_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 33
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "ROOT_PY_CMD",
+        "ROOT_PY_RESULT",
+        "ROOT_PY_PROVENANCE",
+        "CONTINUATION_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "Exact successful offline frozen uv sync/provenance receipts bind this private venv to continuation; `--no-install-project` keeps product source outside it.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 34,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 34
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 35,
+      "category": "pytest_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/.pytest_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 35
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 36,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 36
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 37,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 37
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 38,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 38
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "HYG_PNPM_LOG",
+        "HYG_D2",
+        "HYG_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the frozen HYG install and the committed six-workspace map/build/smoke/Atlas checks; outputs and code are preserved separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 39,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 39
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "HYG_PNPM_LOG",
+        "HYG_D2",
+        "HYG_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the frozen HYG install and the committed six-workspace map/build/smoke/Atlas checks; outputs and code are preserved separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 40,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 40
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "HYG_PNPM_LOG",
+        "HYG_D2",
+        "HYG_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm workspace root is covered by the frozen HYG install and the committed six-workspace map/build/smoke/Atlas checks; outputs and code are preserved separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 41,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 41
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "HYG_PNPM_LOG",
+        "HYG_D2",
+        "HYG_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the frozen HYG install and the committed six-workspace map/build/smoke/Atlas checks; outputs and code are preserved separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 42,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/packages/cli/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 42
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "HYG_PNPM_LOG",
+        "HYG_D2",
+        "HYG_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the frozen HYG install and the committed six-workspace map/build/smoke/Atlas checks; outputs and code are preserved separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 43,
+      "category": "node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 43
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [
+        "HYG_PNPM_LOG",
+        "HYG_D2",
+        "HYG_FINAL"
+      ],
+      "eligibility": "RECOMMEND_ELIGIBLE_AFTER_ROOT_RELEASE",
+      "basis": "This exact pnpm package root is covered by the frozen HYG install and the committed six-workspace map/build/smoke/Atlas checks; outputs and code are preserved separately.",
+      "release_scope": "The candidate is locally reproducible/dependency-only for the cited completed runs. This is a recommendation for the root release ledger only, never current Trash authorization."
+    },
+    {
+      "row": 44,
+      "category": "pytest_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/.pytest_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 44
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 45,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 45
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 46,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 46
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 47,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 47
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 48,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 48
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    },
+    {
+      "row": 49,
+      "category": "ruff_cache",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos/.ruff_cache",
+      "source_row_ref": {
+        "reference_id": "SEL",
+        "row": 49
+      },
+      "capture_refs": [
+        "SEL",
+        "INV"
+      ],
+      "run_ref_ids": [],
+      "eligibility": "HELD_PROVENANCE_OR_RELEASE_NOT_ESTABLISHED",
+      "basis": "No exact producing command/run receipt in the captured inventory; directory metadata and the ignore rule do not establish provenance or use.",
+      "release_scope": "Do not select for cleanup from this review."
+    }
+  ],
+  "source_extractions_excluded_by_policy": {
+    "count": 24,
+    "eligibility": "PRESERVE_ONLY_NEVER_ELIGIBLE",
+    "source_ref_id": "INV",
+    "note": "These are outside the 49-row candidate set and must remain preserved regardless of the status assigned to neighboring virtual environments."
+  },
+  "method_limits": [
+    "Selection/inventory captures initial identities, not action-time identity; no inode was revalidated for a move.",
+    "No directory contents were traversed during the initial census; no recursive deletion or broad cache pruning is recommended.",
+    "An exact path existing, being ignored, or having a lockfile was not counted as provenance.",
+    "Candidates with uncertain setup/run provenance remain held even if a sibling log or runtime output mentions the environment; row 18 is the documented exception because an exact linked consumer command uses its interpreter and the committed handoff closes source/evidence provenance."
+  ],
+  "supersedes": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v1.json",
+    "sha256": "2fce07c0fbb11e32ff475651fec83e030c619af47805a7c98a99b7acb477a6b1",
+    "reason": "Adds exact DFI installed-environment consumer run and committed source/evidence handoff, correcting candidate row 18 provenance."
+  }
+}

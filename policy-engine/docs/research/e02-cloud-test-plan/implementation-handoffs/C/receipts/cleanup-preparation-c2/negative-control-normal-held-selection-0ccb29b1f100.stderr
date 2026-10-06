@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py", line 29, in <module>
+    require(selection['decision'] == 'RELEASE_EXACT_CANDIDATES_TO_TRASH', 'Cleanup precondition failed')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py", line 13, in require
+    raise RuntimeError(message)
+RuntimeError: Cleanup precondition failed

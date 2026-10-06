@@ -1,0 +1,577 @@
+{
+  "schema": "policyos.e02.C.cleanup-provenance.v1",
+  "created_utc": "2026-10-06T19:27:43.505467+00:00",
+  "purpose": "Exact command/setup/probe provenance companion for the cleanup eligibility review; this is not cleanup authorization.",
+  "authorization": {
+    "trash_authorized_now": false,
+    "released_paths": [],
+    "permanent_deletion": false
+  },
+  "eligibility_report": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+    "sha256": "2db919d222a3534d2b82524b53f425e9f73f6ae2c2490bb726b38d785b4f902d",
+    "bytes": 62856
+  },
+  "selection_v4_at_preparation": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v4-unreleased.json",
+    "sha256": "33d4a4e6432918528c69c05afb6c8c98cb735107ad2df13884d2f7bc64cc50f8",
+    "bytes": 72279,
+    "state": "unreleased; refresh after companion commit and final C54 freeze"
+  },
+  "search_scope": {
+    "admitted_branch_count": 14,
+    "unique_committed_C_handoff_blobs_examined": 453,
+    "raw_receipt_items": 19,
+    "existing_byte_identical_committed_refs": 11,
+    "exact_copies_created_uncommitted": 8
+  },
+  "row_ref_groups": [
+    {
+      "candidate_row": 10,
+      "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-client-20261006/polisyos/policy-engine/.venv",
+      "run_reference_ids": [
+        "CLIENT_PY_CMD",
+        "CLIENT_PY_RESULT",
+        "CLIENT_PY_PROVENANCE",
+        "CLIENT_FINAL"
+      ],
+      "source_receipt_refs": [
+        {
+          "reference_id": "CLIENT_PY_CMD",
+          "reference_item_index": 0
+        },
+        {
+          "reference_id": "CLIENT_PY_RESULT",
+          "reference_item_index": 0
+        },
+        {
+          "reference_id": "CLIENT_PY_PROVENANCE",
+          "reference_item_index": 0
+        }
+      ]
+    },
+    {
+      "candidate_row": 11,
+      "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv",
+      "run_reference_ids": [
+        "BASE198_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "source_receipt_refs": [
+        {
+          "reference_id": "BASE198_ENV",
+          "reference_item_index": 0
+        },
+        {
+          "reference_id": "BASE198_ENV",
+          "reference_item_index": 1
+        }
+      ]
+    },
+    {
+      "candidate_row": 16,
+      "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/venv-base",
+      "run_reference_ids": [
+        "CATALOG_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "source_receipt_refs": [
+        {
+          "reference_id": "CATALOG_ENV",
+          "reference_item_index": 0
+        },
+        {
+          "reference_id": "CATALOG_ENV",
+          "reference_item_index": 1
+        }
+      ]
+    },
+    {
+      "candidate_row": 21,
+      "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base",
+      "run_reference_ids": [
+        "MIG_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "source_receipt_refs": [
+        {
+          "reference_id": "MIG_ENV",
+          "reference_item_index": 0
+        },
+        {
+          "reference_id": "MIG_ENV",
+          "reference_item_index": 1
+        },
+        {
+          "reference_id": "MIG_ENV",
+          "reference_item_index": 2
+        }
+      ]
+    },
+    {
+      "candidate_row": 22,
+      "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/venv-base",
+      "run_reference_ids": [
+        "OBS_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "source_receipt_refs": [
+        {
+          "reference_id": "OBS_ENV",
+          "reference_item_index": 0
+        }
+      ]
+    },
+    {
+      "candidate_row": 24,
+      "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/venv-base",
+      "run_reference_ids": [
+        "SCHEMA_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "source_receipt_refs": [
+        {
+          "reference_id": "SCHEMA_ENV",
+          "reference_item_index": 0
+        },
+        {
+          "reference_id": "SCHEMA_ENV",
+          "reference_item_index": 1
+        },
+        {
+          "reference_id": "SCHEMA_ENV",
+          "reference_item_index": 2
+        }
+      ]
+    },
+    {
+      "candidate_row": 32,
+      "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv",
+      "run_reference_ids": [
+        "MIG_BUILD_ENV",
+        "INV",
+        "CONTINUATION_FINAL"
+      ],
+      "source_receipt_refs": [
+        {
+          "reference_id": "MIG_BUILD_ENV",
+          "reference_item_index": 0
+        },
+        {
+          "reference_id": "MIG_BUILD_ENV",
+          "reference_item_index": 1
+        }
+      ]
+    },
+    {
+      "candidate_row": 33,
+      "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+      "run_reference_ids": [
+        "ROOT_PY_CMD",
+        "ROOT_PY_RESULT",
+        "ROOT_PY_PROVENANCE",
+        "CONTINUATION_FINAL"
+      ],
+      "source_receipt_refs": [
+        {
+          "reference_id": "ROOT_PY_CMD",
+          "reference_item_index": 0
+        },
+        {
+          "reference_id": "ROOT_PY_RESULT",
+          "reference_item_index": 0
+        },
+        {
+          "reference_id": "ROOT_PY_PROVENANCE",
+          "reference_item_index": 0
+        }
+      ]
+    }
+  ],
+  "source_receipt_records": [
+    {
+      "reference_id": "CLIENT_PY_CMD",
+      "reference_item_index": 0,
+      "candidate_row": 10,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/sync-offline.command.json",
+      "source_sha256": "05eb842bd89816fce637ce552ac088fcd0a053195b8a47a3ec87f8f2eb063f70",
+      "source_bytes": 747,
+      "storage": {
+        "status": "EXACT_COPY_UNCOMMITTED_GIT_REF_PENDING",
+        "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.command.json",
+        "sha256": "05eb842bd89816fce637ce552ac088fcd0a053195b8a47a3ec87f8f2eb063f70",
+        "bytes": 747,
+        "copy_created": true
+      }
+    },
+    {
+      "reference_id": "CLIENT_PY_RESULT",
+      "reference_item_index": 0,
+      "candidate_row": 10,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/sync-offline.result.json",
+      "source_sha256": "ee44309441236816279cee36b4610d8065387b7e41b10801e1cf5c29dabc3ef1",
+      "source_bytes": 368,
+      "storage": {
+        "status": "EXACT_COPY_UNCOMMITTED_GIT_REF_PENDING",
+        "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.result.json",
+        "sha256": "ee44309441236816279cee36b4610d8065387b7e41b10801e1cf5c29dabc3ef1",
+        "bytes": 368,
+        "copy_created": true
+      }
+    },
+    {
+      "reference_id": "CLIENT_PY_PROVENANCE",
+      "reference_item_index": 0,
+      "candidate_row": 10,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/environment/client/environment-provenance.json",
+      "source_sha256": "3980f315df5c742df346860bfc926abb11eed776ea9b475eca71428ce8410e89",
+      "source_bytes": 1419,
+      "storage": {
+        "status": "EXACT_COPY_UNCOMMITTED_GIT_REF_PENDING",
+        "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-environment.provenance.json",
+        "sha256": "3980f315df5c742df346860bfc926abb11eed776ea9b475eca71428ce8410e89",
+        "bytes": 1419,
+        "copy_created": true
+      }
+    },
+    {
+      "reference_id": "BASE198_ENV",
+      "reference_item_index": 0,
+      "candidate_row": 11,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/command-results.json",
+      "source_sha256": "a15ffb852af6ff48ebfa545ad875fec00460c21575fa453230b63e6f19b742ea",
+      "source_bytes": 4053,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-scholar-20261006",
+          "commit": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/base198-command-results.json",
+          "sha256": "a15ffb852af6ff48ebfa545ad875fec00460c21575fa453230b63e6f19b742ea",
+          "bytes": 4053
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "BASE198_ENV",
+      "reference_item_index": 1,
+      "candidate_row": 11,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/provision.stderr",
+      "source_sha256": "c6313b40fc98fc2399708414585164ed9478ef1ff56d4e3bfa958468aadcebd2",
+      "source_bytes": 2898,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-scholar-20261006",
+          "commit": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/base198-provision.stderr",
+          "sha256": "c6313b40fc98fc2399708414585164ed9478ef1ff56d4e3bfa958468aadcebd2",
+          "bytes": 2898
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "CATALOG_ENV",
+      "reference_item_index": 0,
+      "candidate_row": 16,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/editable-install-nobi3-command.json",
+      "source_sha256": "a2b1fb7aa1306e5876b7caa209796a4b6991f5257944a889c2b14ef8c38a9089",
+      "source_bytes": 1829,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-catalog-20261006",
+          "commit": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3-command.json",
+          "sha256": "a2b1fb7aa1306e5876b7caa209796a4b6991f5257944a889c2b14ef8c38a9089",
+          "bytes": 1829
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "CATALOG_ENV",
+      "reference_item_index": 1,
+      "candidate_row": 16,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-installed-audit-receipt.json",
+      "source_sha256": "0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064",
+      "source_bytes": 15137,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-catalog-20261006",
+          "commit": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-installed-audit-receipt.json",
+          "sha256": "0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064",
+          "bytes": 15137
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "MIG_ENV",
+      "reference_item_index": 0,
+      "candidate_row": 21,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/install-wheel.command.json",
+      "source_sha256": "5d8ba88ba8cc695d219de481b0941652fb295bbb1db0874dfdf0427b787b6419",
+      "source_bytes": 1857,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-migrations-20261006",
+          "commit": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/install-wheel.command.json",
+          "sha256": "5d8ba88ba8cc695d219de481b0941652fb295bbb1db0874dfdf0427b787b6419",
+          "bytes": 1857
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "MIG_ENV",
+      "reference_item_index": 1,
+      "candidate_row": 21,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-converter-delta.command-results.json",
+      "source_sha256": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c",
+      "source_bytes": 11599,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-migrations-20261006",
+          "commit": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-converter-delta.command-results.json",
+          "sha256": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c",
+          "bytes": 11599
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "MIG_ENV",
+      "reference_item_index": 2,
+      "candidate_row": 21,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-final2.command-results.json",
+      "source_sha256": "566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0",
+      "source_bytes": 30409,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-migrations-20261006",
+          "commit": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-final2.command-results.json",
+          "sha256": "566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0",
+          "bytes": 30409
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "OBS_ENV",
+      "reference_item_index": 0,
+      "candidate_row": 22,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-receipt.json",
+      "source_sha256": "81ab51f487eba3e6233fc892b0749f4adc06812cb7550f074c64ea2d6a04f1da",
+      "source_bytes": 7082,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-obs-udf-20261006",
+          "commit": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-receipt.json",
+          "sha256": "81ab51f487eba3e6233fc892b0749f4adc06812cb7550f074c64ea2d6a04f1da",
+          "bytes": 7082
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "SCHEMA_ENV",
+      "reference_item_index": 0,
+      "candidate_row": 24,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/env-install-results.json",
+      "source_sha256": "55724309fe305b4d43c0b942b9d2d1f5b2ae01526707e6506d569f13cf1fbf45",
+      "source_bytes": 6222,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-schema-20261006",
+          "commit": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/env-install-results.json",
+          "sha256": "55724309fe305b4d43c0b942b9d2d1f5b2ae01526707e6506d569f13cf1fbf45",
+          "bytes": 6222
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "SCHEMA_ENV",
+      "reference_item_index": 1,
+      "candidate_row": 24,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/installed-source-census.command-results.json",
+      "source_sha256": "523565bdd8233d504234dff28f7261a8499754dbfc7662d9ce21b58b16146e90",
+      "source_bytes": 3784,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-schema-20261006",
+          "commit": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/installed-source-census.command-results.json",
+          "sha256": "523565bdd8233d504234dff28f7261a8499754dbfc7662d9ce21b58b16146e90",
+          "bytes": 3784
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "SCHEMA_ENV",
+      "reference_item_index": 2,
+      "candidate_row": 24,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-b8/outside-repo-verified.command-results.json",
+      "source_sha256": "ac841493a5829974a130b6b80a6e3ccc2513467f08967a9406c12293d00c189f",
+      "source_bytes": 2707,
+      "storage": {
+        "status": "EXISTING_BYTE_IDENTICAL_COMMITTED_RECEIPT",
+        "git_ref": {
+          "branch": "codex/e02-C-schema-20261006",
+          "commit": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-b8-audit/outside-repo-verified.command-results.json",
+          "sha256": "ac841493a5829974a130b6b80a6e3ccc2513467f08967a9406c12293d00c189f",
+          "bytes": 2707
+        },
+        "copy_created": false
+      }
+    },
+    {
+      "reference_id": "MIG_BUILD_ENV",
+      "reference_item_index": 0,
+      "candidate_row": 32,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/command-results.json",
+      "source_sha256": "8e9a4d8523a281af5f2910d8843d7d1d6b46b3e7f1ff34d415b665030a0f6336",
+      "source_bytes": 69695,
+      "storage": {
+        "status": "EXACT_COPY_UNCOMMITTED_GIT_REF_PENDING",
+        "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment.command-results.json",
+        "sha256": "8e9a4d8523a281af5f2910d8843d7d1d6b46b3e7f1ff34d415b665030a0f6336",
+        "bytes": 69695,
+        "copy_created": true
+      }
+    },
+    {
+      "reference_id": "MIG_BUILD_ENV",
+      "reference_item_index": 1,
+      "candidate_row": 32,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipts",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install.stderr",
+      "source_sha256": "1d2b170542f3b41429af8f0f74ef63d989fa56bae4b9824b435546d28e2aaa77",
+      "source_bytes": 535,
+      "storage": {
+        "status": "EXACT_COPY_UNCOMMITTED_GIT_REF_PENDING",
+        "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment-install.stderr",
+        "sha256": "1d2b170542f3b41429af8f0f74ef63d989fa56bae4b9824b435546d28e2aaa77",
+        "bytes": 535,
+        "copy_created": true
+      }
+    },
+    {
+      "reference_id": "ROOT_PY_CMD",
+      "reference_item_index": 0,
+      "candidate_row": 33,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipt",
+      "source_path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/sync-offline-after-online.command.json",
+      "source_sha256": "ef810f891dfb072efeee20162651c761a7d4976e71ce529c595ad448115333bc",
+      "source_bytes": 754,
+      "storage": {
+        "status": "EXACT_COPY_UNCOMMITTED_GIT_REF_PENDING",
+        "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.command.json",
+        "sha256": "ef810f891dfb072efeee20162651c761a7d4976e71ce529c595ad448115333bc",
+        "bytes": 754,
+        "copy_created": true
+      }
+    },
+    {
+      "reference_id": "ROOT_PY_RESULT",
+      "reference_item_index": 0,
+      "candidate_row": 33,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipt",
+      "source_path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/sync-offline-after-online.result.json",
+      "source_sha256": "30ab6a03591289e7ebf2cc4fc576742fde2c355cb5155066aea652eaea0e2d7b",
+      "source_bytes": 295,
+      "storage": {
+        "status": "EXACT_COPY_UNCOMMITTED_GIT_REF_PENDING",
+        "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.result.json",
+        "sha256": "30ab6a03591289e7ebf2cc4fc576742fde2c355cb5155066aea652eaea0e2d7b",
+        "bytes": 295,
+        "copy_created": true
+      }
+    },
+    {
+      "reference_id": "ROOT_PY_PROVENANCE",
+      "reference_item_index": 0,
+      "candidate_row": 33,
+      "source_grade": "RAW_CAPTURED_RECEIPT",
+      "source_kind": "raw_receipt",
+      "source_path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/environment/environment-provenance.json",
+      "source_sha256": "8c1b7322a19670b6fdd4dabfdce78373a6e7700d0b4e0a5ea6c6f156c40017d5",
+      "source_bytes": 1347,
+      "storage": {
+        "status": "EXACT_COPY_UNCOMMITTED_GIT_REF_PENDING",
+        "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-environment.provenance.json",
+        "sha256": "8c1b7322a19670b6fdd4dabfdce78373a6e7700d0b4e0a5ea6c6f156c40017d5",
+        "bytes": 1347,
+        "copy_created": true
+      }
+    }
+  ],
+  "copy_safety_review": {
+    "copied_files_scanned_for_common_token_or_private_key_patterns": true,
+    "known_patterns_found": 0,
+    "full_environment_dump_copied": false,
+    "copied_content_class": "command/setup/runtime-provenance records and bounded build stdout/stderr only; no source archive, wheel, sdist, database, corpus, CAS, environment, or production dataset copied",
+    "migrations-build-probe_uses_test_inputs": "The copied command record contains an empty DuckDB path and unused.invalid PostgreSQL DSN; it records command metadata and bounded output, not a production run."
+  },
+  "pending_git_status": "The eight exact copies are uncommitted. Do not treat their destination paths as Git refs until commit and exact branch readback. Existing exact receipts carry immutable commit/path/SHA/byte references.",
+  "limits": [
+    "Raw evidence remains raw-grade until an exact committed Git ref exists.",
+    "No cleanup action is authorized by this companion."
+  ]
+}

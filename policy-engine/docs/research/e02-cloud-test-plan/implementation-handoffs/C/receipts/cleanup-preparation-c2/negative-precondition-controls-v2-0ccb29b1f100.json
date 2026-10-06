@@ -1,0 +1,71 @@
+{
+  "controls": [
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-O",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py"
+      ],
+      "case": "optimized-before-argv",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.053730040963273495,
+      "env_overrides": {
+        "PYTHONOPTIMIZE": "unset",
+        "bytecode_argument": "-B",
+        "optimization_argument": "-O"
+      },
+      "exit_code": 1,
+      "started_utc": "2026-10-06T17:59:15+00:00",
+      "stderr_bytes": 346,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-optimized-before-argv-0ccb29b1f100.stderr",
+      "stderr_sha256": "1fcd41de7d59919d0500861a64e417cc016923b66c4abec2aa12f4b42160a3fc",
+      "stdout_bytes": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-optimized-before-argv-0ccb29b1f100.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v2-20261006.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-held-v2-0ccb29b1f100.release.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-held-v2-0ccb29b1f100.receipt.json"
+      ],
+      "case": "normal-held-selection",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "elapsed_seconds": 0.04398441599914804,
+      "env_overrides": {
+        "PYTHONOPTIMIZE": "unset",
+        "bytecode_argument": "-B",
+        "optimization_argument": "none"
+      },
+      "exit_code": 1,
+      "started_utc": "2026-10-06T17:59:15+00:00",
+      "stderr_bytes": 628,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-normal-held-selection-0ccb29b1f100.stderr",
+      "stderr_sha256": "b48a2ffe3b01b8197756ce54f51f2593607fc8088ab07964fb79b35305a55f30",
+      "stdout_bytes": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-normal-held-selection-0ccb29b1f100.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "output_receipt_exists_after": false,
+  "output_receipt_expected_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-held-v2-0ccb29b1f100.receipt.json",
+  "python_version": "3.14 from /opt/homebrew/opt/python@3.14/bin/python3.14 (test harness sys.executable)",
+  "sample_candidate_device_unchanged": true,
+  "sample_candidate_inode_unchanged": true,
+  "sample_candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/.ruff_cache",
+  "script_sha256_after": "a7cf26e37c2272671974ad589aa1b326b95e0905f9bcaface3145a0c005b450f",
+  "script_sha256_before": "a7cf26e37c2272671974ad589aa1b326b95e0905f9bcaface3145a0c005b450f",
+  "script_stable_during_controls": true,
+  "script_was_not_invoked_with_releasable_selection": true,
+  "selection_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v2-20261006.json",
+  "selection_sha256": "57433facf86c98a9a6c567422d80a4f0f2b4229122a8d820c544c2b95bf3560f",
+  "synthetic_release_bytes": 1677,
+  "synthetic_release_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-held-v2-0ccb29b1f100.release.json",
+  "synthetic_release_sha256": "b88f7deff6fb7051b0eeed15acc45ad5fd129f64328b63d3a44b4e4ad7505394",
+  "trash_target_exists_before_and_after": false,
+  "trash_target_path": "/Users/deniskopylov/.Trash/e02-C-20261006-negative-control-0ccb29b1f100"
+}

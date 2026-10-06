@@ -1,0 +1,84 @@
+{
+  "bounded_residuals": [
+    {
+      "bounded_handling": "Use an idempotent receipt/reconciliation keyed by release hash and destination inode, or require explicit manual reconciliation of an incomplete receipt before retry.",
+      "evidence": "A crash after path.rename and before receipt append/save leaves a moved item in the target without a move record; rerun rejects the existing target at line 33 and has no reconciliation path.",
+      "id": "RESIDUAL-01",
+      "impact": "The item remains recoverable in Trash, but the operation is left partially recorded and cannot resume through this script.",
+      "location": "move_released_to_trash.py:95-120",
+      "severity": "medium"
+    }
+  ],
+  "coverage_limitations": [
+    "Static source and current ignored selection only; no execution, dry-run, mutation, or new tests. Current review applies only to the exact target SHA above."
+  ],
+  "findings": [
+    {
+      "class": "runtime-mode-bypass",
+      "closure": "Replace safety asserts with explicit fail-closed conditionals/raises and reject optimized mode at startup. Verify no side effects in optimized mode without invoking real move paths.",
+      "evidence": "All authorization, path-confinement, nested-path, reference, and pre/post-rename safety checks are Python assert statements.",
+      "id": "MOVER-01",
+      "impact": "Python optimization (`-O` / PYTHONOPTIMIZE) removes every assert. In that mode the release path and candidate paths can reach target.mkdir/path.rename without the guards; a crafted trash_directory_name can also escape .Trash.",
+      "location": "move_released_to_trash.py:18-34, 47-108",
+      "severity": "critical"
+    },
+    {
+      "class": "candidate-provenance-and-scope",
+      "closure": "Keep source extractions preserve-only unless each tree is content-bound to an exact retained source archive/distribution and its owner confirms no remaining consumer; add an explicit category allowlist matching the user-authorized set.",
+      "evidence": "The current selection contains 23 `source_archive_extraction` candidates. The mover has no category allowlist and treats a released path as eligible after status flags; its checks establish only sibling archive/distribution path existence, not tree identity or content equality.",
+      "id": "MOVER-02",
+      "impact": "An editable extraction with unique changes or a live consumer could be moved under an authorization string limited to repeatable test directories and used environments. A retained candidate.tar does not preserve edits made after extraction.",
+      "location": "move_released_to_trash.py:23-29, 64-90; cleanup-selection-v2-20261006.json",
+      "severity": "high"
+    },
+    {
+      "class": "exact-root-confinement",
+      "closure": "Bind the selection to its source inventory hash; require release roots to equal that inventory\u2019s exact admitted C-root set; validate every path component with lstat from a trusted nonsymlink root through candidate and Trash.",
+      "evidence": "The selection source inventory path/SHA is not loaded or checked. Owner membership is checked only against roots supplied by release JSON, and path confinement is only the broad `.codex/worktrees` prefix. The parent-symlink loop breaks at owner.parent before lstat-checking that component or higher ancestors.",
+      "id": "MOVER-03",
+      "impact": "A malformed or re-authored selection/release can broaden the move beyond the 14 admitted C roots. A symlinked owner.parent can redirect candidate lstat/rename through an outside target while lexical `is_relative_to` checks still pass.",
+      "location": "move_released_to_trash.py:12, 48-58, 66-78",
+      "severity": "high"
+    },
+    {
+      "class": "completion-evidence-completeness",
+      "closure": "Compile the release input root-only from the exact expected topic/audit set after status checks; require the complete set and bind every required handoff/deciding output ref to a frozen branch/HEAD and its SHA/byte count.",
+      "evidence": "Audit completion and committed-work claims are booleans in release JSON. Git refs are checked for retrievable bytes/hash but only required to be nonempty; `frozen_topics` can be empty or omit topics, and refs are not tied to a complete expected topic/evidence set or proven reachable from each frozen topic head.",
+      "id": "MOVER-04",
+      "impact": "The code can pass a partial or unrelated evidence list while asserting that all deciding outputs/useful changes and audits are complete.",
+      "location": "move_released_to_trash.py:19-20, 48-58",
+      "severity": "high"
+    },
+    {
+      "class": "receipt-path-integrity",
+      "closure": "Require a new unique receipt path below the exact cleanup directory, reject overlap with candidate/preserve paths, verify nonsymlink ancestors, and create exclusively before using an atomic same-directory update strategy.",
+      "evidence": "`output_path` is caller-controlled and `save()` unconditionally uses write_text, truncating any existing file; the path is not confined to cleanup scratch or checked against candidates/preserve refs.",
+      "id": "MOVER-05",
+      "impact": "A path/argument mistake can overwrite an existing probe, receipt, source file, or other user data before any move starts.",
+      "location": "move_released_to_trash.py:14, 35-45",
+      "severity": "high"
+    },
+    {
+      "class": "preserve-reference-proxy",
+      "closure": "lstat every ref, reject symlinks, bind file SHA/bytes or directory device/inode from the frozen inventory, and preflight that no ref is within any released candidate path.",
+      "evidence": "Preserve refs are validated with Path.exists(), which follows symlinks, and only their path existence is rechecked after rename. The code does not bind lstat identity/content or globally reject a preserve ref that is another released candidate.",
+      "id": "MOVER-06",
+      "impact": "A symlink or replaced path can make the receipt claim an artifact remained preserved when only an external/replacement target exists; a later candidate move can invalidate an earlier reference.",
+      "location": "move_released_to_trash.py:86-90, 100-108",
+      "severity": "medium"
+    }
+  ],
+  "review_mode": "Read-only static review. The mover was not invoked and no paths were moved.",
+  "review_version": 1,
+  "reviewed_utc": "2026-10-06T17:58:00+00:00",
+  "selection": ".tmp/e02-C2/raw/cleanup/cleanup-selection-v2-20261006.json",
+  "selection_sha256": "57433facf86c98a9a6c567422d80a4f0f2b4229122a8d820c544c2b95bf3560f",
+  "target": ".tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+  "target_sha256": "2cdcc07cfea69f7322e0c987c403952f03923ed61fc08a04e46bbab12be974df",
+  "verdict": "NO_GO_FOR_EXECUTION",
+  "verified_safeguards": [
+    "Current v2 selection is fail-closed under normal Python: it declares NO_ACTION_ALL_CANDIDATES_HELD and trash_authorized_now=false, which the current mover checks at lines 23-24. The mover was not run.",
+    "The current code binds release JSON to selection bytes, checks ignored/untracked status, checks candidate type/owner/device, rejects nested candidate paths, and compares preflight inode/device immediately before and after rename.",
+    "For the current selection, preserve references are disjoint from candidate paths and present at review time; this does not replace the generic lstat/reference checks requested above."
+  ]
+}

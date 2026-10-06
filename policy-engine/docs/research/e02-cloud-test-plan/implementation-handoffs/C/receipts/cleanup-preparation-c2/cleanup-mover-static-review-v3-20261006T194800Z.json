@@ -1,0 +1,276 @@
+{
+  "schema": "policyos.e02.C.cleanup.static-review.v3",
+  "created_utc": "2026-10-06T19:49:36.930157+00:00",
+  "review_scope": "Read-only static delta review of the frozen cleanup mover and preflight builder, plus readback of the existing no-action preflight output. Private one-time operator flow only.",
+  "verdict": "GO_FOR_ROOT_PREPARATION_ONLY",
+  "trash_action_verdict": "NO_ACTION_CURRENT_INPUTS_BLOCKED",
+  "execution_boundary": {
+    "mover_executed": false,
+    "execution_capture_wrapper_executed": false,
+    "trash_mutated": false,
+    "tracked_source_or_test_files_changed_by_review": false,
+    "review_artifacts_written_only_under_ignored_cleanup_scratch": true
+  },
+  "reviewed_artifacts": {
+    "mover": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+      "sha256": "5dfe312ea92a95956046291a9d8bd776aa8e610b6ad70e952c077d4cf0efa611",
+      "bytes": 11282
+    },
+    "preflight_builder": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/build_cleanup_preflight_v5.py",
+      "sha256": "ca4ab833df0579a100fc915fcf01626572245c06688bf88bda090e455a2dad4b",
+      "bytes": 24599
+    },
+    "selection": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v5-preflight-20261006T194258425192Z.json",
+      "sha256": "aa004f2e122c84770c39d21453aeb596cd4f3e92ceed669b43066bec53c1857c",
+      "bytes": 112510
+    },
+    "release_template": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-release-template-v2-preflight-20261006T194258425192Z.json",
+      "sha256": "46ec0f601320bff9d4cb3203e3e5602cf6c4023514cccee950419bb4d2deea35",
+      "bytes": 49731
+    },
+    "builder_stdout_capture": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/builder-v5-run-capture-20261006T204300Z.json",
+      "sha256": "3f72767a2cb45529ce82bb57829cabf3a54a4c4876eabbaf720a1fcf8407e241",
+      "bytes": 2635
+    },
+    "execution_capture_wrapper": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/execute_cleanup_capture.py",
+      "sha256": "715907372e31c902162bf466185dd19d76242e870b5e7c852361bdc2ffc581b4",
+      "bytes": 1951
+    }
+  },
+  "review_method": {
+    "source_inspection": "Read the immutable mover and corrected v5 builder; relevant mover line ranges are noted below.",
+    "existing_preflight_readback": {
+      "selection_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v5-preflight-20261006T194258425192Z.json",
+      "selection_sha256": "aa004f2e122c84770c39d21453aeb596cd4f3e92ceed669b43066bec53c1857c",
+      "selection_bytes": 112510,
+      "release_template_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-release-template-v2-preflight-20261006T194258425192Z.json",
+      "release_template_sha256": "46ec0f601320bff9d4cb3203e3e5602cf6c4023514cccee950419bb4d2deea35",
+      "release_template_bytes": 49731,
+      "candidate_count": 21,
+      "held_count": 28,
+      "source_extractions_preserve_only": 24,
+      "admitted_roots": 14,
+      "clean_roots_observed": 13,
+      "resolved_candidate_rows": 18,
+      "unresolved_candidate_rows": [
+        10,
+        32,
+        33
+      ],
+      "provenance_ref_index_count": 17,
+      "retained_git_ref_count": 29,
+      "final54_docs_committed_observation": false,
+      "mover_sha256": "5dfe312ea92a95956046291a9d8bd776aa8e610b6ad70e952c077d4cf0efa611",
+      "trash_authorized_now": false,
+      "released_paths": 0,
+      "blockers": [
+        "admitted_worktree_not_clean",
+        "candidate_row_10:actual_run_provenance_not_yet_resolved_to_git",
+        "candidate_row_10:root_release_decision_missing",
+        "candidate_row_11:root_release_decision_missing",
+        "candidate_row_16:root_release_decision_missing",
+        "candidate_row_18:root_release_decision_missing",
+        "candidate_row_21:root_release_decision_missing",
+        "candidate_row_22:root_release_decision_missing",
+        "candidate_row_24:root_release_decision_missing",
+        "candidate_row_32:actual_run_provenance_not_yet_resolved_to_git",
+        "candidate_row_32:root_release_decision_missing",
+        "candidate_row_33:actual_run_provenance_not_yet_resolved_to_git",
+        "candidate_row_33:root_release_decision_missing",
+        "candidate_row_38:root_release_decision_missing",
+        "candidate_row_39:root_release_decision_missing",
+        "candidate_row_40:root_release_decision_missing",
+        "candidate_row_41:root_release_decision_missing",
+        "candidate_row_42:root_release_decision_missing",
+        "candidate_row_43:root_release_decision_missing",
+        "candidate_row_4:root_release_decision_missing",
+        "candidate_row_5:root_release_decision_missing",
+        "candidate_row_6:root_release_decision_missing",
+        "candidate_row_7:root_release_decision_missing",
+        "candidate_row_8:root_release_decision_missing",
+        "candidate_row_9:root_release_decision_missing",
+        "cleanup_provenance_index_not_committed",
+        "final54_owner_docs_not_committed",
+        "final_document_not_committed"
+      ]
+    },
+    "commands": [
+      {
+        "argv": [
+          "python3",
+          "-m",
+          "py_compile",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/build_cleanup_preflight_v5.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "result": "PASS",
+        "scope": "Syntax check of ignored preflight builder only; no mover invocation."
+      },
+      {
+        "argv": [
+          "python3",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/build_cleanup_preflight_v5.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "result": "PASS_WITH_BLOCKED_NO_ACTION_PREFLIGHT",
+        "stdout_capture": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/builder-v5-run-capture-20261006T204300Z.json",
+          "sha256": "3f72767a2cb45529ce82bb57829cabf3a54a4c4876eabbaf720a1fcf8407e241",
+          "bytes": 2635
+        },
+        "scope": "Preflight builder only; it wrote unique selection/template artifacts with authorization false and no released paths. This is the existing captured run, not a rerun in this review."
+      }
+    ],
+    "not_run": [
+      "move_released_to_trash.py",
+      "execute_cleanup_capture.py",
+      "test suites",
+      "Trash operations"
+    ]
+  },
+  "scope_counts_from_full_preflight_set": {
+    "eligible_candidate_items": 21,
+    "held_candidate_items": 28,
+    "source_extractions_preserve_only": 24,
+    "admitted_worktrees": 14,
+    "currently_clean_worktrees_observed": 13,
+    "run_provenance_rows_resolved": 18,
+    "run_provenance_rows_unresolved": [
+      10,
+      32,
+      33
+    ],
+    "final_document_paths_pending": 19,
+    "trash_authorized_now": false,
+    "released_path_count": 0,
+    "complete_source_of_counts": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v5-preflight-20261006T194258425192Z.json",
+      "sha256": "aa004f2e122c84770c39d21453aeb596cd4f3e92ceed669b43066bec53c1857c",
+      "bytes": 112510
+    }
+  },
+  "requirement_to_evidence": [
+    {
+      "property": "The admitted C worktree set is complete and frozen at the time of a release.",
+      "evidence": "Mover reads the pinned admission blob and requires its exact 14-root set to match the release roots; the lane set must cover those roots, then branch, HEAD, and clean status are re-read from Git.",
+      "source": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+        "lines": "51-72"
+      },
+      "result": "PASS_STATIC; current preflight observes 13/14 clean, so no release can proceed from this selection."
+    },
+    {
+      "property": "Every released environment/cache has run-provenance IDs bound to retained evidence.",
+      "evidence": "For every item ID, mover requires a mapping in selection.git_run_provenance_ref_index, reads the referenced Git blob, checks exact SHA-256 and byte length, and requires that exact tuple in release.retained_evidence_git_refs.",
+      "source": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+        "lines": "58-65, 80-85"
+      },
+      "result": "PASS_STATIC_FOR_RESOLVED_IDS; rows 10, 32, 33 remain unresolved in the current preflight and therefore cannot be released."
+    },
+    {
+      "property": "Only exact, fresh, ignored directory candidates inside admitted owned worktrees are movable.",
+      "evidence": "Selected items are checked for released status, category allowlist, canonical path/owner, admitted-root membership, gitignored directory type, owner UID, inode/device from fresh lstat, and no tracked path before preparation.",
+      "source": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+        "lines": "73-106"
+      },
+      "result": "PASS_STATIC; actual path identities must be recaptured in the fresh preflight and still match at operation time."
+    },
+    {
+      "property": "Preservation references survive each rename unchanged by identity and file content where a hash exists.",
+      "evidence": "Before and after rename, mover requires references to exist, match captured device/inode, and for hashed files match SHA-256; candidate and preserve paths may not overlap.",
+      "source": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+        "lines": "107-118, 135-144"
+      },
+      "result": "PASS_STATIC; release must carry builder-derived preserve_identities for every listed preserve_ref_path."
+    },
+    {
+      "property": "A partial move is recoverable without blind replay or permanent deletion.",
+      "evidence": "Per-candidate intent is flushed and fsynced before same-volume rename; post-rename source absence and destination inode/device are read back, then confirmation is fsynced. Receipt records the recovery rule to compare recorded device/inode at original and Trash paths and never rerun blindly.",
+      "source": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+        "lines": "120-154"
+      },
+      "result": "PASS_STATIC_FOR_THE_IMPLEMENTED_OPERATOR_FLOW; recovery after interruption is an explicit manual step, not automatic rollback."
+    }
+  ],
+  "p37_gate_predicates": [
+    {
+      "predicate": "Admitted roots, branch/HEAD/clean state, current candidate path identity, and Git blob bytes/length.",
+      "classification": "recomputed",
+      "basis": "Direct Git and lstat reads in builder/mover; current preflight has 13 clean of 14 admitted worktrees."
+    },
+    {
+      "predicate": "Completeness of the 14-root admitted set and linkage from each item ID to a retained immutable Git blob.",
+      "classification": "independently_reconciled",
+      "basis": "Pinned admission-index SHA and exact root-set equality; per-ID lookup, recomputed blob digest/length, and retained tuple membership."
+    },
+    {
+      "predicate": "Meaning of the eligibility report and assertion that each archived receipt records real use of the candidate environment/cache.",
+      "classification": "institutionally_supplied",
+      "basis": "Code verifies content identity and custody, not that a receipt truthfully represents an execution. Root owner evidence review remains necessary."
+    },
+    {
+      "predicate": "all_deciding_outputs_and_useful_changes_committed, owning_audits_complete, and exact user authorization.",
+      "classification": "consumer_asserted",
+      "basis": "Mover requires release booleans and exact authorization string but does not derive owner audit completion from documents. Keep pending until root completes and commits C54 evidence and makes explicit release decision."
+    },
+    {
+      "predicate": "Current C54 final-document and cleanup-provenance closure.",
+      "classification": "not_established",
+      "basis": "Current selection reports the provenance index uncommitted, 19 final54-c2 evidence paths pending, and rows 10/32/33 without committed run refs."
+    }
+  ],
+  "p38_divergence_and_closure": {
+    "prior_proxy": "A nonempty actual_run_provenance_git_refs list was previously enough, even when an ID had no exact retained Git object behind it.",
+    "divergent_case": "A fabricated or stale nonempty ID (or a map entry with a wrong digest/length) could make the earlier presence-only gate green without binding actual evidence.",
+    "current_property_tested": "Mover resolves each ID through git_run_provenance_ref_index, recomputes exact blob SHA-256 and length, and requires the same commit/path/digest/length tuple in retained_evidence_git_refs.",
+    "disposition": "Same provenance-binding class widened once; current static path closes the nonempty-ID escape for resolved IDs. No dynamic removal-control was run in this read-only review.",
+    "residual": "Git content binding proves which bytes are retained, not the truth of the execution claim inside those bytes; that remains owner-supplied evidence reviewed at root release."
+  },
+  "current_no_action_blockers": [
+    "Only 13 of 14 admitted worktrees are clean in the captured preflight; root must commit final evidence and take a fresh 14-root freeze.",
+    "Rows 10, 32, and 33 have no resolved run-provenance Git IDs until pending copied receipt/index content is committed and byte-read back.",
+    "The provenance companion index is currently uncommitted.",
+    "The preflight reports 19 final54-c2 evidence paths pending Git commit; C54 owner/coverage finalization is not reflected by a committed fresh selection.",
+    "Root release and per-item authorization remain false; the preflight has zero released paths."
+  ],
+  "next_required_inputs": {
+    "fresh_selection_command": [
+      "python3",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/build_cleanup_preflight_v5.py"
+    ],
+    "fresh_selection_command_cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "arguments": [],
+    "must_recompute_after": [
+      "provenance companion commit",
+      "C54 and coverage evidence commits",
+      "final clean status and HEADs for all 14 admitted roots"
+    ],
+    "release_fields": [
+      "selection_sha256 matching fresh selection bytes",
+      "decision RELEASE_EXACT_CANDIDATES_TO_TRASH and selection trash_authorized_now=true",
+      "for each selected candidate: status_now=RELEASED_TO_TRASH and trash_authorized_now=true",
+      "exact candidate run-proof IDs resolved by git_run_provenance_ref_index and matching refs retained in release.retained_evidence_git_refs",
+      "fresh exact_admitted_C_roots/frozen_topics and matching preserve_identities",
+      "all_deciding_outputs_and_useful_changes_committed=true and owning_audits_complete=true only after root adjudication",
+      "user_authorization exactly E02 continuation: repeatable test directories and used environments to Trash only",
+      "permanent_deletion=false; unique absent e02-C-20261006-* Trash directory name; released_paths explicit exact subset"
+    ],
+    "execution_wrapper": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/execute_cleanup_capture.py",
+    "execution_wrapper_not_authorized_by_this_review": true
+  },
+  "reviewer_limits": [
+    "Static delta/recording review, not execution or deletion approval.",
+    "No cleanup source, test, worktree, production data, or Git history was changed.",
+    "No full-suite, install, production-data, or Trash action was performed."
+  ]
+}

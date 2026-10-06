@@ -1,0 +1,1361 @@
+{
+  "archive_and_build": {
+    "backend_bootstrap_attempts": {
+      "cache_retry_exit": 1,
+      "direct_cache_hatchling_resolution_exit": 1,
+      "initial_offline_isolated_build_exit": 2,
+      "local_wheelhouse_corrected_try_exit": 0,
+      "local_wheelhouse_first_try_exit": 1,
+      "note": "Initial uv offline index resolution did not use the hydrated extracted-wheel cache. Successful build used a private buildenv with hatchling 1.32.0 and five cached build dependencies reconstructed into a local no-index wheelhouse; no network or product install."
+    },
+    "native_build_success_exit": 0,
+    "sdist": {
+      "bytes": 65199830,
+      "mtime_utc": "2026-10-06T14:37:12.910346+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "333500acc5e36045cc510f8a1f38d876496a8b0986a63943b031246f370a832f"
+    },
+    "source_archive": {
+      "bytes": 460032000,
+      "mtime_utc": "2026-10-06T14:34:22.369479+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/candidate.tar",
+      "sha256": "ccbea05c5b16dbb6ca955fe52efbd9f5d6aa099f077ec359502ed2120f5c4b2c"
+    },
+    "wheel": {
+      "bytes": 15016502,
+      "mtime_utc": "2026-10-06T14:37:15.805617+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "5c8715e6c3b1eff538c288aac5fd3ad6890f12817e55a56a9f660a5531053964"
+    }
+  },
+  "candidate": {
+    "branch": "codex/e02-C-migrations-20261006",
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos",
+    "commit": "cf28194b9fa28bbeb97ac5e2792becbda84f4cc0",
+    "parent": "c62f5f27c5a165316a5428806993e3f524caae85",
+    "post_audit_worktree_clean": true,
+    "project_pyproject_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "project_uv_lock_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "tree": "7d129fcb9f7d3ddfa9dfeaee180284675202c292"
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "archive",
+        "--format=tar",
+        "--prefix=source/",
+        "cf28194b9fa28bbeb97ac5e2792becbda84f4cc0"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos",
+      "env_delta": {},
+      "exit_code": 0,
+      "name": "archive-exact-frozen-git-source",
+      "stdout_file": "candidate.tar",
+      "verified_archive_pax_commit": "cf28194b9fa28bbeb97ac5e2792becbda84f4cc0"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "build",
+        "--offline",
+        "--no-build-isolation",
+        "--out-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dist"
+      ],
+      "backend_environment": "private buildenv; six cached wheels reconstructed from uv extracted cache and installed via --no-index --find-links; no project install",
+      "builder_backend": "hatchling 1.32.0",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/source/policy-engine",
+      "env_delta": {
+        "PATH": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv/bin:$PATH (prepend to inherited value)",
+        "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv",
+        "VIRTUAL_ENV": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv"
+      },
+      "exit_code": 0,
+      "name": "native-hatch-wheel-and-sdist-build",
+      "stderr": "build-retry.stderr",
+      "stdout": "build-retry.stdout"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-deps",
+        "--reinstall",
+        "--python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dist/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos",
+      "env_delta": {
+        "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv"
+      },
+      "exit_code": 0,
+      "name": "install-exact-built-wheel-into-fresh-base-profile",
+      "stderr": "install.stderr",
+      "stdout": "install.stdout"
+    },
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "PYTHONHOME",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dependency-closure-probe.py"
+      ],
+      "cwd": "/tmp",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "name": "installed-base-dependency-closure",
+      "stderr": "dependency-closure.stderr",
+      "stdout": "dependency-closure.stdout"
+    },
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "PYTHONHOME",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/polisyos-tools",
+        "migrations",
+        "migrate-duckdb-to-pg",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "name": "installed-public-duckdb-help",
+      "stderr": "duckdb-help.stderr",
+      "stdout": "duckdb-help.stdout"
+    },
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "PYTHONHOME",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/polisyos-tools",
+        "migrations",
+        "migrate-duckdb-to-pg",
+        "--duckdb-path",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/runtime-data/empty.duckdb",
+        "--pg-dsn",
+        "postgresql://unused.invalid:5432/unused",
+        "--tenant-id",
+        "11111111-1111-4111-8111-111111111111",
+        "--dry-run"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "name": "installed-public-duckdb-dry-run-positive",
+      "result": "16 source-table skips followed by dry-run completed",
+      "stderr": "duckdb-dry-run.stderr",
+      "stdout": "duckdb-dry-run.stdout"
+    },
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "PYTHONHOME",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/polisyos-tools",
+        "migrations",
+        "migrate-duckdb-to-pg",
+        "--duckdb-path",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/runtime-data/empty.duckdb",
+        "--pg-dsn",
+        "postgresql://unused.invalid:5432/unused",
+        "--tenant-id",
+        "11111111-1111-4111-8111-111111111111",
+        "--dry-run"
+      ],
+      "cwd": "/tmp",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 1,
+      "expected_fail_closed": "RepositoryRootUnavailableError before connecting to DuckDB or external PG",
+      "name": "installed-public-duckdb-outside-workspace-control",
+      "stderr": "duckdb-outside-control.stderr",
+      "stdout": "duckdb-outside-control.stdout"
+    },
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "PYTHONHOME",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-duckdb-readback.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "name": "installed-module-origin-and-live-binding-readback",
+      "result": "5 modules site-packages + byte-equal to wheel/archive; live TOML helper binding; no checkout in sys.path; outside -I control typed unavailable; psycopg not installed",
+      "stderr": "installed-duckdb-readback.stderr",
+      "stdout": "installed-duckdb-readback.stdout"
+    },
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "PYTHONHOME",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/polisyos-tools",
+        "migrations",
+        "migrate",
+        "dataset_manifest",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/runtime-data/manifest-0.9.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/runtime-data/manifest-1.0.json",
+        "--to",
+        "1.0"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "name": "dependent-dataset-manifest-public-json-cli",
+      "stderr": "dataset-json-cli.stderr",
+      "stdout": "dataset-json-cli.stdout"
+    },
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "PYTHONHOME",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-dataset-readback.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "name": "dependent-dataset-manifest-strict-installed-readback",
+      "result": "12 modules site-packages + byte-equal to wheel/archive; strict persisted DatasetManifest equals model_dump and preserves schema/data identity",
+      "stderr": "installed-dataset-readback.stderr",
+      "stdout": "installed-dataset-readback.stdout"
+    },
+    {
+      "argv": [
+        "python3 -I",
+        "package-census.py; payload-scope.py; changed-source-map.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281",
+      "env_delta": {},
+      "exit_codes": {
+        "changed-source-map": 0,
+        "package-census": 0,
+        "payload-scope": 0
+      },
+      "name": "complete-source-sdist-wheel-census",
+      "outputs": [
+        "package-census.json",
+        "payload-scope.json",
+        "changed-source-map.json"
+      ]
+    }
+  ],
+  "files": {
+    "build-retry.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:37:16.343085+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/build-retry.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "build-retry.stderr": {
+      "bytes": 407,
+      "mtime_utc": "2026-10-06T14:37:16.341767+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/build-retry.stderr",
+      "sha256": "0f918b0b86a435e7e7c723b15619571dac1296daf1e9cfc7d94d882aa0a71768"
+    },
+    "build-retry.stdout": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:36:59.591411+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/build-retry.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:35:15.551200+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/build.exit",
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3"
+    },
+    "build.stderr": {
+      "bytes": 658,
+      "mtime_utc": "2026-10-06T14:35:15.549166+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/build.stderr",
+      "sha256": "6b273febf73e08cdabf6dda2725776bb46d65c1146b261cb2dddd103de506602"
+    },
+    "buildenv-create.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:35:35.621796+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-create.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "buildenv-create.stderr": {
+      "bytes": 240,
+      "mtime_utc": "2026-10-06T14:35:35.620763+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-create.stderr",
+      "sha256": "a9ade242564e6eabab701c62c281dd595c2e78d762094329ff1316d79bab6e48"
+    },
+    "buildenv-create.stdout": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:35:35.582530+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-create.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "buildenv-install-retry.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:35:48.350672+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-retry.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "buildenv-install-retry.stderr": {
+      "bytes": 535,
+      "mtime_utc": "2026-10-06T14:35:48.349715+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-retry.stderr",
+      "sha256": "1d2b170542f3b41429af8f0f74ef63d989fa56bae4b9824b435546d28e2aaa77"
+    },
+    "buildenv-install-retry.stdout": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:35:48.337201+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-retry.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "buildenv-install-wheelhouse-retry.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:36:53.188287+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse-retry.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "buildenv-install-wheelhouse-retry.stderr": {
+      "bytes": 368,
+      "mtime_utc": "2026-10-06T14:36:53.186352+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse-retry.stderr",
+      "sha256": "ece185e32a50582fd73639a177fd105d36ad36a0b3d5dc2cd780232e1c7ef28a"
+    },
+    "buildenv-install-wheelhouse-retry.stdout": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:36:53.128225+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse-retry.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "buildenv-install-wheelhouse.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:36:31.418470+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "buildenv-install-wheelhouse.stderr": {
+      "bytes": 571,
+      "mtime_utc": "2026-10-06T14:36:31.417287+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse.stderr",
+      "sha256": "9fc681f7e915259414c6000f3b39b5e7bc47b6f5957b5400a1528c217eb0ad6e"
+    },
+    "buildenv-install-wheelhouse.stdout": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:36:31.398127+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install-wheelhouse.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "buildenv-install.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:35:38.246309+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "buildenv-install.stderr": {
+      "bytes": 535,
+      "mtime_utc": "2026-10-06T14:35:38.245287+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install.stderr",
+      "sha256": "1d2b170542f3b41429af8f0f74ef63d989fa56bae4b9824b435546d28e2aaa77"
+    },
+    "buildenv-install.stdout": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:35:38.187410+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv-install.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate.tar": {
+      "bytes": 460032000,
+      "mtime_utc": "2026-10-06T14:34:22.369479+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/candidate.tar",
+      "sha256": "ccbea05c5b16dbb6ca955fe52efbd9f5d6aa099f077ec359502ed2120f5c4b2c"
+    },
+    "changed-source-map.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:37:47.494779+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/changed-source-map.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "changed-source-map.json": {
+      "bytes": 1312,
+      "mtime_utc": "2026-10-06T14:37:47.458992+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/changed-source-map.json",
+      "sha256": "b291148d71c8b496e621881ed597c44e9e228333e3469df909273d508080dfa7"
+    },
+    "changed-source-map.py": {
+      "bytes": 2884,
+      "mtime_utc": "2026-10-06T14:37:41.991229+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/changed-source-map.py",
+      "sha256": "7f4b28c1c2391fd6d05bb87c74b376f890c30a3d88ce87cb6855bfb10d073a57"
+    },
+    "changed-source-map.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:37:46.296850+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/changed-source-map.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "changed-source-map.stdout": {
+      "bytes": 165,
+      "mtime_utc": "2026-10-06T14:37:47.459133+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/changed-source-map.stdout",
+      "sha256": "92b4652b5bfba71bdb95751f033619e3b7f42a4a153796dcd1711fbc24aa1e9b"
+    },
+    "dataset-json-cli.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:40:54.742813+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dataset-json-cli.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "dataset-json-cli.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:40:53.229249+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dataset-json-cli.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dataset-json-cli.stdout": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:40:53.229154+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dataset-json-cli.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dependency-closure-probe.py": {
+      "bytes": 1615,
+      "mtime_utc": "2026-10-06T14:40:25.036327+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dependency-closure-probe.py",
+      "sha256": "58aa554bf0f8afe1d633e321d9af219dde0a8508368327ea44b7836fed3ddf1f"
+    },
+    "dependency-closure.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:40:27.824965+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dependency-closure.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "dependency-closure.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:40:27.634701+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dependency-closure.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dependency-closure.stdout": {
+      "bytes": 10942,
+      "mtime_utc": "2026-10-06T14:40:27.816538+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dependency-closure.stdout",
+      "sha256": "0b8f81dcfd0b4fc032656cbb6827fefc40756d749df089a63d1c68f30f7d7e4e"
+    },
+    "dist/policy_engine-0.1.0-py3-none-any.whl": {
+      "bytes": 15016502,
+      "mtime_utc": "2026-10-06T14:37:15.805617+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "5c8715e6c3b1eff538c288aac5fd3ad6890f12817e55a56a9f660a5531053964"
+    },
+    "dist/policy_engine-0.1.0.tar.gz": {
+      "bytes": 65199830,
+      "mtime_utc": "2026-10-06T14:37:12.910346+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "333500acc5e36045cc510f8a1f38d876496a8b0986a63943b031246f370a832f"
+    },
+    "duckdb-dry-run.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:39:09.934922+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-dry-run.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "duckdb-dry-run.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:39:08.631122+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-dry-run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "duckdb-dry-run.stdout": {
+      "bytes": 767,
+      "mtime_utc": "2026-10-06T14:39:09.916233+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-dry-run.stdout",
+      "sha256": "f23c4a3878354ddd91952046b6e1a7a65e2acc5ae837996e996619c668a58ee1"
+    },
+    "duckdb-help.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:38:25.429945+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-help.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "duckdb-help.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:38:23.785898+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-help.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "duckdb-help.stdout": {
+      "bytes": 644,
+      "mtime_utc": "2026-10-06T14:38:25.411278+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-help.stdout",
+      "sha256": "7c27ab3e5265464c947c39394866f2bb11a4de349475b4eb273336c720b30958"
+    },
+    "duckdb-outside-control.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:39:18.433531+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-outside-control.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "duckdb-outside-control.stderr": {
+      "bytes": 417,
+      "mtime_utc": "2026-10-06T14:39:18.412940+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-outside-control.stderr",
+      "sha256": "01daca8499163609f3f8daac7bbc41886c029abcc9a82aa4b7c04088df037617"
+    },
+    "duckdb-outside-control.stdout": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:39:17.095611+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-outside-control.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "install.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:38:15.594411+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/install.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "install.stderr": {
+      "bytes": 640,
+      "mtime_utc": "2026-10-06T14:38:15.592669+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/install.stderr",
+      "sha256": "60e0fde9b617e2b7547eb816b7c0329bf34865dd3d58c0e957d2a6df2df946e9"
+    },
+    "install.stdout": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:38:14.920573+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/install.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "installed-dataset-readback.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:41:11.480137+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-dataset-readback.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "installed-dataset-readback.py": {
+      "bytes": 6168,
+      "mtime_utc": "2026-10-06T14:41:00.924642+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-dataset-readback.py",
+      "sha256": "18c9af2c644130d50b5753ac835a6084d524d0632eec46b08d7b92d13185d45e"
+    },
+    "installed-dataset-readback.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:41:09.926112+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-dataset-readback.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "installed-dataset-readback.stdout": {
+      "bytes": 6543,
+      "mtime_utc": "2026-10-06T14:41:11.433689+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-dataset-readback.stdout",
+      "sha256": "835b29bc6b29437ba2c1333e1c17a834ff660f9167ba057af38b0c9369db25c1"
+    },
+    "installed-duckdb-readback.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:40:08.454169+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-duckdb-readback.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "installed-duckdb-readback.py": {
+      "bytes": 5580,
+      "mtime_utc": "2026-10-06T14:40:03.174105+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-duckdb-readback.py",
+      "sha256": "1f36c27823748982413bbe45784872edc7792c20513a783941851b953e8db217"
+    },
+    "installed-duckdb-readback.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:40:06.312491+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-duckdb-readback.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "installed-duckdb-readback.stdout": {
+      "bytes": 3635,
+      "mtime_utc": "2026-10-06T14:40:08.414157+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-duckdb-readback.stdout",
+      "sha256": "8d13759cca95ab84e8588cb55a44902df743497f2768db4a396eab40675b59d0"
+    },
+    "package-census.json": {
+      "bytes": 35083,
+      "mtime_utc": "2026-10-06T14:38:03.236273+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/package-census.json",
+      "sha256": "8596b6309810e4cf9bca73afc26099f319d44e0ecc2bfc63f034d39474913215"
+    },
+    "package-census.py": {
+      "bytes": 6274,
+      "mtime_utc": "2026-10-06T14:38:01.835241+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/package-census.py",
+      "sha256": "8579b13093f67f034d37125b8f55939faa6f889beccd530b66e4650542176d69"
+    },
+    "package-census.retry.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:38:01.838815+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/package-census.retry.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "package-census.retry.stdout": {
+      "bytes": 35083,
+      "mtime_utc": "2026-10-06T14:38:03.236541+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/package-census.retry.stdout",
+      "sha256": "8596b6309810e4cf9bca73afc26099f319d44e0ecc2bfc63f034d39474913215"
+    },
+    "payload-scope.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:37:48.389782+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/payload-scope.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "payload-scope.json": {
+      "bytes": 5407,
+      "mtime_utc": "2026-10-06T14:37:48.365365+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/payload-scope.json",
+      "sha256": "a9a9a532e8da567e40d6af00c1b2c4ea71c0c9944fda1b6bdd8700ffae939029"
+    },
+    "payload-scope.py": {
+      "bytes": 4980,
+      "mtime_utc": "2026-10-06T14:37:41.991093+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/payload-scope.py",
+      "sha256": "5c7665f6fbef01e3db22a9e6c82844d3ce5ba36d4c4a0da9985a4affe4399826"
+    },
+    "payload-scope.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:37:46.296890+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/payload-scope.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "payload-scope.stdout": {
+      "bytes": 5407,
+      "mtime_utc": "2026-10-06T14:37:48.365519+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/payload-scope.stdout",
+      "sha256": "a9a9a532e8da567e40d6af00c1b2c4ea71c0c9944fda1b6bdd8700ffae939029"
+    },
+    "reconstruct-build-wheelhouse.py": {
+      "bytes": 1523,
+      "mtime_utc": "2026-10-06T14:36:49.738871+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.py",
+      "sha256": "8bf8921b796d5448afb307342d975dfc888b51ee5d4a1de1f952c46368d8b513"
+    },
+    "reconstruct-build-wheelhouse.retry.exit": {
+      "bytes": 2,
+      "mtime_utc": "2026-10-06T14:36:49.847655+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.retry.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "reconstruct-build-wheelhouse.retry.stderr": {
+      "bytes": 0,
+      "mtime_utc": "2026-10-06T14:36:49.742762+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.retry.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "reconstruct-build-wheelhouse.retry.stdout": {
+      "bytes": 2829,
+      "mtime_utc": "2026-10-06T14:36:49.843867+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/reconstruct-build-wheelhouse.retry.stdout",
+      "sha256": "56fe8c18d968d55de58f805ed0e553e2a0f78688f0df7b57354a68b027b164db"
+    },
+    "runtime-data/empty.duckdb": {
+      "bytes": 12288,
+      "mtime_utc": "2026-10-06T14:39:03.683057+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/runtime-data/empty.duckdb",
+      "sha256": "e139a3098b1d969778a588aa305dd8157a21c23e53fa8d9866373c7e715bf336"
+    },
+    "runtime-data/manifest-0.9.json": {
+      "bytes": 567,
+      "mtime_utc": "2026-10-06T14:40:49.928592+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/runtime-data/manifest-0.9.json",
+      "sha256": "26eca8600093d26b8233d599ecea7f7be624693c53f2bdc5f4baea6554f0d04d"
+    },
+    "runtime-data/manifest-1.0.json": {
+      "bytes": 605,
+      "mtime_utc": "2026-10-06T14:40:54.699432+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/runtime-data/manifest-1.0.json",
+      "sha256": "1ba1bbb7d4fb304c5b864ae0d655dfd174d5c5acb404377b6e975e93b06ce836"
+    }
+  },
+  "installed_profile": {
+    "base_requirements_count": 34,
+    "base_requirements_satisfied": true,
+    "closure_output": {
+      "bytes": 10942,
+      "mtime_utc": "2026-10-06T14:40:27.816538+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dependency-closure.stdout",
+      "sha256": "0b8f81dcfd0b4fc032656cbb6827fefc40756d749df089a63d1c68f30f7d7e4e"
+    },
+    "duckdb_present": true,
+    "installed_distributions": 114,
+    "jsonschema_present": false,
+    "optional_extras_selected": [],
+    "psycopg_present": false,
+    "pytest_present": false,
+    "python": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/python"
+  },
+  "runtime": {
+    "dataset_manifest_cli": {
+      "exit_code": 0,
+      "input": {
+        "bytes": 567,
+        "mtime_utc": "2026-10-06T14:40:49.928592+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/runtime-data/manifest-0.9.json",
+        "sha256": "26eca8600093d26b8233d599ecea7f7be624693c53f2bdc5f4baea6554f0d04d"
+      },
+      "output": {
+        "bytes": 605,
+        "mtime_utc": "2026-10-06T14:40:54.699432+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/runtime-data/manifest-1.0.json",
+        "sha256": "1ba1bbb7d4fb304c5b864ae0d655dfd174d5c5acb404377b6e975e93b06ce836"
+      },
+      "result": {
+        "accepted": true,
+        "dataset_identity": "installed-migration-fixture",
+        "legacy_aliases_removed": true,
+        "persisted_output_matches_model_dump": true,
+        "raw_hash_identity": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "schema_version": "1.0"
+      },
+      "stderr": {
+        "bytes": 0,
+        "mtime_utc": "2026-10-06T14:40:53.229249+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dataset-json-cli.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "mtime_utc": "2026-10-06T14:40:53.229154+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/dataset-json-cli.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "dataset_manifest_strict_readback": {
+      "exit_code": 0,
+      "stderr": {
+        "bytes": 0,
+        "mtime_utc": "2026-10-06T14:41:09.926112+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-dataset-readback.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 6543,
+        "mtime_utc": "2026-10-06T14:41:11.433689+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-dataset-readback.stdout",
+        "sha256": "835b29bc6b29437ba2c1333e1c17a834ff660f9167ba057af38b0c9369db25c1"
+      }
+    },
+    "dry_run": {
+      "basis": "installed exact dry-run code returns before psycopg import/connect; psycopg is not installed; successful command with unusable DSN",
+      "db_fixture_sha256": "e139a3098b1d969778a588aa305dd8157a21c23e53fa8d9866373c7e715bf336",
+      "dsn": "postgresql://unused.invalid:5432/unused",
+      "exit_code": 0,
+      "external_pg_connection_attempted": false,
+      "stderr": {
+        "bytes": 0,
+        "mtime_utc": "2026-10-06T14:39:08.631122+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-dry-run.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 767,
+        "mtime_utc": "2026-10-06T14:39:09.916233+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-dry-run.stdout",
+        "sha256": "f23c4a3878354ddd91952046b6e1a7a65e2acc5ae837996e996619c668a58ee1"
+      }
+    },
+    "duckdb_installed_readback": {
+      "exit_code": 0,
+      "result": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine",
+        "distribution_version": "0.1.0",
+        "entrypoint": {
+          "name": "polisyos-tools",
+          "value": "tools.cli:main"
+        },
+        "live_contract": {
+          "binding_artifact": "duckdb_to_postgresql",
+          "binding_cli": "polisyos-tools migrations migrate-duckdb-to-pg",
+          "binding_contract_path": "ops/migrations/db",
+          "binding_implementation": "tools.ops_runners.migrations.migrate_duckdb_to_pg",
+          "binding_migration_class": "db",
+          "binding_release_gate": "ops/release/promotion-gates.toml#db_migration_review",
+          "root": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine"
+        },
+        "module_origins_and_byte_identity": [
+          {
+            "installed_sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+            "module": "tools.cli",
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/lib/python3.14/site-packages/tools/cli.py",
+            "source_archive_member": "source/policy-engine/tools/cli.py",
+            "wheel_member": "tools/cli.py",
+            "wheel_source_byte_identity": true
+          },
+          {
+            "installed_sha256": "88fc4372642ddc5bd45416a4a5e6a114b348f8f965f12c05d8e03c81b806a197",
+            "module": "tools.registry",
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/lib/python3.14/site-packages/tools/registry.py",
+            "source_archive_member": "source/policy-engine/tools/registry.py",
+            "wheel_member": "tools/registry.py",
+            "wheel_source_byte_identity": true
+          },
+          {
+            "installed_sha256": "ff44a9a804fedc91e3619ea7ec55c8cf701e21f21504577fd3990184a796fd7f",
+            "module": "tools.lib.imports",
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/lib/python3.14/site-packages/tools/lib/imports.py",
+            "source_archive_member": "source/policy-engine/tools/lib/imports.py",
+            "wheel_member": "tools/lib/imports.py",
+            "wheel_source_byte_identity": true
+          },
+          {
+            "installed_sha256": "c3a2af662049377eed4d18be57e9ea758697c6b5211cebc1dfed1dba8893a7be",
+            "module": "tools.ops_runners.migrations.contracts",
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/lib/python3.14/site-packages/tools/ops_runners/migrations/contracts.py",
+            "source_archive_member": "source/policy-engine/tools/ops_runners/migrations/contracts.py",
+            "wheel_member": "tools/ops_runners/migrations/contracts.py",
+            "wheel_source_byte_identity": true
+          },
+          {
+            "installed_sha256": "3a24d2eb4b7df6f23eb3f83f39c7cfec3de73a6a00730330ef54b76f4ae516a0",
+            "module": "tools.ops_runners.migrations.migrate_duckdb_to_pg",
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/lib/python3.14/site-packages/tools/ops_runners/migrations/migrate_duckdb_to_pg.py",
+            "source_archive_member": "source/policy-engine/tools/ops_runners/migrations/migrate_duckdb_to_pg.py",
+            "wheel_member": "tools/ops_runners/migrations/migrate_duckdb_to_pg.py",
+            "wheel_source_byte_identity": true
+          }
+        ],
+        "outside_checkout_control": {
+          "cwd": "/tmp",
+          "returncode": 0,
+          "returned_typed_error": "RepositoryRootUnavailableError",
+          "stderr": "",
+          "stdout": "RepositoryRootUnavailableError"
+        },
+        "psycopg_installed": false,
+        "python": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/python",
+        "site_packages": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/lib/python3.14/site-packages",
+        "sys_path_contains_candidate_checkout": false
+      },
+      "stderr": {
+        "bytes": 0,
+        "mtime_utc": "2026-10-06T14:40:06.312491+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-duckdb-readback.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 3635,
+        "mtime_utc": "2026-10-06T14:40:08.414157+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/installed-duckdb-readback.stdout",
+        "sha256": "8d13759cca95ab84e8588cb55a44902df743497f2768db4a396eab40675b59d0"
+      }
+    },
+    "outside_control": {
+      "exit_code": 1,
+      "stderr": {
+        "bytes": 417,
+        "mtime_utc": "2026-10-06T14:39:18.412940+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/duckdb-outside-control.stderr",
+        "sha256": "01daca8499163609f3f8daac7bbc41886c029abcc9a82aa4b7c04088df037617"
+      },
+      "typed_error": "RepositoryRootUnavailableError"
+    }
+  },
+  "source_to_package_census": {
+    "archive_source_files": 13671,
+    "changed_paths_vs_c62": [
+      {
+        "sdist_byte_identical": null,
+        "sdist_path": null,
+        "sdist_sha256": null,
+        "source_bytes": 18816,
+        "source_path": "tests/unit/remediation/test_mig_04.py",
+        "source_sha256": "898437efe4d9d8a17d67ac7291bf02ceef1851220af79808d82c3a7b014b2cfd",
+        "wheel_byte_identical": null,
+        "wheel_omission_reason": "outside installed package namespace",
+        "wheel_path": null,
+        "wheel_sha256": null
+      },
+      {
+        "sdist_byte_identical": true,
+        "sdist_path": "tools/ops_runners/migrations/contracts.py",
+        "sdist_sha256": "c3a2af662049377eed4d18be57e9ea758697c6b5211cebc1dfed1dba8893a7be",
+        "source_bytes": 4653,
+        "source_path": "tools/ops_runners/migrations/contracts.py",
+        "source_sha256": "c3a2af662049377eed4d18be57e9ea758697c6b5211cebc1dfed1dba8893a7be",
+        "wheel_byte_identical": true,
+        "wheel_omission_reason": null,
+        "wheel_path": "tools/ops_runners/migrations/contracts.py",
+        "wheel_sha256": "c3a2af662049377eed4d18be57e9ea758697c6b5211cebc1dfed1dba8893a7be"
+      }
+    ],
+    "excluded_ui_data_tests_payload_counts": {
+      "apps": 0,
+      "atlas_ui": 0,
+      "dashboard": 0,
+      "data": 0,
+      "tests": 0
+    },
+    "raw_type_source_vs_wheel": {
+      ".blob": {
+        "archive": 11,
+        "sdist": 0,
+        "wheel": 0
+      },
+      ".cjs": {
+        "archive": 9,
+        "sdist": 0,
+        "wheel": 0
+      },
+      ".csv": {
+        "archive": 15,
+        "sdist": 15,
+        "wheel": 15
+      },
+      ".d.ts": {
+        "archive": 1,
+        "sdist": 0,
+        "wheel": 0
+      },
+      ".duckdb": {
+        "archive": 4,
+        "sdist": 0,
+        "wheel": 0
+      },
+      ".js": {
+        "archive": 4,
+        "sdist": 0,
+        "wheel": 0
+      },
+      ".json": {
+        "archive": 2955,
+        "sdist": 1978,
+        "wheel": 19
+      },
+      ".jsonl": {
+        "archive": 14,
+        "sdist": 12,
+        "wheel": 0
+      },
+      ".mjs": {
+        "archive": 40,
+        "sdist": 2,
+        "wheel": 1
+      },
+      ".pkl": {
+        "archive": 2,
+        "sdist": 0,
+        "wheel": 0
+      },
+      ".png": {
+        "archive": 42,
+        "sdist": 9,
+        "wheel": 0
+      },
+      ".pyi": {
+        "archive": 5,
+        "sdist": 5,
+        "wheel": 5
+      },
+      ".sqlite": {
+        "archive": 2,
+        "sdist": 2,
+        "wheel": 0
+      },
+      ".svg": {
+        "archive": 18,
+        "sdist": 0,
+        "wheel": 0
+      },
+      ".ts": {
+        "archive": 518,
+        "sdist": 12,
+        "wheel": 12
+      },
+      ".tsx": {
+        "archive": 720,
+        "sdist": 0,
+        "wheel": 0
+      },
+      ".typed": {
+        "archive": 2,
+        "sdist": 2,
+        "wheel": 2
+      }
+    },
+    "report_files": {
+      "changed-source-map.json": {
+        "bytes": 1312,
+        "mtime_utc": "2026-10-06T14:37:47.458992+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/changed-source-map.json",
+        "sha256": "b291148d71c8b496e621881ed597c44e9e228333e3469df909273d508080dfa7"
+      },
+      "package-census.json": {
+        "bytes": 35083,
+        "mtime_utc": "2026-10-06T14:38:03.236273+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/package-census.json",
+        "sha256": "8596b6309810e4cf9bca73afc26099f319d44e0ecc2bfc63f034d39474913215"
+      },
+      "payload-scope.json": {
+        "bytes": 5407,
+        "mtime_utc": "2026-10-06T14:37:48.365365+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/payload-scope.json",
+        "sha256": "a9a9a532e8da567e40d6af00c1b2c4ea71c0c9944fda1b6bdd8700ffae939029"
+      }
+    },
+    "sdist": {
+      "members": 8465,
+      "mismatches": [],
+      "readmes": 425,
+      "readmes_missing": [],
+      "source_bytes_identical": 8464,
+      "source_files_omitted": 5207
+    },
+    "source_readmes": 425,
+    "source_subtree_counts": {
+      "apps": 1345,
+      "atlas_ui": 80,
+      "dashboard": 1334,
+      "data": 10,
+      "packages": 109,
+      "runtime_reference_shell": 10,
+      "src_polisyos": 2904,
+      "tests": 3276,
+      "tools": 537
+    },
+    "wheel": {
+      "entrypoint_groups": 4,
+      "entrypoint_lines": 40,
+      "exact_path_source_matches": 3441,
+      "forced_include_source_matches": [
+        {
+          "content_match": true,
+          "source": "architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+          "wheel": "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
+        }
+      ],
+      "mismatches": [],
+      "package_root_readmes": 167,
+      "package_root_readmes_in_wheel": 167,
+      "package_root_readmes_missing": [],
+      "payload_files": 3442,
+      "requires_dist": [
+        "Requires-Dist: aiohttp>=3.9.0",
+        "Requires-Dist: chex>=0.1.91",
+        "Requires-Dist: click>=8.1.7",
+        "Requires-Dist: cryptography>=42.0.0",
+        "Requires-Dist: diffrax>=0.5.0",
+        "Requires-Dist: duckdb>=0.9.2",
+        "Requires-Dist: equinox>=0.11.0",
+        "Requires-Dist: jax>=0.4.20",
+        "Requires-Dist: jaxlib>=0.4.20",
+        "Requires-Dist: jaxtyping>=0.2.25",
+        "Requires-Dist: langchain>=0.1.0",
+        "Requires-Dist: langgraph>=0.0.10",
+        "Requires-Dist: loguru>=0.7.2",
+        "Requires-Dist: odfpy>=1.4.1",
+        "Requires-Dist: openai",
+        "Requires-Dist: openpyxl>=3.1.0",
+        "Requires-Dist: opentelemetry-api>=1.20.0",
+        "Requires-Dist: opentelemetry-exporter-otlp-proto-grpc>=1.20.0",
+        "Requires-Dist: opentelemetry-exporter-prometheus>=0.41b0",
+        "Requires-Dist: opentelemetry-sdk>=1.20.0",
+        "Requires-Dist: opt-einsum>=3.4.0",
+        "Requires-Dist: optax>=0.1.9",
+        "Requires-Dist: orjson>=3.10.0",
+        "Requires-Dist: packaging>=23.0",
+        "Requires-Dist: pandas>=2.1.0",
+        "Requires-Dist: pyarrow>=14.0.0",
+        "Requires-Dist: pydantic-settings>=2.0.0",
+        "Requires-Dist: pydantic>=2.12.0",
+        "Requires-Dist: pymoo>=0.6.0",
+        "Requires-Dist: pypdf>=5.5.0",
+        "Requires-Dist: python-dotenv>=1.0.0",
+        "Requires-Dist: tiktoken",
+        "Requires-Dist: xlrd>=2.0.1",
+        "Requires-Dist: zstandard>=0.23.0",
+        "Requires-Dist: pypdf>=5.5.0; extra == 'academic-skg'",
+        "Requires-Dist: faiss-cpu<2.0,>=1.7.4; extra == 'agent-quality'",
+        "Requires-Dist: restrictedpython<8.0,>=7.0; extra == 'agent-quality'",
+        "Requires-Dist: plotly>=6.5.0; extra == 'agent-sim'",
+        "Requires-Dist: streamlit>=1.52.2; extra == 'agent-sim'",
+        "Requires-Dist: arch>=8.0.0; extra == 'all'",
+        "Requires-Dist: arviz>=1.0.0; extra == 'all'",
+        "Requires-Dist: beartype>=0.18.0; extra == 'all'",
+        "Requires-Dist: boto3>=1.34.0; extra == 'all'",
+        "Requires-Dist: causal-learn>=0.1.3.8; extra == 'all'",
+        "Requires-Dist: cvxpy<1.5; (python_version < '3.13') and extra == 'all'",
+        "Requires-Dist: cvxpy>=1.8.1; extra == 'all'",
+        "Requires-Dist: dagma>=1.1.1; extra == 'all'",
+        "Requires-Dist: dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'all'",
+        "Requires-Dist: econml>=0.16; (python_version < '3.14') and extra == 'all'",
+        "Requires-Dist: faiss-cpu<2.0,>=1.7.4; extra == 'all'",
+        "Requires-Dist: fastapi>=0.109.0; extra == 'all'",
+        "Requires-Dist: hnswlib==0.8.0; extra == 'all'",
+        "Requires-Dist: httpx>=0.27.0; extra == 'all'",
+        "Requires-Dist: lifelines>=0.30.0; extra == 'all'",
+        "Requires-Dist: lightgbm>=4.0; extra == 'all'",
+        "Requires-Dist: linearmodels>=5.0; extra == 'all'",
+        "Requires-Dist: mapie>=1.0.0; extra == 'all'",
+        "Requires-Dist: numpyro>=0.20.0; extra == 'all'",
+        "Requires-Dist: ortools>=9.8; extra == 'all'",
+        "Requires-Dist: pandas>=2.0.0; extra == 'all'",
+        "Requires-Dist: presidio-analyzer>=2.2.0; extra == 'all'",
+        "Requires-Dist: presidio-anonymizer>=2.2.0; extra == 'all'",
+        "Requires-Dist: prometheus-client>=0.17.0; extra == 'all'",
+        "Requires-Dist: pulp>=2.8; extra == 'all'",
+        "Requires-Dist: pyjwt>=2.8.0; extra == 'all'",
+        "Requires-Dist: pypdf>=5.5.0; extra == 'all'",
+        "Requires-Dist: ruptures>=1.1.10; extra == 'all'",
+        "Requires-Dist: salib<2.0,>=1.5; extra == 'all'",
+        "Requires-Dist: scikit-learn>=1.6.0; extra == 'all'",
+        "Requires-Dist: scipy>=1.11.0; extra == 'all'",
+        "Requires-Dist: sigstore>=3.0.0; extra == 'all'",
+        "Requires-Dist: spacy>=3.7.0; extra == 'all'",
+        "Requires-Dist: statsmodels>=0.14.0; extra == 'all'",
+        "Requires-Dist: structlog>=24.0.0; extra == 'all'",
+        "Requires-Dist: tigramite>=5.2; extra == 'all'",
+        "Requires-Dist: uvicorn[standard]>=0.27.0; extra == 'all'",
+        "Requires-Dist: watchfiles>=0.21.0; extra == 'all'",
+        "Requires-Dist: y0<0.3,>=0.2; extra == 'all'",
+        "Requires-Dist: zepid>=0.9; extra == 'all'",
+        "Requires-Dist: arch>=8.0.0; extra == 'analytics'",
+        "Requires-Dist: linearmodels>=5.0; extra == 'analytics'",
+        "Requires-Dist: pandas>=2.0.0; extra == 'analytics'",
+        "Requires-Dist: ruptures>=1.1.10; extra == 'analytics'",
+        "Requires-Dist: scipy>=1.11.0; extra == 'analytics'",
+        "Requires-Dist: statsmodels>=0.14.0; extra == 'analytics'",
+        "Requires-Dist: jax-metal>=0.1.1; (sys_platform == 'darwin') and extra == 'apple-metal'",
+        "Requires-Dist: arviz>=1.0.0; extra == 'bayesian'",
+        "Requires-Dist: numpyro>=0.20.0; extra == 'bayesian'",
+        "Requires-Dist: cvxpy<1.5; (python_version < '3.13') and extra == 'causal'",
+        "Requires-Dist: dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'causal'",
+        "Requires-Dist: econml>=0.16; (python_version < '3.14') and extra == 'causal'",
+        "Requires-Dist: stochtree>=0.1.0; extra == 'causal-bcf'",
+        "Requires-Dist: econml>=0.16; (python_version < '3.14') and extra == 'causal-core'",
+        "Requires-Dist: causal-learn>=0.1.3.8; extra == 'causal-discovery'",
+        "Requires-Dist: tigramite>=5.2; extra == 'causal-discovery'",
+        "Requires-Dist: dagma>=1.1.1; extra == 'causal-discovery-scale'",
+        "Requires-Dist: cvxpy<1.5; (python_version < '3.13') and extra == 'causal-dowhy'",
+        "Requires-Dist: dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'causal-dowhy'",
+        "Requires-Dist: cvxpy<1.5; (python_version < '3.13') and extra == 'causal-full'",
+        "Requires-Dist: dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'causal-full'",
+        "Requires-Dist: econml>=0.16; (python_version < '3.14') and extra == 'causal-full'",
+        "Requires-Dist: lightgbm>=4.0; extra == 'causal-full'",
+        "Requires-Dist: y0<0.3,>=0.2; extra == 'causal-full'",
+        "Requires-Dist: zepid>=0.9; extra == 'causal-full'",
+        "Requires-Dist: lightgbm>=4.0; extra == 'causal-nuisance'",
+        "Requires-Dist: zepid>=0.9; extra == 'causal-nuisance'",
+        "Requires-Dist: y0<0.3,>=0.2; extra == 'causal-symbolic'",
+        "Requires-Dist: rpy2<4.0,>=3.5; extra == 'causal-symbolic-r'",
+        "Requires-Dist: y0<0.3,>=0.2; extra == 'causal-symbolic-y0'",
+        "Requires-Dist: basedpyright>=1.34.0; extra == 'dev'",
+        "Requires-Dist: jupyterlab>=4.0.0; extra == 'dev'",
+        "Requires-Dist: matplotlib>=3.8.0; extra == 'dev'",
+        "Requires-Dist: mkdocs-material>=9.6.0; extra == 'dev'",
+        "Requires-Dist: mkdocs>=1.6.0; extra == 'dev'",
+        "Requires-Dist: mkdocstrings[python]>=0.30.0; extra == 'dev'",
+        "Requires-Dist: mutmut>=2.0; extra == 'dev'",
+        "Requires-Dist: mypy>=1.19.1; extra == 'dev'",
+        "Requires-Dist: pre-commit>=4.5.1; extra == 'dev'",
+        "Requires-Dist: ruff>=0.14.10; extra == 'dev'",
+        "Requires-Dist: seaborn>=0.13.0; extra == 'dev'",
+        "Requires-Dist: structlog>=24.0.0; extra == 'dev'",
+        "Requires-Dist: types-requests>=2.32.4.20250913; extra == 'dev'",
+        "Requires-Dist: mkdocs-material>=9.6.0; extra == 'docs'",
+        "Requires-Dist: mkdocs>=1.6.0; extra == 'docs'",
+        "Requires-Dist: mkdocstrings[python]>=0.30.0; extra == 'docs'",
+        "Requires-Dist: watchfiles>=0.21.0; extra == 'hotreload'",
+        "Requires-Dist: kuzu>=0.1.0; extra == 'kuzu'",
+        "Requires-Dist: basedpyright>=1.34.0; extra == 'lint'",
+        "Requires-Dist: mypy>=1.19.1; extra == 'lint'",
+        "Requires-Dist: pre-commit>=4.5.1; extra == 'lint'",
+        "Requires-Dist: ruff>=0.14.10; extra == 'lint'",
+        "Requires-Dist: types-requests>=2.32.4.20250913; extra == 'lint'",
+        "Requires-Dist: arch>=8.0.0; extra == 'methods-full'",
+        "Requires-Dist: arviz>=1.0.0; extra == 'methods-full'",
+        "Requires-Dist: cvxpy>=1.8.1; extra == 'methods-full'",
+        "Requires-Dist: econml>=0.16; (python_version < '3.14') and extra == 'methods-full'",
+        "Requires-Dist: lifelines>=0.30.0; extra == 'methods-full'",
+        "Requires-Dist: linearmodels>=5.0; extra == 'methods-full'",
+        "Requires-Dist: mapie>=1.0.0; extra == 'methods-full'",
+        "Requires-Dist: numpyro>=0.20.0; extra == 'methods-full'",
+        "Requires-Dist: ortools>=9.8; extra == 'methods-full'",
+        "Requires-Dist: pandas>=2.0.0; extra == 'methods-full'",
+        "Requires-Dist: pulp>=2.8; extra == 'methods-full'",
+        "Requires-Dist: ruptures>=1.1.10; extra == 'methods-full'",
+        "Requires-Dist: scikit-learn>=1.6.0; extra == 'methods-full'",
+        "Requires-Dist: scipy>=1.11.0; extra == 'methods-full'",
+        "Requires-Dist: statsmodels>=0.14.0; extra == 'methods-full'",
+        "Requires-Dist: arch>=8.0.0; extra == 'methods-milestone2'",
+        "Requires-Dist: cvxpy>=1.8.1; extra == 'methods-milestone2'",
+        "Requires-Dist: lifelines>=0.30.0; extra == 'methods-milestone2'",
+        "Requires-Dist: linearmodels>=5.0; extra == 'methods-milestone2'",
+        "Requires-Dist: mapie>=1.0.0; extra == 'methods-milestone2'",
+        "Requires-Dist: ortools>=9.8; extra == 'methods-milestone2'",
+        "Requires-Dist: pandas>=2.0.0; extra == 'methods-milestone2'",
+        "Requires-Dist: pulp>=2.8; extra == 'methods-milestone2'",
+        "Requires-Dist: ruptures>=1.1.10; extra == 'methods-milestone2'",
+        "Requires-Dist: scikit-learn>=1.6.0; extra == 'methods-milestone2'",
+        "Requires-Dist: scipy>=1.11.0; extra == 'methods-milestone2'",
+        "Requires-Dist: statsmodels>=0.14.0; extra == 'methods-milestone2'",
+        "Requires-Dist: arch>=8.0.0; extra == 'methods-milestone3'",
+        "Requires-Dist: cvxpy>=1.8.1; extra == 'methods-milestone3'",
+        "Requires-Dist: lifelines>=0.30.0; extra == 'methods-milestone3'",
+        "Requires-Dist: linearmodels>=5.0; extra == 'methods-milestone3'",
+        "Requires-Dist: mapie>=1.0.0; extra == 'methods-milestone3'",
+        "Requires-Dist: ortools>=9.8; extra == 'methods-milestone3'",
+        "Requires-Dist: pandas>=2.0.0; extra == 'methods-milestone3'",
+        "Requires-Dist: pulp>=2.8; extra == 'methods-milestone3'",
+        "Requires-Dist: ruptures>=1.1.10; extra == 'methods-milestone3'",
+        "Requires-Dist: scikit-learn>=1.6.0; extra == 'methods-milestone3'",
+        "Requires-Dist: scipy>=1.11.0; extra == 'methods-milestone3'",
+        "Requires-Dist: statsmodels>=0.14.0; extra == 'methods-milestone3'",
+        "Requires-Dist: arch>=8.0.0; extra == 'methods-milestone4'",
+        "Requires-Dist: arviz>=1.0.0; extra == 'methods-milestone4'",
+        "Requires-Dist: cvxpy>=1.8.1; extra == 'methods-milestone4'",
+        "Requires-Dist: lifelines>=0.30.0; extra == 'methods-milestone4'",
+        "Requires-Dist: linearmodels>=5.0; extra == 'methods-milestone4'",
+        "Requires-Dist: mapie>=1.0.0; extra == 'methods-milestone4'",
+        "Requires-Dist: numpyro>=0.20.0; extra == 'methods-milestone4'",
+        "Requires-Dist: ortools>=9.8; extra == 'methods-milestone4'",
+        "Requires-Dist: pandas>=2.0.0; extra == 'methods-milestone4'",
+        "Requires-Dist: pulp>=2.8; extra == 'methods-milestone4'",
+        "Requires-Dist: ruptures>=1.1.10; extra == 'methods-milestone4'",
+        "Requires-Dist: scikit-learn>=1.6.0; extra == 'methods-milestone4'",
+        "Requires-Dist: scipy>=1.11.0; extra == 'methods-milestone4'",
+        "Requires-Dist: statsmodels>=0.14.0; extra == 'methods-milestone4'",
+        "Requires-Dist: lifelines>=0.30.0; extra == 'ml'",
+        "Requires-Dist: mapie>=1.0.0; extra == 'ml'",
+        "Requires-Dist: scikit-learn>=1.6.0; extra == 'ml'",
+        "Requires-Dist: asyncpg>=0.29.0; extra == 'multi-tenant'",
+        "Requires-Dist: fastapi>=0.109.0; extra == 'multi-tenant'",
+        "Requires-Dist: httpx>=0.27.0; extra == 'multi-tenant'",
+        "Requires-Dist: psycopg[binary]>=3.1.0; extra == 'multi-tenant'",
+        "Requires-Dist: pyjwt>=2.8.0; extra == 'multi-tenant'",
+        "Requires-Dist: uvicorn[standard]>=0.27.0; extra == 'multi-tenant'",
+        "Requires-Dist: mutmut>=2.0; extra == 'mutation'",
+        "Requires-Dist: jupyterlab>=4.0.0; extra == 'notebooks'",
+        "Requires-Dist: matplotlib>=3.8.0; extra == 'notebooks'",
+        "Requires-Dist: seaborn>=0.13.0; extra == 'notebooks'",
+        "Requires-Dist: prometheus-client>=0.17.0; extra == 'observability'",
+        "Requires-Dist: cvxpy>=1.8.1; extra == 'optimization-advanced'",
+        "Requires-Dist: faiss-cpu<2.0,>=1.7.4; extra == 'rag'",
+        "Requires-Dist: onnxruntime<2.0,>=1.18.0; extra == 'rag-local'",
+        "Requires-Dist: sentence-transformers<3.0,>=2.2.0; extra == 'rag-local'",
+        "Requires-Dist: arch>=8.0.0; extra == 'research'",
+        "Requires-Dist: arviz>=1.0.0; extra == 'research'",
+        "Requires-Dist: causal-learn>=0.1.3.8; extra == 'research'",
+        "Requires-Dist: cvxpy<1.5; (python_version < '3.13') and extra == 'research'",
+        "Requires-Dist: cvxpy>=1.8.1; extra == 'research'",
+        "Requires-Dist: dagma>=1.1.1; extra == 'research'",
+        "Requires-Dist: dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'research'",
+        "Requires-Dist: econml>=0.16; (python_version < '3.14') and extra == 'research'",
+        "Requires-Dist: hnswlib==0.8.0; extra == 'research'",
+        "Requires-Dist: lifelines>=0.30.0; extra == 'research'",
+        "Requires-Dist: lightgbm>=4.0; extra == 'research'",
+        "Requires-Dist: linearmodels>=5.0; extra == 'research'",
+        "Requires-Dist: mapie>=1.0.0; extra == 'research'",
+        "Requires-Dist: numpyro>=0.20.0; extra == 'research'",
+        "Requires-Dist: ortools>=9.8; extra == 'research'",
+        "Requires-Dist: pandas>=2.0.0; extra == 'research'",
+        "Requires-Dist: pulp>=2.8; extra == 'research'",
+        "Requires-Dist: pypdf>=5.5.0; extra == 'research'",
+        "Requires-Dist: ruptures>=1.1.10; extra == 'research'",
+        "Requires-Dist: salib<2.0,>=1.5; extra == 'research'",
+        "Requires-Dist: scikit-learn>=1.6.0; extra == 'research'",
+        "Requires-Dist: scipy>=1.11.0; extra == 'research'",
+        "Requires-Dist: statsmodels>=0.14.0; extra == 'research'",
+        "Requires-Dist: tigramite>=5.2; extra == 'research'",
+        "Requires-Dist: y0<0.3,>=0.2; extra == 'research'",
+        "Requires-Dist: zepid>=0.9; extra == 'research'",
+        "Requires-Dist: fastapi>=0.109.0; extra == 'runtime'",
+        "Requires-Dist: httpx>=0.27.0; extra == 'runtime'",
+        "Requires-Dist: prometheus-client>=0.17.0; extra == 'runtime'",
+        "Requires-Dist: pyjwt>=2.8.0; extra == 'runtime'",
+        "Requires-Dist: structlog>=24.0.0; extra == 'runtime'",
+        "Requires-Dist: uvicorn[standard]>=0.27.0; extra == 'runtime'",
+        "Requires-Dist: fastapi>=0.109.0; extra == 'runtime-http'",
+        "Requires-Dist: httpx>=0.27.0; extra == 'runtime-http'",
+        "Requires-Dist: pyjwt>=2.8.0; extra == 'runtime-http'",
+        "Requires-Dist: uvicorn[standard]>=0.27.0; extra == 'runtime-http'",
+        "Requires-Dist: restrictedpython<8.0,>=7.0; extra == 'sandbox'",
+        "Requires-Dist: botorch>=0.9.0; extra == 'search-bo'",
+        "Requires-Dist: gpytorch>=1.11; extra == 'search-bo'",
+        "Requires-Dist: linear-operator>=0.5.0; extra == 'search-bo'",
+        "Requires-Dist: scipy>=1.10.0; extra == 'search-bo'",
+        "Requires-Dist: torch>=2.0.0; extra == 'search-bo'",
+        "Requires-Dist: botorch>=0.9.0; extra == 'search-mo'",
+        "Requires-Dist: gpytorch>=1.11; extra == 'search-mo'",
+        "Requires-Dist: linear-operator>=0.5.0; extra == 'search-mo'",
+        "Requires-Dist: scipy>=1.10.0; extra == 'search-mo'",
+        "Requires-Dist: torch>=2.0.0; extra == 'search-mo'",
+        "Requires-Dist: boto3>=1.34.0; extra == 'security'",
+        "Requires-Dist: httpx>=0.27.0; extra == 'security'",
+        "Requires-Dist: presidio-analyzer>=2.2.0; extra == 'security'",
+        "Requires-Dist: presidio-anonymizer>=2.2.0; extra == 'security'",
+        "Requires-Dist: sigstore>=3.0.0; extra == 'security'",
+        "Requires-Dist: spacy>=3.7.0; extra == 'security'",
+        "Requires-Dist: salib<2.0,>=1.5; extra == 'sensitivity'",
+        "Requires-Dist: scipy>=1.11.0; extra == 'sensitivity'",
+        "Requires-Dist: beartype>=0.18.0; extra == 'shapesafe'",
+        "Requires-Dist: ortools>=9.8; extra == 'solvers'",
+        "Requires-Dist: pulp>=2.8; extra == 'solvers'",
+        "Requires-Dist: structlog>=24.0.0; extra == 'structured-logging'",
+        "Requires-Dist: marker-pdf>=0.3.0; extra == 'table-extraction'",
+        "Requires-Dist: fastapi>=0.109.0; extra == 'test'",
+        "Requires-Dist: httpx>=0.27.0; extra == 'test'",
+        "Requires-Dist: hypothesis>=6.0.0; extra == 'test'",
+        "Requires-Dist: jsonschema[format-nongpl]>=4.25.1; extra == 'test'",
+        "Requires-Dist: pyjwt>=2.8.0; extra == 'test'",
+        "Requires-Dist: pytest-asyncio>=0.23.0; extra == 'test'",
+        "Requires-Dist: pytest-benchmark>=4.0.0; extra == 'test'",
+        "Requires-Dist: pytest-xdist>=3.6.1; extra == 'test'",
+        "Requires-Dist: pytest>=7.4.0; extra == 'test'",
+        "Requires-Dist: rdflib>=7.0.0; extra == 'test'",
+        "Requires-Dist: uvicorn[standard]>=0.27.0; extra == 'test'",
+        "Requires-Dist: hnswlib==0.8.0; extra == 'vector-search'"
+      ],
+      "source_readme_exceptions_outside_package_roots": 258,
+      "unmapped_payload": []
+    }
+  }
+}

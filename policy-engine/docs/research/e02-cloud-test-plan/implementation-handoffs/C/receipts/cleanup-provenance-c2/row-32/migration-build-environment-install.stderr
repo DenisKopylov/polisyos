@@ -1,0 +1,9 @@
+Using Python 3.14.0 environment at: /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv
+  × No solution found when resolving dependencies:
+  ╰─▶ Because hatchling was not found in the cache and you require
+      hatchling>=1.27.0, we can conclude that your requirements are
+      unsatisfiable.
+
+      hint: Packages were unavailable because the network was disabled. When
+      the network is disabled, registry packages may only be read from the
+      cache.

@@ -1,0 +1,139 @@
+{
+  "schema": "policyos.e02.C.cleanup.preparation-index.v1",
+  "created_utc": "2026-10-06T20:06:25.414293+00:00",
+  "observed_branch": "codex/e02-C-continuation-20261006",
+  "parent_head": "1c9766f8305de3c64989d3d8a10470076bd75d2d",
+  "entries": [
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/eligible-env-cache-v2.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/eligible-env-cache-v2.json",
+      "sha256": "2db919d222a3534d2b82524b53f425e9f73f6ae2c2490bb726b38d785b4f902d",
+      "bytes": 62856
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-mover-review-v1-20261006.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v1-20261006.json",
+      "sha256": "f85393554ecaf798dc871c191b314064bc36473fcd3a05dd5f859dfe411c8e9d",
+      "bytes": 7397
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-mover-review-v1-20261006.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v1-20261006.md",
+      "sha256": "923a6ed336fa4902482930015e7e4d5a8df942986fc5d30f18e077f208f4e2ce",
+      "bytes": 3084
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-mover-review-v2-20261006.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v2-20261006.json",
+      "sha256": "e456d9c74d31ffdc4e5babc212d4a65a8cf2955bc22b07c99417df5305d5d645",
+      "bytes": 8779
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-mover-review-v2-20261006.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v2-20261006.md",
+      "sha256": "642bf06f7e480d3396dafabf047a70f1e68be47b6d34df49318dc004d6b0bdf5",
+      "bytes": 2990
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-mover-static-review-v3-20261006T194800Z.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-static-review-v3-20261006T194800Z.json",
+      "sha256": "fecd58e4b19e038458ac3699e07e0c2081359d379e3304971d9f4b003cddbcf0",
+      "bytes": 16575
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-mover-static-review-v3-20261006T194800Z.md",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-static-review-v3-20261006T194800Z.md",
+      "sha256": "4f30834acaa14e8dc59552ecb8892bd8a0dbb5b073d7dcd692922729f0cd32cd",
+      "bytes": 2867
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-precondition-controls-v2-0ccb29b1f100.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-precondition-controls-v2-0ccb29b1f100.json",
+      "sha256": "a5114fb6b4c351f3646f470e6e13c90dd26233e2d08686c52c47cd84a40f0358",
+      "bytes": 4481
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-normal-held-selection-0ccb29b1f100.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-normal-held-selection-0ccb29b1f100.stderr",
+      "sha256": "b48a2ffe3b01b8197756ce54f51f2593607fc8088ab07964fb79b35305a55f30",
+      "bytes": 628
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-normal-held-selection-0ccb29b1f100.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-normal-held-selection-0ccb29b1f100.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-optimized-before-argv-0ccb29b1f100.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-optimized-before-argv-0ccb29b1f100.stderr",
+      "sha256": "1fcd41de7d59919d0500861a64e417cc016923b66c4abec2aa12f4b42160a3fc",
+      "bytes": 346
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-control-optimized-before-argv-0ccb29b1f100.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-optimized-before-argv-0ccb29b1f100.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-controls-latest-5dfe.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-controls-latest-5dfe.json",
+      "sha256": "9876a0a5273570bbca86ab2aa7401508269ed4e334f9cc904f56163e3ed2fcee",
+      "bytes": 3004
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/move_released_to_trash.py",
+      "sha256": "5dfe312ea92a95956046291a9d8bd776aa8e610b6ad70e952c077d4cf0efa611",
+      "bytes": 11282
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/execute_cleanup_capture.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/execute_cleanup_capture.py",
+      "sha256": "715907372e31c902162bf466185dd19d76242e870b5e7c852361bdc2ffc581b4",
+      "bytes": 1951
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/build_cleanup_preflight_v5.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/build_cleanup_preflight_v5.py",
+      "sha256": "ca4ab833df0579a100fc915fcf01626572245c06688bf88bda090e455a2dad4b",
+      "bytes": 24599
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/builder-v5-run-capture-20261006T204000Z.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/builder-v5-run-capture-20261006T204000Z.json",
+      "sha256": "20287953c28c02a8e4b9aa2765291131fe6f40b6062d3000ce718d9fbcae38fd",
+      "bytes": 2635
+    },
+    {
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/builder-v5-run-capture-20261006T204300Z.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/builder-v5-run-capture-20261006T204300Z.json",
+      "sha256": "3f72767a2cb45529ce82bb57829cabf3a54a4c4876eabbaf720a1fcf8407e241",
+      "bytes": 2635
+    }
+  ],
+  "large_local_inputs": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-inventory-v3-20261006.json",
+      "sha256": "e0b96555683d52c15cf36e698924b1ffe84ccdfa60695ca57a5701deb68042ac",
+      "bytes": 1011039,
+      "storage": "local ignored; complete data retained; no derived census duplication in Git"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v3-20261006.json",
+      "sha256": "a48071b7d8887eeab131a88ba4d21205d6874808606cc7167c6a971e763101f7",
+      "bytes": 466001,
+      "storage": "local ignored; complete data retained; no derived census duplication in Git"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v4-unreleased.json",
+      "sha256": "33d4a4e6432918528c69c05afb6c8c98cb735107ad2df13884d2f7bc64cc50f8",
+      "bytes": 72279,
+      "storage": "local ignored; complete data retained; no derived census duplication in Git"
+    }
+  ],
+  "action_status": "NO_RELEASE_OR_TRASH_ACTION; root final release is separate",
+  "production_payload_copied": false,
+  "retained_code_and_unique_data": "All 14 source worktrees, 24 source extractions, archives/distributions, DB/CAS/NPZ/native index outputs and raw probes remain preserve-only."
+}

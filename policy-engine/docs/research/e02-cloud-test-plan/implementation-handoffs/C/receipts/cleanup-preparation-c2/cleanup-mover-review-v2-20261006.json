@@ -1,0 +1,112 @@
+{
+  "bounded_residuals": [
+    {
+      "bounded_handling": "Add release-hash/inode-based recovery reconciliation or require and document manual reconciliation before retry.",
+      "evidence": "A crash after rename but before receipt append/save leaves the move unrecorded. The target directory then exists, so a rerun fails the unique-target precondition and cannot reconcile.",
+      "id": "RESIDUAL-01",
+      "impact": "Moved content remains in Trash, but the operation is partially unreceipted and not restartable.",
+      "location": "move_released_to_trash.py:99-108",
+      "severity": "medium"
+    }
+  ],
+  "coverage_limitations": [
+    "No valid release manifest was used; no rename, target creation, or move was attempted. Findings cover only the exact script SHA above."
+  ],
+  "findings": [
+    {
+      "class": "source-extraction-provenance-and-authorization",
+      "closure": "Keep source extractions preserve-only unless the exact extracted tree is content-bound to a retained archive/distribution and its owner confirms it has no remaining consumer; restrict released categories to the authorized set.",
+      "evidence": "The selection has 23 source_archive_extraction items. The mover accepts any released item whose per-item status is changed to RELEASED_TO_TRASH; no category allowlist exists. Source extraction refs are checked only for existence and containment, not content equality/unchanged status or consumer closure. The release authorization string names repeatable test directories and used environments, not source extractions.",
+      "id": "MOVER-02",
+      "impact": "An editable extraction containing unique changes or still needed by a consumer can be moved to Trash based only on an adjacent archive/distribution existing.",
+      "location": "move_released_to_trash.py:29-35, 57-90; current v2 selection",
+      "severity": "high"
+    },
+    {
+      "class": "exact-admitted-root-binding",
+      "closure": "Bind the final selection to the current inventory bytes; derive and require the exact admitted C roots from that inventory (or an immutable root-owned manifest), and reject any candidate/owner outside that set.",
+      "evidence": "The current script checks canonical paths, and iterates release-supplied roots/topics, but never loads selection.source_inventory_path or verifies its SHA against selection.source_inventory_sha256. It never requires release.exact_admitted_C_roots to equal the inventory\u2019s 14-root set. Its additional path-prefix check admits any path under .codex/worktrees.",
+      "id": "MOVER-03",
+      "impact": "A malformed or re-authored final selection/release can broaden cleanup to another worktree while satisfying the caller-supplied owner set and path-prefix checks.",
+      "location": "move_released_to_trash.py:18, 46-58, 64-70",
+      "severity": "high"
+    },
+    {
+      "class": "audit-completeness-evidence",
+      "closure": "Compile the release input root-only from the expected complete topic/audit set after branch/HEAD/cleanliness checks; bind all required handoff/output refs to those frozen heads and verify exact set completeness.",
+      "evidence": "The committed-work/audit-complete predicates are release JSON booleans. Git references are SHA/byte checked but only required to be nonempty; frozen_topics has no required nonempty or exact topic set and its references are not tied to all required deciding outputs/useful changes or reachable from each frozen HEAD.",
+      "id": "MOVER-04",
+      "impact": "A partial or unrelated set can satisfy the code while release metadata declares all audits and deciding outputs complete.",
+      "location": "move_released_to_trash.py:24-30, 46-56",
+      "severity": "high"
+    },
+    {
+      "class": "receipt-path-confinement",
+      "closure": "Confine output_path to a new unique receipt below the exact cleanup directory, reject overlap and symlink ancestry, create exclusively, and use safe same-directory receipt updates.",
+      "evidence": "output_path is an arbitrary command-line path, and save() overwrites it via write_text without checking existence, symlink ancestors, containment under cleanup scratch, or overlap with a candidate/preservation path.",
+      "id": "MOVER-05",
+      "impact": "A caller path mistake can truncate a probe, receipt, or other file before any candidate move.",
+      "location": "move_released_to_trash.py:20, 41-44",
+      "severity": "high"
+    },
+    {
+      "class": "preserve-reference-identity",
+      "closure": "lstat and reject symlink refs; bind file hashes/byte counts or directory identity from the frozen inventory; globally prove no preserve ref is inside any released candidate path.",
+      "evidence": "Path.exists() follows symlinks and verifies only existence, both before and after rename. The mover does not bind reference lstat identity/content or reject a reference that is itself another released candidate.",
+      "id": "MOVER-06",
+      "impact": "A symlink/replacement can produce a false preserved-ref receipt; references could disappear later in the same batch if they belong to another released candidate.",
+      "location": "move_released_to_trash.py:84-90, 100-104",
+      "severity": "medium"
+    },
+    {
+      "class": "selection-to-preflight-identity",
+      "closure": "Include lstat identity in the frozen final selection and require it to match the initial and immediate pre-rename lstat; otherwise hold the candidate.",
+      "evidence": "The immediate pre-rename inode comparison correctly detects replacement after the initial preflight, but selection items do not carry device/inode, and the initial preflight is not compared with the lstat identity recorded when the final selection was compiled.",
+      "id": "MOVER-07",
+      "impact": "A same-owner ignored directory can replace a selected path between selection and mover startup and be moved as if it were the selected object.",
+      "location": "move_released_to_trash.py:64-78, 94-102",
+      "severity": "medium"
+    }
+  ],
+  "negative_controls": [
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-O",
+        "-B",
+        ".tmp/e02-C2/raw/cleanup/move_released_to_trash.py"
+      ],
+      "case": "optimized-before-argv",
+      "exit_code": 1,
+      "stderr_contains": "Optimized mode is not admitted for the cleanup entrypoint",
+      "stderr_path": ".tmp/e02-C2/raw/cleanup/negative-control-optimized-before-argv-0ccb29b1f100.stderr",
+      "stdout_path": ".tmp/e02-C2/raw/cleanup/negative-control-optimized-before-argv-0ccb29b1f100.stdout"
+    },
+    {
+      "case": "normal-held-selection",
+      "exit_code": 1,
+      "failure_location": "move_released_to_trash.py line 29: RELEASE_EXACT_CANDIDATES_TO_TRASH decision check",
+      "receipt": ".tmp/e02-C2/raw/cleanup/negative-precondition-controls-v2-0ccb29b1f100.json",
+      "stderr_contains": "Cleanup precondition failed",
+      "stderr_path": ".tmp/e02-C2/raw/cleanup/negative-control-normal-held-selection-0ccb29b1f100.stderr",
+      "stdout_path": ".tmp/e02-C2/raw/cleanup/negative-control-normal-held-selection-0ccb29b1f100.stdout",
+      "synthetic_release_path": ".tmp/e02-C2/raw/cleanup/negative-control-held-v2-0ccb29b1f100.release.json"
+    }
+  ],
+  "negative_controls_receipt": ".tmp/e02-C2/raw/cleanup/negative-precondition-controls-v2-0ccb29b1f100.json",
+  "negative_controls_receipt_sha256": "a5114fb6b4c351f3646f470e6e13c90dd26233e2d08686c52c47cd84a40f0358",
+  "review_mode": "Static safety review plus only two authorized precondition-failure subprocess controls. No releasable selection was supplied and no move/Trash creation occurred.",
+  "review_version": 2,
+  "reviewed_utc": "2026-10-06T18:00:15+00:00",
+  "safeguards_and_controls": [
+    "The prior assert-stripping escape is closed at this SHA: AST contains zero Assert nodes and optimized mode is rejected before argv input.",
+    "The prior held-selection escape is closed at this SHA: normal-mode run with the v2 held selection and synthetic affirmative release metadata failed at the top-level selection decision before creating a receipt or Trash target.",
+    "Candidate canonicalization, type/owner/device checks, ignored/untracked checks, pairwise nested-candidate rejection, and immediate pre/post rename inode checks are present.",
+    "The current v2 selection still remains held; no valid release manifest or released selection was provided."
+  ],
+  "selection": ".tmp/e02-C2/raw/cleanup/cleanup-selection-v2-20261006.json",
+  "selection_sha256": "57433facf86c98a9a6c567422d80a4f0f2b4229122a8d820c544c2b95bf3560f",
+  "target": ".tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+  "target_sha256": "a7cf26e37c2272671974ad589aa1b326b95e0905f9bcaface3145a0c005b450f",
+  "verdict": "NO_GO_FOR_RELEASE"
+}

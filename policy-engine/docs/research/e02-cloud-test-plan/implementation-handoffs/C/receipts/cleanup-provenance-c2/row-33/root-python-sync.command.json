@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "sync",
+    "--frozen",
+    "--offline",
+    "--no-dev",
+    "--no-install-project",
+    "--python",
+    "/opt/homebrew/bin/python3",
+    "--extra",
+    "lint",
+    "--extra",
+    "test",
+    "--extra",
+    "runtime"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "environment_overrides": {
+    "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv"
+  },
+  "frozen_inputs": {
+    "pyproject.toml": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+    "uv.lock": "85f1fb2150a4da454fee02108565381d44f56730"
+  },
+  "online_seed_receipt": "sync-online-no-install-project.result.json",
+  "started_at": "2026-10-06T10:08:09.114370+00:00",
+  "timeout_seconds": 900
+}

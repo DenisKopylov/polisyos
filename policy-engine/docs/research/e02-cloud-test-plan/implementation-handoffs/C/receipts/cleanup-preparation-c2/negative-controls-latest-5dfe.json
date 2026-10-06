@@ -1,0 +1,44 @@
+{
+  "schema": "policyos.e02.C.cleanup.latest_negative_controls.v1",
+  "created_utc": "2026-10-06T19:53:01.204978+00:00",
+  "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+  "source_sha256": "5dfe312ea92a95956046291a9d8bd776aa8e610b6ad70e952c077d4cf0efa611",
+  "source_identical_after": true,
+  "checks": [
+    {
+      "name": "optimize_rejected_before_argv",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-I",
+        "-O",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py\", line 16, in <module>\n    raise RuntimeError('Optimized mode is not admitted for the cleanup entrypoint')\nRuntimeError: Optimized mode is not admitted for the cleanup entrypoint\n",
+      "output_absent": true,
+      "journal_absent": true,
+      "trash_target_absent": true
+    },
+    {
+      "name": "held_selection_not_promoted_by_affirmative_release",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/cleanup-selection-v5-preflight-20261006T194258425192Z.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-latest-5dfe-affirmative-release.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/negative-latest-5dfe-operation-result.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py\", line 34, in <module>\n    require(selection['decision'] == 'RELEASE_EXACT_CANDIDATES_TO_TRASH', 'Cleanup precondition failed')\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py\", line 13, in require\n    raise RuntimeError(message)\nRuntimeError: Cleanup precondition failed\n",
+      "output_absent": true,
+      "journal_absent": true,
+      "trash_target_absent": true
+    }
+  ],
+  "mover_completed_moves": 0
+}

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/cleanup/move_released_to_trash.py", line 16, in <module>
+    raise RuntimeError('Optimized mode is not admitted for the cleanup entrypoint')
+RuntimeError: Optimized mode is not admitted for the cleanup entrypoint

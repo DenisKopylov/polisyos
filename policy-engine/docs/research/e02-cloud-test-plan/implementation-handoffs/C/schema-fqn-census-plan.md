@@ -54,7 +54,10 @@
 - Modify `tests/unit/remediation/test_dfk_01.py` only.
 
 - [x] Add a real `PureExecutor.run` witness using canonical `TaxationMechanism` and an independently calculated fixed-rate result.
-- [x] Run that selector and the existing canonical schema/evolution/migration test; also run the real agent-sim mechanism/world consumer selectors.
+- [x] Compare the full canonical Foundry runtime registry to an independent ID/class-path fixture; resolve every registered runtime class and dispatch a mechanism through `MethodDispatcher`.
+- [x] Assert exact tombstone FQN import failure and absence of the source-package resource; never recreate it in product source.
+- [x] Run DFK schema/evolution/migration, the registry/runner witness, and real agent-sim mechanism/world consumer selectors (30 passed).
+- [ ] The existing unified Foundry runtime consumer selector was run in the combined suite (33 passed, 1 failed): `test_simulation_methods_dispatch_and_agent_sim_bridge_runs` expects `not_available`, while the runtime returns `diagnostic_attached`. Its test and Foundry source inputs are unchanged from the slice base, but an exact base replay was unavailable under the one-worktree lease; classify this failure `not_established` under P41 and leave that separate consumer assertion untouched.
 - [x] Do not add a registry, DTO migration, generator, or alias retirement to make the tests pass.
 
 ### Task 3: Record the census and four separate verdicts

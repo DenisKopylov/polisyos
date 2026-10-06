@@ -210,9 +210,89 @@ def test_dfk_01_compatibility_pending_surfaces_preserve_current_identity() -> No
 
 
 def test_dfk_01_mechanisms_tombstone_is_not_importable() -> None:
-    """The confirmed empty mechanisms tombstone remains an absence contract."""
+    """The exact banned FQN and source-package resource remain absent."""
+    from importlib import resources
+
     with pytest.raises(ModuleNotFoundError):
         importlib.import_module("polisyos.foundry.domain.mechanisms")
+
+    package = importlib.import_module("polisyos.foundry.domain")
+    resource = resources.files(package).joinpath("mechanisms")
+    assert not resource.exists()
+    assert not resource.is_dir()
+    assert not resource.joinpath("__init__.py").is_file()
+
+    source_path = REPO_ROOT / "src/polisyos/foundry/domain/mechanisms"
+    assert not source_path.exists()
+
+
+def test_dfk_01_canonical_foundry_mechanism_registry_resolves_and_dispatches() -> None:
+    """The full runtime-ID fixture resolves at the canonical runner and emits its patch."""
+    from polisyos.foundry._registry import MECHANISM_REGISTRY, get_mechanism_descriptor
+    from polisyos.foundry.contracts.state import GlobalState as RuntimeGlobalState
+    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+    from polisyos.foundry.methods.registry import MethodRegistry
+
+    expected = {
+        "adaptive_agent": (
+            "mechanism.runtime.adaptive_agent@1.0.0",
+            "polisyos.foundry.agent_sim.agents:AdaptiveAgentMechanism",
+        ),
+        "income_tax": (
+            "mechanism.runtime.income_tax@1.0.0",
+            "polisyos.foundry.execute.mechanisms:IncomeTax",
+        ),
+        "labor_market": (
+            "mechanism.runtime.labor_market@1.0.0",
+            "polisyos.foundry.execute.mechanisms:LaborMarketMechanism",
+        ),
+        "queue": (
+            "mechanism.runtime.queue@1.0.0",
+            "polisyos.foundry.execute.queue:QueueMechanism",
+        ),
+        "tax_subsidy": (
+            "mechanism.runtime.tax_subsidy@1.0.0",
+            "polisyos.foundry.execute.mechanisms:TaxSubsidy",
+        ),
+    }
+    ensure_all_methods_registered()
+    assert set(MECHANISM_REGISTRY) == set(expected)
+
+    method_registry = MethodRegistry.get_instance()
+    for mechanism_id, (method_fqn, class_path) in expected.items():
+        descriptor = get_mechanism_descriptor(mechanism_id)
+        assert descriptor.mechanism_type == mechanism_id
+        assert descriptor.method_fqn == method_fqn
+        assert descriptor.mechanism_class_path == class_path
+        resolved_class = descriptor.mechanism_class
+        module_name, class_name = class_path.split(":")
+        expected_class = getattr(importlib.import_module(module_name), class_name)
+        assert resolved_class is expected_class
+
+        method_class = method_registry.get(method_fqn)
+        assert method_class.runtime_mechanism_type == mechanism_id
+        assert method_class.runtime_mechanism_class_path == class_path
+
+    state = RuntimeGlobalState.empty(3, 2)
+    agents = state.agents.replace(
+        income=jnp.asarray([100.0, 100.0, 100.0], dtype=jnp.float32),
+        reported_income=jnp.asarray([100.0, 100.0, 100.0], dtype=jnp.float32),
+        active=jnp.asarray([True, True, False]),
+    )
+    state = state.replace(agents=agents)
+    income_tax_method = method_registry.get(expected["income_tax"][0])
+    result = MethodDispatcher.get_instance().dispatch(
+        method_class=income_tax_method,
+        signature=income_tax_method.signature,
+        state=state,
+        params={"rate": 0.2},
+        seed=11,
+    )
+
+    delta = result.output["result"]["patches"]["agents.income"][0]["delta"]
+    assert delta == pytest.approx([-20.0, -20.0, 0.0])
+    assert result.output["result"]["mechanism_type"] == "income_tax"
 
 
 def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(

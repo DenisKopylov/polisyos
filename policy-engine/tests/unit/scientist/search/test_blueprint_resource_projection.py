@@ -87,7 +87,7 @@ def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_rea
         assert observed["provider_spend_usd"] == (None if spend is None else str(spend))
         assert observed["resource_event_ids"] == list(events)
     assert projection["stage_results"]["3"]["feedback"] == feedback
-    state = ExperimentState(run_id="projection", reports_index={"funnel": projection})
+    state = ExperimentState(run_id="projection", params={"funnel_outcome": projection})
     store = FileSystemCAS(tmp_path / "cas")
     reference = store.put_json(
         state.model_dump(mode="json"),
@@ -97,7 +97,7 @@ def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_rea
     restored = ExperimentState.model_validate(
         from_canonical_bytes(FileSystemCAS(tmp_path / "cas").get_bytes(reference.artifact_id))
     )
-    assert restored.reports_index["funnel"] == projection
+    assert restored.params["funnel_outcome"] == projection
 
 
 def test_actual_phase_d4_report_manifest_matches_typed_body_on_fresh_reader(tmp_path: Path) -> None:

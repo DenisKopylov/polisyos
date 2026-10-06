@@ -292,6 +292,10 @@ class _RequiredAuditResolver:
 
 def _recovery_fixture(tmp_path: Path, action: str) -> tuple[Any, ...]:
     audit_path = tmp_path / "original-protected.jsonl"
+    # A real empty JSONL target makes the first RESERVED fault occur in the
+    # unchanged backend append, after the actual sink has created its entry.
+    # Without it the test's prefix-preserving rename would fail beforehand.
+    audit_path.touch(exist_ok=False)
     ledger_path = tmp_path / "original-ledger.json"
     provider = _PhysicalProvider(tmp_path / "original-provider.jsonl")
     initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})

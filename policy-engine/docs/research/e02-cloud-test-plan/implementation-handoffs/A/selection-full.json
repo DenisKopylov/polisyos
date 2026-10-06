@@ -4,16 +4,13 @@
   "bundle_ids": [
     "SEL-01"
   ],
+  "baseline_cells": [],
   "candidate_tree_sha": "b3bdbafd5957d91e54f0561c213fdda565ad4444",
   "changed_paths": [
     "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
     "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py"
   ],
-  "closure_ids": [
-    "B34",
-    "B35",
-    "B36"
-  ],
+  "closure_ids": [],
   "controlled_scope_census": {
     "catalog_entry_count": 389,
     "discovery_manifest_id": "component_discovery_manifest_7dfd366b6220336a6df81fdadf61537a6593632e5437ca7c5a527f26d98f2823",
@@ -34,6 +31,32 @@
     "value_denominator_count": 55,
     "value_denominator_fqn_digest": "sha256:269896d1f8e1c3153e16d92d9dd97f98d1d0ffe84eaded88ee7495f098514f2d"
   },
+  "finding_outcomes": [
+    {
+      "finding_id": "B34",
+      "outcome": "limited",
+      "original_ledger_status": "partial",
+      "closed": false,
+      "basis": "The complete 389-member controlled built-in universe has a 55-method value denominator and a one-eligible-method witness, but the default extension source is unbound and its selector test fails.",
+      "evidence_ref": "selection-full/controlled-registry-census.json"
+    },
+    {
+      "finding_id": "B35",
+      "outcome": "limited",
+      "original_ledger_status": "partial",
+      "closed": false,
+      "basis": "Eligibility precedes ranking in the bounded selector path, but the default registry is blocked before a real default-universe top-k positive can be established.",
+      "evidence_ref": "selection-full/controlled-controls.txt"
+    },
+    {
+      "finding_id": "B36",
+      "outcome": "limited",
+      "original_ledger_status": "partial",
+      "closed": false,
+      "basis": "Required modality is preserved and incompatible explicit selection is blocked in the bounded control; no typed transform producer or consumer integration exists in this slice.",
+      "evidence_ref": "selection-full/controlled-controls.txt"
+    }
+  ],
   "finding_assessment": {
     "B34": {
       "evidence": "Complete 389-component, 55-value-method controlled built-in source census admits one eligible method, and hidden-member mutation is rejected. The actual default extension registry cannot be admitted because its entry-point source-byte closure is not established.",
@@ -73,6 +96,80 @@
       "explicit requested method missing a required modality"
     ]
   },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos/policy-engine OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -q tests/unit/foundry/methods/test_selection_advisor.py::test_bound_full_registry_keeps_one_eligible_value_method_and_rejects_registered_nonvalue tests/unit/foundry/methods/test_selection_advisor.py::test_value_selection_refuses_a_registry_member_hidden_after_bound_intake tests/unit/foundry/methods/test_selection_advisor.py::test_value_selection_refuses_failed_registry_bridge_report tests/unit/foundry/methods/test_selection_advisor.py::test_requested_value_method_cannot_bypass_required_data_modalities",
+      "target_sha": "b07287c6d159bf812051b50111b15b870b823797",
+      "environment": "Python 3.14.3 from the root worktree venv; explicit source from the selection leaf; no estimator execution",
+      "input_closure": "Controlled built-in component manifest and exact report/registry set equality; entry points and dev scan are disabled by the existing controlled scope.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 133,
+      "output_ref": "selection-full/controlled-controls.txt",
+      "scope": "bounded positive and negative controls only; not default-path acceptance"
+    },
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos/policy-engine OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -q --show-capture=no tests/unit/foundry/methods/test_selection_advisor.py::test_value_advisor_trace_is_filtered_to_the_value_denominator",
+      "target_sha": "b07287c6d159bf812051b50111b15b870b823797",
+      "environment": "Python 3.14.3 from the root worktree venv; explicit source from the selection leaf; no estimator execution",
+      "input_closure": "Actual public selector default; ensure_all_methods_registered enables builtins, entry points, and dev scan.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 12.62,
+      "output_ref": "selection-full/default-path-fail.txt",
+      "failure_ownership": "own_patch",
+      "inherited": false,
+      "prechange_exact_base_replay": "not_run; this is the candidate's new fail-closed intake behavior against an existing test expectation, not an inherited failure."
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/selection/advisor.py tests/unit/foundry/methods/test_selection_advisor.py && git diff --check",
+      "target_sha": "b07287c6d159bf812051b50111b15b870b823797",
+      "environment": "Python 3.14.3 from the root worktree venv",
+      "input_closure": "The two implementation paths.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output_ref": "selection-full/ruff-check.txt"
+    }
+  ],
+  "property": {
+    "statement": "Value selection uses a complete admitted registry, filters required modality and runnable eligibility before top-k, and preserves hard required modalities for explicit requests.",
+    "runtime_path": [
+      "select_value_method_for_problem",
+      "ensure_all_methods_registered and typed extension-registry report",
+      "content-bound discovery manifest and exact registry membership",
+      "value catalog projection and eligibility filter",
+      "advisor top-k and selection receipt"
+    ],
+    "proxy_divergence": "The bounded built-in source passes its own complete manifest check, but it omits entry points and dev scan. Treating it as the default full registry would be a proxy for the actual completeness property. The actual default source-byte closure is not established, so selection blocks before catalog construction.",
+    "negative_controls": [
+      "remove a source-manifest member after intake",
+      "inject a failed bridge report",
+      "request a registered non-value method",
+      "request a method lacking a required modality"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_provenance": [
+    {
+      "predicate": "controlled_builtin_manifest_to_registry_membership",
+      "classification": "recomputed"
+    },
+    {
+      "predicate": "default_entry_point_source_byte_closure",
+      "classification": "not_established"
+    },
+    {
+      "predicate": "default_registry_complete_value_denominator",
+      "classification": "not_established"
+    }
+  ],
+  "capability_state_or_finding_state": "Limited implementation evidence only. B34/B35/B36 retain their original partial ledger status; outcome limited; closure_ids is empty. Default selector fails closed because the default entry-point source-byte closure is not established.",
+  "limitations_and_next_owner": [
+    "B34/B35: appoint or identify an existing canonical source-scope owner that content-binds the full default entry-point and dev-scan universe; until then, the bounded built-in positive cannot establish the default complete denominator.",
+    "B36: a typed modality-transform producer must bind its input, output, and provenance and be consumed on a real path. suggest_adapter_methods currently returns ranked candidate entries only.",
+    "Default-path FAIL is an own-patch outcome under this fail-closed intake change, not inherited; the exact base test replay was not performed.",
+    "No finding closure or production-default selection capability is claimed."
+  ],
   "known_limitations": [
     "The default path deliberately remains fail-closed. Do not weaken is_bound, omit own entry points/dev scan, or treat bounded builtins as the complete default universe.",
     "B34, B35, and B36 remain partial; root adjudication is separate from this implementation receipt.",
@@ -123,7 +220,9 @@
       "nodeid": "tests/unit/foundry/methods/test_selection_advisor.py::test_value_advisor_trace_is_filtered_to_the_value_denominator",
       "observed": "blocked with empty denominator",
       "output_ref": "selection-full/default-path-fail.txt",
-      "prechange_exact_base_replay": "not_run; the post-implementation result is an observed regression against the test expectation, but the pre-change node receipt was not captured.",
+      "prechange_exact_base_replay": "not_run; attribution is own_patch because this candidate adds the fail-closed intake guard reached by the failing node; do not classify it as inherited.",
+      "failure_ownership": "own_patch",
+      "inherited": false,
       "result": "FAIL",
       "selector_result_ref": "selection-full/default-selector-result.json",
       "wall_time_s": 12.62

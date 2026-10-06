@@ -53,7 +53,7 @@ def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(
         selected.write_bytes(store._manifests.to_bytes(manifest))
     elif damage == "wrong_profile":
         selected.write_bytes(
-            store._manifests.to_bytes(manifest.model_copy(update={"byte_size": 100}))
+            store._manifests.to_bytes(manifest.model_copy(update={"kind": "foreign-profile"}))
         )
     elif damage == "invalid_manifest":
         selected.write_bytes(b"{}")

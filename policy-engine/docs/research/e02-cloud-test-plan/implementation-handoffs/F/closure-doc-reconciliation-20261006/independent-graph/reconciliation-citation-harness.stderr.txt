@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/review_docs.py", line 61, in <module>
+    assert len(citations)>=17
+           ^^^^^^^^^^^^^^^^^^
+AssertionError

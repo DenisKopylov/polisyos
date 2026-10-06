@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-sibling-controls.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+  "source_tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3",
+  "utc": "2026-10-06T15:35:03.569720+00:00",
+  "elapsed_s": 11.757352934000664,
+  "exit_code": 0,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/tmp/e02-F-continuation-20261006/cau/frozen-import:/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stdout",
+    "bytes": 3125,
+    "sha256": "0bec70a68ac69975e2f0ee1f18e847c2918976cd378be0c333af2a41e18843c4"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

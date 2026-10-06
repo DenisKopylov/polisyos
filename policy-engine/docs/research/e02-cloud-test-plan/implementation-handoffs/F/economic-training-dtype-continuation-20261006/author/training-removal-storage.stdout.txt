@@ -1,0 +1,86 @@
+{"mode": "storage", "base_sha": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3", "restored_source": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py", "bytes": 9343, "sha256": "7c6dc4955a85f3fa5d11061590e983c7093fc99662f7fc58c2dc10b8ba99e146", "functions": ["MetricsBuffer.write_scalar_at", "MetricsBuffer.write_histogram_at"], "markers": "Canonical class, function names, state fields, RNG law and storage keys remain; only forward encoding/carry mechanism removed."}
+F.F.F.F.                                                                 [100%]
+=================================== FAILURES ===================================
+_ test_metric_scalar_storage_explicitly_encodes_destination_dtype[eager-float32] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:119: in test_metric_scalar_storage_explicitly_encodes_destination_dtype
+    updated = write(buffer)
+              ^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_training_dtype.py:114: in <lambda>
+    write = lambda current: current.write_scalar_at("metric", value, jnp.asarray(1))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/metrics.py:69: in write_scalar_at
+    ???
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+_ test_metric_scalar_storage_explicitly_encodes_destination_dtype[jit-float32] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:119: in test_metric_scalar_storage_explicitly_encodes_destination_dtype
+    updated = write(buffer)
+              ^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_training_dtype.py:114: in <lambda>
+    write = lambda current: current.write_scalar_at("metric", value, jnp.asarray(1))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/metrics.py:69: in write_scalar_at
+    ???
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_metric_histogram_storage_encodes_fixed_dtype_after_finite_sample_equation[eager-float32] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:145: in test_metric_histogram_storage_encodes_fixed_dtype_after_finite_sample_equation
+    updated = write(buffer)
+              ^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_training_dtype.py:140: in <lambda>
+    write = lambda current: current.write_histogram_at("metric", values, bins, jnp.asarray(1))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/metrics.py:93: in write_histogram_at
+    ???
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+_ test_metric_histogram_storage_encodes_fixed_dtype_after_finite_sample_equation[jit-float32] _
+tests/unit/foundry/agent_sim/test_training_dtype.py:145: in test_metric_histogram_storage_encodes_fixed_dtype_after_finite_sample_equation
+    updated = write(buffer)
+              ^^^^^^^^^^^^^
+tests/unit/foundry/agent_sim/test_training_dtype.py:140: in <lambda>
+    write = lambda current: current.write_histogram_at("metric", values, bins, jnp.asarray(1))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3:policy-engine/src/polisyos/foundry/agent_sim/metrics.py:93: in write_histogram_at
+    ???
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_metric_scalar_storage_explicitly_encodes_destination_dtype[eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_metric_scalar_storage_explicitly_encodes_destination_dtype[jit-float32]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_metric_histogram_storage_encodes_fixed_dtype_after_finite_sample_equation[eager-float32]
+FAILED tests/unit/foundry/agent_sim/test_training_dtype.py::test_metric_histogram_storage_encodes_fixed_dtype_after_finite_sample_equation[jit-float32]

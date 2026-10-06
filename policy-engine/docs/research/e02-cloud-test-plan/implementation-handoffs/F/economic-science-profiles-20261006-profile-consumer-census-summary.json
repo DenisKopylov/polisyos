@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.static_consumer_census.v1",
+  "source_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+  "tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+  "scope": "Every tracked file with declared code/config suffix, except research/plan evidence; docs prose and binary data are not executable configurations. Working source bytes are read; all frozen source hashes are separately bound at implementation freeze.",
+  "denominator_command": [
+    "git",
+    "ls-tree",
+    "-r",
+    "--name-only",
+    "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+  ],
+  "denominator_suffixes": [
+    ".cfg",
+    ".conf",
+    ".ini",
+    ".js",
+    ".json",
+    ".jsonl",
+    ".jsx",
+    ".py",
+    ".sh",
+    ".toml",
+    ".ts",
+    ".tsx",
+    ".yaml",
+    ".yml"
+  ],
+  "excluded_prefixes": [
+    "policy-engine/docs/research/",
+    "policy-engine/docs/plans/"
+  ],
+  "tracked_file_count": 13702,
+  "eligible_file_count": 10967,
+  "eligible_path_list_sha256": "97cc300febf291b783f5d9b5eb19ebbc3fe0ac6fbc9b7de5ec9f33427f48ecba",
+  "unreadable": [],
+  "pattern": "\\b(?:IncomeTax|TaxSubsidy|LaborMarketMechanism|IncomeTaxMechanismMethod|TaxSubsidyMechanismMethod|LaborMarketMechanismMethod|TaxationMechanism|TransferMechanism|income_tax|tax_subsidy|labor_market|normalized_income_budget_loss|policy_loss_fn|compute_gini_hard|compute_gini|_gini_from_values|GiniObjective|_compute_distribution_state)\\b",
+  "runtime_paths": {
+    "exact_gini": [
+      "agent_sim.distributions.compute_gini -> compute_gini_hard",
+      "agent_sim.distributions.compute_all_distributions -> compute_gini",
+      "plugins.economics.state.EconomicState._compute_distributions -> compute_gini_hard -> registered GiniObjective",
+      "agent_sim.wiring.executors._compute_distribution_state -> compute_gini_hard -> native household distribution state",
+      "agent_sim.state.compute_aggregates -> _gini_from_values -> compute_gini_hard -> PureExecutor.run aggregation; training/population/graph executor consumers also use compute_aggregates"
+    ],
+    "historical_loss": [
+      "plugins.economics.baselines.normalized_income_budget_loss",
+      "methods._internal.loss.policy_loss_fn identity alias",
+      "methods.loss compatibility facade",
+      "tests/unit/foundry/analysis/test_loss_numeric.py",
+      "tests/unit/remediation/test_eco_01.py"
+    ],
+    "profiles": [
+      "_registry.create_mechanism_from_spec -> execute.mechanisms fiscal/labor owners -> typed PatchMap -> execute.executor.apply_patch_map -> Contracts GlobalState",
+      "methods.catalog.mechanism.runtime runtime_mechanism_class_path -> same execution owner; pure_step diagnostic JSON inspected separately, JSON-to-native-patch bridge not established",
+      "EconomicsPlugin.getMechanisms -> progressive TaxationMechanism, TransferMechanism, transition LaborMarketMechanism -> EconomicState; outputs/profile semantics kept separate"
+    ]
+  },
+  "limits": [
+    "A static full tracked code/config text census cannot resolve external plugins, serialized configurations outside Git, reflection, dependency injection or production optimizer dispatch.",
+    "No real production optimizer invocation of the historical loss is established by the tracked literal callers; aliases must not be retired on this basis.",
+    "Native DGP/fixture consumers establish numeric contracts, not admitted real-data economic claims."
+  ],
+  "literal_match_count": 852,
+  "production_or_configuration_match_count": 538,
+  "full_matches": "Recompute against pinned Git SHA with committed replay --profile-pattern into local scratch; no static-dynamic equivalence claim."
+}

@@ -1,0 +1,168 @@
+{
+  "kind": "independent_read_only_review",
+  "reviewer": "F/causal_api",
+  "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+  "target_tree": "16927b18be300fc6c1723c2af4bb8a421ccac357",
+  "slice_base": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+  "verdict": "GO",
+  "scope": "Declared state/metric numerical encoding and actual abstract PPO loss carry on finite synthetic CPU profiles only",
+  "changed_source": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-economic-training-state-dtype.toml",
+      "bytes": 1559,
+      "sha256": "c6ac5d383f523d7b000020e74d9464bf535336bf50765d4d2a714929f142952a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "bytes": 21803,
+      "sha256": "c892a8aead3b0e6666734794544ebf43916e4a2a929ff999f855cf66dc5dff7f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "bytes": 9411,
+      "sha256": "199a51c29ed308f6a95eacc921c2ad0041c413d538e54c06b41ba492732caed0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+      "bytes": 3825,
+      "sha256": "d95192dfca2183a8f82d69c38797e17c81b4f883e79df581fd7923cf8858d0bc"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py",
+      "bytes": 4760,
+      "sha256": "2744fc2f2430252b5fb7142dcce6ef3f794ccc67ca2bdf6e04682e1232349313"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_training_dtype.py",
+      "bytes": 7172,
+      "sha256": "d59e87686c7ce6729bce9f8bab7044b1019b8432b9c3959bcde1ba62123ba83f"
+    }
+  ],
+  "checks": [
+    {
+      "check": "new-training-and-temporal-consumers",
+      "outcome": "PASS",
+      "passed": 32,
+      "skipped": 0,
+      "errors": 0,
+      "failed": 0,
+      "pytest_seconds": 53.44,
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-delta-native.json",
+          "bytes": 1337,
+          "sha256": "dcd2b84978326bc45de3eccc0ad105e4634c99a1002af61e9f812732a11d706c"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-delta-native.stdout",
+          "bytes": 1031,
+          "sha256": "cfdd749354f3d83c402168f9c7140fce199cf23e1945a3b18a111b16b8d07bb0"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-delta-native.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "check": "existing-real-trainer-and-ES-consumers",
+      "outcome": "PASS",
+      "passed": 5,
+      "skipped": 0,
+      "errors": 0,
+      "failed": 0,
+      "pytest_seconds": 11.47,
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-existing-native.json",
+          "bytes": 1478,
+          "sha256": "4d08f61ef08eb703cb8add4e201b6a233da1a1550a260079c9c37843c2708ab7"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-existing-native.stdout",
+          "bytes": 1022,
+          "sha256": "ffdc59cf7849bef9e53bce5fd8fe51d2f9cf069cd18c075afc5bdbafd295f078"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-existing-native.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "source_review": [
+    "eval_shape observes the actual rollout/PPO result shape/dtype without executing or consuming RNG draws; loss equations and PPO parameter updates are unchanged.",
+    "TemporalConsumption explicitly encodes three result fields using each incoming state dtype; actual eager/JIT equations and PureExecutor scan/gradient are covered.",
+    "MetricsBuffer scalar/histogram writes explicitly encode destination dtype; float32 rounding remains declared storage behavior, float64 destinations preserve precision.",
+    "New tests include float32/default, float64 and mixed participating neural/state profiles, both trainer factories, actual parameter updates and FutureWarning-as-error."
+  ],
+  "author_negative_controls_inspected": {
+    "scope": "Author output/source inspection only; independent positive37 is separate",
+    "replayer": {
+      "path": "/tmp/e02-F-continuation-20261006/economics/replay_training_dtype.py",
+      "bytes": 1999,
+      "sha256": "172b97782c981369b1f566f634147ce4a9665b4daed56ad72c0bb21e66dca753"
+    },
+    "exact_base": "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3",
+    "controls": [
+      {
+        "mode": "temporal",
+        "expected_failures": 5,
+        "scope": "Restores exact original Git function bodies while canonical names/fields remain",
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261006/economics/training-removal-temporal.stdout.txt",
+          "bytes": 5807,
+          "sha256": "ff522c3efc30c2d8101b4708834f16a9174874899b9e2f2115348ff91e0712c5"
+        },
+        "xml": {
+          "path": "/tmp/e02-F-continuation-20261006/economics/training-removal-temporal.xml",
+          "bytes": 7241,
+          "sha256": "3477a87fd86c76e893437e4ceb0118bff72d71a44a22c81a2f1b04afae9d08ec"
+        }
+      },
+      {
+        "mode": "carry",
+        "expected_failures": 12,
+        "scope": "Restores exact original Git function bodies while canonical names/fields remain",
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261006/economics/training-removal-carry.stdout.txt",
+          "bytes": 25743,
+          "sha256": "5c260d89f3209ff76f1d3f818c58d6df63d5fc0d3be3a51d6f435e3060fd96a5"
+        },
+        "xml": {
+          "path": "/tmp/e02-F-continuation-20261006/economics/training-removal-carry.xml",
+          "bytes": 28981,
+          "sha256": "00b4384ab18963380edbbb89dd0ee5026e1116e8fa0ec6b7b6bf845aa876a5ab"
+        }
+      },
+      {
+        "mode": "storage",
+        "expected_failures": 4,
+        "scope": "Restores exact original Git function bodies while canonical names/fields remain",
+        "stdout": {
+          "path": "/tmp/e02-F-continuation-20261006/economics/training-removal-storage.stdout.txt",
+          "bytes": 7807,
+          "sha256": "2951df5bbef2f4e991f810b02e8668a1ca1f17e19cf5472310788be1aa631f9b"
+        },
+        "xml": {
+          "path": "/tmp/e02-F-continuation-20261006/economics/training-removal-storage.xml",
+          "bytes": 8668,
+          "sha256": "abfaaae29e1a7a43f3bde02bcbf93fe4d61c472e7fe3aff835dc1cc0127f35de"
+        }
+      }
+    ]
+  },
+  "limitations": [
+    "Original LA004 fiscal-adapter non-equivalence criterion is distinct from Gini/trainer dtype; this review does not close LA004 or LA035.",
+    "No production data, calibration, normative welfare authority, optimizer scientific superiority or full economics/architecture/CI verdict.",
+    "Unrelated fiscal decimal-rate precision is unchanged; no inherited-baseline/P41 attribution is asserted."
+  ],
+  "source_untouched": true,
+  "shared_runner": {
+    "path": "/tmp/e02-F-continuation-20261006/api/run_check.py",
+    "bytes": 1697,
+    "sha256": "4ce67fea4d76423165ba42c13cbaf9dfec58486a0bf3878a4f4c0425bc8cc363"
+  }
+}

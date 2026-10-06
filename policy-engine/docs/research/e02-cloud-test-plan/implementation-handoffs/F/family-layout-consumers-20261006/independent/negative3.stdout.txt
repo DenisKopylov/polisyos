@@ -1,0 +1,223 @@
+{"canonical_function": "polisyos.ir.kernel.slots.build_slot_layout", "function_identity_retained": true, "original_code_sha256": "4a648aae60f4f038ef097fc0978ee73be6339ae06632a71f788e6930706688e8", "provider": "policy-engine/src/polisyos/ir/kernel/slots.py", "provider_sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81", "removed_code_sha256": "d9645e442a76b4fd643db1c7f7f2409d1bad1471dd86f239f80abff829ea3532", "removed_property": "government.balance current layout resolves tax_rate instead of government_balance", "source_files_written": false, "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771", "types_slot_ids_and_registry_preserved": true}
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_native_registered_income_tax_patches_consume_layout_and_fresh_state[polisyos.ir.kernel.slots] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/fit-fry-review/negative3-tmp/test_native_registered_income_0')
+address = 'polisyos.ir.kernel.slots'
+
+    @pytest.mark.parametrize(
+        "address",
+        [
+            "polisyos.ir.kernel.slots",
+            "polisyos.foundry.methods.layout",
+            "polisyos.foundry.methods.compiler.layout",
+        ],
+    )
+    def test_native_registered_income_tax_patches_consume_layout_and_fresh_state(tmp_path, address):
+        """Existing supported runtime methods use real slots; no family mapping is invented."""
+        module = importlib.import_module(address)
+        layout = module.build_slot_layout(DEFAULT_SLOT_REGISTRY)
+        manifest = module.build_slot_family_manifest(DEFAULT_SLOT_REGISTRY)
+        assert layout.layout["agents.income"] == "agents.income"
+        assert "agents.income" in manifest.families["agents"].slots
+        registry = MethodRegistry.get_instance()
+        ensure_mechanism_methods_registered(registry)
+        descriptor = get_mechanism_descriptor("income_tax")
+        method = registry.get(descriptor.method_fqn)
+        state = GlobalState.empty(n_agents=4, n_firms=0)
+        state = state.replace(
+            agents=state.agents.replace(
+                active=jnp.array([True, False, True, True]),
+                income=jnp.array([10.0, 20.0, 30.0, 40.0]),
+                reported_income=jnp.array([10.0, 20.0, 30.0, 40.0]),
+            )
+        )
+        result = MethodDispatcher.get_instance().dispatch(
+            method_class=method,
+            signature=method.signature,
+            state=state,
+            params={"rate": 0.2},
+            seed=7,
+        )
+        patches = result.slot_outputs["result"]["patches"]
+        assert set(patches) == {"agents.income", "government.balance"}
+        store = FileSystemCAS(tmp_path / "cas")
+        ops = [
+            PatchOp(slot_id=slot_id, op="add", value_ref=put_tensor(store, jnp.asarray(patch["delta"])))
+            for slot_id, entries in patches.items()
+            for patch in entries
+        ]
+        changed = apply_ops_to_state(
+            store,
+            base_state=state,
+            ops=ops,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        )
+        snapshot_ref = put_state_snapshot(store, state=changed)
+        fresh = load_state_snapshot(FileSystemCAS(tmp_path / "cas"), snapshot_ref=snapshot_ref)
+        np.testing.assert_allclose(
+            get_state_path(fresh, layout.layout["agents.income"]), [8.0, 20.0, 24.0, 32.0]
+        )
+>       assert float(get_state_path(fresh, layout.layout["government.balance"])) == pytest.approx(16.0)
+E       assert 0.0 == 16.0 ± 1.6e-05
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 16.0 ± 1.6e-05
+
+tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py:274: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 15:50:48 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 15:50:48 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-06 15:50:48 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 15:50:48 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-06 15:50:48 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+2026-10-06 15:50:49 [debug    ] method_dispatch_start          backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:50:49 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=211.64 fqn=mechanism.runtime.income_tax@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_native_registered_income_tax_patches_consume_layout_and_fresh_state[polisyos.foundry.methods.layout] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/fit-fry-review/negative3-tmp/test_native_registered_income_1')
+address = 'polisyos.foundry.methods.layout'
+
+    @pytest.mark.parametrize(
+        "address",
+        [
+            "polisyos.ir.kernel.slots",
+            "polisyos.foundry.methods.layout",
+            "polisyos.foundry.methods.compiler.layout",
+        ],
+    )
+    def test_native_registered_income_tax_patches_consume_layout_and_fresh_state(tmp_path, address):
+        """Existing supported runtime methods use real slots; no family mapping is invented."""
+        module = importlib.import_module(address)
+        layout = module.build_slot_layout(DEFAULT_SLOT_REGISTRY)
+        manifest = module.build_slot_family_manifest(DEFAULT_SLOT_REGISTRY)
+        assert layout.layout["agents.income"] == "agents.income"
+        assert "agents.income" in manifest.families["agents"].slots
+        registry = MethodRegistry.get_instance()
+        ensure_mechanism_methods_registered(registry)
+        descriptor = get_mechanism_descriptor("income_tax")
+        method = registry.get(descriptor.method_fqn)
+        state = GlobalState.empty(n_agents=4, n_firms=0)
+        state = state.replace(
+            agents=state.agents.replace(
+                active=jnp.array([True, False, True, True]),
+                income=jnp.array([10.0, 20.0, 30.0, 40.0]),
+                reported_income=jnp.array([10.0, 20.0, 30.0, 40.0]),
+            )
+        )
+        result = MethodDispatcher.get_instance().dispatch(
+            method_class=method,
+            signature=method.signature,
+            state=state,
+            params={"rate": 0.2},
+            seed=7,
+        )
+        patches = result.slot_outputs["result"]["patches"]
+        assert set(patches) == {"agents.income", "government.balance"}
+        store = FileSystemCAS(tmp_path / "cas")
+        ops = [
+            PatchOp(slot_id=slot_id, op="add", value_ref=put_tensor(store, jnp.asarray(patch["delta"])))
+            for slot_id, entries in patches.items()
+            for patch in entries
+        ]
+        changed = apply_ops_to_state(
+            store,
+            base_state=state,
+            ops=ops,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        )
+        snapshot_ref = put_state_snapshot(store, state=changed)
+        fresh = load_state_snapshot(FileSystemCAS(tmp_path / "cas"), snapshot_ref=snapshot_ref)
+        np.testing.assert_allclose(
+            get_state_path(fresh, layout.layout["agents.income"]), [8.0, 20.0, 24.0, 32.0]
+        )
+>       assert float(get_state_path(fresh, layout.layout["government.balance"])) == pytest.approx(16.0)
+E       assert 0.0 == 16.0 ± 1.6e-05
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 16.0 ± 1.6e-05
+
+tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py:274: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 15:50:49 [debug    ] method_dispatch_start          backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:50:49 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=71.73 fqn=mechanism.runtime.income_tax@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_native_registered_income_tax_patches_consume_layout_and_fresh_state[polisyos.foundry.methods.compiler.layout] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/fit-fry-review/negative3-tmp/test_native_registered_income_2')
+address = 'polisyos.foundry.methods.compiler.layout'
+
+    @pytest.mark.parametrize(
+        "address",
+        [
+            "polisyos.ir.kernel.slots",
+            "polisyos.foundry.methods.layout",
+            "polisyos.foundry.methods.compiler.layout",
+        ],
+    )
+    def test_native_registered_income_tax_patches_consume_layout_and_fresh_state(tmp_path, address):
+        """Existing supported runtime methods use real slots; no family mapping is invented."""
+        module = importlib.import_module(address)
+        layout = module.build_slot_layout(DEFAULT_SLOT_REGISTRY)
+        manifest = module.build_slot_family_manifest(DEFAULT_SLOT_REGISTRY)
+        assert layout.layout["agents.income"] == "agents.income"
+        assert "agents.income" in manifest.families["agents"].slots
+        registry = MethodRegistry.get_instance()
+        ensure_mechanism_methods_registered(registry)
+        descriptor = get_mechanism_descriptor("income_tax")
+        method = registry.get(descriptor.method_fqn)
+        state = GlobalState.empty(n_agents=4, n_firms=0)
+        state = state.replace(
+            agents=state.agents.replace(
+                active=jnp.array([True, False, True, True]),
+                income=jnp.array([10.0, 20.0, 30.0, 40.0]),
+                reported_income=jnp.array([10.0, 20.0, 30.0, 40.0]),
+            )
+        )
+        result = MethodDispatcher.get_instance().dispatch(
+            method_class=method,
+            signature=method.signature,
+            state=state,
+            params={"rate": 0.2},
+            seed=7,
+        )
+        patches = result.slot_outputs["result"]["patches"]
+        assert set(patches) == {"agents.income", "government.balance"}
+        store = FileSystemCAS(tmp_path / "cas")
+        ops = [
+            PatchOp(slot_id=slot_id, op="add", value_ref=put_tensor(store, jnp.asarray(patch["delta"])))
+            for slot_id, entries in patches.items()
+            for patch in entries
+        ]
+        changed = apply_ops_to_state(
+            store,
+            base_state=state,
+            ops=ops,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        )
+        snapshot_ref = put_state_snapshot(store, state=changed)
+        fresh = load_state_snapshot(FileSystemCAS(tmp_path / "cas"), snapshot_ref=snapshot_ref)
+        np.testing.assert_allclose(
+            get_state_path(fresh, layout.layout["agents.income"]), [8.0, 20.0, 24.0, 32.0]
+        )
+>       assert float(get_state_path(fresh, layout.layout["government.balance"])) == pytest.approx(16.0)
+E       assert 0.0 == 16.0 ± 1.6e-05
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 16.0 ± 1.6e-05
+
+tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py:274: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 15:50:49 [debug    ] method_dispatch_start          backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:50:49 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=89.06 fqn=mechanism.runtime.income_tax@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py::test_native_registered_income_tax_patches_consume_layout_and_fresh_state[polisyos.ir.kernel.slots]
+FAILED tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py::test_native_registered_income_tax_patches_consume_layout_and_fresh_state[polisyos.foundry.methods.layout]
+FAILED tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py::test_native_registered_income_tax_patches_consume_layout_and_fresh_state[polisyos.foundry.methods.compiler.layout]
+3 failed in 6.47s

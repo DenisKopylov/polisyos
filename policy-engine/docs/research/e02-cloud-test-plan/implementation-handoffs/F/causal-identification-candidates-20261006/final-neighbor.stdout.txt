@@ -1,0 +1,57 @@
+........................................................................ [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+tests/unit/foundry/methods/catalog/causal/test_rdd.py::test_rdd_known_jump
+tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py::test_structural_time_series_runs_without_effect
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+tests/unit/foundry/methods/catalog/causal/test_rdd.py::test_rdd_known_jump
+tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py::test_structural_time_series_runs_without_effect
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+tests/unit/foundry/methods/catalog/causal/test_rdd.py::test_rdd_known_jump
+tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py::test_structural_time_series_runs_without_effect
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_rdd.py::test_rdd_known_jump
+tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py::test_structural_time_series_runs_without_effect
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_rdd.py::test_rdd_known_jump
+tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py::test_structural_time_series_runs_without_effect
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [ERROR] causal_effect_report: missing_key — Declared output slot 'causal_effect_report' missing from result
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py::test_structural_time_series_runs_without_effect
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/statsmodels/tsa/statespace/structural.py:508: SpecificationWarning: Specified model does not contain a stochastic element; irregular component added.
+    warn("Specified model does not contain a stochastic element;"
+
+tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py::test_structural_time_series_runs_without_effect
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] model_diagnostics: unexpected_key — Key 'model_diagnostics' not declared in output slots
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py::test_structural_time_series_runs_without_effect
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] counterfactual: unexpected_key — Key 'counterfactual' not declared in output slots
+    result = testfunction(**testargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+72 passed, 23 warnings in 20.26s

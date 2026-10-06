@@ -1,0 +1,126 @@
+{
+  "schema": "policyos.e02.economic_training_dtype_census.v1",
+  "source_sha": "c003bd673fd672726db18773bf888357a468d901",
+  "source_tree": "16927b18be300fc6c1723c2af4bb8a421ccac357",
+  "denominator": {
+    "holder": "F/economics",
+    "scope": "All AST methods of canonical MetricsBuffer and all fields of both canonical JIT training carry classes; complete source file bodies read. This is not a repository-wide training or custom executor absence claim.",
+    "tracked_repository_files": 13761,
+    "tracked_python_files": 6450,
+    "tracked_source_python_files": 2698
+  },
+  "source_bindings": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-economic-training-state-dtype.toml",
+      "bytes": 1559,
+      "sha256": "c6ac5d383f523d7b000020e74d9464bf535336bf50765d4d2a714929f142952a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "bytes": 21803,
+      "sha256": "c892a8aead3b0e6666734794544ebf43916e4a2a929ff999f855cf66dc5dff7f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "bytes": 9411,
+      "sha256": "199a51c29ed308f6a95eacc921c2ad0041c413d538e54c06b41ba492732caed0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+      "bytes": 3825,
+      "sha256": "d95192dfca2183a8f82d69c38797e17c81b4f883e79df581fd7923cf8858d0bc"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py",
+      "bytes": 4760,
+      "sha256": "2744fc2f2430252b5fb7142dcce6ef3f794ccc67ca2bdf6e04682e1232349313"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_training_dtype.py",
+      "bytes": 7172,
+      "sha256": "d59e87686c7ce6729bce9f8bab7044b1019b8432b9c3959bcde1ba62123ba83f"
+    }
+  ],
+  "metrics_buffer_methods": [
+    {
+      "name": "create",
+      "line": 46,
+      "end_line": 63,
+      "scatter_set_count": 0
+    },
+    {
+      "name": "write_scalar_at",
+      "line": 65,
+      "end_line": 72,
+      "scatter_set_count": 1
+    },
+    {
+      "name": "write_scalar",
+      "line": 74,
+      "end_line": 76,
+      "scatter_set_count": 0
+    },
+    {
+      "name": "write_histogram_at",
+      "line": 78,
+      "end_line": 97,
+      "scatter_set_count": 1
+    },
+    {
+      "name": "write_histogram",
+      "line": 99,
+      "end_line": 101,
+      "scatter_set_count": 0
+    },
+    {
+      "name": "advance",
+      "line": 103,
+      "end_line": 104,
+      "scatter_set_count": 0
+    }
+  ],
+  "carry_classes": [
+    {
+      "class": "TrainingCarry",
+      "fields": [
+        "params",
+        "opt_state",
+        "rng_key",
+        "best_loss",
+        "episode_losses",
+        "metrics_collector"
+      ]
+    },
+    {
+      "class": "TrainingMetricsCarry",
+      "fields": [
+        "params",
+        "opt_state",
+        "rng_key",
+        "best_loss",
+        "episode_losses",
+        "metrics_buffer",
+        "metrics_step_counter"
+      ]
+    }
+  ],
+  "classification": {
+    "params": "Existing eqx partition; gradient and optax preserve each participating parameter dtype; native tests assert all leaf dtypes and actual updates.",
+    "opt_state": "Existing optax initializer depends on params, no numeric storage guessed separately; both native mixed model trainers exercised.",
+    "rng_key": "Existing uint32 key splits/draw ordering unchanged.",
+    "best_loss_and_episode_losses": "Both initializers derive actual abstract rollout→PPO scalar dtype with jax.eval_shape. Abstract trace does not execute random draws or advance state.",
+    "metrics_collector": "Plain trainer empty dummy collector unchanged.",
+    "metrics_buffer": "Existing scalar/histogram arrays default explicitly float32; write_scalar_at/write_histogram_at encode only destination.dtype, wrappers delegate. Custom float64 destination retained. Both actual training and direct eager/JIT storage controls exercised.",
+    "metrics_step_counter": "Existing int32 unchanged.",
+    "TemporalConsumption": "Exactly consumption/wealth/expected_lifetime_utility outputs cast to corresponding incoming field.dtype; actual equations/RNG/gradient replay tested."
+  },
+  "proxy_divergence": "Model/state32 does NOT imply loss32 under x64: existing sample_actions random.normal defaults float64, producing PPO loss64. Deriving actual result dtype fixes the carry without changing this sampling law. A declared metric storage32 is NOT a promise that its computation is32.",
+  "bounded_residuals": [
+    "Finite native CPU profiles, not admitted real data or calibration.",
+    "Stored metric precision/range remains destination dtype; no float64 metric storage promotion, no claim lossless numerical representation for values outside float32 range.",
+    "Custom unknown metric names retain the existing no-op behavior.",
+    "Histogram filters nonfinite samples with existing zero weights; finite stored profiles tested, not a new numeric authority gate.",
+    "Unrelated fiscal decimal-rate precision unchanged; broader97 P41 label not established.",
+    "No equations, policy weights, RNG draw law, model IDs or fingerprints changed."
+  ]
+}

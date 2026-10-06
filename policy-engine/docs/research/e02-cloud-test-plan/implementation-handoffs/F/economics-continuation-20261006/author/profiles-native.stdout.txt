@@ -1,0 +1,109 @@
+.FFF....................................................                 [100%]
+=================================== FAILURES ===================================
+_ test_registered_progressive_tax_complete_state_budget_and_step_profile[0.25] _
+
+policy_rate = 0.25
+
+    @pytest.mark.parametrize("policy_rate", [0.0, 0.25, 0.5])
+    def test_registered_progressive_tax_complete_state_budget_and_step_profile(policy_rate) -> None:
+        plugin = EconomicsPlugin()
+        taxation = next(m for m in plugin.get_mechanisms() if m.name == "taxation")
+        income = np.asarray([5000.0, 20000.0, 60000.0] * 4, dtype=np.float32)
+        active = np.asarray([True, False, True] * 4)
+        before = EconomicState.empty(n_agents=12, seed=41)
+        before = before.replace(agents=before.agents.replace(income=jnp.asarray(income),
+                                wealth=jnp.full(12, 200000.0), active=jnp.asarray(active)),
+                                policy=before.policy.replace(tax_rate=jnp.asarray(policy_rate)))
+        # Integrate the three applicable marginal brackets in supplied per-step units.
+        tax = np.asarray([0.10 * min(x, 10000) + 0.15 * max(min(x - 10000, 30000), 0)
+                          + 0.22 * max(x - 40000, 0) for x in income], dtype=np.float32)
+        tax *= (1 + policy_rate - 0.25) * active
+        expected = before.replace(agents=before.agents.replace(wealth=before.agents.wealth - tax))
+        _assert_full_state(taxation.apply(before), expected)
+>       executor, composite = _plugin_consumer("taxation", before)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/plugins/test_economic_profile_consumers.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/plugins/test_economic_profile_consumers.py:30: in _plugin_consumer
+    registry.register(EconomicsPlugin())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.foundry.plugins.core.PluginRegistry object at 0x7f447010c440>
+plugin = <polisyos.foundry.plugins.economics.plugin.EconomicsPlugin object at 0x7f44d3b6da70>
+
+    def register(self, plugin: DomainPlugin) -> None:
+        meta = plugin.metadata
+        if meta.name in self._plugins:
+>           raise ValueError(f"Plugin '{meta.name}' already registered")
+E           ValueError: Plugin 'economics' already registered
+
+src/polisyos/foundry/plugins/core.py:199: ValueError
+_ test_registered_progressive_tax_complete_state_budget_and_step_profile[0.5] __
+
+policy_rate = 0.5
+
+    @pytest.mark.parametrize("policy_rate", [0.0, 0.25, 0.5])
+    def test_registered_progressive_tax_complete_state_budget_and_step_profile(policy_rate) -> None:
+        plugin = EconomicsPlugin()
+        taxation = next(m for m in plugin.get_mechanisms() if m.name == "taxation")
+        income = np.asarray([5000.0, 20000.0, 60000.0] * 4, dtype=np.float32)
+        active = np.asarray([True, False, True] * 4)
+        before = EconomicState.empty(n_agents=12, seed=41)
+        before = before.replace(agents=before.agents.replace(income=jnp.asarray(income),
+                                wealth=jnp.full(12, 200000.0), active=jnp.asarray(active)),
+                                policy=before.policy.replace(tax_rate=jnp.asarray(policy_rate)))
+        # Integrate the three applicable marginal brackets in supplied per-step units.
+        tax = np.asarray([0.10 * min(x, 10000) + 0.15 * max(min(x - 10000, 30000), 0)
+                          + 0.22 * max(x - 40000, 0) for x in income], dtype=np.float32)
+        tax *= (1 + policy_rate - 0.25) * active
+        expected = before.replace(agents=before.agents.replace(wealth=before.agents.wealth - tax))
+        _assert_full_state(taxation.apply(before), expected)
+>       executor, composite = _plugin_consumer("taxation", before)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/plugins/test_economic_profile_consumers.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/plugins/test_economic_profile_consumers.py:30: in _plugin_consumer
+    registry.register(EconomicsPlugin())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.foundry.plugins.core.PluginRegistry object at 0x7f447010c440>
+plugin = <polisyos.foundry.plugins.economics.plugin.EconomicsPlugin object at 0x7f4444284b90>
+
+    def register(self, plugin: DomainPlugin) -> None:
+        meta = plugin.metadata
+        if meta.name in self._plugins:
+>           raise ValueError(f"Plugin '{meta.name}' already registered")
+E           ValueError: Plugin 'economics' already registered
+
+src/polisyos/foundry/plugins/core.py:199: ValueError
+_ test_registered_transition_labor_composite_uses_supplied_seed_and_retains_distinct_clock _
+
+    def test_registered_transition_labor_composite_uses_supplied_seed_and_retains_distinct_clock() -> None:
+        state = EconomicState.empty(n_agents=12, seed=7)
+        state = state.replace(agents=state.agents.replace(employed=jnp.zeros(12, dtype=bool),
+                              wage=jnp.full(12, 40000.0), skill_level=jnp.ones(12)))
+>       executor, composite = _plugin_consumer("labor_market", state)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/plugins/test_economic_profile_consumers.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/foundry/plugins/test_economic_profile_consumers.py:30: in _plugin_consumer
+    registry.register(EconomicsPlugin())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.foundry.plugins.core.PluginRegistry object at 0x7f447010c440>
+plugin = <polisyos.foundry.plugins.economics.plugin.EconomicsPlugin object at 0x7f44442aef10>
+
+    def register(self, plugin: DomainPlugin) -> None:
+        meta = plugin.metadata
+        if meta.name in self._plugins:
+>           raise ValueError(f"Plugin '{meta.name}' already registered")
+E           ValueError: Plugin 'economics' already registered
+
+src/polisyos/foundry/plugins/core.py:199: ValueError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_progressive_tax_complete_state_budget_and_step_profile[0.25]
+FAILED tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_progressive_tax_complete_state_budget_and_step_profile[0.5]
+FAILED tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_transition_labor_composite_uses_supplied_seed_and_retains_distinct_clock

@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "decoded_bytes": 561,
+  "decoded_sha256": "a82f5441bc4cfb1aec7e8b3d24e62342bf7a4c9a764002f90c4d83009aef0719",
+  "text": "{\"outcome\": \"PASS\", \"cells\": [{\"cohort\": 2, \"period\": 2, \"actual\": 1.0, \"hand_oracle\": 1.0}, {\"cohort\": 2, \"period\": 3, \"actual\": 2.0, \"hand_oracle\": 2.0}, {\"cohort\": 2, \"period\": 4, \"actual\": 3.0, \"hand_oracle\": 3.0}, {\"cohort\": 2, \"period\": 5, \"actual\": 4.0, \"hand_oracle\": 4.0}, {\"cohort\": 4, \"period\": 4, \"actual\": 8.0, \"hand_oracle\": 8.0}, {\"cohort\": 4, \"period\": 5, \"actual\": 10.0, \"hand_oracle\": 10.0}], \"theta_sel\": 6.833333333333333, \"standard_error\": 1.3271848978519984, \"scope\": \"known admitted synthetic fixture, no empirical identification claim\"}\n"
+}

@@ -1,0 +1,11 @@
+{
+  "merge_parent_F": "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+  "merge_parent_CAU": "0b522ed173730b4ec744253bb75b6ee260bfcebb",
+  "resolution": {
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py": "exact reviewed canonical CAU source; root did provider was unchanged16b7964d5 before delta",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py": "exact reviewed canonical CAU source; root did provider was unchanged16b7964d5 before delta",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py": "exact reviewed canonical CAU source; root did provider was unchanged16b7964d5 before delta"
+  },
+  "documentation": "retain both selected numerical profile and new diagnostic provenance; no history rewrite",
+  "unchanged_expensive_wave": "not rerun160-panels; inherited immutable scientific proof retained, changed diagnostic producer replay only"
+}

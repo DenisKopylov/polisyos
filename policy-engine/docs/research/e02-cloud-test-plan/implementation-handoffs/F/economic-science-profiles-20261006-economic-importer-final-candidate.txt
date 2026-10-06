@@ -1,0 +1,97 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economics-20261006/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economics-20261006/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 70 items
+
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_default_values PASSED [  1%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_custom_values PASSED [  2%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_hard_quantiles_do_not_use_approximate_sampling PASSED [  4%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_soft_quantiles_ignore_inactive_extreme_values PASSED [  5%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_soft_quantiles_are_jittable PASSED [  7%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionState::test_empty_creation PASSED [  8%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionState::test_empty_gini_zero PASSED [ 10%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step3.py::test_gini_known_distributions PASSED [ 11%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step3.py::test_quantiles_sorted PASSED [ 12%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step3.py::test_soft_hard_consistency PASSED [ 14%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step3.py::test_active_mask_respected PASSED [ 15%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step3.py::test_ranks_unique PASSED [ 17%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step3.py::test_distribution_update_frequency PASSED [ 18%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step3.py::test_distribution_aware_tax_uses_ranks PASSED [ 20%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step3.py::test_targeted_transfers_apply_to_bottom PASSED [ 21%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step3.py::test_relative_consumption_sets_adjustment PASSED [ 22%]
+tests/unit/foundry/agent_sim/test_executor.py::TestMechanismOrder::test_single_mechanism PASSED [ 24%]
+tests/unit/foundry/agent_sim/test_executor.py::TestMechanismOrder::test_dependency_ordering PASSED [ 25%]
+tests/unit/foundry/agent_sim/test_executor.py::TestMechanismOrder::test_circular_dependency_raises PASSED [ 27%]
+tests/unit/foundry/agent_sim/test_executor.py::TestPureExecutor::test_step_returns_metrics PASSED [ 28%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_temporal_observations_shape PASSED [ 30%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_actor_critic_shapes PASSED [ 31%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_gae_respects_active_mask PASSED [ 32%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_temporal_consumption_updates_value PASSED [ 34%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_train_actor_critic_runs PASSED [ 35%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step4.py::test_message_passing_sum PASSED [ 37%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step4.py::test_message_passing_mean PASSED [ 38%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step4.py::test_edge_list_memory PASSED [ 40%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step4.py::test_pagerank_convergence PASSED [ 41%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step4.py::test_graph_message_helpers_are_jittable PASSED [ 42%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step4.py::test_pagerank_is_jittable PASSED [ 44%]
+tests/unit/foundry/agent_sim/test_agent_simulation_step4.py::test_social_influence_target PASSED [ 45%]
+tests/unit/foundry/agent_sim/test_wiring.py::test_population_executor_updates_cell_firm_count_from_firm_events PASSED [ 47%]
+tests/unit/foundry/agent_sim/test_wiring.py::test_population_executor_updates_household_counts_for_births_and_migration PASSED [ 48%]
+tests/unit/foundry/agent_sim/test_wiring.py::test_graph_executor_propagates_procurement_shock_only_through_procurement_layer PASSED [ 50%]
+tests/unit/foundry/agent_sim/test_wiring.py::test_distribution_executor_updates_gini_and_palma_after_transfer PASSED [ 51%]
+tests/unit/foundry/agent_sim/test_wiring.py::test_intervention_config_from_compiled_tax_intervention_drives_expected_tax_amounts PASSED [ 52%]
+tests/unit/foundry/agent_sim/test_wiring.py::test_c6b_wiring_runs_full_synthetic_step PASSED [ 54%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_register_plugin PASSED [ 55%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_get_plugin PASSED [ 57%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_duplicate_registration_fails PASSED [ 58%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_with_capability PASSED [ 60%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestEconomicsPlugin::test_create_state PASSED [ 61%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestEconomicsPlugin::test_get_mechanisms PASSED [ 62%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestEconomicsPlugin::test_get_objectives PASSED [ 64%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeState::test_create_composite PASSED [ 65%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeState::test_update_domain PASSED [ 67%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeExecutor::test_step PASSED [ 68%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeExecutor::test_run PASSED [ 70%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPolisySimulator::test_simple_simulation PASSED [ 71%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPolisySimulator::test_with_objective PASSED [ 72%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPolisySimulator::test_set_policy PASSED [ 74%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginDiscovery::test_auto_register PASSED [ 75%]
+tests/unit/foundry/plugins/test_economics_social_weights.py::test_social_welfare_objective_applies_registered_social_weight_ref PASSED [ 77%]
+tests/unit/foundry/analysis/test_loss_numeric.py::test_policy_loss_fn_normalizes_scale_and_remains_finite PASSED [ 78%]
+tests/unit/foundry/analysis/test_loss_numeric.py::test_policy_loss_fn_fails_closed_on_non_finite_inputs PASSED [ 80%]
+tests/unit/foundry/compile/test_randomization.py::test_randomization_owner_preserves_treasury_plan_bytes_and_seed_laws PASSED [ 81%]
+tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[0] PASSED [ 82%]
+tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[17] PASSED [ 84%]
+tests/unit/foundry/compile/test_randomization.py::test_randomization_salts_match_historical_hash_oracle_and_round_trip[-3] PASSED [ 85%]
+tests/unit/foundry/compile/test_randomization.py::test_v1_plan_bytes_remain_readable PASSED [ 87%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestTaxSubsidyRuntime::test_basic PASSED [ 88%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestTaxSubsidyRuntime::test_output_has_result_key PASSED [ 90%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestTaxSubsidyRuntime::test_result_contains_mechanism_type PASSED [ 91%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.tax_subsidy@1.0.0] PASSED [ 92%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.income_tax@1.0.0] PASSED [ 94%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.labor_market@1.0.0] PASSED [ 95%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.queue@1.0.0] PASSED [ 97%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.adaptive_agent@1.0.0] PASSED [ 98%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_tax_subsidy_has_signature PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_actor_critic_shapes
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_actor_critic_shapes
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_actor_critic_shapes
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_temporal_consumption_updates_value
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_temporal_consumption_updates_value
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_train_actor_critic_runs
+tests/unit/foundry/agent_sim/test_agent_simulation_step2.py::test_train_actor_critic_runs
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/equinox/nn/_normalisation.py:92: UserWarning: LayerNorm(elementwise_affine=...) is deprecated in favour of LayerNorm(use_weight=...) and LayerNorm(use_bias=...)
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /workspace/e02-F-20261006-receipts/economics/economic-importer-final-candidate.xml -
+================== 70 passed, 7 warnings in 128.20s (0:02:08) ==================

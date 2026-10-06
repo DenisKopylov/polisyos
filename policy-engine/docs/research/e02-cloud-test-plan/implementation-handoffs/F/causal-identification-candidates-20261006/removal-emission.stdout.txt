@@ -1,0 +1,833 @@
+{"base_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76", "candidate_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6", "canonical_function": "polisyos.ir.analytics.causal.CausalEffectReport.to_uncertainty_envelope", "function_object_preserved": true, "original_code_sha256": "b38bb9ceb8e5f27aeadf587f1075f1f2acd7c7235e2e114c115acf2dbce47a87", "provider_path": "policy-engine/src/polisyos/ir/analytics/causal.py", "provider_source_sha256": "76919f3009f48af4c908f0e79a225ed260494119155a57f61e4afdd4f70814fa", "removal": "emission", "removed_code_sha256": "48618a3fa62c1b08ba1c616d58c40655a2a120da9dde9260eb1bb15b09b2c9c0", "source_files_written": false}
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF                                     [100%]
+=================================== FAILURES ===================================
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[synthetic_control] _
+
+method = <CausalMethod.SYNTHETIC_CONTROL: 'synthetic_control'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[difference_in_differences] _
+
+method = <CausalMethod.DIFFERENCE_IN_DIFFERENCES: 'difference_in_differences'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[regression_discontinuity] _
+
+method = <CausalMethod.REGRESSION_DISCONTINUITY: 'regression_discontinuity'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[structural_time_series] _
+
+method = <CausalMethod.STRUCTURAL_TIME_SERIES: 'structural_time_series'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[dowhy_backdoor] _
+
+method = <CausalMethod.DOWHY_BACKDOOR: 'dowhy_backdoor'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[dowhy_iv] _
+
+method = <CausalMethod.DOWHY_IV: 'dowhy_iv'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[dowhy_frontdoor] _
+
+method = <CausalMethod.DOWHY_FRONTDOOR: 'dowhy_frontdoor'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[proximal_bridge] _
+
+method = <CausalMethod.PROXIMAL_BRIDGE: 'proximal_bridge'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[distributional_treatment_effect] _
+
+method = <CausalMethod.DISTRIBUTIONAL_TREATMENT_EFFECT: 'distributional_treatment_effect'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[endogenous_group_inequality_decomposition] _
+
+method = <CausalMethod.ENDOGENOUS_GROUP_INEQUALITY_DECOMPOSITION: 'endogenous_group_inequality_decomposition'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_cme] _
+
+method = <CausalMethod.KERNEL_CME: 'kernel_cme'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_frontdoor] _
+
+method = <CausalMethod.KERNEL_FRONTDOOR: 'kernel_frontdoor'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_transport] _
+
+method = <CausalMethod.KERNEL_TRANSPORT: 'kernel_transport'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_dr_cme] _
+
+method = <CausalMethod.KERNEL_DR_CME: 'kernel_dr_cme'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_iv] _
+
+method = <CausalMethod.KERNEL_IV: 'kernel_iv'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_proximal_minimax] _
+
+method = <CausalMethod.KERNEL_PROXIMAL_MINIMAX: 'kernel_proximal_minimax'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[interference_cate] _
+
+method = <CausalMethod.INTERFERENCE_CATE: 'interference_cate'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[causal_forest] _
+
+method = <CausalMethod.CAUSAL_FOREST: 'causal_forest'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[forest_dr] _
+
+method = <CausalMethod.FOREST_DR: 'forest_dr'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[causal_bcf] _
+
+method = <CausalMethod.CAUSAL_BCF: 'causal_bcf'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[double_ml] _
+
+method = <CausalMethod.DOUBLE_ML: 'double_ml'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[s_learner] _
+
+method = <CausalMethod.S_LEARNER: 's_learner'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[t_learner] _
+
+method = <CausalMethod.T_LEARNER: 't_learner'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[x_learner] _
+
+method = <CausalMethod.X_LEARNER: 'x_learner'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[policy_tree] _
+
+method = <CausalMethod.POLICY_TREE: 'policy_tree'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[g_computation] _
+
+method = <CausalMethod.G_COMPUTATION: 'g_computation'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[st_dscm_spde] _
+
+method = <CausalMethod.ST_DSCM_SPDE: 'st_dscm_spde'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[ice_g_formula] _
+
+method = <CausalMethod.ICE_G_FORMULA: 'ice_g_formula'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[ltmle] _
+
+method = <CausalMethod.LTMLE: 'ltmle'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[g_estimation] _
+
+method = <CausalMethod.G_ESTIMATION: 'g_estimation'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[q_learning_dtr] _
+
+method = <CausalMethod.Q_LEARNING_DTR: 'q_learning_dtr'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[a_learning_dtr] _
+
+method = <CausalMethod.A_LEARNING_DTR: 'a_learning_dtr'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[outcome_weighted_learning] _
+
+method = <CausalMethod.OUTCOME_WEIGHTED_LEARNING: 'outcome_weighted_learning'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[doubly_robust_dtr] _
+
+method = <CausalMethod.DOUBLY_ROBUST_DTR: 'doubly_robust_dtr'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[off_policy_evaluation] _
+
+method = <CausalMethod.OFF_POLICY_EVALUATION: 'off_policy_evaluation'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+_ test_all_report_families_preserve_success_statistics_as_nongating_candidates[causal_bandit] _
+
+method = <CausalMethod.CAUSAL_BANDIT: 'causal_bandit'>
+
+    @pytest.mark.parametrize("method", list(CausalMethod))
+    def test_all_report_families_preserve_success_statistics_as_nongating_candidates(method) -> None:
+        report = _report(method)
+        before = report.model_dump(mode="json")
+        envelope = report.to_uncertainty_envelope()
+        assert report.model_dump(mode="json") == before
+        assert report.status is EstimationStatus.SUCCESS
+        assert envelope is not None
+        assert envelope.point_estimate == report.point_estimate
+        assert envelope.confidence_interval == report.confidence_interval
+        assert envelope.confidence_level == report.confidence_level
+        assert envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert envelope.is_heuristic_ci is False
+>       assert envelope.gate_eligible is False
+E       AssertionError: assert True is False
+E        +  where True = UncertaintyEnvelope(schema_version='1.1', numeric_policy=NumericPolicySpec(policy_id='bounded_float_v1', mode=<Numeric...ason': 'causal_identification_admission_not_established', 'p_value': None, 'placebo_p_value': None, 'assumptions': {}}).gate_eligible
+
+tests/unit/ir/analytics/test_causal_identification_candidate.py:67: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[synthetic_control]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[difference_in_differences]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[regression_discontinuity]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[structural_time_series]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[dowhy_backdoor]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[dowhy_iv]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[dowhy_frontdoor]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[proximal_bridge]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[distributional_treatment_effect]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[endogenous_group_inequality_decomposition]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_cme]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_frontdoor]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_transport]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_dr_cme]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_iv]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[kernel_proximal_minimax]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[interference_cate]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[causal_forest]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[forest_dr]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[causal_bcf]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[double_ml]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[s_learner]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[t_learner]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[x_learner]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[policy_tree]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[g_computation]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[st_dscm_spde]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[ice_g_formula]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[ltmle]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[g_estimation]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[q_learning_dtr]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[a_learning_dtr]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[outcome_weighted_learning]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[doubly_robust_dtr]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[off_policy_evaluation]
+FAILED tests/unit/ir/analytics/test_causal_identification_candidate.py::test_all_report_families_preserve_success_statistics_as_nongating_candidates[causal_bandit]
+36 failed in 0.21s

@@ -1,0 +1,29 @@
+{
+  "source_start": "93eed731088175fd244c5c66532ab6bd54e793b2",
+  "tree_start": "5deefe459b0b0c55d6f421258322ad5447dfc166",
+  "status_start": "",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/consumer/removal_replay.py",
+    "source_context"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "93eed731088175fd244c5c66532ab6bd54e793b2",
+  "tree": "5deefe459b0b0c55d6f421258322ad5447dfc166",
+  "status": "",
+  "exit": 1,
+  "wall_s": 14.335821958011365,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/removal-source-context.stdout",
+      "sha256": "06c804f9d417cbb8e4f64320cb1b80a3579a421d4b11973759ed77ad6f1198b4",
+      "bytes": 5513
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/removal-source-context.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

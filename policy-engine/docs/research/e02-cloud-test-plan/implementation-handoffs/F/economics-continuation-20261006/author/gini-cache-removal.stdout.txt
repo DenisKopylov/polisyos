@@ -1,0 +1,53 @@
+{"mode": "cache-removal", "marker_preserved": true, "original_maximize": false}
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-eager] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-jit] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-eager] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-jit] _
+tests/unit/foundry/agent_sim/test_gini_domain.py:117: in test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+_ test_composite_interaction_current_population_is_admitted_at_registered_objective _
+tests/unit/foundry/agent_sim/test_gini_domain.py:148: in test_composite_interaction_current_population_is_admitted_at_registered_objective
+    with pytest.raises(
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+__ test_social_welfare_uses_current_gini_with_original_sign_and_weight[eager] __
+tests/unit/foundry/agent_sim/test_gini_consumers.py:149: in test_social_welfare_uses_current_gini_with_original_sign_and_weight
+    assert float(evaluate(current)) == pytest.approx(-0.7 / 4, abs=2e-7)
+E   assert -0.045152854174375534 == -0.175 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.045152854174375534
+E     Expected: -0.175 ± 2.0e-07
+___ test_social_welfare_uses_current_gini_with_original_sign_and_weight[jit] ___
+tests/unit/foundry/agent_sim/test_gini_consumers.py:149: in test_social_welfare_uses_current_gini_with_original_sign_and_weight
+    assert float(evaluate(current)) == pytest.approx(-0.7 / 4, abs=2e-7)
+E   assert -0.045152854174375534 == -0.175 ± 2.0e-07
+E     
+E     comparison failed
+E     Obtained: -0.045152854174375534
+E     Expected: -0.175 ± 2.0e-07
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values0-jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_registered_objective_refuses_current_signed_population_despite_valid_cached_metric[values1-jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_composite_interaction_current_population_is_admitted_at_registered_objective
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_social_welfare_uses_current_gini_with_original_sign_and_weight[eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_social_welfare_uses_current_gini_with_original_sign_and_weight[jit]

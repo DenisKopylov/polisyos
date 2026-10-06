@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/cau/benchmark-retirement-removal.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_before": {
+    "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+    "tree": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit": 1,
+  "duration_seconds": 7.571720838546753,
+  "maxrss_kib": 558664,
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-removal.stdout.txt",
+      "bytes": 826,
+      "sha256": "b940e746fe4bbc697d0d1be3da48dba6922ead4d20eab5da36433ab466505f65"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

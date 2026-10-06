@@ -1,0 +1,1 @@
+{"source": "dd9584728bd96f204983615216efdbc58117e713", "artifacts": 29, "bytes": 61359, "outer": 1, "child": 8, "phases": 9, "wheel_bytes": 15085967, "module_bindings": 3, "all_match": true, "audit_sha256": "46abda9dca87bc44b3eca1bec6883aeeca5c532541570c71e1aa48cb91a3aad5"}

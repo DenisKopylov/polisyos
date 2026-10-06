@@ -1,0 +1,729 @@
+{
+  "schema_version": "1.0",
+  "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+  "source_tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+  "implementation_sha": "6ca3b5f167c140370a44653f25a3483bad4a9659",
+  "base_sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+  "runs": [
+    {
+      "name": "red",
+      "classification": "real pre-fix consumer failure",
+      "exit_code": 1,
+      "counts": {
+        "tests": 5,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 4
+      },
+      "wall_seconds": 12.043231010437012,
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py",
+        "--basetemp=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-red-973b270266fc40ea9dd4a6f2a2f9aad6",
+        "--junitxml=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/red.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "source_before": {
+        "sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "tree": "9e80184c97d98fba28c3323f32276dcf2b2aa6be",
+        "status": "?? tests/unit/scientist/search/test_lesson_partial_consumer.py"
+      },
+      "source_after": {
+        "sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "tree": "9e80184c97d98fba28c3323f32276dcf2b2aa6be",
+        "status": "?? tests/unit/scientist/search/test_lesson_partial_consumer.py"
+      },
+      "source_paths_before": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65",
+          "bytes": 43584
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "15a1f91222a2808bfd1107316f0b060a4b0e09dc4e9c8abae1599df294397d12",
+          "bytes": 7221
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "source_paths_after": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65",
+          "bytes": 43584
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "15a1f91222a2808bfd1107316f0b060a4b0e09dc4e9c8abae1599df294397d12",
+          "bytes": 7221
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "retained_basetemp": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-red-973b270266fc40ea9dd4a6f2a2f9aad6",
+      "actual_runtime": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "product_origin_count": 389
+      },
+      "full_output_member": "red.txt",
+      "output_sha256": "2845cbff2c85fd26008703dd5bae15ab41f335a9137380198d7c6bb7bf913d53"
+    },
+    {
+      "name": "positive",
+      "classification": "precommit wider diagnostic with three invalid historical positive fixtures",
+      "exit_code": 1,
+      "counts": {
+        "tests": 40,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 37
+      },
+      "wall_seconds": 12.269784688949585,
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py",
+        "tests/unit/scientist/search/test_lesson_transfer.py",
+        "tests/unit/scientist/search/test_lesson_as_of.py",
+        "tests/unit/scientist/search/test_lessons.py",
+        "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "--basetemp=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-positive-a17319c34e6442fdaacdd39a2ce70c59",
+        "--junitxml=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/positive.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "source_before": {
+        "sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "tree": "9e80184c97d98fba28c3323f32276dcf2b2aa6be",
+        "status": "M src/polisyos/scientist/methods/search/lessons.py\n?? release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml\n?? tests/unit/scientist/search/test_lesson_partial_consumer.py"
+      },
+      "source_after": {
+        "sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "tree": "9e80184c97d98fba28c3323f32276dcf2b2aa6be",
+        "status": "M src/polisyos/scientist/methods/search/lessons.py\n?? release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml\n?? tests/unit/scientist/search/test_lesson_partial_consumer.py"
+      },
+      "source_paths_before": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+          "bytes": 44643
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+          "bytes": 8435
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "source_paths_after": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+          "bytes": 44643
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+          "bytes": 8435
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "retained_basetemp": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-positive-a17319c34e6442fdaacdd39a2ce70c59",
+      "actual_runtime": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "product_origin_count": 389
+      },
+      "full_output_member": "positive.txt",
+      "output_sha256": "640904d834098fbfbe37679c74e32645e7804982cb988d9084a36904a3c888cf"
+    },
+    {
+      "name": "immutable-positive",
+      "classification": "immutable corrected whole five-file author positive",
+      "exit_code": 0,
+      "counts": {
+        "tests": 40,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 40
+      },
+      "wall_seconds": 12.326054573059082,
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py",
+        "tests/unit/scientist/search/test_lesson_transfer.py",
+        "tests/unit/scientist/search/test_lesson_as_of.py",
+        "tests/unit/scientist/search/test_lessons.py",
+        "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "--basetemp=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-immutable-positive-35d83f5682594b45a8a3f318f28f6df0",
+        "--junitxml=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/immutable-positive.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "source_before": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "source_paths_before": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+          "bytes": 44643
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+          "bytes": 8435
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "source_paths_after": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+          "bytes": 44643
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+          "bytes": 8435
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "retained_basetemp": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-immutable-positive-35d83f5682594b45a8a3f318f28f6df0",
+      "actual_runtime": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "product_origin_count": 389
+      },
+      "full_output_member": "immutable-positive.txt",
+      "output_sha256": "2e4f8769be948aa98ad410a48cf3b57fd896100ac476088a5fb3d264648f722f"
+    },
+    {
+      "name": "removal",
+      "classification": "sole local duplicate exclusion keyword removed in memory; expected failure plus healthy control",
+      "exit_code": 1,
+      "counts": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 1
+      },
+      "wall_seconds": 11.62069582939148,
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "-p",
+        "remove_local_duplicate_guard",
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py::test_duplicate_evidence_across_routes_does_not_consume_partial_quota_or_refresh",
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py::test_partial_local_answer_is_filled_by_one_admitted_transfer",
+        "--basetemp=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-removal-55762c0c37d84d799d872d5ce09ddc4c",
+        "--junitxml=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/removal.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "source_before": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "source_paths_before": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+          "bytes": 44643
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+          "bytes": 8435
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "source_paths_after": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+          "bytes": 44643
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+          "bytes": 8435
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "retained_basetemp": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-removal-55762c0c37d84d799d872d5ce09ddc4c",
+      "actual_runtime": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "product_origin_count": 389
+      },
+      "full_output_member": "removal.txt",
+      "output_sha256": "4c79242282ea1a36d4073a5a017271285b18a3832be55fd9734edc175b7f8477"
+    },
+    {
+      "name": "original-timestamp",
+      "classification": "unchanged original three pre-evidence timestamp function objects restored in memory; expected refusal",
+      "exit_code": 1,
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "wall_seconds": 11.555901765823364,
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+        "-p",
+        "review_observer",
+        "-p",
+        "original_positive_timestamps",
+        "tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_real_controller_keeps_typed_nested_context_in_lesson_consumer",
+        "tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_destination_projection_uses_all_effective_query_filters",
+        "--basetemp=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-original-timestamp-2937e2193585489ea432ff0dc0f9b3dd",
+        "--junitxml=/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/original-timestamp.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+      "source_before": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "source_paths_before": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+          "bytes": 44643
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+          "bytes": 8435
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "source_paths_after": {
+        "src/polisyos/scientist/methods/search/lessons.py": {
+          "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+          "bytes": 44643
+        },
+        "src/polisyos/scientist/methods/search/transfer_context.py": {
+          "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+          "bytes": 10087
+        },
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py": {
+          "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+          "bytes": 8435
+        },
+        "pytest.ini": {
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "tests/conftest.py": {
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        }
+      },
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "retained_basetemp": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/pytest-original-timestamp-2937e2193585489ea432ff0dc0f9b3dd",
+      "actual_runtime": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "product_origin_count": 389
+      },
+      "full_output_member": "original-timestamp.txt",
+      "output_sha256": "d245e8350117125ad6b9f63abdd4c2e1d5f7f1a99e0f7b14895319fb00c81ea5"
+    }
+  ],
+  "actual_origin_reconciliation": {
+    "runs": 5,
+    "matched": 1945,
+    "failed": 0,
+    "complete_rows_member": "actual-origin-reconciliation.json"
+  },
+  "original_fixture_assertions_unchanged": [
+    {
+      "function": "registry_card",
+      "assertion_count": 0,
+      "normalized_assertions_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "unchanged": true
+    },
+    {
+      "function": "test_real_controller_keeps_typed_nested_context_in_lesson_consumer",
+      "assertion_count": 2,
+      "normalized_assertions_sha256": "7f243a9d5d7b45da17c82056fab25fd914f3ee4ed5c895ffdcfb8d87edc6029e",
+      "unchanged": true
+    },
+    {
+      "function": "test_destination_projection_uses_all_effective_query_filters",
+      "assertion_count": 4,
+      "normalized_assertions_sha256": "8922fb249c050515f26185a523924928cccfcc45bae970c50f4534066471dac9",
+      "unchanged": true
+    },
+    {
+      "function": "test_active_policy_demotes_local_and_transferred_confidence_equally",
+      "assertion_count": 4,
+      "normalized_assertions_sha256": "808efd1ecc011e9aa2899b25ed9f377f7766a37610779057e0576d61b0bc16f8",
+      "unchanged": true
+    },
+    {
+      "function": "test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence",
+      "assertion_count": 9,
+      "normalized_assertions_sha256": "888ed622cb87f5f06f2c00dc8e0ba3247db05f4e39a7a399f50de363bf0ccd5e",
+      "unchanged": true
+    },
+    {
+      "function": "test_older_arrival_cannot_replace_newest_actual_evidence_ref",
+      "assertion_count": 4,
+      "normalized_assertions_sha256": "a2ef8ff3fdf0dad618cff44f577a8eea48b33d6940a55f5d3f4b696b843de0bd",
+      "unchanged": true
+    },
+    {
+      "function": "test_fresh_producer_observation_survives_older_access_retention_hint",
+      "assertion_count": 2,
+      "normalized_assertions_sha256": "503400549190904ceeaf949171be5d626c339542a907d8835d61e0a675955267",
+      "unchanged": true
+    }
+  ],
+  "source_members": [
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "bytes": 44643,
+      "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "bytes": 10087,
+      "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py",
+      "bytes": 8435,
+      "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "bytes": 7537,
+      "sha256": "4f7d2e34ab338fe21831e7d1f89b61bbe36a6e336191eb4d33c14dc8c62ba323"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "bytes": 9399,
+      "sha256": "0ace8b221674d26615dbdc5067614b57226ed39443fe765f3237c5920690a887"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+      "bytes": 7682,
+      "sha256": "c4f5d1d24341e958ddcffc3c799b6c77323ed3810660c130012b418c9eac341b"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "bytes": 4342,
+      "sha256": "dbc96fb574339da46c578215a33b1027523ade804e494afec49bbab9194f2bcc"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml",
+      "bytes": 1187,
+      "sha256": "cdd7ec8f4af98732e3ae804082256850a2fe8b4f27fcf4dfe0bd815c116f40bd"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "bytes": 16604,
+      "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/pytest.ini",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/conftest.py",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+    },
+    {
+      "path": "3ed63c748e1e080d0628d8cdf557841fe9a4364a:policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "bytes": 43584,
+      "sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65"
+    },
+    {
+      "path": "3ed63c748e1e080d0628d8cdf557841fe9a4364a:policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "bytes": 7419,
+      "sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a"
+    },
+    {
+      "path": "6ca3b5f167c140370a44653f25a3483bad4a9659:policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "bytes": 7419,
+      "sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a"
+    },
+    {
+      "path": "actual red untracked unique test",
+      "bytes": 7221,
+      "sha256": "15a1f91222a2808bfd1107316f0b060a4b0e09dc4e9c8abae1599df294397d12"
+    }
+  ],
+  "fixture_files": 1672,
+  "fixture_bytes": 1152399,
+  "manual_cleanup": false,
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/output.json.gz",
+      "encoding": "gzip of UTF-8 JSON with lossless base64 members",
+      "encoded_bytes": 434084,
+      "encoded_sha256": "4d8488aabaf14f3472f02f94150bd1e1695c894599574376b74a04a5ed9cfeac",
+      "decoded_bytes": 2128396,
+      "decoded_sha256": "7f02f59e59e345e47792c48a890cdc24568a951a0596c13d691aa57941324ee9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/actual-inputs.json.gz",
+      "encoding": "gzip of UTF-8 JSON with lossless base64 members",
+      "encoded_bytes": 214197,
+      "encoded_sha256": "088a11db5ae29ff9d7df32864e1d93f0bbb0dc78e997fad9b85e75b648cca491",
+      "decoded_bytes": 2148909,
+      "decoded_sha256": "054b30545e9d7cde54c7f1b068494c7ac999ed1e82a499dde87f5fca7cbd3f9c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/source-inputs.json.gz",
+      "encoding": "gzip of UTF-8 JSON with lossless base64 members",
+      "encoded_bytes": 61312,
+      "encoded_sha256": "f77a8c60f70b28ed9e059b877dfb26ff75b067a3b14c9a49aae722612f6f57a0",
+      "decoded_bytes": 251720,
+      "decoded_sha256": "50a7dfc6e019a62760a634568b37a48b30e484801f6a27016ff85c124245a191"
+    }
+  ]
+}

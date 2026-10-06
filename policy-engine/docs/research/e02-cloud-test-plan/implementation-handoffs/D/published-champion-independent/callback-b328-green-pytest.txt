@@ -1,0 +1,10 @@
+{"active_callback_learning_rates": [0.01, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01], "active_incumbent_score": 0.8384615384615384, "class_module_basis_unchanged": true, "incumbent_ref": {"artifact_id": "sha256:2a4300e9660b446ff3cc4974fa257d3d9688183f0a43c1aa73280a00cd994958", "kind": "scientist.autotune.calibration_meta.candidate", "media_type": "application/json"}, "observed_champion_score": 0.30348085529587265, "observed_ref": {"artifact_id": "sha256:2a4300e9660b446ff3cc4974fa257d3d9688183f0a43c1aa73280a00cd994958", "kind": "scientist.autotune.calibration_meta.candidate", "media_type": "application/json"}, "old_incumbent_score": 0.30348085529587265}
+.
+=============================== warnings summary ===============================
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 2 warnings in 9.83s

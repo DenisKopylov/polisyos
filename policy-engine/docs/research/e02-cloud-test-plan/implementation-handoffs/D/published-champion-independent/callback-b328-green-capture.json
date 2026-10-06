@@ -1,0 +1,46 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+    "-q",
+    "-s",
+    "tests/unit/scientist/methods/autotune/test_q3_independent_callback.py"
+  ],
+  "cwd": "/workspace/e02-D2-receipts/q3-independent/immutable-b328bb9abee3-callback-b328-green/policy-engine",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:."
+  },
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "origins": {
+      "calibration": "/workspace/e02-D2-receipts/q3-independent/immutable-b328bb9abee3-callback-b328-green/policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+      "models": "/workspace/e02-D2-receipts/q3-independent/immutable-b328bb9abee3-callback-b328-green/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "registry": "/workspace/e02-D2-receipts/q3-independent/immutable-b328bb9abee3-callback-b328-green/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "runtime": "/workspace/e02-D2-receipts/q3-independent/immutable-b328bb9abee3-callback-b328-green/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+    },
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+  },
+  "exit_code": 0,
+  "log_sha256": "3ca7128d10da6d3fbd844fc7e378fb9f21125e1ef72f73512899fa99ff569649",
+  "max_rss_kib": 1178468,
+  "max_rss_scope": "cumulative_high_water_of_completed_children_in_this_capture_process",
+  "production_hashes": {
+    "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py": "ea8b5f83db75356a07550b63c833a3b45f5396dbcff8a84be3a230a88a48f865",
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py": "0a5549546086b12eaf4219e9b472413c6e59d3738b9719a86d6b2d823f7cdeed",
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py": "826f26622532517d13b9742b65cfb8e7f8cac6a6531843cfd4e67893e461b655",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": "067fa62f1c86b99e0e3e83080543904ae076585488de69fe1ecc8caa303087f1"
+  },
+  "source_role": "immutable_production_source_with_independent_review_test_only",
+  "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+  "test_input_role": "uncommitted_independent_review_proof_exact_bytes",
+  "test_path": "policy-engine/tests/unit/scientist/methods/autotune/test_q3_independent_callback.py",
+  "test_sha256": "f6fde19db2eced1f67fe7d0724ddc2b643d5442c11db6ba9a9401f33d644f786",
+  "test_source_sha": "4b4965e9a486252b5e6f69a1f0dc83e5689b5ac4",
+  "tree": "a15e4fa7c4f060cbf95116129e032b5209012188",
+  "wall_seconds": 14.202865511993878
+}

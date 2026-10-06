@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/cau/review-input-resolver.py", line 27, in <module>
+    data=owner._load_observational_data(ctx,state,'causal.inference.did.standard@1.0.0')
+  File "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py", line 622, in _load_observational_data
+ValueError: observational_envelope_artifact_identity_mismatch
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/cau/review-input-resolver.py", line 31, in <module>
+    raise AssertionError('Exact selected view resolves but actual loader drops ref selector to bare artifact_id') from e
+AssertionError: Exact selected view resolves but actual loader drops ref selector to bare artifact_id

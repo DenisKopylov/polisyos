@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/root-frozen-native.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+  "source_tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3",
+  "utc": "2026-10-06T15:36:26.395841+00:00",
+  "elapsed_s": 35.757710563993896,
+  "exit_code": 1,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/tmp/e02-F-continuation-20261006/cau/frozen-import:/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stdout",
+    "bytes": 7822,
+    "sha256": "fd75ace75fab35605ffae9058549144a09be020f7133eedda5a7466b6decac06"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

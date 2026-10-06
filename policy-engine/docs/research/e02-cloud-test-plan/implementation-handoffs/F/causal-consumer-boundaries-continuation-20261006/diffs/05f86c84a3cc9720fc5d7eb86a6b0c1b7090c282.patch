@@ -1,0 +1,352 @@
+commit 05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282
+Author:     Денис Копылов <skvidvard167m@gmail.com>
+AuthorDate: Tue Oct 6 15:15:18 2026 +0000
+Commit:     Денис Копылов <skvidvard167m@gmail.com>
+CommitDate: Tue Oct 6 15:15:18 2026 +0000
+
+    fix(scientist): reconcile causal CAS input identity before admission
+
+diff --git a/policy-engine/docs/reference/scientist/causal-selected-consumers.md b/policy-engine/docs/reference/scientist/causal-selected-consumers.md
+index 5c0cd9afa..726b91fb1 100644
+--- a/policy-engine/docs/reference/scientist/causal-selected-consumers.md
++++ b/policy-engine/docs/reference/scientist/causal-selected-consumers.md
+@@ -5,6 +5,22 @@ causal job. A resolved numerical source and a successful backend call do not gra
+ evaluation permission or establish that real-world identification assumptions
+ hold. Synthetic backend receipts exercise the numerical bridge separately.
+ 
++Before admission, the consumer resolves every actual top-level causal input
++through the exact typed Core CAS view. It recomputes the byte digest and checks
++manifest identity, kind, media type, integrity and size. The optional staged
++contract, bundle and intake receipt form a complete three-reference set. Missing,
++extra or duplicated offered input identities cannot reach the verifier or job.
++This profile projects the verified byte digest into the PDC input hash; it does
++not infer a semantic hash from an arbitrary payload field. A source owner using
++a distinct semantic content hash must supply its supported resolver contract.
++
++Binding tests are `test_causal_input_byte_binding.py` beside the node tests.
++They use actual persisted CAS sources for input identity and untrusted contexts
++only for refusal controls. They do not demonstrate a lawful positive admission.
++That replay requires the source owner's typed manifest/bytes/projection and the
++Runtime owner's current intake, revision lineage, appointed verifier and context;
++the consumer creates its own fresh challenge.
++
+ The primary job includes the actual observational artifact in its input lineage.
+ The selected DoWhy profile runs the pinned Python 3.12 worker through the existing
+ method runner while the application remains Python 3.14. The parent resolves the
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-06-causal-input-byte-binding.toml b/policy-engine/release-fragments/unreleased/2026-10-06-causal-input-byte-binding.toml
+new file mode 100644
+index 000000000..a3dc42518
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-06-causal-input-byte-binding.toml
+@@ -0,0 +1,29 @@
++id = "2026-10-06-causal-input-byte-binding"
++title = "Resolve the complete causal input set before evaluation admission"
++type = "fixed"
++component = "scientist"
++owner = "team-policyos-scientist"
++summary = "The existing causal node reconciles exact typed CAS bytes and manifests before consulting evaluation admission."
++evidence = ["tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py", "docs/reference/scientist/causal-selected-consumers.md"]
++change_class = "internal-only"
++surface_classification = "internal: causal node input identity projection"
++compatibility = "Public node identity, method routes, output slots and Runtime verifier protocol remain unchanged. Malformed, unresolved or incomplete input bindings now refuse before load/job."
++limitations = "The supported identity projection is the verified CAS byte profile. Distinct semantic PDC hashes require the source owner's resolver contract. Numerical identity does not establish evaluation or causal-identification authority."
++migration = "Supply the complete actual source set and the matching byte-profile input provenance. Use the maintained Runtime verifier with a consumer-created fresh challenge."
++generated_client_compatibility = "not_applicable"
++public_surface_inventory_reviewed = false
++migration_docs = ["docs/reference/scientist/causal-selected-consumers.md"]
++runbook_docs = []
++
++[[compatibility_change]]
++id = "causal-input-byte-binding"
++change_class = "internal-only"
++impact = "compatible"
++surface = "internal: causal node input identity projection"
++owner = "team-policyos-scientist"
++version_owner = "team-policyos-scientist"
++deprecation_window = "not_applicable"
++release_note = "Actual source refs are resolved and reconciled before admission."
++generated_client_compatibility = "not_applicable"
++migration_docs = ["docs/reference/scientist/causal-selected-consumers.md"]
++runbook_docs = []
+diff --git a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+index d0eb06b68..4de2b5729 100644
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+@@ -201,14 +201,57 @@ def _eval_safety_blocker(name: str) -> str:
+     return f"{_EVAL_SAFETY_BLOCKER_PREFIX}.{name}@1.0.0"
+ 
+ 
+-def _actual_causal_input_identities(state: ExperimentState) -> tuple[tuple[str, str], ...]:
+-    refs = (
+-        state.observational_data_ref,
+-        state.inputs.get(INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF),
+-        state.inputs.get(INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF),
+-        state.artifacts_index.get(_UKRAINE_INTAKE_RECEIPT_KEY),
++def _actual_causal_input_identities(
++    state: ExperimentState, *, store: core_artifacts.ArtifactStore
++) -> tuple[tuple[str, str], ...]:
++    """Resolve the complete input set under the maintained CAS byte-hash profile.
++
++    This is input identity only. PDC semantic hashes and evaluation authority
++    require their respective owner contracts; neither is inferred from a ref.
++    """
++    if state.observational_data_ref is None:
++        raise ValueError("causal observational source missing")
++    optional = (
++        (
++            state.inputs.get(INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF),
++            "foundry.ukraine_method_input",
++        ),
++        (
++            state.inputs.get(INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF),
++            "foundry.ukraine_method_input_bundle",
++        ),
++        (state.artifacts_index.get(_UKRAINE_INTAKE_RECEIPT_KEY), "foundry.ukraine_intake_receipt"),
+     )
+-    return tuple((str(ref.artifact_id), str(ref.artifact_id)) for ref in refs if ref is not None)
++    if any(ref is not None for ref, _ in optional) and not all(
++        ref is not None for ref, _ in optional
++    ):
++        raise ValueError("causal staged input set incomplete")
++    resolved: list[tuple[str, str]] = []
++    for offered, expected_kind in ((state.observational_data_ref, None), *optional):
++        if offered is None:
++            continue
++        ref = _to_core_artifact_ref(offered)
++        assert ref is not None
++        # Exact typed views matter when several manifests share physical bytes.
++        raw = store.get_bytes(ref)
++        manifest = core_artifacts.ArtifactManifest.model_validate(store.get_manifest(ref))
++        digest = sha256(raw).hexdigest()
++        if (
++            str(manifest.artifact_id) != str(ref.artifact_id)
++            or manifest.kind != ref.kind
++            or manifest.media_type != ref.media_type
++            or ref.media_type != "application/json"
++            or (expected_kind is not None and ref.kind != expected_kind)
++            or manifest.integrity.sha256 != digest
++            or manifest.byte_size != len(raw)
++            or str(ref.artifact_id) != "sha256:" + digest
++            or not store.verify(ref).ok
++        ):
++            raise ValueError("causal input byte/manifest identity mismatch")
++        resolved.append((str(ref.artifact_id), "sha256:" + digest))
++    if len(resolved) != len({identity for identity, _ in resolved}):
++        raise ValueError("causal input references duplicated")
++    return tuple(resolved)
+ 
+ 
+ def _causal_evaluation_safety_blockers(
+@@ -227,7 +270,10 @@ def _causal_evaluation_safety_blockers(
+     if context.evaluator_owner_id != evaluator_owner_id:
+         return (_eval_safety_blocker("evaluator_owner_mismatch"),)
+ 
+-    actual_identities = _actual_causal_input_identities(state)
++    try:
++        actual_identities = _actual_causal_input_identities(state, store=ctx.store)
++    except _CAUSAL_EVALUATION_LOAD_ERRORS:
++        return (_eval_safety_blocker("execution_input_resolution_failed"),)
+     context_identities = tuple(
+         (ref.artifact_id, ref.content_hash) for ref in context.evaluation_input_refs
+     )
+diff --git a/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py b/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py
+new file mode 100644
+index 000000000..2d23389fa
+--- /dev/null
++++ b/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py
+@@ -0,0 +1,195 @@
++"""Actual CAS input binding controls; these do not issue evaluation authority."""
++
++from hashlib import sha256
++from types import SimpleNamespace
++from unittest.mock import Mock
++
++import pytest
++
++from polisyos.core.artifacts import ArtifactRef, PutOptions, SchemaInfo
++from polisyos.core.canon import CanonSpec
++from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
++    RunCausalEvaluationNode,
++    _actual_causal_input_identities,
++)
++from polisyos.scientist.nodes.builtins.state_keys import (
++    INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF,
++    INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF,
++)
++
++
++def _persist(store, kind="ir.observational_data", index=0):
++    return store.put_json(
++        {"source": index},
++        PutOptions(
++            kind=kind,
++            media_type="application/json",
++            schema=SchemaInfo(name="binding-fixture", version="1.0"),
++        ),
++        canon_spec=CanonSpec(forbid_floats=False),
++    )
++
++
++def _state(state, ref, *, inputs=None, artifacts_index=None):
++    return state.model_copy(
++        update={
++            "observational_data_ref": ref,
++            "inputs": inputs or {},
++            "artifacts_index": artifacts_index or {},
++        }
++    )
++
++
++def test_resolved_source_uses_actual_bytes(execution_context, minimal_state):
++    store = execution_context.store
++    ref = _persist(store)
++    state = _state(minimal_state, ref)
++    digest = "sha256:" + sha256(store.get_bytes(ref)).hexdigest()
++    assert _actual_causal_input_identities(state, store=store) == ((str(ref.artifact_id), digest),)
++    # Equality is a property of this declared Core CAS byte profile. A PDC
++    # semantic projection has a different owner and is not inferred here.
++
++
++def test_complete_optional_source_set_resolves_all_refs(execution_context, minimal_state):
++    store = execution_context.store
++    refs = [
++        _persist(store, kind, i)
++        for i, kind in enumerate(
++            [
++                "ir.observational_data",
++                "foundry.ukraine_method_input",
++                "foundry.ukraine_method_input_bundle",
++                "foundry.ukraine_intake_receipt",
++            ]
++        )
++    ]
++    state = _state(
++        minimal_state,
++        refs[0],
++        inputs={
++            INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF: refs[1],
++            INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF: refs[2],
++        },
++        artifacts_index={"ukraine_foundry_intake_receipt_ref": refs[3]},
++    )
++    assert _actual_causal_input_identities(state, store=store) == tuple(
++        (str(ref.artifact_id), "sha256:" + sha256(store.get_bytes(ref)).hexdigest()) for ref in refs
++    )
++    for key in state.inputs:
++        partial = state.model_copy(
++            update={"inputs": {k: v for k, v in state.inputs.items() if k != key}}
++        )
++        with pytest.raises(ValueError, match="incomplete"):
++            _actual_causal_input_identities(partial, store=store)
++
++
++@pytest.mark.parametrize("mutation", ["ghost", "kind", "media_type", "bytes", "size", "integrity"])
++def test_invalid_source_refuses_before_verifier_load_or_job(
++    execution_context, minimal_state, monkeypatch, mutation
++):
++    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
++
++    store = execution_context.store
++    ref = _persist(store)
++    if mutation == "ghost":
++        ref = ArtifactRef(
++            artifact_id="sha256:" + "0" * 64, kind=ref.kind, media_type=ref.media_type
++        )
++    elif mutation in {"kind", "media_type"}:
++        ref = ref.model_copy(update={mutation: "wrong"})
++    else:
++        # Exercise the public store read boundary against an altered backend
++        # projection. The real FileSystemCAS remains the source of every read.
++        if mutation == "bytes":
++            original = store.get_bytes
++            monkeypatch.setattr(store, "get_bytes", lambda r: original(r) + b" ")
++        else:
++            original = store.get_manifest
++
++            def altered(r):
++                manifest = original(r)
++                if mutation == "size":
++                    return manifest.model_copy(update={"byte_size": manifest.byte_size + 1})
++                return manifest.model_copy(
++                    update={"integrity": manifest.integrity.model_copy(update={"sha256": "0" * 64})}
++                )
++
++            monkeypatch.setattr(store, "get_manifest", altered)
++    node = RunCausalEvaluationNode()
++    # A favorable but untrusted offered context is useful only as a negative.
++    verifier, loader, job = Mock(), Mock(), Mock()
++    offered = SimpleNamespace(
++        mode_resolution=SimpleNamespace(status="accepted"),
++        evaluator_owner_id=node.spec.metadata.component_id,
++    )
++    ctx = SimpleNamespace(
++        **{
++            **vars(execution_context),
++            "eval_safety_execution_context": offered,
++            "eval_safety_verifier": verifier,
++        }
++    )
++    monkeypatch.setattr(owner, "_load_observational_data", loader)
++    monkeypatch.setattr(owner, "run_job", job)
++    outcome = node.execute(ctx, _state(minimal_state, ref))
++    assert outcome.status == "fail"
++    assert outcome.error.details["blocker_codes"] == [
++        "polisyos.eval_safety.execution_input_resolution_failed@1.0.0"
++    ]
++    verifier.require_admission.assert_not_called()
++    loader.assert_not_called()
++    job.assert_not_called()
++
++
++@pytest.mark.parametrize(
++    "variant", ["wrong_hash", "missing", "extra", "duplicate", "provenance_duplicate"]
++)
++def test_offered_input_denominator_refuses_before_verifier(
++    execution_context, minimal_state, monkeypatch, variant
++):
++    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
++
++    ref = _persist(execution_context.store)
++    identity = SimpleNamespace(artifact_id=str(ref.artifact_id), content_hash=str(ref.artifact_id))
++    refs = [identity]
++    provenance = [SimpleNamespace(input_ref=identity, predicate_provenance="recomputed")]
++    if variant == "wrong_hash":
++        refs = [
++            SimpleNamespace(artifact_id=identity.artifact_id, content_hash="sha256:" + "0" * 64)
++        ]
++    elif variant == "missing":
++        refs = []
++    elif variant == "extra":
++        refs += [
++            SimpleNamespace(artifact_id="sha256:" + "0" * 64, content_hash="sha256:" + "0" * 64)
++        ]
++    elif variant == "duplicate":
++        refs += refs
++    else:
++        provenance += provenance
++    node = RunCausalEvaluationNode()
++    offered = SimpleNamespace(
++        mode_resolution=SimpleNamespace(status="accepted"),
++        evaluator_owner_id=node.spec.metadata.component_id,
++        evaluation_input_refs=refs,
++        evaluation_input_provenance=provenance,
++        attempt_class="non_simulation",
++    )
++    verifier, loader, job = Mock(), Mock(), Mock()
++    ctx = SimpleNamespace(
++        **{
++            **vars(execution_context),
++            "eval_safety_execution_context": offered,
++            "eval_safety_verifier": verifier,
++        }
++    )
++    monkeypatch.setattr(owner, "_load_observational_data", loader)
++    monkeypatch.setattr(owner, "run_job", job)
++    outcome = node.execute(ctx, _state(minimal_state, ref))
++    assert outcome.status == "fail"
++    assert outcome.error.details["blocker_codes"] == [
++        "polisyos.eval_safety.execution_context_binding_mismatch@1.0.0"
++    ]
++    verifier.require_admission.assert_not_called()
++    loader.assert_not_called()
++    job.assert_not_called()

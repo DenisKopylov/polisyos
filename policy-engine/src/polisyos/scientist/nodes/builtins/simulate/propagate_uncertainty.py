@@ -9,6 +9,7 @@ from typing import Any, Protocol, cast
 
 from pydantic import ValidationError
 
+from polisyos.calibration import load_foundry_calibration_report
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -16,7 +17,6 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
-from polisyos.foundry.calibration.report import load_calibration_report
 from polisyos.foundry.uncertainty import (
     BoundedIndicatorResponse,
     reconcile_draw_outcomes,
@@ -333,7 +333,7 @@ def _collect_input_envelopes(
         # A configured report is an explicit input, not an optional payload
         # hint. Preserve its selected CAS profile and reject an invalid report
         # before a different valid input could hide the missing calibration law.
-        report = load_calibration_report(ctx.store, calibration_ref)
+        report = load_foundry_calibration_report(ctx.store, calibration_ref)
         if report.uncertainty_envelopes:
             for name, env in report.uncertainty_envelopes.items():
                 envelopes[str(name)] = env

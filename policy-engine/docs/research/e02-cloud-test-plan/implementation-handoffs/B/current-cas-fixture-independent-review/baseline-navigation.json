@@ -1,0 +1,802 @@
+{
+  "query_argv": [
+    "python3",
+    "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+    "--finding",
+    "B148",
+    "--limit",
+    "100",
+    "--details",
+    "--job-context"
+  ],
+  "cwd": "/workspace/e02-B-current-runtime",
+  "finding_id": "B148",
+  "cells": [
+    {
+      "id": "F01-P051",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "state": "FAILED",
+      "collected": "18",
+      "calls": "18",
+      "call_pass": "14",
+      "call_failed": "4",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.12",
+      "rss_kib": "104708",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "168",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F09-P055",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.66",
+      "rss_kib": "112044",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "171",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P061",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "state": "FAILED",
+      "collected": "18",
+      "calls": "18",
+      "call_pass": "14",
+      "call_failed": "4",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.249224717000288",
+      "rss_kib": "112824",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "411",
+      "extra_json": "{}"
+    }
+  ],
+  "routes": [
+    {
+      "finding_id": "B148",
+      "unit": "B",
+      "cell_id": "F01-P051",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B148"
+    },
+    {
+      "finding_id": "B148",
+      "unit": "B",
+      "cell_id": "F09-P055",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B148"
+    },
+    {
+      "finding_id": "B148",
+      "unit": "B",
+      "cell_id": "F14-P061",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B148"
+    }
+  ],
+  "basis": [
+    {
+      "finding_id": "B148",
+      "bundle_ids": [
+        "CAS-02"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#cas-02; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B148",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B148",
+      "assigned_routes": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P051"
+          ]
+        },
+        {
+          "job": "F09",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F09-P055"
+          ]
+        },
+        {
+          "job": "F14",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F14-P061"
+          ]
+        }
+      ]
+    }
+  ],
+  "exact_selected_source_blocks": [
+    {
+      "job": "F01",
+      "source_file": "received/F01.txt",
+      "line_start": 353,
+      "line_end": 353,
+      "kind": "json_block",
+      "cell_ids": [
+        "F01-P051"
+      ],
+      "keys": [
+        "cell",
+        "phase",
+        "outcome",
+        "exception",
+        "error",
+        "attempt",
+        "nodeids"
+      ],
+      "grade": "source_locator_not_normalized_failure_event",
+      "source_text": "{\"cell\":\"F01-P051\",\"phase\":\"call\",\"outcome\":\"failed\",\"exception\":\"builtins.Failed\",\"error\":\"DID NOT RAISE <class 'OSError'>\",\"attempt\":\"attempt-1\",\"nodeids\":[\"tests/unit/remediation/test_cas_02.py::test_failed_reused_directory_export_preserves_prior_complete_generation\",\"tests/unit/remediation/test_cas_02.py::test_import_rolls_back_new_generation_on_mid_publication_failure\"]}"
+    },
+    {
+      "job": "F01",
+      "source_file": "received/F01.txt",
+      "line_start": 354,
+      "line_end": 354,
+      "kind": "json_block",
+      "cell_ids": [
+        "F01-P051"
+      ],
+      "keys": [
+        "cell",
+        "phase",
+        "outcome",
+        "exception",
+        "error",
+        "attempt",
+        "nodeids"
+      ],
+      "grade": "source_locator_not_normalized_failure_event",
+      "source_text": "{\"cell\":\"F01-P051\",\"phase\":\"call\",\"outcome\":\"failed\",\"exception\":\"builtins.Failed\",\"error\":\"DID NOT RAISE <class 'PermissionError'>\",\"attempt\":\"attempt-1\",\"nodeids\":[\"tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership\",\"tests/unit/remediation/test_cas_02.py::test_import_rejects_a_selected_view_bound_to_another_tenant\"]}"
+    },
+    {
+      "job": "F14",
+      "source_file": "received/F14.txt",
+      "line_start": 629,
+      "line_end": 629,
+      "kind": "json_block",
+      "cell_ids": [
+        "F14-P061"
+      ],
+      "keys": [
+        "cell",
+        "attempt",
+        "phase",
+        "outcome",
+        "message",
+        "nodes"
+      ],
+      "grade": "source_locator_not_normalized_failure_event",
+      "source_text": "{\"cell\":\"F14-P061\",\"attempt\":\"attempt-001\",\"phase\":\"call\",\"outcome\":\"failed\",\"message\":\"M046\",\"nodes\":[\"test_failed_reused_directory_export_preserves_prior_complete_generation\",\"test_import_rolls_back_new_generation_on_mid_publication_failure\"]}"
+    },
+    {
+      "job": "F14",
+      "source_file": "received/F14.txt",
+      "line_start": 630,
+      "line_end": 630,
+      "kind": "json_block",
+      "cell_ids": [
+        "F14-P061"
+      ],
+      "keys": [
+        "cell",
+        "attempt",
+        "phase",
+        "outcome",
+        "message",
+        "nodes"
+      ],
+      "grade": "source_locator_not_normalized_failure_event",
+      "source_text": "{\"cell\":\"F14-P061\",\"attempt\":\"attempt-001\",\"phase\":\"call\",\"outcome\":\"failed\",\"message\":\"M047\",\"nodes\":[\"test_import_enforces_existing_tenant_ownership\",\"test_import_rejects_a_selected_view_bound_to_another_tenant\"]}"
+    }
+  ],
+  "full_source_contexts": [
+    {
+      "job": "F01",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "source_file_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "metadata_text_sha256": "e9ee44000c885deeae68c57fd4065954a87d065f53382b85a38f9e376adf0396",
+      "line_start": 4,
+      "line_end": 114,
+      "metadata": {
+        "job": "E02-full-F01",
+        "run": "20261005T074145Z",
+        "source": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+        "role": "research_main",
+        "manifest_sha256": "a6ad0dad1bbad671dbf5a9efb3892d4a55c5445573e0060c0eac27c85f097527",
+        "manifest_note": "P008 separator normalized from space to TAB; supplied bytes retained separately",
+        "start_utc": "2026-10-05T07:42:28Z",
+        "execution_end_epoch_s": 1791195550.0090144,
+        "elapsed_execution_s": 9402.009014368057,
+        "assigned_cells": 139,
+        "executed_cells": 139,
+        "attempts": 140,
+        "states": {
+          "PASS": 117,
+          "FAILED": 20,
+          "ERROR": 2
+        },
+        "counts": {
+          "collected": 2104,
+          "calls": 2079,
+          "call_pass": 2005,
+          "call_failed": 74,
+          "setup_error": 9,
+          "teardown_error": 0,
+          "skip": 16,
+          "xfail": 0,
+          "xpass": 0,
+          "collection_skip": 0,
+          "collection_error": 0
+        },
+        "counting_scope": "selected primary attempt; final public report per exact nodeid/phase",
+        "additional_public_reports": 8,
+        "additional_report_note": "P032: 6 primary calls plus 8 passed subtest reports; original reports/counts preserved",
+        "nonpass_events_all_attempts": 114,
+        "reconciled_bound_receipts": 138,
+        "P001": {
+          "attempt-1": {
+            "pytest_exit": 0,
+            "receipt_status": "reconciliation_mismatch",
+            "canonical_nodes": 1,
+            "observer_nodes": 170,
+            "wall_s": 533.69,
+            "rss_kib": 1598220
+          },
+          "attempt-2-observer-fallback": {
+            "pytest_exit": 0,
+            "receipt_status": "observer_only",
+            "collected": 170,
+            "calls": 155,
+            "call_pass": 155,
+            "setup_skip": 15,
+            "wall_s": 605.25,
+            "rss_kib": 1599672
+          },
+          "recovery_scope": "one complete-file harness recovery; not independent proof",
+          "nested_probe": "parent assertions establish child exit 0 and SKIP; complete nested module provenance not attested"
+        },
+        "native_property_controls": "absent in all 140 observed primary children",
+        "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+        "selected_extras": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "agent-sim",
+          "causal-discovery-scale",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "environment": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "arch": "x86_64",
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "disk_initial_free_bytes": 32026370048,
+          "disk_after_profile_free_bytes": 23258984448,
+          "installed_distributions": 253,
+          "post_series_distributions_match": true,
+          "lock_version_mismatches": 0,
+          "threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "profile_changes_after_native_start": 0,
+          "gnu_time_version": "time (GNU Time) UNKNOWN",
+          "gnu_time_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+          "gnu_time_probe": "child exit=7 and wall/user/sys/RSS verified",
+          "base_frozen_sync_exit": 0,
+          "node_frozen_install_exit": 0,
+          "union_frozen_sync_exit": 0
+        },
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        },
+        "source_checks": {
+          "assigned_blobs_and_actual_bytes_match": 139,
+          "all_config_hashes_match": true,
+          "tracked_diff_empty": true,
+          "observed_owned_origins_match": true,
+          "source_drift": false,
+          "origins_scope": "session-finish snapshot only"
+        },
+        "resources": {
+          "primary_supervisor_wall_s": 7751.614811658859,
+          "all_attempts_supervisor_wall_s": 8285.45341706276,
+          "all_direct_pytest_cpu_s": 7990.53,
+          "max_direct_pytest_rss_kib": 2608192,
+          "boundary": "GNU time direct pytest; wrapper measured separately; peaks nonadditive; not VM peak"
+        },
+        "blockers": [
+          "P001 original canonical receipt map mismatch; recovery observer_only",
+          "Repository conftest overrides requested Hypothesis storage to policy-engine/_cache/hypothesis; initial contents not inventoried; effective per-cell isolation not established",
+          "Observed missing inputs and failed nodes listed below; cause/ownership not_established",
+          "raw_archive_transfer missing"
+        ],
+        "properties_assigned": 0,
+        "continuation_budget": [],
+        "excluded_slots": {
+          "MISSING": [],
+          "UNRUN_safety": [
+            {
+              "path": "policy-engine/tests/integration/runtime_quality/test_data_state_substrate.py",
+              "blob": "bae992dfe8986d82559a1898cf4f1076632a977d",
+              "in_full_git_tree": true,
+              "bodies_executed": false
+            }
+          ]
+        },
+        "archive": {
+          "sha256": "f00d5fc4d306080209aa4e7d114882f3800e03318320e0892f0699b0a05d326d",
+          "size_bytes": 16494740,
+          "members": 2948,
+          "member_manifest_sha256": "5958663245723ba3217d0fe3db60f42353984fbf008d8aafc538365a384ef157",
+          "all_member_bytes_readback_verified": true,
+          "all_attempts_including_nonpass_present": true
+        },
+        "text_file_sha256": {
+          "result.json": "7918bf219892d09180e9a650c83ad0e0af11be701721a2808c6b9a310879298d",
+          "cells.tsv": "c8dd3a95aec2bd07a406292132c9ea8164eb98ed85d8eab4c3e05d19646eb168",
+          "failures.jsonl": "925b6fa728231a709848f6a4955f5525620e91b884b625853f24ac4a8d491f74",
+          "handoff.md": "45ce11fb9cb7b90913a2ceda60538f5c69498942a66726009abbda996b839a98",
+          "environment.json": "6d36c3fa9d216b5e6258b2c9a4098d5e1f4c407df2791fb89a0295fca93bdb60",
+          "source-inputs.json": "6e199f860301becf6665cad568ca5966820dbb6b656fee9d10d4624ba1cd504d"
+        },
+        "completion": "assigned execution finished; E02 closure not asserted",
+        "transfer_status": "compact_text_only",
+        "raw_archive_transfer": "missing",
+        "recipient_download_verified": false
+      }
+    },
+    {
+      "job": "F09",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+      "source_file_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "metadata_text_sha256": "f3a1aae1b8f40a9b40ef71ddca1b94ff5a3cc48444d76888361a28a840e0c999",
+      "line_start": 5,
+      "line_end": 113,
+      "metadata": {
+        "job": "F09",
+        "run": "20261005T074624Z",
+        "repository": "DenisKopylov/polisyos",
+        "source_role": "e02_head",
+        "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+        "manifest_sha256": "033d478d225b3e4fe2322d0ccb0e5a83993fca17ab37f8dc7148e73fa0246b01",
+        "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4",
+        "assigned": 130,
+        "executed": 130,
+        "attempts": 132,
+        "states": {
+          "PASS": 101,
+          "FAILED": 25,
+          "ERROR": 4
+        },
+        "phase_totals_selected_attempts": {
+          "collected": 2270,
+          "calls": 2234,
+          "call_pass": 1970,
+          "call_failed": 263,
+          "setup_error": 21,
+          "teardown_error": 0,
+          "skip": 16,
+          "xfail": 0,
+          "xpass": 0,
+          "collection_skip": 0,
+          "collection_error": 0
+        },
+        "skip_phases": {
+          "setup": 15,
+          "call": 1
+        },
+        "exceptional_events_selected_attempts": 300,
+        "exceptional_events_all_attempts": 439,
+        "start": "2026-10-05T08:04:17.588803+00:00",
+        "end": "2026-10-05T10:45:54.551985+00:00",
+        "no_new_cells_after": "2026-10-05T11:15:14.478261+00:00",
+        "series_wall_s": 9696.963204145432,
+        "sum_selected_direct_pytest_wall_s": 7732.25,
+        "largest_direct_pytest_rss_kib": 3877456,
+        "resource_boundary": "GNU time process and children; RSS is not VM peak; wrapper and pytest boundaries are separate",
+        "receipt_states": {
+          "valid_reconciled": 127,
+          "canonical_workload_receipt_missing": 3
+        },
+        "selected_fallback_attempts": {
+          "F09-P002": 2,
+          "F09-P003": 2,
+          "F09-P004": 1
+        },
+        "recovery": {
+          "F09-P002": "attempt-01 invalid_observer_mismatch; one same-full-file fallback attempt preserved",
+          "F09-P003": "attempt-01 invalid_observer_mismatch; one same-full-file fallback attempt preserved",
+          "post_series_recovery_candidates": 0
+        },
+        "final_source_clean": true,
+        "original_checkout_head_preserved": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.16.0",
+          "pnpm": "10.33.2",
+          "gnu_time": "1.9",
+          "platform": "Linux x86_64",
+          "cpu_quota_equivalents": 4,
+          "memory_limit_bytes": 17179869184
+        },
+        "selected_extras": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "agent-sim",
+          "causal-discovery-scale",
+          "search_bo",
+          "solvers",
+          "vector-search"
+        ],
+        "setup": {
+          "pnpm_frozen_install": {
+            "exit": 0,
+            "wall_s": 13.55613398551941
+          },
+          "uv_frozen_full_union_initial": {
+            "state": "interrupted_transport",
+            "exit": null,
+            "wall_s": null
+          },
+          "uv_frozen_full_union_recovery": {
+            "exit": 0,
+            "wall_s": 104.76541471481323
+          },
+          "harness_probe_validated": true,
+          "installed_distributions": 253,
+          "UV_NO_BUILD_PACKAGE": "pillow"
+        },
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+          "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        },
+        "P004_nested_boundary": {
+          "observed_pytest_starts": 53,
+          "all_collect_only": true,
+          "allowed_data_state_selector": "tests/integration/runtime_quality/test_data_state_substrate.py::test_agent_registry_has_typed_discovery_surface",
+          "scope": "subprocess starts, not complete nested outcome provenance"
+        },
+        "gates": [],
+        "properties": [],
+        "continuation_unrun": [],
+        "excluded_missing_paths": 33,
+        "verification_issues": [],
+        "archive": {
+          "sha256": "f6fc699097312c85f9e931a168db4e973fbcad21475beaf06b3e661e4b0bf14b",
+          "bytes": 17996757,
+          "members": 2992,
+          "member_manifest_sha256": "6a0c12a3f1520ef42fc9f67cc3a99cae2908a7477ab9dd4cf0dd0cfedb354325",
+          "all_attempt_deciding_outputs_present": true,
+          "independent_tar_readback": true,
+          "recipient_download_verified": false
+        },
+        "cause_status": "not_established",
+        "transfer_status": "compact_text_only",
+        "raw_archive_transfer": "missing",
+        "raw_transfer_missing": true
+      }
+    },
+    {
+      "job": "F14",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+      "source_file_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "metadata_text_sha256": "faae4a0a2a3e3fd0b56ae35d58a747bb3d99a22e153da78a50ab8ad2c265fbd5",
+      "line_start": 4,
+      "line_end": 113,
+      "metadata": {
+        "job": "F14",
+        "run_id": "20261005T074752Z",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "source_role": "integration_head",
+        "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+        "start": "2026-10-05T07:47:52Z",
+        "start_precision": "first explicitly recorded UTC clock; user request receipt time unavailable",
+        "series_first_start": "2026-10-05T08:06:20.720957+00:00",
+        "native_loop_end": "2026-10-05T10:47:05.026404+00:00",
+        "end": "2026-10-05T11:15:19.319586+00:00",
+        "assigned_total": 161,
+        "attempts": 162,
+        "states": {
+          "PASS": 131,
+          "FAILED": 19,
+          "ERROR": 10,
+          "COLLECTION_SKIP": 1
+        },
+        "counts": {
+          "collected": 2685,
+          "calls": 2420,
+          "unique_call_nodes": 2412,
+          "call_pass": 2199,
+          "call_failed": 221,
+          "setup_error": 273,
+          "teardown_error": 0,
+          "skip": 0,
+          "xfail": 0,
+          "xpass": 0,
+          "collection_skip": 1,
+          "collection_error": 1,
+          "unknown_cell_counts": 0
+        },
+        "counts_scope": "public call-phase reports, including unittest.subTest; P041 has 6 collected cases, 14 reports, 6 unique call node IDs",
+        "receipts": {
+          "valid_reconciled": 157,
+          "canonical_workload_receipt_missing": 2,
+          "invalid_or_missing_canonical": 2
+        },
+        "receipt_notes": {
+          "F14-P001": "assigned observer_fallback exception",
+          "F14-P004": "attempt-001 canonical selection mismatch: serialized 1 node versus parent 168; attempt-002 observer_fallback; both retained",
+          "F14-P047": "collection error; canonical receipt unavailable",
+          "F14-P116": "Temporal importorskip, 0 calls; canonical receipt unavailable"
+        },
+        "timings": {
+          "primary_supervisor_wall_s": 9601.081169888992,
+          "all_attempts_supervisor_wall_s": 11287.614412620993,
+          "pytest_user_s": 7543.87,
+          "pytest_system_s": 579.8,
+          "pytest_cpu_missing_primary_attempts": 0,
+          "max_pytest_rss_kib": 1862124,
+          "cpu_boundary": "primary direct pytest subprocess-tree CPU; wrapper CPU not added",
+          "rss_boundary": "maximum of per-file GNU time peaks; not VM peak"
+        },
+        "environment": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.16.0",
+          "corepack_pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpu_quota": 4,
+          "cpuset_effective": "0-4",
+          "memory_max_bytes": 17179869184,
+          "numerical_threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "profile_segment": "frozen-union-1",
+          "selected_extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "vector-search",
+            "solvers",
+            "search_bo",
+            "agent-sim",
+            "causal-discovery-scale"
+          ],
+          "native_property_controls": "all three removal controls absent in actual children",
+          "distribution_origins_ref": "environment.json",
+          "raw_transfer_missing": true
+        },
+        "lock_hashes": {
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        },
+        "setup_segment_columns": [
+          "name",
+          "exit_code",
+          "state"
+        ],
+        "setup_segments": [
+          [
+            "uv-0.9.21-install",
+            0,
+            "completed"
+          ],
+          [
+            "python-3.14-install",
+            0,
+            "completed"
+          ],
+          [
+            "apt-time-download",
+            100,
+            "failed"
+          ],
+          [
+            "apt-local-index",
+            0,
+            "completed"
+          ],
+          [
+            "apt-time-download-local",
+            0,
+            "completed"
+          ],
+          [
+            "time-extract",
+            0,
+            "completed"
+          ],
+          [
+            "time-version",
+            0,
+            "completed"
+          ],
+          [
+            "time-exit7-probe",
+            7,
+            "expected probe exit"
+          ],
+          [
+            "node-version",
+            0,
+            "completed"
+          ],
+          [
+            "corepack-pnpm-version",
+            0,
+            "completed"
+          ],
+          [
+            "pnpm-frozen-install",
+            0,
+            "completed"
+          ],
+          [
+            "uv-frozen-union-sync",
+            null,
+            "interrupted: exec-server transport disconnected; process absent on readback"
+          ],
+          [
+            "uv-frozen-union-sync-attempt-2",
+            1,
+            "failed: No route to host"
+          ],
+          [
+            "uv-frozen-union-sync-attempt-3",
+            0,
+            "completed with same lock and lower concurrency"
+          ],
+          [
+            "frozen-profile-dry-readback",
+            0,
+            "audited; no changes"
+          ],
+          [
+            "python-version",
+            0,
+            "completed"
+          ],
+          [
+            "uv-version",
+            0,
+            "completed"
+          ],
+          [
+            "distribution-origins",
+            0,
+            "completed"
+          ],
+          [
+            "final-tool-paths",
+            0,
+            "completed"
+          ]
+        ],
+        "setup_full_ref": "environment.json / setup-segments.json",
+        "gates": [],
+        "property_rows": [],
+        "native_unrun": [],
+        "harness_recovery": {
+          "cell_id": "F14-P004",
+          "attempt": "attempt-002",
+          "receipt_mode": "observer_fallback",
+          "start": "2026-10-05T10:47:06.335395+00:00",
+          "end": "2026-10-05T11:15:18.607507+00:00",
+          "state": "FAILED",
+          "collected": 168,
+          "calls": 168,
+          "call_pass": 53,
+          "call_failed": 115,
+          "no_profile_changes": true,
+          "not_independent_evidence": true
+        },
+        "source_checks_without_issues": 329,
+        "original_head_preserved": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "archive": {
+          "name": "F14-raw.tar.gz",
+          "sha256": "3f867b37716b2151b86106fa716535faefb060af740ddef8e7007fd4e7bb2df2",
+          "bytes": 12867269,
+          "members": 3029,
+          "complete_attempts": 162,
+          "readback_all_hashes_verified": true,
+          "verified_at": "2026-10-05T11:25:25.502102+00:00"
+        },
+        "nonpass_events_all_attempts": 611,
+        "transfer_status": "compact_text_only",
+        "raw_archive_transfer": "missing",
+        "cause_status": "not_established",
+        "raw_transfer_missing": true
+      }
+    }
+  ],
+  "query_grade": "source_reported_compact_text_only; candidate_routes",
+  "raw_archives_received": 0,
+  "qualification": "Historical compact reported navigation/candidate_unverified/semantic_adequacy_not_established. This test-only fresh input-premise correction is not historical finding closure; baseline PASS never used as candidate evidence."
+}

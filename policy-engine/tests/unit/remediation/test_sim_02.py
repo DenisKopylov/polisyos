@@ -82,7 +82,12 @@ def _request_with_same_target_assignments(
     )
     if reverse:
         atoms = tuple(reversed(atoms))
-    return request.model_copy(update={"intervention_atoms": atoms})
+    return request.model_copy(
+        update={
+            "intervention_atoms": atoms,
+            "horizon": HorizonSpec(start=0, end=0),
+        }
+    )
 
 
 @pytest.mark.parametrize(
@@ -137,7 +142,12 @@ def test_ncm_selected_outcome_missing_or_nonfinite_fails_closed(
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fake_pure_step))
-    request = _request().model_copy(update={"selected_outcomes": selected_outcomes})
+    request = _request().model_copy(
+        update={
+            "selected_outcomes": selected_outcomes,
+            "horizon": HorizonSpec(start=0, end=0),
+        }
+    )
 
     with pytest.raises(JointSimulationControllerError) as raised:
         JointSimulationHorizonController().run(request)
@@ -164,7 +174,10 @@ def test_ncm_explicit_zero_is_preserved_as_a_real_outcome(
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fake_pure_step))
 
-    result = JointSimulationHorizonController().run(_request())
+    request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0)}
+    )
+    result = JointSimulationHorizonController().run(request)
 
     joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
     assert joint.points[0].outcomes == {"firm_survival": 0.0}
@@ -203,6 +216,11 @@ def test_identical_atom_assignments_are_order_invariant() -> None:
     left_joint = left_first.trajectory_for("joint", ("income_subsidy", "balance_grant"))
     right_joint = right_first.trajectory_for("joint", ("balance_grant", "income_subsidy"))
     assert left_joint.points == right_joint.points
+    assert left_joint.diagnostics["physical_run_ref"] == right_joint.diagnostics[
+        "physical_run_ref"
+    ]
+    assert left_joint.atom_ids == ("income_subsidy", "balance_grant")
+    assert right_joint.atom_ids == ("balance_grant", "income_subsidy")
 
 
 class _ShortTrajectoryMethod:
@@ -271,12 +289,15 @@ def test_short_trajectory_is_not_silently_extended_by_final_value() -> None:
     registry = MethodRegistry._create_fresh()
     method_fqn = registry.register(_ShortTrajectoryMethod)
 
+    refusal: JointSimulationControllerError | None = None
     try:
         result = JointSimulationHorizonController(method_registry=registry).run(
             _short_trajectory_request(method_fqn)
         )
     except JointSimulationControllerError as raised:
-        assert raised.code == "trajectory_coverage_incomplete"
+        refusal = raised
+    if refusal is not None:
+        assert refusal.code == "trajectory_coverage_incomplete"
         return
 
     # A permitted partial result has only the point the method actually

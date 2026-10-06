@@ -7,6 +7,7 @@ import pytest
 from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
 from polisyos.runtime.quality.joint_simulation_horizon import (
     EnginePlan,
+    HorizonSpec,
     JointSimulationControllerError,
     JointSimulationHorizonController,
     SimulationTrajectory,
@@ -14,6 +15,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
 )
 from polisyos.runtime.quality.recursive_generation_cycle import _joint_simulation_is_unsupported
 from tests.unit.runtime.quality.test_joint_simulation_horizon import (
+    _atom,
     _coupling_graph,
     _request,
 )
@@ -78,6 +80,7 @@ def test_unsupported_first_engine_falls_back_to_supported_second() -> None:
             "coupling_graph": _coupling_graph("shared_resource"),
             "selected_outcomes": ("final_queue_length",),
             "baseline_state": {"final_queue_length": 0.0},
+            "horizon": HorizonSpec(start=0, end=0),
             "engine_plan": (_request().engine_plan[0], _coupled_plan()),
         }
     )
@@ -108,6 +111,7 @@ def test_all_engine_candidates_incompatible_return_typed_rejection() -> None:
     request = _request(policy_domain="unemployment_claims_benefit").model_copy(
         update={
             "coupling_graph": _coupling_graph("shared_resource"),
+            "horizon": HorizonSpec(start=0, end=0),
             "engine_plan": (first, second),
         }
     )
@@ -200,27 +204,75 @@ def test_selected_plan_requires_its_executed_trajectory(
         JointSimulationControllerError,
         match="selected_plan_execution_binding_missing",
     ):
-        controller.run(_request())
+        controller.run(_request().model_copy(update={"horizon": HorizonSpec(start=0, end=0)}))
 
 
-def test_rejected_engine_reasons_do_not_override_selected_success() -> None:
-    """B06: history retains why an earlier candidate was rejected."""
+def test_static_engine_rejected_by_actual_grid_falls_back_to_stock_flow() -> None:
+    """B06: the exact requested four-step grid selects a real dynamic fallback."""
 
-    first = _request().engine_plan[0].model_copy(
-        update={"eligibility_conditions": ("multi_period",)}
+    base = _request()
+    world_ref = base.world_model_record.world_model_record_id
+    atoms = (
+        _atom(
+            intervention_id="capacity_inflow",
+            causal_variable="agents.income",
+            engine_variable="exogenous_inflows.0",
+            value=2.0,
+            world_model_record_ref=world_ref,
+        ),
+        _atom(
+            intervention_id="demand_inflow",
+            causal_variable="government.balance",
+            engine_variable="exogenous_inflows.1",
+            value=3.0,
+            world_model_record_ref=world_ref,
+        ),
     )
-    second = _request().engine_plan[0].model_copy(
-        update={"objective_ref": "objective://fallback-after-temporal-rejection"}
+    static_plan = base.engine_plan[0]
+    dynamic_plan = EnginePlan(
+        engine_kind="system_dynamics",
+        objective_ref="objective://fallback-after-temporal-rejection",
+        variable_map={
+            "agents.income": "exogenous_inflows.0",
+            "government.balance": "exogenous_inflows.1",
+            "stock0": "stock:0",
+            "stock1": "stock:1",
+        },
+        system_dynamics_state={
+            "initial_stocks": [10.0, 0.0],
+            "flow_matrix": [[0.0, 0.1], [0.0, 0.0]],
+            "exogenous_inflows": [0.0, 0.0],
+        },
+        system_dynamics_params={"dt": 1.0},
     )
-    request = _request().model_copy(update={"engine_plan": (first, second)})
+    request = base.model_copy(
+        update={
+            "intervention_atoms": atoms,
+            "selected_outcomes": ("stock0", "stock1"),
+            "baseline_state": {"stock0": 10.0, "stock1": 0.0},
+            "horizon": HorizonSpec(start=0, end=3, step=1),
+            "engine_plan": (static_plan, dynamic_plan),
+        }
+    )
 
     result = JointSimulationHorizonController().run(request)
 
-    assert result.engine_decisions[0].decision == "unsupported"
+    assert request.horizon.steps() == (0, 1, 2, 3)
+    assert "multi_period" not in static_plan.eligibility_conditions
+    assert [item.decision for item in result.engine_decisions] == ["unsupported", "selected"]
     assert result.engine_decisions[0].reason == "static_engine_cannot_ground_dynamic_horizon"
-    assert result.engine_decisions[1].decision == "selected"
-    assert result.engine_decisions[1].objective_ref == second.objective_ref
+    assert result.engine_decisions[1].engine_kind == "system_dynamics"
+    assert result.engine_decisions[1].objective_ref == dynamic_plan.objective_ref
     assert result.trajectories
+    assert all(item.engine_kind == "system_dynamics" for item in result.trajectories)
+    joint = result.trajectory_for("joint", ("capacity_inflow", "demand_inflow"))
+    assert [point.step for point in joint.points] == [0, 1, 2, 3]
+    assert [point.outcomes["stock0"] for point in joint.points] == pytest.approx(
+        [10.0, 11.0, 11.9, 12.71]
+    )
+    assert [point.outcomes["stock1"] for point in joint.points] == pytest.approx(
+        [0.0, 4.0, 8.1, 12.29]
+    )
 
 
 def test_foreign_trajectory_cannot_satisfy_selected_plan(
@@ -241,4 +293,4 @@ def test_foreign_trajectory_cannot_satisfy_selected_plan(
         JointSimulationControllerError,
         match="selected_trajectory_binding_mismatch",
     ):
-        controller.run(_request())
+        controller.run(_request().model_copy(update={"horizon": HorizonSpec(start=0, end=0)}))

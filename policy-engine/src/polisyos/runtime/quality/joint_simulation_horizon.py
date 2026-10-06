@@ -12,11 +12,12 @@ import itertools
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator, model_validator
 
+from polisyos.foundry.execute._internal.snapshots import _flatten_state
 from polisyos.foundry.execute.executor import (
     apply_state_delta,
     execute_program_graph,
@@ -24,9 +25,10 @@ from polisyos.foundry.execute.executor import (
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
 from polisyos.foundry.methods.catalog.simulation import ensure_simulation_methods_registered
+from polisyos.foundry.methods.catalog.simulation.dynamics import StockFlowSystemDynamicsEstimator
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.ir.analytics.ncm import NCMSpec  # noqa: TC001 - Pydantic validates at runtime.
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import gy_content_hash, gy_recorded_content_hash
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     BoundaryCouplingKind,
     CouplingGraph,
@@ -41,6 +43,9 @@ from polisyos.runtime.quality.world_model_record import (
     consume_world_model_record_for_simulation,
     resolve_intervention_atom_world_binding,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.interventions import VariableAssignment
 
 JOINT_SIMULATION_HORIZON_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
 JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION = (
@@ -427,7 +432,7 @@ def _interaction_coverage(
         if len(point_steps) != len(set(point_steps)):
             issues.append("horizon_incomplete:" + key[0] + ":" + ",".join(key[1]))
             continue
-        horizon_complete = set(point_steps) == set(expected_steps)
+        horizon_complete = point_steps == expected_steps
         valid_points = True
         for point in trajectory.points:
             for outcome in request.selected_outcomes:
@@ -452,7 +457,25 @@ def _interaction_coverage(
         if horizon_complete:
             complete_scopes.add(key)
         else:
-            issues.append("horizon_incomplete:" + key[0] + ":" + ",".join(key[1]))
+            expected_set = set(expected_steps)
+            if any(step not in expected_set for step in point_steps):
+                coverage_kind = "overlong"
+            elif point_steps == expected_steps[: len(point_steps)]:
+                coverage_kind = "short"
+            elif set(point_steps) == expected_set:
+                coverage_kind = "reordered"
+            elif point_steps and point_steps == expected_steps[-len(point_steps) :]:
+                coverage_kind = "suffix_only"
+            else:
+                coverage_kind = "missing_internal"
+            issues.append(
+                "horizon_incomplete:"
+                + coverage_kind
+                + ":"
+                + key[0]
+                + ":"
+                + ",".join(key[1])
+            )
     for key in observed.keys() - expected:
         issues.append("trajectory_scope_unrequested:" + key[0] + ":" + ",".join(key[1]))
     return _InteractionCoverage(
@@ -504,16 +527,43 @@ def _physical_run_ref(
         "seed": int(request.seed),
         "replications": int(request.replications),
         "replication_seeds": list(_replication_seeds(request)),
+        "baseline_state": _json_ready(request.baseline_state),
+        "comparator_refs": list(request.comparator_refs),
         "evidence_state": _json_ready(evidence_state),
         "evidence_source": evidence_source,
         "plan": plan.model_dump(mode="json"),
+        "program_base_state_content_hash": (
+            None
+            if plan.program_base_state is None
+            else _program_base_state_content_hash(plan.program_base_state)
+        ),
         "runtime_refs": runtime_refs,
-        "atoms": [
-            atom.model_dump(mode="json")
-            for atom in subset
-        ],
+        "atoms": sorted(
+            (atom.model_dump(mode="json") for atom in subset),
+            key=lambda atom: (str(atom["content_hash"]), str(atom["intervention_id"])),
+        ),
     }
     return gy_content_hash(payload)
+
+
+def _program_base_state_content_hash(state: object) -> str:
+    """Hash a base state using the typed leaf projection used by CAS snapshots."""
+
+    try:
+        leaves = {
+            path: {
+                "dtype": np.asarray(value).dtype.str,
+                "shape": list(np.asarray(value).shape),
+                "bytes_hex": np.ascontiguousarray(value).tobytes(order="C").hex(),
+            }
+            for path, value in _flatten_state(state)
+        }
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError(
+            "program_graph_state_fingerprint_unavailable",
+            type(state).__name__,
+        ) from exc
+    return gy_recorded_content_hash(leaves)
 
 
 def _aggregate_replicated_trajectory(
@@ -541,11 +591,25 @@ def _aggregate_replicated_trajectory(
         if any(point.step != first_point.step for point in replicated_points):
             raise JointSimulationControllerError("simulation_replication_step_mismatch")
         outcomes = {
-            outcome: float(np.mean([point.outcomes[outcome] for point in replicated_points]))
+            outcome: _required_finite_scalar(
+                [point.outcomes[outcome] for point in replicated_points],
+                field=f"outcome:{outcome}",
+                missing_code="simulation_output_missing",
+                malformed_code="simulation_output_non_numeric",
+                non_finite_code="simulation_output_non_finite",
+                allow_array_mean=True,
+            )
             for outcome in first_point.outcomes
         }
         effects = {
-            outcome: float(np.mean([point.effect[outcome] for point in replicated_points]))
+            outcome: _required_finite_scalar(
+                [point.effect[outcome] for point in replicated_points],
+                field=f"effect:{outcome}",
+                missing_code="simulation_output_missing",
+                malformed_code="simulation_output_non_numeric",
+                non_finite_code="simulation_output_non_finite",
+                allow_array_mean=True,
+            )
             for outcome in first_point.effect
         }
         points.append(
@@ -573,34 +637,227 @@ def _aggregate_replicated_trajectory(
     return first.model_copy(update={"points": tuple(points), "diagnostics": diagnostics})
 
 
+_ENGINE_PLAN_RUNTIME_HANDLES = frozenset(
+    {
+        "program_store",
+        "mechanism_registry",
+        "slot_registry",
+        "merge_registry",
+        "selector_field_registry",
+        "constraint_registry",
+    }
+)
+
+
+def _snapshot_engine_plan(plan: EnginePlan) -> EnginePlan:
+    """Copy semantic plan inputs while retaining process-owned handles by identity."""
+
+    snapshot = plan.model_copy()
+    for name in EnginePlan.model_fields:
+        if name in _ENGINE_PLAN_RUNTIME_HANDLES:
+            continue
+        object.__setattr__(snapshot, name, deepcopy(getattr(plan, name)))
+    return snapshot
+
+
+def _snapshot_joint_simulation_request(
+    request: JointSimulationRequest,
+) -> JointSimulationRequest:
+    """Copy request semantics without recursively copying plan runtime handles."""
+
+    snapshot = request.model_copy()
+    for name in JointSimulationRequest.model_fields:
+        value = getattr(request, name)
+        if name == "engine_plan":
+            copied = tuple(_snapshot_engine_plan(plan) for plan in value)
+        else:
+            copied = deepcopy(value)
+        object.__setattr__(snapshot, name, copied)
+    return snapshot
+
+
+def _required_finite_scalar(
+    value: object,
+    *,
+    field: str,
+    missing_code: str,
+    malformed_code: str,
+    non_finite_code: str,
+    allow_array_mean: bool = False,
+) -> float:
+    """Project a required producer value to one finite scalar or refuse it."""
+
+    if value is None:
+        raise JointSimulationControllerError(missing_code, field)
+    if isinstance(value, (str, bytes, bytearray, bool, np.bool_)):
+        raise JointSimulationControllerError(malformed_code, field)
+    try:
+        raw_array = np.asarray(value)
+        if raw_array.dtype.kind in {"b", "U", "S", "c"} or np.iscomplexobj(raw_array):
+            raise TypeError("output is not a real numeric value")
+        if raw_array.dtype.kind == "O" and any(
+            item is None
+            or isinstance(item, (str, bytes, bytearray, bool, np.bool_, complex))
+            for item in raw_array.flat
+        ):
+            raise TypeError("object output contains non-numeric values")
+        array = np.asarray(value, dtype=float)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError(malformed_code, field) from exc
+    if array.size == 0 or (array.shape != () and not allow_array_mean):
+        raise JointSimulationControllerError(malformed_code, field)
+    if not bool(np.isfinite(array).all()):
+        raise JointSimulationControllerError(non_finite_code, field)
+    try:
+        projected = float(array.item()) if array.shape == () else float(np.mean(array))
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError(malformed_code, field) from exc
+    if not np.isfinite(projected):
+        raise JointSimulationControllerError(non_finite_code, field)
+    return projected
+
+
+def _validate_finite_tree(value: object, *, field: str) -> None:
+    """Reject non-finite numeric metadata before it reaches a receipt payload."""
+
+    if value is None or isinstance(value, (str, bytes, bool)):
+        return
+    if isinstance(value, Mapping):
+        for key, item in value.items():
+            _validate_finite_tree(item, field=f"{field}.{key}")
+        return
+    if isinstance(value, Sequence):
+        for index, item in enumerate(value):
+            _validate_finite_tree(item, field=f"{field}[{index}]")
+        return
+    if isinstance(value, np.ndarray):
+        _required_finite_scalar(
+            value,
+            field=field,
+            missing_code="simulation_output_missing",
+            malformed_code="simulation_output_non_numeric",
+            non_finite_code="simulation_output_non_finite",
+            allow_array_mean=True,
+        )
+        return
+    if isinstance(value, (int, float, np.number)):
+        _required_finite_scalar(
+            value,
+            field=field,
+            missing_code="simulation_output_missing",
+            malformed_code="simulation_output_non_numeric",
+            non_finite_code="simulation_output_non_finite",
+        )
+
+
+def _validate_finite_trajectory(trajectory: SimulationTrajectory) -> SimulationTrajectory:
+    """Apply the same finite-output contract to every registered adapter."""
+
+    for point_index, point in enumerate(trajectory.points):
+        for channel, values in (("outcome", point.outcomes), ("effect", point.effect)):
+            for key, value in values.items():
+                _required_finite_scalar(
+                    value,
+                    field=f"{channel}:{key}@{point.step}",
+                    missing_code="simulation_output_missing",
+                    malformed_code="simulation_output_non_numeric",
+                    non_finite_code="simulation_output_non_finite",
+                )
+        _validate_finite_tree(point.engine_state, field=f"engine_state[{point_index}]")
+    _validate_finite_tree(trajectory.diagnostics, field="trajectory_diagnostics")
+    return trajectory
+
+
+def _run_or_reuse_physical_spec(
+    cache: dict[str, SimulationTrajectory],
+    request: JointSimulationRequest,
+    plan: EnginePlan,
+    decision: EngineDecision,
+    run_level: RunLevel,
+    subset: tuple[InterventionAtomBinding, ...],
+    run_once: Callable[
+        [
+            JointSimulationRequest,
+            EnginePlan,
+            EngineDecision,
+            RunLevel,
+            tuple[InterventionAtomBinding, ...],
+            int,
+        ],
+        SimulationTrajectory,
+    ],
+) -> tuple[str, SimulationTrajectory, bool]:
+    """Execute or reuse one physical spec in the caller-owned invocation cache."""
+
+    physical_ref = _physical_run_ref(request, plan, decision, subset)
+    cached = cache.get(physical_ref)
+    if cached is not None:
+        return physical_ref, cached, True
+    seeds = _replication_seeds(request)
+    replicated = tuple(
+        _validate_finite_trajectory(
+            run_once(
+                _snapshot_joint_simulation_request(request),
+                _snapshot_engine_plan(plan),
+                decision.model_copy(deep=True),
+                run_level,
+                tuple(atom.model_copy(deep=True) for atom in subset),
+                seed,
+            )
+        )
+        for seed in seeds
+    )
+    aggregate = _validate_finite_trajectory(
+        _aggregate_replicated_trajectory(replicated, seeds, physical_ref)
+    )
+    cache[physical_ref] = aggregate
+    return physical_ref, aggregate, False
+
+
 def _run_cached_replicates(
     request: JointSimulationRequest,
     plan: EnginePlan,
     decision: EngineDecision,
     run_once: Callable[
-        [RunLevel, tuple[InterventionAtomBinding, ...], int], SimulationTrajectory
+        [
+            JointSimulationRequest,
+            EnginePlan,
+            EngineDecision,
+            RunLevel,
+            tuple[InterventionAtomBinding, ...],
+            int,
+        ],
+        SimulationTrajectory,
     ],
 ) -> list[SimulationTrajectory]:
     """Run each physical specification once and project it to all requested roles."""
 
+    # Freeze the key basis once; mutable nested request payloads cannot change
+    # identity halfway through an invocation's execution loop.
+    selected_plan_index = next(
+        (index for index, candidate in enumerate(request.engine_plan) if candidate is plan),
+        None,
+    )
+    cache_request = _snapshot_joint_simulation_request(request)
+    cache_plan = (
+        cache_request.engine_plan[selected_plan_index]
+        if selected_plan_index is not None
+        else _snapshot_engine_plan(plan)
+    )
+    cache_decision = decision.model_copy(deep=True)
     cache: dict[str, SimulationTrajectory] = {}
     output: list[SimulationTrajectory] = []
-    seeds = _replication_seeds(request)
-    for run_level, raw_subset in _atom_subsets(request.intervention_atoms):
+    for run_level, raw_subset in _atom_subsets(cache_request.intervention_atoms):
         subset = tuple(raw_subset)
-        physical_ref = _physical_run_ref(request, plan, decision, subset)
-        reused = physical_ref in cache
-        if not reused:
-            replicated = tuple(
-                run_once(run_level, subset, seed)
-                for seed in seeds
-            )
-            cache[physical_ref] = _aggregate_replicated_trajectory(
-                replicated,
-                seeds,
-                physical_ref,
-            )
-        cached = cache[physical_ref]
+        physical_ref, cached, reused = _run_or_reuse_physical_spec(
+            cache,
+            cache_request,
+            cache_plan,
+            cache_decision,
+            run_level,
+            subset,
+            run_once,
+        )
         output.append(
             cached.model_copy(
                 update={
@@ -980,6 +1237,7 @@ class JointSimulationHorizonController:
         world_input = consume_world_model_record_for_simulation(request.world_model_record)
         for atom in request.intervention_atoms:
             resolve_intervention_atom_world_binding(atom, request.world_model_record)
+        _validate_atom_assignment_compatibility(request)
 
         selected = self._select_engine(request)
         decision = selected.decision
@@ -1193,6 +1451,24 @@ class JointSimulationHorizonController:
             decision = selector(plan)
             decision = self._resolve_engine_semantics(plan, decision)
             if decision.decision == "selected":
+                execution_conflict = _execution_assignment_conflict(request, plan)
+                if execution_conflict is not None:
+                    decision = _unsupported(
+                        plan,
+                        "engine_intervention_assignment_conflict",
+                        (f"engine_variable_conflict:{execution_conflict}",),
+                    )
+            if (
+                decision.decision == "selected"
+                and decision.temporal_capability == "static"
+                and len(request.horizon.steps()) > 1
+            ):
+                decision = _unsupported(
+                    plan,
+                    "static_engine_cannot_ground_dynamic_horizon",
+                    ("static_engine_temporal_capability",),
+                )
+            if decision.decision == "selected":
                 coupling_support = _resolve_coupling_support(
                     request=request,
                     engine_kind=decision.engine_kind,
@@ -1336,13 +1612,6 @@ class JointSimulationHorizonController:
 
     def _select_ncm_engine(self, plan: EnginePlan) -> EngineDecision:
         ensure_causal_methods_registered(self._registry)
-        conditions = {item.strip().casefold() for item in plan.eligibility_conditions}
-        if conditions & {"multi_period", "dynamic_horizon", "dynamic_scm"}:
-            return _unsupported(
-                plan,
-                "static_engine_cannot_ground_dynamic_horizon",
-                ("static_engine_temporal_capability",),
-            )
         if plan.ncm_spec is None:
             return _unsupported(plan, "ncm_spec_missing")
         if not plan.ncm_spec.is_acyclic:
@@ -1481,13 +1750,6 @@ class JointSimulationHorizonController:
                 "method_output_shape_does_not_back_semantics",
                 (f"output_shape:{output_shape}",),
             )
-        conditions = {item.strip().casefold() for item in plan.eligibility_conditions}
-        if temporal == "static" and conditions & {"multi_period", "dynamic_horizon", "dynamic_scm"}:
-            return _unsupported(
-                plan,
-                "static_engine_cannot_ground_dynamic_horizon",
-                ("static_engine_temporal_capability",),
-            )
         if temporal == "multi_period" and "result" in entry.signature.output_slot_names:
             required_inputs = set(entry.signature.input_slot_names)
             state_keys = set(plan.system_dynamics_state) | set(plan.coupled_state)
@@ -1535,51 +1797,57 @@ class JointSimulationHorizonController:
             return []
 
         def run_once(
+            run_request: JointSimulationRequest,
+            run_plan: EnginePlan,
+            run_decision: EngineDecision,
             run_level: RunLevel,
             subset: tuple[InterventionAtomBinding, ...],
             replication_seed: int,
         ) -> SimulationTrajectory:
-            current_state = plan.program_base_state
+            method_fqn = _selected_method_fqn(run_decision)
+            current_state = run_plan.program_base_state
             points: list[TrajectoryPoint] = []
             state_delta_refs: list[str] = []
             metrics_refs: list[str] = []
-            for step in request.horizon.steps():
+            for step in run_request.horizon.steps():
                 artifacts = execute_program_graph(
-                    plan.program_store,
-                    program_ref=plan.program_graph_ref,
-                    exec_plan_ref=plan.exec_plan_ref,
+                    run_plan.program_store,
+                    program_ref=run_plan.program_graph_ref,
+                    exec_plan_ref=run_plan.exec_plan_ref,
                     base_state=current_state,
-                    mechanism_registry=plan.mechanism_registry,
-                    slot_registry=plan.slot_registry,
-                    merge_registry=plan.merge_registry,
-                    selector_field_registry=plan.selector_field_registry,
-                    constraint_registry=plan.constraint_registry,
+                    mechanism_registry=run_plan.mechanism_registry,
+                    slot_registry=run_plan.slot_registry,
+                    merge_registry=run_plan.merge_registry,
+                    selector_field_registry=run_plan.selector_field_registry,
+                    constraint_registry=run_plan.constraint_registry,
                     step=step,
                     seed=int(replication_seed) + int(step),
-                    base_ref=plan.program_base_ref,
-                    parameter_overrides=_program_parameter_overrides(subset, plan),
+                    base_ref=run_plan.program_base_ref,
+                    parameter_overrides=_program_parameter_overrides(subset, run_plan),
                 )
                 current_state = apply_state_delta(
-                    plan.program_store,
+                    run_plan.program_store,
                     base_state=current_state,
                     state_delta_ref=artifacts.state_delta_ref,
-                    slot_registry=plan.slot_registry,
-                    merge_registry=plan.merge_registry,
+                    slot_registry=run_plan.slot_registry,
+                    merge_registry=run_plan.merge_registry,
                 )
                 state_delta_refs.append(str(artifacts.state_delta_ref.artifact_id))
                 metrics_refs.append(str(artifacts.metrics_ref.artifact_id))
                 outcomes = _program_graph_outcomes(
                     current_state,
-                    request.selected_outcomes,
-                    plan,
+                    run_request.selected_outcomes,
+                    run_plan,
                 )
                 points.append(
                     TrajectoryPoint(
                         step=step,
                         outcomes=outcomes,
                         effect={
-                            outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
-                            for outcome in request.selected_outcomes
+                            outcome: _effect_for_outcome(
+                                run_request, outcome, outcomes[outcome]
+                            )
+                            for outcome in run_request.selected_outcomes
                         },
                         engine_state={
                             "state_delta_ref": state_delta_refs[-1],
@@ -1590,9 +1858,9 @@ class JointSimulationHorizonController:
             return SimulationTrajectory(
                 run_level=run_level,
                 atom_ids=tuple(atom.intervention_id for atom in subset),
-                engine_kind=decision.engine_kind,
-                method_fqn=decision.method_fqn,
-                objective_ref=plan.objective_ref,
+                engine_kind=run_decision.engine_kind,
+                method_fqn=method_fqn,
+                objective_ref=run_plan.objective_ref,
                 points=tuple(points),
                 diagnostics={
                     "engine": "execute_program_graph",
@@ -1612,57 +1880,24 @@ class JointSimulationHorizonController:
     ) -> list[SimulationTrajectory]:
         if plan.ncm_spec is None or decision.method_fqn is None:
             return []
-        method = self._registry.get(decision.method_fqn)
 
         def run_once(
+            run_request: JointSimulationRequest,
+            run_plan: EnginePlan,
+            run_decision: EngineDecision,
             run_level: RunLevel,
             subset: tuple[InterventionAtomBinding, ...],
             replication_seed: int,
         ) -> SimulationTrajectory:
-            intervention = _ncm_intervention(subset, plan)
-            evidence_state, _ = _effective_evidence_state(request)
-            evidence = {
-                _engine_variable(variable, plan): float(value)
-                for variable, value in evidence_state.items()
-            }
-            step = request.horizon.start
-            output = method.pure_step(
-                {
-                    "ncm_query_data": NCMQueryData(
-                        ncm_spec=plan.ncm_spec,
-                        evidence=evidence,
-                        interventions=[intervention],
-                        query_vars=[
-                            _engine_variable(outcome, plan)
-                            for outcome in request.selected_outcomes
-                        ],
-                        n_samples=1,
-                    )
-                },
-                {"__seed__": int(replication_seed)},
-            )
-            outcomes = _ncm_outcomes(output, request.selected_outcomes, plan)
-            point = TrajectoryPoint(
-                step=step,
-                outcomes=outcomes,
-                effect={
-                    outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
-                    for outcome in request.selected_outcomes
-                },
-                engine_state={"intervention": dict(intervention)},
-            )
-            return SimulationTrajectory(
-                run_level=run_level,
-                atom_ids=tuple(atom.intervention_id for atom in subset),
-                engine_kind=decision.engine_kind,
-                method_fqn=decision.method_fqn,
-                objective_ref=plan.objective_ref,
-                points=(point,),
-                diagnostics={
-                    "engine": "NCMEngineMethod",
-                    "horizon_loop": False,
-                    "temporal_capability": "static",
-                },
+            method_fqn = _selected_method_fqn(run_decision)
+            return _ncm_run_once(
+                run_request,
+                run_plan,
+                run_decision,
+                self._registry.get(method_fqn).pure_step,
+                run_level,
+                subset,
+                replication_seed,
             )
 
         return _run_cached_replicates(request, plan, decision, run_once)
@@ -1675,41 +1910,68 @@ class JointSimulationHorizonController:
     ) -> list[SimulationTrajectory]:
         if decision.method_fqn is None:
             return []
-        method = self._registry.get(decision.method_fqn)
 
         def run_once(
+            run_request: JointSimulationRequest,
+            run_plan: EnginePlan,
+            run_decision: EngineDecision,
             run_level: RunLevel,
             subset: tuple[InterventionAtomBinding, ...],
             replication_seed: int,
         ) -> SimulationTrajectory:
-            params = _coupled_params_for_subset(plan, subset)
-            params["n_steps"] = max(1, len(request.horizon.steps()) - 1)
+            method_fqn = _selected_method_fqn(run_decision)
+            method = self._registry.get(method_fqn)
+            params = _coupled_params_for_subset(run_plan, subset)
+            requested_steps = run_request.horizon.steps()
+            params["n_steps"] = max(1, len(requested_steps) - 1)
             params["seed"] = int(replication_seed)
-            output = method.pure_step(plan.coupled_state, params)
-            result = output.get("result", {})
+            output = method.pure_step(run_plan.coupled_state, params)
+            if not isinstance(output, Mapping):
+                raise JointSimulationControllerError("coupled_simulation_result_missing")
+            raw_result = output.get("result", {})
+            if not isinstance(raw_result, Mapping):
+                raise JointSimulationControllerError("coupled_simulation_result_missing")
+            result = {
+                **raw_result,
+                "initial_queue_length": _required_finite_scalar(
+                    params.get("initial_queue_length", 0.0),
+                    field="initial_queue_length",
+                    missing_code="coupled_queue_trajectory_incomplete",
+                    malformed_code="coupled_queue_trajectory_non_numeric",
+                    non_finite_code="coupled_queue_trajectory_non_finite",
+                ),
+            }
             points: list[TrajectoryPoint] = []
-            for index, step in enumerate(request.horizon.steps()):
-                outcomes = _coupled_outcomes(result, request.selected_outcomes, index)
+            terminal_index = len(requested_steps) - 1
+            for index, step in enumerate(requested_steps):
+                outcomes = _coupled_outcomes(
+                    result,
+                    run_request.selected_outcomes,
+                    index,
+                    terminal_index=terminal_index,
+                )
+                effects = {
+                    outcome: _effect_for_outcome(run_request, outcome, value)
+                    for outcome, value in outcomes.items()
+                }
+                queue_value = _coupled_queue_value(result, index)
                 points.append(
                     TrajectoryPoint(
                         step=step,
                         outcomes=outcomes,
-                        effect={
-                            outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
-                            for outcome in request.selected_outcomes
-                        },
+                        effect=effects,
                         engine_state={
                             "coupled_summary": result.get("summary", {}),
-                            "queue_length": _coupled_queue_value(result, index),
+                            "queue_length": queue_value,
                         },
                     )
                 )
             return SimulationTrajectory(
                 run_level=run_level,
                 atom_ids=tuple(atom.intervention_id for atom in subset),
-                engine_kind=decision.engine_kind,
-                method_fqn=decision.method_fqn,
-                objective_ref=plan.objective_ref,
+                engine_kind=run_decision.engine_kind,
+                method_fqn=run_decision.method_fqn,
+                objective_ref=run_plan.objective_ref,
                 points=tuple(points),
                 diagnostics={
                     "engine": "CoupledPolicySimulationEstimator",
@@ -1728,61 +1990,113 @@ class JointSimulationHorizonController:
     ) -> list[SimulationTrajectory]:
         if decision.method_fqn is None:
             return []
-        method = self._registry.get(decision.method_fqn)
 
         def run_once(
+            run_request: JointSimulationRequest,
+            run_plan: EnginePlan,
+            run_decision: EngineDecision,
             run_level: RunLevel,
             subset: tuple[InterventionAtomBinding, ...],
             replication_seed: int,
         ) -> SimulationTrajectory:
-            state = _system_dynamics_state_for_subset(plan, subset)
+            method_fqn = _selected_method_fqn(run_decision)
+            method = self._registry.get(method_fqn)
+            state = _system_dynamics_state_for_subset(run_plan, subset)
             params = {
-                **plan.system_dynamics_params,
-                "n_steps": max(1, len(request.horizon.steps()) - 1),
+                **run_plan.system_dynamics_params,
+                "n_steps": max(1, len(run_request.horizon.steps()) - 1),
             }
-            params.setdefault("dt", float(request.horizon.step))
+            params.setdefault("dt", float(run_request.horizon.step))
             params["seed"] = int(replication_seed)
             output = method.pure_step(state, params)
-            result = output.get("result", {})
-            stock_trajectory = result.get("trajectory", [])
-            points: list[TrajectoryPoint] = []
-            for index, step in enumerate(request.horizon.steps()):
-                stock_values = (
-                    stock_trajectory[index]
-                    if index < len(stock_trajectory)
-                    else result.get("final_stocks", [])
+            if not isinstance(output, Mapping):
+                raise JointSimulationControllerError(
+                    "system_dynamics_result_missing",
+                    method_fqn,
                 )
+            result = output.get("result", {})
+            if not isinstance(result, Mapping):
+                raise JointSimulationControllerError(
+                    "system_dynamics_result_missing",
+                    method_fqn,
+                )
+            stock_trajectory = result.get("trajectory", [])
+            if (
+                stock_trajectory is None
+                or isinstance(stock_trajectory, Mapping | str | bytes | bytearray)
+            ):
+                raise JointSimulationControllerError(
+                    "system_dynamics_trajectory_missing",
+                    method_fqn,
+                )
+            requested_steps = run_request.horizon.steps()
+            is_stock_flow_owner = method is StockFlowSystemDynamicsEstimator
+            terminal_scalar_fields = (
+                frozenset({"mass_balance", "final_stocks"})
+                if is_stock_flow_owner
+                else frozenset()
+            )
+            terminal_index = len(requested_steps) - 1
+            try:
+                trajectory_length = len(stock_trajectory)
+            except TypeError as exc:
+                raise JointSimulationControllerError(
+                    "system_dynamics_trajectory_missing",
+                    method_fqn,
+                ) from exc
+            if trajectory_length == 0:
+                raise JointSimulationControllerError(
+                    "system_dynamics_trajectory_missing",
+                    method_fqn,
+                )
+            unrequested_points = max(0, trajectory_length - len(requested_steps))
+            if unrequested_points and not (
+                len(requested_steps) == 1 and unrequested_points == 1
+            ):
+                raise JointSimulationControllerError(
+                    "system_dynamics_trajectory_overlong",
+                    f"expected {len(requested_steps)}, received {trajectory_length}",
+                )
+            covered_count = min(trajectory_length, len(requested_steps))
+            points: list[TrajectoryPoint] = []
+            for index, step in enumerate(requested_steps[:covered_count]):
+                stock_values = stock_trajectory[index]
                 outcomes = _system_dynamics_outcomes(
                     result,
                     stock_values,
-                    request.selected_outcomes,
-                    plan,
+                    run_request.selected_outcomes,
+                    run_plan,
+                    point_is_terminal=index == terminal_index,
+                    terminal_scalar_fields=terminal_scalar_fields,
                 )
                 points.append(
                     TrajectoryPoint(
                         step=step,
                         outcomes=outcomes,
                         effect={
-                            outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
-                            for outcome in request.selected_outcomes
+                            outcome: _effect_for_outcome(
+                                run_request, outcome, outcomes[outcome]
+                            )
+                            for outcome in outcomes
                         },
                         engine_state={
                             "stock_values": _json_ready(stock_values),
-                            "mass_balance": result.get("mass_balance"),
                         },
                     )
                 )
             return SimulationTrajectory(
                 run_level=run_level,
                 atom_ids=tuple(atom.intervention_id for atom in subset),
-                engine_kind=decision.engine_kind,
-                method_fqn=decision.method_fqn,
-                objective_ref=plan.objective_ref,
+                engine_kind=run_decision.engine_kind,
+                method_fqn=method_fqn,
+                objective_ref=run_plan.objective_ref,
                 points=tuple(points),
                 diagnostics={
                     "engine": "StockFlowSystemDynamicsEstimator",
                     "horizon_loop": True,
                     "temporal_capability": "multi_period",
+                    "unrequested_output_points": unrequested_points,
+                    "producer_time_grid_binding": "not_established",
                 },
             )
 
@@ -1796,45 +2110,63 @@ class JointSimulationHorizonController:
     ) -> list[SimulationTrajectory]:
         if decision.method_fqn is None:
             return []
-        method = self._registry.get(decision.method_fqn)
 
         def run_once(
+            run_request: JointSimulationRequest,
+            run_plan: EnginePlan,
+            run_decision: EngineDecision,
             run_level: RunLevel,
             subset: tuple[InterventionAtomBinding, ...],
             replication_seed: int,
         ) -> SimulationTrajectory:
-            state = _method_state_for_subset(plan, subset)
+            method_fqn = _selected_method_fqn(run_decision)
+            method = self._registry.get(method_fqn)
+            state = _method_state_for_subset(run_plan, subset)
             params = {
-                **plan.system_dynamics_params,
-                "n_steps": max(1, len(request.horizon.steps()) - 1),
+                **run_plan.system_dynamics_params,
+                "n_steps": max(1, len(run_request.horizon.steps()) - 1),
             }
-            params.setdefault("dt", float(request.horizon.step))
+            params.setdefault("dt", float(run_request.horizon.step))
             params["seed"] = int(replication_seed)
             output = method.pure_step(state, params)
+            if not isinstance(output, Mapping):
+                raise JointSimulationControllerError(
+                    "method_registry_result_missing",
+                    method_fqn,
+                )
             result = output.get("result", {})
+            if not isinstance(result, Mapping):
+                raise JointSimulationControllerError(
+                    "method_registry_result_missing",
+                    method_fqn,
+                )
             raw_trajectory = result.get("trajectory")
-            if (
-                raw_trajectory is None
-                or isinstance(raw_trajectory, Mapping)
-                or isinstance(raw_trajectory, str | bytes | bytearray)
+            if raw_trajectory is None or isinstance(
+                raw_trajectory,
+                Mapping | str | bytes | bytearray,
             ):
                 raise JointSimulationControllerError(
                     "method_registry_temporal_output_missing",
-                    decision.method_fqn,
+                    method_fqn,
                 )
             try:
                 trajectory_length = len(raw_trajectory)
             except TypeError as exc:
                 raise JointSimulationControllerError(
                     "trajectory_coverage_incomplete",
-                    decision.method_fqn,
+                    method_fqn,
                 ) from exc
-            requested_steps = request.horizon.steps()
+            requested_steps = run_request.horizon.steps()
             covered_count = min(trajectory_length, len(requested_steps))
             if covered_count == 0:
                 raise JointSimulationControllerError(
                     "trajectory_coverage_incomplete",
-                    decision.method_fqn,
+                    method_fqn,
+                )
+            if trajectory_length > len(requested_steps):
+                raise JointSimulationControllerError(
+                    "method_registry_trajectory_overlong",
+                    f"expected {len(requested_steps)}, received {trajectory_length}",
                 )
             points: list[TrajectoryPoint] = []
             for index, step in enumerate(requested_steps[:covered_count]):
@@ -1842,32 +2174,33 @@ class JointSimulationHorizonController:
                 outcomes = _system_dynamics_outcomes(
                     result,
                     state_values,
-                    request.selected_outcomes,
-                    plan,
+                    run_request.selected_outcomes,
+                    run_plan,
                 )
                 points.append(
                     TrajectoryPoint(
                         step=step,
                         outcomes=outcomes,
                         effect={
-                            outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
-                            for outcome in request.selected_outcomes
+                            outcome: _effect_for_outcome(
+                                run_request, outcome, outcomes[outcome]
+                            )
+                            for outcome in run_request.selected_outcomes
                         },
                         engine_state={
                             "stock_values": _json_ready(state_values),
-                            "mass_balance": result.get("mass_balance"),
                         },
                     )
                 )
             return SimulationTrajectory(
                 run_level=run_level,
                 atom_ids=tuple(atom.intervention_id for atom in subset),
-                engine_kind=decision.engine_kind,
-                method_fqn=decision.method_fqn,
-                objective_ref=plan.objective_ref,
+                engine_kind=run_decision.engine_kind,
+                method_fqn=method_fqn,
+                objective_ref=run_plan.objective_ref,
                 points=tuple(points),
                 diagnostics={
-                    "engine": decision.method_fqn,
+                    "engine": method_fqn,
                     "horizon_loop": True,
                     "temporal_capability": "multi_period",
                     "coverage_status": (
@@ -1876,6 +2209,7 @@ class JointSimulationHorizonController:
                     "covered_steps": requested_steps[:covered_count],
                     "requested_steps": requested_steps,
                     "hold_last": False,
+                    "producer_time_grid_binding": "not_established",
                 },
             )
 
@@ -1896,6 +2230,14 @@ def _unsupported(
         reason=reason,
         blockers=tuple(blockers or (reason,)),
     )
+
+
+def _selected_method_fqn(decision: EngineDecision) -> str:
+    """Require the registry identity carried by the engine decision snapshot."""
+
+    if decision.method_fqn is None:
+        raise JointSimulationControllerError("simulation_engine_method_binding_missing")
+    return decision.method_fqn
 
 
 def _resolve_coupling_support(
@@ -2121,6 +2463,80 @@ def _atom_subsets(
     return subsets
 
 
+def _validate_atom_assignment_compatibility(request: JointSimulationRequest) -> None:
+    """Refuse ambiguous direct writes before any singleton or joint run starts.
+
+    ``JointSimulationRequest`` has no per-atom dependency declaration, so tuple
+    position is not promoted into sequential execution semantics here.
+    """
+
+    writes: dict[str, tuple[str, float | None]] = {}
+    for atom in request.intervention_atoms:
+        for assignment in atom.causal_do_expr.assignments:
+            binding = request.world_model_record.slot_binding(assignment.variable)
+            if binding is None:
+                binding = next(
+                    (
+                        candidate
+                        for slot_id in atom.target_world_slots
+                        if (candidate := request.world_model_record.slot_binding(slot_id))
+                        is not None
+                        and candidate.state_path == assignment.variable
+                    ),
+                    None,
+                )
+            target = (
+                "state_path:" + binding.state_path
+                if binding is not None and binding.state_path
+                else "world_slot:" + assignment.variable
+            )
+            value = _numeric_assignment_value(assignment)
+
+            previous = writes.get(target)
+            if previous is not None:
+                previous_atom, previous_value = previous
+                if value is None or previous_value is None or value != previous_value:
+                    raise JointSimulationControllerError(
+                        "intervention_assignment_conflict",
+                        (
+                            f"{target} is assigned incompatibly by "
+                            f"{previous_atom!r} and {atom.intervention_id!r}"
+                        ),
+                    )
+            else:
+                writes[target] = (atom.intervention_id, value)
+
+
+def _execution_assignment_conflict(
+    request: JointSimulationRequest,
+    plan: EnginePlan,
+) -> str | None:
+    """Return a plan-specific variable collision before its first physical run."""
+
+    writes: dict[str, float | None] = {}
+    for atom in request.intervention_atoms:
+        for assignment in atom.causal_do_expr.assignments:
+            target = _engine_variable(assignment.variable, plan)
+            value = _numeric_assignment_value(assignment)
+            if target in writes:
+                previous_value = writes[target]
+                if value is None or previous_value is None or value != previous_value:
+                    return target
+            else:
+                writes[target] = value
+    return None
+
+
+def _numeric_assignment_value(assignment: VariableAssignment) -> float | None:
+    if assignment.value is None or assignment.value_expr is not None:
+        return None
+    try:
+        numeric_value = float(assignment.value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return numeric_value if np.isfinite(numeric_value) else None
+
+
 def _ncm_intervention(
     atoms: Sequence[InterventionAtomBinding],
     plan: EnginePlan,
@@ -2175,29 +2591,55 @@ def _coupled_params_for_subset(
 
 
 def _coupled_queue_value(result: Mapping[str, Any], index: int) -> float:
-    queue = result.get("queue_length_trajectory", [])
-    if index < len(queue):
-        return float(queue[index])
-    return float(result.get("final_queue_length", 0.0))
+    if index == 0:
+        value = result.get("initial_queue_length")
+    else:
+        queue = result.get("queue_length_trajectory")
+        if (
+            not isinstance(queue, Sequence | np.ndarray)
+            or isinstance(queue, str | bytes | bytearray)
+            or index - 1 >= len(queue)
+        ):
+            value = None
+        else:
+            value = queue[index - 1]
+    return _required_finite_scalar(
+        value,
+        field=f"queue_length@{index}",
+        missing_code="coupled_queue_trajectory_incomplete",
+        malformed_code="coupled_queue_trajectory_non_numeric",
+        non_finite_code="coupled_queue_trajectory_non_finite",
+    )
 
 
 def _coupled_outcomes(
     result: Mapping[str, Any],
     selected_outcomes: Sequence[str],
     index: int,
+    *,
+    terminal_index: int,
 ) -> dict[str, float]:
     outcomes: dict[str, float] = {}
     for outcome in selected_outcomes:
         if outcome == "final_queue_length":
             outcomes[outcome] = _coupled_queue_value(result, index)
         else:
+            if index != terminal_index:
+                continue
             value = result.get(outcome)
             if value is None:
                 raise JointSimulationControllerError(
                     "coupled_outcome_binding_missing",
                     outcome,
                 )
-            outcomes[outcome] = float(np.asarray(value, dtype=float).mean())
+            outcomes[outcome] = _required_finite_scalar(
+                value,
+                field=outcome,
+                missing_code="coupled_outcome_binding_missing",
+                malformed_code="coupled_outcome_non_numeric",
+                non_finite_code="coupled_outcome_non_finite",
+                allow_array_mean=True,
+            )
     return outcomes
 
 
@@ -2229,12 +2671,22 @@ def _program_graph_outcomes(
 
 def _state_path_scalar(state: object, path: str) -> float:
     value = state
-    for part in path.split("."):
-        value = value[part] if isinstance(value, Mapping) else getattr(value, part)
-    arr = np.asarray(value)
-    if arr.shape == ():
-        return float(arr.item())
-    return float(np.mean(arr.astype(float)))
+    try:
+        for part in path.split("."):
+            value = value[part] if isinstance(value, Mapping) else getattr(value, part)
+    except (AttributeError, IndexError, KeyError, TypeError) as exc:
+        raise JointSimulationControllerError(
+            "program_graph_outcome_binding_missing",
+            path,
+        ) from exc
+    return _required_finite_scalar(
+        value,
+        field=path,
+        missing_code="program_graph_outcome_binding_missing",
+        malformed_code="program_graph_outcome_non_numeric",
+        non_finite_code="program_graph_outcome_non_finite",
+        allow_array_mean=True,
+    )
 
 
 def _engine_variable(variable: str, plan: EnginePlan) -> str:
@@ -2264,14 +2716,73 @@ def _ncm_outcomes(
         stats = summary.get(engine_outcome)
         if not isinstance(stats, Mapping) or "mean" not in stats:
             raise JointSimulationControllerError("ncm_outcome_missing", engine_outcome)
-        try:
-            value = float(stats["mean"])
-        except (TypeError, ValueError) as exc:
-            raise JointSimulationControllerError("ncm_outcome_non_numeric", engine_outcome) from exc
-        if not np.isfinite(value):
-            raise JointSimulationControllerError("ncm_outcome_non_finite", engine_outcome)
-        outcomes[outcome] = value
+        outcomes[outcome] = _required_finite_scalar(
+            stats["mean"],
+            field=engine_outcome,
+            missing_code="ncm_outcome_missing",
+            malformed_code="ncm_outcome_non_numeric",
+            non_finite_code="ncm_outcome_non_finite",
+        )
     return outcomes
+
+
+def _ncm_run_once(
+    request: JointSimulationRequest,
+    plan: EnginePlan,
+    decision: EngineDecision,
+    pure_step: Callable[[Mapping[str, Any], Mapping[str, Any]], Mapping[str, Any]],
+    run_level: RunLevel,
+    subset: tuple[InterventionAtomBinding, ...],
+    replication_seed: int,
+) -> SimulationTrajectory:
+    """Run one registered NCM query through the adapter's canonical projection."""
+
+    if plan.ncm_spec is None or decision.method_fqn is None:
+        raise JointSimulationControllerError("ncm_engine_binding_missing")
+    intervention = _ncm_intervention(subset, plan)
+    evidence_state, _ = _effective_evidence_state(request)
+    evidence = {
+        _engine_variable(variable, plan): float(value)
+        for variable, value in evidence_state.items()
+    }
+    output = pure_step(
+        {
+            "ncm_query_data": NCMQueryData(
+                ncm_spec=plan.ncm_spec,
+                evidence=evidence,
+                interventions=[intervention],
+                query_vars=[
+                    _engine_variable(outcome, plan)
+                    for outcome in request.selected_outcomes
+                ],
+                n_samples=1,
+            )
+        },
+        {"__seed__": int(replication_seed)},
+    )
+    outcomes = _ncm_outcomes(output, request.selected_outcomes, plan)
+    point = TrajectoryPoint(
+        step=request.horizon.start,
+        outcomes=outcomes,
+        effect={
+            outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
+            for outcome in request.selected_outcomes
+        },
+        engine_state={"intervention": dict(intervention)},
+    )
+    return SimulationTrajectory(
+        run_level=run_level,
+        atom_ids=tuple(atom.intervention_id for atom in subset),
+        engine_kind=decision.engine_kind,
+        method_fqn=decision.method_fqn,
+        objective_ref=plan.objective_ref,
+        points=(point,),
+        diagnostics={
+            "engine": "NCMEngineMethod",
+            "horizon_loop": False,
+            "temporal_capability": "static",
+        },
+    )
 
 
 def _system_dynamics_state_for_subset(
@@ -2305,25 +2816,129 @@ def _system_dynamics_outcomes(
     stock_values: object,
     selected_outcomes: Sequence[str],
     plan: EnginePlan,
+    *,
+    point_is_terminal: bool = False,
+    terminal_scalar_fields: frozenset[str] = frozenset(),
 ) -> dict[str, float]:
-    stocks = np.asarray(stock_values, dtype=float)
+    _required_finite_scalar(
+        stock_values,
+        field="stock_trajectory_point",
+        missing_code="system_dynamics_trajectory_missing",
+        malformed_code="system_dynamics_trajectory_non_numeric",
+        non_finite_code="system_dynamics_trajectory_non_finite",
+        allow_array_mean=True,
+    )
+    try:
+        stocks = np.asarray(stock_values, dtype=float)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError(
+            "system_dynamics_trajectory_non_numeric",
+        ) from exc
+    if not np.isfinite(stocks).all():
+        raise JointSimulationControllerError(
+            "system_dynamics_trajectory_non_finite",
+        )
     outcomes: dict[str, float] = {}
     for outcome in selected_outcomes:
         target = _engine_variable(outcome, plan)
+        if target == "final_stocks":
+            raise JointSimulationControllerError(
+                "system_dynamics_outcome_binding_ambiguous",
+                "select one indexed terminal stock",
+            )
         if target == "mass_balance":
-            outcomes[outcome] = float(result.get("mass_balance", 0.0))
+            if target not in terminal_scalar_fields:
+                raise JointSimulationControllerError(
+                    "system_dynamics_scalar_result_unbound",
+                    outcome,
+                )
+            if not point_is_terminal:
+                continue
+            mass_balance = result.get("mass_balance")
+            if mass_balance is None:
+                raise JointSimulationControllerError(
+                    "system_dynamics_mass_balance_missing",
+                    outcome,
+                )
+            outcomes[outcome] = _required_finite_scalar(
+                mass_balance,
+                field=outcome,
+                missing_code="system_dynamics_mass_balance_missing",
+                malformed_code="system_dynamics_mass_balance_non_numeric",
+                non_finite_code="system_dynamics_mass_balance_non_finite",
+            )
             continue
-        index = _stock_index(target)
-        if index is None:
-            value = result.get(target)
-            if value is None:
+        if target.startswith("final_stocks."):
+            if "final_stocks" not in terminal_scalar_fields:
+                raise JointSimulationControllerError(
+                    "system_dynamics_scalar_result_unbound",
+                    outcome,
+                )
+            if not point_is_terminal:
+                continue
+            index = _stock_index(target)
+            final_stocks = result.get("final_stocks")
+            if index is None or final_stocks is None:
                 raise JointSimulationControllerError(
                     "system_dynamics_outcome_binding_missing",
                     outcome,
                 )
-            outcomes[outcome] = float(np.asarray(value, dtype=float).mean())
+            _required_finite_scalar(
+                final_stocks,
+                field="final_stocks",
+                missing_code="system_dynamics_outcome_binding_missing",
+                malformed_code="system_dynamics_outcome_non_numeric",
+                non_finite_code="system_dynamics_outcome_non_finite",
+                allow_array_mean=True,
+            )
+            try:
+                final_values = np.asarray(final_stocks, dtype=float)
+                final_value = final_values[index]
+            except (IndexError, TypeError, ValueError, OverflowError) as exc:
+                raise JointSimulationControllerError(
+                    "system_dynamics_outcome_non_numeric",
+                    outcome,
+                ) from exc
+            outcomes[outcome] = _required_finite_scalar(
+                final_value,
+                field=outcome,
+                missing_code="system_dynamics_outcome_binding_missing",
+                malformed_code="system_dynamics_outcome_non_numeric",
+                non_finite_code="system_dynamics_outcome_non_finite",
+            )
             continue
-        outcomes[outcome] = float(stocks[index])
+        index = _stock_index(target)
+        if index is None:
+            if target not in terminal_scalar_fields:
+                raise JointSimulationControllerError(
+                    "system_dynamics_scalar_result_unbound",
+                    outcome,
+                )
+            if not point_is_terminal:
+                continue
+            outcomes[outcome] = _required_finite_scalar(
+                result.get(target),
+                field=outcome,
+                missing_code="system_dynamics_outcome_binding_missing",
+                malformed_code="system_dynamics_outcome_non_numeric",
+                non_finite_code="system_dynamics_outcome_non_finite",
+                allow_array_mean=True,
+            )
+            continue
+        try:
+            value = stocks[index]
+        except IndexError as exc:
+            raise JointSimulationControllerError(
+                "system_dynamics_outcome_binding_missing",
+                outcome,
+            ) from exc
+        outcomes[outcome] = _required_finite_scalar(
+            value,
+            field=outcome,
+            missing_code="system_dynamics_outcome_binding_missing",
+            malformed_code="system_dynamics_outcome_non_numeric",
+            non_finite_code="system_dynamics_outcome_non_finite",
+        )
     return outcomes
 
 
@@ -2389,13 +3004,13 @@ def _baseline_value(request: JointSimulationRequest, outcome: str) -> float:
             "baseline_state_missing_for_outcome",
             outcome,
         )
-    value = float(request.baseline_state[outcome])
-    if not np.isfinite(value):
-        raise JointSimulationControllerError(
-            "baseline_state_nonfinite_for_outcome",
-            outcome,
-        )
-    return value
+    return _required_finite_scalar(
+        request.baseline_state[outcome],
+        field=outcome,
+        missing_code="baseline_state_missing_for_outcome",
+        malformed_code="baseline_state_non_numeric_for_outcome",
+        non_finite_code="baseline_state_nonfinite_for_outcome",
+    )
 
 
 def _effect_for_outcome(

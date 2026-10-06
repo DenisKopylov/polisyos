@@ -13,7 +13,7 @@ from types import SimpleNamespace
 from typing import Any, NoReturn, cast
 
 import pytest
-from pydantic import PrivateAttr
+from pydantic import PrivateAttr, ValidationError
 
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 from polisyos.core.artifacts import FileSystemCAS
@@ -644,9 +644,24 @@ def test_subclass_atom_identity_is_distinct_but_preflight_refuses_it(
     repo_root = Path(__file__).resolve().parents[3]
     base_payload = low.atom.model_dump(mode="python")
     try:
-        left_atom = _ExtendedAtom.model_validate({**base_payload, "extension_marker": "left"})
-        right_atom = _ExtendedAtom.model_validate({**base_payload, "extension_marker": "right"})
-        assert left_atom.content_hash == right_atom.content_hash == low.atom.content_hash
+        with pytest.raises(ValidationError, match="content_hash_mismatch"):
+            _ExtendedAtom.model_validate({**base_payload, "extension_marker": "left"})
+
+        def content_bound_extension(marker: str) -> _ExtendedAtom:
+            provisional = _ExtendedAtom.model_construct(**base_payload, extension_marker=marker)
+            content_hash = intervention_atom_content_hash(provisional)
+            return _ExtendedAtom.model_validate(
+                {
+                    **base_payload,
+                    "extension_marker": marker,
+                    "content_hash": content_hash,
+                    "atom_id": f"atom_{content_hash.removeprefix('sha256:')[:16]}",
+                }
+            )
+
+        left_atom = content_bound_extension("left")
+        right_atom = content_bound_extension("right")
+        assert left_atom.content_hash != right_atom.content_hash
 
         candidates = tuple(
             _FixtureCandidate(

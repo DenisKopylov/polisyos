@@ -1,0 +1,30 @@
+import sys,site,sysconfig,importlib.util,importlib.metadata,json,hashlib,platform,time,resource
+from pathlib import Path
+plan=json.loads(Path('/tmp/e02-D-native-minimal-profile-inventory.json').read_text());wanted=plan['wanted']
+def canon(s):return s.lower().replace('_','-').replace('.','-')
+have={};distribution_paths={}
+for d in importlib.metadata.distributions():
+ name=canon(d.metadata['Name']);assert name not in have,name;have[name]=d.version;distribution_paths[name]={'path':str(d._path),'resolved':str(Path(d._path).resolve())}
+assert have==wanted,{'missing':set(wanted)-set(have),'extra':set(have)-set(wanted),'mismatch':{k:(v,have.get(k)) for k,v in wanted.items() if have.get(k)!=v}}
+optional={name:importlib.util.find_spec(name) is not None for name in ('torch','botorch','gpytorch','hnswlib','SALib')};assert not any(optional.values()),optional
+import pytest,numpy,pydantic,pydantic_core,orjson,uvloop,pytest_asyncio
+values=numpy.arange(10,dtype=numpy.float64);assert values.sum()==45.0
+class Probe(pydantic.BaseModel):
+ model_config=pydantic.ConfigDict(strict=True)
+ score:float
+assert Probe(score=1.25).score==1.25
+try:Probe(score=True)
+except pydantic.ValidationError:pass
+else:raise AssertionError('Pydantic strict native validator did not reject bool')
+assert orjson.loads(orjson.dumps({'actual':[1,2,3]}))=={'actual':[1,2,3]}
+module_names=('pytest','numpy','numpy._core._multiarray_umath','pydantic','pydantic_core','pydantic_core._pydantic_core','orjson','orjson.orjson','uvloop','uvloop.loop','pytest_asyncio')
+origins={}
+for name in module_names:
+ m=sys.modules.get(name)
+ if m is None:continue
+ p=Path(m.__file__);b=p.read_bytes();origins[name]={'module_path':str(p),'resolved_path':str(p.resolve()),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'module_version':getattr(m,'__version__',None)}
+assert site.ENABLE_USER_SITE is False
+assert sys.prefix=='/tmp/e02-D-runtime-minimal-20261006' and sys.prefix!=sys.base_prefix
+assert all('/workspace/e02-D-locked-env/lib/python3.14/site-packages' not in p for p in sys.path)
+assert not list(Path(sysconfig.get_paths()['purelib']).rglob('*.pth'))
+print(json.dumps({'status':'PASS_ACTUAL_MINIMAL_PROFILE_CONFIRMATION_ONLY','python':sys.version,'python_executable':sys.executable,'sys_prefix':sys.prefix,'sys_base_prefix':sys.base_prefix,'sys_path':sys.path,'purelib':sysconfig.get_paths()['purelib'],'user_site_enabled':site.ENABLE_USER_SITE,'actual_metadata_distribution_count':len(have),'actual_versions':have,'distribution_paths':distribution_paths,'optional_backend_find_spec':optional,'actual_imported_modules':origins,'actual_native_checks':{'numpy_float64_sum':float(values.sum()),'pydantic_strict_value':1.25,'pydantic_bool_rejected':True,'orjson_roundtrip':True},'actual_resources':{'self_maxrss_KiB_linux':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss},'numeric_scope':'No GP, JAX, controller, product or test suite run; absent numerical extras remain UNRUN for numerical requirements.'},indent=2))

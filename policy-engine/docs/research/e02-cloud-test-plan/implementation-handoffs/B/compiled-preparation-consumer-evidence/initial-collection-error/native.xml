@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.726" timestamp="2026-10-06T20:58:37.246499+00:00" hostname="b878f4efbdfc"><testcase classname="" name="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" time="0.000"><error message="collection failure">tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:49: in &lt;module&gt;
+    class _Draw:
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:54: in _Draw
+    input_slots=frozenset({_slot("values", ("n",))}),
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:46: in _slot
+    return SlotSpec(name, SlotType.VECTOR if shape else SlotType.SCALAR, Unit("value", "1"), shape)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;string&gt;:12: in __init__
+    ???
+src/polisyos/foundry/methods/base.py:423: in __post_init__
+    raise TypeError("SlotSpec.contract_id must be None or a non-empty string")
+E   TypeError: SlotSpec.contract_id must be None or a non-empty string</error></testcase></testsuite></testsuites>

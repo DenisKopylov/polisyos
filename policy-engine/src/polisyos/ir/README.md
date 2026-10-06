@@ -43,6 +43,23 @@ IR-подсистеме.
 
 ## Internal Layout
 
+### Structural causal result compatibility
+
+The root facade exports four canonical analytics objects:
+`CausalResultKind`, `CausalEstimatorInterval`, `SCMTrainingRows`, and
+`SCMFitProvenance`. They retain their defining objects and serialization behavior;
+the facade does not duplicate their contracts. Causal query schema 1.2 and twin
+schema 1.1 distinguish fixed-model outcome/ITE distributions and supported
+conditional posterior spans from a separate iid-row refit estimator interval.
+Selected source-bound GCM models use schema 1.1 and retain actual training rows
+and worker provenance. Historical/manual SCM schema 1.0 remains readable without
+supplying a new backend witness. Historical causal query schemas 1.0/1.1 and twin
+schema 1.0 decode as limited, non-gating distributions; old CI/eligibility markers
+do not acquire renewed authority. These local versions leave the shared global
+uncertainty schema unchanged. See the
+[analytics compatibility contract](./analytics/README.md) and
+[structural causal models](../../../docs/reference/foundry/structural-causal-models.md).
+
 - [`api.py`](./api.py) and [`__init__.py`](./__init__.py) own the stable lazy
   facade, remaining lazy legacy import aliases, and public-surface helper metadata.
 - [`_internal/`](./_internal/) is private implementation code. Do not import it

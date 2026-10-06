@@ -90,7 +90,9 @@ def _fit_real(tmp_path: Path, n: int):
         canon_spec=CanonSpec(forbid_floats=False),
     )
     MethodRegistry.get_instance().register(HybridSCMFit, override=True)
-    with bridge.worker_execution_context(store=store, source_ref=source):
+    from polisyos.foundry.methods import causal_worker_execution_context
+
+    with causal_worker_execution_context(store=store, source_ref=source):
         result = run_job(
             JobSpec(
                 job_kind="method",
@@ -141,6 +143,13 @@ def test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer(tmp_path, 
     assert model.fit_method == "gcm" and model.schema_version == "1.1"
     assert model.fit_provenance.versions["dowhy"] == "0.14"
     assert model.training_rows.source_sha256 == hashlib.sha256(store.get_bytes(source)).hexdigest()
+    from polisyos.foundry import methods
+
+    methods.validate_source_bound_gcm_spec(model, store)
+    methods.validate_source_bound_causal_worker_response(
+        response=model.fit_provenance.worker_response,
+        state=data, store=store, source_ref=source,
+    )
     root, conditional = model.mechanisms
     assert root.family_params["observed_samples"] == data.data[:, 0].tolist()
     coefficient = conditional.family_params["coefficients"]["X"]
@@ -237,6 +246,9 @@ print(json.dumps({'mean':output['query_result'].result_mean,'profile':model.fit_
     validate_persisted_estimator_interval(
         interval, model, persisted.query, FileSystemCAS(store.root)
     )
+    methods.validate_source_bound_causal_estimator_interval(
+        interval, model, persisted.query, FileSystemCAS(store.root)
+    )
     corrupted = interval.model_copy(
         update={"replicate_estimates": tuple(v + 0.2 for v in interval.replicate_estimates)}
     )
@@ -309,6 +321,107 @@ def test_row_permutation_source_and_effective_mechanism_tampering_refused(
     missing = FileSystemCAS(tmp_path / "empty")
     with pytest.raises((OSError, ValueError, KeyError, RuntimeError)):
         validate_persisted_gcm_spec(model, missing)
+
+
+def test_actual_query_consumer_binds_complete_cas_projection_and_original_request(
+    tmp_path, selected_worker, monkeypatch
+):
+    """A genuine job's editable peer cannot replace its immutable result or request."""
+    import polisyos.scientist.nodes.builtins.causal.run_causal_queries as owner
+
+    store, source, data, model, _ = _fit_real(tmp_path / "cas", 100)
+    ref = persist_structural_causal_model_spec(store, model)
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="query-custody")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("query-custody"))
+    state = ExperimentState(
+        run_id="query-custody",
+        params={"random_seed": 23, "structural_causal_model_ref": ref.model_dump(mode="json"),
+                "causal_query": _contrast().model_dump(mode="json")},
+    )
+    assert owner.RunCausalQueriesNode().execute(ctx, state).status == "ok"
+    genuine_job = owner.run_job
+    cases = ("summary", "draws", "kind", "metadata", "original_request", "missing_artifact")
+    for case in cases:
+        observed = {}
+
+        def actual_job_then_corrupt(spec, *, selected_case=case, measurement=observed, **kwargs):
+            # Execute the real dispatcher and preserve its real fitted-source markers.
+            if selected_case == "original_request":
+                original = kwargs["method_state"]
+                request = original.query.model_dump(mode="json")
+                request["contrast"]["target"]["value"] = 2.0
+                kwargs["method_state"] = original.model_copy(
+                    update={"query": CausalQuery.model_validate(request)}
+                )
+            job = genuine_job(spec, **kwargs)
+            assert not job.issues and job.method_result_ref is not None
+            original_bytes = store.get_bytes(job.method_result_ref)
+            measurement["genuine_sha256"] = hashlib.sha256(original_bytes).hexdigest()
+            if selected_case == "missing_artifact":
+                job.method_result_ref = None
+                return job
+            if selected_case == "original_request":
+                # A genuine different-arm job keeps both aliases and CAS coherent.
+                assert job.final_state["query_result"].query.contrast.target.value == 2.0
+                return job
+            result = job.final_state["query_result"].model_copy(deep=True)
+            if selected_case == "summary":
+                result.result_mean += 5
+                result.result_ci = (result.result_mean, result.result_mean)
+            elif selected_case == "draws":
+                result.result_distribution[0] += 5
+            elif selected_case == "kind":
+                result.result_kind = "outcome_distribution"
+            elif selected_case == "metadata":
+                result.metadata["unbound_claim"] = "same backend and source markers"
+            job.final_state["query_result"] = result
+            assert store.get_bytes(job.method_result_ref) == original_bytes
+            return job
+
+        monkeypatch.setattr(owner, "run_job", actual_job_then_corrupt)
+        outcome = owner.RunCausalQueriesNode().execute(ctx, state)
+        assert outcome.status == "fail", f"accepted genuine-job {case} corruption"
+        assert outcome.error is not None
+        assert ARTIFACT_CAUSAL_QUERY_RESULT_REF not in outcome.state.artifacts_index
+        assert observed["genuine_sha256"]
+
+
+def test_public_source_bound_validation_facade_identity_invocation_and_pickle():
+    """Facade names preserve the actual providers and callable ABI."""
+    import io
+    import pickle
+    from importlib import import_module
+
+    from polisyos.foundry import methods
+    from polisyos.foundry.methods import api
+
+    providers = {
+        "causal_worker_execution_context": bridge.worker_execution_context,
+        "validate_source_bound_gcm_spec": validate_persisted_gcm_spec,
+        "validate_source_bound_causal_estimator_interval": validate_persisted_estimator_interval,
+        "validate_source_bound_causal_worker_response": bridge.validate_persisted_worker_response,
+    }
+    allowed = {(p.__module__, p.__name__) for p in providers.values()}
+
+    class FacadeUnpickler(pickle.Unpickler):
+        def find_class(self, module, name):
+            if (module, name) not in allowed:
+                raise pickle.UnpicklingError("unexpected provider in locally created ABI fixture")
+            return getattr(import_module(module), name)
+
+    for name, provider in providers.items():
+        assert name in methods.__all__ and name in api.__all__
+        assert getattr(methods, name) is getattr(api, name) is provider
+        assert FacadeUnpickler(io.BytesIO(pickle.dumps(provider))).load() is provider
+    with pytest.raises(TypeError):
+        methods.causal_worker_execution_context()
+    with pytest.raises(TypeError):
+        methods.validate_source_bound_gcm_spec()
+    with pytest.raises(TypeError):
+        methods.validate_source_bound_causal_estimator_interval()
+    with pytest.raises(TypeError):
+        methods.validate_source_bound_causal_worker_response()
 
 
 def test_true_refit_sampling_interval_shrinks_predictive_distribution_does_not(

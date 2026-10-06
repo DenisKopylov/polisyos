@@ -3408,7 +3408,52 @@
         "native-owner-deadline-candidate"
       ],
       "baseline_route_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery.json@0f64409dc8f4aff7d2f38139fe337639f76148c7#baseline_cell_routes.B55",
-      "limitations_and_next_owner": "No broader distributed scheduler fairness or production throughput claim; root final cohort adjudicates generic criterion."
+      "limitations_and_next_owner": "No broader distributed scheduler fairness or production throughput claim; root final cohort adjudicates generic criterion.",
+      "direct_testcase_evidence": {
+        "check_id": "native-final-complete-all15",
+        "target_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-cohort.xml",
+          "sha256": "3f4b14d2bdbd228feb2f01df79a5c13e863ff0cae11de116e4800892b80eb3a0",
+          "bytes": 106158
+        },
+        "input_closure": {
+          "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/input-closure.json",
+          "sha256": "6c984506e665d47c8eb96aad31e6a9521bdf085d5ecc9fa1bdd2db4fefbeda29",
+          "paths": 2756,
+          "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data",
+          "bytes": 523892,
+          "storage": "ignored observed raw; byte-exact Git derivation",
+          "derivation_index": 16
+        },
+        "overall_check_outcome": "FAIL",
+        "overall_check_counts": {
+          "total": 310,
+          "PASS": 295,
+          "FAIL": 15
+        },
+        "testcases": [
+          {
+            "classname": "tests.unit.scientist.orchestration.engine.test_native_execution_admission",
+            "name": "test_native_queued_admission_preserves_slots_and_completed_prefix[fail_fast]",
+            "observed_state": "PASS",
+            "observed_time_s": "0.355"
+          },
+          {
+            "classname": "tests.unit.scientist.orchestration.engine.test_native_execution_admission",
+            "name": "test_native_queued_admission_preserves_slots_and_completed_prefix[continue]",
+            "observed_state": "PASS",
+            "observed_time_s": "0.445"
+          },
+          {
+            "classname": "tests.unit.scientist.orchestration.engine.test_native_execution_admission",
+            "name": "test_native_queued_admission_preserves_slots_and_completed_prefix[cancel]",
+            "observed_state": "PASS",
+            "observed_time_s": "0.274"
+          }
+        ],
+        "qualification": "These actual PASS testcase rows belong to the a175 input/check, whose whole 310-case attempt remains 295 PASS / 15 FAIL. Checks native-final-complete-graph and native-final-fixture-consumers are supporting regression profiles and do not collect these named cases. No new runtime result or ed13 broad rerun is claimed."
+      }
     },
     {
       "finding_id": "B77",
@@ -3495,10 +3540,56 @@
       ],
       "evidence_checks": [
         "native-final-complete-graph",
-        "native-final-fixture-consumers"
+        "native-final-fixture-consumers",
+        "native-final-complete-all15"
       ],
       "baseline_route_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery.json@0f64409dc8f4aff7d2f38139fe337639f76148c7#baseline_cell_routes.B70",
-      "limitations_and_next_owner": "Full production workflow/evaluator history requires exact localG candidate when source criterion depends on real dataset; fixture status does not create evidence."
+      "limitations_and_next_owner": "Full production workflow/evaluator history requires exact localG candidate when source criterion depends on real dataset; fixture status does not create evidence.",
+      "direct_testcase_evidence": {
+        "check_id": "native-final-complete-all15",
+        "target_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-cohort.xml",
+          "sha256": "3f4b14d2bdbd228feb2f01df79a5c13e863ff0cae11de116e4800892b80eb3a0",
+          "bytes": 106158
+        },
+        "input_closure": {
+          "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/input-closure.json",
+          "sha256": "6c984506e665d47c8eb96aad31e6a9521bdf085d5ecc9fa1bdd2db4fefbeda29",
+          "paths": 2756,
+          "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data",
+          "bytes": 523892,
+          "storage": "ignored observed raw; byte-exact Git derivation",
+          "derivation_index": 16
+        },
+        "overall_check_outcome": "FAIL",
+        "overall_check_counts": {
+          "total": 310,
+          "PASS": 295,
+          "FAIL": 15
+        },
+        "testcases": [
+          {
+            "classname": "tests.unit.remediation.test_res_01",
+            "name": "test_resume_preserves_origin_fingerprint_across_two_stops",
+            "observed_state": "PASS",
+            "observed_time_s": "0.661"
+          },
+          {
+            "classname": "tests.unit.remediation.test_res_01",
+            "name": "test_full_valid_state_resumes_without_unnecessary_cache_seed",
+            "observed_state": "PASS",
+            "observed_time_s": "0.587"
+          },
+          {
+            "classname": "tests.unit.remediation.test_res_01",
+            "name": "test_changed_functional_input_remains_incompatible_with_checkpoint",
+            "observed_state": "PASS",
+            "observed_time_s": "0.301"
+          }
+        ],
+        "qualification": "These actual PASS testcase rows belong to the a175 input/check, whose whole 310-case attempt remains 295 PASS / 15 FAIL. Checks native-final-complete-graph and native-final-fixture-consumers are supporting regression profiles and do not collect these named cases. No new runtime result or ed13 broad rerun is claimed."
+      }
     },
     {
       "finding_id": "B71",
@@ -3876,5 +3967,15 @@
       "bytes": 6356
     },
     "scope": "Original a175 valid true-alias graph9/nativeproducer4/additivecurrentrows4/presence/resume observations keep a175 binding. Final ed13 unchanged group3PASS; original grouped a1752FAIL retained. Invalid pre-model constructor alias and independent-neutral scope premises explicitly not_established, not claimed bugs."
+  },
+  "metadata_locator_correction": {
+    "previous_receipt_sha": "bcfc9c82615965578ed250effa6108a763f5dea9",
+    "finding_ids": [
+      "B55",
+      "B70"
+    ],
+    "property": "Direct per-finding evidence now resolves actual check16/JUnit testcase rows; B70 adds its missing whole native consumer check locator.",
+    "source_and_tests": "ZERO_DIFF; no runtime rerun; candidate 3eb and production ed13 unchanged.",
+    "qualification": "Preserves actual overall FAIL and exact a175 historical input/source binding; root final cohort adjudication remains pending."
   }
 }

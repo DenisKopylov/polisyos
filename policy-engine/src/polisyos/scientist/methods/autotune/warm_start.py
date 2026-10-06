@@ -42,8 +42,11 @@ class WarmStartBridge:
         self,
         fingerprint: RunFingerprint,
     ) -> list[Evaluation]:
-        """Find similar runs and retrieve their evaluations for warm-start."""
-        similar = self._manager.find_similar_runs(fingerprint, top_k=self._top_k_runs)
+        """Discover once and apply the source limit only to admitted history."""
+        if self._top_k_runs <= 0 or self._max_evals <= 0:
+            self._last_load_report = self._manager._report()
+            return []
+        similar = self._manager.find_similar_runs(fingerprint, top_k=None)
         if not similar:
             self._last_load_report = self._manager._report()
             logger.info("WarmStartBridge: no similar runs found for %s", fingerprint.run_id)
@@ -53,6 +56,7 @@ class WarmStartBridge:
             similar,
             max_evals=self._max_evals,
             target_fingerprint=fingerprint,
+            max_runs=self._top_k_runs,
         )
         self._last_load_report = deepcopy(self._manager.last_admission_report)
         logger.info(

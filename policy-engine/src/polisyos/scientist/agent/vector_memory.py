@@ -204,16 +204,17 @@ class VectorMemoryStore:
         )
 
     def query(
-        self, embedding: list[float], top_k: int = 10
+        self, embedding: list[float], top_k: int | None = 10
     ) -> list[tuple[str, float, dict[str, Any]]]:
-        """Return key/distance/copied metadata from one captured native generation."""
+        """Return one generation's copied results; ``None`` requests its whole catalog."""
         generation = self._generation
         vector = self._embedding(embedding, generation.dim)
-        if type(top_k) is not int or top_k <= 0:
-            raise ValueError("top_k must be a positive integer")
+        if top_k is not None and (type(top_k) is not int or top_k <= 0):
+            raise ValueError("top_k must be a positive integer or None")
         if not generation.keys:
             return []
-        labels, distances = generation.index.knn_query([vector], k=min(top_k, len(generation.keys)))
+        count = len(generation.keys) if top_k is None else min(top_k, len(generation.keys))
+        labels, distances = generation.index.knn_query([vector], k=count)
         return [
             (
                 generation.keys[int(label)],

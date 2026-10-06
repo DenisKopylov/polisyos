@@ -172,17 +172,22 @@ class TransferLearningManager:
             return None
 
     def find_similar_runs(
-        self, fingerprint: RunFingerprint, top_k: int = 5
+        self, fingerprint: RunFingerprint, top_k: int | None = 5
     ) -> list[RunFingerprint]:
         """Return bounded ANN discoveries, including ideas that are not numerical matches.
 
         Filtering a bounded candidate window may return fewer than top_k; this
-        does not claim globally best K compatible histories.
+        does not claim globally best K compatible histories. Explicit ``None``
+        discovers the whole current catalog in one ANN call, allowing numerical
+        consumers to apply their source limit after content admission.
         """
-        if self._index is None or not fingerprint.embedding or top_k <= 0:
+        if self._index is None or not fingerprint.embedding:
+            return []
+        if top_k is not None and top_k <= 0:
             return []
         discoveries = []
-        for key, _, metadata in self._index.query(fingerprint.embedding, top_k=top_k * 2):
+        window = None if top_k is None else top_k * 2
+        for key, _, metadata in self._index.query(fingerprint.embedding, top_k=window):
             ref = self._history_ref_from_metadata(metadata)
             if key == fingerprint.run_id or ref is None:
                 continue
@@ -196,7 +201,7 @@ class TransferLearningManager:
                 discoveries.append(RunFingerprint.model_validate(data))
             except (TypeError, ValueError):
                 continue
-            if len(discoveries) >= top_k:
+            if top_k is not None and len(discoveries) >= top_k:
                 break
         return discoveries
 
@@ -627,12 +632,15 @@ class TransferLearningManager:
         max_evals: int = 50,
         *,
         target_fingerprint: RunFingerprint | None = None,
+        max_runs: int | None = None,
     ) -> list[Evaluation]:
-        """Select admitted normalized minima fairly; diagnostics consume no row quota."""
+        """Select admitted minima fairly; refusals consume no row or source quota."""
+        if max_runs is not None and (type(max_runs) is not int or max_runs < 0):
+            raise ValueError("max_runs must be a nonnegative integer or None")
         report = self._report()
         groups = []
         self.last_admission_report = report
-        if max_evals <= 0:
+        if max_evals <= 0 or max_runs == 0:
             return []
         target = None if target_fingerprint is None else self.target_basis(target_fingerprint)
         for discovered in similar_runs:
@@ -662,7 +670,10 @@ class TransferLearningManager:
                         {"run_id": source.run_id, "row_index": number, "reason": str(exc)}
                     )
             accepted.sort(key=lambda e: e.scalar_score)
-            groups.append(accepted)
+            if accepted:
+                groups.append(accepted)
+                if max_runs is not None and len(groups) >= max_runs:
+                    break
         chosen = []
         while len(chosen) < max_evals and any(groups):
             for group in groups:

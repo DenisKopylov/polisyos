@@ -1,0 +1,51 @@
+{
+  "schema": "e02.independent.final_closeout_metadata_delta_review.v1",
+  "prior_reviewed_payload": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+  "reviewed_payload_sha": "9c8d6d85d90d00c3dcebfaefc935a56ccdeadd9d",
+  "reviewed_payload_tree": "031dc43a32a553323be41eefce27cbcb20a9086f",
+  "runtime_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "runtime_tree": "e674e22edb8d94d47579326135a786c832402a15",
+  "scope": "Read-only exact committed metadata delta and hashes only; no tests/backend/runtime, checkout, push, production write, children or cleanup.",
+  "verdict": "PASS within exact metadata delta scope; two prior wording corrections resolved, no new overclaim or additional blocker identified. No new runtime/quality/finding closure verdict.",
+  "corrected_values": [
+    "108 changed existing Python files in the complete frozen target list, including tracked handoff probes; archived .py.txt measurement artifacts excluded",
+    "No reviewer CPU/process/test-worker quota was added in the final reported executions. The earlier neural test-level torch.set_num_threads(1) profile deviation was removed in83889657e13d37fe11e048c5298b2f8c64044c08; original capped receipts and the independent7 uncapped replay remain disclosed. Actual reclaim/cgroup events and exact-owned terminations are recorded without per-PID causal claims."
+  ],
+  "summary_semantic_delta": "Exactly two reviewed text fields plus exact pinned historical_profile_deviation reference. All counts, runtimes, authority and quality limitations unchanged.",
+  "historical_profile_ref": {
+    "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-runtime-profile-supersession.json",
+    "bytes": 4253,
+    "sha256": "f4904e4a6bb639a2d35f99636a885dd2cbb3f0993590445d09e94bae67e5d769"
+  },
+  "README_G_local_byte_unchanged": true,
+  "manifest": {
+    "source_sha": "9c8d6d85d90d00c3dcebfaefc935a56ccdeadd9d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/manifest.json",
+    "bytes": 4829,
+    "sha256": "6348b4bbe8ec5a86d3163cad7b138f0752e9bafedd5e7c31ad358924b265ec47"
+  },
+  "manifest_file_cells_verified": 17,
+  "original_independent_reviews_byte_preserved": true,
+  "cleanup": {
+    "exact_unique_paths": 83,
+    "original13_retained": true,
+    "tracked_source_receipt_denominator": 19,
+    "all_declared_path_source_JSON_pointers_verified": 79,
+    "scope": "Owner-declared preservation-review candidates; no proof all paths repeatable, no whole transient-path census, no deletion authority or new existence recensus. Prior deviations retained."
+  },
+  "source_tests_diff_from_runtime_empty": true,
+  "resolution_ref": {
+    "source_sha": "9c8d6d85d90d00c3dcebfaefc935a56ccdeadd9d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/metadata-review-resolution.json",
+    "bytes": 1322,
+    "sha256": "7f979d002a10bc30bce44ea581119192de7ab1f642ccae56c5d29083db879532"
+  },
+  "prior_scoped_findings_review": "45findings/46criterion occurrences/17bundles;0closed; GP26/current142/root127 bounded actual rows distinct from617priorPASS lineage metadata. CompletedqualityFAIL and incomplete broad/backend/frontend/production-invocation retain nonacceptance. Registered P37 labels remain scoped.",
+  "preparation_observation": "First manifest validator attempt incorrectly tried to JSON-decode every hash-valid file including README text and stopped with JSONDecodeError before completing metadata audit. Corrected decoder scope to JSON source receipts only; original hash/byte/path expectations unchanged. Not a backend/runtime/product error.",
+  "limitations": [
+    "No additional backend execution or whole input/runtime/quality acceptance implied by metadata PASS.",
+    "External history/unit/provider/promotion authority and G production commands/minrefs remain absent/null as in unchanged reviewed documents."
+  ],
+  "closure_ids": []
+}

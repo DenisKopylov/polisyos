@@ -41,6 +41,68 @@
     "adjudication": "not_adjudicated",
     "note": "This execution slice proves canonical resume_from_checkpoint continuation from a real 2/3 checkpoint. It separately attempted the public default-workflow CLI from a real CAS checkpoint with 7/23 nodes complete; the CLI refused it because params.pii_scan_results is absent even though the runtime consumer can fall back to the persisted DataSnapshot. LA-033 remains limited and not adjudicated: default-CLI residual execution and the typed producer/checkpoint handshake remain unresolved, as do external historical artifacts and external caller scope."
   },
+  "property": {
+    "statement": "LA-033/REP-01 requires the moved replay owner to preserve its supported ABI and persisted artifact contracts while demonstrating real replay execution and public replay/resume behavior; a resume result establishes continuation only if a genuine partial checkpoint causes residual work and a persisted successor.",
+    "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260:1994-2028",
+    "runtime_path": [
+      "canonical Scientist deterministic replay owner and its twenty-symbol transitional compatibility surface",
+      "Foundry compile, replay_packet execution, persisted result/state and fresh-process CAS readback",
+      "public runtime CLI bundle export/check/import/replay and resume dispatch",
+      "canonical partial checkpoint resume and the distinct public scientist_default CLI partial-resume path"
+    ],
+    "proxy_divergence": "The earlier public CLI returned status=ok on a 23/23-complete checkpoint, and canonical resume_from_checkpoint passed with an injected three-node WorkflowSpec/NodeRegistry. Neither proves that the default scientist_default CLI executes residual work. The distinguishing e19 case read a genuine 7/23 checkpoint and the default CLI refused before any residual node ran because params.pii_scan_results was absent."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_detail": [
+    {
+      "predicate": "Foundry replay persisted output and downstream state match the declared arithmetic",
+      "classification": "independently_reconciled",
+      "evidence": "A fresh process resolved the typed CAS result/state and an independent 10-percent arithmetic oracle agreed; REP-01-real-foundry-execute-and-readback."
+    },
+    {
+      "predicate": "Canonical partial-resume API executed only the remaining tax node and reached 3/3",
+      "classification": "independently_reconciled",
+      "evidence": "CAS frontier readback, a separate fresh execution, and an independent integer-cents oracle agreed; REP-01-canonical-partial-checkpoint-resume-engine."
+    },
+    {
+      "predicate": "The default public CLI executed residual work from the authentic partial checkpoint",
+      "classification": "recomputed",
+      "evidence": "The checkpoint blob reads 7 completed nodes of 23; the exact CLI exited 1 with the required-state guard, stdout was empty, and no residual node executed; REP-01-default-cli-partial-checkpoint-resume."
+    },
+    {
+      "predicate": "External historical artifact and caller universes are absent or zero-sized",
+      "classification": "not_established",
+      "evidence": "No separately supplied historical corpus or complete external caller census is established. This receipt makes no zero-count or no-external-user claim."
+    }
+  ],
+  "capability_state_or_finding_state": "LA-033 remains limited (original criterion partial, not adjudicated, no closure IDs). Real Foundry replay/readback and canonical API resume are verified. Public default-CLI partial continuation remains verification_missing; the producer/checkpoint state handshake is unresolved (P12).",
+  "limitations_and_next_owner": [
+    {
+      "limitation": "The default CLI cannot resume the authentic 7/23 checkpoint because params.pii_scan_results is declared as completed-writer state but was not present in the restored DataSnapshot; the snapshot's PII summary is null.",
+      "next_owner": "C producer owner for build_data_snapshot.py and B checkpoint owner for checkpoint.py, jointly.",
+      "source_refs": [
+        "policy-engine/src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py@473096fa28879eb70c0ce3986294eb06f6e73e2c:35-43,71-87,98-116",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py@d00feba0e10023fbbc7c3c55b5ce18c6701e4931:1294-1322",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py@5e4003bb43c2814d4ffe429c8f7c5460dced427f:219-228"
+      ],
+      "next_action": "Define the typed, provenance-bearing producer/optional-state contract and make checkpoint validation honor that contract while remaining fail-closed for genuinely required evidence; then rerun a real public default-CLI partial checkpoint through residual Foundry execution and compare its persisted result with an independent fresh arithmetic oracle. Do not synthesize an empty/no-findings summary."
+    },
+    {
+      "limitation": "No separately supplied historical RunManifest/replay_manifest corpus is available in this receipt; current source-supported v1 examples do not stand in for it.",
+      "next_owner": "A finding adjudicator / root G owner for corpus intake or an explicitly scoped limitation decision.",
+      "next_action": "Obtain an authorized historical artifact set or keep this criterion bounded. No external corpus count or zero-coverage claim is made."
+    },
+    {
+      "limitation": "External reflection, string-import, FQN monkeypatch, and caller scope for the compatibility module remain not_established.",
+      "next_owner": "A finding adjudicator / root G owner for the supported-window and external-caller scope decision.",
+      "next_action": "Keep the supported compatibility surface until caller scope is adjudicated; do not infer external-user absence from the tracked-repository census."
+    },
+    {
+      "limitation": "The retained raw pytest stdout/JUnit includes generated trailing-whitespace lines; git diff --check flags those evidence files.",
+      "next_owner": "Receipt reader.",
+      "next_action": "Treat this as preserved raw-output formatting, not a product-format defect; deciding logs remain byte-exact and were not normalized."
+    }
+  ],
   "worktree": {
     "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos",
     "branch": "codex/e02-A-replay-full",
@@ -108,6 +170,9 @@
       "change": "Added real default-workflow CLI resume after verified recovery of the exact missing DataSnapshot. The actual partial checkpoint is preserved; the CLI refuses continuation at the completed-writer-state guard for params.pii_scan_results, exposing the bounded producer/checkpoint handshake limitation."
     }
   ],
+  "baseline_cells": [],
+  "baseline_cells_status": "not_established",
+  "baseline_cells_note": "No transferred per-test baseline cell IDs or raw baseline cell archives are included in this slice receipt. Candidate run outputs below are not reclassified as baseline. This is not a claim that no baseline cells exist in other source history.",
   "checks": [
     {
       "id": "REP-01-real-foundry-execute-and-readback",
@@ -209,25 +274,25 @@
     },
     {
       "id": "REP-01-partial-checkpoint-resume-execution",
-      "command": null,
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.ops_runners.runtime_cli resume R_rep_01_cli_resume_complete --cas-root /Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/resume-cas --json",
       "target_sha": "3334775bcad7045361c3c7e3395674b49fcebaab",
       "target_tree_sha": "14c4be8109a1a7c1e635fd8be3355f2b04437619",
       "target": "Run at least one residual workflow node from a real partial checkpoint and persist the next checkpoint/result.",
-      "environment": "UNRUN; no residual node was available in the source-generated CLI resume checkpoint.",
-      "input_closure": "Existing checkpoint sha256:27c7bfb0b7ba19ea7241c8fcdc45ca5ae16219b26224f0e01a381011e3fdcca3 has 23/23 nodes complete; no legit partial checkpoint was available, and none was fabricated.",
+      "environment": "CPython 3.14.0 at /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python; root policy-engine/.venv; JAX_PLATFORM_NAME=cpu; OMP_NUM_THREADS=OPENBLAS_NUM_THREADS=MKL_NUM_THREADS=NUMEXPR_NUM_THREADS=1; PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src.",
+      "input_closure": "At target 3334775 the source-generated scientist_default checkpoint sha256:27c7bfb0b7ba19ea7241c8fcdc45ca5ae16219b26224f0e01a381011e3fdcca3 was 23/23 complete, so this dispatch had no residual work. The later authentic 2/3 engine and 7/23 default-CLI witnesses are separate checks below.",
       "outcome": "UNRUN",
-      "output": "Continuation execution is not established; the CLI PASS above proves dispatch/validation only."
+      "output": "CLI dispatch returned status=ok on the 23/23-complete checkpoint; the residual-execution predicate was not exercised here. Later be8/e19 checks separately exercise a canonical API partial resume and a default CLI partial failure."
     },
     {
       "id": "REP-01-external-historical-artifact-corpus",
-      "command": null,
+      "command": "UNRUN: no separately supplied historical RunManifest/replay_manifest corpus was provided, so no byte/role comparison command was invoked.",
       "target_sha": "3334775bcad7045361c3c7e3395674b49fcebaab",
       "target_tree_sha": "14c4be8109a1a7c1e635fd8be3355f2b04437619",
       "target": "Byte-and-role comparison against separately supplied historical RunManifest/replay_manifest artifacts.",
-      "environment": "UNRUN; no external historical artifact corpus was supplied.",
+      "environment": "Not run; required external artifact input was not supplied. No environment-dependent absence or corpus-size claim is made.",
       "input_closure": "The available current source-supported v1 shapes are exercised separately; they are not treated as a substitute for an external historical corpus.",
       "outcome": "UNRUN",
-      "output": "No external historical corpus comparison is claimed. Versioned v1.1-to-v2 identity remains a separate B31/PublicIR concern."
+      "output": "UNRUN because the input was unavailable; no external artifact count or zero-coverage claim is made. Versioned v1.1-to-v2 identity remains a separate B31/PublicIR concern."
     },
     {
       "id": "REP-01-canonical-partial-checkpoint-resume-engine",

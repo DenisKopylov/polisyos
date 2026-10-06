@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-completion-migration-companions",
+  "closure_ids": [],
+  "bundle_ids": [
+    "DUR-01",
+    "LLM-01"
+  ],
+  "slice_base_sha": "54aa7b81e0fe125d34873962831678a056049503",
+  "implementation_commits": [
+    "c2f6f48fc9694b6cef2c61443851c068cd1427de"
+  ],
+  "candidate_tree_sha": "659b505b6bf619f0b5f26c41f963246198058fab",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "recursive walk of every dictionary/list scalar in architecture/public_surface/inventory.json; complete contract package list and AST literal __all__/_EXPORTS review",
+      "target_sha": "c2f6f48fc9694b6cef2c61443851c068cd1427de",
+      "environment": "cloud Linux; Python3 standard library; read-only tracked inputs",
+      "input_closure": [
+        {
+          "path": "policy-engine/architecture/public_surface/inventory.json",
+          "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d"
+        },
+        {
+          "path": "policy-engine/architecture/public_surface/contract.toml",
+          "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/__init__.py",
+          "sha256": "79ffb9a9e14a06b62aaa19378b7279930247b7b41974057ac6571bc1d8e28df2"
+        }
+      ],
+      "outcome": "PASS",
+      "output": "Complete inventory walk: 5165 scalar values; zero orchestration.engine, CompletionObligation, BudgetMiddleware or FileBudgetLedger string matches. Internal rule explicitly classifies unlisted modules internal. Complete scientist contract package list has only root module with four supported entrypoints. Engine facade has 111 exports; nine budget exports unchanged from slice base; no new completion facade export. New module methods remain internal. Release inventory reviewed=true records review, not public API admission."
+    },
+    {
+      "command": "git diff --check 54aa7b81e0fe125d34873962831678a056049503 c2f6f48fc9694b6cef2c61443851c068cd1427de",
+      "target_sha": "c2f6f48fc9694b6cef2c61443851c068cd1427de",
+      "environment": "Git cloud attached B topic",
+      "input_closure": [
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/README.md"
+      ],
+      "outcome": "PASS",
+      "output": "No whitespace errors; exact two-path companion diff; ledger and middleware source unchanged."
+    }
+  ],
+  "property": {
+    "statement": "Required migration documentation describes strict complete wire1.2, durable pre-provider admission, separate uncertainty stages, owner-bound completion and finite filesystem/process guarantees without promoting internal additions into a public facade.",
+    "runtime_path": [
+      "FileBudgetLedger wire1.2",
+      "BudgetMiddleware original-owner completion",
+      "engine README migration/operational limitations",
+      "release compatibility fragment"
+    ],
+    "proxy_divergence": "Successful inventory scan alone cannot establish runtime settlement or public authority; classification follows complete tracked contract/internal_rule and unchanged facade. Runtime evidence belongs to exact lower9f and upper candidate receipts.",
+    "negative_controls": [
+      "Unknown cost in historical legacy receipts remains unknown after migration; no claim of external invoice authority, crash automation, multi-host or power-loss guarantee."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "required_companions_reviewed_no_finding_closure",
+  "limitations_and_next_owner": [
+    "Documentation-only implementation: runtime tests UNRUN because these two companion changes do not alter runtime source. Root final composed candidate must repeat affected consumer tests after new upper contract.",
+    "Public-surface sync and actual generated guards are separate final checks; this review does not report them green.",
+    "No native Trash is present; preserve all used environments/deciding fixtures, list exact cleanup candidates in final handoff."
+  ]
+}

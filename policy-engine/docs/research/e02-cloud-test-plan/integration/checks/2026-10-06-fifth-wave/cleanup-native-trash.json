@@ -1,0 +1,64 @@
+{
+  "utc": "2026-10-06T15:34:14.917301+00:00",
+  "integration_head": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "policy": "native Trash only; do not empty; no physical recovery claim",
+  "evidence": "1440-disk-pressure-followup.md; deciding receipts committed at 6f869f39d04deaff7eda9b9047848912605beca5 and read back at current HEAD",
+  "actions": [
+    {
+      "source": "/Users/deniskopylov/polisyos/policy-engine/_build/site",
+      "size_kib": 123712,
+      "dev": 16777231,
+      "inode": 25443337,
+      "state": "moved_identity_verified",
+      "native_returncode": 0,
+      "native_stdout": "moved",
+      "native_stderr": "",
+      "source_absent": true,
+      "trash_identity_matches": [
+        "/Users/deniskopylov/.Trash/site"
+      ]
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-checkpoint10-consumers-acdc",
+      "size_kib": 9076,
+      "dev": 16777231,
+      "inode": 171668376,
+      "state": "moved_identity_verified",
+      "native_returncode": 0,
+      "native_stdout": "moved",
+      "native_stderr": "",
+      "source_absent": true,
+      "trash_identity_matches": [
+        "/Users/deniskopylov/.Trash/tmp-checkpoint10-consumers-acdc"
+      ]
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b38-4f71-process",
+      "size_kib": 3368,
+      "dev": 16777231,
+      "inode": 171521825,
+      "state": "moved_identity_verified",
+      "native_returncode": 0,
+      "native_stdout": "moved",
+      "native_stderr": "",
+      "source_absent": true,
+      "trash_identity_matches": [
+        "/Users/deniskopylov/.Trash/tmp-new-b38-4f71-process"
+      ]
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b38-4f71-proof",
+      "size_kib": 3120,
+      "dev": 16777231,
+      "inode": 171533626,
+      "state": "moved_identity_verified",
+      "native_returncode": 0,
+      "native_stdout": "moved",
+      "native_stderr": "",
+      "source_absent": true,
+      "trash_identity_matches": [
+        "/Users/deniskopylov/.Trash/tmp-new-b38-4f71-proof"
+      ]
+    }
+  ]
+}

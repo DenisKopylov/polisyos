@@ -161,3 +161,10 @@ checkpoints, а не дополнительный runtime replay.
 [Current intake and owner actions](reviews/2026-10-06-first-wave.md) record exact
 receipts, independent checks, held admissions and follow-up consumers.
 No new finding closure or future main publication is authorized.
+
+[Latest B/E delta review](reviews/2026-10-06-fifth-wave.md) records the exact
+14:40 intake and separate [B](reviews/B-current-owner-actions-2026-10-06.md) /
+[E](reviews/E-r2-owner-actions-2026-10-06.md) owner actions. B nested-model
+write scope, Mac control transport, B47 carrier, E Welfare assembly and DoE
+direct run-cap admission remain held or limited as specified; bounded component
+evidence does not close those findings or verify the whole assembly.

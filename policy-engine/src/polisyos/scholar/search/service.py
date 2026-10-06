@@ -268,6 +268,22 @@ class ScholarDeepSearchService:
             bundle.brief = active_brief
 
         start_time = time.monotonic()
+        wall_deadline = start_time + search_budgets.max_wall_time_s
+
+        def record_wall_time_stop() -> None:
+            elapsed = time.monotonic() - start_time
+            bundle.partial = True
+            if any(stop.reason == "max_wall_time_s" for stop in bundle.budget_stops):
+                return
+            bundle.uncertainty_notes.append("stopped:max_wall_time_s")
+            bundle.budget_stops.append(
+                SearchBudgetStop(
+                    reason="max_wall_time_s",
+                    observed=math.ceil(elapsed),
+                    limit=math.ceil(search_budgets.max_wall_time_s),
+                )
+            )
+
         seen_urls = {str(source.url) for source in bundle.sources}
         seen_by_hash = {
             source.content_sha256: source.source_id
@@ -312,16 +328,8 @@ class ScholarDeepSearchService:
                     )
                 )
                 break
-            if time.monotonic() - start_time > search_budgets.max_wall_time_s:
-                bundle.partial = True
-                bundle.uncertainty_notes.append("stopped:max_wall_time_s")
-                bundle.budget_stops.append(
-                    SearchBudgetStop(
-                        reason="max_wall_time_s",
-                        observed=math.ceil(time.monotonic() - start_time),
-                        limit=math.ceil(search_budgets.max_wall_time_s),
-                    )
-                )
+            if time.monotonic() >= wall_deadline:
+                record_wall_time_stop()
                 break
 
             remaining_query_budget = search_budgets.max_search_queries - searched_queries
@@ -345,6 +353,7 @@ class ScholarDeepSearchService:
                         constraints=active_constraints,
                         max_results=max(5, min(search_budgets.max_fetch_pages, 20)),
                         timeout_s=self._search_timeout_s,
+                        deadline_monotonic=wall_deadline,
                     )
                     for node in batch_nodes
                 ]
@@ -352,6 +361,9 @@ class ScholarDeepSearchService:
 
             fetch_specs: list[tuple[WebSearchHit, QueryNode]] = []
             batch_seen_urls: set[str] = set()
+            wall_time_stopped = any(
+                selection.stop_reason == "max_wall_time_s" for selection in search_results
+            )
             for node, selection in zip(batch_nodes, search_results, strict=False):
                 provider_name = selection.provider
                 hits = selection.hits
@@ -370,7 +382,7 @@ class ScholarDeepSearchService:
                     terminal_reason=selection.stop_reason,
                 )
                 bundle.query_traces.append(query_trace)
-                if not hits:
+                if not hits and selection.stop_reason != "max_wall_time_s":
                     frontier = NoHitFrontierRecord(
                         query_node_id=node.node_id,
                         query=node.query,
@@ -410,6 +422,10 @@ class ScholarDeepSearchService:
                 for hit in candidates:
                     batch_seen_urls.add(str(hit.url))
                     fetch_specs.append((hit, node))
+
+            if wall_time_stopped or time.monotonic() >= wall_deadline:
+                record_wall_time_stop()
+                break
 
             fetch_tasks = [
                 _fetch_hit(
@@ -520,7 +536,7 @@ class ScholarDeepSearchService:
             ArtifactWriteOptions(
                 kind="scholar.web_evidence_bundle",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scholar.web_evidence_bundle", version="1.1"),
+                schema=SchemaInfo(name="polisyos.scholar.web_evidence_bundle", version="1.2"),
                 producer=ProducerInfo(component="polisyos.scholar.search.service", version="1.0.0"),
             ),
             canon_spec=CanonSpec(forbid_floats=False),

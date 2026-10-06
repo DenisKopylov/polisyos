@@ -113,6 +113,12 @@ class UrlFetchCache:
             return None
         return record
 
+    def get_raw_bytes(self, record: CachedPageRecord) -> bytes:
+        """Resolve the immutable CAS payload referenced by one cached page record."""
+        if self._cas is None or record.artifact_id is None:
+            raise FileNotFoundError("cached page has no resolvable raw CAS snapshot")
+        return self._cas.get_bytes(record.artifact_id)
+
     def put(self, result: FetchResult, *, raw_bytes: bytes | None = None) -> CachedPageRecord:
         artifact_id = result.artifact_id
         previous = self._records.get(str(result.url))

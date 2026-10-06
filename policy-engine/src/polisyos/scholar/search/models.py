@@ -142,7 +142,7 @@ class ProviderSearchResult(BaseModel):
     hits: list[WebSearchHit] = Field(default_factory=list)
     attempts: list[ProviderAttemptTrace] = Field(default_factory=list)
     exhausted: bool
-    stop_reason: Literal["useful", "providers_exhausted"]
+    stop_reason: Literal["useful", "providers_exhausted", "max_wall_time_s"]
     error: str | None = None
 
 
@@ -261,7 +261,7 @@ class SearchQueryTrace(BaseModel):
     searched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     error: str | None = None
     provider_attempts: list[ProviderAttemptTrace] = Field(default_factory=list)
-    terminal_reason: Literal["useful", "providers_exhausted"] | None = None
+    terminal_reason: Literal["useful", "providers_exhausted", "max_wall_time_s"] | None = None
 
 
 class NoHitFrontierRecord(BaseModel):
@@ -360,7 +360,7 @@ class WebEvidenceBundle(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0", "1.1"] = "1.1"
+    schema_version: Literal["1.0", "1.1", "1.2"] = "1.2"
     bundle_id: str
     brief: ResearchBrief
     query_graph: QueryGraph

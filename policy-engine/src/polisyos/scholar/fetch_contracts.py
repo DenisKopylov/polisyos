@@ -15,4 +15,6 @@ type FetchFailureReason = Literal[
     "transport_error",
     "paywall",
     "inaccessible_text",
+    "cached_snapshot_unavailable",
+    "cached_snapshot_mismatch",
 ]

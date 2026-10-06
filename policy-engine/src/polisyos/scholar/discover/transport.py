@@ -73,6 +73,7 @@ class RawFetchResult:
     raw_bytes: bytes
     final_url: str
     content_type: str
+    mime_type: str
     headers: dict[str, str]
     redirect_chain: list[str]
 
@@ -99,22 +100,46 @@ def fetch_raw(
     with opener.open(request, timeout=timeout_s) as response:
         limit = max_bytes + 1 if max_bytes is not None else -1
         raw_bytes = response.read(limit)
-        if max_bytes is not None and len(raw_bytes) > max_bytes:
-            raise RawFetchSizeError(
-                observed_bytes=len(raw_bytes),
-                max_bytes=max_bytes,
-            )
         final_url = getattr(response, "url", url) or url
-        _validate_url(final_url, constraints)
         headers = {str(key): str(value) for key, value in response.headers.items()}
         content_type = response.headers.get("Content-Type") or "application/octet-stream"
+        mime_type = admit_raw_payload(
+            final_url=final_url,
+            content_type=content_type,
+            raw_bytes=raw_bytes,
+            constraints=constraints,
+            max_bytes=max_bytes,
+        )
         return RawFetchResult(
             raw_bytes=raw_bytes,
             final_url=final_url,
             content_type=content_type,
+            mime_type=mime_type,
             headers=headers,
             redirect_chain=list(redirect_chain),
         )
+
+
+def admit_raw_payload(
+    *,
+    final_url: str,
+    content_type: str,
+    raw_bytes: bytes,
+    constraints: SearchConstraints,
+    max_bytes: int | None,
+) -> str:
+    """Apply current URL, payload-size, and MIME admission to actual response bytes."""
+    _validate_url(final_url, constraints)
+    if max_bytes is not None and len(raw_bytes) > max_bytes:
+        raise RawFetchSizeError(observed_bytes=len(raw_bytes), max_bytes=max_bytes)
+
+    from polisyos.scholar.search.security import validate_content_type
+
+    admitted_type = content_type or "application/octet-stream"
+    try:
+        return validate_content_type(admitted_type, constraints)
+    except ValueError as exc:
+        raise RawFetchPolicyError(fetch_failure_reason(exc), str(exc)) from exc
 
 
 class _ValidatingRedirectHandler(urllib.request.HTTPRedirectHandler):
@@ -169,6 +194,7 @@ __all__ = [
     "RawFetchPolicyError",
     "RawFetchResult",
     "RawFetchSizeError",
+    "admit_raw_payload",
     "build_fetch_profile",
     "fetch_failure_reason",
     "fetch_raw",

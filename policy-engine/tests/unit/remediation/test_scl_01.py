@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import threading
 import time
@@ -19,6 +20,7 @@ from polisyos.scholar.errors import ScholarAcquireError
 from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.fetcher import fetch_open_page
 from polisyos.scholar.search.models import (
+    FetchResult,
     QueryGraph,
     QueryNode,
     ResearchBrief,
@@ -111,6 +113,31 @@ class _ScriptedProvider:
         if isinstance(self.response, Exception):
             raise self.response
         return self.response
+
+
+class _DelayedProvider:
+    def __init__(self, name: str, delay_s: float) -> None:
+        self.name = name
+        self.delay_s = delay_s
+        self.timeouts: list[float] = []
+        self.cancelled = False
+
+    async def search(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float,
+    ) -> list[WebSearchHit]:
+        del query, constraints, max_results
+        self.timeouts.append(timeout_s)
+        try:
+            await asyncio.sleep(self.delay_s)
+        except asyncio.CancelledError:
+            self.cancelled = True
+            raise
+        return []
 
 
 def _hit(name: str, url: str, *, source_type: str = "government") -> WebSearchHit:
@@ -354,7 +381,7 @@ async def test_deep_search_persists_attempt_trace_and_distinct_query_budget_stop
     ref = service.persist_bundle(bundle)
     manifest = service._cas.get_manifest(ref.artifact_id)
     assert manifest.artifact_schema is not None
-    assert manifest.artifact_schema.version == "1.1"
+    assert manifest.artifact_schema.version == "1.2"
     persisted = WebEvidenceBundle.model_validate(
         from_canonical_bytes(
             service._cas.get_bytes(ref.artifact_id)
@@ -366,6 +393,168 @@ async def test_deep_search_persists_attempt_trace_and_distinct_query_budget_stop
     assert persisted.query_traces[0].terminal_reason == "providers_exhausted"
     assert persisted.no_hit_frontier[0].reason == "provider_returned_no_hits"
     assert [stop.reason for stop in persisted.budget_stops] == ["max_search_queries"]
+
+
+@pytest.mark.asyncio
+async def test_deep_search_deadline_bounds_provider_failover_and_records_budget_stop(
+    tmp_path,
+) -> None:
+    first = _DelayedProvider("first", 0.7)
+    second = _DelayedProvider("second", 0.7)
+    never = _ScriptedProvider("never", RuntimeError("must not run"))
+    brief = ResearchBrief(question="employment policy")
+    graph = QueryGraph(
+        brief=brief,
+        nodes=[QueryNode(node_id="q1", query="employment", perspective="overview")],
+        root_node_ids=["q1"],
+    )
+    cas = FileSystemCAS(tmp_path / "cas")
+    service = ScholarDeepSearchService(
+        provider_policy=ProviderFailoverPolicy([first, second, never]),
+        cas=cas,
+        search_timeout_s=2,
+    )
+    started = time.monotonic()
+
+    bundle = await service.deep_search(
+        brief=brief,
+        query_graph=graph,
+        constraints=SearchConstraints(),
+        budgets=SearchBudgetControls(
+            max_search_queries=1,
+            max_fetch_pages=1,
+            max_parallel_queries=1,
+            max_depth=0,
+            max_wall_time_s=1,
+        ),
+    )
+
+    elapsed = time.monotonic() - started
+    trace = bundle.query_traces[0]
+    ref = service.persist_bundle(bundle)
+    manifest = cas.get_manifest(ref.artifact_id)
+    persisted = WebEvidenceBundle.model_validate(
+        from_canonical_bytes(cas.get_bytes(ref.artifact_id))
+    )
+    assert elapsed < 1.4
+    assert first.timeouts[0] <= 1
+    assert second.timeouts[0] < 0.5
+    assert second.cancelled is True
+    assert not never.calls
+    assert [attempt.provider for attempt in trace.provider_attempts] == ["first", "second"]
+    assert [attempt.outcome for attempt in trace.provider_attempts] == ["empty", "error"]
+    assert trace.terminal_reason == "max_wall_time_s"
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.version == "1.2"
+    assert persisted.query_traces[0].terminal_reason == "max_wall_time_s"
+    assert [stop.reason for stop in persisted.budget_stops] == ["max_wall_time_s"]
+    assert persisted.no_hit_frontier == []
+    assert persisted.partial is True
+    assert trace.provider_attempts[-1].error_type == "TimeoutError"
+    assert bundle.no_hit_frontier == []
+    assert bundle.partial is True
+    assert [stop.reason for stop in bundle.budget_stops] == ["max_wall_time_s"]
+
+
+def _cached_raw_page(
+    tmp_path,
+    *,
+    body: bytes,
+    content_type: str = "text/plain",
+    final_url: str = "https://example.gov/report",
+    with_cas: bool = True,
+    content_sha256: str | None = None,
+    byte_size: int | None = None,
+) -> UrlFetchCache:
+    cache = UrlFetchCache(
+        index_path=tmp_path / "cache.json",
+        cas=FileSystemCAS(tmp_path / "cas") if with_cas else None,
+    )
+    result = FetchResult(
+        url="https://example.gov/start",
+        final_url=final_url,
+        title="cached title",
+        text="cached text",
+        content_type=content_type,
+        content_sha256=content_sha256 or hashlib.sha256(body).hexdigest(),
+        headers={"ETag": '"cache-v1"', "X-Cache-Test": "kept"},
+        redirect_chain=[final_url],
+        artifact_id=f"sha256:{hashlib.sha256(body).hexdigest()}" if with_cas else None,
+        byte_size=len(body) if byte_size is None else byte_size,
+        license="metadata-only-license",
+        fetch_profile={"captured_under": "original-profile"},
+    )
+    record = cache.put(result, raw_bytes=body)
+    if byte_size is not None:
+        cache._records[str(result.url)] = record.model_copy(update={"byte_size": byte_size})
+    return cache
+
+
+@pytest.mark.parametrize(
+    ("case", "expected_reason"),
+    [
+        ("blocked_redirect", "blocked_domain"),
+        ("mime", "blocked_content_type"),
+        ("actual_size", "max_bytes_exceeded"),
+        ("size_mismatch", "cached_snapshot_mismatch"),
+        ("digest_mismatch", "cached_snapshot_mismatch"),
+        ("snapshot_unavailable", "cached_snapshot_unavailable"),
+    ],
+)
+@pytest.mark.asyncio
+async def test_cached_snapshot_reapplies_current_admission_to_raw_bytes(
+    case: str,
+    expected_reason: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    body = (
+        b"x" * 128
+        if case in {"actual_size", "blocked_redirect", "size_mismatch"}
+        else b"cached raw bytes\n"
+    )
+    final_url = (
+        "https://blocked.example/final"
+        if case == "blocked_redirect"
+        else "https://example.gov/report"
+    )
+    content_type = "application/json" if case == "mime" else "text/plain"
+    cache = _cached_raw_page(
+        tmp_path,
+        body=body,
+        content_type=content_type,
+        final_url=final_url,
+        with_cas=case != "snapshot_unavailable",
+        content_sha256="0" * 64 if case == "digest_mismatch" else None,
+        byte_size=1 if case == "size_mismatch" else None,
+    )
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("cache miss fetched URL")),
+    )
+    constraints = SearchConstraints(
+        allowed_domains=["example.gov"],
+        blocked_domains=["blocked.example"] if case == "blocked_redirect" else [],
+        allow_private_networks=True,
+        allowed_content_types=["text/plain"],
+    )
+
+    fetched = await fetch_open_page(
+        "https://example.gov/start",
+        constraints=constraints,
+        cache=cache,
+        max_bytes=1 if case in {"actual_size", "blocked_redirect"} else 1024,
+    )
+
+    assert fetched.status == "error"
+    assert fetched.failure_reason == expected_reason
+    assert fetched.final_url == final_url
+    assert fetched.redirect_chain == [final_url]
+    assert fetched.headers["X-Cache-Test"] == "kept"
+    assert fetched.license == "metadata-only-license"
+    assert fetched.fetch_profile == {"captured_under": "original-profile"}
+    if case in {"actual_size", "blocked_redirect", "size_mismatch"}:
+        assert fetched.byte_size == 128
 
 
 @pytest.mark.asyncio

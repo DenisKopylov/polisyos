@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 
 import pytest
+
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.scholar import SourceSpec
 from polisyos.scholar.discover.http_fetch import fetch_url
 from polisyos.scholar.discover.transport import fetch_raw
@@ -70,7 +72,11 @@ async def test_fetch_open_page_extracts_text_and_uses_cache(monkeypatch, tmp_pat
         lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
     )
 
-    cache = UrlFetchCache(index_path=tmp_path / "index.json", ttl_seconds=3600)
+    cache = UrlFetchCache(
+        index_path=tmp_path / "index.json",
+        cas=FileSystemCAS(tmp_path / "cas"),
+        ttl_seconds=3600,
+    )
     first = await fetch_open_page(
         "https://example.gov/report",
         constraints=SearchConstraints(allowed_domains=["example.gov"]),
@@ -89,6 +95,9 @@ async def test_fetch_open_page_extracts_text_and_uses_cache(monkeypatch, tmp_pat
     assert "Child benefit increased employment." in first.text
     assert first.content_sha256 == hashlib.sha256(html).hexdigest()
     assert second.status == "cached"
+    assert second.title == "Gov Report"
+    assert "Child benefit increased employment." in second.text
+    assert second.content_sha256 == first.content_sha256
     assert calls == 1
 
 

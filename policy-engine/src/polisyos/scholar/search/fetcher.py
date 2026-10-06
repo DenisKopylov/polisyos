@@ -12,7 +12,9 @@ from typing import TYPE_CHECKING
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.core.canon import content_hash
 from polisyos.scholar.discover.transport import (
+    RawFetchPolicyError,
     RawFetchSizeError,
+    admit_raw_payload,
     build_fetch_profile,
     fetch_failure_reason,
     fetch_raw,
@@ -22,7 +24,6 @@ from polisyos.scholar.search.scoring import compress_page_to_snippets
 from polisyos.scholar.search.security import (
     detect_paywall,
     sanitize_untrusted_text,
-    validate_content_type,
     validate_fetch_url,
 )
 
@@ -73,7 +74,75 @@ async def fetch_open_page(
         )
     cached = cache.get(url) if cache is not None else None
     if cached is not None:
-        return cached.to_fetch_result()
+        cached_result = cached.to_fetch_result()
+        raw_bytes: bytes | None = None
+        try:
+            try:
+                raw_bytes = cache.get_raw_bytes(cached)
+            except Exception as exc:
+                raise RawFetchPolicyError(
+                    "cached_snapshot_unavailable",
+                    f"cached raw CAS snapshot could not be resolved: {exc}",
+                ) from exc
+            mime = admit_raw_payload(
+                final_url=cached.final_url,
+                content_type=cached.content_type,
+                raw_bytes=raw_bytes,
+                constraints=constraints,
+                max_bytes=max_bytes,
+            )
+            digest = hashlib.sha256(raw_bytes).hexdigest()
+            if (
+                _normalize_digest(cached.content_sha256) != digest
+                or cached.artifact_id != f"sha256:{digest}"
+                or (cached.byte_size is not None and cached.byte_size != len(raw_bytes))
+            ):
+                raise RawFetchPolicyError(
+                    "cached_snapshot_mismatch",
+                    "cached raw bytes do not match the stored digest, artifact, or byte size",
+                )
+            title, text = _extract_title_and_text(raw_bytes, mime=mime, final_url=cached.final_url)
+            text = sanitize_untrusted_text(text)
+            paywalled = detect_paywall(text)
+            error = "paywall detected" if paywalled else None
+            failure_reason = "paywall" if paywalled else None
+            if not paywalled and not text.strip():
+                error = "no accessible text in fetched response"
+                failure_reason = "inaccessible_text"
+            return cached_result.model_copy(
+                update={
+                    "title": title,
+                    "text": text,
+                    "content_type": mime,
+                    "status": "blocked" if paywalled else "cached",
+                    "failure_reason": failure_reason,
+                    "content_sha256": digest,
+                    "byte_size": len(raw_bytes),
+                    "paywalled": paywalled,
+                    "error": error,
+                    "source_type": _infer_source_type(
+                        cached.final_url,
+                        title=title,
+                        text=text,
+                        source_type_hint=source_type_hint,
+                    ),
+                }
+            )
+        except Exception as exc:
+            return cached_result.model_copy(
+                update={
+                    "status": "error",
+                    "failure_reason": fetch_failure_reason(exc),
+                    "error": str(exc),
+                    "byte_size": (
+                        exc.observed_bytes
+                        if isinstance(exc, RawFetchSizeError)
+                        else len(raw_bytes)
+                        if raw_bytes is not None
+                        else cached.byte_size
+                    ),
+                }
+            )
 
     try:
         (
@@ -91,8 +160,7 @@ async def fetch_open_page(
             max_bytes,
             timeout_seconds=timeout_s,
         )
-        validate_fetch_url(final_url, constraints)
-        mime = validate_content_type(content_type, constraints)
+        mime = content_type
         title, text = _extract_title_and_text(raw_bytes, mime=mime, final_url=final_url)
         text = sanitize_untrusted_text(text)
         paywalled = detect_paywall(text)
@@ -227,10 +295,17 @@ def _fetch_url_bytes_sync(
     return (
         raw.raw_bytes,
         raw.final_url,
-        raw.content_type,
+        raw.mime_type,
         raw.headers,
         raw.redirect_chain,
     )
+
+
+def _normalize_digest(value: str | None) -> str | None:
+    if value is None:
+        return None
+    normalized = value.strip().lower()
+    return normalized[7:] if normalized.startswith("sha256:") else normalized
 
 
 def _extract_title_and_text(raw_bytes: bytes, *, mime: str, final_url: str) -> tuple[str, str]:

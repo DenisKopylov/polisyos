@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import re
+import time
 import urllib.parse
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from html.parser import HTMLParser
@@ -93,47 +96,71 @@ class ProviderFailoverPolicy:
         constraints: SearchConstraints,
         max_results: int,
         timeout_s: float = 10.0,
+        deadline_monotonic: float | None = None,
     ) -> ProviderSearchResult:
         """Search permitted providers in order and preserve each selection outcome."""
         attempts: list[ProviderAttemptTrace] = []
         last_error: str | None = None
         for provider in self._providers:
-            try:
-                returned_hits = await provider.search(
+            remaining_s = (
+                None
+                if deadline_monotonic is None
+                else deadline_monotonic - time.monotonic()
+            )
+            if remaining_s is not None and remaining_s <= 0:
+                return ProviderSearchResult(
+                    provider=provider.name,
+                    attempts=attempts,
+                    exhausted=False,
+                    stop_reason="max_wall_time_s",
+                    error="search wall-time budget exhausted",
+                )
+            request_timeout_s = (
+                timeout_s if remaining_s is None else min(timeout_s, remaining_s)
+            )
+            provider_task = asyncio.create_task(
+                provider.search(
                     query,
                     constraints=constraints,
                     max_results=max_results,
-                    timeout_s=timeout_s,
+                    timeout_s=request_timeout_s,
                 )
-                hits = _filter_hits(
-                    returned_hits,
-                    constraints=constraints,
-                    max_results=max_results,
+            )
+            try:
+                done, _pending = await asyncio.wait(
+                    {provider_task},
+                    timeout=request_timeout_s,
                 )
-                if not hits:
-                    attempts.append(
-                        ProviderAttemptTrace(
-                            provider=provider.name,
-                            outcome="unsuitable" if returned_hits else "empty",
-                            returned_hit_count=len(returned_hits),
-                        )
-                    )
-                    continue
+            except asyncio.CancelledError:
+                provider_task.cancel()
+                provider_task.add_done_callback(_consume_task_result)
+                raise
+            if not done:
+                provider_task.cancel()
+                provider_task.add_done_callback(_consume_task_result)
+                await asyncio.sleep(0)
+                last_error = f"{provider.name}: provider request timed out"
                 attempts.append(
                     ProviderAttemptTrace(
                         provider=provider.name,
-                        outcome="useful",
-                        returned_hit_count=len(returned_hits),
-                        accepted_hit_count=len(hits),
+                        outcome="error",
+                        error_type="TimeoutError",
                     )
                 )
-                return ProviderSearchResult(
-                    provider=provider.name,
-                    hits=hits,
-                    attempts=attempts,
-                    exhausted=False,
-                    stop_reason="useful",
-                )
+                if (
+                    deadline_monotonic is not None
+                    and time.monotonic() >= deadline_monotonic
+                ):
+                    return ProviderSearchResult(
+                        provider=provider.name,
+                        attempts=attempts,
+                        exhausted=False,
+                        stop_reason="max_wall_time_s",
+                        error=last_error,
+                    )
+                continue
+            try:
+                returned_hits = provider_task.result()
             except Exception as exc:
                 last_error = f"{provider.name}: {exc}"
                 attempts.append(
@@ -143,7 +170,63 @@ class ProviderFailoverPolicy:
                         error_type=type(exc).__name__,
                     )
                 )
+                if (
+                    deadline_monotonic is not None
+                    and time.monotonic() >= deadline_monotonic
+                ):
+                    return ProviderSearchResult(
+                        provider=provider.name,
+                        attempts=attempts,
+                        exhausted=False,
+                        stop_reason="max_wall_time_s",
+                        error=last_error,
+                    )
                 continue
+            if deadline_monotonic is not None and time.monotonic() >= deadline_monotonic:
+                last_error = "search wall-time budget exhausted"
+                attempts.append(
+                    ProviderAttemptTrace(
+                        provider=provider.name,
+                        outcome="error",
+                        error_type="TimeoutError",
+                    )
+                )
+                return ProviderSearchResult(
+                    provider=provider.name,
+                    attempts=attempts,
+                    exhausted=False,
+                    stop_reason="max_wall_time_s",
+                    error=last_error,
+                )
+            hits = _filter_hits(
+                returned_hits,
+                constraints=constraints,
+                max_results=max_results,
+            )
+            if not hits:
+                attempts.append(
+                    ProviderAttemptTrace(
+                        provider=provider.name,
+                        outcome="unsuitable" if returned_hits else "empty",
+                        returned_hit_count=len(returned_hits),
+                    )
+                )
+                continue
+            attempts.append(
+                ProviderAttemptTrace(
+                    provider=provider.name,
+                    outcome="useful",
+                    returned_hit_count=len(returned_hits),
+                    accepted_hit_count=len(hits),
+                )
+            )
+            return ProviderSearchResult(
+                provider=provider.name,
+                hits=hits,
+                attempts=attempts,
+                exhausted=False,
+                stop_reason="useful",
+            )
         return ProviderSearchResult(
             provider=self._providers[-1].name,
             hits=[],
@@ -152,6 +235,12 @@ class ProviderFailoverPolicy:
             stop_reason="providers_exhausted",
             error=last_error,
         )
+
+
+def _consume_task_result(task: asyncio.Task[list[WebSearchHit]]) -> None:
+    """Retrieve a cancelled provider task's terminal exception without waiting on it."""
+    with suppress(asyncio.CancelledError):
+        task.exception()
 
 
 class BraveSearchProvider:

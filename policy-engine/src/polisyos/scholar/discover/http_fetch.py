@@ -15,7 +15,7 @@ from polisyos.scholar.discover.transport import (
 )
 from polisyos.scholar.errors import ScholarAcquireError, ScholarValidationError
 from polisyos.scholar.search.models import SearchConstraints
-from polisyos.scholar.search.security import validate_content_type, validate_fetch_url
+from polisyos.scholar.search.security import validate_fetch_url
 from polisyos.scholar.types import AcquireResult
 
 if TYPE_CHECKING:
@@ -35,14 +35,6 @@ def _doc_source_from_source(source: SourceSpec, *, canonical_url: str) -> DocSou
         title=props.get("title"),
         publisher=props.get("publisher"),
     )
-
-
-def _extract_mime(content_type: str | None, fallback: str | None) -> str:
-    if content_type:
-        return content_type.split(";", 1)[0].strip() or "application/octet-stream"
-    if fallback:
-        return fallback.strip()
-    return "application/octet-stream"
 
 
 def fetch_url(
@@ -95,7 +87,7 @@ def fetch_url(
             max_bytes=max_bytes,
         )
         raw_bytes = raw.raw_bytes
-        content_type = raw.content_type
+        mime = raw.mime_type
     except RawFetchSizeError as exc:
         raise ScholarAcquireError(
             "URL payload exceeds max_bytes_per_doc",
@@ -135,21 +127,6 @@ def fetch_url(
             details={"url": request_url, "reason": fetch_failure_reason(exc)},
         ) from exc
 
-    try:
-        mime = validate_content_type(
-            _extract_mime(content_type, source.mime_hint),
-            constraints or SearchConstraints(),
-        )
-    except ValueError as exc:
-        raise ScholarAcquireError(
-            f"blocked content type: {exc}",
-            source_identity=canonical_url,
-            details={
-                "url": request_url,
-                "content_type": content_type,
-                "reason": "blocked_content_type",
-            },
-        ) from exc
     doc_source = _doc_source_from_source(source, canonical_url=canonical_url)
     return AcquireResult(
         source=source,

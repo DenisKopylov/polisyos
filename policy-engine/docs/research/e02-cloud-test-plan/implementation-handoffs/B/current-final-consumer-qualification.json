@@ -1,0 +1,558 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "slice": "current-final-consumer-qualification",
+  "reviewer": "cmp_res_probe",
+  "branch": "codex/e02-B-current-composition",
+  "related_finding_ids": [
+    "B151",
+    "B152",
+    "B38",
+    "B148"
+  ],
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-03",
+    "DUR-02",
+    "CAS-02"
+  ],
+  "closure_ids": [],
+  "formal_finding_closure": false,
+  "reviewer_workspace_base_sha": "ac729693f2bd09571a45bfcab63c3cf9b0a65c33",
+  "reviewed_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "reviewed_tree_sha": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "scope": "Read-only independent source/case/artifact-path qualification of exactly three root-executed final-cohort failures. Complete three cases, canonical predicates, source-owner interfaces and retained filesystem/SQLite outputs inspected. No new tests/gates/runtime probes, no source/test writes. ADAPTER owns full cohort/runtime reconciliation; root retains actual FAIL and owns complete raw publication.",
+  "verdict": "B152_FAILURE_REPORT_PROJECTION_BLOCKER; HUMAN_EXPOSURE_SCOPED_PRODUCER_CONTRACT_EARLY_STOP; NO_FENCING_OR_SIGNATURE_ESCAPE_OBSERVED",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Completed root JUnit failure payloads, exact Git source segments, retained local artifact and read-only SQLite observations. Runtime signature/reservation/completion branches not reached in the two exposure failures; no served HTTP or complete B38 consumer attestation.",
+  "source_custody": {
+    "root_read_head": "701f5a6cd87b2c61457f8187d27212fa647049f9",
+    "root_read_tree": "f8f91823307ee78bbb0a974cc33fdfb133f455ea",
+    "root_read_worktree_tracked_clean": true,
+    "four_e_to_root_production_tests_diff": "",
+    "source_file_bindings": [
+      {
+        "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "5fbd693e74b17a161c7d8f4de616c2faa63c0a5f",
+        "bytes": 7257,
+        "sha256": "3c610fbed5e7c7f416b0eb9ebf0220cc2e5495452e24728ca658a5532b3cae7b",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "780061edcaf6ec7b2e0cedabc3f81ac08b621789",
+        "bytes": 48767,
+        "sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/tests/_helpers/artifacts.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "7bbf2cd7ef2d8b97455788aa3560bed5cd19d664",
+        "bytes": 9046,
+        "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/tests/conftest.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+        "bytes": 9664,
+        "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "0b5a7ff298a836f32dbe499ed9da5b2b148976b7",
+        "bytes": 189110,
+        "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "ca512eaf6f1c78826dd04bbdc5e30e0cc79a4b76",
+        "bytes": 10739,
+        "sha256": "e05b7632c9cecb98b21952e11f93e0315d015f5b2ab250c83dba6aeb71e8b964",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "7748250f475b0ac2c212468ecb6609c8f80ed8b9",
+        "bytes": 5769,
+        "sha256": "242a23a1c4c75f230c65aa5f284da0066641d9eec945c4eccdc12abc84e7adc5",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "10c362d63a869ef3cd1bafd243916ec1faed0c9a",
+        "bytes": 5262,
+        "sha256": "c3425f30443b55fcabe44adde78bd7cd5373e7424eae1dd1a6a9ad6d4a4260d1",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+        "bytes": 18059,
+        "sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "bd430e524be9aeeb0b45f169bf5c10ac0e545126",
+        "bytes": 9439,
+        "sha256": "fce84020c15e4beb4e2197d19d11eddcd86e62ef1510dd58256b9016cf4e31d2",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "5449c54991689add5e4d554794137a19093b1043",
+        "bytes": 43011,
+        "sha256": "36045312577e30399fa53078f9e100c04dd6e549c10d65cf7b736abeb3803be5",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "63eaad653c6a3627fe9e99873100829facefd1e7",
+        "bytes": 44264,
+        "sha256": "60b02af0967cfc5d37055dde69748089a401ce339863810eed511f177be109eb",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/human_decision_contracts.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "206faf966cc0ae6e5cd6e62bdc30eb56674325ec",
+        "bytes": 44310,
+        "sha256": "f6040854b59ae0160fc6aa868902585c7d3a52f457281d75d33253f3cec982b6",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/human_decisions.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "90a1ebe6b5f50996e447c385fca6b2145aca4a35",
+        "bytes": 213617,
+        "sha256": "e4268af75a8012f1dbcd7f5c5f1f85d3c9e9c6005f7050b986c8807ebb75d251",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "58267726b4fb3a390c421c68130c788a0c6e90ee",
+        "bytes": 33768,
+        "sha256": "ce79be8c2a247a6dfe3bd543bc1898ca969d60d2b1012f8f8d735e521a1798db",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-01.md",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "36bcff0953c8b8e010f66ad7a0b355458b0f640d",
+        "bytes": 17325,
+        "sha256": "0560cbbd7ddd285fdbdd04d37201785dec5bb412310286e6e7644a933a6038c7",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-03.md",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "7bea4b45262b8084c14b1e34843940e66b94af04",
+        "bytes": 15849,
+        "sha256": "606681189764983aef66dde8747e87f621cac00d545580bbd1b3fd440f1ff6a8",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "git_blob": "8b7adee3877694b633ab03c5086775e89b8316ff",
+        "bytes": 14763,
+        "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+        "actual_postrun_filesystem_equals_source": true,
+        "equals_slice_base": true
+      }
+    ],
+    "deciding_symbol_bindings": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "symbol": "FileSystemCAS.verify",
+        "line_start": 2479,
+        "line_end": 2516,
+        "sha256": "d857564cec712800b169755551909b5d7c626daaeba1fb32cda58f901da50288"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "symbol": "FileSystemCAS.verify",
+        "line_start": 2531,
+        "line_end": 2571,
+        "sha256": "5f402421df1fa708d3729a07f9e34481522db1ef36ab749cfa229bb9acb4357c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "symbol": "FileSystemCAS._snapshot_from_paths",
+        "line_start": 4308,
+        "line_end": 4348,
+        "sha256": "7ba88a1338eab93fb5e993ef1bfefb4398b8bbe6876fd776d2fd2e3034c4246a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "symbol": "FileSystemCAS._require_bound_context_for_owner",
+        "line_start": 2812,
+        "line_end": 2834,
+        "sha256": "31c8a1cce714752fb77be9507dcb632d34a6a601382a14a439f6e24482dab42f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "symbol": "_exposure_authority_write_inputs",
+        "line_start": 603,
+        "line_end": 712,
+        "sha256": "31860cd93669f7d042b2b2728e0ebdf56650116803efdb35bac2594d73a7e322"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "symbol": "test_corruption_detection",
+        "line_start": 109,
+        "line_end": 121,
+        "sha256": "ae39f149ac1477482d35d0dd5c98b15fedb0b262061e6c77b56dbf52edb21894"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "symbol": "test_human_decision_exposure_is_a_top_level_completed_event",
+        "line_start": 844,
+        "line_end": 979,
+        "sha256": "a84236b68a5779999c41538075fc1a8f814f116d503de0d1b8418a249ac3ac1a"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "symbol": "test_exposure_signature_failure_leaves_no_completed_row",
+        "line_start": 982,
+        "line_end": 1039,
+        "sha256": "8c5da8d08f78094b388c809fab98b8b332d2976aa101605b804ef6dbf8683dea"
+      }
+    ],
+    "complete_slice_footprint_path_count": 1115,
+    "reviewed_source_paths_in_changed_footprint": [
+      "policy-engine/src/polisyos/core/artifacts/store.py",
+      "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "policy-engine/src/polisyos/core/artifacts/README.md"
+    ],
+    "qualification": "Postrun local Git+filesystem byte equality. Not a complete per-test imported module census or universal resource closure. Root bbb/metadata successors contain no production/test changes versus4e."
+  },
+  "raw_bindings": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+      "bytes": 1431050,
+      "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+      "bytes": 1333443,
+      "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+      "bytes": 2338,
+      "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+      "bytes": 10440,
+      "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.args",
+      "bytes": 6260,
+      "sha256": "7d647d55bce7b11638790942a70ada6f7a5a970b72bc20337fae9bf09ec8467d"
+    }
+  ],
+  "root_executed_check": {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "pytest",
+      "-vv",
+      "-p",
+      "current_cohort_inventory",
+      "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.args",
+      "--continue-on-collection-errors",
+      "--basetemp",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest",
+      "-o",
+      "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-cache",
+      "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml"
+    ],
+    "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+    "head": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+    "head_after": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "wall_s": 946.6183245200082,
+    "process_rusage_maxrss_kib": 1546164,
+    "exit_code": 1,
+    "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+    "output_sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7",
+    "source_environment": {
+      "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+      "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "LANG": "C.UTF-8",
+      "POLISYOS_METRICS_PORT": "0",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+      "E02_B_PROPERTY_REMOVAL": null
+    }
+  },
+  "committed_bounded_companion": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-consumer-qualification-evidence/three-failures-and-source.json",
+    "bytes": 49204,
+    "sha256": "298789db4df59471a791d976cdcfbcda71f0685718cb4683403a7600a0810788"
+  },
+  "raw_custody": "Full complete cohort stdout/XML/wrapper remain root-owned deciding bytes at hashed local paths; root will publish its complete packet. This committed companion preserves full three selected failure texts and exact source segments, not a full cohort replacement or claimed output denominator.",
+  "cases": [
+    {
+      "nodeid": "tests/unit/core/phase0/test_artifact_store.py::test_corruption_detection",
+      "actual_status": "FAIL",
+      "observed_failure": "rep.ok is False passes; rep.error expected sha256 mismatch but actual Blob sha256 mismatch for original ID: actual hash.",
+      "property": "Verification report describes the same independently computed byte/manifest snapshot, including known failure digest and size, while corrupt bytes never return as valid.",
+      "actual_mechanism": "_snapshot_from_paths reads+hashes actual blob, checks requested manifest identity/blob digest/size and raises on corrupted digest. verify_snapshot catches ValueError and creates report with ok/ID/expected/error only. VerificationReport defaults actual_sha256_hex and byte_size to None. Error normalization from existing _integrity_ops helper is bypassed.",
+      "independently_reconciled_quantities": {
+        "original_id": "sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+        "retained_actual_sha256_hex": "7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f",
+        "retained_actual_size": 11,
+        "manifest_declared_size": 8
+      },
+      "assertion_reachability": "Case ends at error equality line121. No later digest/size assertions exist in this case; missing report fields are source-established model defaults, not newly run/asserted runtime observations. Healthy roundtrip case line32 asserts digest. Adjacent typed-read corruption case asserts ArtifactIntegrityError.",
+      "p37": "actual digest/size independently_reconciled from retained bytes and canonical source; report-carrying requirement retained in B152 card. Original expected string is an explicit existing report compatibility assertion, not proof of content validity.",
+      "p38": "A string equality can reject a correct corruption refusal, while ok=False alone can conceal that known measured digest/size were discarded. Actual divergence here is accurate corruption refusal plus incomplete public failure report.",
+      "bucket": "SAME B152 immutable snapshot/report quantity class; widen failure projection through same local snapshot, not one message/fixture repair.",
+      "smallest_falsifier": "Actual FileSystemCAS put→corrupt retained bytes→verify must return okFalse, normalized failure category, independently computed bad-byte hash and size with exactly one blob read/hash, and unchanged precise typed get/signature refusals. Change source between reads to ensure no second error-path read supplies report. Existing root failure is preserved; author/root owns new test, reviewer did not run it.",
+      "next_owner": "CAS canonical snapshot/report writer; root independent runtime/G exact integrated replay",
+      "recommendation": "Retain the measured immutable failure snapshot/report before raising or use equivalent typed projection from that local read; preserve normalized generic failure categories/detailed diagnostics without reopening paths. No weakening integrity and no reread-on-error."
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_human_decision_exposure_is_a_top_level_completed_event",
+      "actual_status": "FAIL",
+      "observed_failure": "prepare fails with ArtifactOwnershipError Manifest is bound to a different cell before signing/reservation/completion.",
+      "property": "A legitimate exact scoped producer persists receipt, verifies custody, reserves one slot and only after delivery appends one top-level completed exposure event.",
+      "actual_mechanism": "Public for_tenant establishes tenant-a/cell-a. _exposure_authority_write_inputs603+ hardcodes authority_fields.cell_id=None667 and closure.cell_id=None684. write_runtime_authority_artifact delegates to write_authority_artifact; _persist_cas_writer_attestation creates explicit tenant_context(tenant-a,None). _put_blob_and_manifest_once2213 compares bound context to scoped owner, rejects None versus cell-a.",
+      "retained_artifacts": "Only original delivered33-byte blob+manifest and owner generation records exist. No exposure receipt or detached signature. control SQLite twelve tables have zero rows; access.jsonl absent.",
+      "assertion_reachability": "All reservation/completion, two-row audit, receipt schema/authority, signed-core exactbytes, trusted signature and durable diagnostic-event assertions after prepare line914 are not reached.",
+      "p37": "Explicit context values and actual rejection independently_reconciled. Adequacy of legitimate producer cell identity is not_established for this pathway; source hardcodes None and exposes no event cell field. No B148 public ownership law ratified.",
+      "p38": "Treating an early scope refusal/absent audit file as proof of signed completion or no stale publication measures the wrong property. This actual failure establishes scope admission stop, not signature/fencing behavior.",
+      "bucket": "Producer↔scoped-CAS identity compatibility gap; same scoped admission class, foreign producer module ownership retained.",
+      "smallest_falsifier": "Owner supplies legitimate exact tenant/cell runtime context to canonical builder and keeps manifest, authority envelope, attestation, diagnostic and same-input closure consistent. Replay unchanged real scoped positive until prepare→reserve→complete executes all assertions. Paired explicit different-cell negative must still refuse before stage/intent. A deliberate tenant-level None profile needs owner-supplied premise and matching source inputs; changing fixture/relaxing CAS solely for green is not acceptance.",
+      "next_owner": "A/G canonical access_audit/human-decision scope producer and lifecycle owner; CAS semantic owner only if public law decision is necessary",
+      "recommendation": "Propagate legitimate authoritative scope through existing narrow producer interface or explicitly refuse unsupported scoped profile; do not overwrite declared identity from arbitrary store metadata, grant foreign context, relax CAS matching or ratify B148."
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_signature_failure_leaves_no_completed_row",
+      "actual_status": "FAIL",
+      "observed_failure": "Same explicit tenant-a/None attestation versus tenant-a/cell-a owner rejection at prepare line1024, before pytest.raises signature branch.",
+      "property": "Untrusted custody signature refuses reservation and leaves no completed exposure row.",
+      "actual_mechanism": "Same builder/attestation/admission path. Constructed e64 delivered artifact is not present; builder has_artifact filters it out of input refs. That is not the observed error. Untrusted verifier is never invoked.",
+      "retained_artifacts": "No CAS payload/manifest/receipt/signature files; only lock files. control SQLite twelve tables zero; access.jsonl absent.",
+      "assertion_reachability": "Expected RuntimeAuthorizationAuditError did not verify from reserve and final absent access.jsonl assertion are not reached. Current absent file is independently observed post-run but its cause is scope refusal, not signature rejection.",
+      "p37": "Scope rejection independently_reconciled; signature-negative predicate not_established in this execution.",
+      "p38": "Absent completed row alone is compatible with a producer failing before signing; it cannot attest custody signature gate.",
+      "smallest_falsifier": "After owner-aligned scope prepares actual receipt, keep untrusted verifier unchanged and require named signature rejection at reserve before trail append. Paired trusted control must complete genuine signed receipt. No new runtime execution performed by reviewer.",
+      "next_owner": "A/G human-decision producer scope owner; root/G exact signature consumer replay"
+    }
+  ],
+  "finding_qualifications": [
+    {
+      "finding_id": "B151",
+      "property_adjudication": "No observed corrupted-put acknowledgment or successful corrupt read. This case is read corruption refusal, not duplicateput retry and not new B151 closure proof. Earlier genuine duplicateput/property-removal receipts remain separately bound. Broad B151 acceptance cannot import a fullgreen final cohort because it actually failed.",
+      "formal_closure": false,
+      "next_owner": "root/G CAS public put→readback exact frozen successor"
+    },
+    {
+      "finding_id": "B152",
+      "property_adjudication": "Failure report projection has a concrete source-established quantity loss within same snapshot class; preserve existing snapshot/signature controls and actual FAIL. Final closure remains blocked pending generic repair and actual negative one-snapshot report consumer evidence.",
+      "formal_closure": false,
+      "next_owner": "CAS/root/G"
+    },
+    {
+      "finding_id": "B38",
+      "property_adjudication": "Neither exposure failure reaches a job lease takeover/terminal/progress/outbox mutation. No stale-owner fencing escape is demonstrated, and earlier finite SQLite stale-mutator proofs are distinct. Current owner completing this foreign exposure producer/event pathway is not_established; do not use empty DB/audit from preparation refusal as completion or fencing evidence. PostgreSQL/full production handler limitations remain.",
+      "formal_closure": false,
+      "next_owner": "DUR root/G exact actual current/stale job publication plus A/G producer scope"
+    },
+    {
+      "finding_id": "B148",
+      "property_adjudication": "HELD public semantic owner recommendation retained. These are ordinary writes with explicitly mismatched cell metadata, not cross-tenant import tests. Existing fail-closed CAS guard/source facts do not ratify public tenant-level/cross-cell ownership semantics.",
+      "formal_closure": false,
+      "next_owner": "CAS semantic owner + A/G"
+    }
+  ],
+  "p41": {
+    "inherited_red": "not_established",
+    "exact_slice_base_gate_replay": "UNRUN",
+    "changed_input_intersection": "store.py and _integrity_ops.py changed from198 and are actual consumer paths; complete per-test universal denominator not asserted. Tests and human producers are byte-identical198. Source comparison is not a base runtime replay or waiver.",
+    "historical_a175": "No a175 gate or receipt imported as proof for these failures."
+  },
+  "remaining_limits": [
+    "No new runtime, tests, gates, signature verification or HTTP invocation executed by this reviewer.",
+    "Retained fixtures and full source segments establish local post-run state; no arbitrary universal loader/network/child readset claimed.",
+    "No root source/test edit; metadata own topic only.",
+    "No generated-surface or B148 policy correction chosen for test green.",
+    "Root/ADAPTER owns complete110-file cohort denominator and actual native exit parsing; selected three-case extraction does not replace it."
+  ],
+  "comments": [
+    {
+      "priority": "blocking",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "line": 2565,
+      "body": "verify error projection discards known local failure digest and size; same snapshot/report quantity must preserve those fields without reopening blob."
+    },
+    {
+      "priority": "contract",
+      "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+      "line": 667,
+      "body": "Canonical exposure producer declares cellNone against explicit cell-scoped store; actual preparation refuses before intended custody/reservation branches. A/G must reconcile exact source scope, not weaken CAS."
+    }
+  ],
+  "checks": [
+    {
+      "kind": "independent_source_and_existing_evidence_review",
+      "runtime_execution": "UNRUN",
+      "outcome": "BOUNDED_ADJUDICATION_COMPLETE; ACTUAL_FAIL_PRESERVED",
+      "new_test_or_gate_run": false
+    }
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-consumer-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-consumer-qualification-evidence/three-failures-and-source.json"
+  ],
+  "downstream_typed_contract": {
+    "contract_id": "B-to-A-G-human-exposure-scoped-producer-admission",
+    "candidate_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "candidate_source_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+    "current_actual_input": {
+      "store": "FileSystemCAS(tmp/cas).for_tenant(tenant-a,cell_id=cell-a)",
+      "producer": "_exposure_authority_write_inputs(event,has_artifact=store.has)",
+      "event_schema": "policyos.runtime.human_decision_exposure_event.v1; tenant_id present; cell_id absent",
+      "derived_authority_fields": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "derived_same_input_closure": {
+        "tenant_id": "tenant-a",
+        "cell_id": null
+      },
+      "attestation_write_options": {
+        "tenant_context": {
+          "tenant_id": "tenant-a",
+          "cell_id": null
+        }
+      },
+      "guard_owner": {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a"
+      },
+      "actual_typed_refusal": "ArtifactOwnershipError: Manifest is bound to a different cell"
+    },
+    "producer_scope_requires_owner_decision": "A/G chooses legitimate exact runtime cell scope propagation through canonical producer and custody bindings OR an explicitly supported tenant-level None profile whose caller/source inputs are actually compatible. This receipt declares no new authority or public ownership law.",
+    "must_reconcile_all_existing_bindings": [
+      "AuthorityArtifactIdentityContext.tenant_id/cell_id",
+      "attestation body tenant/cell and resulting content ref",
+      "attestation manifest tenant_context",
+      "DiagnosticEvent.tenant_id/cell_id (writer encodes absent cell as empty string)",
+      "SameInputClosure tenant_id/cell_id and its content digest",
+      "EvidenceAuthorityEnvelope tenant_id/cell_id and linked refs",
+      "final authority-bearing payload manifest tenant_context and authority envelope/event/attestation linkage",
+      "exact retained/signable manifest bytes and custody signature/ref readback"
+    ],
+    "positive_consumer_input": {
+      "test": "test_human_decision_exposure_is_a_top_level_completed_event",
+      "delivered_body_literal": "{\"opened\":\"exact evidence bytes\"}",
+      "delivered_bytes": 33,
+      "delivered_artifact_id": "sha256:ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c",
+      "scope": "tenant-a/cell-a",
+      "trusted_signer_identity": "service://runtime/human-decision-custody",
+      "key_input_limit": "Case generates ephemeral KeyPair and trusted verifier in process; private/public key bytes are not claimed preserved in this packet. Cryptographic verification was never reached."
+    },
+    "negative_consumer_inputs": [
+      {
+        "test": "test_exposure_signature_failure_leaves_no_completed_row",
+        "scope": "tenant-a/cell-a",
+        "verifier": "Ed25519Verifier(strict_identity=True) with no trusted keys",
+        "receipt_preparation_expected_after_scope_reconciliation": "Actual canonical prepared receipt must reach reserve; named RuntimeAuthorizationAuditError did not verify must occur before any access audit append. Current scope rejection does not count as this signature negative."
+      },
+      {
+        "paired_scope_negative": "Explicit bound different cell must remain ArtifactOwnershipError before publication intent/staging. Do not accept stale/foreign declared identity because B148 owner law is HELD."
+      }
+    ],
+    "runnable_current_case_command": {
+      "status": "PROPOSED_NOT_EXECUTED_BY_REVIEWER; currently4e reproduces two early failures, owner successor expected actual full defining controls",
+      "cwd": "<clean root/G admitted checkout at exact candidate>/policy-engine",
+      "interpreter": "<supported exact candidate environment>/bin/python (root original was .polisyos/e02-B-current/environment/bin/python)",
+      "argv": [
+        "<interpreter>",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_human_decision_exposure_is_a_top_level_completed_event",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_signature_failure_leaves_no_completed_row",
+        "--basetemp",
+        "<fresh unique absolute tmp>/pytest",
+        "-o",
+        "cache_dir=<fresh unique absolute tmp>/cache",
+        "--junitxml=<fresh unique absolute tmp>/exposure.xml"
+      ],
+      "environment": {
+        "PYTHONPATH": "<checkout>/policy-engine/src:<checkout>/policy-engine",
+        "POLISYOS_METRICS_PORT": "0"
+      },
+      "isolation": "Fresh tmp per run; each actual case creates its own CAS and SQLite path. No shared source writes, generators, DB or fixed metrics port; no artificial process/thread quota."
+    },
+    "cloud_stop_point": "Real root FileSystemCAS producer→attestation write→scope guard refuses. No reserve/signature/completed exposure event, HTTP served delivery, or job-fencing continuation executed in these two cases.",
+    "B_does_not_attest": [
+      "public B148 cross-cell/cross-tenant ownership law",
+      "owner-supplied missing event cell schema authority",
+      "trusted/untrusted signature behavior in the two stopped executions",
+      "two-row exposure audit and durable diagnostic event readback",
+      "actual production served HTTP delivery or current/stale job mutation completion"
+    ],
+    "write_ownership": "A alone changes lifecycle/run_lifecycle.py; canonical human exposure/access_audit producer owner A/G coordinates exact contract. B provides this committed input/negative receipt and writes no A files. CAS matching guard stays unchanged for this contract."
+  }
+}

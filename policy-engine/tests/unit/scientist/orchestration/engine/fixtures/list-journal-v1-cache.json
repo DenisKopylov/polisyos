@@ -1,0 +1,162 @@
+{
+  "producer_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+  "original_receipt_sha256": "12033cfe8799bbec98683359c2f3efb0a5e701a470fc75bd4cb35c6e95217d6e",
+  "cases": [
+    {
+      "case": "insert_then_existing_nested_write",
+      "cache_ref": {
+        "artifact_id": "sha256:6f29ed2efaabe9fd116f6d012ed71f1f560b63484251b49e1a01e1e53a78a83f",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "cache_sha256": "6f29ed2efaabe9fd116f6d012ed71f1f560b63484251b49e1a01e1e53a78a83f",
+      "manifest": {
+        "manifest_schema_version": "v3",
+        "artifact_id": "sha256:6f29ed2efaabe9fd116f6d012ed71f1f560b63484251b49e1a01e1e53a78a83f",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json",
+        "byte_size": 2171,
+        "created_at": "2026-10-06T12:27:37Z",
+        "artifact_schema": {
+          "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+          "version": "2.0"
+        },
+        "canon": {
+          "name": "polisyos.canon.json",
+          "version": "0.2.0",
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "exclude_none": true,
+          "max_depth": 128,
+          "sort_keys": true,
+          "separators": [
+            ",",
+            ":"
+          ],
+          "ensure_ascii": false
+        },
+        "inputs": [],
+        "producer": {
+          "component": "scientist.engine.idempotency",
+          "version": "1.0.0",
+          "git": null
+        },
+        "env": null,
+        "governance": null,
+        "tenant_context": null,
+        "same_input_closure": null,
+        "authority": null,
+        "integrity": {
+          "sha256": "6f29ed2efaabe9fd116f6d012ed71f1f560b63484251b49e1a01e1e53a78a83f",
+          "optional": null
+        },
+        "warnings": []
+      },
+      "payload_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T12:27:37Z\"},\"idempotency_key\":\"9f3649100fdcc77038af3c534ed00cd75240352fcd0079f2a853b2664cadfb58\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:761073926566e0dfe3409a7c30a4b917ddb2ddfe916611d447c74aac81538922\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.independent_sta@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"7\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"rows\":[{\"id\":\"new\",\"v\":0},{\"id\":\"old\",\"v\":5}],\"unrelated\":\"old\",\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_independent_STA\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":0,\"operation\":\"insert\",\"path\":\"params.rows\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"list\",\"target_presence\":\"present\",\"value\":{\"id\":\"new\",\"v\":0},\"value_kind\":\"json\"},{\"index\":null,\"operation\":\"set\",\"path\":\"params.rows.0.v\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"scalar\",\"target_presence\":\"present\",\"value\":5,\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.0\",\"tenant_context\":null}"
+    },
+    {
+      "case": "no_shift_nested_positive",
+      "cache_ref": {
+        "artifact_id": "sha256:850d9691c666991dcaa3ca4bb3327e242708f93d9e204f569d012ba2fa575065",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "cache_sha256": "850d9691c666991dcaa3ca4bb3327e242708f93d9e204f569d012ba2fa575065",
+      "manifest": {
+        "manifest_schema_version": "v3",
+        "artifact_id": "sha256:850d9691c666991dcaa3ca4bb3327e242708f93d9e204f569d012ba2fa575065",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json",
+        "byte_size": 1965,
+        "created_at": "2026-10-06T12:27:37Z",
+        "artifact_schema": {
+          "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+          "version": "2.0"
+        },
+        "canon": {
+          "name": "polisyos.canon.json",
+          "version": "0.2.0",
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "exclude_none": true,
+          "max_depth": 128,
+          "sort_keys": true,
+          "separators": [
+            ",",
+            ":"
+          ],
+          "ensure_ascii": false
+        },
+        "inputs": [],
+        "producer": {
+          "component": "scientist.engine.idempotency",
+          "version": "1.0.0",
+          "git": null
+        },
+        "env": null,
+        "governance": null,
+        "tenant_context": null,
+        "same_input_closure": null,
+        "authority": null,
+        "integrity": {
+          "sha256": "850d9691c666991dcaa3ca4bb3327e242708f93d9e204f569d012ba2fa575065",
+          "optional": null
+        },
+        "warnings": []
+      },
+      "payload_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T12:27:37Z\"},\"idempotency_key\":\"5a07805ff3dfee26c0cf780347e67395f2945033d38c484a41f6aa9dd496f794\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:c8dec4f57319ed627f59abb1a35f480f368fe709dd38e6251c5aa9c07db5ea5a\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.independent_sta@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"7\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"rows\":[{\"id\":\"old\",\"v\":5}],\"unrelated\":\"old\",\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_independent_STA\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":null,\"operation\":\"set\",\"path\":\"params.rows.0.v\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"scalar\",\"target_presence\":\"present\",\"value\":5,\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.0\",\"tenant_context\":null}"
+    },
+    {
+      "case": "same_value_delete_null_no_write",
+      "cache_ref": {
+        "artifact_id": "sha256:3563cee3307aa7d840a832018ff31866f0fa4f1a5d24771f2ae2be6373bf22ec",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "cache_sha256": "3563cee3307aa7d840a832018ff31866f0fa4f1a5d24771f2ae2be6373bf22ec",
+      "manifest": {
+        "manifest_schema_version": "v3",
+        "artifact_id": "sha256:3563cee3307aa7d840a832018ff31866f0fa4f1a5d24771f2ae2be6373bf22ec",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json",
+        "byte_size": 2310,
+        "created_at": "2026-10-06T12:27:37Z",
+        "artifact_schema": {
+          "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+          "version": "2.0"
+        },
+        "canon": {
+          "name": "polisyos.canon.json",
+          "version": "0.2.0",
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "exclude_none": true,
+          "max_depth": 128,
+          "sort_keys": true,
+          "separators": [
+            ",",
+            ":"
+          ],
+          "ensure_ascii": false
+        },
+        "inputs": [],
+        "producer": {
+          "component": "scientist.engine.idempotency",
+          "version": "1.0.0",
+          "git": null
+        },
+        "env": null,
+        "governance": null,
+        "tenant_context": null,
+        "same_input_closure": null,
+        "authority": null,
+        "integrity": {
+          "sha256": "3563cee3307aa7d840a832018ff31866f0fa4f1a5d24771f2ae2be6373bf22ec",
+          "optional": null
+        },
+        "warnings": []
+      },
+      "payload_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T12:27:37Z\"},\"idempotency_key\":\"a06dbf93cf516519a2d32e294929795aa0d0a8b70d69eceae5f8d520f7fcad77\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:ccec4c813f0e0e42c71fcaf1bd4d0bccaaa1bbed2d1f16b92c9aee5f72459291\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.independent_sta@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"7\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"nullable\":null,\"untouched\":\"old\",\"x\":2,\"y\":4},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_independent_STA\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":null,\"operation\":\"set\",\"path\":\"params.y\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"scalar\",\"target_presence\":\"present\",\"value\":4,\"value_kind\":\"json\"},{\"index\":null,\"operation\":\"delete\",\"path\":\"params.stale\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"scalar\",\"target_presence\":\"present\",\"value\":null,\"value_kind\":\"json\"},{\"index\":null,\"operation\":\"set\",\"path\":\"params.nullable\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"scalar\",\"target_presence\":\"present\",\"value\":null,\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.0\",\"tenant_context\":null}"
+    }
+  ]
+}

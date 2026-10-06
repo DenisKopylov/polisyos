@@ -49,7 +49,8 @@ logger = get_logger(__name__)
 IDEMPOTENCY_CONTRACT_VERSION = "2.0"
 LEGACY_NODE_CACHE_ENTRY_SCHEMA_VERSION = "1.0"
 NODE_CACHE_ENTRY_SCHEMA_VERSION = "2.0"
-STATE_MUTATIONS_VERSION = "1.0"
+STATE_MUTATIONS_VERSION = "1.1"
+LEGACY_STATE_MUTATIONS_VERSION = "1.0"
 REPLAY_EPOCH = "2.1"
 
 _IDEM_CANON = CanonSpec(
@@ -138,6 +139,25 @@ class NodeCacheEntry(BaseModel):
     replay_epoch: str | None = Field(default=None, pattern=r"^\d+\.\d+$")
     journal_proof: JournalProof | None = None
     created_at: datetime = Field(default_factory=lambda: utc_now(drop_microseconds=True))
+
+
+def _legacy_scalar_mutations_replayable(mutations: tuple[StateMutation, ...]) -> bool:
+    """Keep proven scalar v1 intents without reinterpreting old list ownership."""
+
+    def contains_list(value: Any) -> bool:
+        if isinstance(value, (list, tuple)):
+            return True
+        if isinstance(value, dict):
+            return any(contains_list(child) for child in value.values())
+        return False
+
+    return all(
+        mutation.operation in {"set", "delete"}
+        and mutation.target_kind != "list"
+        and not any(part.lstrip("-").isdigit() for part in mutation.path.split("."))
+        and not contains_list(mutation.value)
+        for mutation in mutations
+    )
 
 
 def _cache_producer(*, output_aware: bool) -> ProducerInfo:
@@ -539,8 +559,12 @@ class NodeResultCache:
             expected_schema = _LEGACY_CACHE_ENTRY_SCHEMA
         else:
             return False
+        supported_mutations = entry.state_mutations_version == STATE_MUTATIONS_VERSION or (
+            entry.state_mutations_version == LEGACY_STATE_MUTATIONS_VERSION
+            and _legacy_scalar_mutations_replayable(entry.state_mutations)
+        )
         if (
-            entry.state_mutations_version != STATE_MUTATIONS_VERSION
+            not supported_mutations
             or entry.replay_epoch != REPLAY_EPOCH
             or entry.journal_proof is None
         ):

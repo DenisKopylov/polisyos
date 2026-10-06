@@ -287,6 +287,11 @@ def _get_child(container: Any, key: str) -> Any:
         return getattr(container, key, _MISSING)
     if isinstance(container, dict):
         return container.get(key, _MISSING)
+    if isinstance(container, (list, tuple)):
+        try:
+            return container[int(key)]
+        except (IndexError, TypeError, ValueError):
+            return _MISSING
     return _MISSING
 
 
@@ -295,7 +300,14 @@ def _set_child(container: Any, key: str, value: Any) -> None:
         setattr(container, key, value)
         return
     if isinstance(container, dict):
-        container[key] = value
+        dict.__setitem__(container, key, value)
+        if isinstance(container, _TrackedDict):
+            _bind_mutation_parent(value, container)
+        return
+    if isinstance(container, list):
+        list.__setitem__(container, int(key), value)
+        if isinstance(container, _TrackedList):
+            _bind_mutation_parent(value, container)
         return
     raise TypeError(f"Cannot assign nested state field {key!r} on {type(container).__name__}")
 
@@ -384,6 +396,16 @@ def _install_mutation_tracking(
     journal: StateMutationJournal,
 ) -> None:
     """Wrap only declared mutable leaves/parents with operation-recording views."""
+    for parts in paths:
+        for length in range(1, len(parts)):
+            prefix = parts[:length]
+            parent = _get_path(state, prefix)
+            if isinstance(parent, list) and not isinstance(parent, _TrackedList):
+                _set_path(
+                    state,
+                    prefix,
+                    _TrackedList(parent, path=prefix, journal=journal, recursive=False),
+                )
     installed: list[tuple[str, ...]] = []
     for parts in paths:
         if any(_is_path_prefix(existing, parts) for existing in installed):
@@ -480,16 +502,19 @@ class _TrackedDict(dict[str, Any]):
         dict.__init__(self)
         self._mutation_path = path
         self._mutation_journal = journal
+        self._mutation_parent = None
+        self._mutation_owner_value = self
+        self._mutation_owner_suffix = ()
         for key, value in values.items():
             dict.__setitem__(
                 self,
                 key,
-                _wrap_mutable_value(value, (*path, str(key)), journal)
-                if recursive
-                else value,
+                _wrap_mutable_value(value, (*path, str(key)), journal) if recursive else value,
             )
+            _bind_mutation_parent(dict.__getitem__(self, key), self)
 
     def __setitem__(self, key: str, value: Any) -> None:
+        _authorize_container_mutation(self, suffixes=((str(key),),))
         previous = self.get(key, _MISSING)
         value = _normalize_artifacts_index_ref(self._mutation_path, value)
         wrapped = _wrap_mutable_value(
@@ -498,24 +523,29 @@ class _TrackedDict(dict[str, Any]):
             self._mutation_journal,
         )
         dict.__setitem__(self, key, wrapped)
-        self._mutation_journal.record(
-            path=(*self._mutation_path, str(key)),
+        _bind_mutation_parent(wrapped, self)
+        _record_container_mutation(
+            self,
+            suffix=(str(key),),
             operation="set",
             value=value,
             target=previous,
         )
 
     def __delitem__(self, key: str) -> None:
+        _authorize_container_mutation(self, suffixes=((str(key),),))
         previous = self[key]
         dict.__delitem__(self, key)
-        self._mutation_journal.record(
-            path=(*self._mutation_path, str(key)),
+        _record_container_mutation(
+            self,
+            suffix=(str(key),),
             operation="delete",
             target=previous,
         )
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         values = dict(*args, **kwargs)
+        _authorize_container_mutation(self, suffixes=[(str(key),) for key in values])
         for key, value in values.items():
             self[key] = value
 
@@ -530,18 +560,23 @@ class _TrackedDict(dict[str, Any]):
             if args:
                 return args[0]
             raise KeyError(key)
+        _authorize_container_mutation(self, suffixes=((str(key),),))
         value = dict.pop(self, key)
-        self._mutation_journal.record(
-            path=(*self._mutation_path, str(key)),
+        _record_container_mutation(
+            self,
+            suffix=(str(key),),
             operation="delete",
             target=value,
         )
         return value
 
     def popitem(self) -> tuple[str, Any]:
+        if self:
+            _authorize_container_mutation(self, suffixes=((str(next(reversed(self))),),))
         key, value = dict.popitem(self)
-        self._mutation_journal.record(
-            path=(*self._mutation_path, str(key)),
+        _record_container_mutation(
+            self,
+            suffix=(str(key),),
             operation="delete",
             target=value,
         )
@@ -549,10 +584,12 @@ class _TrackedDict(dict[str, Any]):
 
     def clear(self) -> None:
         items = list(self.items())
+        _authorize_container_mutation(self, suffixes=[(str(key),) for key, _ in items])
         dict.clear(self)
         for key, value in items:
-            self._mutation_journal.record(
-                path=(*self._mutation_path, str(key)),
+            _record_container_mutation(
+                self,
+                suffix=(str(key),),
                 operation="delete",
                 target=value,
             )
@@ -565,9 +602,13 @@ class _TrackedDict(dict[str, Any]):
         memo[id(self)] = clone
         clone._mutation_path = self._mutation_path
         clone._mutation_journal = self._mutation_journal
+        clone._mutation_parent = None
+        clone._mutation_owner_value = clone
+        clone._mutation_owner_suffix = ()
         dict.__init__(clone)
         for key, value in self.items():
             dict.__setitem__(clone, deepcopy(key, memo), deepcopy(value, memo))
+            _bind_mutation_parent(dict.__getitem__(clone, key), clone)
         return clone
 
 
@@ -580,17 +621,23 @@ class _TrackedList(list[Any]):
         *,
         path: tuple[str, ...],
         journal: StateMutationJournal,
+        recursive: bool = True,
     ) -> None:
         list.__init__(self)
         self._mutation_path = path
         self._mutation_journal = journal
+        self._mutation_parent = None
+        self._mutation_owner_value = self
+        self._mutation_owner_suffix = ()
         for index, value in enumerate(values):
             list.append(
                 self,
-                _wrap_mutable_value(value, (*path, str(index)), journal),
+                _wrap_mutable_value(value, (*path, str(index)), journal) if recursive else value,
             )
+            _bind_mutation_parent(list.__getitem__(self, index), self)
 
     def __setitem__(self, index: int | slice, value: Any) -> None:
+        _authorize_container_mutation(self)
         if isinstance(index, slice):
             values = list(value)
             list.__setitem__(
@@ -605,8 +652,10 @@ class _TrackedList(list[Any]):
                     for i, item in enumerate(values)
                 ],
             )
-            self._mutation_journal.record(
-                path=self._mutation_path,
+            for child in self:
+                _bind_mutation_parent(child, self)
+            _record_container_mutation(
+                self,
                 operation="set_slice",
                 value=values,
                 start=index.start,
@@ -624,8 +673,9 @@ class _TrackedList(list[Any]):
                 self._mutation_journal,
             ),
         )
-        self._mutation_journal.record(
-            path=self._mutation_path,
+        _bind_mutation_parent(list.__getitem__(self, index), self)
+        _record_container_mutation(
+            self,
             operation="set_index",
             value=value,
             index=index,
@@ -633,10 +683,11 @@ class _TrackedList(list[Any]):
         )
 
     def __delitem__(self, index: int | slice) -> None:
+        _authorize_container_mutation(self)
         list.__delitem__(self, index)
         if isinstance(index, slice):
-            self._mutation_journal.record(
-                path=self._mutation_path,
+            _record_container_mutation(
+                self,
                 operation="delete_slice",
                 start=index.start,
                 stop=index.stop,
@@ -644,14 +695,15 @@ class _TrackedList(list[Any]):
                 target=self,
             )
         else:
-            self._mutation_journal.record(
-                path=self._mutation_path,
+            _record_container_mutation(
+                self,
                 operation="delete_index",
                 index=index,
                 target=self,
             )
 
     def append(self, value: Any) -> None:
+        _authorize_container_mutation(self)
         list.append(
             self,
             _wrap_mutable_value(
@@ -660,26 +712,31 @@ class _TrackedList(list[Any]):
                 self._mutation_journal,
             ),
         )
-        self._mutation_journal.record(
-            path=self._mutation_path,
+        _bind_mutation_parent(list.__getitem__(self, -1), self)
+        _record_container_mutation(
+            self,
             operation="append",
             value=value,
             target=self,
         )
 
     def extend(self, values: Iterable[Any]) -> None:
+        _authorize_container_mutation(self)
         values_list = list(values)
         for value in values_list:
             self.append(value)
 
     def insert(self, index: int, value: Any) -> None:
+        _authorize_container_mutation(self)
         list.insert(
             self,
             index,
             _wrap_mutable_value(value, (*self._mutation_path, str(index)), self._mutation_journal),
         )
-        self._mutation_journal.record(
-            path=self._mutation_path,
+        for child in self:
+            _bind_mutation_parent(child, self)
+        _record_container_mutation(
+            self,
             operation="insert",
             value=value,
             index=index,
@@ -687,9 +744,10 @@ class _TrackedList(list[Any]):
         )
 
     def pop(self, index: int = -1) -> Any:
+        _authorize_container_mutation(self)
         value = list.pop(self, index)
-        self._mutation_journal.record(
-            path=self._mutation_path,
+        _record_container_mutation(
+            self,
             operation="pop",
             index=index,
             target=self,
@@ -697,26 +755,30 @@ class _TrackedList(list[Any]):
         return value
 
     def remove(self, value: Any) -> None:
+        _authorize_container_mutation(self)
         list.remove(self, value)
-        self._mutation_journal.record(
-            path=self._mutation_path,
+        _record_container_mutation(
+            self,
             operation="remove",
             value=value,
             target=self,
         )
 
     def clear(self) -> None:
+        _authorize_container_mutation(self)
         list.clear(self)
-        self._mutation_journal.record(path=self._mutation_path, operation="clear", target=self)
+        _record_container_mutation(self, operation="clear", target=self)
 
     def reverse(self) -> None:
+        _authorize_container_mutation(self)
         list.reverse(self)
-        self._mutation_journal.record(path=self._mutation_path, operation="reverse", target=self)
+        _record_container_mutation(self, operation="reverse", target=self)
 
     def sort(self, *args: Any, **kwargs: Any) -> None:
+        _authorize_container_mutation(self)
         list.sort(self, *args, **kwargs)
-        self._mutation_journal.record(
-            path=self._mutation_path,
+        _record_container_mutation(
+            self,
             operation="replace",
             value=list(self),
             target=self,
@@ -727,9 +789,10 @@ class _TrackedList(list[Any]):
         return self
 
     def __imul__(self, count: int) -> _TrackedList:
+        _authorize_container_mutation(self)
         list.__imul__(self, count)
-        self._mutation_journal.record(
-            path=self._mutation_path,
+        _record_container_mutation(
+            self,
             operation="replace",
             value=list(self),
             target=self,
@@ -744,10 +807,82 @@ class _TrackedList(list[Any]):
         memo[id(self)] = clone
         clone._mutation_path = self._mutation_path
         clone._mutation_journal = self._mutation_journal
+        clone._mutation_parent = None
+        clone._mutation_owner_value = clone
+        clone._mutation_owner_suffix = ()
         list.__init__(clone)
         for value in self:
             list.append(clone, deepcopy(value, memo))
+            _bind_mutation_parent(list.__getitem__(clone, -1), clone)
         return clone
+
+
+def _bind_mutation_parent(
+    value: Any,
+    parent: _TrackedDict | _TrackedList,
+    *,
+    owner_value: Any = _MISSING,
+    suffix: tuple[str, ...] = (),
+) -> None:
+    """Retain live container ownership rather than an index captured before edits."""
+    if isinstance(value, (_TrackedDict, _TrackedList)):
+        if value._mutation_journal is not parent._mutation_journal:
+            return
+        value._mutation_parent = parent
+        value._mutation_owner_value = value if owner_value is _MISSING else owner_value
+        value._mutation_owner_suffix = suffix
+    elif isinstance(value, tuple):
+        for index, child in enumerate(value):
+            _bind_mutation_parent(
+                child,
+                parent,
+                owner_value=value if owner_value is _MISSING else owner_value,
+                suffix=(*suffix, str(index)),
+            )
+
+
+def _current_mutation_paths(
+    value: _TrackedDict | _TrackedList,
+    seen: frozenset[int] = frozenset(),
+) -> list[tuple[str, ...]]:
+    """Resolve every live location, or none for a removed descendant view."""
+    if id(value) in seen:
+        return []
+    parent = value._mutation_parent
+    if parent is None:
+        return [value._mutation_path]
+    parent_paths = _current_mutation_paths(parent, seen | {id(value)})
+    members = parent.items() if isinstance(parent, dict) else enumerate(parent)
+    keys = [str(key) for key, child in members if child is value._mutation_owner_value]
+    return [(*path, key, *value._mutation_owner_suffix) for path in parent_paths for key in keys]
+
+
+def _authorize_container_mutation(
+    container: _TrackedDict | _TrackedList,
+    *,
+    suffixes: Iterable[tuple[str, ...]] = ((),),
+) -> None:
+    """Refuse a moved or aliased live target before changing any branch bytes."""
+    declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
+    paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
+    unauthorized = [
+        path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
+    ]
+    if unauthorized:
+        raise ValueError(
+            f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+        )
+
+
+def _record_container_mutation(
+    container: _TrackedDict | _TrackedList,
+    *,
+    suffix: tuple[str, ...] = (),
+    **kwargs: Any,
+) -> None:
+    """Journal an intent against the current live state, preserving list aliases."""
+    for path in _current_mutation_paths(container):
+        container._mutation_journal.record(path=(*path, *suffix), **kwargs)
 
 
 def _wrap_mutable_value(

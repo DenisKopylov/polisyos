@@ -9,5 +9,12 @@
   "old_leaf_sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
   "exact_root_blob_equals_reviewed_6fe": true,
   "narrow_actual_root_delta": "Stdlib asyncio import; three existing ask/restore/run guards explicitly include asyncio.CancelledError beside Exception. Failedrun failure-checkpoint publication has the same protected boundary, blocks publication on failure and bare-rethrows the original cause. No BaseException-wide swallow or BGC numerical fallback change.",
-  "authority": "Root narrow sole service.py lease after actuald72/testd8965PASS1FAIL; selected exact rootblob adoption, not source archive/tree copy."
+  "authority": "Root narrow sole service.py lease after actuald72/testd8965PASS1FAIL; selected exact rootblob adoption, not source archive/tree copy.",
+  "scoped_public_inventory_review": {
+    "source_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+    "path": "policy-engine/architecture/public_surface/inventory.json",
+    "blob": "f670668140d8c91a23d8ec32d53d2e021154d91d",
+    "sha256": "c2b799aa89eb54ae98a746e8a46fb1d17da184f13fbf7e05b527844a4a792224",
+    "scope": "Existing NativeSearchService export in public_stable polisyos.scientist,42exports; same inventory reviewed in root-approved5eca/independent4a. One cleanup contract only, no exports or child-module classification change."
+  }
 }

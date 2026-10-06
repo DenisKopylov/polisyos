@@ -1,0 +1,25 @@
+from pathlib import Path
+import json,hashlib,shutil,subprocess,xml.etree.ElementTree as E
+root=Path('/workspace/e02-B-current-composition'); raw=Path('/dev/shm/e02-B-cmp-b43-freeze'); dest=root/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence'
+for name in ['stub-base-final','stub-composer-final','stub-sort-final','stub-format-final','native-final','mypy-final','ruff-final','format-final','generator-format-correction','ruff-candidate','format-candidate']:
+ for ext in ['txt','json','xml']:
+  path=raw/(name+'.'+ext)
+  if path.exists(): shutil.copyfile(path,dest/path.name)
+for name in ['run_capture_typing','generate_typing_stub']:
+ shutil.copyfile(raw/(name+'.py'),dest/(name+'.source.txt'))
+shutil.copyfile(raw/'formatter-source-delta.json',dest/'formatter-source-delta.json')
+files=subprocess.check_output(['git','diff','--name-only','97d0684c1f2765fc67d40331a8a2602a08c1f2e0','7cecfd7efbfe0e1d17d9513def504455f222cc1c','--','policy-engine/src','policy-engine/tests','policy-engine/tools'],cwd=root,text=True).splitlines()
+runtime=[p for p in files if p!='policy-engine/tools/devx/foundry/generate_stubs.py']
+binding={'candidate_sha':'7cecfd7efbfe0e1d17d9513def504455f222cc1c','candidate_tree':'e40ec2802f8e9957b07b3271ae06c3ac7532daa6','native_actual_sha':'6d7f42f0f2b19e98685c21e512e040b6ddd69a37','native_actual_tree':'cff82fb64cf0627a71c4616e5c8b453c441c31dd','runtime_files':[],'qualification':'Byte projection establishes unchanged finite runtime/test input files across formatter-only tool delta. It does not relabel actual native command target or establish any future whole-source gate result.'}
+for p in runtime:
+ b=subprocess.check_output(['git','show','6d7f42f0f2b19e98685c21e512e040b6ddd69a37:'+p],cwd=root)
+ c=subprocess.check_output(['git','show','7cecfd7efbfe0e1d17d9513def504455f222cc1c:'+p],cwd=root)
+ assert b==c
+ binding['runtime_files'].append({'path':p,'sha256':hashlib.sha256(c).hexdigest(),'bytes':len(c),'native_to_candidate_equal':True})
+rootxml=E.parse(raw/'native-final.xml').getroot();cases=list(rootxml.iter('testcase'))
+binding['native_cases']={'total':len(cases),'failed':sum(c.find('failure') is not None for c in cases),'errors':sum(c.find('error') is not None for c in cases),'skip':sum(c.find('skipped') is not None for c in cases)}
+(dest/'final-source-binding.json').write_text(json.dumps(binding,indent=2)+'\n')
+shutil.copyfile(raw/'package_final.py',dest/'package_final.source.txt')
+index={p.name:{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(dest.iterdir()) if p.name!='evidence-index.json'}
+(dest/'evidence-index.json').write_text(json.dumps({'files':index,'total_bytes':sum(v['bytes'] for v in index.values()),'qualification':'Full moderate deciding stdout/XML/wrappers and exact executed scratch source bytes. Self index excluded; independent peer packets are distinct exact Git references, not duplicated.'},indent=2)+'\n')
+print(json.dumps({'files':len(index)+1,'bytes':sum(v['bytes'] for v in index.values()),'native':binding['native_cases']}))

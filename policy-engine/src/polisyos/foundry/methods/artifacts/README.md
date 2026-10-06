@@ -46,3 +46,43 @@ markers and must not be presented as complete source identity.
 - Add schema-version changes beside compatibility tests.
 - Do not add backend execution logic here; backend receipts are passed in from
   `backends/` and persisted here.
+
+## Reversible cold chain plans
+
+`CompiledChainPlan` is an internal, versioned executable-plan projection beside
+the unchanged `ChainArtifact` 1.0 provenance recipe. `from_chain()` captures the
+actual compiled occurrence UUIDs, insertion/instance order, static and dynamic
+parameters, signature ABI, slot bindings, composition cache keys and complete
+effective predecessor graph. Data-flow connections remain distinct from
+ordering-only `requires` edges. Its immutable canonical bytes use wire 1.0.0 and
+CAS kind `foundry.compiled_chain_plan`.
+
+`store_compiled_chain_plan()` writes those bytes through the normal CAS owner.
+`load_compiled_chain_plan()` retains the exact typed, selected-manifest
+`ArtifactRef` for both guarded manifest and blob reads, checks kind/media/schema,
+then returns a real `CompiledMethodChain`. Intake rebuilds with the existing
+composer/linker and STRICT validation. It reconciles current and returned
+signature ABI, complete parameter partitions, concrete occurrences, computed
+binding compatibility, effective graph, execution order and composition cache
+keys before a scientific body runs. Missing/ambiguous requirements and cycles
+retain the existing typed refusals; a changed essential edge cannot silently
+be replaced by a reader default. Original warnings are captured as advisory
+provenance; restored warnings are recomputed by the current STRICT builder.
+
+The writer returns the selected profile of the actual guarded persisted
+manifest, using the existing CAS-owned profile projection. The reader retains
+that full typed reference for both guarded manifest and blob reads; an
+unprofiled content ID is not admitted as a runnable plan.
+
+The payload profile is finite plain JSON scalars, lists and string-keyed objects;
+nonfinite numbers, tuple/array/dtype/custom Python values and the canonical
+`_type` parameter key are refused before plan publication. There is no implicit
+default or value coercion to materialize an unsupported runtime payload.
+
+This is fresh cold execution against the current registry implementation,
+assuming that registry remains stable across restoration and execution. ABI and
+plan hashes do not attest historical implementation code, permission, scientific
+validity, cached results or checkpoint prefixes. Strict checkpoint/JIT identity
+remains owned by those consumers. Caller initial state, seed, permitted parameter
+overrides and external effects remain explicit execution inputs. Legacy recipe
+artifacts are not promoted to runnable plans and their content/schema is unchanged.

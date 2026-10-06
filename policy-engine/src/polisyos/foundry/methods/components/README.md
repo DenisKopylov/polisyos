@@ -50,6 +50,15 @@ existing occurrence-based family ordering negatives remain errors. The same
 effective dependency graph determines execution order, parallel levels and the
 frozen chain; this does not replace declared inputs with invented semantic tags.
 
+The internal `MethodComposer.from_nodes()` restoration seam runs the ordinary
+`add()` parameter builder and preserves concrete UUIDs only after checking
+occurrence/insertion order and current static/dynamic parameter partitions.
+It restores no edges or historical code. Versioned `CompiledChainPlan` intake
+then uses ordinary `connect()` and STRICT `build()` and independently reconciles
+the persisted effective graph/order and returned signature ABI before handing
+the actual chain to an existing executor. A plan selects current registry code;
+it grants no checkpoint/cache-prefix or scientific authority.
+
 ## Registration Boundary
 
 `bridge.py` may call `selection.registry.MethodRegistry.register_lazy()` for

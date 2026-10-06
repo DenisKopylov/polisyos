@@ -1,0 +1,25 @@
+{
+  "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+  "criterion_source_sha256": "29a3a0775bdac83d1f1804f52673e5cc99a5602a611877b216a423f191f1472e",
+  "route_note": "Transferred summaries/cells and declared job contexts are navigation only. Original raw archives unavailable; no baseline PASS supports new persisted-plan closure.",
+  "query_keys": [
+    "grade",
+    "matching_cells",
+    "displayed_cells",
+    "states",
+    "cells",
+    "finding_routes",
+    "finding_basis",
+    "unrouted_findings",
+    "matching_source_blocks",
+    "source_blocks",
+    "referenced_messages",
+    "available_job_context_blocks",
+    "job_dictionary_or_context_blocks",
+    "matching_route_cells",
+    "raw_archives_received",
+    "limitations"
+  ],
+  "all_query_bytes_retained": "baseline-B43-query.json",
+  "assignment": "B43 B/P12/CMP-01/B-W04; current source status partial remains historical context"
+}

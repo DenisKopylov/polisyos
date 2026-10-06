@@ -11,7 +11,8 @@ breaking/non-breaking API changes.
 - Stub generation: `tools/devx/foundry/generate_stubs.py`.
 - Signature baseline refresh: `tools/devx/foundry/update_signature_baseline.py`.
 - Written outputs:
-  `src/polisyos/foundry/methods/{base,registry,composer}.pyi`.
+  `src/polisyos/foundry/methods/{base,registry,composer}.pyi` and
+  `src/polisyos/foundry/methods/components/composer.pyi`.
 
 - Baseline artifact:
   `tests/_golden/foundry/signature_baseline.json`.
@@ -60,7 +61,11 @@ breaking/non-breaking API changes.
 ## Current State
 
 - Stub generation сейчас покрывает `polisyos.foundry.methods.base`,
-  `registry` и `composer`.
+  `registry`, `composer` и canonical `components.composer`. Фасадные
+  registry/composer stubs сохраняют re-export; canonical composer stub
+  производится тем же `mypy.stubgen` owner, включая restoration API и
+  private dataclass fields, нужные canonical artifact intake. Base stub
+  также сохраняет typed private helpers, используемые canonical composer.
 
 - Signature baseline хранится в тестовых fixtures и нужен для осознанного ABI
   review, а не для silent drift.

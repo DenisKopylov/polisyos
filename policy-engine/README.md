@@ -51,6 +51,13 @@ and one metric policy and evaluator build. With an existing champion, every nati
 under the active callback context and binds the exact predecessor used by guardrails
 before the registry rereads the canonical pointer under its existing POSIX lock. These comparison records establish input identity; evaluator appointment and
 promotion authority remain separate contracts. Legacy unbound generic suites are refused.
+Autotune models also refuse coercion of numeric and boolean evidence: metrics and
+numeric policy or mutation fields must contain finite numbers, sample counts must
+contain integers, and guardrails and promotion flags must contain booleans. Integer
+JSON metrics remain valid. Regenerate malformed artifacts from correctly typed
+producer inputs and use their new CAS references; numeric strings and boolean
+numbers cannot be repaired by the registry. Comparison records support only
+`benchmark-comparison.v1`.
 
 `SearchLoopRunner` uses public native `ask`/`tell` around the controller-owned evaluator.
 The existing service instance supports pending-candidate continuation; persisted

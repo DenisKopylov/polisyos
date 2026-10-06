@@ -506,8 +506,7 @@
       "id": "lossless-transport-validation",
       "command": [
         "python3",
-        "package.source.txt",
-        "then independently decode all three indexed row tables and hash original stdout"
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/package.source.txt"
       ],
       "target_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
       "environment": {
@@ -555,7 +554,8 @@
         "all_indexed_files_hash_and_size_verified": true,
         "three_tables_full_decode_equals_original": true,
         "stdout_UTF8_encode_equals_original": true,
-        "git_show_check_exit": 0
+        "git_show_check_exit": 0,
+        "separate_readback_verification": "A separate python3 stdin command decoded all three indexed row tables, recomputed canonical SHA256, rehashed all27 indexed Git payloads and encoded lossless UTF-8 stdout; all assertions passed. Packaging source also performs exact decode==original assertions. The command field now records only the actual packaging argv."
       },
       "output": {
         "table_format": "Column dictionary encoding is lossless: every value, missing key and JSON type remains recoverable; no row truncation, case-prefix upgrades or phase doublecount.",
@@ -1538,5 +1538,15 @@
     },
     "local_G": "G uses an admitted exact source checkout and genuinely installed compatible194 runtime/tokenizer; records adjusted unique paths and fresh identities. Do not substitute prior summary or grade."
   },
-  "created_at_utc": "2026-10-06T23:44:20.352075+00:00"
+  "created_at_utc": "2026-10-06T23:44:20.352075+00:00",
+  "command_precision_correction": {
+    "predecessor_handoff_sha": "ae6acd1a0c24d63e1e34675565cd540c67f6e3c9",
+    "previous_check_3_command": [
+      "python3",
+      "package.source.txt",
+      "then independently decode all three indexed row tables and hash original stdout"
+    ],
+    "reason": "Replace explanatory pseudo-argument/basename with exact executed absolute packaging argv. Original native, source, output, input, quantitative outcomes and implementation index are unchanged.",
+    "reviewer": "DUR independent metadata audit; no native execution or source review upgrade."
+  }
 }

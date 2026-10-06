@@ -239,3 +239,22 @@ def create_plugin(): return Plugin()
     assert "plg01-forged-verification" in [m.name for m in registry.list_plugins()]
     with pytest.raises(ValueError, match="Unknown domain 'bad-object'"):
         simulator.add_domain("bad-object")
+
+
+def test_registry_rejects_non_domain_and_absent_metadata_values(
+    registry: PluginRegistry,
+) -> None:
+    """The runtime registry validates identity before storing any candidate."""
+
+    with pytest.raises(TypeError, match="Only DomainPlugin instances"):
+        registry.register(object())  # type: ignore[arg-type]
+
+    class MissingMetadata(_FixturePlugin):
+        @property
+        def metadata(self):
+            return None
+
+    with pytest.raises(TypeError, match="Plugin.metadata must return PluginMetadata"):
+        registry.register(MissingMetadata("plg01-missing-metadata", "malformed"))
+
+    assert registry.list_plugins() == []

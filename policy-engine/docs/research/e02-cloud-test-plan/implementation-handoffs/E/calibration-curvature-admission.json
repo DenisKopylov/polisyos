@@ -240,7 +240,7 @@
       "environment": "implementation-handoffs/E/calibration-curvature-environment.json",
       "input_closure": "actual JAX CPU x64-disabled derivatives, known-noise Gaussian observation fixture and real income-tax Calibrator; synthetic FileSystemCAS and real welfare consumer; no production data",
       "outcome": "PASS",
-      "output": "implementation-handoffs/E/calibration-curvature-candidate.log",
+      "output": "implementation-handoffs/E/calibration-curvature-candidate.txt",
       "tests": 15,
       "wall_s": 23.56835764599964,
       "max_rss_kib": 1053424
@@ -253,7 +253,7 @@
       "environment": "implementation-handoffs/E/calibration-curvature-environment.json",
       "input_closure": "all named native/fixture tests on declared repo extras",
       "outcome": "PASS",
-      "output": "implementation-handoffs/E/calibration-curvature-focused.log",
+      "output": "implementation-handoffs/E/calibration-curvature-focused.txt",
       "tests": 217,
       "wall_s": 75.69
     },

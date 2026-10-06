@@ -100,7 +100,7 @@ def test_tmle_targets_deterministically_and_reports_targeting_summary():
     second = TMLEEstimator.pure_step(state, params)
     inner = first["result"]
 
-    assert inner["interval_method"].startswith("bootstrap_eif")
+    assert inner["interval_method"] == "wald_eif_regular_iid"
     assert inner["ci_lower"] <= inner["ate"] <= inner["ci_upper"]
     assert inner["targeting_summary"]["n_iterations"] >= 1
     assert len(inner["targeting_summary"]["history"]) >= 1
@@ -122,7 +122,7 @@ def test_tmle_helper_and_aipw_helper_share_stable_contract():
     )
 
     assert aipw_result.interval_method.startswith("bootstrap_eif")
-    assert tmle_result.interval_method.startswith("bootstrap_eif")
+    assert tmle_result.interval_method == "wald_eif_regular_iid"
     assert aipw_bundle.contract.random_seed_manifest == (19, 101)
     assert tmle_bundle.contract.random_seed_manifest == (19, 101)
     assert aipw_bundle.diagnostics()["calibration_modes"]
@@ -131,7 +131,8 @@ def test_tmle_helper_and_aipw_helper_share_stable_contract():
     assert tmle_bundle.contract.selection_objective == "causal_risk"
     assert aipw_bundle.contract.propensity_backend_candidates
     assert tmle_bundle.contract.outcome_backend_candidates
-    assert aipw_bundle is tmle_bundle
+    assert aipw_bundle is not tmle_bundle
+    np.testing.assert_array_equal(aipw_bundle.propensity, tmle_bundle.propensity)
 
 
 def test_aipw_does_not_delegate_to_dml_when_econml_backend_is_requested():

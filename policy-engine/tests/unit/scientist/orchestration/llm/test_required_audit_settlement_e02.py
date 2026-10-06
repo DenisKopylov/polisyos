@@ -18,7 +18,8 @@ from polisyos.core.llm.settlement import producer_settlement
 
 from polisyos.core.llm.traced_client import LLMAccountingError, TracedLLMClient
 from polisyos.core.security.audit_log_adapter import ChainedAuditLog
-from polisyos.core.security.audit_sink import ChainedAuditSink
+from polisyos.core.security.audit_models import ChainedLogEntry
+from polisyos.core.security.audit_sink import ChainedAuditSink, LocalJsonlBackend
 from polisyos.core.security.audit_verifier import ChainVerifier
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
@@ -63,17 +64,25 @@ class _PhysicalProvider:
 class _CommitFaultAuditLog(ChainedAuditLog):
     """Delegate to the actual protected sink with one physical target fault."""
 
-    def __init__(self, sink: ChainedAuditSink, path: Path, *, fail: bool) -> None:
+    def __init__(
+        self,
+        sink: ChainedAuditSink,
+        path: Path,
+        *,
+        fail: bool,
+        fail_action: str = "BUDGET_COMMITTED",
+    ) -> None:
         super().__init__(sink)
         self.path = path
         self.fail_next_commit = fail
+        self.fail_action = fail_action
         self.failure: OSError | None = None
         self.attempted_actions: list[str] = []
 
     def append(self, **kwargs: Any) -> None:
         action = kwargs["action"]
         self.attempted_actions.append(action)
-        if action != "BUDGET_COMMITTED" or not self.fail_next_commit:
+        if action != self.fail_action or not self.fail_next_commit:
             return super().append(**kwargs)
         self.fail_next_commit = False
         # Preserve prior actual records, then make the very same filesystem
@@ -191,5 +200,276 @@ def test_protected_audit_reconciliation_precedes_next_provider(
             "COMMITTED audit; restoring the file alone must not admit another spend"
         )
         assert second_error is not None
+    finally:
+        sink.close()
+
+
+class _ObservedAuditSink(ChainedAuditSink):
+    """Observe exact attempted entries; execute the unchanged real sink effect."""
+
+    def __init__(self, path: Path) -> None:
+        self.failed_entry: ChainedLogEntry | None = None
+        super().__init__(chain_id="B65:retained-owner", local_path=path)
+
+    def _append_and_enqueue(self, entry: ChainedLogEntry) -> None:
+        try:
+            super()._append_and_enqueue(entry)
+        except OSError:
+            self.failed_entry = entry
+            raise
+
+
+class _RequiredAuditResolver:
+    """A constructor-bound owner checks/replays an exact definitely missing act.
+
+    The existing protected sink has no public reconciliation receipt API. This
+    finite trusted composition observes the failed actual entry and uses the
+    public real backend to replay precisely that entry. Its reference reports
+    observed bytes, not a signature or a financial authority grant.
+    """
+
+    def __init__(self, sink: _ObservedAuditSink, path: Path, ledger_path: Path) -> None:
+        self.sink = sink
+        self.path = path
+        self.ledger_path = ledger_path
+        self.entry_override: ChainedLogEntry | None = None
+        self.calls = 0
+        self.writes = 0
+
+    def __call__(self, obligation: Any) -> Any:
+        from polisyos.core.llm.settlement import LLMAuditResolution
+
+        self.calls += 1
+        entry = self.entry_override or self.sink.failed_entry
+        if entry is None:
+            raise ValueError("original owner did not retain an observed failed entry")
+        expected_payload = json.loads(
+            json.dumps({"action": obligation.action, **dict(obligation.metadata)})
+        )
+        actual_payload = json.loads(entry.model_dump_json())["payload"]
+        # JSON bytes preserve false/zero, null and nested types. Merely equal
+        # Python objects, a nonempty string, or matching action names do not bind
+        # the original protected act.
+        if (
+            entry.compute_hash() != entry.entry_hash
+            or entry.chain_id != "B65:retained-owner"
+            or entry.resource.id != obligation.run_id
+            or entry.correlation.run_id != obligation.run_id
+            or json.dumps(actual_payload, sort_keys=True)
+            != json.dumps(expected_payload, sort_keys=True)
+        ):
+            raise ValueError("failed protected entry does not bind exact owner/run/act/payload")
+        if obligation.event is not None:
+            if obligation.charge_ack is None or obligation.charge_ack.status != "committed":
+                raise ValueError("observed provider charge acknowledgement was lost")
+            for receipt in obligation.charge_ack.receipts:
+                if FileBudgetLedger(self.ledger_path).resolve_spend(receipt.event_id) != receipt:
+                    raise ValueError("known local charge does not match fresh exact ledger receipt")
+        prefix = [
+            ChainedLogEntry.model_validate_json(line) for line in self.path.read_text().splitlines()
+        ]
+        if any(item.entry_id == entry.entry_id for item in prefix):
+            raise ValueError("this definite-noappend resolver cannot blindly duplicate an act")
+        if not ChainVerifier().verify_segment([*prefix, entry]).chain_intact:
+            raise ValueError("retained entry does not continue the actual same-owner prefix")
+        LocalJsonlBackend(self.path).write(entry)
+        self.writes += 1
+        verified = ChainVerifier().verify_jsonl_file(self.path)
+        persisted = [
+            ChainedLogEntry.model_validate_json(line) for line in self.path.read_text().splitlines()
+        ]
+        if not verified.chain_intact or persisted[-1] != entry:
+            raise ValueError("protected exact entry is not present in the fresh complete chain")
+        import hashlib
+
+        return LLMAuditResolution(
+            obligation_digest=obligation.payload_digest,
+            status="committed",
+            evidence_ref=f"sha256:{hashlib.sha256(self.path.read_bytes()).hexdigest()}#entry={entry.entry_hash}",
+        )
+
+
+def _recovery_fixture(tmp_path: Path, action: str) -> tuple[Any, ...]:
+    audit_path = tmp_path / "original-protected.jsonl"
+    ledger_path = tmp_path / "original-ledger.json"
+    provider = _PhysicalProvider(tmp_path / "original-provider.jsonl")
+    initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+    middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+    sink = _ObservedAuditSink(audit_path)
+    audit = _CommitFaultAuditLog(sink, audit_path, fail=True, fail_action=action)
+    resolver = _RequiredAuditResolver(sink, audit_path, ledger_path)
+    enforcer = LLMBudgetEnforcer(
+        client=TracedLLMClient(provider, model_name="default", run_id="B65-owner-recovery"),
+        budget_state=initial,
+        budget_keys=["run"],
+        budget_middleware=middleware,
+        audit_log=audit,
+        audit_reconciler=resolver,
+        run_id="B65-owner-recovery",
+    )
+    return enforcer, sink, audit, resolver, provider, audit_path, ledger_path
+
+
+@pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+@pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+    tmp_path: Path, route: str, action: str
+) -> None:
+    enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+        tmp_path, action
+    )
+    try:
+        with pytest.raises(LLMAccountingError) as first:
+            _call(enforcer, route)
+        error = first.value
+        obligation = error.event["audit_obligation"]
+        before = FileBudgetLedger(ledger_path).snapshot()
+        print(
+            "B65_PENDING "
+            + json.dumps(
+                {
+                    "route": route,
+                    "action": action,
+                    "act_id": obligation.act_id,
+                    "obligation_digest": obligation.payload_digest,
+                    "provider_calls": len(provider.responses),
+                    "original_cause": type(error.cause).__name__,
+                    "settlement_status": error.event["settlement_status"],
+                    "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                    "fresh_ledger": before.model_dump(mode="json"),
+                }
+            )
+        )
+        assert error.event["required_audit_status"] == "pending"
+        assert obligation.action == action
+        assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
+        initial_calls = len(provider.responses)
+        assert initial_calls == (0 if action == "BUDGET_RESERVED" else 1)
+        if initial_calls:
+            assert error.response is provider.responses[0]
+            assert obligation.event is not None and obligation.event.amount == Decimal("0.02")
+            assert obligation.charge_ack is not None and obligation.charge_ack.status == "committed"
+            assert error.event["settlement_status"] == "committed"
+            assert before.state.spent["run"] == Decimal("0.02")
+        else:
+            assert error.response is None and obligation.event is None
+            assert obligation.charge_ack is None
+            assert not before.spend_receipts
+        with pytest.raises(LLMAccountingError):
+            _call(enforcer, route)
+        assert len(provider.responses) == initial_calls
+        ack = enforcer.reconcile_required_audit(obligation.act_id)
+        after = FileBudgetLedger(ledger_path).snapshot()
+        print(
+            "B65_AUDIT_RECONCILED "
+            + json.dumps(
+                {
+                    "route": route,
+                    "action": action,
+                    "act_id": obligation.act_id,
+                    "provider_calls": len(provider.responses),
+                    "resolver_writes": resolver.writes,
+                    "ack_status": ack.status,
+                    "before": before.model_dump(mode="json"),
+                    "after": after.model_dump(mode="json"),
+                    "fresh_chain": vars(ChainVerifier().verify_jsonl_file(audit_path)),
+                }
+            )
+        )
+        assert after.state.spent == before.state.spent
+        assert after.spend_receipts == before.spend_receipts
+        assert len(provider.responses) == initial_calls
+        assert resolver.calls == resolver.writes == 1
+        if obligation.charge_ack is not None:
+            assert ack == obligation.charge_ack
+        else:
+            assert ack.status == "unmanaged"
+        assert ChainVerifier().verify_jsonl_file(audit_path).chain_intact
+        result = _call(enforcer, route)
+        assert producer_settlement(result).ack.status == "committed"
+        assert len(provider.responses) == initial_calls + 1
+        print(
+            "B65_RECOVERED "
+            + json.dumps(
+                {
+                    "route": route,
+                    "action": action,
+                    "act_id": obligation.act_id,
+                    "obligation_digest": obligation.payload_digest,
+                    "retained_entry": sink.failed_entry.model_dump(mode="json"),
+                    "resolver_writes": resolver.writes,
+                    "before": before.model_dump(mode="json"),
+                    "after": after.model_dump(mode="json"),
+                    "final": _observation(audit_path, ledger_path, provider.path),
+                }
+            )
+        )
+    finally:
+        sink.close()
+
+
+@pytest.mark.parametrize("mismatch", ["event-id", "payload", "log-owner"])
+def test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect(
+    tmp_path: Path, mismatch: str
+) -> None:
+    enforcer, sink, _, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+        tmp_path, "BUDGET_COMMITTED"
+    )
+    try:
+        with pytest.raises(LLMAccountingError) as first:
+            _call(enforcer, "async-generate")
+        obligation = first.value.event["audit_obligation"]
+        entry = sink.failed_entry
+        assert entry is not None
+        payload = dict(entry.payload)
+        if mismatch == "event-id":
+            payload["producer_event_id"] = "other-actual-act"
+        elif mismatch == "payload":
+            payload["payload_digest"] = "sha256:" + "0" * 64
+        altered = entry.model_copy(
+            update={
+                "payload": payload,
+                "chain_id": "different-owner" if mismatch == "log-owner" else entry.chain_id,
+            }
+        )
+        resolver.entry_override = altered.model_copy(update={"entry_hash": altered.compute_hash()})
+        audit_before = audit_path.read_bytes()
+        ledger_before = ledger_path.read_bytes()
+        with pytest.raises(LLMAccountingError):
+            enforcer.reconcile_required_audit(obligation.act_id)
+        print(
+            "B65_BINDING_REFUSAL "
+            + json.dumps(
+                {
+                    "mismatch": mismatch,
+                    "act_id": obligation.act_id,
+                    "audit_bytes_unchanged": audit_path.read_bytes() == audit_before,
+                    "ledger_bytes_unchanged": ledger_path.read_bytes() == ledger_before,
+                    "provider_calls": len(provider.responses),
+                    "writes": resolver.writes,
+                    "retained_original": entry.model_dump(mode="json"),
+                    "refused_candidate": resolver.entry_override.model_dump(mode="json"),
+                }
+            )
+        )
+        assert audit_path.read_bytes() == audit_before
+        assert ledger_path.read_bytes() == ledger_before
+        assert resolver.writes == 0
+        with pytest.raises(LLMAccountingError):
+            _call(enforcer, "async-generate")
+        assert len(provider.responses) == 1
+        print(
+            "B65_WRONG_BINDING "
+            + json.dumps(
+                {
+                    "mismatch": mismatch,
+                    "act_id": obligation.act_id,
+                    "retained_original": entry.model_dump(mode="json"),
+                    "refused_candidate": resolver.entry_override.model_dump(mode="json"),
+                    "writes": resolver.writes,
+                    "fresh_readback": _observation(audit_path, ledger_path, provider.path),
+                }
+            )
+        )
     finally:
         sink.close()

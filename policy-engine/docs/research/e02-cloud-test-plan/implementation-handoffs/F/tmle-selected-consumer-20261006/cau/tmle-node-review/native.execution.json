@@ -1,0 +1,214 @@
+{
+  "schema": "e02-independent-native-execution-v1",
+  "mode": "native",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_selected_scalar_job_persisted_target_fresh_reader",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "E02_TMLE_SOURCE_ROOT": "/workspace/e02-F-closeout-20261006/policy-engine",
+    "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+  },
+  "source_begin": {
+    "defining_source_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+    "defining_source_tree": "ede8862d0204d6d8d34fceb4f425929bd5c093ed",
+    "checkout_head": "8f69812ec28098385b2063db89f7e04d354c18cb",
+    "checkout_tree": "edc02a2f45f299ab1e379b4a28d24be8abd0b3b4",
+    "defining_files": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+        "bytes": 69908,
+        "sha256": "4593ac298f517153f63e98539c2e9853baf1adab7c23f0238f1910b6a581d0e9",
+        "git_blob": "6bd6d9ead666ac5145a3cde189782f583bac8841",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py",
+        "bytes": 6397,
+        "sha256": "3ad29bc91bba326c243ba263ade14867c6e106c77b1ec45484eaa8c458b630be",
+        "git_blob": "df0a1695855b576df25402c42798a299264c2f54",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "bytes": 31756,
+        "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331",
+        "git_blob": "06fa2013eae4b8232ba0680da2fabdadd6a8a962",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "bytes": 59964,
+        "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+        "bytes": 89157,
+        "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+        "git_blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 76429,
+        "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7",
+        "git_blob": "9a0447fa7a66b45e045352377abe8e2855268781",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 84428,
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+        "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "bytes": 29575,
+        "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+        "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+        "bytes": 2662,
+        "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4",
+        "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      }
+    ],
+    "sibling_source": {
+      "path": "/workspace/e02-F-closeout-20261006/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+      "bytes": 15896,
+      "sha256": "0b3f300693f67b2bd23201b46b0e44b0eb8bef5975b2984b39ebaf7aa43484ba",
+      "source_ref": "8f69812ec28098385b2063db89f7e04d354c18cb"
+    },
+    "whole_input_denominator": "not_established; notP41"
+  },
+  "source_end": {
+    "defining_source_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+    "defining_source_tree": "ede8862d0204d6d8d34fceb4f425929bd5c093ed",
+    "checkout_head": "8f69812ec28098385b2063db89f7e04d354c18cb",
+    "checkout_tree": "edc02a2f45f299ab1e379b4a28d24be8abd0b3b4",
+    "defining_files": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+        "bytes": 69908,
+        "sha256": "4593ac298f517153f63e98539c2e9853baf1adab7c23f0238f1910b6a581d0e9",
+        "git_blob": "6bd6d9ead666ac5145a3cde189782f583bac8841",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py",
+        "bytes": 6397,
+        "sha256": "3ad29bc91bba326c243ba263ade14867c6e106c77b1ec45484eaa8c458b630be",
+        "git_blob": "df0a1695855b576df25402c42798a299264c2f54",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "bytes": 31756,
+        "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331",
+        "git_blob": "06fa2013eae4b8232ba0680da2fabdadd6a8a962",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "bytes": 59964,
+        "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+        "bytes": 89157,
+        "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+        "git_blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 76429,
+        "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7",
+        "git_blob": "9a0447fa7a66b45e045352377abe8e2855268781",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 84428,
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+        "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "bytes": 29575,
+        "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+        "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+        "bytes": 2662,
+        "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4",
+        "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+        "source_ref": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+      }
+    ],
+    "sibling_source": {
+      "path": "/workspace/e02-F-closeout-20261006/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+      "bytes": 15896,
+      "sha256": "0b3f300693f67b2bd23201b46b0e44b0eb8bef5975b2984b39ebaf7aa43484ba",
+      "source_ref": "8f69812ec28098385b2063db89f7e04d354c18cb"
+    },
+    "whole_input_denominator": "not_established; notP41"
+  },
+  "exit_code": 1,
+  "elapsed_seconds": 49.84271240234375,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.stdout.txt",
+    "bytes": 10959,
+    "sha256": "1f2da8b74740d742ff3b35ece627eb83ee690b19af69d40cfa68ccd0a0ceb50a"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "replayer": {
+    "execution_time_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/run_review.py",
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/run_review_initial.py",
+    "bytes": 4383,
+    "sha256": "848ece220d4f67a98c023ba964c67b2ded19a06e4ad102312870f7fd897f98f0",
+    "transport_note": "Originalexecution commandpath retained inargv; exact executiontimebytes preserved here after independentprobe-only ATEsize correction."
+  },
+  "independent_selector": {
+    "execution_time_path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node.py",
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node_initial.py",
+    "bytes": 5470,
+    "sha256": "5c93709e699d0d069fadf781720baf6034eb4fc8e81c755ef3fef99c7fa74eee",
+    "transport_note": "Originalexecution commandpath retained inargv; exact executiontimebytes preserved here after independentprobe-only ATEsize correction."
+  },
+  "removal_script": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal.py",
+    "bytes": 1885,
+    "sha256": "ce427cb7ab5bb2346f346b7b7e5d31b33c640fd6654d5854bec71d7f7420055c"
+  }
+}

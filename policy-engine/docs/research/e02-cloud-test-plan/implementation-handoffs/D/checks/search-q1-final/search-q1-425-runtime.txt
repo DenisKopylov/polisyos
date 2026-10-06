@@ -1,0 +1,58 @@
+{
+  "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+  "source_tree": "49916b434ecc8a2d30b14d9626d3617e5c95a05d",
+  "production_tests_release_match_committed_HEAD": true,
+  "environment": {
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "PYTHONPATH": "src:.",
+    "torch_device": "cpu",
+    "torch_num_threads_observed": 5,
+    "thread_env_observed": {
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    }
+  },
+  "origins": {
+    "polisyos.scientist.methods.search.objective": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "polisyos.scientist.methods.search.frontier": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "polisyos.scientist.methods.autotune.bayesian_generator": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "polisyos.scientist.methods.search.strategies.bayesian": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "polisyos.scientist.methods.search.strategies.multi_objective": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "polisyos.scientist.methods.search.strategies.neural": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+    "polisyos.scientist.methods.autotune.pareto": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py"
+  },
+  "seeds_inputs": "fixtures declare seeded logical Sobol42, native GP31/37, ordered finite dominance lattice Random53; no ambient reseed or cap added by runner",
+  "basetemp_asserted_nonexistent": true,
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=/dev/shm/search-q1-final-425-cc2c3f8ed0784b4ba9846f325ed570e9",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+    "tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py",
+    "tests/unit/scientist/methods/search/test_legacy_frontier_admission.py",
+    "tests/unit/scientist/search/test_frontier.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+    "tests/unit/scientist/methods/search/test_objective.py"
+  ]
+}
+........................................................................ [ 39%]
+....
+EXIT_CODE=-9

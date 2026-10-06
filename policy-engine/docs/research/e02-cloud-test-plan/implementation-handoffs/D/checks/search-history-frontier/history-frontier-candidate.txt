@@ -1,0 +1,14 @@
+context=uncommitted narrow BGC present-stage typing +legacy frontier complete-finite vector correction after ab
+argv=['/workspace/e02-D-locked-env/bin/python', '-m', 'pytest', '-o', 'addopts=', '-q', '--basetemp=/dev/shm/search-history-frontier-after-6bb24b33c09b4fff954f74b87b5b28d6', 'tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py', 'tests/unit/scientist/methods/search/test_legacy_frontier_admission.py', 'tests/unit/scientist/methods/autotune/test_bayesian_generator.py', 'tests/unit/scientist/methods/search/test_objective.py']
+basetemp_asserted_nonexistent=true
+.................................................................        [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+65 passed, 2 warnings in 7.34s
+
+EXIT_CODE=0

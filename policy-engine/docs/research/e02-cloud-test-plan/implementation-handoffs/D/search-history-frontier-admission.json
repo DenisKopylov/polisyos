@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "family": "Q1 typed history and complete finite legacy vectors",
+  "finding_ids": [
+    "B108",
+    "B111",
+    "B113"
+  ],
+  "closure_ids": [],
+  "predicate_basis": "recomputed",
+  "scope_annotation": "Bounded numeric type and ordered finite-vector intake/export; original unit law, source universe, owner/tenant truth and institutional authority remain not established.",
+  "risk_patterns": [
+    "P37",
+    "P40"
+  ],
+  "implementation_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+  "implementation_tree": "49916b434ecc8a2d30b14d9626d3617e5c95a05d",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-stage-frontier-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_admission.py"
+  ],
+  "source_cells": [
+    {
+      "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "git_blob": "8beaf54d546dc2fcb3b9a61d6075f7a0b26e32a6"
+    },
+    {
+      "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "git_blob": "c03304f18d0557d8e321fa188e9b02f7db6b9307"
+    }
+  ],
+  "mechanisms": [
+    "Absent stage keeps default. Malformed-present non-Boolean stage becomes invalid STAGE_A_REJECT with malformed_stage_a_passed before any scalar fallback; actual True/False retained.",
+    "One vector/basis validator guards new and existing frontier rows and raw dominance: finite real typed values, distinct ordered objective names/directions, normalized/raw agreement. Unavailable objective details remain in original history, cannot dominate/export, and changed basis is refused."
+  ],
+  "environment": {
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10",
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "PYTHONPATH": "src:.",
+    "device": "CPU",
+    "GPU_profile": "UNRUN",
+    "caps": "No runner cap or reseed; frozen header observes Torchthreads5 and unset OMP/MKL/OPENBLAS env."
+  },
+  "checks": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-history-frontier/history-frontier-ab-before.txt",
+      "sha256": "0739bb49a5f7c8e2f9aaac081cd2f9af57cef888786172f8fc9da986b701ce74",
+      "bytes": 44089,
+      "target_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+      "outcome": "FAIL_AS_DEFINING_NEGATIVE",
+      "deciding_output": "24 failed,6passed,7deselected,2warnings in7.58s"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-history-frontier/history-frontier-candidate.txt",
+      "sha256": "b916f9e0c4c3a4e8bf1a42a6f3eb239db1970150d616f9acde7a8d4cef10c2f1",
+      "bytes": 1272,
+      "outcome": "PASS_PRECOMMIT_SNAPSHOT",
+      "deciding_output": "65passed,2warnings in7.34s",
+      "limitation": "Snapshot committed425 with no subsequent product/test changes; not a completed frozen broad replay."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-runtime.txt",
+      "sha256": "7f5dcd205962f379cb0ce0ff5ebc34e1fb9c885fb2780dbf0181a85ff97787bd",
+      "bytes": 3319,
+      "target_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "outcome": "ERROR_SIGKILL",
+      "deciding_output": "childEXIT_CODE=-9;wrapper247;76progress dots,no completed pytest verdict",
+      "limitation": "No assertion traceback or established cause. Never count as PASS or scientific product failure; broader root gate pending."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-ruff.txt",
+      "sha256": "55667ed769fbd244faab085b82c58b8e2c52d51e8c71a68911c684d957fd0be6",
+      "bytes": 6129,
+      "target_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "outcome": "PASS",
+      "deciding_output": "All checks passed;28files alreadyformatted",
+      "version": "ruff0.14.10"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-425-renderer.txt",
+      "sha256": "412a23643dfb409aa8428599d6eccef5a1c8d6e862e91923ac49df3f6b816db8",
+      "bytes": 1844,
+      "target_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "outcome": "PASS",
+      "deciding_output": "actualcanonicalCLI EXIT_CODE=0;fragment_count=7"
+    }
+  ],
+  "independent_reds": {
+    "legacy_frontier": {
+      "test_sha": "966772c181e8cbf90b8fdf6632315555082ef6d0",
+      "test_path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+      "test_sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b",
+      "target_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+      "outcome": "10FAIL",
+      "log_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-red.txt",
+      "log_sha256": "9c008186c535c47f1008e5d62d39338bbd89a5e459c42a413e71b7823282fef0"
+    },
+    "CAS_receiver": {
+      "git_sha": "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a",
+      "test_sha": "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-review-fac5.json",
+      "target_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "outcome": "Q1_REAL_NATIVE_FAIL",
+      "scope": "Complete original refs/basis legitimate8 verified; malformed callerstage repairedTrue and actualGPfit8. UnrelatedQ3 fixture failures explicitly excluded."
+    }
+  },
+  "independent_corrective_native_review": {
+    "git_sha": "e2a884e5321799728739c6c9677c85cbd9451251",
+    "proof_sha": "f12d4e2027b7613f664e3759e10d926c2519a102",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-review.json",
+    "git_blob": "53329e53c285983c8896b0de3c6555a25522da58",
+    "sha256": "39a4256226c52bc41422e431587f031393d8aac1c8bb03de4741df6ceb3f4639",
+    "target_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+    "target_tree": "49916b434ecc8a2d30b14d9626d3617e5c95a05d",
+    "predicate_basis": "independently_reconciled",
+    "outcome": "PASS",
+    "deciding_output": "40passed,2warnings in10.71s; originalCLI27PASS/singlefrontPASS",
+    "scope": "Unchanged native10legacyfront+30fiscal; full origins and original frozen test/CLI overlays. No units/sourceauthority closure."
+  },
+  "composed_CAS_stage_review": {
+    "git_sha": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-successor-c812.json",
+    "git_blob": "570ff75bc2ac674d507fca63627a518b2f7cbaa4",
+    "sha256": "33cfeab4bf1610b827c9b43a7bcd833d7f35661f1aa9800805430a66d7adaabb",
+    "target_sha": "c812510541c898d7118004661ce07335823d2209",
+    "target_tree": "40fbf8a3a53949eacc1c0bed58f90f0aac141382",
+    "outcome": "PASS",
+    "deciding_output": "4casesPASS;actualmodel/fit/MLL0 for malformedcorpus safe refusal",
+    "scope": "Unchanged4d2oracle; legitimate8directadmission positive, not a seven-row GPfit or a new fullhealthyGPworkflow."
+  },
+  "limits": [
+    "Legacy helper verifies its caller-declared finite ordered vector and continuity, not an independently complete producer/source-feasible/unknown denominator.",
+    "A reason-export patch remains UNAPPLIED and independent runtime denominator supplier ABSENT. Current A consumer2FAIL is retained.",
+    "No new fiscal unit law, scalarization/quality law, source permission or institutional grant.",
+    "SIGKILL union staysERROR, no inherited waiver; finalrootcommandunion decides broader acceptance."
+  ]
+}

@@ -67,3 +67,6 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 - The supported accounting ports are `generate`, `invoke` and `ainvoke`. Delegated
   `generate_stream` has no settlement contract and refuses before provider entry when required
   accounting or an active settlement owner is configured. Unmanaged streaming remains delegated.
+- `TracedLLMClient.with_model(model_name)` preserves the same client for the same model and
+  refuses a protected model change without an owner-transfer contract. Unmanaged views retain
+  tracing configuration; callers cannot unwrap away a pending accounting owner during normalization.

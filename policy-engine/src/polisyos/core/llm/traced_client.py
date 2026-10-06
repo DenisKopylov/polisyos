@@ -289,6 +289,36 @@ class TracedLLMClient:
             current = next_client
         return current
 
+    def with_model(self, model_name: str) -> TracedLLMClient:
+        """Return an unmanaged model view without dropping protected accounting.
+
+        Retargeting a mandatory accounting owner has no admitted transfer
+        contract. It refuses before provider work; an unchanged model retains
+        this very owner and its pending state.
+        """
+        self._require_accounting_ready()
+        if model_name == self._model_name:
+            return self
+        if self._required_accounting is not None or _current_settlement_owner() is not None:
+            raise NotImplementedError(
+                "protected LLM model retarget requires an owner transfer contract"
+            )
+        return TracedLLMClient(
+            self._client,
+            model_name=model_name,
+            capture_prompt=self._capture_prompt,
+            max_prompt_length=self._max_prompt_length,
+            run_id=self._run_id,
+            model_variant_id=self._model_variant_id,
+            provider_name=self._provider_name,
+            call_observer=self._call_observer,
+            prompt_sanitizer=self._prompt_sanitizer,
+            tracer=self._tracer,
+            metrics=self._metrics,
+            prompt_mode=self._prompt_mode,
+            cache_reuse_owner=self._cache_reuse_owner,
+        )
+
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         """Forward gateway model preflight through the tracing wrapper."""
 

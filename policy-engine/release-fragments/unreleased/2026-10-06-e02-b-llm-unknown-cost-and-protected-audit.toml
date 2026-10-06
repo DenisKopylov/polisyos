@@ -9,7 +9,7 @@ compatibility = "Default GatewayUsage zero counts no longer imply observed free 
 change_class = "python-public-api"
 surface_classification = "public_experimental: GatewayUsage and LLMBudgetEnforcer; public_stable additive knowledge fields: LLMResponseData; internal: producer settlement and audit resolution contracts"
 migration = "Use explicit valid usage/cost evidence in providers and fixtures. Compose initialized BudgetMiddleware and an explicit nonempty constructor run_id or per-call _run_id for durable intent and completion fencing. Supply an audit_reconciler only through trusted constructor composition that verifies the exact original protected act."
-api = "GatewayUsage and LLMResponseData expose usage_status/cost_status. LLMBudgetEnforcer accepts an optional trusted audit_reconciler and exposes reconcile_required_audit(act_id); unresolved monetary evidence is carried as amount=None internally."
+api = "GatewayUsage and LLMResponseData expose usage_status/cost_status. LLMBudgetEnforcer accepts an optional trusted audit_reconciler and exposes reconcile_required_audit(act_id); unresolved monetary evidence is carried as amount=None internally. TracedLLMClient.with_model preserves configured ownership or refuses unsupported protected model retargeting."
 limitations = "No external invoice or institutional reuse permission is inferred. An unobserved entered provider attempt remains unknown without exact provider evidence. Ambiguous audit effects require owner verification, not automatic duplicate append. BudgetState alone is a memory profile; optional metrics are not financial acknowledgements."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true

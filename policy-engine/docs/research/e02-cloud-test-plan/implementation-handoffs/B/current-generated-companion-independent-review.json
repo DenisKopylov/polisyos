@@ -1,0 +1,875 @@
+{
+  "schema_version": "e02.independent-source-data-review.v1",
+  "unit": "B",
+  "reviewer": "cmp_res_probe",
+  "review_role": "Independent read-only generated-companion handoff/artifact/source audit; reviewer previously compared full OpenAPI2JSON but did not author root output/client receipts.",
+  "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "target_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "implementation_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+  "evidence_sha": "e3281cacd2f978f4aba0931850c537d782f5d8c4",
+  "reviewed_handoff_sha": "84fe2d2df4f8404538d662e977f48eb0cdb169e6",
+  "producer_source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+  "verdict": "NONBLOCKING_FINITE_CANONICAL_COMPANION_AND_QUALIFIED_CLIENT_CONSTITUENTS",
+  "closure_ids": [],
+  "formal_closure": false,
+  "P41": "not_established; no inherited waiver",
+  "reviewer_product_imports": "UNRUN",
+  "reviewer_native_tests": "UNRUN",
+  "reviewer_gates": "UNRUN",
+  "reviewer_generation": "UNRUN",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-generated-companion-independent-review.json"
+  ],
+  "receipt_binding": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion.json",
+    "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+    "git_blob": "0068d1a6f9732eb7e7f20d6b1de608ad9bc1ef76",
+    "bytes": 27860,
+    "sha256": "e44763629c7bbe7fc6086bf6588df6dff10441e81b9c4c3ee327414f60d477d3"
+  },
+  "receipt_minimum_contract_check": {
+    "schema": "policyos.e02.implementation_handoff.v1",
+    "slice_base_sha_tree_reconciled": true,
+    "implementation_list_and_candidate_evidence_tree_reconciled": true,
+    "all_exact_changed_paths_reconciled": true,
+    "implementation_footprint_count": 20,
+    "handoff_own_path_separate_from_implementation_footprint": true,
+    "baseline_cells_and_finding_closure_empty": true,
+    "complete_footprint": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-launch.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-result.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/full-recursive-diff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-launch.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync-launch.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.txt",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-openapi-example-freshness.toml",
+      "policy-engine/schemas/runtime_api_v1.openapi.json"
+    ],
+    "source_and_output_pins_reconciled": true
+  },
+  "deciding_evidence": {
+    "index_binding": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/index.json",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "e34076b1dc2b4474a6fa6532c627145eab5abe57",
+      "bytes": 6724,
+      "sha256": "2b921dc767303b23a58238b3e2f5d3268ddaf06f94ff34d330f2c7d05fd758f5"
+    },
+    "actual_indexed_artifact_count": 17,
+    "indexed_artifact_bytes": 34335,
+    "index_is_additional18th_evidence_file": true,
+    "all17full_hash_and_size_matches": true,
+    "all17literal_Git_bytes": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.txt",
+        "bytes": 6800,
+        "sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "34ccdde6a03b3229240f68629b6a1eb9b6caa173",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "2026-10-06 18:50:23.015 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized\n2026-10-06 18:50:23.015 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.016 | INFO     | polisyos.common.logger:_call:120 - Contract registered\n2026-10-06 18:50:23.052 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.055 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.060 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.064 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.072 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.080 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.085 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.090 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.095 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.101 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.107 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.110 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'worldbank.wdi@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.113 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'wvs.wave7@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.115 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'eurostat.data@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.118 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.121 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.124 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.127 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.130 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.133 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.135 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ukons.datasets@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.139 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sdmx.source@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.142 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.catalog@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.144 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.resource@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.146 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'socrata.soda@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.148 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'opendatasoft.ods@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.150 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sparql.endpoint@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.154 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'rest.json@1.0.0' already registered. Use override=True to replace.\n2026-10-06 18:50:23.157 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.160 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.163 | INFO     | polisyos.common.logger:_call:120 - Registered connector\n2026-10-06 18:50:23.163 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry bootstrapped\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.164 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.165 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.165 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.165 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config\n2026-10-06 18:50:23.165 | INFO     | polisyos.common.logger:_call:120 - Default configs bootstrapped from profiles\n2026-10-06 18:50:23.216 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized\n/tmp/e02-B-successor-openapi-02ff/after.json\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.json",
+        "bytes": 2269,
+        "sha256": "8daa9f106086bc0638a9c9b3d1547b84dc281f0f4848d5c4a2f7e16a793aebbd",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "c33da1cb5d5248496baff8da03c4c87225105b90",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "{\n  \"command\": [\n    \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv\",\n    \"run\",\n    \"--no-sync\",\n    \"--extra\",\n    \"runtime\",\n    \"--extra\",\n    \"ml\",\n    \"python\",\n    \"tools/ops_runners/runtime/export_runtime_openapi.py\",\n    \"--output\",\n    \"/tmp/e02-B-successor-openapi-02ff/after.json\",\n    \"--scratch-root\",\n    \"/tmp/e02-B-successor-openapi-02ff/runtime-cas\"\n  ],\n  \"cwd\": \"/workspace/e02-B-current-coordination/policy-engine\",\n  \"head\": \"02ff9d0467423a99c2b4c737329da0c629e6b869\",\n  \"tree\": \"2c50e068a79f0a57de8d4349b5ee00b5a298d821\",\n  \"head_after\": \"02ff9d0467423a99c2b4c737329da0c629e6b869\",\n  \"wall_s\": 49.839998826006195,\n  \"process_rusage_maxrss_kib\": 1190576,\n  \"exit_code\": 0,\n  \"exec_setup_error\": null,\n  \"harness_state\": \"EXECUTED\",\n  \"output_path\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-openapi-02ff.txt\",\n  \"output_sha256\": \"27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26\",\n  \"source_environment\": {\n    \"PYTHONPATH\": \"/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine\",\n    \"PATH\": \"/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback\",\n    \"LANG\": \"C.UTF-8\",\n    \"POLISYOS_METRICS_PORT\": \"0\",\n    \"TIKTOKEN_CACHE_DIR\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache\",\n    \"E02_B_PROPERTY_REMOVAL\": null,\n    \"UV_PROJECT_ENVIRONMENT\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment\",\n    \"UV_NO_SYNC\": \"1\",\n    \"E02_B_COHORT_INVENTORY_PATH\": null\n  },\n  \"limitations\": [\n    \"Combined stdout/stderr; no separate stream-count claim.\",\n    \"Source boundary is HEAD identity; the launcher checks initial cleanliness.\",\n    \"RSS is wait4 child rusage, not an aggregate of independently concurrent gates.\"\n  ]\n}\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.txt",
+        "bytes": 44,
+        "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-public-sync-02ff.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "1f53d1ca3871cbcf6393213cfd1226b80467f825",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "Architecture guardrail inventories updated.\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.json",
+        "bytes": 2106,
+        "sha256": "a0882ee78fd28a6674f01298d4e8674d259face65d8f867a5e8cf75abdee5a31",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-public-sync-02ff.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "ca6480726a3dff5588cd6873995d39a9abbeeace",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "{\n  \"command\": [\n    \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv\",\n    \"run\",\n    \"--no-sync\",\n    \"python\",\n    \"tools/devx/architecture/guardrails.py\",\n    \"sync\",\n    \"--skip-deep-import-baseline\"\n  ],\n  \"cwd\": \"/workspace/e02-B-current-coordination/policy-engine\",\n  \"head\": \"02ff9d0467423a99c2b4c737329da0c629e6b869\",\n  \"tree\": \"2c50e068a79f0a57de8d4349b5ee00b5a298d821\",\n  \"head_after\": \"02ff9d0467423a99c2b4c737329da0c629e6b869\",\n  \"wall_s\": 12.486283820006065,\n  \"process_rusage_maxrss_kib\": 79776,\n  \"exit_code\": 0,\n  \"exec_setup_error\": null,\n  \"harness_state\": \"EXECUTED\",\n  \"output_path\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-public-sync-02ff.txt\",\n  \"output_sha256\": \"3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8\",\n  \"source_environment\": {\n    \"PYTHONPATH\": \"/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine\",\n    \"PATH\": \"/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback\",\n    \"LANG\": \"C.UTF-8\",\n    \"POLISYOS_METRICS_PORT\": \"0\",\n    \"TIKTOKEN_CACHE_DIR\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache\",\n    \"E02_B_PROPERTY_REMOVAL\": null,\n    \"UV_PROJECT_ENVIRONMENT\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment\",\n    \"UV_NO_SYNC\": \"1\",\n    \"E02_B_COHORT_INVENTORY_PATH\": null\n  },\n  \"limitations\": [\n    \"Combined stdout/stderr; no separate stream-count claim.\",\n    \"Source boundary is HEAD identity; the launcher checks initial cleanliness.\",\n    \"RSS is wait4 child rusage, not an aggregate of independently concurrent gates.\"\n  ]\n}\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/full-recursive-diff.json",
+        "bytes": 4387,
+        "sha256": "88493c0421c4999a21c98cc08d2e107c6a8d32558f8c84e1ce608052acd67132",
+        "original_path": "/tmp/e02-B-successor-openapi-02ff/full-recursive-diff.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "4f1c3f8a501dee45888eb3f635bacf14a94c8eaa",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "[\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/projection_hash\",\n    \"before\": \"sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee\",\n    \"after\": \"sha256:27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c\"\n  },\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/replay_address\",\n    \"before\": \"/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Afe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b\",\n    \"after\": \"/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595\"\n  },\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/replay_pins/projection_hash\",\n    \"before\": \"sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee\",\n    \"after\": \"sha256:27e186d158e9f6313da00f545e50f8e948b99f741c3bd392ca4cd5754aa7ff3c\"\n  },\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/replay_pins/source_dependency_hash\",\n    \"before\": \"sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b\",\n    \"after\": \"sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595\"\n  },\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source/validation/bound_dependency_aggregate_identity\",\n    \"before\": \"sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b\",\n    \"after\": \"sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595\"\n  },\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source/validation/bound_dependency_count\",\n    \"before\": 1489,\n    \"after\": 1502\n  },\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source/validation/worker_validation_receipt_hash\",\n    \"before\": \"sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2\",\n    \"after\": \"sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea\"\n  },\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source_dependency_hash\",\n    \"before\": \"sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b\",\n    \"after\": \"sha256:4973f2728576eba533345a6c80102b116a41975dea70eb610738e19c5ab33595\"\n  },\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/worker_validation_receipt_hash\",\n    \"before\": \"sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2\",\n    \"after\": \"sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea\"\n  },\n  {\n    \"path\": \"/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/worker_validation_receipt_ref\",\n    \"before\": \"owner-validation:sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2\",\n    \"after\": \"owner-validation:sha256:9f061fe032188d9975686f9360f580a5612f9938167bf0f2d841d74f816251ea\"\n  }\n]\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-launch.source.txt",
+        "bytes": 1473,
+        "sha256": "95d86ed9a5f8df1cfed6e68c636cc52ee880425db9521fa91fb4f64ae4082307",
+        "original_path": "/tmp/e02-B-successor-openapi-launch.py",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "4603ce76e6e322033fe1e733a5260eb674cff764",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "from pathlib import Path\nimport os,subprocess,shutil\nroot=Path('/workspace/e02-B-current-coordination');prod=root/'policy-engine';scratch=root/'.polisyos/e02-B-current';h=prod/'docs/research/e02-cloud-test-plan/implementation-handoffs/B';raw=Path('/tmp/e02-B-successor-openapi-02ff');raw.mkdir(exist_ok=False)\nassert subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()=='02ff9d0467423a99c2b4c737329da0c629e6b869'\nassert subprocess.check_output(['git','-C',str(root),'status','--porcelain'],text=True).strip()==''\nshutil.copyfile(prod/'schemas/runtime_api_v1.openapi.json',raw/'before.json')\nenv=dict(os.environ)\nfor k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']:env.pop(k,None)\nenv.update(PYTHONPATH=str(prod/'src')+':'+str(prod),UV_PROJECT_ENVIRONMENT=str(scratch/'environment'),UV_NO_SYNC='1',POLISYOS_METRICS_PORT='0',TIKTOKEN_CACHE_DIR=str(scratch/'tools/tokenizer-input/cache'))\nargv=[str(scratch/'tools/uv-0.9.21/bin/uv'),'run','--no-sync','--extra','runtime','--extra','ml','python','tools/ops_runners/runtime/export_runtime_openapi.py','--output',str(raw/'after.json'),'--scratch-root',str(raw/'runtime-cas')]\nresult=subprocess.run([str(scratch/'environment/bin/python'),str(h/'final-root-evidence/capture_frozen.py'),'--repo',str(root),'--tag','successor-prefreeze-openapi-02ff','--',*argv],cwd=root,env=env)\nraise SystemExit(result.returncode)\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync-launch.source.txt",
+        "bytes": 1099,
+        "sha256": "e1201295af3673d7bfff18f6f2e758c8f349a36abbb0d0b3406c7b8b1301bd6c",
+        "original_path": "/tmp/e02-B-successor-public-sync-launch.py",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "62b132fd3aa324b2be5f34c80b86d544eae1f675",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "from pathlib import Path\nimport os,subprocess\nroot=Path('/workspace/e02-B-current-coordination');scratch=root/'.polisyos/e02-B-current';prod=root/'policy-engine';h=prod/'docs/research/e02-cloud-test-plan/implementation-handoffs/B'\nassert subprocess.check_output(['git','-C',str(root),'status','--porcelain'],text=True).strip()==''\nenv=dict(os.environ)\nfor k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']:env.pop(k,None)\nenv.update(PYTHONPATH=str(prod/'src')+':'+str(prod),UV_PROJECT_ENVIRONMENT=str(scratch/'environment'),UV_NO_SYNC='1',POLISYOS_METRICS_PORT='0',TIKTOKEN_CACHE_DIR=str(scratch/'tools/tokenizer-input/cache'))\nargv=[str(scratch/'tools/uv-0.9.21/bin/uv'),'run','--no-sync','python','tools/devx/architecture/guardrails.py','sync','--skip-deep-import-baseline']\nresult=subprocess.run([str(scratch/'environment/bin/python'),str(h/'final-root-evidence/capture_frozen.py'),'--repo',str(root),'--tag','successor-prefreeze-public-sync-02ff','--',*argv],env=env,cwd=root)\nraise SystemExit(result.returncode)\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.txt",
+        "bytes": 226,
+        "sha256": "cb299935d7449081b4081a0c0abb488c063695f53bd5e0e10915815e858594d3",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step0.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "91fd58289897b8c753076f20cf211265b712ccfb",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "✨ openapi-typescript 7.13.0\n🚀 /workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json → /workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts [989.3ms]\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.json",
+        "bytes": 2314,
+        "sha256": "522582f0d167d4cf5d552ce0d2eff1b8b2f488b0c547ddb685a2f990c67ee54c",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step0.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "5c1818dc7a33f542fd99f5e997bb301a657dd157",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "{\n  \"command\": [\n    \"corepack\",\n    \"pnpm\",\n    \"--dir\",\n    \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client\",\n    \"exec\",\n    \"openapi-typescript\",\n    \"/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json\",\n    \"-o\",\n    \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts\"\n  ],\n  \"cwd\": \"/workspace/e02-B-current-coordination/policy-engine\",\n  \"head\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"tree\": \"430dc1504b7e3bf64eff6da5a1a502b99aec38f4\",\n  \"head_after\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"wall_s\": 1.9363678340014303,\n  \"process_rusage_maxrss_kib\": 219536,\n  \"exit_code\": 0,\n  \"exec_setup_error\": null,\n  \"harness_state\": \"EXECUTED\",\n  \"output_path\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step0.txt\",\n  \"output_sha256\": \"cb299935d7449081b4081a0c0abb488c063695f53bd5e0e10915815e858594d3\",\n  \"source_environment\": {\n    \"PYTHONPATH\": \"/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine\",\n    \"PATH\": \"/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback\",\n    \"LANG\": \"C.UTF-8\",\n    \"POLISYOS_METRICS_PORT\": \"0\",\n    \"TIKTOKEN_CACHE_DIR\": null,\n    \"E02_B_PROPERTY_REMOVAL\": null,\n    \"UV_PROJECT_ENVIRONMENT\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment\",\n    \"UV_NO_SYNC\": \"1\",\n    \"E02_B_COHORT_INVENTORY_PATH\": null\n  },\n  \"limitations\": [\n    \"Combined stdout/stderr; no separate stream-count claim.\",\n    \"Source boundary is HEAD identity; the launcher checks initial cleanliness.\",\n    \"RSS is wait4 child rusage, not an aggregate of independently concurrent gates.\"\n  ]\n}\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step1.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": ""
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.json",
+        "bytes": 2151,
+        "sha256": "ced4159f2ffbe20a6cf292a038501f6f31aa86aaa54904abc43984749d423532",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step1.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "29c466933d542699d233f23ba0f9cfc7c183b5db",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "{\n  \"command\": [\n    \"node\",\n    \"packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs\",\n    \"--types\",\n    \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts\"\n  ],\n  \"cwd\": \"/workspace/e02-B-current-coordination/policy-engine\",\n  \"head\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"tree\": \"430dc1504b7e3bf64eff6da5a1a502b99aec38f4\",\n  \"head_after\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"wall_s\": 0.6527155939984368,\n  \"process_rusage_maxrss_kib\": 164068,\n  \"exit_code\": 0,\n  \"exec_setup_error\": null,\n  \"harness_state\": \"EXECUTED\",\n  \"output_path\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step1.txt\",\n  \"output_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"source_environment\": {\n    \"PYTHONPATH\": \"/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine\",\n    \"PATH\": \"/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback\",\n    \"LANG\": \"C.UTF-8\",\n    \"POLISYOS_METRICS_PORT\": \"0\",\n    \"TIKTOKEN_CACHE_DIR\": null,\n    \"E02_B_PROPERTY_REMOVAL\": null,\n    \"UV_PROJECT_ENVIRONMENT\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment\",\n    \"UV_NO_SYNC\": \"1\",\n    \"E02_B_COHORT_INVENTORY_PATH\": null\n  },\n  \"limitations\": [\n    \"Combined stdout/stderr; no separate stream-count claim.\",\n    \"Source boundary is HEAD identity; the launcher checks initial cleanliness.\",\n    \"RSS is wait4 child rusage, not an aggregate of independently concurrent gates.\"\n  ]\n}\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.txt",
+        "bytes": 104,
+        "sha256": "6e09243b29671e6f6a7eb312f4512c9d801a627c9f380d4be9efdbdc729dd7a5",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step2.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "3975ee3155219763e9442fcb27442b6158acce14",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "/tmp/e02-B-successor-client-421/runtimeApiClient.ts\n/tmp/e02-B-successor-client-421/runtimeApiClient.js\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.json",
+        "bytes": 2360,
+        "sha256": "d718dd2e41de66c97107320fbc5799e144bf568bf54aed6376623039e7df6aa1",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step2.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "47d4056ea4a6fb693c7b9fa1b681fdd8b211312e",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "{\n  \"command\": [\n    \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python\",\n    \"tools/ops_runners/runtime/generate_runtime_client.py\",\n    \"--openapi\",\n    \"/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json\",\n    \"--out-ts\",\n    \"/tmp/e02-B-successor-client-421/runtimeApiClient.ts\",\n    \"--out-js\",\n    \"/tmp/e02-B-successor-client-421/runtimeApiClient.js\"\n  ],\n  \"cwd\": \"/workspace/e02-B-current-coordination/policy-engine\",\n  \"head\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"tree\": \"430dc1504b7e3bf64eff6da5a1a502b99aec38f4\",\n  \"head_after\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"wall_s\": 0.0933247590000974,\n  \"process_rusage_maxrss_kib\": 26132,\n  \"exit_code\": 0,\n  \"exec_setup_error\": null,\n  \"harness_state\": \"EXECUTED\",\n  \"output_path\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step2.txt\",\n  \"output_sha256\": \"6e09243b29671e6f6a7eb312f4512c9d801a627c9f380d4be9efdbdc729dd7a5\",\n  \"source_environment\": {\n    \"PYTHONPATH\": \"/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine\",\n    \"PATH\": \"/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback\",\n    \"LANG\": \"C.UTF-8\",\n    \"POLISYOS_METRICS_PORT\": \"0\",\n    \"TIKTOKEN_CACHE_DIR\": null,\n    \"E02_B_PROPERTY_REMOVAL\": null,\n    \"UV_PROJECT_ENVIRONMENT\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment\",\n    \"UV_NO_SYNC\": \"1\",\n    \"E02_B_COHORT_INVENTORY_PATH\": null\n  },\n  \"limitations\": [\n    \"Combined stdout/stderr; no separate stream-count claim.\",\n    \"Source boundary is HEAD identity; the launcher checks initial cleanliness.\",\n    \"RSS is wait4 child rusage, not an aggregate of independently concurrent gates.\"\n  ]\n}\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step3.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": ""
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.json",
+        "bytes": 2564,
+        "sha256": "4596311b1c2cccbdd6b7db0fb3cfa44fddcb7cb81e08064bc101f0252d2382f2",
+        "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step3.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "c0de1bf21bb383a108c7ebfa4cae25f199bc35d6",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "{\n  \"command\": [\n    \"node\",\n    \"packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs\",\n    \"--openapi\",\n    \"/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json\",\n    \"--client\",\n    \"/tmp/e02-B-successor-client-421/runtimeApiClient.ts\",\n    \"--out-ts\",\n    \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts\",\n    \"--runtime-js\",\n    \"/tmp/e02-B-successor-client-421/runtimeApiClient.js\",\n    \"--out-js\",\n    \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js\"\n  ],\n  \"cwd\": \"/workspace/e02-B-current-coordination/policy-engine\",\n  \"head\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"tree\": \"430dc1504b7e3bf64eff6da5a1a502b99aec38f4\",\n  \"head_after\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"wall_s\": 0.6342558570031542,\n  \"process_rusage_maxrss_kib\": 139812,\n  \"exit_code\": 0,\n  \"exec_setup_error\": null,\n  \"harness_state\": \"EXECUTED\",\n  \"output_path\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-prefreeze-client-421-step3.txt\",\n  \"output_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"source_environment\": {\n    \"PYTHONPATH\": \"/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine\",\n    \"PATH\": \"/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback\",\n    \"LANG\": \"C.UTF-8\",\n    \"POLISYOS_METRICS_PORT\": \"0\",\n    \"TIKTOKEN_CACHE_DIR\": null,\n    \"E02_B_PROPERTY_REMOVAL\": null,\n    \"UV_PROJECT_ENVIRONMENT\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment\",\n    \"UV_NO_SYNC\": \"1\",\n    \"E02_B_COHORT_INVENTORY_PATH\": null\n  },\n  \"limitations\": [\n    \"Combined stdout/stderr; no separate stream-count claim.\",\n    \"Source boundary is HEAD identity; the launcher checks initial cleanliness.\",\n    \"RSS is wait4 child rusage, not an aggregate of independently concurrent gates.\"\n  ]\n}\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-result.json",
+        "bytes": 3121,
+        "sha256": "56a59b9df1be715e3123d92ec2512414c40ca98b323bdc7c0366ca0b00bf7a86",
+        "original_path": "/tmp/e02-B-successor-client-421/result.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "3b5ce8488f9d1d4b33730615f429140ad64c8656",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "{\n  \"source_sha\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"source_tree\": \"430dc1504b7e3bf64eff6da5a1a502b99aec38f4\",\n  \"head_after\": \"42172721bbe1fdb27f6e37fc8acccdd30464380d\",\n  \"status_after\": \"\",\n  \"commands\": [\n    [\n      \"corepack\",\n      \"pnpm\",\n      \"--dir\",\n      \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client\",\n      \"exec\",\n      \"openapi-typescript\",\n      \"/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json\",\n      \"-o\",\n      \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts\"\n    ],\n    [\n      \"node\",\n      \"packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs\",\n      \"--types\",\n      \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts\"\n    ],\n    [\n      \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python\",\n      \"tools/ops_runners/runtime/generate_runtime_client.py\",\n      \"--openapi\",\n      \"/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json\",\n      \"--out-ts\",\n      \"/tmp/e02-B-successor-client-421/runtimeApiClient.ts\",\n      \"--out-js\",\n      \"/tmp/e02-B-successor-client-421/runtimeApiClient.js\"\n    ],\n    [\n      \"node\",\n      \"packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs\",\n      \"--openapi\",\n      \"/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json\",\n      \"--client\",\n      \"/tmp/e02-B-successor-client-421/runtimeApiClient.ts\",\n      \"--out-ts\",\n      \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts\",\n      \"--runtime-js\",\n      \"/tmp/e02-B-successor-client-421/runtimeApiClient.js\",\n      \"--out-js\",\n      \"/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js\"\n    ]\n  ],\n  \"qualification\": \"Registered shell generator constituent argv, in declared order; own194 Python replaces hardcoded .venv interpreter, explicit task scratch retained rather than original EXIT rm -rf. Same scripts and product options; no root source edit/no result relabel.\",\n  \"outputs\": [\n    {\n      \"path\": \"policy-engine/packages/runtime-api-client/types.ts\",\n      \"bytes\": 951543,\n      \"sha256\": \"5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4\",\n      \"byte_equal_full_source_candidate\": true\n    },\n    {\n      \"path\": \"policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts\",\n      \"bytes\": 108061,\n      \"sha256\": \"e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd\",\n      \"byte_equal_full_source_candidate\": true\n    },\n    {\n      \"path\": \"policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js\",\n      \"bytes\": 31276,\n      \"sha256\": \"69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506\",\n      \"byte_equal_full_source_candidate\": true\n    }\n  ],\n  \"scratch_root\": \"/tmp/e02-B-successor-client-421\",\n  \"scratch_cleanup\": \"No nativeTrash: retain exact candidate; no permanent deletion.\"\n}\n"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-launch.source.txt",
+        "bytes": 3317,
+        "sha256": "13c8bd67b05746dc4135a48199fc247a5ff759f33ae5dfbeda4df133b52a5ab9",
+        "original_path": "/tmp/e02-B-successor-client-421-launch.py",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "46027a3b9b884e1b54b5d3db637fa28d7e6bf6b8",
+        "exact_bytes_equal_evidence_commit": true,
+        "complete_literal_text": "from pathlib import Path\nimport os,subprocess,json,hashlib,time\nroot=Path('/workspace/e02-B-current-coordination');p=root/'policy-engine';s=root/'.polisyos/e02-B-current';h=p/'docs/research/e02-cloud-test-plan/implementation-handoffs/B';raw=Path('/tmp/e02-B-successor-client-421');raw.mkdir(exist_ok=False)\nsha='42172721bbe1fdb27f6e37fc8acccdd30464380d'\ndef git(*a):return subprocess.check_output(['git','-C',str(root),*a],text=True).strip()\nassert git('rev-parse','HEAD')==sha and git('status','--porcelain')==''\nenv=dict(os.environ)\nfor k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']:env.pop(k,None)\nenv.update(PYTHONPATH=str(p/'src')+':'+str(p),UV_PROJECT_ENVIRONMENT=str(s/'environment'),UV_NO_SYNC='1',POLISYOS_METRICS_PORT='0')\nenv['PATH']='/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:'+str(s/'environment/bin')+':'+env['PATH']\ncommands=[['corepack','pnpm','--dir',str(p/'packages/runtime-api-client'),'exec','openapi-typescript',str(p/'schemas/runtime_api_v1.openapi.json'),'-o',str(p/'packages/runtime-api-client/types.ts')],['node','packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs','--types',str(p/'packages/runtime-api-client/types.ts')],[str(s/'environment/bin/python'),'tools/ops_runners/runtime/generate_runtime_client.py','--openapi',str(p/'schemas/runtime_api_v1.openapi.json'),'--out-ts',str(raw/'runtimeApiClient.ts'),'--out-js',str(raw/'runtimeApiClient.js')],['node','packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs','--openapi',str(p/'schemas/runtime_api_v1.openapi.json'),'--client',str(raw/'runtimeApiClient.ts'),'--out-ts',str(p/'packages/runtime-api-client/canonicalRuntimeApiClient.ts'),'--runtime-js',str(raw/'runtimeApiClient.js'),'--out-js',str(p/'packages/runtime-api-client/canonicalRuntimeApiClient.js')]]\nfor i,argv in enumerate(commands):\n code=subprocess.run([str(s/'environment/bin/python'),str(h/'final-root-evidence/capture_frozen.py'),'--repo',str(root),'--tag',f'successor-prefreeze-client-421-step{i}','--',*argv],cwd=root,env=env).returncode\n if code:raise SystemExit(code)\nrows=[]\nfor name in ['types.ts','canonicalRuntimeApiClient.ts','canonicalRuntimeApiClient.js']:\n path='policy-engine/packages/runtime-api-client/'+name;b=(root/path).read_bytes();before=subprocess.check_output(['git','-C',str(root),'show',sha+':'+path]);rows.append({'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'byte_equal_full_source_candidate':b==before})\nrecord={'source_sha':sha,'source_tree':git('rev-parse',sha+'^{tree}'),'head_after':git('rev-parse','HEAD'),'status_after':git('status','--porcelain'),'commands':commands,'qualification':'Registered shell generator constituent argv, in declared order; own194 Python replaces hardcoded .venv interpreter, explicit task scratch retained rather than original EXIT rm -rf. Same scripts and product options; no root source edit/no result relabel.','outputs':rows,'scratch_root':str(raw),'scratch_cleanup':'No nativeTrash: retain exact candidate; no permanent deletion.'}\n(raw/'result.json').write_text(json.dumps(record,indent=2)+'\\n');print(json.dumps(record,indent=2));assert all(x['byte_equal_full_source_candidate'] for x in rows) and record['status_after']==''\n"
+      }
+    ]
+  },
+  "actual_constituent_results": [
+    {
+      "stem": "public-sync",
+      "wrapper_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "ca6480726a3dff5588cd6873995d39a9abbeeace",
+        "bytes": 2106,
+        "sha256": "a0882ee78fd28a6674f01298d4e8674d259face65d8f867a5e8cf75abdee5a31"
+      },
+      "stdout_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "1f53d1ca3871cbcf6393213cfd1226b80467f825",
+        "bytes": 44,
+        "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8"
+      },
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/devx/architecture/guardrails.py",
+        "sync",
+        "--skip-deep-import-baseline"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "actual_source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "actual_source_tree": "2c50e068a79f0a57de8d4349b5ee00b5a298d821",
+      "actual_exit": 0,
+      "wall_s": 12.486283820006065,
+      "wait4_child_maxrss_kib": 79776,
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "result_interpretation": "Completed parent producer/constituent execution read from literal wrapper; reviewer did not execute it."
+    },
+    {
+      "stem": "openapi-generator",
+      "wrapper_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "c33da1cb5d5248496baff8da03c4c87225105b90",
+        "bytes": 2269,
+        "sha256": "8daa9f106086bc0638a9c9b3d1547b84dc281f0f4848d5c4a2f7e16a793aebbd"
+      },
+      "stdout_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "34ccdde6a03b3229240f68629b6a1eb9b6caa173",
+        "bytes": 6800,
+        "sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26"
+      },
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "/tmp/e02-B-successor-openapi-02ff/after.json",
+        "--scratch-root",
+        "/tmp/e02-B-successor-openapi-02ff/runtime-cas"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "actual_source_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+      "actual_source_tree": "2c50e068a79f0a57de8d4349b5ee00b5a298d821",
+      "actual_exit": 0,
+      "wall_s": 49.839998826006195,
+      "wait4_child_maxrss_kib": 1190576,
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "result_interpretation": "Completed parent producer/constituent execution read from literal wrapper; reviewer did not execute it."
+    },
+    {
+      "stem": "client-step0",
+      "wrapper_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "5c1818dc7a33f542fd99f5e997bb301a657dd157",
+        "bytes": 2314,
+        "sha256": "522582f0d167d4cf5d552ce0d2eff1b8b2f488b0c547ddb685a2f990c67ee54c"
+      },
+      "stdout_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "91fd58289897b8c753076f20cf211265b712ccfb",
+        "bytes": 226,
+        "sha256": "cb299935d7449081b4081a0c0abb488c063695f53bd5e0e10915815e858594d3"
+      },
+      "command": [
+        "corepack",
+        "pnpm",
+        "--dir",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client",
+        "exec",
+        "openapi-typescript",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "-o",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "actual_source_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "actual_source_tree": "430dc1504b7e3bf64eff6da5a1a502b99aec38f4",
+      "actual_exit": 0,
+      "wall_s": 1.9363678340014303,
+      "wait4_child_maxrss_kib": 219536,
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "result_interpretation": "Completed parent producer/constituent execution read from literal wrapper; reviewer did not execute it."
+    },
+    {
+      "stem": "client-step1",
+      "wrapper_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "29c466933d542699d233f23ba0f9cfc7c183b5db",
+        "bytes": 2151,
+        "sha256": "ced4159f2ffbe20a6cf292a038501f6f31aa86aaa54904abc43984749d423532"
+      },
+      "stdout_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "command": [
+        "node",
+        "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+        "--types",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "actual_source_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "actual_source_tree": "430dc1504b7e3bf64eff6da5a1a502b99aec38f4",
+      "actual_exit": 0,
+      "wall_s": 0.6527155939984368,
+      "wait4_child_maxrss_kib": 164068,
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "result_interpretation": "Completed parent producer/constituent execution read from literal wrapper; reviewer did not execute it."
+    },
+    {
+      "stem": "client-step2",
+      "wrapper_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "47d4056ea4a6fb693c7b9fa1b681fdd8b211312e",
+        "bytes": 2360,
+        "sha256": "d718dd2e41de66c97107320fbc5799e144bf568bf54aed6376623039e7df6aa1"
+      },
+      "stdout_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "3975ee3155219763e9442fcb27442b6158acce14",
+        "bytes": 104,
+        "sha256": "6e09243b29671e6f6a7eb312f4512c9d801a627c9f380d4be9efdbdc729dd7a5"
+      },
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "tools/ops_runners/runtime/generate_runtime_client.py",
+        "--openapi",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "--out-ts",
+        "/tmp/e02-B-successor-client-421/runtimeApiClient.ts",
+        "--out-js",
+        "/tmp/e02-B-successor-client-421/runtimeApiClient.js"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "actual_source_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "actual_source_tree": "430dc1504b7e3bf64eff6da5a1a502b99aec38f4",
+      "actual_exit": 0,
+      "wall_s": 0.0933247590000974,
+      "wait4_child_maxrss_kib": 26132,
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "result_interpretation": "Completed parent producer/constituent execution read from literal wrapper; reviewer did not execute it."
+    },
+    {
+      "stem": "client-step3",
+      "wrapper_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.json",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "c0de1bf21bb383a108c7ebfa4cae25f199bc35d6",
+        "bytes": 2564,
+        "sha256": "4596311b1c2cccbdd6b7db0fb3cfa44fddcb7cb81e08064bc101f0252d2382f2"
+      },
+      "stdout_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.txt",
+        "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "command": [
+        "node",
+        "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+        "--openapi",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "--client",
+        "/tmp/e02-B-successor-client-421/runtimeApiClient.ts",
+        "--out-ts",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "--runtime-js",
+        "/tmp/e02-B-successor-client-421/runtimeApiClient.js",
+        "--out-js",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "actual_source_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "actual_source_tree": "430dc1504b7e3bf64eff6da5a1a502b99aec38f4",
+      "actual_exit": 0,
+      "wall_s": 0.6342558570031542,
+      "wait4_child_maxrss_kib": 139812,
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "result_interpretation": "Completed parent producer/constituent execution read from literal wrapper; reviewer did not execute it."
+    }
+  ],
+  "complete_client_outputs": [
+    {
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "bytes": 951543,
+      "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "byte_equal_full_source_candidate": true,
+      "actual_compared_source_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "independent_full_target_git_blob_and_current_bytes_equal": true,
+      "git_blob": "fed12f54958a714d738007d69fcefcb724e4abec"
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "bytes": 108061,
+      "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+      "byte_equal_full_source_candidate": true,
+      "actual_compared_source_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "independent_full_target_git_blob_and_current_bytes_equal": true,
+      "git_blob": "7fba416588d222e0195dc95f54c4a164d25264a5"
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "bytes": 31276,
+      "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+      "byte_equal_full_source_candidate": true,
+      "actual_compared_source_sha": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+      "independent_full_target_git_blob_and_current_bytes_equal": true,
+      "git_blob": "3ae262fcb1aa09aef80929be1c270170d787179e"
+    }
+  ],
+  "ordered_registered_constituent_source_review": {
+    "registered_family": {
+      "id": "runtime-api-client",
+      "label": "Generated runtime API client",
+      "owner": "team-polisyos",
+      "approval_owner": "team-polisyos",
+      "lifecycle": "generated_committed",
+      "generator": "canonical generator declared in regenerate_commands",
+      "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+      "promotion_target": "registered committed outputs listed in outputs",
+      "stale_output_behavior": "fail",
+      "source_of_truth": "schemas/runtime_api_v1.openapi.json",
+      "outputs": [
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "regenerate_commands": [
+        "corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json"
+      ],
+      "commit_policy": "committed",
+      "freshness_rule": "Regenerate and commit whenever the runtime OpenAPI snapshot changes.",
+      "compatibility_class": "js-package-api",
+      "version_owner": "team-frontend",
+      "deprecation_window": "2 minor releases",
+      "release_fragment_change_class": "js-package-api",
+      "generated_client_compatibility": "required: declare compatibility in structured release fragments whenever this generated client changes.",
+      "drift_gate": "automated",
+      "workflow": "ops/ci/templates/workflows/arch.yml",
+      "check_cwd": ".",
+      "check_command": [
+        "uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "default_freshness_check": true,
+      "output_probe_command": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-api-client",
+        "run",
+        "generate",
+        "--",
+        "--openapi",
+        "schemas/runtime_api_v1.openapi.json",
+        "--output-root",
+        "{output_root}"
+      ]
+    },
+    "canonical_package_script": "bash ./scripts/generate-runtime-api-client.sh",
+    "registered_shell_complete_literal_source": "#!/usr/bin/env bash\nset -euo pipefail\n\nSCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"\nPROJECT_ROOT=\"$(cd \"${SCRIPT_DIR}/../../..\" && pwd)\"\nOUTPUT_ROOT=\"${PROJECT_ROOT}\"\nOPENAPI_FILE=\"${PROJECT_ROOT}/schemas/runtime_api_v1.openapi.json\"\n\nwhile (($#)); do\n  case \"$1\" in\n    --)\n      shift\n      ;;\n    --output-root)\n      if (($# < 2)); then\n        echo \"--output-root requires a value\" >&2\n        exit 2\n      fi\n      OUTPUT_ROOT=\"$2\"\n      shift 2\n      ;;\n    --openapi)\n      if (($# < 2)); then\n        echo \"--openapi requires a value\" >&2\n        exit 2\n      fi\n      OPENAPI_FILE=\"$2\"\n      shift 2\n      ;;\n    *)\n      echo \"Unknown argument: $1\" >&2\n      exit 2\n      ;;\n  esac\ndone\n\nif [[ \"${OUTPUT_ROOT}\" != /* ]]; then\n  OUTPUT_ROOT=\"${PWD}/${OUTPUT_ROOT}\"\nfi\n\nif [[ \"${OPENAPI_FILE}\" != /* ]]; then\n  OPENAPI_FILE=\"${PROJECT_ROOT}/${OPENAPI_FILE}\"\nfi\n\nTYPES_OUT=\"${OUTPUT_ROOT}/packages/runtime-api-client/types.ts\"\nCANONICAL_TS_OUT=\"${OUTPUT_ROOT}/packages/runtime-api-client/canonicalRuntimeApiClient.ts\"\nCANONICAL_JS_OUT=\"${OUTPUT_ROOT}/packages/runtime-api-client/canonicalRuntimeApiClient.js\"\n\n# Keep the low-level raw pair as a private handoff to the canonicalizer.  Only\n# the canonical pair and schema types belong to the declared output family.\nSCRATCH_ROOT=\"$(mktemp -d \"${TMPDIR:-/tmp}/polisyos-runtime-api-client.XXXXXXXX\")\"\nRUNTIME_TS_OUT=\"${SCRATCH_ROOT}/runtimeApiClient.ts\"\nRUNTIME_JS_OUT=\"${SCRATCH_ROOT}/runtimeApiClient.js\"\ncleanup() {\n  rm -rf -- \"${SCRATCH_ROOT}\"\n}\ntrap cleanup EXIT\n\nmkdir -p \"$(dirname \"${TYPES_OUT}\")\" \"$(dirname \"${CANONICAL_TS_OUT}\")\"\ncd \"${PROJECT_ROOT}\"\n\ncorepack pnpm --dir \"${PROJECT_ROOT}/packages/runtime-api-client\" exec \\\n  openapi-typescript \"${OPENAPI_FILE}\" -o \"${TYPES_OUT}\"\nnode packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs \\\n  --types \"${TYPES_OUT}\"\nPYTHONPATH=src:. \"${PROJECT_ROOT}/.venv/bin/python\" \\\n  tools/ops_runners/runtime/generate_runtime_client.py \\\n  --openapi \"${OPENAPI_FILE}\" \\\n  --out-ts \"${RUNTIME_TS_OUT}\" \\\n  --out-js \"${RUNTIME_JS_OUT}\"\nnode packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs \\\n  --openapi \"${OPENAPI_FILE}\" \\\n  --client \"${RUNTIME_TS_OUT}\" \\\n  --out-ts \"${CANONICAL_TS_OUT}\" \\\n  --runtime-js \"${RUNTIME_JS_OUT}\" \\\n  --out-js \"${CANONICAL_JS_OUT}\"\n\nprintf 'Generated %s\\n' \\\n  \"${TYPES_OUT}\" \\\n  \"${CANONICAL_TS_OUT}\" \\\n  \"${CANONICAL_JS_OUT}\"\n",
+    "order": [
+      "openapi-typescript renders types.ts from exactcanonical snapshot",
+      "normalize-recursive-openapi-types.mjs normalizes same complete types.ts",
+      "generate_runtime_client.py renders private rawTS/JS from same snapshot",
+      "canonicalize-runtime-client.mjs reads same snapshot/private rawTS/JS and writes canonicalTS/JS"
+    ],
+    "product_options_match_registered_shell": true,
+    "disclosed_changes": [
+      "CanonicalPROJECT_ROOT/.venv/bin/python replaced by explicit rootown194environment/bin/python3.14.2. Python generator imports only standard library and TYPE_CHECKING collection typing, not product/environment DTOs; no general environment equivalence claimed.",
+      "Canonical mktemp/trap permanentcleanup replaced by exclusive taskdirectory retained at /tmp/e02-B-successor-client-421. All private/output paths map to same declaredroles. No original rm-rf or environment deletion executed by constituentwrapper.",
+      "PYTHONPATH uses exactabsolute root src:product rather than shell relative src:.; same declared rootcwd. Node22prefix and own194envbin explicit; exact4argv serialized in each realcompletedwrapper."
+    ],
+    "environment_grade": "Actual wrapper PATH/UV_PROJECT_ENVIRONMENT/interpreter argv read; openapi-typescript7.13.0 observed in complete native stdout. Node22.22.0/pnpm10.33.2/Python3.14.2 version strings supplied by parent/source receipt, not separately queried or rerun by reviewer.",
+    "quantity_grade": "Fresh3outputwholebytes are authorfixture consumer_asserted in savedresult; reviewer independently reconciles all complete exact421/target/currentfiles hashes and wrappercommand/result custody. No independent generation or arbitrary clientbehavior measured."
+  },
+  "canonical_snapshot_and_release": {
+    "output_binding": {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "befd3df021ab0c4b92ca46390e5402dc41805ca3",
+      "bytes": 2812414,
+      "sha256": "9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693"
+    },
+    "actual_421_copy_equal_producer02ff_fullafter": true,
+    "output_sha256": "9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693",
+    "prior_independent_review_binding": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-openapi-independent-review.json",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "c15a939a1a8fdc0038cc866ef3a41b8d7d1cacb1",
+      "bytes": 85126,
+      "sha256": "0e1f598213d28433c176098ddbea399c01d01715add03e26f9f694c2c1bcd251"
+    },
+    "complete_comparison_result": "10scalarleaves oneexisting200example; fullJSONoutsideexample equal,573schemas/111paths/113operations unchanged, projectionhash/replayURLrecomputed, fullsemanticpayload unchanged.",
+    "release_binding": {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-openapi-example-freshness.toml",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "f807449c58530375e1390d42201cf1339c49a4d0",
+      "bytes": 2012,
+      "sha256": "431dfccd01ccf80ffc208b8d2099070b8632e12ab1bc8855d2abec52955b5065"
+    },
+    "complete_release_literal": "id = \"2026-10-06-e02-b-openapi-example-freshness\"\ntitle = \"Refresh the Runtime API confidence-ledger example dependency pins\"\ntype = \"changed\"\ncomponent = \"runtime-api\"\nowner = \"team-runtime\"\nsummary = \"The canonical OpenAPI exporter refreshes the existing confidence-ledger-risk-spend example against the consulted source dependency basis.\"\nevidence = [\"schemas/runtime_api_v1.openapi.json\", \"docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-openapi-independent-review.json\"]\ncompatibility = \"All 573 schemas, 111 route paths and 113 operations retain their complete contracts. Only the existing example dependency count, coherent projection/replay pins and worker receipt identities change.\"\nchange_class = \"schema-openapi-abi\"\nsurface_classification = \"public_stable: Runtime API OpenAPI example metadata\"\nmigration = \"Regenerate the registered runtime API client family from the refreshed snapshot; callers require no wire or route migration.\"\napi = \"The schema version, route contracts and measured confidence-ledger payload are unchanged.\"\nlimitations = \"Example freshness does not establish endpoint authorization, promotion authority, production data admission, or acceptance of other required gates.\"\ngenerated_client_compatibility = \"requires_regeneration\"\npublic_surface_inventory_reviewed = true\nmigration_docs = [\"packages/runtime-api-client/README.md\"]\nrunbook_docs = []\n\n[[compatibility_change]]\nid = \"e02-b-confidence-ledger-example-freshness\"\nchange_class = \"schema-openapi-abi\"\nimpact = \"internal\"\nsurface = \"public_stable: existing confidence-ledger example dependency metadata\"\nowner = \"team-runtime\"\nversion_owner = \"team-runtime\"\ndeprecation_window = \"not_applicable\"\nrelease_note = \"Refresh the source dependency and replay identities in the existing example while preserving its complete wire contract and measured payload.\"\ngenerated_client_compatibility = \"requires_regeneration\"\nmigration_docs = [\"packages/runtime-api-client/README.md\"]\nrunbook_docs = []\n",
+    "parsed_release": {
+      "id": "2026-10-06-e02-b-openapi-example-freshness",
+      "title": "Refresh the Runtime API confidence-ledger example dependency pins",
+      "type": "changed",
+      "component": "runtime-api",
+      "owner": "team-runtime",
+      "summary": "The canonical OpenAPI exporter refreshes the existing confidence-ledger-risk-spend example against the consulted source dependency basis.",
+      "evidence": [
+        "schemas/runtime_api_v1.openapi.json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-openapi-independent-review.json"
+      ],
+      "compatibility": "All 573 schemas, 111 route paths and 113 operations retain their complete contracts. Only the existing example dependency count, coherent projection/replay pins and worker receipt identities change.",
+      "change_class": "schema-openapi-abi",
+      "surface_classification": "public_stable: Runtime API OpenAPI example metadata",
+      "migration": "Regenerate the registered runtime API client family from the refreshed snapshot; callers require no wire or route migration.",
+      "api": "The schema version, route contracts and measured confidence-ledger payload are unchanged.",
+      "limitations": "Example freshness does not establish endpoint authorization, promotion authority, production data admission, or acceptance of other required gates.",
+      "generated_client_compatibility": "requires_regeneration",
+      "public_surface_inventory_reviewed": true,
+      "migration_docs": [
+        "packages/runtime-api-client/README.md"
+      ],
+      "runbook_docs": [],
+      "compatibility_change": [
+        {
+          "id": "e02-b-confidence-ledger-example-freshness",
+          "change_class": "schema-openapi-abi",
+          "impact": "internal",
+          "surface": "public_stable: existing confidence-ledger example dependency metadata",
+          "owner": "team-runtime",
+          "version_owner": "team-runtime",
+          "deprecation_window": "not_applicable",
+          "release_note": "Refresh the source dependency and replay identities in the existing example while preserving its complete wire contract and measured payload.",
+          "generated_client_compatibility": "requires_regeneration",
+          "migration_docs": [
+            "packages/runtime-api-client/README.md"
+          ],
+          "runbook_docs": []
+        }
+      ]
+    },
+    "mandatory_structured_fields_and_paths_present_read_only": true,
+    "release_gate_not_run": true,
+    "release_interpretation": "schema-openapi-abi class declares public_stable examplemetadata; structuredimpactinternal describes no wire/route/DTO/ABI behavior change. Clientrequires_regeneration declared and actualqualified4constituents completed. No schema-versionbump or publicclientbytesdelta is inferred from internal metadata refresh."
+  },
+  "source_point_boundary": {
+    "complete02ff_to_target_diff": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-source-only-candidate-map-handoff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-source-only-candidate-map.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/artifacts.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-full-stdout.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-instrument.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/audit-stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/first-audit-error.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/first-audit-instrument.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-b37-b38-independent-review/review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/immutable-artifact-inspection.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/static-checks.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-installed-profile-independent-review/audit.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-installed-profile-independent-review/review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-installed-profile-independent-review/source-check.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-openapi-independent-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-launch.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-result.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step0.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step1.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step2.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/client-step3.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/full-recursive-diff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-generator.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/openapi-launch.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync-launch.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion-evidence/public-sync.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-generated-companion.json",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-openapi-example-freshness.toml",
+      "policy-engine/schemas/runtime_api_v1.openapi.json"
+    ],
+    "nonmetadata_source_or_test_delta": [],
+    "actual_root_generator_source": "02ff9d0467423a99c2b4c737329da0c629e6b869",
+    "actual_client_source": "42172721bbe1fdb27f6e37fc8acccdd30464380d",
+    "new_docs_plus_generated_example_do_not_relabel_producer": true,
+    "fresh_frozen_gate_and_wholeB_result": "UNRUN on review target; later root source/input may change, so no futurePASS",
+    "consulted_dependency_basis_limit": "Metadata/example commits can affect later directory/file consulted dependency identity. Although canonical generator source/code bytes remain equal02ff, full1502dependency map is unavailable; never claim targetddOpenAPI fresh solely from unchanged source code. Future actualruntimeAPIgate recomputes exactfinalbasis."
+  },
+  "P37_predicate_review": {
+    "generator_and_client_exitstatus": "Read actualcompletedparentwrapper results; PASS limited to these producers, not current/futureB acceptance.",
+    "canonical_copy": "independently_reconciled exactfull9c576byteartifact bound02ff actualproducer and421commit",
+    "schema_routes_unchanged": "independently_reconciled fullprevious2JSON; not a count-only marker",
+    "client_output_byte_equality": "independently_reconciled fullactualresult hash to exact421/target/currentbytes; actualnewproducerwriting is consumer_assertedsavedrecord",
+    "worker_dependency_membership_hash": "not_established; no exact1502bindingmap in output",
+    "no_authority_projection_rewrite": "Declaredregisteredowner/freshness admission only, notinstitutionalpromotion/publication/certificateauthority.",
+    "runtime_oracle_execution_by_reviewer": "UNRUN",
+    "no_proxy_as_bug_or_closure": true
+  },
+  "source_bindings": [
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/release-fragments/README.md",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "2f28f8cec88548bdfddfead48468d3b89ba20a13",
+      "bytes": 3064,
+      "sha256": "3ab289f21282a7a450a3f404b99ff9750636a7188d103ea868125d9236aa78ff",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "bf4b94548619f4dcce395806a5ec70ea54b4847a",
+      "bytes": 26585,
+      "sha256": "2b7ce18983e59a02ddeef457dfc5a39f83129514707b03da45099018f0104b75",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/package.json",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "dfa28841133283414ab747f18731dc844cb9652d",
+      "bytes": 1549,
+      "sha256": "b64b9a9b3cbe11d874948964166e047c530a5f680c1fcda5d9c59c4cb40e17ac",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/README.md",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "6b4868d6600c734ff2f97d1cfc70117d258389f8",
+      "bytes": 7829,
+      "sha256": "239a56f465e0904cde94a84c34e7b04fad12e5ca0e9cf01e73c738b8b0102b05",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "b34db71557e853c590694a3e127ee547ef72c686",
+      "bytes": 2417,
+      "sha256": "5372d3ba1c68128e78aade1de5b5fc100a1338ea1b965b3df8d7a662ba0c0b7b",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "abca0260ecfb29b1b8c790c393a821070a587ec3",
+      "bytes": 7296,
+      "sha256": "6a294253f2099cea6205a0865a52aa3caa48962da1564666afe22f84208071c3",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "b99a0f5ce748914885e4edafc133f9b4d6b8af3b",
+      "bytes": 5240,
+      "sha256": "67d1777608bf27c8335c28782baa1fcfba9efd2523a2ed4a9d706533ca1e2e2a",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/generate_runtime_client.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "ef2f47de39ab071372a1eb366767e06f73bdb41e",
+      "bytes": 26049,
+      "sha256": "fd59a4483cc3cbf32198080ace0842d6296e162849a62ec305d394783bc489fa",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "25061d0273e6a973758b3878dd34040986edc4fc",
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+      "bytes": 1793,
+      "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da",
+      "byte_equal_client_source421": true,
+      "byte_equal_generator_source02ff": true
+    }
+  ],
+  "finite_limits": [
+    "No independent product imports, native/gates/regeneration/clientHTTP behavior or hostedCI/deployment.",
+    "No producer02ffPASS relabeled as ddsource APIfreshness/runtimePASS; actualfuturefullgate remains required.",
+    "All prior actualglobalFAIL/ERROR/UNRUN/IRparity residuals remain; no P41waiver or finding closure.",
+    "Registeredclient regeneration shell not executed verbatim; exactcomplete4constituents executed with fullydisclosed interpreter/scratch/env adaptations. No claim arbitraryhardcoded.venv equivalence.",
+    "Publicsync exact--skip-deep-import-baseline leaves baseline untouched; completedstdout and unchangedsource wrapper do not establish fullarchitecturegatePASS."
+  ],
+  "publication": {
+    "local_topic_branch": "codex/e02-B-current-composition",
+    "remote_status": "NOT_ESTABLISHED_IN_REVIEW; parent reports normalGit tokenexpired, no MCP recreation of previouscommits. New metadata can be normalmerged into root after activewave."
+  },
+  "review_instrument": {
+    "kind": "Standardlibrary completeGit-byte/hashes/TOML/JSON/source comparisons only",
+    "script_path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/generated-companion-review/build_review.py",
+    "sha256": "3a689147d912a0f3f5876a53e7da0ca948cc9a6f3b7467f295ef0319193ebdd7",
+    "literal_executed_script": "from __future__ import annotations\nimport hashlib\nimport json\nimport subprocess\nimport tomllib\nfrom pathlib import Path\n\nROOT = Path('/workspace/e02-B-current-coordination')\nOWN = Path('/workspace/e02-B-current-composition')\nTARGET = 'dd9584728bd96f204983615216efdbc58117e713'\nTREE = '7bf4be4a117762c8d37d4babcc214a2b28c2113e'\nPRODUCER = '02ff9d0467423a99c2b4c737329da0c629e6b869'\nIMPL = '42172721bbe1fdb27f6e37fc8acccdd30464380d'\nEVIDENCE = 'e3281cacd2f978f4aba0931850c537d782f5d8c4'\nHANDOFF = '84fe2d2df4f8404538d662e977f48eb0cdb169e6'\nBASE = '7ba5b49ce1ae3dfdcb985e6a339787414e9eb6b4'\nPREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'\nEP = PREFIX + 'successor-generated-companion-evidence/'\nRP = PREFIX + 'successor-generated-companion.json'\nOUT_PATH = PREFIX + 'current-generated-companion-independent-review.json'\n\ndef git(*args: str) -> bytes:\n    return subprocess.check_output(['git', *args], cwd=ROOT)\n\ndef blob(path: str, sha: str = TARGET) -> bytes:\n    return git('show', sha + ':' + path)\n\ndef digest(raw: bytes) -> str:\n    return hashlib.sha256(raw).hexdigest()\n\ndef source_binding(path: str, sha: str = TARGET) -> dict:\n    raw = blob(path, sha)\n    return {'path': path, 'source_sha': sha, 'git_blob': git('rev-parse', sha + ':' + path).decode().strip(), 'bytes': len(raw), 'sha256': digest(raw)}\n\nassert git('rev-parse', TARGET + '^{tree}').decode().strip() == TREE\nreceipt_raw = blob(RP)\nreceipt = json.loads(receipt_raw)\nassert receipt_raw == blob(RP, HANDOFF)\nassert receipt['implementation_commits'] == [IMPL, EVIDENCE]\nassert receipt['candidate_tree_sha'] == git('rev-parse', EVIDENCE + '^{tree}').decode().strip()\nassert receipt['slice_base_sha'] == BASE and receipt['slice_base_tree_sha'] == git('rev-parse', BASE + '^{tree}').decode().strip()\nassert receipt['closure_ids'] == [] and receipt['bundle_ids'] == [] and receipt['baseline_cells'] == []\nfootprint = git('diff', '--name-only', BASE, EVIDENCE).decode().splitlines()\nassert footprint == receipt['changed_paths']\nindex = json.loads(blob(EP + 'index.json'))\nassert len(index['artifacts']) == 17\nartifacts = []\nfor item in index['artifacts']:\n    raw = blob(item['path'])\n    assert len(raw) == item['bytes'] and digest(raw) == item['sha256']\n    assert raw == blob(item['path'], EVIDENCE)\n    artifacts.append({**item, 'source_sha': TARGET, 'git_blob': git('rev-parse', TARGET + ':' + item['path']).decode().strip(), 'exact_bytes_equal_evidence_commit': True, 'complete_literal_text': raw.decode()})\nby_name = {Path(item['path']).name: item for item in artifacts}\nchecks = []\nfor stem, source_sha in [('public-sync', PRODUCER), ('openapi-generator', PRODUCER)] + [(f'client-step{i}', IMPL) for i in range(4)]:\n    metadata = json.loads(blob(EP + stem + '.json'))\n    output = blob(EP + stem + '.txt')\n    assert metadata['head'] == metadata['head_after'] == source_sha\n    assert metadata['tree'] == git('rev-parse', source_sha + '^{tree}').decode().strip()\n    assert metadata['exit_code'] == 0 and metadata['exec_setup_error'] is None and metadata['harness_state'] == 'EXECUTED'\n    assert metadata['output_sha256'] == digest(output)\n    checks.append({'stem': stem, 'wrapper_binding': source_binding(EP + stem + '.json'), 'stdout_binding': source_binding(EP + stem + '.txt'), 'command': metadata['command'], 'cwd': metadata['cwd'], 'actual_source_sha': source_sha, 'actual_source_tree': metadata['tree'], 'actual_exit': metadata['exit_code'], 'wall_s': metadata['wall_s'], 'wait4_child_maxrss_kib': metadata['process_rusage_maxrss_kib'], 'source_environment': metadata['source_environment'], 'result_interpretation': 'Completed parent producer/constituent execution read from literal wrapper; reviewer did not execute it.'})\nclient = json.loads(blob(EP + 'client-result.json'))\nassert client['source_sha'] == client['head_after'] == IMPL and client['source_tree'] == git('rev-parse', IMPL + '^{tree}').decode().strip()\nassert client['status_after'] == ''\nassert client['commands'] == [row['command'] for row in checks if row['stem'].startswith('client-step')]\noutputs = []\nfor output in client['outputs']:\n    raw = blob(output['path'], IMPL)\n    current_raw = (ROOT / output['path']).read_bytes()\n    assert output['byte_equal_full_source_candidate'] is True\n    assert len(raw) == output['bytes'] and digest(raw) == output['sha256']\n    assert raw == blob(output['path'], TARGET) == current_raw\n    outputs.append({**output, 'actual_compared_source_sha': IMPL, 'independent_full_target_git_blob_and_current_bytes_equal': True, 'git_blob': git('rev-parse', IMPL + ':' + output['path']).decode().strip()})\nassert len(outputs) == 3\nopenapi_path = 'policy-engine/schemas/runtime_api_v1.openapi.json'\nopenapi_bytes = blob(openapi_path, IMPL)\nassert digest(openapi_bytes) == '9c57673ed7731f7902105b089316539af9746553a6f1f4411876ca82bd6de693'\nassert openapi_bytes == blob(openapi_path, TARGET) == Path('/tmp/e02-B-successor-openapi-02ff/after.json').read_bytes()\nassert blob(openapi_path, PRODUCER) == Path('/tmp/e02-B-successor-openapi-02ff/before.json').read_bytes()\nprior_review_path = PREFIX + 'current-successor-openapi-independent-review.json'\nprior_review_raw = blob(prior_review_path)\nassert digest(prior_review_raw) == '0e1f598213d28433c176098ddbea399c01d01715add03e26f9f694c2c1bcd251'\nprior_review = json.loads(prior_review_raw)\nassert prior_review['source_sha'] == PRODUCER\nassert prior_review['full_json_comparison']['schema_count_before_after'] == [573, 573]\nassert prior_review['full_json_comparison']['path_count_before_after'] == [111, 111]\nassert prior_review['full_json_comparison']['http_operation_count_before_after'] == [113, 113]\nmanifest = tomllib.loads(blob('policy-engine/architecture/generated_artifacts.toml').decode())\nfamilies = {item['id']: item for item in manifest['family']}\nrelease_path = 'policy-engine/release-fragments/unreleased/2026-10-06-e02-b-openapi-example-freshness.toml'\nrelease_raw = blob(release_path)\nrelease = tomllib.loads(release_raw.decode())\nassert release['type'] == 'changed' and release['summary']\nassert release['change_class'] == 'schema-openapi-abi' and release['generated_client_compatibility'] == 'requires_regeneration'\nstructured = release['compatibility_change']\nassert len(structured) == 1 and structured[0]['impact'] == 'internal'\nfor field in ['id', 'change_class', 'impact', 'surface', 'owner', 'version_owner', 'deprecation_window', 'release_note']:\n    assert structured[0][field]\nfor path in release['migration_docs'] + release['evidence']:\n    git('cat-file', '-e', TARGET + ':policy-engine/' + path)\nsource_paths = [\n    'policy-engine/architecture/generated_artifacts.toml',\n    'policy-engine/release-fragments/README.md',\n    'policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py',\n    'policy-engine/packages/runtime-api-client/package.json',\n    'policy-engine/packages/runtime-api-client/README.md',\n    'policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh',\n    'policy-engine/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs',\n    'policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs',\n    'policy-engine/tools/ops_runners/runtime/generate_runtime_client.py',\n    PREFIX + 'final-root-evidence/capture_frozen.py',\n    'policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py',\n]\nsource_bindings = []\nfor path in source_paths:\n    binding = source_binding(path)\n    binding['byte_equal_client_source421'] = blob(path) == blob(path, IMPL)\n    binding['byte_equal_generator_source02ff'] = blob(path) == blob(path, PRODUCER)\n    assert binding['byte_equal_client_source421'] and binding['byte_equal_generator_source02ff']\n    source_bindings.append(binding)\nsource_delta = git('diff', '--name-only', PRODUCER, TARGET).decode().splitlines()\nnonmetadata_delta = [path for path in source_delta if not path.startswith(PREFIX) and path not in [openapi_path, release_path]]\nassert nonmetadata_delta == []\nfor check in receipt['checks'][:6]:\n    actual = checks[len([item for item in checks if item['stem'] == 'unused'])] if False else next(item for item in checks if item['command'] == check['command'])\n    assert actual['actual_source_sha'] == check['target_sha'] and actual['actual_exit'] == 0\n    for kind in ['wrapper', 'output']:\n        item = check['input_closure']['wrapper'] if kind == 'wrapper' else check['output']\n        raw = blob(item['path'], item['commit'])\n        assert len(raw) == item['bytes'] and digest(raw) == item['sha256']\nreview = {\n    'schema_version': 'e02.independent-source-data-review.v1',\n    'unit': 'B',\n    'reviewer': 'cmp_res_probe',\n    'review_role': 'Independent read-only generated-companion handoff/artifact/source audit; reviewer previously compared full OpenAPI2JSON but did not author root output/client receipts.',\n    'target_sha': TARGET,\n    'target_tree': TREE,\n    'implementation_sha': IMPL,\n    'evidence_sha': EVIDENCE,\n    'reviewed_handoff_sha': HANDOFF,\n    'producer_source_sha': PRODUCER,\n    'verdict': 'NONBLOCKING_FINITE_CANONICAL_COMPANION_AND_QUALIFIED_CLIENT_CONSTITUENTS',\n    'closure_ids': [],\n    'formal_closure': False,\n    'P41': 'not_established; no inherited waiver',\n    'reviewer_product_imports': 'UNRUN',\n    'reviewer_native_tests': 'UNRUN',\n    'reviewer_gates': 'UNRUN',\n    'reviewer_generation': 'UNRUN',\n    'changed_paths': [OUT_PATH],\n    'receipt_binding': source_binding(RP),\n    'receipt_minimum_contract_check': {'schema': receipt['schema'], 'slice_base_sha_tree_reconciled': True, 'implementation_list_and_candidate_evidence_tree_reconciled': True, 'all_exact_changed_paths_reconciled': True, 'implementation_footprint_count': len(footprint), 'handoff_own_path_separate_from_implementation_footprint': True, 'baseline_cells_and_finding_closure_empty': True, 'complete_footprint': footprint, 'source_and_output_pins_reconciled': True},\n    'deciding_evidence': {'index_binding': source_binding(EP + 'index.json'), 'actual_indexed_artifact_count': len(artifacts), 'indexed_artifact_bytes': sum(item['bytes'] for item in artifacts), 'index_is_additional18th_evidence_file': True, 'all17full_hash_and_size_matches': True, 'all17literal_Git_bytes': artifacts},\n    'actual_constituent_results': checks,\n    'complete_client_outputs': outputs,\n    'ordered_registered_constituent_source_review': {\n        'registered_family': families['runtime-api-client'],\n        'canonical_package_script': json.loads(blob('policy-engine/packages/runtime-api-client/package.json'))['scripts']['generate'],\n        'registered_shell_complete_literal_source': blob('policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh').decode(),\n        'order': ['openapi-typescript renders types.ts from exactcanonical snapshot', 'normalize-recursive-openapi-types.mjs normalizes same complete types.ts', 'generate_runtime_client.py renders private rawTS/JS from same snapshot', 'canonicalize-runtime-client.mjs reads same snapshot/private rawTS/JS and writes canonicalTS/JS'],\n        'product_options_match_registered_shell': True,\n        'disclosed_changes': ['CanonicalPROJECT_ROOT/.venv/bin/python replaced by explicit rootown194environment/bin/python3.14.2. Python generator imports only standard library and TYPE_CHECKING collection typing, not product/environment DTOs; no general environment equivalence claimed.', 'Canonical mktemp/trap permanentcleanup replaced by exclusive taskdirectory retained at /tmp/e02-B-successor-client-421. All private/output paths map to same declaredroles. No original rm-rf or environment deletion executed by constituentwrapper.', 'PYTHONPATH uses exactabsolute root src:product rather than shell relative src:.; same declared rootcwd. Node22prefix and own194envbin explicit; exact4argv serialized in each realcompletedwrapper.'],\n        'environment_grade': 'Actual wrapper PATH/UV_PROJECT_ENVIRONMENT/interpreter argv read; openapi-typescript7.13.0 observed in complete native stdout. Node22.22.0/pnpm10.33.2/Python3.14.2 version strings supplied by parent/source receipt, not separately queried or rerun by reviewer.',\n        'quantity_grade': 'Fresh3outputwholebytes are authorfixture consumer_asserted in savedresult; reviewer independently reconciles all complete exact421/target/currentfiles hashes and wrappercommand/result custody. No independent generation or arbitrary clientbehavior measured.'},\n    'canonical_snapshot_and_release': {'output_binding': source_binding(openapi_path), 'actual_421_copy_equal_producer02ff_fullafter': True, 'output_sha256': digest(openapi_bytes), 'prior_independent_review_binding': source_binding(prior_review_path), 'complete_comparison_result': '10scalarleaves oneexisting200example; fullJSONoutsideexample equal,573schemas/111paths/113operations unchanged, projectionhash/replayURLrecomputed, fullsemanticpayload unchanged.', 'release_binding': source_binding(release_path), 'complete_release_literal': release_raw.decode(), 'parsed_release': release, 'mandatory_structured_fields_and_paths_present_read_only': True, 'release_gate_not_run': True, 'release_interpretation': 'schema-openapi-abi class declares public_stable examplemetadata; structuredimpactinternal describes no wire/route/DTO/ABI behavior change. Clientrequires_regeneration declared and actualqualified4constituents completed. No schema-versionbump or publicclientbytesdelta is inferred from internal metadata refresh.'},\n    'source_point_boundary': {'complete02ff_to_target_diff': source_delta, 'nonmetadata_source_or_test_delta': nonmetadata_delta, 'actual_root_generator_source': PRODUCER, 'actual_client_source': IMPL, 'new_docs_plus_generated_example_do_not_relabel_producer': True, 'fresh_frozen_gate_and_wholeB_result': 'UNRUN on review target; later root source/input may change, so no futurePASS', 'consulted_dependency_basis_limit': 'Metadata/example commits can affect later directory/file consulted dependency identity. Although canonical generator source/code bytes remain equal02ff, full1502dependency map is unavailable; never claim targetddOpenAPI fresh solely from unchanged source code. Future actualruntimeAPIgate recomputes exactfinalbasis.'},\n    'P37_predicate_review': {'generator_and_client_exitstatus': 'Read actualcompletedparentwrapper results; PASS limited to these producers, not current/futureB acceptance.', 'canonical_copy': 'independently_reconciled exactfull9c576byteartifact bound02ff actualproducer and421commit', 'schema_routes_unchanged': 'independently_reconciled fullprevious2JSON; not a count-only marker', 'client_output_byte_equality': 'independently_reconciled fullactualresult hash to exact421/target/currentbytes; actualnewproducerwriting is consumer_assertedsavedrecord', 'worker_dependency_membership_hash': 'not_established; no exact1502bindingmap in output', 'no_authority_projection_rewrite': 'Declaredregisteredowner/freshness admission only, notinstitutionalpromotion/publication/certificateauthority.', 'runtime_oracle_execution_by_reviewer': 'UNRUN', 'no_proxy_as_bug_or_closure': True},\n    'source_bindings': source_bindings,\n    'finite_limits': ['No independent product imports, native/gates/regeneration/clientHTTP behavior or hostedCI/deployment.', 'No producer02ffPASS relabeled as ddsource APIfreshness/runtimePASS; actualfuturefullgate remains required.', 'All prior actualglobalFAIL/ERROR/UNRUN/IRparity residuals remain; no P41waiver or finding closure.', 'Registeredclient regeneration shell not executed verbatim; exactcomplete4constituents executed with fullydisclosed interpreter/scratch/env adaptations. No claim arbitraryhardcoded.venv equivalence.', 'Publicsync exact--skip-deep-import-baseline leaves baseline untouched; completedstdout and unchangedsource wrapper do not establish fullarchitecturegatePASS.'],\n    'publication': {'local_topic_branch': 'codex/e02-B-current-composition', 'remote_status': 'NOT_ESTABLISHED_IN_REVIEW; parent reports normalGit tokenexpired, no MCP recreation of previouscommits. New metadata can be normalmerged into root after activewave.'},\n    'review_instrument': {'kind': 'Standardlibrary completeGit-byte/hashes/TOML/JSON/source comparisons only', 'script_path': str(Path(__file__).resolve()), 'sha256': digest(Path(__file__).read_bytes()), 'literal_executed_script': Path(__file__).read_text()},\n}\noutput = OWN / OUT_PATH\noutput.write_text(json.dumps(review, ensure_ascii=False, indent=2) + '\\n')\nassert json.loads(output.read_bytes()) == review\nprint(json.dumps({'path': str(output), 'bytes': output.stat().st_size, 'sha256': digest(output.read_bytes()), 'verdict': review['verdict'], 'artifacts': len(artifacts), 'artifactbytes': sum(item['bytes'] for item in artifacts), 'complete_implementation_footprint': len(footprint), 'all_reviewer_execution': 'UNRUN'}))\n"
+  }
+}

@@ -1,0 +1,19 @@
+........................................................................ [ 61%]
+.............................................                            [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/methods/doe/test_morris_geometry.py::test_native_morris_blocks_preserve_point_uncertainty_under_units_and_order[3]
+  /workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/SALib/sample/morris/morris.py:382: UserWarning: num_levels should be an even number, sample may be biased
+    warnings.warn("num_levels should be an even number, " "sample may be biased")
+
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_stops_before_oversized_follow_up_without_override
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_returns_last_result_when_later_round_fails
+  /workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:222: RuntimeWarning: Degrees of freedom <= 0 for slice
+    ret = _var(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_stops_before_oversized_follow_up_without_override
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_returns_last_result_when_later_round_fails
+  /workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:211: RuntimeWarning: invalid value encountered in divide
+    ret = um.true_divide(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+117 passed, 5 warnings in 10.31s

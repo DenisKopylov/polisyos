@@ -119,7 +119,7 @@
       "outcome": "PASS",
       "target_sha": "4f3cfcc78d6185e4d407ed1aa7a8477e2960bd6d",
       "scope": "Only new4969B test; not a product gate or source-wide quality verdict. Actual shell output format1file/checkAll checks passed before commit.",
-      "predicate_basis": "direct"
+      "predicate_basis": "consumer_asserted"
     }
   ],
   "test_input": {
@@ -179,5 +179,11 @@
   "next_owner": [
     "A",
     "local G"
+  ],
+  "metadata_history": [
+    {
+      "receipt_sha": "ffed0655fa816ac84b64d99125d8fa8a2369e616",
+      "correction": "Style-check predicate_basis direct was outside mandatory enum; consumer_asserted binds actual shell check observation without a separately retained static stdout. All deciding test/source/evidence bytes unchanged."
+    }
   ]
 }

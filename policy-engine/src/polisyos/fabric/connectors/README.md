@@ -97,3 +97,20 @@ Run from the repository root (`policy-engine/`).
 - [Add data source](../../../../docs/how-to/add-data-source.md)
 - [Manage generated artifacts](../../../../docs/how-to/manage-generated-artifacts.md)
 - [Fabric tests map](../../../../tests/unit/fabric/README.md)
+
+## Acquisition ownership
+
+`PoolConfig.acquire_timeout_seconds` is one monotonic admission budget through
+semaphore wait, connection creation, validation, and the final metadata commit.
+A connector that suppresses cancellation can finish physical work late; the pool
+owns and disconnects its handle before releasing its capacity reservation and
+refuses admission after expiry or a newly observed caller cancellation. The task's
+cancellation count at entry distinguishes an earlier handled cancellation from a
+new cancellation of this acquisition. Successful publication retires the acquisition
+registration under the same lock, with no later await before returning the handle.
+
+Cleanup remains cooperative: an unresponsive physical disconnect can outlive the
+admission budget. Failed disconnect retains the cleanup owner and its permit;
+`close_all()` retries that owner and refuses to report a completed drain until
+physical cleanup succeeds. Circuit/live journal permissions are independent of
+this admission budget and do not establish external data authority.

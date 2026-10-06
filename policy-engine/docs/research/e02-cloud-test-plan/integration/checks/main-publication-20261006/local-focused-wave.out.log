@@ -1,0 +1,313 @@
+........................................................................ [ 17%]
+........................................................................ [ 35%]
+........................................................................ [ 52%]
+........................................................................ [ 70%]
+........................................................................ [ 87%]
+...............................ss...ss............                       [100%]
+=============================== warnings summary ===============================
+tests/unit/remediation/test_cau_02.py::test_staggered_bootstrap_resamples_panel_units_not_att_cells
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:75: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(_single_cell_panel())
+
+tests/unit/remediation/test_cau_02.py::test_staggered_bootstrap_resamples_panel_units_not_att_cells
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:75: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(_single_cell_panel())
+
+tests/unit/remediation/test_cau_02.py::test_staggered_bootstrap_resamples_panel_units_not_att_cells
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:75: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(_single_cell_panel())
+
+tests/unit/remediation/test_cau_02.py::test_staggered_bootstrap_resamples_panel_units_not_att_cells
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:75: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(_single_cell_panel())
+
+tests/unit/remediation/test_cau_02.py::test_staggered_bootstrap_resamples_panel_units_not_att_cells
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:75: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(_single_cell_panel())
+
+tests/unit/remediation/test_cau_02.py::test_staggered_p_value_is_absent_without_calibrated_null_distribution
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:89: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(_single_cell_panel(), seed=19)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_p_value_is_absent_without_calibrated_null_distribution
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:89: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(_single_cell_panel(), seed=19)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_p_value_is_absent_without_calibrated_null_distribution
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:89: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(_single_cell_panel(), seed=19)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_p_value_is_absent_without_calibrated_null_distribution
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:89: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(_single_cell_panel(), seed=19)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_p_value_is_absent_without_calibrated_null_distribution
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:89: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(_single_cell_panel(), seed=19)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_excludes_already_affected_not_yet_controls
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:110: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_excludes_already_affected_not_yet_controls
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:110: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_excludes_already_affected_not_yet_controls
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:110: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_excludes_already_affected_not_yet_controls
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:110: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_excludes_already_affected_not_yet_controls
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:110: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_anticipation_preserves_not_yet_treated_characterization
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:134: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_anticipation_preserves_not_yet_treated_characterization
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:134: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_anticipation_preserves_not_yet_treated_characterization
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:134: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_anticipation_preserves_not_yet_treated_characterization
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:134: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_anticipation_preserves_not_yet_treated_characterization
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:134: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_partial_no_control_cells_fail_closed
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:155: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_partial_no_control_cells_fail_closed
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:155: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_partial_no_control_cells_fail_closed
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:155: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_partial_no_control_cells_fail_closed
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:155: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_cells_fail_closed
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:177: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(data, anticipation=1, n_bootstrap=50)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_cells_fail_closed
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:177: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(data, anticipation=1, n_bootstrap=50)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_cells_fail_closed
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:177: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(data, anticipation=1, n_bootstrap=50)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_cells_fail_closed
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:177: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(data, anticipation=1, n_bootstrap=50)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_duplicate_unit_ids_fail_closed_for_unit_bootstrap
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:188: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(data, n_bootstrap=50)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_duplicate_unit_ids_fail_closed_for_unit_bootstrap
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:188: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(data, n_bootstrap=50)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_duplicate_unit_ids_fail_closed_for_unit_bootstrap
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:188: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(data, n_bootstrap=50)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_duplicate_unit_ids_fail_closed_for_unit_bootstrap
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:188: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(data, n_bootstrap=50)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_no_admissible_controls_is_bounded_failure
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:205: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_no_admissible_controls_is_bounded_failure
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:205: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_no_admissible_controls_is_bounded_failure
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:205: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_no_admissible_controls_is_bounded_failure
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:205: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[False]
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[True]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:233: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(data, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[False]
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[True]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:233: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(data, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[False]
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[True]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:233: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(data, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[False]
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[True]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:233: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(data, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[-1]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[0.5]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[True]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[None]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[nan]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[inf]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:244: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[-1]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[0.5]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[True]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[None]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[nan]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[inf]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:244: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[-1]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[0.5]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[True]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[None]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[nan]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[inf]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:244: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[-1]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[0.5]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[True]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[None]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[nan]
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[inf]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:244: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[0]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[anticipation2]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:254: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[0]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[anticipation2]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:254: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[0]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[anticipation2]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:254: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[0]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[anticipation2]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:254: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[0]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[anticipation2]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:254: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:275: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    report = _run_staggered(data, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:275: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    report = _run_staggered(data, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:275: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    report = _run_staggered(data, n_bootstrap=10)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/checkouts/1c0a87b385d65aa17f63b26157295976c4029ea3/policy-engine/tests/unit/remediation/test_cau_02.py:275: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    report = _run_staggered(data, n_bootstrap=10)
+
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [ERROR] uncertainty_envelope: missing_key — Declared output slot 'uncertainty_envelope' missing from result
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [ERROR] result: missing_key — Declared output slot 'result' missing from result
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = testfunction(**testargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 20 durations =============================
+1.75s call     tests/unit/foundry/agent_sim/test_wiring.py::test_distribution_executor_updates_gini_and_palma_after_transfer
+1.53s call     tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py::test_repository_literal_facade_imports_resolve
+1.23s call     tests/unit/foundry/agent_sim/test_wiring.py::test_c6b_wiring_runs_full_synthetic_step
+1.18s call     tests/unit/foundry/agent_sim/test_wiring.py::test_intervention_config_from_compiled_tax_intervention_drives_expected_tax_amounts
+1.06s call     tests/unit/foundry/plugins/test_economics_dtype.py::test_native_plugin_factory_statistics_reach_objective_and_observation_consumers[x64]
+0.99s call     tests/unit/foundry/plugins/test_economics_dtype.py::test_native_plugin_factory_statistics_reach_objective_and_observation_consumers[default]
+0.94s call     tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_staggered_bootstrap_runs
+0.89s call     tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[nan]
+0.86s call     tests/unit/remediation/test_cau_02.py::test_staggered_bootstrap_resamples_panel_units_not_att_cells
+0.86s call     tests/unit/remediation/test_cau_02.py::test_staggered_p_value_is_absent_without_calibrated_null_distribution
+0.86s call     tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_excludes_already_affected_not_yet_controls
+0.84s call     tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[None]
+0.84s call     tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+0.83s call     tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[1]
+0.83s call     tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[False]
+0.83s call     tests/unit/remediation/test_cau_02.py::test_staggered_zero_anticipation_preserves_not_yet_treated_characterization
+0.83s call     tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[0.5]
+0.83s call     tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[anticipation2]
+0.82s call     tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback
+0.82s call     tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_cells_fail_closed
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/remediation/test_doe_02.py:22: DOE-02 requires the pinned SALib backend
+SKIPPED [1] tests/unit/scientist/methods/doe/test_morris_geometry.py:8: Morris geometry controls require a genuine SALib backend
+SKIPPED [1] tests/unit/remediation/test_doe_03.py:15: DOE-03 requires the pinned SALib backend
+SKIPPED [1] tests/unit/scientist/methods/doe/test_stability.py:8: SALib not installed
+SKIPPED [1] tests/unit/scientist/methods/doe/test_analysis_enhanced.py:42: SALib not installed
+SKIPPED [1] tests/unit/scientist/methods/doe/test_analysis_enhanced.py:54: SALib not installed
+SKIPPED [1] tests/unit/scientist/methods/doe/test_analysis_enhanced.py:118: SALib not installed
+SKIPPED [1] tests/unit/scientist/methods/doe/test_analysis_enhanced.py:140: SALib not installed

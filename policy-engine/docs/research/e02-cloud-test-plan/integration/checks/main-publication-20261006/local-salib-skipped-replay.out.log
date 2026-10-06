@@ -1,0 +1,17 @@
+.....................................................                    [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/methods/doe/test_morris_geometry.py::test_native_morris_blocks_preserve_point_uncertainty_under_units_and_order[3]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/dependency-overlays/salib-1.5.2/SALib/sample/morris/morris.py:382: UserWarning: num_levels should be an even number, sample may be biased
+    warnings.warn("num_levels should be an even number, " "sample may be biased")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 20 durations =============================
+0.42s call     tests/unit/remediation/test_doe_02.py::test_explicit_normal_uses_bounded_truncated_samples_and_roundtrips
+0.18s call     tests/unit/scientist/methods/doe/test_morris_geometry.py::test_invalid_morris_geometry_cannot_emit_point_or_pca_result[two_coordinates]
+0.01s call     tests/unit/remediation/test_doe_03.py::test_multi_output_imputation_preserves_original_run_accounting
+0.01s call     tests/unit/scientist/methods/doe/test_morris_geometry.py::test_stability_reads_back_rankings_from_whole_native_morris_blocks
+0.01s call     tests/unit/scientist/methods/doe/test_stability.py::TestRankingStabilityChecker::test_stable_ranking
+0.01s call     tests/unit/remediation/test_doe_02.py::test_bounded_distribution_shapes_match_scipy_and_not_uniform
+0.01s call     tests/unit/scientist/methods/doe/test_stability.py::TestRankingStabilityChecker::test_unstable_detection
+
+(13 durations < 0.005s hidden.  Use -vv to show these durations.)

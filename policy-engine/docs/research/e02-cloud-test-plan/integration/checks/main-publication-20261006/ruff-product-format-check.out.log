@@ -1,0 +1,4 @@
+Would reformat: src/polisyos/scientist/methods/doe/analysis.py
+Would reformat: src/polisyos/scientist/methods/doe/uncertainty.py
+Would reformat: tests/unit/remediation/test_doe_02.py
+3 files would be reformatted, 36 files already formatted

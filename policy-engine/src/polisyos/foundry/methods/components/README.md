@@ -21,9 +21,13 @@ predicate in manual and automatic linking. Automatic matching only chooses
 admissible edges. Its bounded augmenting paths preserve complete assignments
 when neutral slot names change. Unknown names remain unconstrained by the
 named-semantic registry; this is an explicit operational premise, not a
-grounding or policy-authority claim. Ambiguous automatic choices remain visible
-in diagnostics and callers must supply explicit mappings when their meaning
-differs; these diagnostics establish no semantic equivalence of alternatives.
+grounding or policy-authority claim. Automatic matching maximizes cardinality
+before the existing exact-name/unit/type/shape preferences. A distinct assignment
+with the same aggregate nonlexical preference raises `SlotConnectionError` and
+requires an explicit mapping, for both full and partial matches. Lexical slot
+names never resolve such ambiguity. Uniquely ranked named or adapter-compatible
+assignments retain their existing preference contract; these preferences establish
+no policy authority or external semantic equivalence.
 
 Standalone strict `SlotLinker.link()` checks the whole two-method input set.
 The composer's internal assembly defers only completeness, while retaining

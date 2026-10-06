@@ -1,0 +1,153 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "unit": "B",
+  "reviewer": "/root/cmp_res_probe; independent of EXE author",
+  "status": "source_review_nonblocking_import_only",
+  "closure_ids": [],
+  "finding_ids": [],
+  "formal_e02_closure": false,
+  "P41_inherited_status": "not_established",
+  "base_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+  "base_tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+  "target_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+  "target_tree": "5fcdbe9777dd727113c1115031cc77dcfc5d438c",
+  "implementation_commits": [
+    "bc958e8efface67193a1347e867cc7567dbfc8bc"
+  ],
+  "complete_changed_paths": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+  ],
+  "changed_file_bindings": {
+    "base": {
+      "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "blob_oid": "8c5eee05114f1d932a42d8bacd68f080e65f7c91",
+      "bytes": 99236,
+      "sha256": "9640210bbe273c3ce14898ac4683539298198b6628898e5d5c057ccc4eee7cdd"
+    },
+    "candidate": {
+      "source_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "blob_oid": "d8e35255f19c1b04c21be0eec63991a4f4985646",
+      "bytes": 99224,
+      "sha256": "4c47817a7c9df15450ba3269b66672f8c4d588bafc8345efb1bdb8dba5d4c9f6"
+    }
+  },
+  "full_delta": {
+    "bytes": 763,
+    "sha256": "3c84f15fd9beffe8c7d501a0d0275d9347fb46c1ea782c0750f86de80c0dbd3a",
+    "literal_utf8": "diff --git a/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py b/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py\nindex 8c5eee051..d8e35255f 100644\n--- a/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py\n+++ b/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py\n@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida\n \n from polisyos.common.async_tools import run_blocking_async, run_coro_sync\n from polisyos.common.logger import get_logger\n-from polisyos.core.artifacts.async_store import (\n+from polisyos.core.artifacts import (\n     AsyncArtifactStoreAdapter,\n     AsyncFileSystemArtifactStore,\n     ensure_async_artifact_store,\n"
+  },
+  "source_context_bindings": [
+    {
+      "source_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "blob_oid": "329786340d076973b812a5302aefc21e0938c62f",
+      "bytes": 3471,
+      "sha256": "a3e70ebad63ed31e840ef76195c831e98bf6fe2818ed8db7b04ea9464ad8f38c"
+    },
+    {
+      "source_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "blob_oid": "1111ad75ed6632d87280e5699845811ec355bfbb",
+      "bytes": 7518,
+      "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+    },
+    {
+      "source_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "blob_oid": "f7305c5a512dec66d9da2c4be66947d6a4c1b6a0",
+      "bytes": 9924,
+      "sha256": "910484b76e74cbf6c3e3baca7619c309d5ea4e6a8936eab1cf9fc240bffbcdf7"
+    },
+    {
+      "source_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "blob_oid": "f4793e795874e0c5a000f1c37684e9f6ef727506",
+      "bytes": 105281,
+      "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+    },
+    {
+      "source_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "blob_oid": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    },
+    {
+      "source_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml",
+      "blob_oid": "27f567702a19ed21d589f59122107e2d77814b7b",
+      "bytes": 1581,
+      "sha256": "23de440112b85d9942657ea339774c59c22071bce5092e4a8b0b27dece02b9c9"
+    },
+    {
+      "source_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "blob_oid": "7086c4ec612db237c4ad6dc27e6fb228656219dc",
+      "bytes": 20042,
+      "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994"
+    },
+    {
+      "source_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "blob_oid": "d96ef006d33b273c5e1d320a154ab738fcf86d1f",
+      "bytes": 18169,
+      "sha256": "88f9f7396627a53587be19fd1a5e4859c9bf15c36df272239dea8f354eea0d2c"
+    }
+  ],
+  "prior_review": {
+    "source_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+    "receipt_commit": "545f41d6fd7c6a4f882cf48e619b3e987c970d8a",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-wait-admission-source-review.json",
+    "bytes": 36945,
+    "sha256": "b20329ef776c388d0d7da499f75c7089fa3dbb0351c9182551b6297bffabdf61",
+    "qualification": "The queued/entered budget review remains valid source context; its runtimeUNRUN and original6af independent runtime point remain unchanged."
+  },
+  "review_predicates": [
+    {
+      "property": "Use declared canonical artifact facade without changing implementation identity.",
+      "grade": "recomputed_source_predicate",
+      "assessment": "Complete source diff is exactly one import module replacement. Facade directly imports the three same unaliased objects from .async_store and already publishes all three through existing __all__. Their defining classes/function, adapter schema and defaults are unchanged. This is use of the existing owner seam, not a second adapter or publication algorithm."
+    },
+    {
+      "property": "No budget/filesystem/producer/test behavior body delta.",
+      "grade": "independently_reconciled_source_bytes",
+      "assessment": "Checkpoint candidate bytes equal84 after only module path replacement; whole AsyncExecutor/async_tools/facade/adapter/release/defining and custody test sources byte-identical. No old40/35PASS is relabeled as candidate runtime."
+    },
+    {
+      "property": "Import/package initialization boundary.",
+      "grade": "source_review_only",
+      "assessment": "Normal Python deep-submodule import already initializes parent package. Existing facade reexports canonical objects, so final import targets same definitions at supported normal package import boundary. This is not an independently executed import-order/cycle test; author actual fresh import-order/object-identity outputs retain their own deciding source/env/input closure. Arbitrary custom loaders/monkeypatch/reentrant third-party import semantics are not attested."
+    }
+  ],
+  "checks": [
+    {
+      "command": "Read complete Git delta+canonical facade/adapter; exact byte replacement and existing reexports/__all__ independently reconciled without product import",
+      "target_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "outcome": "PASS",
+      "grade": "source_review_only",
+      "output": "No blocking source or ownership issue in import-only delta."
+    },
+    {
+      "command": "Reviewer product imports, pytest/native checks or gates",
+      "target_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "outcome": "UNRUN",
+      "output": "No product/runtime/gate command executed; author actual import-order and future root fullwave remain separate."
+    }
+  ],
+  "limits": [
+    "No import-time or native execution PASS independently attested.",
+    "No institutional/artifact authority, new API/schema or formal finding closure introduced.",
+    "Future root candidate/generator/cohort must bind exact successor source/input; previous84/6af receipts are not future PASS.",
+    "Global RED remains actual; P41 inherited status not_established and no waiver."
+  ],
+  "next_owner": "Root accepts exact facade correction, reconciles author actual import-order/object-identity outputs, then freezes source for canonical generator/final affected fullwave.",
+  "receipt_builder": {
+    "path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/checkpoint-facade-review/build_review.py",
+    "bytes": 6525,
+    "sha256": "df250b51d604da2bbddbd55bea1084d17a880c6948e9669292cb43cb139b977d",
+    "literal_utf8": "from __future__ import annotations\nimport ast,hashlib,json,subprocess\nfrom pathlib import Path\nR=Path('/workspace/e02-B-current-execution-state'); OWN=Path('/workspace/e02-B-current-composition')\nBASE='84e40e5f83054a1f1c6c60d2fbacd53fa6c71497'; TARGET='bc958e8efface67193a1347e867cc7567dbfc8bc'\nP='policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py'; F='policy-engine/src/polisyos/core/artifacts/__init__.py'; A='policy-engine/src/polisyos/core/artifacts/async_store.py'; PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'\ndef git(*a):return subprocess.check_output(['/usr/bin/git','-C',str(R),*a])\ndef h(b):return hashlib.sha256(b).hexdigest()\ndef bind(s,p):\n b=git('show',s+':'+p);return {'source_sha':s,'path':p,'blob_oid':git('rev-parse',s+':'+p).decode().strip(),'bytes':len(b),'sha256':h(b)}\nold=git('show',BASE+':'+P); new=git('show',TARGET+':'+P); delta=git('diff',BASE,TARGET)\nassert old.replace(b'from polisyos.core.artifacts.async_store import (',b'from polisyos.core.artifacts import (')==new\npaths=git('diff','--name-only',BASE,TARGET).decode().splitlines(); assert paths==[P]\nfacade=git('show',TARGET+':'+F).decode(); tree=ast.parse(facade)\nimports=[n for n in tree.body if isinstance(n,ast.ImportFrom) and n.module=='async_store' and n.level==1]\nnames=['AsyncArtifactStoreAdapter','AsyncFileSystemArtifactStore','ensure_async_artifact_store']\nassert len(imports)==1 and [a.name for a in imports[0].names]==names and all(a.asname is None for a in imports[0].names)\nexports=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='__all__' for t in n.targets))\nassert all(n in exports for n in names)\ncontext=[F,A,'policy-engine/src/polisyos/core/artifacts/README.md','policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py','policy-engine/src/polisyos/common/async_tools.py','policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml','policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py','policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py']\nfor p in context: assert git('show',BASE+':'+p)==git('show',TARGET+':'+p)\npriorpath=PREFIX+'current-checkpoint-wait-admission-source-review.json'; prior=(OWN/priorpath).read_bytes()\nj={'schema':'policyos.e02.independent_source_review.v1','unit':'B','reviewer':'/root/cmp_res_probe; independent of EXE author','status':'source_review_nonblocking_import_only','closure_ids':[],'finding_ids':[],'formal_e02_closure':False,'P41_inherited_status':'not_established','base_sha':BASE,'base_tree':git('rev-parse',BASE+'^{tree}').decode().strip(),'target_sha':TARGET,'target_tree':git('rev-parse',TARGET+'^{tree}').decode().strip(),'implementation_commits':[TARGET],'complete_changed_paths':paths,'changed_file_bindings':{'base':bind(BASE,P),'candidate':bind(TARGET,P)},'full_delta':{'bytes':len(delta),'sha256':h(delta),'literal_utf8':delta.decode()},'source_context_bindings':[bind(TARGET,p) for p in context],'prior_review':{'source_sha':BASE,'receipt_commit':'545f41d6fd7c6a4f882cf48e619b3e987c970d8a','path':priorpath,'bytes':len(prior),'sha256':h(prior),'qualification':'The queued/entered budget review remains valid source context; its runtimeUNRUN and original6af independent runtime point remain unchanged.'},'review_predicates':[{'property':'Use declared canonical artifact facade without changing implementation identity.','grade':'recomputed_source_predicate','assessment':'Complete source diff is exactly one import module replacement. Facade directly imports the three same unaliased objects from .async_store and already publishes all three through existing __all__. Their defining classes/function, adapter schema and defaults are unchanged. This is use of the existing owner seam, not a second adapter or publication algorithm.'},{'property':'No budget/filesystem/producer/test behavior body delta.','grade':'independently_reconciled_source_bytes','assessment':'Checkpoint candidate bytes equal84 after only module path replacement; whole AsyncExecutor/async_tools/facade/adapter/release/defining and custody test sources byte-identical. No old40/35PASS is relabeled as candidate runtime.'},{'property':'Import/package initialization boundary.','grade':'source_review_only','assessment':'Normal Python deep-submodule import already initializes parent package. Existing facade reexports canonical objects, so final import targets same definitions at supported normal package import boundary. This is not an independently executed import-order/cycle test; author actual fresh import-order/object-identity outputs retain their own deciding source/env/input closure. Arbitrary custom loaders/monkeypatch/reentrant third-party import semantics are not attested.'}],'checks':[{'command':'Read complete Git delta+canonical facade/adapter; exact byte replacement and existing reexports/__all__ independently reconciled without product import','target_sha':TARGET,'outcome':'PASS','grade':'source_review_only','output':'No blocking source or ownership issue in import-only delta.'},{'command':'Reviewer product imports, pytest/native checks or gates','target_sha':TARGET,'outcome':'UNRUN','output':'No product/runtime/gate command executed; author actual import-order and future root fullwave remain separate.'}],'limits':['No import-time or native execution PASS independently attested.','No institutional/artifact authority, new API/schema or formal finding closure introduced.','Future root candidate/generator/cohort must bind exact successor source/input; previous84/6af receipts are not future PASS.','Global RED remains actual; P41 inherited status not_established and no waiver.'],'next_owner':'Root accepts exact facade correction, reconciles author actual import-order/object-identity outputs, then freezes source for canonical generator/final affected fullwave.','receipt_builder':{'path':str(Path(__file__).resolve()),'bytes':Path(__file__).stat().st_size,'sha256':h(Path(__file__).read_bytes()),'literal_utf8':Path(__file__).read_text(),'qualification':'Standard-library source/custody serialization only; no product imports or execution.'}}\nout=OWN/(PREFIX+'current-checkpoint-facade-source-review.json')\nwith out.open('x') as f:json.dump(j,f,ensure_ascii=False,indent=2);f.write('\\n')\nb=out.read_bytes();print(json.dumps({'path':str(out),'bytes':len(b),'sha256':h(b),'status':j['status']},indent=2))\n",
+    "qualification": "Standard-library source/custody serialization only; no product imports or execution."
+  }
+}

@@ -28,7 +28,7 @@
       "artifact": "lex.norm_diff + lex.norm_impact_report schema1.0 in FileSystemCAS",
       "bridge": "canonical analyzer admission used by real CLI lex impact",
       "consumer": "CAS fresh-process NormImpactReport/NormDiff reader and render_impact_markdown",
-      "oracle": "one independently defined legal check produces exactly one blocker for synthetic income=2/floor1\u21923; duplicate plans equal unique-plan report IDs, content and transitions",
+      "oracle": "one independently defined legal check produces exactly one blocker for synthetic income=2/floor1→3; duplicate plans equal unique-plan report IDs, content and transitions",
       "positive_result": "24 targeted checks PASS zero skips/errors on final00a6eda; earlier independent reviewer16PASS plus repeated/nonconsecutive40-entry/unknown/empty controls with identical runtime/test blobs; final fresh-process persisted content readback PASS.",
       "negative": "base and remove-dedupe-keep-markers each3FAIL; unknown IDs still refused; identical policy produces no transitions.",
       "check": "PASS",
@@ -283,9 +283,7 @@
     "/workspace/e02-F-20261006-receipts/lex/fresh-reader-cas"
   ],
   "cleanup_policy": "No ordinary Trash in cloud; candidates listed, no permanent deletion. Code, useful documentation and deciding receipts preserved.",
-  "closure_ids": [
-    "LA-017"
-  ],
+  "closure_ids": [],
   "bundle_ids": [
     "LEX-01"
   ],
@@ -455,5 +453,9 @@
   "publication_readback_before_receipt_append": {
     "head": "5ab0d966810fddf1f792b587ea163974285e95b3",
     "reason": "Full implementation diff now includes the release metadata commit. Prior numeric witnesses are unchanged; this append changes receipts only."
-  }
+  },
+  "related_finding_ids": [
+    "LA-017"
+  ],
+  "closure_scope": "No full LA-017 closure; the verified duplicate-pass consumer property is a bounded component of the original criterion."
 }

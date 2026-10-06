@@ -1,0 +1,10 @@
+import math
+from numbers import Real
+
+def pytest_sessionstart(session):
+    from polisyos.scientist.methods.search.strategies import space
+    def removed(value):
+        if isinstance(value,bool) or not isinstance(value,Real):
+            return None
+        return float(value) if math.isfinite(value) else None
+    space.finite_real_scalar = removed

@@ -1,0 +1,562 @@
+FF.......FF.FFF..FFF.FF...FF..                                           [100%]
+=================================== FAILURES ===================================
+_ test_coordinate_intake_refuses_invalid_numeric_domain[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize(
+        "invalid",
+        [10**400, -(10**400), True, False, "0.5", None, float("nan"), float("inf"), Fraction(1, 2)],
+    )
+    def test_coordinate_intake_refuses_invalid_numeric_domain(invalid):
+        space = SearchSpace([ParameterBounds("x")])
+        with pytest.raises(ValueError, match="Finite physical"):
+>           space.normalize({"x": invalid})
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+params = {'x': 100000000000000000...0000000000000000000}
+
+    def normalize(self, params: dict[str, Any]) -> NormalizedVector:
+        values: list[float] = []
+        for bound in self.bounds:
+            if bound.dtype == ParameterType.CATEGORICAL:
+                assert bound.categories is not None
+                raw = params.get(bound.name)
+                matches = [
+                    type(raw) is type(candidate) and raw == candidate
+                    for candidate in bound.categories
+                ]
+                if sum(matches) != 1:
+                    raise ValueError(
+                        f"Unknown category '{raw}' for parameter '{bound.name}'. "
+                        f"Allowed: {bound.categories}"
+                    )
+                values.extend(1.0 if match else 0.0 for match in matches)
+                continue
+            value = params.get(bound.name)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+>               or not math.isfinite(value)
+                       ^^^^^^^^^^^^^^^^^^^^
+            ):
+E           OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/space.py:95: OverflowError
+_ test_coordinate_intake_refuses_invalid_numeric_domain[-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = -10000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize(
+        "invalid",
+        [10**400, -(10**400), True, False, "0.5", None, float("nan"), float("inf"), Fraction(1, 2)],
+    )
+    def test_coordinate_intake_refuses_invalid_numeric_domain(invalid):
+        space = SearchSpace([ParameterBounds("x")])
+        with pytest.raises(ValueError, match="Finite physical"):
+>           space.normalize({"x": invalid})
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+params = {'x': -10000000000000000...0000000000000000000}
+
+    def normalize(self, params: dict[str, Any]) -> NormalizedVector:
+        values: list[float] = []
+        for bound in self.bounds:
+            if bound.dtype == ParameterType.CATEGORICAL:
+                assert bound.categories is not None
+                raw = params.get(bound.name)
+                matches = [
+                    type(raw) is type(candidate) and raw == candidate
+                    for candidate in bound.categories
+                ]
+                if sum(matches) != 1:
+                    raise ValueError(
+                        f"Unknown category '{raw}' for parameter '{bound.name}'. "
+                        f"Allowed: {bound.categories}"
+                    )
+                values.extend(1.0 if match else 0.0 for match in matches)
+                continue
+            value = params.get(bound.name)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+>               or not math.isfinite(value)
+                       ^^^^^^^^^^^^^^^^^^^^
+            ):
+E           OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/space.py:95: OverflowError
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = 100000000000000000...0000000000000000000, endpoint = 'lower'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+>           ParameterBounds("x", **bounds)
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<string>:9: in __init__
+    ???
+src/polisyos/scientist/methods/search/strategies/types.py:93: in __post_init__
+    if any(
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <tuple_iterator object at 0x7f28596c1330>
+
+    if any(
+>       isinstance(value, bool) or not math.isfinite(value)
+                                       ^^^^^^^^^^^^^^^^^^^^
+        for value in (self.lower, self.upper)
+    ):
+E   OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/types.py:94: OverflowError
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower--10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = -10000000000000000...0000000000000000000, endpoint = 'lower'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+>           ParameterBounds("x", **bounds)
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<string>:9: in __init__
+    ???
+src/polisyos/scientist/methods/search/strategies/types.py:93: in __post_init__
+    if any(
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <tuple_iterator object at 0x7f2814c90ee0>
+
+    if any(
+>       isinstance(value, bool) or not math.isfinite(value)
+                                       ^^^^^^^^^^^^^^^^^^^^
+        for value in (self.lower, self.upper)
+    ):
+E   OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/types.py:94: OverflowError
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-False] _
+
+invalid = False, endpoint = 'lower'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+            ParameterBounds("x", **bounds)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:34: Failed
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-broken] _
+
+invalid = 'broken', endpoint = 'lower'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+>           ParameterBounds("x", **bounds)
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<string>:9: in __init__
+    ???
+src/polisyos/scientist/methods/search/strategies/types.py:93: in __post_init__
+    if any(
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <tuple_iterator object at 0x7f28142d5330>
+
+    if any(
+>       isinstance(value, bool) or not math.isfinite(value)
+                                       ^^^^^^^^^^^^^^^^^^^^
+        for value in (self.lower, self.upper)
+    ):
+E   TypeError: must be real number, not str
+
+src/polisyos/scientist/methods/search/strategies/types.py:94: TypeError
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-None] _
+
+invalid = None, endpoint = 'lower'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+>           ParameterBounds("x", **bounds)
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<string>:9: in __init__
+    ???
+src/polisyos/scientist/methods/search/strategies/types.py:93: in __post_init__
+    if any(
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <tuple_iterator object at 0x7f26e42db700>
+
+    if any(
+>       isinstance(value, bool) or not math.isfinite(value)
+                                       ^^^^^^^^^^^^^^^^^^^^
+        for value in (self.lower, self.upper)
+    ):
+E   TypeError: must be real number, not NoneType
+
+src/polisyos/scientist/methods/search/strategies/types.py:94: TypeError
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = 100000000000000000...0000000000000000000, endpoint = 'upper'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+>           ParameterBounds("x", **bounds)
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<string>:9: in __init__
+    ???
+src/polisyos/scientist/methods/search/strategies/types.py:93: in __post_init__
+    if any(
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <tuple_iterator object at 0x7f26e3451000>
+
+    if any(
+>       isinstance(value, bool) or not math.isfinite(value)
+                                       ^^^^^^^^^^^^^^^^^^^^
+        for value in (self.lower, self.upper)
+    ):
+E   OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/types.py:94: OverflowError
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper--10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = -10000000000000000...0000000000000000000, endpoint = 'upper'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+>           ParameterBounds("x", **bounds)
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<string>:9: in __init__
+    ???
+src/polisyos/scientist/methods/search/strategies/types.py:93: in __post_init__
+    if any(
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <tuple_iterator object at 0x7f26e1c2fc70>
+
+    if any(
+>       isinstance(value, bool) or not math.isfinite(value)
+                                       ^^^^^^^^^^^^^^^^^^^^
+        for value in (self.lower, self.upper)
+    ):
+E   OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/types.py:94: OverflowError
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-True] _
+
+invalid = True, endpoint = 'upper'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+            ParameterBounds("x", **bounds)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:34: Failed
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-broken] _
+
+invalid = 'broken', endpoint = 'upper'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+>           ParameterBounds("x", **bounds)
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<string>:9: in __init__
+    ???
+src/polisyos/scientist/methods/search/strategies/types.py:93: in __post_init__
+    if any(
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <tuple_iterator object at 0x7f26e1c40af0>
+
+    if any(
+>       isinstance(value, bool) or not math.isfinite(value)
+                                       ^^^^^^^^^^^^^^^^^^^^
+        for value in (self.lower, self.upper)
+    ):
+E   TypeError: must be real number, not str
+
+src/polisyos/scientist/methods/search/strategies/types.py:94: TypeError
+_ test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-None] _
+
+invalid = None, endpoint = 'upper'
+
+    @pytest.mark.parametrize(
+        "invalid", [10**400, -(10**400), True, False, "broken", None, float("nan"), float("inf")]
+    )
+    @pytest.mark.parametrize("endpoint", ["lower", "upper"])
+    def test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error(invalid, endpoint):
+        bounds = {"lower": 0.0, "upper": 1.0, endpoint: invalid}
+        with pytest.raises(ValueError):
+>           ParameterBounds("x", **bounds)
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<string>:9: in __init__
+    ???
+src/polisyos/scientist/methods/search/strategies/types.py:93: in __post_init__
+    if any(
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <tuple_iterator object at 0x7f26e1c41690>
+
+    if any(
+>       isinstance(value, bool) or not math.isfinite(value)
+                                       ^^^^^^^^^^^^^^^^^^^^
+        for value in (self.lower, self.upper)
+    ):
+E   TypeError: must be real number, not NoneType
+
+src/polisyos/scientist/methods/search/strategies/types.py:94: TypeError
+_ test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = 100000000000000000...0000000000000000000
+
+    @pytest.mark.integration
+    @pytest.mark.parametrize("invalid", [10**400, -(10**400), True, float("inf")])
+    def test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch(invalid):
+        pytest.importorskip("torch", reason="UNRUN: optional numerical backend", exc_type=ImportError)
+        pytest.importorskip("botorch", reason="UNRUN: optional numerical backend", exc_type=ImportError)
+        pytest.importorskip(
+            "gpytorch", reason="UNRUN: optional numerical backend", exc_type=ImportError
+        )
+        from polisyos.scientist.methods.search.strategies.bayesian import (
+            BayesianConfig,
+            BayesianOptimizer,
+        )
+        from polisyos.scientist.methods.search.strategies.types import Evaluation
+    
+        strategy = BayesianOptimizer(
+            SearchSpace([ParameterBounds("x")]), BayesianConfig(n_initial=6, seed=31)
+        )
+        rows = [
+            Evaluation(name, {"x": x}, (normalized,), [], score, True)
+            for name, x, normalized, score in [
+                ("measured-a", 0.2, 0.2, 2.0),
+                ("invalid", invalid, 0.4, 0.0),
+                ("measured-b", 0.6, 0.6, 1.0),
+            ]
+        ]
+>       assert not strategy._has_compatible_params(rows[1])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/bayesian.py:770: in _has_compatible_params
+    canonical = self._space.normalize(evaluation.params)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+params = {'x': 100000000000000000...0000000000000000000}
+
+    def normalize(self, params: dict[str, Any]) -> NormalizedVector:
+        values: list[float] = []
+        for bound in self.bounds:
+            if bound.dtype == ParameterType.CATEGORICAL:
+                assert bound.categories is not None
+                raw = params.get(bound.name)
+                matches = [
+                    type(raw) is type(candidate) and raw == candidate
+                    for candidate in bound.categories
+                ]
+                if sum(matches) != 1:
+                    raise ValueError(
+                        f"Unknown category '{raw}' for parameter '{bound.name}'. "
+                        f"Allowed: {bound.categories}"
+                    )
+                values.extend(1.0 if match else 0.0 for match in matches)
+                continue
+            value = params.get(bound.name)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+>               or not math.isfinite(value)
+                       ^^^^^^^^^^^^^^^^^^^^
+            ):
+E           OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/space.py:95: OverflowError
+_ test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = -10000000000000000...0000000000000000000
+
+    @pytest.mark.integration
+    @pytest.mark.parametrize("invalid", [10**400, -(10**400), True, float("inf")])
+    def test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch(invalid):
+        pytest.importorskip("torch", reason="UNRUN: optional numerical backend", exc_type=ImportError)
+        pytest.importorskip("botorch", reason="UNRUN: optional numerical backend", exc_type=ImportError)
+        pytest.importorskip(
+            "gpytorch", reason="UNRUN: optional numerical backend", exc_type=ImportError
+        )
+        from polisyos.scientist.methods.search.strategies.bayesian import (
+            BayesianConfig,
+            BayesianOptimizer,
+        )
+        from polisyos.scientist.methods.search.strategies.types import Evaluation
+    
+        strategy = BayesianOptimizer(
+            SearchSpace([ParameterBounds("x")]), BayesianConfig(n_initial=6, seed=31)
+        )
+        rows = [
+            Evaluation(name, {"x": x}, (normalized,), [], score, True)
+            for name, x, normalized, score in [
+                ("measured-a", 0.2, 0.2, 2.0),
+                ("invalid", invalid, 0.4, 0.0),
+                ("measured-b", 0.6, 0.6, 1.0),
+            ]
+        ]
+>       assert not strategy._has_compatible_params(rows[1])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/bayesian.py:770: in _has_compatible_params
+    canonical = self._space.normalize(evaluation.params)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SearchSpace(bounds=[ParameterBounds(name='x', lower=0.0, upper=1.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+params = {'x': -10000000000000000...0000000000000000000}
+
+    def normalize(self, params: dict[str, Any]) -> NormalizedVector:
+        values: list[float] = []
+        for bound in self.bounds:
+            if bound.dtype == ParameterType.CATEGORICAL:
+                assert bound.categories is not None
+                raw = params.get(bound.name)
+                matches = [
+                    type(raw) is type(candidate) and raw == candidate
+                    for candidate in bound.categories
+                ]
+                if sum(matches) != 1:
+                    raise ValueError(
+                        f"Unknown category '{raw}' for parameter '{bound.name}'. "
+                        f"Allowed: {bound.categories}"
+                    )
+                values.extend(1.0 if match else 0.0 for match in matches)
+                continue
+            value = params.get(bound.name)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+>               or not math.isfinite(value)
+                       ^^^^^^^^^^^^^^^^^^^^
+            ):
+E           OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/search/strategies/space.py:95: OverflowError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_coordinate_intake_refuses_invalid_numeric_domain[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_coordinate_intake_refuses_invalid_numeric_domain[False]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_coordinate_intake_refuses_invalid_numeric_domain[0.5]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_coordinate_intake_refuses_invalid_numeric_domain[None]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_coordinate_intake_refuses_invalid_numeric_domain[nan]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_coordinate_intake_refuses_invalid_numeric_domain[inf]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_coordinate_intake_refuses_invalid_numeric_domain[invalid8]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-nan]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-inf]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-False]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-nan]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-inf]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_supported_mixed_actions_keep_typed_projection_and_zero
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[inf]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_coordinate_intake_refuses_invalid_numeric_domain[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_coordinate_intake_refuses_invalid_numeric_domain[-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower--10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-False]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-broken]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[lower-None]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper--10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-True]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-broken]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_numeric_bounds_refuse_invalid_endpoint_with_controlled_error[upper-None]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+14 failed, 16 passed, 2 warnings in 111.71s (0:01:51)

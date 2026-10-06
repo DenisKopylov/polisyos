@@ -56,6 +56,59 @@ class StoppingCriterion(ABC):
         """Return externally-owned state keys required by this criterion."""
         return ()
 
+    def checkpoint_state(self) -> dict[str, Any]:
+        """Persist built-in criteria, including the original wall-clock origin."""
+        supported = (
+            MaxIterations,
+            MaxWallTime,
+            ImprovementPlateau,
+            TargetAchieved,
+            CostBudgetStopping,
+            CompositeStoppingCriterion,
+            AllStoppingCriteria,
+        )
+        if type(self) not in supported:
+            raise ValueError("search_resume_unsupported_stopping_profile")
+        from polisyos.scientist.methods.search.run_state import checkpoint_json
+
+        configuration = {
+            name: value
+            for name, value in vars(self).items()
+            if name not in ("_start_time", "_criteria")
+        }
+        return {
+            "version": "search-stopping.v1",
+            "criterion": type(self).__name__,
+            "configuration": checkpoint_json(configuration),
+            "started_at": (
+                self._start_time.isoformat()
+                if isinstance(self, MaxWallTime) and self._start_time is not None
+                else None
+            ),
+            "children": [child.checkpoint_state() for child in getattr(self, "_criteria", [])],
+        }
+
+    def restore_state(self, state: dict[str, Any]) -> None:
+        """Admit only the same built-in rule; restoring never resets its timer."""
+        current = self.checkpoint_state()
+        if set(state) != set(current) or any(
+            state[name] != current[name] for name in ("version", "criterion", "configuration")
+        ):
+            raise ValueError("search_resume_stopping_configuration_mismatch")
+        children = getattr(self, "_criteria", [])
+        if not isinstance(state["children"], list) or len(state["children"]) != len(children):
+            raise ValueError("search_resume_stopping_children_mismatch")
+        for child, saved in zip(children, state["children"], strict=True):
+            child.restore_state(saved)
+        if isinstance(self, MaxWallTime):
+            raw = state["started_at"]
+            restored = datetime.fromisoformat(raw) if isinstance(raw, str) else None
+            if restored is None or restored.tzinfo is None:
+                raise ValueError("search_resume_wall_clock_unavailable")
+            self._start_time = restored
+        elif state["started_at"] is not None:
+            raise ValueError("search_resume_unexpected_wall_clock")
+
 
 class MaxIterations(StoppingCriterion):
     """Stop after a fixed number of iterations."""

@@ -38,7 +38,10 @@ from polisyos.scientist.orchestration.engine.error_semantics import emit_degrade
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
     from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-    from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
+    from polisyos.scientist.methods.search.strategies.transfer import (
+        RunFingerprint,
+        TransferLearningManager,
+    )
     from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from polisyos.scientist.policy_design.objectives import (
         ObjectiveStack,
@@ -213,6 +216,7 @@ class SearchConfig:
     batch_size: int = 1
     resource_arbiter: Any | None = None
     transfer_manager: TransferLearningManager | None = None
+    transfer_fingerprint: RunFingerprint | None = None
     initial_evaluations: list[dict[str, Any]] = field(default_factory=list)
     policy_objective_stack: ObjectiveStack | None = None
     pareto_registry: ParetoRegistry | None = None
@@ -227,6 +231,8 @@ class SearchConfig:
             raise ValueError("max_iterations_hard_limit must be >= 1")
         if self.max_empty_generation_attempts < 1:
             raise ValueError("max_empty_generation_attempts must be >= 1")
+        if (self.transfer_manager is None) != (self.transfer_fingerprint is None):
+            raise ValueError("transfer_manager and transfer_fingerprint must be supplied together")
 
 
 class SearchController:
@@ -262,6 +268,15 @@ class SearchController:
             raise ValueError("SearchController requires Stage A and Stage B evaluators")
         self._stage_a = stage_a_evaluator
         self._stage_b = stage_b_evaluator
+        if config.transfer_manager is not None:
+            from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+
+            configure_transfer = getattr(candidate_generator, "configure_transfer", None)
+            if not callable(configure_transfer):
+                raise ValueError("configured generator does not support numeric transfer")
+            configure_transfer(
+                WarmStartBridge(config.transfer_manager), config.transfer_fingerprint
+            )
 
         self._run_lock = Lock()
         self._run_state = SearchRunState(status=SearchStatus.NOT_STARTED)

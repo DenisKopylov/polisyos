@@ -14,6 +14,9 @@ import importlib
 from typing import Any
 
 __all__ = [
+    "NativeSearchService",
+    "SearchServiceCheckpoint",
+    "SearchLoopRunner",
     "decision_packet_invocation_input_refs",
     "require_canonical_decision_packet_invocation",
     "DECISION_PACKET_INVOCATION_KIND",
@@ -56,6 +59,12 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "NativeSearchService": ("polisyos.scientist.methods.search.service", "NativeSearchService"),
+    "SearchServiceCheckpoint": (
+        "polisyos.scientist.methods.search.contracts",
+        "SearchServiceCheckpoint",
+    ),
+    "SearchLoopRunner": ("polisyos.scientist.methods.autotune.runtime", "SearchLoopRunner"),
     "decision_packet_invocation_input_refs": (
         "polisyos.scientist.validation.epoch_certificate_issuance",
         "decision_packet_invocation_input_refs",

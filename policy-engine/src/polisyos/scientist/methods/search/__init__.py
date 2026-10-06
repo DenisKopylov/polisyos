@@ -1,119 +1,14 @@
-"""Stable search facade for candidate generation, funnel evaluation, and VOI routing.
+"""Lazy search facade over the existing canonical owners.
 
-Eager exports cover objective/stage/stopping contracts and registries that are
-pure Python and safe to import in planners. Heavy or cyclic surfaces are
-lazy-loaded through `__getattr__`: ask/tell adapters, portfolio search helpers,
-promotion/readiness artifacts, and VOI schedulers.
+Contract-only package imports load no controller, funnel or optional numerical
+backend. Supported attributes retain identity with their canonical modules;
+optional dependencies are resolved when their attributes are requested.
 """
 
 from __future__ import annotations
 
 import importlib
 from typing import Any
-
-from polisyos.scientist.methods.search.actionable_side_information import (
-    ActionableSideInformation,
-    load_actionable_side_information,
-    persist_actionable_side_information,
-    resolve_actionable_store,
-)
-from polisyos.scientist.methods.search.adversarial import (
-    NegatedCompositeObjective,
-    PlatformAttackResult,
-    PlatformMetaEvaluationConfig,
-    PlatformMetaEvaluationInput,
-    PlatformMetaEvaluationReport,
-    PlatformMetaEvaluator,
-    VulnerabilityFound,
-    load_platform_meta_evaluation_report,
-    persist_platform_meta_evaluation_report,
-    run_stress_test,
-)
-from polisyos.scientist.methods.search.benchmark_registry import (
-    BenchmarkRegistry,
-    BenchmarkRegistryEntry,
-    BenchmarkRegistrySnapshot,
-)
-from polisyos.scientist.methods.search.compliance_audit import (
-    ComplianceAuditEntry,
-    scientist_blueprint_compliance_audit,
-)
-from polisyos.scientist.methods.search.diversity import (
-    DiversityTracker,
-    ExclusionListBuilder,
-    enrich_context_with_diversity,
-)
-from polisyos.scientist.methods.search.lessons import (
-    LessonCard,
-    LessonIndexEntry,
-    LessonIndexSnapshot,
-    LessonKind,
-    LessonPattern,
-    LessonQuery,
-    LessonRegistry,
-    LessonTrustLevel,
-    lesson_from_failure_card,
-    load_lesson_card,
-    persist_lesson_card,
-    success_lesson_from_outcome,
-)
-from polisyos.scientist.methods.search.objective import (
-    BaseObjective,
-    BudgetDeficitObjective,
-    CompositeObjective,
-    EmploymentObjective,
-    GDPGrowthObjective,
-    InequalityObjective,
-    ObjectivePresets,
-    ObjectiveValue,
-    OptimizationDirection,
-)
-from polisyos.scientist.methods.search.registry_contracts import (
-    BenchmarkRegistryContract,
-    ChampionRegistryContract,
-    DiscoveryHypothesisRegistryContract,
-    LessonRegistryContract,
-    ParetoRegistryContract,
-)
-from polisyos.scientist.methods.search.sensitivity_adapter import SensitivityAwareCandidateGenerator
-from polisyos.scientist.methods.search.sentinels import (
-    SENTINEL_METADATA_KEY,
-    SentinelCandidate,
-    SentinelInjector,
-    SentinelKind,
-    SentinelObservation,
-    SentinelSet,
-    extract_sentinel_metadata,
-    load_sentinel_set,
-    persist_sentinel_set,
-    strip_internal_candidate_metadata,
-)
-from polisyos.scientist.methods.search.stages import (
-    CheapStage,
-    CorrelationRecord,
-    CorrelationRecordSnapshot,
-    CorrelationTracker,
-    CorrelationTrackerSnapshot,
-    DriftAlert,
-    ExpensiveStage,
-    SearchStage,
-    StageResult,
-)
-from polisyos.scientist.methods.search.stopping import (
-    CompositeStoppingCriterion,
-    ImprovementPlateau,
-    MaxIterations,
-    MaxWallTime,
-    StoppingCondition,
-    StoppingCriterion,
-    StoppingPresets,
-    TargetAchieved,
-)
-from polisyos.scientist.methods.search.transfer_context import (
-    TransferAuditHop,
-    TransferContext,
-    TransferPolicy,
-)
 
 __all__ = [
     "SENTINEL_METADATA_KEY",
@@ -187,6 +82,8 @@ __all__ = [
     "ProofGateStatus",
     "SchedulingDecision",
     "SearchService",
+    "NativeSearchService",
+    "SearchServiceCheckpoint",
     "SearchStage",
     "SensitivityAwareCandidateGenerator",
     "SBICalibrationPolicy",
@@ -246,99 +143,197 @@ __all__ = [
     "scheduling_decision_to_voi_record",
 ]
 
-try:
-    from polisyos.scientist.methods.search.cold_start import (
-        BurnInCohort,
-        BurnInConfig,
-        BurnInRunReport,
-        build_default_burn_in_orchestrator,
-        load_burn_in_report,
-        persist_burn_in_report,
-        run_burn_in,
-    )
 
-    __all__.extend(
-        [
-            "BurnInCohort",
-            "BurnInConfig",
-            "BurnInRunReport",
-            "build_default_burn_in_orchestrator",
-            "load_burn_in_report",
-            "persist_burn_in_report",
-            "run_burn_in",
-        ]
-    )
-except Exception:  # pragma: no cover - import guard for package init cycles
-    pass
+_EXPORT_MODULES: dict[str, tuple[str, ...]] = {
+    "polisyos.scientist.methods.search.actionable_side_information": (
+        "ActionableSideInformation",
+        "load_actionable_side_information",
+        "persist_actionable_side_information",
+        "resolve_actionable_store",
+    ),
+    "polisyos.scientist.methods.search.adversarial": (
+        "NegatedCompositeObjective",
+        "PlatformAttackResult",
+        "PlatformMetaEvaluationConfig",
+        "PlatformMetaEvaluationInput",
+        "PlatformMetaEvaluationReport",
+        "PlatformMetaEvaluator",
+        "VulnerabilityFound",
+        "load_platform_meta_evaluation_report",
+        "persist_platform_meta_evaluation_report",
+        "run_stress_test",
+    ),
+    "polisyos.scientist.methods.search.benchmark_registry": (
+        "BenchmarkRegistry",
+        "BenchmarkRegistryEntry",
+        "BenchmarkRegistrySnapshot",
+    ),
+    "polisyos.scientist.methods.search.compliance_audit": (
+        "ComplianceAuditEntry",
+        "scientist_blueprint_compliance_audit",
+    ),
+    "polisyos.scientist.methods.search.diversity": (
+        "DiversityTracker",
+        "ExclusionListBuilder",
+        "enrich_context_with_diversity",
+    ),
+    "polisyos.scientist.methods.search.lessons": (
+        "LessonCard",
+        "LessonIndexEntry",
+        "LessonIndexSnapshot",
+        "LessonKind",
+        "LessonPattern",
+        "LessonQuery",
+        "LessonRegistry",
+        "LessonTrustLevel",
+        "lesson_from_failure_card",
+        "load_lesson_card",
+        "persist_lesson_card",
+        "success_lesson_from_outcome",
+    ),
+    "polisyos.scientist.methods.search.objective": (
+        "BaseObjective",
+        "BudgetDeficitObjective",
+        "CompositeObjective",
+        "EmploymentObjective",
+        "GDPGrowthObjective",
+        "InequalityObjective",
+        "ObjectivePresets",
+        "ObjectiveValue",
+        "OptimizationDirection",
+    ),
+    "polisyos.scientist.methods.search.registry_contracts": (
+        "BenchmarkRegistryContract",
+        "ChampionRegistryContract",
+        "DiscoveryHypothesisRegistryContract",
+        "LessonRegistryContract",
+        "ParetoRegistryContract",
+    ),
+    "polisyos.scientist.methods.search.sensitivity_adapter": (
+        "SensitivityAwareCandidateGenerator",
+    ),
+    "polisyos.scientist.methods.search.sentinels": (
+        "SENTINEL_METADATA_KEY",
+        "SentinelCandidate",
+        "SentinelInjector",
+        "SentinelKind",
+        "SentinelObservation",
+        "SentinelSet",
+        "extract_sentinel_metadata",
+        "load_sentinel_set",
+        "persist_sentinel_set",
+        "strip_internal_candidate_metadata",
+    ),
+    "polisyos.scientist.methods.search.stages": (
+        "CheapStage",
+        "CorrelationRecord",
+        "CorrelationRecordSnapshot",
+        "CorrelationTracker",
+        "CorrelationTrackerSnapshot",
+        "DriftAlert",
+        "ExpensiveStage",
+        "SearchStage",
+        "StageResult",
+    ),
+    "polisyos.scientist.methods.search.stopping": (
+        "CompositeStoppingCriterion",
+        "ImprovementPlateau",
+        "MaxIterations",
+        "MaxWallTime",
+        "StoppingCondition",
+        "StoppingCriterion",
+        "StoppingPresets",
+        "TargetAchieved",
+    ),
+    "polisyos.scientist.methods.search.transfer_context": (
+        "TransferAuditHop",
+        "TransferContext",
+        "TransferPolicy",
+    ),
+    "polisyos.scientist.methods.search.cold_start": (
+        "BurnInCohort",
+        "BurnInConfig",
+        "BurnInRunReport",
+        "build_default_burn_in_orchestrator",
+        "load_burn_in_report",
+        "persist_burn_in_report",
+        "run_burn_in",
+    ),
+    "polisyos.scientist.methods.search.calibration_report": (
+        "AcceptanceCriterionStatus",
+        "FunnelCalibrationReport",
+        "build_calibration_report",
+        "load_funnel_calibration_report",
+        "persist_funnel_calibration_report",
+        "render_calibration_report",
+    ),
+    "polisyos.scientist.methods.search.strategies": (
+        "AcquisitionType",
+        "BaseSearchStrategy",
+        "Evaluation",
+        "EvaluationStatus",
+        "GridSearchStrategy",
+        "ParameterBounds",
+        "ParameterType",
+        "PolicyCandidate",
+        "RandomSearchStrategy",
+        "ScalarParameterCodec",
+        "SearchSpace",
+        "StrategyAdapter",
+        "StrategyState",
+    ),
+}
 
-try:
-    from polisyos.scientist.methods.search.calibration_report import (
-        AcceptanceCriterionStatus,
-        FunnelCalibrationReport,
-        build_calibration_report,
-        load_funnel_calibration_report,
-        persist_funnel_calibration_report,
-        render_calibration_report,
-    )
-
-    __all__.extend(
-        [
-            "AcceptanceCriterionStatus",
-            "FunnelCalibrationReport",
-            "build_calibration_report",
-            "load_funnel_calibration_report",
-            "persist_funnel_calibration_report",
-            "render_calibration_report",
-        ]
-    )
-except Exception:  # pragma: no cover - import guard for package init cycles
-    pass
-
-try:
-    from polisyos.scientist.methods.search.strategies import (
-        AcquisitionType,
-        BaseSearchStrategy,
-        Evaluation,
-        EvaluationStatus,
-        GridSearchStrategy,
-        ParameterBounds,
-        ParameterType,
-        PolicyCandidate,
-        RandomSearchStrategy,
-        ScalarParameterCodec,
-        SearchSpace,
-        StrategyAdapter,
-        StrategyState,
-    )
-
-    __all__.extend(
-        [
-            "AcquisitionType",
-            "BaseSearchStrategy",
-            "Evaluation",
-            "EvaluationStatus",
-            "GridSearchStrategy",
-            "ParameterBounds",
-            "ParameterType",
-            "PolicyCandidate",
-            "RandomSearchStrategy",
-            "ScalarParameterCodec",
-            "SearchSpace",
-            "StrategyAdapter",
-            "StrategyState",
-        ]
-    )
-except Exception:  # pragma: no cover - optional dependency path
-    pass
+_LAZY_EXPORTS = {name: module for module, names in _EXPORT_MODULES.items() for name in names}
+__all__.extend(
+    [
+        "BurnInCohort",
+        "BurnInConfig",
+        "BurnInRunReport",
+        "build_default_burn_in_orchestrator",
+        "load_burn_in_report",
+        "persist_burn_in_report",
+        "run_burn_in",
+        "AcceptanceCriterionStatus",
+        "FunnelCalibrationReport",
+        "build_calibration_report",
+        "load_funnel_calibration_report",
+        "persist_funnel_calibration_report",
+        "render_calibration_report",
+        "AcquisitionType",
+        "BaseSearchStrategy",
+        "Evaluation",
+        "EvaluationStatus",
+        "GridSearchStrategy",
+        "ParameterBounds",
+        "ParameterType",
+        "PolicyCandidate",
+        "RandomSearchStrategy",
+        "ScalarParameterCodec",
+        "SearchSpace",
+        "StrategyAdapter",
+        "StrategyState",
+    ]
+)
 
 
 def __getattr__(name: str) -> Any:
     """Resolve heavy or cyclic search exports lazily from their owning modules."""
+    if name in _LAZY_EXPORTS:
+        value = getattr(importlib.import_module(_LAZY_EXPORTS[name]), name)
+        globals()[name] = value
+        return value
+    if name == "NativeSearchService":
+        module = importlib.import_module("polisyos.scientist.methods.search.service")
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
     if name in {
         "CandidateProposal",
         "EvaluationBundle",
         "OrchestratorFunnelService",
         "SearchService",
+        "SearchServiceCheckpoint",
         "TellResult",
     }:
         module = importlib.import_module("polisyos.scientist.methods.search.contracts")

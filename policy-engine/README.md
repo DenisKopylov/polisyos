@@ -59,10 +59,22 @@ producer inputs and use their new CAS references; numeric strings and boolean
 numbers cannot be repaired by the registry. Comparison records support only
 `benchmark-comparison.v1`.
 
-`SearchLoopRunner` uses public native `ask`/`tell` around the controller-owned evaluator.
-The existing service instance supports pending-candidate continuation; persisted
-SearchService restore is unsupported. This route does not establish cutover of the
-separate served hierarchical caller or distributed registry coordination.
+`SearchLoopRunner` uses `NativeSearchService` public `ask`/`tell` around the
+controller-owned evaluator and persists immutable `search-service.v1` checkpoints
+in its configured artifact store. `create_service()` exposes that same native
+factory. A fresh runner can `resume(..., checkpoint_ref=ref)` with the same suite,
+metric policy, generator corpus/configuration and stopping rules. The final
+result contains the exact reference in `telemetry["checkpoint_ref"]`; an exposed
+service also retains its latest reference after an evaluator failure. Resume
+restores pending/completed candidate IDs, typed history/frontier and the original
+wall clock, and keeps stopped runs terminal. Reopened callbacks and external
+owner handles remain caller inputs; callback source authority, a transaction
+across external promotion and checkpoint publication, and distributed
+coordination are not established. Generators without an atomic `get_state()` /
+`set_state()` replay contract and enabled diversity tracking explicitly refuse
+resume. Unknown schema/configuration is refused rather than migrated. These APIs
+are exported lazily from `polisyos.scientist`; they do not appoint or cut over the
+separate served hierarchical caller.
 
 ## Architecture Diagram
 

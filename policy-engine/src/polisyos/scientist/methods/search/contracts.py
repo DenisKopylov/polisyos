@@ -15,6 +15,10 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 if TYPE_CHECKING:
+    from polisyos.scientist.methods.search.adapters import (
+        LegacySearchServiceAdapter,
+        OrchestratorFunnelService,
+    )
     from polisyos.scientist.methods.search.funnel.orchestrator import (
         FunnelOutcome,
         FunnelTicket,
@@ -44,6 +48,50 @@ class EvaluationBundle(BaseModel):
     objective_details: list[Any] = Field(default_factory=list)
     policy_evaluation: Any | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class SearchServiceCheckpoint(BaseModel):
+    """Immutable native-service replay envelope; readers accept this version only.
+
+    The controller validates the decoded run ledger before admission. Arbitrary
+    callbacks and external owner handles are supplied again by the caller.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["search-service.v1"] = "search-service.v1"
+    configuration: dict[str, Any]
+    run_state: dict[str, Any]
+    generator_state: dict[str, Any] | None
+    stopping_state: dict[str, Any]
+    pending_candidates: dict[str, dict[str, Any]]
+    pending_candidate_ids: list[str]
+    initial_candidate_ids: list[str]
+    completed_candidate_ids: list[str]
+    ask_iteration: int = Field(ge=0)
+    initial_candidate: dict[str, Any] | None
+    started_at: str | None
+    stopping_reason: str | None
+    failure: str | None
+
+    @model_validator(mode="after")
+    def _validate_candidate_ownership(self) -> SearchServiceCheckpoint:
+        ids = self.completed_candidate_ids
+        if any(not value for value in ids) or len(set(ids)) != len(ids):
+            raise ValueError("invalid completed candidate ids")
+        if any(not value for value in self.pending_candidates):
+            raise ValueError("invalid pending candidate ids")
+        if set(ids).intersection(self.pending_candidates):
+            raise ValueError("candidate cannot be pending and completed")
+        if len(set(self.pending_candidate_ids)) != len(self.pending_candidate_ids) or set(
+            self.pending_candidate_ids
+        ) != set(self.pending_candidates):
+            raise ValueError("pending candidate order does not match its payloads")
+        if len(set(self.initial_candidate_ids)) != len(self.initial_candidate_ids) or not set(
+            self.initial_candidate_ids
+        ).issubset(self.pending_candidates):
+            raise ValueError("initial candidates must be pending")
+        return self
 
 
 class ParetoBasisScope(BaseModel):
@@ -279,5 +327,6 @@ __all__ = [
     "ParetoViewAssessment",
     "ParetoViewProjection",
     "SearchService",
+    "SearchServiceCheckpoint",
     "TellResult",
 ]

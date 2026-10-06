@@ -16,6 +16,7 @@ from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     OptimizationDirection,
 )
+from polisyos.scientist.methods.search.run_state import checkpoint_json
 from polisyos.scientist.methods.search.stopping import MaxIterations
 
 from .models import (
@@ -166,6 +167,27 @@ class SequenceCandidateGenerator:
         self._candidates = list(candidates)
         self._index = 0
 
+    def get_state(self) -> dict[str, Any]:
+        """Persist the real corpus and cursor, including repeated terminal proposals."""
+        return {
+            "version": "sequence-generator.v1",
+            "candidates": checkpoint_json(self._candidates),
+            "index": self._index,
+        }
+
+    def set_state(self, state: dict[str, Any]) -> None:
+        """Admit the same corpus before changing the next-candidate cursor."""
+        expected = self.get_state()
+        if (
+            set(state) != set(expected)
+            or state["version"] != expected["version"]
+            or state["candidates"] != expected["candidates"]
+            or type(state["index"]) is not int
+            or not 0 <= state["index"] <= len(self._candidates)
+        ):
+            raise ValueError("sequence_generator_checkpoint_mismatch")
+        self._index = state["index"]
+
     def generate(
         self,
         history: list[Any],
@@ -209,6 +231,26 @@ class SearchLoopRunner:
         dedup: Any | None = None,
     ) -> SearchResult:
         del scheduler  # reserved for future Hyperband integration
+        service = self.create_service(spec, suite_ref=suite_ref, max_iterations=max_iterations)
+        initial_payload = (
+            initial_candidate.model_dump(mode="json")
+            if isinstance(initial_candidate, MutationArtifact)
+            else initial_candidate
+        )
+        return service.run_search(
+            initial_context=dict(context or {}), initial_candidate=initial_payload
+        )
+
+    def create_service(
+        self,
+        spec: SearchLoopSpec,
+        *,
+        suite_ref: ArtifactRef,
+        max_iterations: int = 10,
+    ) -> Any:
+        """Build the native persisted service with this runner's actual evaluator."""
+        from polisyos.scientist.methods.search.service import NativeSearchService
+
         generator = spec.candidate_generator
         if generator is None:
             raise ValueError(f"Search loop '{spec.loop_id}' is missing a candidate generator")
@@ -228,17 +270,30 @@ class SearchLoopRunner:
                 context=ctx,
             ),
         )
-        initial_payload = (
-            initial_candidate.model_dump(mode="json")
-            if isinstance(initial_candidate, MutationArtifact)
-            else initial_candidate
+        return NativeSearchService(
+            controller,
+            store=self._store,
+            basis={
+                "loop_id": spec.loop_id,
+                "suite_ref": suite_ref.model_dump(mode="json"),
+                "promotion_policy": spec.promotion_policy.model_dump(mode="json"),
+                "evaluator_profile": benchmark_evaluator_profile(spec.benchmark_evaluator),
+            },
         )
-        from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
 
-        return _NativeSearchServiceDriver(controller).run_search(
-            initial_context=dict(context or {}),
-            initial_candidate=initial_payload,
-        )
+    def resume(
+        self,
+        spec: SearchLoopSpec,
+        *,
+        suite_ref: ArtifactRef,
+        checkpoint_ref: ArtifactRef,
+        context: dict[str, Any] | None = None,
+        max_iterations: int = 10,
+    ) -> SearchResult:
+        """Reopen an exact checkpoint using a freshly configured native service."""
+        service = self.create_service(spec, suite_ref=suite_ref, max_iterations=max_iterations)
+        service.restore(checkpoint_ref)
+        return service.resume_search(context=context)
 
     def _evaluate_candidate(
         self,

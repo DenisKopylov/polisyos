@@ -1,6 +1,11 @@
 {
   "files": [
     {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/custody-and-replay-qualification.json",
+      "bytes": 862,
+      "sha256": "35ffeeafb9b11ae5eb4cfb00d9869ce4e694d983752b2a1a7cca4e9b68514b71"
+    },
+    {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/child.source.txt",
       "bytes": 2568,
       "sha256": "9e1382d25720eef7017547ef51a7571a18126d6bd2aebcb3d7ff192ca59bdb15"
@@ -181,6 +186,11 @@
       "sha256": "0ae38ce2b70a0b4560e729521ce5acd37b417c8ab74eeca4f3874c2efc76d4b1"
     },
     {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/replay-current-custody.source.txt",
+      "bytes": 6123,
+      "sha256": "5011a2f3e07594a01973d530080ae353ba3517352d5d775e1605c445626fa98d"
+    },
+    {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/review-data-only.source.txt",
       "bytes": 4525,
       "sha256": "05a34cd04f58c83d046f92400abbc15097acffcf4591b8fcc3822cad43ed31dd"
@@ -201,7 +211,7 @@
       "sha256": "59e32c9ea1e9989387e85ad207b7969069f5a0b49e51c73d712fe35594302540"
     }
   ],
-  "complete_regular_file_denominator": 40,
-  "complete_bytes_excluding_index": 158381,
-  "scope": "All 36 actual regular runtime files, full runner/child, complete data-only recomputation stdout/driver and bounded full-delta source review; symlinks excluded as aliases, no raw deciding file omitted."
+  "complete_regular_file_denominator": 42,
+  "complete_bytes_excluding_index": 165366,
+  "scope": "All36 actual regular runtime files + full executed runner and child + data-only audit stdout/driver + full-delta source review + qualified UNRUN replay driver/custody notice. Symlinks excluded as aliases, no actual deciding regular file omitted."
 }

@@ -1,0 +1,5 @@
+{
+  "historical_native_driver": "run-native.source.txt is the exact executed driver, requires own HEAD equal input09 at execution. It is preserved unchanged.",
+  "replay_driver": "replay-current-custody.source.txt is UNRUN_BY_THIS_REVIEW. It accepts only a clean attached successor with input09 as ancestor and exact test bytes equal09, retains exact source HEAD/bytes/all92 loaded origins guards and pre/post custody. It does not claim a future source PASS.",
+  "publication_correction": "The be844 implementation commit message accidentally states 4368 bytes for ignored JSONL. Actual complete 17-file JSONL denominator is 6911 bytes, recomputed from preserved files/index; complete evidence contents are unchanged. Shared policy-engine/.gitignore:104 *.jsonl required explicit bounded force-add, recorded in append commit; no hook/ignore rule was changed."
+}

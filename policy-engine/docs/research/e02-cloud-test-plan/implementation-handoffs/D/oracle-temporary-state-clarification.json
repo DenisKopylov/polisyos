@@ -1,0 +1,16 @@
+{
+  "schema_version": "e02.D.temporary-state-observation-clarification.v1",
+  "proof_commit": "57ed33266bcf292549dc843a6831baf671a65047",
+  "proof_tree": "0d9df67f124c483116f61c2c4878246fc738af45",
+  "superseded_interpretation": "oracle-runtime-profile-supersession.json temporary_state.preserved_after=false describes path existence only; it is not evidence of deletion.",
+  "exact_path": "/dev/shm/e02-oracle-ebeb-uncapped7-b3637b7e35f344ac8b5a6e8ca7dc0206",
+  "observed_exists_after_original_run": false,
+  "observed_exists_now": false,
+  "fixture_evidence": "The seven coordinate tests request no tmp_path/tmpdir fixture and contain no temporary-directory creation. Pytest need not create the explicitly supplied basetemp unless temporary fixtures are used.",
+  "creation_observation": "not_established",
+  "deletion_observation": "not_established",
+  "conclusion": "The directory may never have been created. Its observed absence cannot establish a cleanup or deletion event.",
+  "separate_historical_boundary": "Earlier default-basetemp executions could have triggered pytest default retention; this separate fact does not prove deletion of the fresh explicit path.",
+  "manual_deletion": false,
+  "closure_ids": []
+}

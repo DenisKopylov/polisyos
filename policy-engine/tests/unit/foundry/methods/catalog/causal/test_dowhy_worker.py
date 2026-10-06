@@ -56,11 +56,23 @@ def admit(tmp_path, data):
 
 @pytest.fixture
 def selected_worker(monkeypatch):
-    executable = bridge._worker_directory() / ".venv" / "bin" / "python"
+    configured = os.environ.get("E02_TEST_DOWHY_WORKER_PYTHON")
+    executable = (
+        Path(configured) if configured else bridge._worker_directory() / ".venv" / "bin" / "python"
+    )
     assert executable.is_file(), (
         "Install the frozen standalone DoWhy profile before this native test"
     )
     monkeypatch.setenv("POLISYOS_DOWHY_WORKER_PYTHON", str(executable))
+
+
+def test_missing_installed_profile_assets_are_a_typed_unavailability(tmp_path, monkeypatch):
+    missing = tmp_path / "isolated_installation" / "causal" / "_dowhy_worker.py"
+    missing.parent.mkdir(parents=True)
+    missing.touch()
+    monkeypatch.setattr(bridge, "__file__", str(missing))
+    with pytest.raises(bridge.WorkerUnavailableError, match="profile assets unavailable"):
+        bridge._worker_directory()
 
 
 def test_real_worker_job_cas_fresh_python314_reader(tmp_path, selected_worker):

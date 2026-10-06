@@ -50,7 +50,10 @@ or triangular sampling law. Finite values and divisible row counts alone are
 insufficient. Whole valid blocks may be reordered or bootstrapped; individual
 row resampling cannot preserve this design. `RankingStabilityChecker` therefore
 resamples whole Morris trajectories. Its Sobol/FAST resampling is outside this
-bounded repair. It validates the original Morris design before resampling and
+bounded repair; those methods return `unsupported` with the requested bootstrap
+and input-run denominators before attempting a replicate. Morris reports every
+replicate outcome and marks success-only ranking summaries `limited` when any
+replicate fails. It validates the original Morris design before resampling and
 refuses failed original runs; ranking stability under dropped or imputed runs
 has no admitted selection or recovery contract.
 

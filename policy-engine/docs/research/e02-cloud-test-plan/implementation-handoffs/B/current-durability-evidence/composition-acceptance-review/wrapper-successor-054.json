@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/tmp-successor-054",
+    "--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/native-successor-054.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "target_sha": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+  "target_tree": "a87b2d82222abb3368a705a146213c8f53106a68",
+  "owner_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+  "started_at": "2026-10-06T12:24:58.339636+00:00",
+  "elapsed_s": 7.0681420610053465,
+  "exit_code": 0,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "E02_REVIEW_TARGET_SHA": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+    "E02_REVIEW_OWNER_SHA": "054db3c913b0daf29cf503672a5ecfee7903fb7c"
+  },
+  "driver_sha256": "e4a70b6ee91cdee86f2269eef3f37f92ef47f24f31304eee1c8637914775f53a",
+  "stdout_sha256": "3e48da79cf66309adcd3881259e6c4a806d8c38a0d7d0c86150a9392021151b7",
+  "stdout_bytes": 33331,
+  "xml_sha256": "cd295b006351c6ad3c16788542f44a0d3342a1ed959421f356390b4309f4e505",
+  "xml_bytes": 4068,
+  "head_after": "3ad3a455fa6884e2ae71c85e49b2329781c3c9fe",
+  "status_after": ""
+}

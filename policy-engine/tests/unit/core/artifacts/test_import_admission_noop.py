@@ -25,8 +25,8 @@ def _remove_lease_admission(monkeypatch: pytest.MonkeyPatch) -> None:
 
     @contextmanager
     def allow_every_member(self: FileSystemCAS, members: dict[str, Any]) -> Any:
-        yield TransferAdmission(
-            (), frozenset(str(artifact_id_from_member(member)) for member in members)
+        yield transfer.TransferAdmission(
+            (), frozenset(str(transfer.artifact_id_from_member(member)) for member in members)
         )
 
     monkeypatch.setattr(FileSystemCAS, "_admit_import_members", allow_every_member)
@@ -310,5 +310,5 @@ def test_mixed_package_stages_only_unclaimed_artifact_members(tmp_path: Path) ->
         assert (target.root / member).read_bytes() == content
 
 
+from polisyos.core.artifacts import _transfer_ops as transfer
 from polisyos.core.artifacts import store as store_module
-from polisyos.core.artifacts._transfer_ops import TransferAdmission, artifact_id_from_member

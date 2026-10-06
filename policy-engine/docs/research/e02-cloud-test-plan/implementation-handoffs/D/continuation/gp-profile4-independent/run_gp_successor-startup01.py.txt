@@ -1,0 +1,80 @@
+"""Run the frozen reference oracle against a fresh immutable successor view."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+import uuid
+
+
+def main() -> None:
+    lane = Path("/workspace/e02-D-published-oracle")
+    prior = Path("/tmp/gp-profile4-d38-dbf251fa9a6b4eaa897ba6afa15fa510")
+    source = "d38f94c8a8095abb00052b8e78f7b8a470453ed4"
+    previous = "163a3b51630bca46b99ce660b40749fb79ed6b40"
+    test_commit = "18699ce536fca6ce174ff1caf1435a79912f0920"
+    test_path = "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py"
+    out = lane / "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent"
+    scratch = Path("/tmp") / ("gp-profile4-d38-" + uuid.uuid4().hex)
+    scratch.mkdir()
+    changed = set(subprocess.check_output(["git", "diff", "--name-only", previous, source], cwd=lane, text=True).splitlines())
+    scopes = ["policy-engine/src", "policy-engine/tools", "policy-engine/architecture", "policy-engine/pyproject.toml", "policy-engine/pytest.ini", "policy-engine/tests/conftest.py", "policy-engine/tests/_helpers", "policy-engine/tests/quarantine.toml", "policy-engine/tests/unit/scientist/conftest.py", test_path]
+    linked = 0
+    for scope in scopes:
+        root = prior / scope
+        paths = root.rglob("*") if root.is_dir() else [root]
+        for old in paths:
+            if not old.is_file() or any(part in {"_cache", "__pycache__", ".pytest_cache"} for part in old.parts):
+                continue
+            relative = old.relative_to(prior).as_posix()
+            if relative in changed:
+                continue
+            new = scratch / relative
+            new.parent.mkdir(parents=True, exist_ok=True)
+            os.link(old, new)
+            linked += 1
+    replaced = []
+    for relative in sorted(changed):
+        if not any(relative == scope or relative.startswith(scope + "/") for scope in scopes):
+            continue
+        content = subprocess.check_output(["git", "show", source + ":" + relative], cwd=lane)
+        new = scratch / relative
+        new.parent.mkdir(parents=True, exist_ok=True)
+        new.write_bytes(content)
+        replaced.append(relative)
+    test = subprocess.check_output(["git", "show", test_commit + ":" + test_path], cwd=lane)
+    if not (scratch / test_path).exists():
+        target = scratch / test_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(test)
+    if (scratch / test_path).read_bytes() != test:
+        raise RuntimeError("frozen oracle input differs")
+    product = scratch / "policy-engine"
+    plugin = (prior / "policy-engine/reference_source_binding_probe.py").read_text()
+    plugin = plugin.replace(repr(previous), repr(source)).replace("baseline-origins.json", "candidate-origins.json")
+    plugin = plugin.replace("mo-reference-independent/", "gp-profile4-independent/")
+    plugin = "import copy\nPROFILE_GUARD = {}\n" + plugin
+    plugin = plugin.replace('"loaded_backend_versions":backend}', '"loaded_backend_versions":backend,"profile_guard":PROFILE_GUARD}')
+    plugin += '\ndef pytest_runtest_call(item):\n    if item.originalname != "test_real_initial_fit_matches_independent_original_unit_full_covariance":\n        return\n    case = item.funcargs["analytic_case"]\n    if case.initial.metadata.get("gp_state_version") != 4:\n        raise AssertionError("actual supported fixture must be native profile4")\n    invalid = copy.deepcopy(case.initial)\n    invalid.metadata["gp_state_version"] = 3\n    receiver = item.module._strategy(case.space)\n    before = receiver.get_state()\n    try:\n        receiver.set_state(invalid)\n    except ValueError as exc:\n        after = receiver.get_state()\n        atomic = after.metadata == before.metadata and after.rng_state == before.rng_state and after.iteration == before.iteration and after.model_state == before.model_state and receiver._model is None\n        if not atomic:\n            raise AssertionError("unsupported profile3 partially changed receiver")\n        PROFILE_GUARD.update({"supported_fixture_version":4,"unsupported_checkpoint_version":3,"rejected":True,"atomic":True,"reason":str(exc),"scope":"additional native checkpoint guard during first unchanged analytic test; not another pytest case"})\n    else:\n        raise AssertionError("unsupported profile3 accepted")\n'
+    (product / "reference_source_binding_probe.py").write_text(plugin)
+    temporary = "/dev/shm/gp-profile4-d38-" + uuid.uuid4().hex
+    if Path(temporary).exists():
+        raise RuntimeError("basetemp must not already exist")
+    command = ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "-q", test_path.removeprefix("policy-engine/"), "-p", "reference_source_binding_probe", "-ra", "--basetemp=" + temporary, "--junitxml=" + str(out / "candidate-junit.xml")]
+    environment = os.environ.copy()
+    environment.update({"PYTHONPATH": "src:.", "PYTHONDONTWRITEBYTECODE": "1"})
+    started = time.monotonic()
+    with (out / "candidate-complete.txt").open("w") as log:
+        child = subprocess.run(command, cwd=product, env=environment, stdout=log, stderr=subprocess.STDOUT, check=False)
+    result = {"source": source, "tree": subprocess.check_output(["git", "rev-parse", source + "^{tree}"], cwd=lane, text=True).strip(), "test_commit": test_commit, "test_sha256": hashlib.sha256(test).hexdigest(), "argv": command, "cwd": str(product), "returncode": child.returncode, "wall_seconds": time.monotonic() - started, "scratch": str(scratch), "fresh_basetemp": temporary, "basetemp_observed_after": Path(temporary).exists(), "agent_added_caps": False, "existing_application_runtime_policy": "No extra test/orchestrator thread setting. Original analytic body and its source-defined runtime policy preserved.", "input_scope": scopes, "preparation": {"prior_immutable_source_view": str(prior), "prior_source": previous, "hardlinked_unchanged_files": linked, "fresh_successor_blob_paths": replaced, "prior_view_mutated": False}, "omitted_inputs": "Other tests/docs/fixtures/data omitted, not claimed tested; actual missing inputs remain ERROR/UNRUN."}
+    (out / "candidate-command.json").write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps(result))
+    print((out / "candidate-complete.txt").read_text()[-4000:])
+
+
+if __name__ == "__main__":
+    main()

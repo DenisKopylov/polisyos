@@ -1,0 +1,245 @@
+"""Stdlib-only read-only evidence binding; does not import a numerical backend."""
+
+import ast
+import base64
+import gzip
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+from xml.etree import ElementTree
+
+ROOT = Path(__file__).resolve().parents[7]
+OUT = Path(__file__).resolve().parent
+BASE = "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203"
+GP = "d38f94c8a8095abb00052b8e78f7b8a470453ed4"
+SCALAR = "67250d22dfae8f95cd44d9029d9c10dccfc69c3c"
+CAS_TEST = "350519adde62860982fba8e14e72ce83ef421d65"
+NN = "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+NN_HEAD = "82c3194d3ac106d225ad5b7a88fdfc85ae7f7d1f"
+NN_COMPANION = "0e370297bb89ff0fc6dbf376f4ed2afa0d0195d2"
+ANALYTIC = "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py"
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", str(ROOT), *args])
+
+
+def blob(commit, path):
+    return git("show", commit + ":" + path)
+
+
+def save(name, value):
+    (OUT / name).write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n")
+
+
+def local_manifest(folder):
+    return [
+        {"path": str(p.relative_to(ROOT)), "bytes": len(p.read_bytes()), "sha256": sha(p.read_bytes())}
+        for p in sorted(folder.iterdir()) if p.is_file()
+    ]
+
+
+def junit(path):
+    root = ElementTree.parse(path).getroot()
+    suites = [root] if root.tag == "testsuite" else list(root)
+    return {k: sum(int(s.attrib.get(k, 0)) for s in suites) for k in ("tests", "failures", "errors", "skipped")}
+
+
+def origins(path, default_source):
+    report = json.loads(path.read_text())
+    rows = report["loaded_origins"]
+    failures = list(report.get("errors", []))
+    for row in rows:
+        p = row["path"]
+        if not p.startswith("policy-engine/"):
+            p = "policy-engine/" + p
+        actual = sha(blob(row.get("source", default_source), p))
+        if actual != row["sha256"]:
+            failures.append({"path": p, "expected": actual, "recorded": row["sha256"]})
+    return {"loaded_product_origins": len(rows), "independently_rechecked_git_bytes": len(rows), "errors": failures}
+
+
+gp_dir = OUT / "gp-profile4-independent"
+gp_run = json.loads((gp_dir / "candidate-command.json").read_text())
+gp_origins = origins(gp_dir / "candidate-origins.json", GP)
+gp_extra = json.loads((gp_dir / "candidate-origins.json").read_text())
+core_paths = [
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/src/polisyos/common/serialization.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+]
+core = [{"path": p, "sha256": sha(blob(GP, p)), "same_672": blob(GP, p) == blob(SCALAR, p),
+         "same_350": blob(GP, p) == blob(CAS_TEST, p)} for p in core_paths]
+old_tree = ast.parse(blob("18699ce536fca6ce174ff1caf1435a79912f0920", ANALYTIC))
+new_tree = ast.parse((ROOT / ANALYTIC).read_text())
+body = lambda tree: [ast.dump(n, include_attributes=False) for n in tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))]
+save("gp-profile4-independent-review.json", {
+    "schema": "policyos.e02.independent_review.v1", "unit": "D", "closure_ids": [],
+    "base_sha": BASE, "source_sha": GP, "source_tree": git("rev-parse", GP + "^{tree}").decode().strip(),
+    "verdict": "PASS within the unchanged 23-case analytic continuation scope; no scientific source-authority or complete finding closure",
+    "runtime": {"junit": junit(gp_dir / "candidate-junit.xml"), "exit_code": gp_run["returncode"],
+                "wall_seconds": gp_run["wall_seconds"], "command_record": "gp-profile4-independent/candidate-command.json",
+                "origin_binding": gp_origins, "backend_versions": gp_extra["loaded_backend_versions"],
+                "checkpoint_guard": gp_extra["profile_guard"]},
+    "oracle": {"test_source": "18699ce536fca6ce174ff1caf1435a79912f0920", "path": ANALYTIC,
+               "sha256": gp_run["test_sha256"], "expected_values": "Independent NumPy C=K(X,X)+noise*I; persisted learned RBF/mean/noise and Normalize/Standardize values explicitly applied in original objective units. No posterior/kernel/transform method supplies an expectation.",
+               "scope": "10 unique analytic rows and shifted append row 11; predictive mean and full covariance including off-diagonals; actual conditioning and MLL call counts; unchanged-marker parameter/transform/warm-row/local-RNG/checkpoint-kind controls.",
+               "later_collection_guard_only": "Three importorskip UNRUN guards and integration marker added after the deciding run; no numerical expectation/body alteration.",
+               "function_and_class_ast_unchanged": body(old_tree) == body(new_tree), "collection_guard_commit": 'df778090a68aa91c5e6780721edd96ec7688affd'},
+    "code_review": [
+        "Version4 persists original fitted Evaluation payloads in the corpus digest, re-admits source-bound rows with the configured reader, and recomputes ordered IDs and raw X/Y before model construction. Duplicate aliases and distinct ID permutations cannot supply numeric row association.",
+        "Probe restoration replaces copied collections before live native state mutation; persisted learned model, transforms, full-refit basis and local RNG are retained. No replacement MLL fit supplies restore equivalence.",
+        "Former dfe wrapper membership-only acceptance was falsified by an actual coherent fitted-ID alias; the historical 14-case positive does not cover that wider property.",
+        "672 retains former JSON scalar int/float domain before the finite-real predicate; only one product line changes. Fraction remains unsupported by the native JSON codec."
+    ],
+    "successor_source_equivalence": {"core_blobs": core,
+        "d38_to_672_product_diff": git("diff", "--stat", GP, SCALAR, "--", "policy-engine/src").decode(),
+        "672_to_350_product_diff_empty": not git("diff", SCALAR, CAS_TEST, "--", "policy-engine/src")},
+    "held_execution": {"source": CAS_TEST, "scope": "new test-only direct-native original CAS same-ref corruption assertion",
+        "status": "ERROR/UNRUN", "reported_exit_code": -9, "wall_seconds": 47.356,
+        "output": "empty", "junit": "absent", "owner_message_basis": "Search author explicitly reported natural SIGKILL and released cache/backend; no inherited 34-case or independent 23-case PASS for this new assertion."},
+    "historical_evidence": {"dfe_alias": "dfe296816c95bee372ffea66d972826e5eb126a5 actual 1FAIL, complete.txt sha256 d626c390c907efcfc7f15667f84b7521c1eae5ce5193b161774fb26a0f65bfa4; author receipt transport pending",
+        "initial_profile3": "Earlier unchanged GP26 and profile3 records remain historical. Current profile4 execution is this fresh 23-case run.",
+        "preparation_failure": "gp-profile4-independent/startup01-result.json is UNRUN startup before pytest/backend. Original helper and deciding error retained; startup01-complete.txt is not claimed to be full subprocess-stream capture."},
+    "compatibility_record": {"commit": '7f9ab55fa77f3a2dcd1b9416fe7e4e67a9bf38ba',
+        "fragment": "policy-engine/release-fragments/unreleased/2026-10-06-search-gp-profile4-compatibility.toml",
+        "exact_fragment_validation": {"errors": [], "findings": []}, "full_gate": "UNRUN"},
+    "preservation": {"agent_added_caps": False, "manual_deletion": False,
+        "cleanup_candidates": [gp_run["scratch"], gp_run["fresh_basetemp"], "/tmp/gp-profile4-d38-85b0bef50b0b44ebbb121540c2c45b2a"],
+        "basetemp_observed_after": gp_run["basetemp_observed_after"]},
+    "limitations": ["No receiver-scoped real CAS transfer workflow repetition in this synthetic 23-case run; author actual 34-case evidence is separate.",
+        "No cross-backend/GPU/profile migration, institutional source authority, empirical optimization-quality or complete B114/B115/B122 closure claim.",
+        "Only supplied exact tracked inputs were exercised; omitted test/data inputs are not declared green."],
+    "payload_manifest": local_manifest(gp_dir)
+})
+
+optional = OUT / "optional-collection-independent"
+collect = json.loads((optional / "complete-inputs-command.json").read_text())
+contract = json.loads((optional / "contract-command.json").read_text())
+save("optional-collection-independent-review.json", {
+    "schema": "policyos.e02.independent_review.v1", "unit": "D", "closure_ids": [],
+    "source_projection": {"base_source": GP, "base_tree": collect["base_tree"], "overrides": collect["projection_overrides"],
+                          "actual_added_fixture": collect["added_actual_fixture"]},
+    "verdict": "PASS bounded collection/refusal mechanism: three collection SKIP/UNRUN, zero collection errors; zero numerical backend PASS",
+    "collection": {"junit": junit(optional / "complete-inputs-junit.xml"), "exit_code": collect["returncode"],
+        "meaning": "pytest collect-only collected zero tests and exited5 because all three modules explicitly skipped; not a numerical PASS or an exit0 command.",
+        "denial": json.loads((optional / "complete-inputs-denial.json").read_text()),
+        "origins": origins(optional / "complete-inputs-origins.json", GP)},
+    "contract_imports": {"junit": junit(optional / "contract-junit.xml"), "exit_code": contract["returncode"],
+        "meaning": "Two actual contract import tests PASS under four-module denial; non-numerical mechanism only.",
+        "origins": origins(optional / "contract-origins.json", GP)},
+    "historical_preparation_failure": {"junit": junit(optional / "collection-junit.xml"), "exit_code": 2,
+        "meaning": "First projection omitted actual test_transfer helper: one skip, two collection errors. Retained as harness/input failure; adding the exact source helper fixes preparation, not a production numerical result."},
+    "actual_minimal_environment": "UNRUN: existing actual no-Torch/HNSW environment lacks pytest/pydantic. No new install; this proof is controlled import denial in installed locked runtime.",
+    "new_optional_files_disposition": {"NN": "cba neural checkpoint already declares four importorskip guards/integration marker; source inspected, not part of this three-file collection.",
+        "generator_current_state": "Owner requested standard guards for test_generator_checkpoint_activation.py and test_gp_scalar_admission.py: assert backend_available with UNRUN wording alone would FAIL when absent. Await owner exact successor and expanded collection.",
+        "owned_analytic23": "Autouse execution fixture already skips absent backend; append collection guards/integration marker without changing any analytic body. Expanded collect proof pending."},
+    "preservation": {"agent_added_caps": False, "manual_deletion": False,
+        "cleanup_candidates": ["/tmp/optional-collection-fad3f85617a3410faedd30cb50129c5b", collect["scratch"],
+            collect["fresh_basetemp"], contract["fresh_basetemp"]],
+        "basetemp_observed_after": [collect["basetemp_observed_after"], contract["basetemp_observed_after"]],
+        "absence_interpretation": "Cases do not request tmp_path; no observed basetemp after collection/import cases is not evidence of deletion."},
+    "limits": ["First Torch guard dominates module skip; separate absence of every backend is not independently executed.",
+        "Other new numerical files are named pending owner work, not included in a general all-optional-tests collection claim.",
+        "No broad AST gate, real minimal-environment execution or installed-backend numerical rerun."],
+    "payload_manifest": local_manifest(optional)
+})
+
+payload_path = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-native-continuation-output.json.gz"
+compressed = blob(NN_HEAD, payload_path)
+expanded = gzip.decompress(compressed)
+bundle = json.loads(expanded)
+members = {}
+manifest = []
+errors = []
+missing_declared = []
+for name, entry in bundle["files"].items():
+    raw = entry["content"].encode() if entry["encoding"] == "utf-8" else base64.b64decode(entry["content"], validate=True)
+    members[name] = raw
+    recorded = entry.get("raw_file_sha256")
+    if recorded and recorded != sha(raw):
+        errors.append({"name": name, "error": "hash mismatch"})
+    if "bytes" in entry and entry["bytes"] != len(raw):
+        errors.append({"name": name, "error": "byte count mismatch"})
+    if recorded is None:
+        missing_declared.append(name)
+    manifest.append({"name": name, "bytes": len(raw), "sha256": sha(raw), "declared_hash": recorded, "matches_declared": None if recorded is None else recorded == sha(raw)})
+inventory = json.loads(members["nn-native-input-inventory.json"])
+for entry in inventory:
+    raw = members[entry["data_member"]]
+    m = json.loads(members[entry["manifest_member"]])
+    ref = entry["artifact_ref"]
+    if not (sha(raw) == entry["raw_file_sha256"] == ref["artifact_id"].removeprefix("sha256:") == m["integrity"]["sha256"]
+            and len(raw) == entry["bytes"] == m["byte_size"] and m["artifact_id"] == ref["artifact_id"]
+            and m["kind"] == ref["kind"] and m["media_type"] == ref["media_type"]):
+        errors.append({"name": entry["data_member"], "error": "actual CAS input identity mismatch"})
+receipt_path = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-neural-state.json"
+author = json.loads(blob(NN_HEAD, receipt_path))
+source_inputs = []
+for row in author["source_inputs"] + author["run_configuration_inputs"]:
+    raw = blob(row.get("source_sha", NN), row["path"])
+    source_inputs.append({"path": row["path"], "sha256": sha(raw), "bytes": len(raw),
+                          "matches_declared": sha(raw) == row["raw_file_sha256"] and len(raw) == row["bytes"]})
+origin_rows = []
+marker = "ACTUAL_RUNTIME_ORIGINS "
+for name, source in [("neural-transfer-corrected.txt", NN), ("neural-lessons-frozen.txt", "d9e973f954e3c1fbfa300b5595e75f96e67e5197")]:
+    text = members[name].decode()
+    captured = json.loads(text.split(marker, 1)[1].splitlines()[0])
+    for row in captured["modules"]:
+        if row["module"].startswith("polisyos."):
+            p = "policy-engine/src/" + row["origin"].split("/policy-engine/src/", 1)[1]
+            origin_rows.append({"output": name, "source": source, "path": p, "sha256": row["sha256"],
+                                "matches_git": sha(blob(source, p)) == row["sha256"]})
+mutated = members["removed_neural_warm_restore.py"].decode()
+original = blob(NN, "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py").decode()
+assert original.count("        self._warm_data = deepcopy(warm)\n") == 1
+removal_exact = original.replace("        self._warm_data = deepcopy(warm)\n", "") == mutated
+save("neural-cba-independent-review.json", {
+    "schema": "policyos.e02.independent_review.v1", "unit": "D", "closure_ids": [],
+    "base_sha": BASE, "source_sha": NN, "source_tree": git("rev-parse", NN + "^{tree}").decode().strip(),
+    "transport_commit": NN_HEAD, "author_receipt": receipt_path, "author_receipt_sha256": sha(blob(NN_HEAD, receipt_path)),
+    "verdict": "PASS bounded independent source/evidence review; author runtime evidence validated without another backend execution",
+    "source_review": [
+        "Full neural continuation delta and actual fitted-target tests read. Configured target/reader, same backend/space/policy, warm row content and full refs reconcile before base RNG/live warm assignment. Unsupported count-only state refuses.",
+        "Native CPU model refits each ask; checkpoint restores rows/RNG, not a trained model. Actual test observes three real MLL fits, restore zero fits, exact raw X and inverse-Standardize -scalar cost targets, and uninterrupted/fresh-resumed next EI proposal equality.",
+        "Two-path cba corrective catches finite conversion OverflowError in Transfer._number with typed ValueError and catches current-row OverflowError in NN compatibility. Source-coordinate/score authority remains the configured real CAS reader, not recomputed local markers.",
+        "Duplicate serialized warm6 remains effective3; malformed Base RNG controls compare exact artifact before/after; existing config/backend/basis and same-ref changed source controls retain atomicity."
+    ],
+    "runtime_evidence": {"new24_plus_existing5_plus_transfer39": author["checks"][0]["junit"],
+        "whole68_output": {"member": "neural-transfer-corrected.txt", "sha256": sha(members["neural-transfer-corrected.txt"]), "deciding_text": "68 passed, 5 warnings in 18.46s"},
+        "historical_real47": author["checks"][1]["junit"], "historical_additional9": author["checks"][3]["junit"],
+        "removal": {"junit": author["checks"][2]["junit"], "output_sha256": sha(members["neural-restore-removal.txt"]),
+                    "exact_only_final_warm_assignment_removed": removal_exact,
+                    "deciding_output": "fresh warm rows [] versus actual3; unchanged CAS/Sobol positive assertion fails"},
+        "backend_profile": author["supported_profile"], "source_origin_bindings": origin_rows,
+        "execution_here": "No additional numerical child: source/complete author outputs/input/bindings independently reviewed."},
+    "payload_integrity": {"path": payload_path, "compressed_sha256": sha(compressed), "compressed_bytes": len(compressed),
+        "uncompressed_sha256": sha(expanded), "uncompressed_bytes": len(expanded), "members": len(manifest),
+        "declared_hashes": len(manifest) - len(missing_declared), "computed_only_missing_declared_hash": missing_declared,
+        "actual_cas_inputs": len(inventory), "errors": errors, "all_source_inputs_match": all(x["matches_declared"] for x in source_inputs),
+        "manifest": manifest, "source_inputs": source_inputs},
+    "companion_disposition": {"classification": "Internal child module; __all__ visibility alone does not make a supported public API.",
+        "owner_request_resolved": {"commit": NN_COMPANION,
+            "source_and_tests_unchanged_from_transport": not git("diff", NN_HEAD, NN_COMPANION, "--", "policy-engine/src", "policy-engine/tests"),
+            "fragment": {"path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-neural-warm-checkpoint.toml",
+                "sha256": sha(blob(NN_COMPANION, "policy-engine/release-fragments/unreleased/2026-10-06-e02-neural-warm-checkpoint.toml"))},
+            "operator_recipe": {"path": "policy-engine/docs/how-to/neural-warm-checkpoint-migration.md",
+                "sha256": sha(blob(NN_COMPANION, "policy-engine/docs/how-to/neural-warm-checkpoint-migration.md"))},
+            "review": "Full append-only fragment and73-line recipe read: canonical runtime-state-format/impact breaking/internal classification, existing owner/version/deprecation fields, linked migration/runbook, retain old bytes and original history, fresh reconstruction is not old RNG resume, unsupported ensemble/GPU/cross-version/authority claims excluded.",
+            "author_scoped_gate": "Author reports exact fragment validation/render zero findings; independent review checks actual fields/docs/source identity, not a whole canonical quality gate rerun."},
+        "B04_B19_B23": "See committed canonical-companions-independent-read-review.json@18699ce536fca6ce174ff1caf1435a79912f0920. B19 historical77 =53 budget+9 extraction dates+15 fail-closed dates, not77 missing budgets; all canonical quality failures remain held without waiver."},
+    "limitations": ["Author actual runtime evidence is separate from independent fresh execution; no inherited PASS for other later source files.",
+        "Only five product module origins were captured per native NN output, not every loaded module.",
+        "No full scientific source-universe, tenant/split authority, appointed empirical source, optimization benefit, GPU/cross-version equivalence or complete original finding closure.",
+        "Source-input bytes prove transport integrity; local digest recomputation alone is not provenance or source authority."],
+    "preservation": "Read-only Git objects and lossless encoded outputs; no new snapshot, backend child, CPU/thread cap or deletion. Original author scratch paths remain author cleanup candidates."
+})
+print(json.dumps({"gp": gp_origins, "optional_collect": origins(optional / "complete-inputs-origins.json", GP),
+                  "optional_contract": origins(optional / "contract-origins.json", GP), "NN_members": len(manifest),
+                  "NN_errors": errors, "NN_missing_declared": missing_declared,
+                  "NN_origins_match": all(x["matches_git"] for x in origin_rows), "NN_removal_exact": removal_exact}))

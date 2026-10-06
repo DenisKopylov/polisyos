@@ -1,0 +1,49 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "scope": "Separate justified dependency-environment restoration and literal second architecture attempt; not replacement of first8 outcomes.",
+  "cache_ready_gate": {
+    "tag": "completed-final-architecture-cache-ready-1862c021df74",
+    "exit_code": 2,
+    "wall_seconds": 133.1247834609967,
+    "status": "UNRUN",
+    "actual_static_deep_import_diagnostic_count": 171,
+    "missing_exact_lock_package": "lifelines0.30.3",
+    "stage": "runtime-openapi-snapshot generator",
+    "clean_measured_family_rows": [
+      "runtime-api-client:3 generator-observed outputs",
+      "runtime-dashboard-api-types:1 generator-observed output"
+    ],
+    "complete_four_family_verdict": "not_established; exact full output retained"
+  },
+  "runtime_ml_cache_preparation": {
+    "actual_frozen_argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+      "sync",
+      "--frozen",
+      "--extra",
+      "runtime",
+      "--extra",
+      "ml"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 3.87483532600163,
+    "actual_installed_count": 159,
+    "actual_lifelines": "0.30.3",
+    "actual_pillow": "12.3.0",
+    "actual_origin_preflight": "PASS canonical isolated-origin check",
+    "six_thread_caps_absent": true,
+    "private_environment": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment",
+    "actual_source_copy_role": "Prior canonical cache-preparation source only; neither first nor retry architecture measurement workspace is modified. Fresh explicit UV_PROJECT_ENVIRONMENT overrides that copied project .venv link.",
+    "cache_owner": "Existing shared declared cache, authorized exact-locked restoration, not task-exclusive/immutable",
+    "scope": "Only actual registered OpenAPI runtime+ml prerequisites; does not run any generated family or change deciding offline flags."
+  },
+  "first_attempts_preserved": {
+    "first8_receipt": "916953164be6e21b8dd2e35888f7dfe48068cb63:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review.json",
+    "first_environment_unrun_four_families": "Original130854B first output remains unchanged; dependency prep does not alter its verdict.",
+    "second_generator_unrun": "Full129485B second output preserved here; not erased by new warming."
+  },
+  "next_owner": "Root: fresh offline canonical architecture command with new retained workspace/tag on same frozen1862; no duplicate native cohort or helper/case exclusions.",
+  "this_reviewer": "No architecture gate/native/collection replay; only authorized canonical frozen UV dependency preparation and full existing-output reads.",
+  "closure_ids": []
+}

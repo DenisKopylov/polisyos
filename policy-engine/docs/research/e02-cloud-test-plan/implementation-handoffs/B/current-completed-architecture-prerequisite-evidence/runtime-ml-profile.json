@@ -1,0 +1,197 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "source_copy_reused_readonly": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+  "source_copy_role": "Prior canonical cache-preparation source only; neither first nor retry architecture measurement workspace is modified. Fresh explicit UV_PROJECT_ENVIRONMENT overrides that copied project .venv link.",
+  "private_environment": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment",
+  "cache_root": "/home/agent/.cache/uv",
+  "cache_owner": "existing shared cache; exact-locked restoration explicitly authorized",
+  "registered_recipe": {
+    "id": "runtime-openapi-snapshot",
+    "label": "Runtime OpenAPI snapshot",
+    "owner": "team-polisyos",
+    "approval_owner": "team-polisyos",
+    "lifecycle": "generated_committed",
+    "generator": "canonical generator declared in regenerate_commands",
+    "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+    "promotion_target": "registered committed outputs listed in outputs",
+    "stale_output_behavior": "fail",
+    "source_of_truth": "src/polisyos/runtime/http/** FastAPI app factory and DTO contracts, including the owner-validator consulted dependency basis embedded in governed projection examples",
+    "outputs": [
+      "schemas/runtime_api_v1.openapi.json"
+    ],
+    "regenerate_commands": [
+      "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json"
+    ],
+    "commit_policy": "committed",
+    "freshness_rule": "Regenerate and commit whenever runtime routes, request/response DTOs, OpenAPI examples, or an owner-validator consulted dependency basis changes.",
+    "compatibility_class": "schema-openapi-abi",
+    "version_owner": "team-runtime",
+    "deprecation_window": "2 minor releases",
+    "release_fragment_change_class": "schema-openapi-abi",
+    "compatibility_promise": "Runtime OpenAPI changes declare additive, compatible-breaking, or breaking behavior and generated-client impact.",
+    "drift_gate": "automated",
+    "workflow": "ops/ci/templates/workflows/arch.yml",
+    "check_cwd": ".",
+    "check_command": [
+      "uv",
+      "run",
+      "--extra",
+      "runtime",
+      "--extra",
+      "ml",
+      "python",
+      "tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "--skip-client-drift"
+    ],
+    "default_freshness_check": true,
+    "output_probe_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "PYTHONNOUSERSITE=1",
+      "PYTHONHASHSEED=0",
+      "JAX_PLATFORMS=cpu",
+      "PYTHONPATH=src:.",
+      "uv",
+      "run",
+      "--extra",
+      "runtime",
+      "--extra",
+      "ml",
+      "python",
+      "tools/ops_runners/runtime/export_runtime_openapi.py",
+      "--output",
+      "{output_root}/schemas/runtime_api_v1.openapi.json"
+    ]
+  },
+  "registry": {
+    "path": "/workspace/e02-B-current-coordination/policy-engine/architecture/generated_artifacts.toml",
+    "bytes": 255402,
+    "sha256": "2a647722c8e8448fca732ff77328a9157265c86dcc80346246d578c0cfebe6fc"
+  },
+  "lock": {
+    "path": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source/uv.lock",
+    "bytes": 779204,
+    "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+  },
+  "locked_lifelines": {
+    "name": "lifelines",
+    "version": "0.30.3",
+    "source": {
+      "registry": "https://pypi.org/simple"
+    },
+    "dependencies": [
+      {
+        "name": "autograd"
+      },
+      {
+        "name": "autograd-gamma"
+      },
+      {
+        "name": "formulaic"
+      },
+      {
+        "name": "matplotlib"
+      },
+      {
+        "name": "numpy"
+      },
+      {
+        "name": "pandas"
+      },
+      {
+        "name": "scipy"
+      }
+    ],
+    "sdist": {
+      "url": "https://files.pythonhosted.org/packages/a0/4b/f92ca958b11284f9e80075d6b80b8150a3a231edb55e73a42878f786a54a/lifelines-0.30.3.tar.gz",
+      "hash": "sha256:acd1e0ecada4280c7bb2948f39c760a0f9158a57d752c8ca29f984a86c698b7f",
+      "size": 690663,
+      "upload-time": "2026-03-05T16:54:44.365Z"
+    },
+    "wheels": [
+      {
+        "url": "https://files.pythonhosted.org/packages/8a/fb/5ed80a8932630d4ae33af186a87008c9b48f02bc515380acc1a4b1fec162/lifelines-0.30.3-py3-none-any.whl",
+        "hash": "sha256:44802480a28d6cb836c7fea4a54ec0ba220eb31c6d7444589637a8bd66066e8c",
+        "size": 409055,
+        "upload-time": "2026-03-05T16:54:42.414Z"
+      }
+    ]
+  },
+  "canonical_cli": {
+    "path": "/workspace/e02-B-current-coordination/policy-engine/tools/devx/architecture/guardrails.py",
+    "bytes": 103077,
+    "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+  },
+  "all_six_thread_caps_absent": true,
+  "mode": "Online prerequisite preparation for exact registered runtime+ml profile; deciding architecture remains offline and source unchanged.",
+  "environment": {
+    "UV_FROZEN": "1",
+    "UV_PROJECT": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+    "UV_PROJECT_ENVIRONMENT": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment",
+    "UV_CACHE_DIR": "/home/agent/.cache/uv",
+    "UV_WORKING_DIR": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+    "UV_PYTHON": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "UV_NO_ENV_FILE": "1",
+    "PYTHONPATH": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source/src:/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PATH": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "venv",
+        "--python",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment"
+      ],
+      "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+      "exit_code": 0,
+      "wall_seconds": 0.06659468900761567,
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "clean_after": true,
+      "output": {
+        "path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/venv.txt",
+        "bytes": 332,
+        "sha256": "cb3601dce81390b7599d1c271512222db1cee469053c4febc7bc045516839ff2"
+      }
+    },
+    {
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "sync",
+        "--frozen",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml"
+      ],
+      "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+      "exit_code": 0,
+      "wall_seconds": 3.87483532600163,
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "clean_after": true,
+      "output": {
+        "path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/sync.txt",
+        "bytes": 4116,
+        "sha256": "e526eb8c56335d507e2e7406146d1f72be574ea82f32af3a4955ff1b7d2c5b9a"
+      }
+    }
+  ],
+  "origin_preflight": "PASS canonical isolated-origin check",
+  "package_read_argv": [
+    "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment/bin/python",
+    "-B",
+    "-c",
+    "import importlib.metadata,json,polisyos,tools; print(json.dumps({\"polisyos_origin\":polisyos.__file__,\"tools_origin\":tools.__file__,\"installed\":[{\"name\":d.metadata[\"Name\"],\"version\":d.version} for d in sorted(importlib.metadata.distributions(),key=lambda d:d.metadata[\"Name\"].lower())]},indent=2))"
+  ],
+  "packages": {
+    "path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/private-imports-and-packages.json",
+    "bytes": 10793,
+    "sha256": "7d2a4604a91ee91ceea112f3e085c1abdaf7f514fd2066766fa67740eeb9cc1a"
+  }
+}

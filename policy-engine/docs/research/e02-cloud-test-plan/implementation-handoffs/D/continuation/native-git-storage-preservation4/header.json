@@ -1,0 +1,31 @@
+{
+  "schema": "e02.native_git_storage_preservation.v1",
+  "observed_source": "613343c3ef00379038b5ac07127605528f166531",
+  "observed_tree": "f66e7144053be71db9840f9b7d468237fd1c809e",
+  "logical_root_head_tree_and_status_unchanged": true,
+  "native_loose_objects_checked": 4869,
+  "native_git_cat_file_exit": 0,
+  "all_exact_bytes_and_native_object_ids_preserved": true,
+  "tracked_source_or_test_mutation": false,
+  "fixture_or_environment_cleanup": false,
+  "data_permanently_deleted": false,
+  "earlier_long_pointer_error": "ENOSPC before native object mutation; original object plus duplicate copy retained.",
+  "active_native_storage_cleanup_exclusion": [
+    "/tmp/o4-r0zecq9r",
+    "/tmp/d4-53_iuxqr",
+    "/tmp/e02-D-native-loose-storage-68vq5cga",
+    "/tmp/e02-D-native-git-storage4-2jad1gal"
+  ],
+  "complete_outputs": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-git-storage-preservation4/complete-administrative-outputs.json.xz",
+    "bytes": 1094352,
+    "sha256": "f27b7f8a0749c883cd1b970d6ef02ff8648fc09bc72c661b783aae2d99c8436d",
+    "decoded_bytes": 6446408,
+    "decoded_sha256": "ca39d9b86ea73eef04afc123fa7515d5383a3ce8693aad9669b5e371097c62a8",
+    "member_count": 9
+  },
+  "limitations": [
+    "Cloud has no native Trash; no fixture/environment cleanup performed.",
+    "Native storage availability is not a scientific/property PASS or a memory-capacity guarantee."
+  ]
+}

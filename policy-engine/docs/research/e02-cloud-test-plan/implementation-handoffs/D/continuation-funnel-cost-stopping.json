@@ -1,0 +1,138 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "continuation-funnel-native-cost-stopping",
+  "branch": "codex/e02-D-published-funnel",
+  "closure_ids": [],
+  "finding_ids": [
+    "B120"
+  ],
+  "bundle_ids": [
+    "CTL-03"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "test_source_sha": "39a0195e970b55ca2a013770a9a4ef95fa1e2732",
+  "candidate_sha": "39a0195e970b55ca2a013770a9a4ef95fa1e2732",
+  "candidate_tree_sha": "9f66f655f0453138256e9b641fc65bf0d31c48ea",
+  "own_production_delta": "none; unique integration test only",
+  "supplier_dependency": {
+    "sha": "769a8dac89450dc54c1caeef69b217685bf983f8",
+    "normal_merge_sha": "15a970416a84cc5fcca62c36db5731c29ccd40e1",
+    "source_paths": [
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "policy-engine/src/polisyos/scientist/methods/search/stopping.py"
+    ],
+    "consumer": "public BudgetMiddleware.budget_state deep copy, configured budget_key; public settlement_owner_identity optional. No resource_snapshot or private ledger bypass.",
+    "receipt_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile.json@769a8dac89450dc54c1caeef69b217685bf983f8"
+  },
+  "canonical_criterion_ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203#bundle-ctl-03",
+  "baseline_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json@d259a0102b143c83b145ad9d1b0e5d128eca72f0#/findings/B120",
+  "original_residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/2",
+  "previous_node_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-node.json@d877127c6fae40de0bd1b33ac8f126dee7b93f26",
+  "test_path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+  "helper_ref": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py@39a0195e970b55ca2a013770a9a4ef95fa1e2732#configured_workflow",
+  "actual_runtime_chain": [
+    "Existing environment-backed native ScenarioAdversaryWorker/PolicyTranslatorWorker factory",
+    "TracedLLMClient -> existing B LLMBudgetEnforcer -> native Gateway HTTP text decoder",
+    "Canonical B1.1 BudgetMiddleware/FileBudgetLedger settle_spend_safe/resolve_spend_safe and fresh ledger reopen",
+    "D actual L3/L4 FunnelOrchestrator stage/outcome and public native search adapters",
+    "SearchController.run -> NativeSearchService actual ask/evaluate/tell driver with SAME configured middleware instance",
+    "CostBudgetStopping on explicitly selected recorded accounting key -> SearchResult/telemetry",
+    "Fresh BudgetMiddleware/FileBudgetLedger plus fresh SearchController stop before any next proposal/evaluation"
+  ],
+  "profiles": [
+    {
+      "name": "explicit run accounting key",
+      "full_and_split": true,
+      "physical_reported_usd": "2.0",
+      "funnel_provider_spend_usd": "2.0",
+      "selected_budget_key": "run",
+      "selected_recorded_spend_usd": "2.0",
+      "ledger_provider_aggregate_usd": "2.0",
+      "physical_events": 2,
+      "per_key_receipts": 2,
+      "next_proposals": 0,
+      "fresh_reader_proposals": 0
+    },
+    {
+      "name": "actual default worker accounting keys",
+      "full_and_split": true,
+      "physical_reported_usd": "2.0",
+      "funnel_provider_spend_usd": "2.0",
+      "selected_budget_key": "policy_translator",
+      "selected_recorded_spend_usd": "1.0",
+      "ledger_provider_aggregate_usd": "3.0",
+      "physical_events": 2,
+      "per_key_receipts": 3,
+      "next_proposals": 0,
+      "fresh_reader_proposals": 0
+    }
+  ],
+  "checks": {
+    "author_native": {
+      "metadata_member": "actual.json",
+      "output_member": "complete.txt",
+      "junit_member": "actual.xml",
+      "exit_code": 0,
+      "executed_tests": 5,
+      "PASS": 5,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "wall_seconds": 141.6682835440006,
+      "pytest_seconds": 136.427,
+      "loaded_origin_hashes_MATCH": 19,
+      "source_before_after_clean_unchanged": true,
+      "denominator": "Four full/split x explicit-run/default-worker-key positive profiles plus one actual settlement-removal negative. No whole-suite verdict or inferred finding closure."
+    },
+    "removal": {
+      "test": "test_trace_cost_one_without_settlement_cannot_establish_controller_cutoff",
+      "physical_response_usd": "1.0",
+      "retained_trace_cost_usd": "1.0",
+      "removed_mechanism": "Configured real middleware settlement replaced by typed-looking ACK with same ID/digest/key/amount/provider but no ledger write; real resolve returns absent.",
+      "deciding_oracle": "Native scientific outcome rejects; next proposal assertion and positive spent==1 custody assertion FAIL as required. Pytest catches those exact expected AssertionErrors. Ledger spent/receipts empty and controller recorded snapshot0.0, so trace1 never grants a paid receipt or cost cutoff.",
+      "scope": "OneProposal assertion is a test cutoff oracle, not a runtime quota; normal SearchConfig hard-limit default unchanged."
+    }
+  },
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+    "PYTHONPATH": "src:.",
+    "origin_source": "complete.txt E02_RUNTIME_ORIGINS contains all19 actual loaded path/hash versus frozen Git blob guards",
+    "tiktoken_cache_dir": "/workspace/e02-D2-receipts/tokenizer",
+    "tiktoken_cl100k_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+    "transport": "Only physical HTTP exchange is controlled by existing fixture; native factory/decoder/enforcer/middleware/ledger/controller/stopping code runs unchanged. No network provider invoice or billing authority is inferred.",
+    "artificial_limits": "none; no CPU/process/worker/thread/time caps; no shared-environment writes"
+  },
+  "complete_output_bundle": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cost-stopping-proof/output.json.gz",
+    "sha256": "76661e5fda601b63246d730b3f00d402f0c1d1f7f4cf67870cc5cd1544dbc543",
+    "uncompressed_sha256": "034cda07d3d225c77e23b571a0b9d5c3c5b762a815ae714dab4e39f8995af942",
+    "uncompressed_bytes": 38583,
+    "compressed_bytes": 5478,
+    "member_count": 10,
+    "encoding": "gzip UTF8 JSON map members; original bytes losslessly validated; complete stdout/stderr, JUnit, actual run metadata and harness plus five real ledger files"
+  },
+  "payload_commit": "21fbebc717e4a46cc388829ed825daca1db945d1",
+  "finding_residual": {
+    "finding_id": "B120",
+    "bundle": "CTL-03",
+    "state": "partial",
+    "closure": false,
+    "engineering_verified_bounded_property": "Actual native supplied provider responses reach real B receipts/reopened ledger, D funnel physical costing and same configured-owner controller cutoff. Selected per-key recorded spend remains distinct from multi-key provider aggregate and physical amount; full/split cutoff and fresh-reader no-next-proposal verified.",
+    "oracle": "Actual typed receipt event ID/digest/key/amount/provider readback plus fresh ledger bytes, funnel physical IDs/amounts and result recorded snapshot; all19 runtime origins match exact candidate.",
+    "missing_input_or_capability": "B lossless Gateway raw-JSON number decoder (tiny signed lexeme24=21FAIL3PASS remains owner input); typed immutable middleware receipt/revision snapshot; external invoice/billing authority; durable owned reservations, atomic multi-key settlement and event run/evaluation scope; standalone B cache receiver wiring and nontraced typed return remain previous declared boundaries.",
+    "semantic_held": true,
+    "next_owner": "B intake/cache/factory/DUR-01/W09; A physical resource appointment; D supplier immutable snapshot consumer after B port; G criterion acceptance",
+    "capability_state": "bridge_missing"
+  },
+  "independent_review": "UNRUN on this new39a integration test; parent routes immutable successor review. Earlier independent21 d796 remains separately scoped, not relabeled for this proof.",
+  "cleanup": {
+    "retained_output_dir": "/workspace/e02-D3-receipts/funnel-native-cost-stopping-39a",
+    "fresh_basetemp": "/dev/shm/e02-funnel-native-cost-59a56cfdfe7349f38451931c449801da",
+    "manual_deletion": "none",
+    "storage_deviation": "First payload-directory mkdir returned actual Errno28 ENOSPC; no tracked file was written/staged/deleted by that failed attempt. Small bundle/receipt draft retained under fresh /dev/shm path pending normal Git publication. Later observed1.9MiB overlay availability allowed ordinary append-only payload and receipt publication; no cleanup/deletion was performed by this author."
+  }
+}

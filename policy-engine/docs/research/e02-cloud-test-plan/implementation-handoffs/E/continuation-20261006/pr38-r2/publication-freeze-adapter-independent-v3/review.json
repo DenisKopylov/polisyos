@@ -1,0 +1,270 @@
+{
+  "schema": "policyos.e02.independent-publication-freeze-role-adapter-review.v3",
+  "verdict": "GO-bounded-publication-role-carrier-adapter",
+  "candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "root_before_after": [
+    "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+  ],
+  "source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapt_publication_freeze.py",
+    "bytes": 7493,
+    "sha256": "b7decef4df3596751c69928f3ad55cedca91eb201aedc4e077046194a7c19f6b"
+  },
+  "carrier": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-v3.json",
+    "bytes": 7951,
+    "sha256": "c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d"
+  },
+  "author_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/copy-index.json",
+    "bytes": 5654,
+    "sha256": "3066a842654d4f20a9666af3e2ec7d16602a3206f7563bd4d5b2e107a49750f6",
+    "assets": 23,
+    "asset_bytes": 87308
+  },
+  "original_source_freeze": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/source-freeze-a9f78817c.json",
+    "bytes": 6358,
+    "sha256": "f90129331279070984ccd9cd93da217633c9f734086c3a6213e6b4d7ca9311c4"
+  },
+  "review_denominator": {
+    "original": 8,
+    "candidateGit": 6,
+    "external_content_bound": 2,
+    "omitted": 0
+  },
+  "complete_review_bindings": [
+    {
+      "role": "candidate_git_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/assembly-dependency-review-c79.json",
+      "git_blob": "83ca0a0f81ae30b4d18f744d2965f7d4e5f44a1f",
+      "bytes": 51942,
+      "sha256": "3c4e7a931a9fe76129f3d783106a2092e8655af3ce49ef68c00461115e28ae97"
+    },
+    {
+      "role": "candidate_git_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "git_blob": "b50eda7fd82fa88bda6ad7bfe34357186f501a8e",
+      "bytes": 14630,
+      "sha256": "f3c1fca229ff1e2ea50acef950847188c30097754b7e3c805413b9d25a04c60b"
+    },
+    {
+      "role": "candidate_git_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/independent-review-06aec834.json",
+      "git_blob": "7cb6d7322fa45003be39af282f1ff2ada8431ea8",
+      "bytes": 9519,
+      "sha256": "f74a534e43e0a3ffc1585f6218ce1d2ab3613470642e13ec04bb178dd52a0517"
+    },
+    {
+      "role": "candidate_git_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/review-cfd79255.json",
+      "git_blob": "27cd4d5debdd08395651b2d397071b4a05f286da",
+      "bytes": 27913,
+      "sha256": "d75ba9aa14111c8f754319107b2cf63c67d32ceb64ea32f6291b518e50cf948b"
+    },
+    {
+      "role": "candidate_git_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-independent/review.json",
+      "git_blob": "a5b384106300aad68fed09134708267282f30242",
+      "bytes": 6065,
+      "sha256": "fa77f3ad5c84dff1da14b30bda53674c206d8f8c06d89eb71c98161f4f52a5c9"
+    },
+    {
+      "role": "candidate_git_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/independent-assembly-review-94d3.json",
+      "git_blob": "adfca9517ac919141b01a93622c52c7a32b8227f",
+      "bytes": 13248,
+      "sha256": "bc87f3d175bee92a534cd700c6f0b4b9578ad9a474e67b8e37073f6b1d494aa0"
+    },
+    {
+      "role": "external_content_bound_review",
+      "path": "/workspace/e02-E-pr38-r2-receipts/g-checkpoint11-assembly-a9f78817/independent-G11-assembly-review-a9f78817.json",
+      "bytes": 11625,
+      "sha256": "16d5e11038daa41d5aa47a0a72c8c19e5460fc05bd9515d04704cf2ade4b9ebc",
+      "actual_declared_current_pin": [
+        "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+      ]
+    },
+    {
+      "role": "external_content_bound_review",
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-g-checkpoint11-a9/review.json",
+      "bytes": 7688,
+      "sha256": "e4a2cd9cc5b4ce63d45f7ce346c960734321b38ba4cc27383f9b151f5830ff44",
+      "actual_declared_current_pin": [
+        "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+        "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+      ]
+    }
+  ],
+  "positive": "Exact frozen carrier accepted; all original schema/time/source/environment/wave/closure values equal after restoring original eight-record reviews. Distinct representation metadata only; no new source freeze.",
+  "independent_refusals": [
+    {
+      "control": "omit-Git-review",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "six candidate Git review records were changed or omitted"
+    },
+    {
+      "control": "omit-external-review",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "duplicate-external-record",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "swap-external-order",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "fake-Git-blob",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "six candidate Git review records were changed or omitted"
+    },
+    {
+      "control": "fake-external-digest",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "fake-external-size",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "valid-old5e-external-current-pin",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "external review current source pin mismatch"
+    },
+    {
+      "control": "fake-external-tree",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "external review current source pin mismatch"
+    },
+    {
+      "control": "fake-original-binding",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "external carrier original freeze binding mismatch"
+    },
+    {
+      "control": "wrong-top-current-candidate",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "source/env/wave/closure/timestamp fields changed"
+    },
+    {
+      "control": "change-original-freeze-time",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "source/env/wave/closure/timestamp fields changed"
+    },
+    {
+      "control": "ratify-closure-by-carrier",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "source/env/wave/closure/timestamp fields changed"
+    },
+    {
+      "control": "disguise-external-as-Git",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "external review role mismatch"
+    },
+    {
+      "control": "unsafe-external-record-path",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "two external review records were changed or omitted"
+    },
+    {
+      "control": "false-external-count",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "typed representation role/count binding changed"
+    },
+    {
+      "control": "claim-collector-all8-validation",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "typed representation role/count binding changed"
+    },
+    {
+      "control": "claim-new-source-freeze",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "typed representation role/count binding changed"
+    }
+  ],
+  "public_path_controls": [
+    {
+      "control": "raw",
+      "outcome": "TYPED_REFUSAL",
+      "payload_read_or_copy_callback_count": 0,
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-publication-freeze-adapter-v3/synthetic-public-roles/raw/sentinel.json"
+    },
+    {
+      "control": "PRIVATE",
+      "outcome": "TYPED_REFUSAL",
+      "payload_read_or_copy_callback_count": 0,
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-publication-freeze-adapter-v3/synthetic-public-roles/PRIVATE/sentinel.json"
+    },
+    {
+      "control": "git-config-private",
+      "outcome": "TYPED_REFUSAL",
+      "payload_read_or_copy_callback_count": 0,
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-publication-freeze-adapter-v3/synthetic-public-roles/git-config-private/sentinel.json"
+    },
+    {
+      "control": "Git-Config-Private-wrapper",
+      "outcome": "TYPED_REFUSAL",
+      "payload_read_or_copy_callback_count": 0,
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-publication-freeze-adapter-v3/synthetic-public-roles/Git-Config-Private-wrapper/sentinel.json"
+    },
+    {
+      "control": "raw-json-suffix",
+      "outcome": "TYPED_REFUSAL",
+      "payload_read_or_copy_callback_count": 0,
+      "reason": "raw evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/independent-publication-freeze-adapter-v3/synthetic-public-roles/ordinary.raw.json"
+    },
+    {
+      "control": "leaf-symlink",
+      "outcome": "TYPED_REFUSAL",
+      "payload_read_or_copy_callback_count": 0,
+      "reason": "symlink component is not admitted: /workspace/e02-E-pr38-r2-receipts/independent-publication-freeze-adapter-v3/synthetic-public-roles/leaf-alias.json"
+    },
+    {
+      "control": "parent-symlink",
+      "outcome": "TYPED_REFUSAL",
+      "payload_read_or_copy_callback_count": 0,
+      "reason": "symlink component is not admitted: /workspace/e02-E-pr38-r2-receipts/independent-publication-freeze-adapter-v3/synthetic-public-roles/parent-alias"
+    }
+  ],
+  "effective_property_removals": [
+    {
+      "control": "omit-Git-review",
+      "outcome": "EXPECTED_REACCEPTANCE_ONLY_DENOMINATOR_PREDICATE_REMOVED",
+      "protocol_fields_preserved": true
+    },
+    {
+      "control": "omit-external-review",
+      "outcome": "EXPECTED_REACCEPTANCE_ONLY_DENOMINATOR_PREDICATE_REMOVED",
+      "protocol_fields_preserved": true
+    },
+    {
+      "control": "raw",
+      "outcome": "EXPECTED_REACCEPTANCE_ONLY_SHARED_FULLPATH_ROLE_PREDICATE_REMOVED",
+      "synthetic_payload_read_callback_count": 1,
+      "protocol_fields_preserved": true
+    },
+    {
+      "control": "PRIVATE",
+      "outcome": "EXPECTED_REACCEPTANCE_ONLY_SHARED_FULLPATH_ROLE_PREDICATE_REMOVED",
+      "synthetic_payload_read_callback_count": 1,
+      "protocol_fields_preserved": true
+    }
+  ],
+  "basis": "P37 pins/root authorization, complete review denominator and original freeze content; P40 shared exact carrier recordset/current pin/fullpath public/no-symlink/content admission. No fields-only proof.",
+  "collector_external_boundary": "Canonical v4 validates only six reviews[] Git records. It ignores external_content_bound_reviews; this adapter proof independently binds both complete external current-a9 JSON inputs. This review does not claim v4 verifies all eight.",
+  "first_attempt": "Original6358B/f901 and complete2176B/51cfdstderr preserved; original absolute external reviews passed as Git paths caused exit128 before publication creation. This is carrier preparation error, not backend FAIL; no numeric results rerun/reclassified.",
+  "reused_review": "Unchanged collector v4 source/faec bounded code GO; unchanged G11 review source identities only, no re-review of own DoE source or own G content.",
+  "scope": "Scratch metadata/Git reads, pure predicate removals and synthetic role fixtures only; zero collector/native/numeric/gate/wheel launches, zero root/author/Git/config/ref writes.",
+  "new_numeric_measurements_or_findings_closed": false,
+  "next_owner": "Root may retry exact canonical v4 with this unchanged terminal wave and independently-bound typed carrier; CAL binds original/carrier plus actual terminal custody/counts; G acceptance and A/D/Core/IR decisions remain distinct."
+}

@@ -1,0 +1,1 @@
+syntax PASS: exact adapter,controls and two predicate-removal sources; compile() only,no bytecode

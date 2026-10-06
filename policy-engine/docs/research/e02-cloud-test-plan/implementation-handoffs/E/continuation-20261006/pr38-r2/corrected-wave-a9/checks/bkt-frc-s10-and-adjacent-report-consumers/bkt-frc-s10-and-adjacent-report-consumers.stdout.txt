@@ -1,0 +1,173 @@
+........................................................FF.............. [ 22%]
+........................................................................ [ 45%]
+........................................................................ [ 68%]
+........................................................................ [ 91%]
+.........................FF                                              [100%]
+=================================== FAILURES ===================================
+________ test_calibration_time_roles_are_preserved_from_bound_evidence _________
+
+    def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
+        """Prediction, observation, effective, valid, and window times stay distinct."""
+    
+        build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+        prediction_time = datetime(2025, 1, 15, 8, 30, tzinfo=UTC)
+        observation_time = datetime(2025, 4, 20, 9, 45, tzinfo=UTC)
+        policy_effective_time = datetime(2025, 2, 1, 0, 0, tzinfo=UTC)
+        data_valid_time = datetime(2025, 4, 1, 0, 0, tzinfo=UTC)
+        window_start = datetime(2025, 3, 1, 0, 0, tzinfo=UTC)
+        window_end = datetime(2025, 4, 30, 23, 59, tzinfo=UTC)
+        world_record = SimpleNamespace(
+            world_model_record_id="world_model_record_frc01",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2025-Q2",
+            region_or_jurisdiction="UA",
+        )
+        problem = SimpleNamespace(
+            design_problem_id="frc01-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        )
+        candidate = SimpleNamespace(candidate_id="frc01-candidate")
+        method_result = SimpleNamespace(
+            output={"report": _finite_estimator_report()}
+        )
+    
+        inputs = build_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn="foundry.methods.example",
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://world_model_record_frc01",
+            expected_policy_context_ref="policy-context://world_model_record_frc01",
+            false_clear_counts={},
+            calibration_evidence={
+                "denominator": 0,
+                "numerator": 0,
+                "pass_rate": 0.0,
+                "floor_passed": False,
+                "counterfactual_credibility": "insufficient_history",
+                "prediction_time": prediction_time.isoformat(),
+                "observation_time": observation_time.isoformat(),
+                "policy_effective_time": policy_effective_time.isoformat(),
+                "data_valid_time": data_valid_time.isoformat(),
+                "calibration_window_start": window_start.isoformat(),
+                "calibration_window_end": window_end.isoformat(),
+                "observed_outcome_ref": "outcome://frc01/observed",
+                "historical_implementation_ref": "implementation://frc01/history",
+                "evaluation_design_ref": "evaluation://frc01/design",
+                "credible_evaluation_evidence_ref": "evidence://frc01/credible",
+                "source_lineage_refs": ["lineage://frc01/source"],
+                "method_lineage_refs": ["lineage://frc01/method"],
+            },
+        )
+        record = inputs["forecast_calibration_record"]
+    
+>       assert record.prediction_time == prediction_time
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'prediction_time'
+
+tests/unit/remediation/test_frc_01.py:158: AttributeError
+__________ test_missing_calibration_evidence_refs_stays_typed_blocked __________
+
+    def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:
+        """Temporal dates alone cannot mint a calibration record or pass-through tier."""
+    
+        build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+        timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()
+        world_record = SimpleNamespace(
+            world_model_record_id="world_model_record_frc01",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2025-Q2",
+            region_or_jurisdiction="UA",
+        )
+        problem = SimpleNamespace(
+            design_problem_id="frc01-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        )
+        candidate = SimpleNamespace(candidate_id="frc01-candidate")
+        method_result = SimpleNamespace(output={"report": _finite_estimator_report()})
+    
+        inputs = build_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn="foundry.methods.example",
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://world_model_record_frc01",
+            expected_policy_context_ref="policy-context://world_model_record_frc01",
+            false_clear_counts={},
+            calibration_evidence={
+                "counterfactual_credibility": "insufficient_history",
+                "prediction_time": timestamp,
+                "observation_time": timestamp,
+                "policy_effective_time": timestamp,
+                "data_valid_time": timestamp,
+                "calibration_window_start": timestamp,
+                "calibration_window_end": timestamp,
+            },
+        )
+    
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.calibration_record_ref is None
+>       assert "s10://calibration/fail-closed/insufficient-history" in support.s6_limitation_refs
+E       AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []
+E        +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs
+
+tests/unit/remediation/test_frc_01.py:224: AssertionError
+_________ test_missing_ref_tier_and_s6_share_named_missing_ref_reason __________
+
+    def test_missing_ref_tier_and_s6_share_named_missing_ref_reason():
+        result = _build_s10_forecast_inputs(
+            **_inputs(method_result=SimpleNamespace(output={}), selected_method_fqn="forecasting.univariate.exponential_smoothing@1.0.0"),
+            forecast_tier="observable_calibrated", calibration_status="limit",
+            policy_context_ref="policy-context://reason-world", expected_policy_context_ref="policy-context://reason-world",
+            false_clear_counts={}, calibration_evidence={},
+        )
+        assert result["forecast_calibration_record"] is None
+        support = result["forecast_support"]
+        assert support.forecast_tier == "blocked"
+>       assert support.s6_limitation_refs == ["s10://calibration/fail-closed/empirical_evidence_ref_missing"]
+E       AssertionError: assert [] == ['s10://calib..._ref_missing']
+E         
+E         Right contains one more item: 's10://calibration/fail-closed/empirical_evidence_ref_missing'
+E         Use -v to get more diff
+
+../../e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/owner-packets/test_a_status_reason.py:35: AssertionError
+__________ test_resolved_limited_evidence_keeps_floor_failure_reason ___________
+
+tmp_path = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/bkt-frc-s10-and-adjacent-report-consumers/test_resolved_limited_evidence0')
+
+    def test_resolved_limited_evidence_keeps_floor_failure_reason(tmp_path: Path):
+        helper = runpy.run_path("tests/unit/scientist/methods/backtesting/test_forecast_owner.py")
+        store = FileSystemCAS(tmp_path / "cas")
+        request, profile = helper["_configured"](store, [1000.,1000.,1000.,1000.])
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+        fresh = FileSystemCAS(tmp_path / "cas")
+        fields = result.to_s10_input_fields(fresh)
+        inputs = RealValueOwnerGateway(repo_root=fresh.root, empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(fresh, ref)).produce_forecast_inputs(
+            **_inputs(method_result=SimpleNamespace(output=fields, temporal_roles=request.temporal_roles), selected_method_fqn=request.method_fqn)
+        )
+        record = inputs["forecast_calibration_record"]
+        assert record is not None and record.calibration_status == "limit"
+        support = inputs["forecast_support"]
+>       assert support.s6_limitation_refs == ["s10://calibration/calibration_floor_not_met"]
+E       AssertionError: assert ['s10://calib...ient-history'] == ['s10://calib...loor_not_met']
+E         
+E         At index 0 diff: 's10://calibration/insufficient-history' != 's10://calibration/calibration_floor_not_met'
+E         Use -v to get more diff
+
+../../e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/owner-packets/test_a_status_reason.py:52: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 17:57:57 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 17:57:57 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=35.26 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_frc_01.py::test_calibration_time_roles_are_preserved_from_bound_evidence
+FAILED tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked
+FAILED ::test_missing_ref_tier_and_s6_share_named_missing_ref_reason - Assert...
+FAILED ::test_resolved_limited_evidence_keeps_floor_failure_reason - Assertio...

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "bytes",
+    "outcome": "REFUSED",
+    "reason": "denominator mismatch"
+  },
+  {
+    "name": "hash",
+    "outcome": "REFUSED",
+    "reason": "content mismatch"
+  },
+  {
+    "name": "denominator",
+    "outcome": "REFUSED",
+    "reason": "denominator mismatch"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "scope": "Pure author metadata-validator function only; zero product/native/gate commands; author packet unchanged",
+  "source_script": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817/validate_binding.py.txt",
+  "source_script_sha256": "14a1debe4e904cb7e5de34cf465550f2b5b7e4d5437f954fd2d3683638a134aa",
+  "declared_current_candidate": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "forged_current_row_commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "same_real_source_bytes": true,
+  "outcome": "ACCEPTED-valid-bytes-wrong-current-source-candidate",
+  "current_actual_packet": "All actual published rows still point correctly to a9; this is a validator discriminator, not actual custody corruption."
+}

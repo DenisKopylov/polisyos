@@ -287,6 +287,18 @@ class LLMBudgetEnforcer:
                 ) from exc
             if not admitted:
                 self._completion_records.pop(attempt_id, None)
+                reservation.reserved_amounts.clear()
+                self._append_audit(
+                    run_id=run_id,
+                    actor="budget_enforcer",
+                    action="BUDGET_EXCEEDED",
+                    metadata={
+                        "budget_keys": self._budget_keys,
+                        "estimated_cost_usd": str(estimated),
+                        "model": self._model_name,
+                    },
+                    reservation=reservation,
+                )
                 raise BudgetExhaustedError("LLM request cannot reserve its exact budget intent")
             self._budget_state = self._budget_middleware.budget_state
         else:

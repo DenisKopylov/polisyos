@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/technical-held-trace/b194_native_welfare_atoms.py", line 18, in <module>
+    env=UncertaintyEnvelope(point_estimate=.5,confidence_interval=(0.,1.),confidence_level=None,distribution_family=DistributionFamily.BOOTSTRAP,source=UncertaintySource.MANUAL,propagation_method=PropagationMethod.NONE,interval_semantics=IntervalSemantics.PREDICTIVE,gate_eligible=False,distribution_payload=PosteriorSamplesCarrier(samples=(0.,1.),weights=(.5,.5)))
+                                                                                                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'IntervalSemantics' has no attribute 'PREDICTIVE'

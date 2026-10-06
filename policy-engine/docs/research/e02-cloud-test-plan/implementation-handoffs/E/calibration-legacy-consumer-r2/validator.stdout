@@ -1,0 +1,1 @@
+{"receipt": "PASS", "source": "1e942ff624ae7cb6c71227d48eef760687e17d2b", "copied_files": 51, "native": {"tests": 7, "failures": 0, "errors": 0, "skipped": 0}, "removal": {"tests": 3, "failures": 3, "errors": 0, "skipped": 0}}

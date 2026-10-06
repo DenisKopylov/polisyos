@@ -1,0 +1,133 @@
+{
+  "schema": "policyos.e02.minimal_collection_transport_identity.v1",
+  "encoded_bytes": 1931217,
+  "encoded_sha256": "050d7a5593f51b4416b22235cf99fb2596c6eefd19bf36d9436d691e0b6b6a41",
+  "decoded_bytes": 9397851,
+  "decoded_sha256": "4ec12c939eb672f0ea16b93bb61163c5f6868aa473524b49d5d14b5e6282d6cf",
+  "member_count": 12,
+  "original_raw_bytes": 7044328,
+  "member_identities": [
+    {
+      "name": "after.json",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/after.json",
+      "bytes": 823390,
+      "sha256": "36fbe74a4aa297c8d87d29c5dceae22fdb8f579211b21fbbf8e9ba478d5b3871"
+    },
+    {
+      "name": "before.json",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/before.json",
+      "bytes": 823390,
+      "sha256": "58dffcc2fa5128c4314b35a78e5f4e7b242f6911c1b1dd5610337dcabb01cd57"
+    },
+    {
+      "name": "collected-nodeids.json",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/collected-nodeids.json",
+      "bytes": 183982,
+      "sha256": "809bc0d7375eea9774587ae7b0a1976431a9e36a506d4ccb1fbddbf3b0143233"
+    },
+    {
+      "name": "complete.stderr.txt",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/complete.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "complete.stdout.txt",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/complete.stdout.txt",
+      "bytes": 8796,
+      "sha256": "1800042b3d7c2df5162ed2088227eb68434498926b0c2be737512fec19072593"
+    },
+    {
+      "name": "events.jsonl",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/events.jsonl",
+      "bytes": 3288298,
+      "sha256": "a6df8eb2fc2370ac3ecc412c25604760d491d03f80a95d74f1baf2d6b6b80e66"
+    },
+    {
+      "name": "execution-manifest.json",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/execution-manifest.json",
+      "bytes": 8576,
+      "sha256": "fde3c68257e52b9dfdae6560818327bdb5c532d2c53a2507b177b7946af47e9d"
+    },
+    {
+      "name": "junit.xml",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/junit.xml",
+      "bytes": 6376,
+      "sha256": "0f8966a19b3dd13fa06e7d4cd0083049e5a0212a2074e8f88524fafcf7396b6f"
+    },
+    {
+      "name": "observer-summary.json",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/observer-summary.json",
+      "bytes": 1746587,
+      "sha256": "0d6c688df5af6049218ac67623065e09f4c903ad632bc01e6fc4d592e7ebaf8e"
+    },
+    {
+      "name": "result.json",
+      "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/result.json",
+      "bytes": 6396,
+      "sha256": "3cf6095ef8f15b32b36bbacc9d04ff4776b88b6ad357131b7a3fc9cc1ca909c3"
+    },
+    {
+      "name": "selector-plan.json",
+      "original_path": "/tmp/e02-oracle-minimal-613343-selector-79f590f827a84bbd91e7b23ba3ea64df.json",
+      "bytes": 141285,
+      "sha256": "ef59476f7fba15495c4adcf3f55c83b6a289974036131ad944343fca8a453e24"
+    },
+    {
+      "name": "selector-plan.argv.json",
+      "original_path": "/tmp/e02-oracle-minimal-613343-selector-79f590f827a84bbd91e7b23ba3ea64df.argv.json",
+      "bytes": 7252,
+      "sha256": "a134fe60f0e58a9b52ce55a79f1ac291aa0d6cce1972345b87ec89d97f58a9ac"
+    }
+  ],
+  "measurement_source": {
+    "original_path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df.py",
+    "destination": "runner.py.txt",
+    "bytes": 6574,
+    "sha256": "8b27ea5065f4d59aa4b49cbf287530dae292c2ac47b74d9264dd80e4c6777df2",
+    "kind": "New unique original metadata/run input, occurs once as a tracked text file; not duplicated in carrier."
+  },
+  "already_tracked_input_body_copies": 0,
+  "source_refs": [
+    {
+      "role": "minimal profile receipt",
+      "source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "tree": "d276ff74974c33727d954944fad9efa37210dd39",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "bytes": 11996,
+      "sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859",
+      "raw_original_profile": {
+        "source_sha": "8391c8db699564a6af39cf66477e141cc6d30030",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile-proof/complete-profile-metadata.json.xz",
+        "member": "e02-D-runtime-minimal-profile-receipt.json",
+        "raw_bytes": 217952,
+        "raw_sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7"
+      }
+    },
+    {
+      "role": "selector measurement source",
+      "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz",
+      "member": "harness/e02-D-final-selector-plan.py",
+      "bytes": 12531,
+      "sha256": "e3e2ab9bfc9ee6fe86bfb9612f2c6f8bd383b1899f70ccb271492ba0794b3df8"
+    },
+    {
+      "role": "snapshot helper",
+      "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-wave-source-helpers.py.txt",
+      "git_blob": "18bb8a8042ca864e5a7a98901eade4fa4b5d3ab6",
+      "bytes": 20492,
+      "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7"
+    },
+    {
+      "role": "passive observer",
+      "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-runtime-observer.py.txt",
+      "git_blob": "435096b0e79f2fe6e2d6df3b518c245189420f0a",
+      "bytes": 12753,
+      "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81"
+    }
+  ],
+  "integrity_only": "No numerical or test-body PASS inferred."
+}

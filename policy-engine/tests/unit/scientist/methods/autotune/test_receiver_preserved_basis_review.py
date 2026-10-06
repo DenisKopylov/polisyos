@@ -133,6 +133,7 @@ def test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis(
             kind=valid_ref.kind,
             media_type=valid_ref.media_type,
             schema=manifest.artifact_schema,
+            producer=manifest.producer,
             inputs=manifest.inputs,
         ),
         canon_spec=canon.CanonSpec(forbid_floats=False),

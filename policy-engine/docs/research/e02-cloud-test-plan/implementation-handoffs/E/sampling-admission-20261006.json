@@ -224,7 +224,7 @@
       "cwd": "policy-engine",
       "target_sha": "0701251c57d707f0abe0550448e036d9d3c47c7d",
       "outcome": "PASS",
-      "output": "sampling-admission-20261006.native.log",
+      "output": "sampling-admission-20261006.native.txt",
       "wall_s": 15.388474236999173,
       "rss_kib": 864476,
       "input_closure": "150 exact tracked tests:150passed,2 JAX deprecation warnings,0 skipped",
@@ -234,7 +234,7 @@
       "command": "python -m ruff check <all changed Python paths>; python -m ruff format --check <same paths>",
       "target_sha": "0701251c57d707f0abe0550448e036d9d3c47c7d",
       "outcome": "PASS",
-      "output": "sampling-admission-20261006.ruff.log",
+      "output": "sampling-admission-20261006.ruff.txt",
       "input_closure": "complete exact23-path argv committed in log"
     },
     {

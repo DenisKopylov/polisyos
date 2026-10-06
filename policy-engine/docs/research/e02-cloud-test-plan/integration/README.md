@@ -1,3 +1,5 @@
+Native cleanup after checkpoint12: [14 verified Trash moves](checks/2026-10-06-seventh-wave/cleanup-actions.json), 2,151,911,424 allocated bytes transferred; Git code/docs, all deciding outputs, unique A11 inputs and current sessions preserved. Trash was not emptied; this is not immediate disk-space reclamation.
+
 Current continuation checkpoint: [checkpoint-12](checkpoint-12.json). [Latest 29-tip intake, independent checks and A–F actions](reviews/2026-10-06-seventh-wave.md) records A11=11 PASS, B16=16 PASS, E77=77 PASS on their exact candidates, C dirty-status and E supplied-Morris-analysis counterexamples. [New E PR38 r2 continuation](../execution-prompts/continuation-2026-10-06/E-resume-after-pr38-r2.md) covers the full54 criteria and current gates. No source is newly merged or finding closed in this record; the common freeze remains pending.
 
 # Непрерывная интеграция E02

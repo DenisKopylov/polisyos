@@ -204,12 +204,37 @@ def _canonical_artifact_id_sequence(
     )
 
 
+def _iter_batch_input_items[BatchItem](
+    items: Iterable[BatchItem],
+    *,
+    cancel_event: threading.Event | None = None,
+    deadline: float | None = None,
+) -> Iterator[BatchItem]:
+    """Apply admission to every producer advancement, including duplicates/exhaustion."""
+    check_batch_admission(cancel_event, deadline)
+    source = iter(items)
+    while True:
+        check_batch_admission(cancel_event, deadline)
+        try:
+            item = next(source)
+        except StopIteration:
+            check_batch_admission(cancel_event, deadline)
+            return
+        check_batch_admission(cancel_event, deadline)
+        yield item
+
+
 def _iter_canonical_artifact_ids(
     artifact_ids: Iterable[ArtifactID],
+    *,
+    cancel_event: threading.Event | None = None,
+    deadline: float | None = None,
 ) -> Iterator[ArtifactID]:
     """Yield first-seen typed IDs without draining an explicit source."""
     seen: set[str] = set()
-    for artifact_id in artifact_ids:
+    for artifact_id in _iter_batch_input_items(
+        artifact_ids, cancel_event=cancel_event, deadline=deadline
+    ):
         identity = artifact_id.hex
         if identity in seen:
             continue
@@ -219,10 +244,13 @@ def _iter_canonical_artifact_ids(
 
 def _iter_canonical_artifact_references(
     requests: Iterable[ArtifactID | ArtifactRef],
+    *,
+    cancel_event: threading.Event | None = None,
+    deadline: float | None = None,
 ) -> Iterator[ArtifactID | ArtifactRef]:
     """Preserve each full selected-view identity in a lazy verification inventory."""
     seen: set[tuple[str, str, str, str | None] | tuple[str]] = set()
-    for request in requests:
+    for request in _iter_batch_input_items(requests, cancel_event=cancel_event, deadline=deadline):
         aid, _profile, ref = _artifact_reference(request)
         identity = artifact_ref_identity_key(ref) if ref is not None else (str(aid),)
         if identity not in seen:
@@ -1862,7 +1890,9 @@ class FileSystemCAS:
         ids = (
             self._iter_artifact_ids_lazy(cancel_event=cancel_event, deadline=deadline)
             if artifact_ids is None
-            else _iter_canonical_artifact_ids(artifact_ids)
+            else _iter_canonical_artifact_ids(
+                artifact_ids, cancel_event=cancel_event, deadline=deadline
+            )
         )
         return _sign_all_artifacts(
             signer=signer,
@@ -1895,7 +1925,9 @@ class FileSystemCAS:
         ids = (
             self._iter_artifact_ids_lazy(cancel_event=cancel_event, deadline=deadline)
             if artifact_ids is None
-            else _iter_canonical_artifact_references(artifact_ids)
+            else _iter_canonical_artifact_references(
+                artifact_ids, cancel_event=cancel_event, deadline=deadline
+            )
         )
         return _verify_all_signatures(
             verifier=verifier,

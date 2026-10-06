@@ -59,6 +59,9 @@ environment fingerprints.
 
 Batch verification/signing consumes explicit iterables lazily and keeps a bounded pending
 window. An optional absolute monotonic `deadline` and cancellation stop new item admission;
+explicit inventories check each supplied item before and after producer advancement, including
+duplicates and exhaustion. A single user iterator operation may still block; this is not hard
+preemption of arbitrary producer code.
 running physical callbacks drain before return, so uncooperative I/O can outlive that logical
 budget. Global `ArtifactBatchAbortError` preserves completed results with an aborted report;
 BaseException retains its control-flow meaning. Legacy `<batch>` diagnostic rows and total

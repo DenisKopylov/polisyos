@@ -1,8 +1,12 @@
 """Use real CAS signature batches and the actual importer publication boundary."""
 
+import json
 import os
+import subprocess
+import sys
 import threading
 import time
+from pathlib import Path
 
 import pytest
 
@@ -310,3 +314,57 @@ def test_late_real_signer_cannot_start_signature_publication(tmp_path, monkeypat
     assert report.state == "aborted" and report.abort_reason == "deadline"
     assert report.admitted == report.finished == 1 and report.signed == 0
     assert not store._sig_path(unsigned.artifact_id).exists()
+
+
+@pytest.mark.parametrize("operation", ["verify", "sign"])
+@pytest.mark.parametrize("budget", ["cancel", "deadline"])
+def test_duplicate_intake_obeys_each_supplied_item_budget(tmp_path, operation, budget):
+    store, verifier, refs = signed_store(tmp_path)
+    cancelled = threading.Event()
+    consumed = []
+    item = refs[0] if operation == "verify" else refs[0].artifact_id
+
+    def source():
+        consumed.append(0)
+        yield item
+        for index in range(1, 60):
+            if budget == "cancel":
+                cancelled.set()
+            else:
+                time.sleep(0.01)
+            consumed.append(index)
+            yield item
+
+    deadline = time.monotonic() + 0.04 if budget == "deadline" else None
+    kwargs = {
+        "artifact_ids": source(),
+        "max_workers": 1,
+        "pending_window": 1,
+        "cancel_event": cancelled,
+        "deadline": deadline,
+    }
+    if operation == "verify":
+        report = store.verify_all_signatures(verifier, **kwargs)
+    else:
+        pair = KeyPair.generate()
+        signer = Ed25519Signer.from_pem(pair.private_pem())
+        report = store.sign_all_artifacts(signer, **kwargs)
+    assert report.state == "aborted" and report.abort_reason == budget
+    assert len(consumed) < 10
+    assert not report.inventory_exhausted
+
+
+@pytest.mark.parametrize("operation", ["verify", "sign"])
+def test_infinite_duplicate_intake_returns_from_real_child(tmp_path, operation):
+    worker = Path(__file__).with_name("batch_duplicate_worker.py")
+    child = subprocess.run(
+        [sys.executable, str(worker), str(tmp_path / "child-cas"), operation],
+        capture_output=True,
+        text=True,
+        timeout=3,
+        check=True,
+    )
+    report = json.loads(child.stdout)
+    assert report["state"] == "aborted" and report["abort_reason"] == "deadline"
+    assert report["admitted"] == report["finished"] == 1
+    assert report["consumed"] < 10 and not report["inventory_exhausted"]

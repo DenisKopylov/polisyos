@@ -1,0 +1,32 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-c",
+    "import hashlib,json,pathlib,pytest\nfrom polisyos.fabric.connectors import pool\nfrom polisyos.fabric.data_plane import streaming,cursor_store\nfrom polisyos.fabric.connectors.sources import event_stream\nexpected={pool: \"0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35\",streaming:\"aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3\",cursor_store:\"e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405\",event_stream:\"63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48\"}\nfor module,digest in expected.items():\n p=pathlib.Path(module.__file__).resolve(); actual=hashlib.sha256(p.read_bytes()).hexdigest(); print(\"B87_ACTUAL_SOURCE\",json.dumps({\"module\":module.__name__,\"origin\":str(p),\"sha256\":actual}),flush=True); assert str(p).startswith(\"/workspace/e02-B-current-coordination/policy-engine/src/\") and actual==digest\nraise SystemExit(pytest.main([\"-vv\",\"-s\",\"/workspace/e02-B-current-durability/policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py\",\"--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/pytest\",\"-o\",\"cache_dir=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/cache\",\"--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/native.xml\"]))"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "target_test_sha": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+  "product_source_sha": "f131958a71413154785823abeb0765d40499bad2",
+  "actual_heads_before": {
+    "own": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+    "root": "48e1f7170b04f1362e9b7e1d9b74eb9763151830"
+  },
+  "actual_heads_after": {
+    "own": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+    "root": "48e1f7170b04f1362e9b7e1d9b74eb9763151830"
+  },
+  "exit": 1,
+  "wall_s": 2.7074725440033944,
+  "maxrss_kib": 200672,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "stdout": {
+    "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/native.txt",
+    "bytes": 40439,
+    "sha256": "a457b623d95800965be657f2f4cae8723e4d2e15d5bd0ef1bc429b064b67252f"
+  },
+  "profile": "Same native process imports and binds actual four root-backed modules before pytest; no code overlays, no process/worker/thread quota. Real connector-stage faults and observation of actual pool only."
+}

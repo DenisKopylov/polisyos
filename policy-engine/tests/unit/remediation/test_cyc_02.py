@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import json
+import math
+import os
 import subprocess
+import sys
 import time
 from decimal import Decimal
 from pathlib import Path
@@ -189,6 +192,7 @@ def _real_n5_observation(
     artifact_store: Any | None = None,
     without_runtime_store: bool = False,
     single_step_horizon: bool = False,
+    single_atom_candidate: bool = False,
 ):
     """Run the canonical N5 producer through the real generation-cycle adapter."""
 
@@ -203,14 +207,14 @@ def _real_n5_observation(
         record=context.world_model_record,
         world_model_record_ref=context.world_model_record.world_model_record_id,
     )
+    request_atoms = tuple(candidate.intervention_atoms)
+    if single_atom_candidate:
+        request_atoms = (candidate.atom,)
+        request = request.model_copy(update={"intervention_atoms": request_atoms})
     if single_step_horizon:
         # This static request must not add a separate incomplete-horizon blocker.
         request = request.model_copy(
-            update={
-                "horizon": request.horizon.model_copy(
-                    update={"end": request.horizon.start}
-                )
-            }
+            update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
         )
     problem = problem.model_copy(
         update={
@@ -237,15 +241,18 @@ def _real_n5_observation(
     )
     final_problem_ref = context.design_problem_ref
     rebound_atoms = []
-    for atom in candidate.intervention_atoms:
+    for atom in request_atoms:
         rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
         rebound_atoms.append(
-            rebound.model_copy(
-                update={"content_hash": intervention_atom_content_hash(rebound)}
-            )
+            rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
         )
-    candidate.intervention_atoms = tuple(rebound_atoms)
-    candidate.atom = rebound_atoms[0]
+    if single_atom_candidate:
+        # Exercise the legacy single-atom candidate shape at the producer and
+        # later at N8: the candidate has `.atom` and no `intervention_atoms`.
+        candidate = SimpleNamespace(candidate_id=candidate.candidate_id, atom=rebound_atoms[0])
+    else:
+        candidate.intervention_atoms = tuple(rebound_atoms)
+        candidate.atom = rebound_atoms[0]
     producer = JointSimulationHorizonController()
     produced_results: list[object] = []
 
@@ -275,6 +282,496 @@ def _real_n5_observation(
         assert len(produced_results) == 1
     produced_result = produced_results[0] if produced_results else None
     return problem, context, candidate, observation, produced_result, store
+
+
+def _persist_n5_identity_variant(result: Any, *, store: Any, mismatch: str) -> dict[str, Any]:
+    """Persist a receipt-valid N5 artifact with one selected-identity defect."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+        build_content_bound_simulation_receipt,
+        persist_joint_simulation_result,
+        verify_simulation_receipt,
+    )
+
+    payload = json.loads(json.dumps(result.content_bound_payload()))
+    selected = [
+        decision for decision in payload["engine_decisions"] if decision["decision"] == "selected"
+    ]
+    assert len(selected) == 1
+    selected_decision = selected[0]
+    receipt_engine_kind = result.receipt.engine_kind
+    identity = tuple(
+        selected_decision[field] for field in ("engine_kind", "method_fqn", "objective_ref")
+    )
+
+    if mismatch == "no_selected_decision":
+        selected_decision["decision"] = "rejected"
+    elif mismatch == "multiple_selected_decisions":
+        payload["engine_decisions"].append(json.loads(json.dumps(selected_decision)))
+    elif mismatch == "receipt_engine":
+        receipt_engine_kind = next(
+            kind
+            for kind in (
+                "program_graph",
+                "ncm_parallel_worlds",
+                "coupled_des_abm",
+                "system_dynamics",
+                "method_registry_estimator",
+            )
+            if kind != str(getattr(result.receipt.engine_kind, "value", result.receipt.engine_kind))
+        )
+    elif mismatch == "trajectory_identity":
+        trajectory = next(
+            trajectory
+            for trajectory in payload["trajectories"]
+            if tuple(trajectory[field] for field in ("engine_kind", "method_fqn", "objective_ref"))
+            == identity
+        )
+        trajectory["objective_ref"] = f"{trajectory['objective_ref']}#foreign"
+    else:
+        raise ValueError(f"unknown_n5_identity_mismatch:{mismatch}")
+
+    receipt = build_content_bound_simulation_receipt(
+        engine_kind=str(getattr(receipt_engine_kind, "value", receipt_engine_kind)),
+        payload=payload,
+        diagnostics=payload["diagnostics"],
+    )
+    variant = JointSimulationResult.model_validate(
+        {**payload, "receipt": receipt.model_dump(mode="json")}
+    )
+    variant._content_payload = payload
+    verify_simulation_receipt(variant.receipt, variant.content_bound_payload())
+    ref = persist_joint_simulation_result(variant, store=store)
+    return {
+        "simulation_result_ref": ref.model_dump(mode="json"),
+        "simulation_ref": receipt.payload_hash,
+    }
+
+
+def _n5_binding_producer_process(store_root: Path, *, project_root: Path) -> dict[str, Any]:
+    """Run the real N5 port in a writer process and emit its CAS handoff."""
+
+    source_path = Path(generation_cycle_module.__file__).resolve()
+    expected_source_path = (
+        project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+    ).resolve()
+    if source_path != expected_source_path:
+        raise AssertionError(f"wrong_runtime_source:{source_path}")
+
+    store = FileSystemCAS(store_root)
+    problem, context, candidate, simulation, result, supplied_store = _real_n5_observation(
+        store_root.parent,
+        artifact_store=store,
+        single_atom_candidate=True,
+    )
+    assert supplied_store is store
+    assert result is not None
+    assert simulation.simulation_result_ref is not None
+    assert not hasattr(candidate, "intervention_atoms")
+    assert len(result.atom_ids) == 1
+    return {
+        "producer_pid": os.getpid(),
+        "generation_cycle_source": str(source_path),
+        "store_root": str(store_root),
+        "simulation": simulation.model_dump(mode="json"),
+        "problem": problem.model_dump(mode="json"),
+        "context": context.model_dump(mode="json"),
+        "candidate": {
+            "candidate_id": candidate.candidate_id,
+            "atom": candidate.atom.model_dump(mode="json"),
+        },
+        "result": result.model_dump(mode="json"),
+    }
+
+
+def _n5_binding_consumer_process(handoff: dict[str, Any], *, project_root: Path) -> dict[str, Any]:
+    """Resolve the writer's bytes and call the unmocked default N8 consumer."""
+
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+
+    source_path = Path(generation_cycle_module.__file__).resolve()
+    expected_source_path = (
+        project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+    ).resolve()
+    if source_path != expected_source_path:
+        raise AssertionError(f"wrong_runtime_source:{source_path}")
+
+    store = FileSystemCAS(Path(handoff["store_root"]))
+    simulation = SimulationPortObservation.model_validate(handoff["simulation"])
+    problem = DesignProblem.model_validate(handoff["problem"])
+    context = CycleSubstrateContext.model_validate(handoff["context"])
+    atom = InterventionAtomBinding.model_validate(handoff["candidate"]["atom"])
+    candidate_id = str(handoff["candidate"]["candidate_id"])
+    # Deliberately omit `intervention_atoms`: absence falls back to the one
+    # actual atom, while a present empty tuple must fail closed.
+    candidate = SimpleNamespace(candidate_id=candidate_id, atom=atom)
+    result_ref = simulation.simulation_result_ref
+    assert result_ref is not None
+    expected_outcome = problem.outcome_of_interest.target_variable
+    expected_atom_ids = (atom.intervention_id,)
+    assert simulation.simulation_ref is not None
+    result = load_joint_simulation_result(
+        result_ref,
+        store=store,
+        expected_world_model_record_ref=context.world_model_record.world_model_record_id,
+        expected_world_model_record_content_hash=context.world_model_record.content_hash,
+        expected_atom_ids=expected_atom_ids,
+        expected_selected_outcomes=(expected_outcome,),
+        expected_receipt_payload_hash=simulation.simulation_ref,
+    )
+
+    def consume(
+        candidate_value: object = candidate,
+        simulation_value: SimulationPortObservation = simulation,
+        problem_value: DesignProblem = problem,
+    ) -> dict[str, Any]:
+        return _DefaultSimulationBoundFoundryValuePort(
+            repo_root=project_root,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(
+            candidate=candidate_value,
+            simulation=simulation_value,
+            problem=problem_value,
+            cycle_index=0,
+        ).model_dump(mode="json")
+
+    positive = consume()
+    foreign_atom = SimpleNamespace(
+        intervention_id="foreign_n5_atom",
+        target_world_slots=atom.target_world_slots,
+    )
+    explicit_empty_candidate = SimpleNamespace(
+        candidate_id=candidate_id,
+        atom=atom,
+        intervention_atoms=(),
+    )
+    foreign_atom_candidate = SimpleNamespace(candidate_id=candidate_id, atom=foreign_atom)
+
+    # Keep the N5 status, blockers and CAS ref intact; only the sibling receipt
+    # digest changes. This is the remove-the-property/keep-the-markers probe.
+    sibling_mismatch = simulation.model_copy(update={"simulation_ref": "sha256:" + "0" * 64})
+    sibling_missing = simulation.model_copy(update={"simulation_ref": None})
+
+    unknown_outcome = problem.model_copy(
+        update={
+            "outcome_of_interest": problem.outcome_of_interest.model_copy(
+                update={"target_variable": "foreign_outcome"}
+            )
+        }
+    )
+    foreign_wmr_id = simulation.model_copy(
+        update={
+            "world_model_record": SimpleNamespace(
+                world_model_record_id="foreign_world_model_record",
+                content_hash=context.world_model_record.content_hash,
+            )
+        }
+    )
+    foreign_wmr_hash = simulation.model_copy(
+        update={
+            "world_model_record": SimpleNamespace(
+                world_model_record_id=context.world_model_record.world_model_record_id,
+                content_hash="sha256:" + "e" * 64,
+            )
+        }
+    )
+    absent_cas = CASArtifactRef.model_validate(
+        {
+            **result_ref.model_dump(mode="json"),
+            "artifact_id": "sha256:" + "f" * 64,
+        }
+    )
+    missing_result_ref = simulation.model_copy(update={"simulation_result_ref": absent_cas})
+
+    # A blank blocker list must not make a caller-supplied digest into an
+    # admitted synthetic EvalSafety input when the CAS receipt is absent.
+    casless_arbitrary_digest = simulation.model_copy(
+        update={
+            "simulation_result_ref": None,
+            "simulation_ref": "sha256:" + "a" * 64,
+            "authority_blockers": (),
+        }
+    )
+    casless_input = simulation_evaluation_input_ref(
+        casless_arbitrary_digest,
+        artifact_store=store,
+    )
+
+    negative_consumers: dict[str, dict[str, Any]] = {
+        "explicit_empty_candidate_atoms": consume(explicit_empty_candidate),
+        "absent_candidate_atom_mismatch": consume(foreign_atom_candidate),
+        "sibling_digest_mismatch": consume(simulation_value=sibling_mismatch),
+        "sibling_digest_missing": consume(simulation_value=sibling_missing),
+        "unknown_outcome": consume(problem_value=unknown_outcome),
+        "foreign_wmr_id": consume(simulation_value=foreign_wmr_id),
+        "foreign_wmr_hash": consume(simulation_value=foreign_wmr_hash),
+        "missing_cas_ref": consume(simulation_value=missing_result_ref),
+    }
+
+    identity_variants = {
+        mismatch: _persist_n5_identity_variant(result, store=store, mismatch=mismatch)
+        for mismatch in (
+            "no_selected_decision",
+            "multiple_selected_decisions",
+            "receipt_engine",
+            "trajectory_identity",
+        )
+    }
+    for mismatch, variant in identity_variants.items():
+        variant_ref = CASArtifactRef.model_validate(variant["simulation_result_ref"])
+        variant_simulation = simulation.model_copy(
+            update={
+                "simulation_result_ref": variant_ref,
+                "simulation_ref": variant["simulation_ref"],
+            }
+        )
+        negative_consumers[f"identity_{mismatch}"] = consume(simulation_value=variant_simulation)
+
+    blob_path, _ = store._paths(result_ref.artifact_id)
+    original_blob = blob_path.read_bytes()
+    try:
+        blob_path.write_bytes(original_blob + b"tampered")
+        negative_consumers["tampered_cas_bytes"] = consume()
+    finally:
+        blob_path.write_bytes(original_blob)
+
+    trajectory = next(
+        item
+        for item in result.trajectories
+        if item.points and expected_outcome in item.points[0].effect
+    )
+    point = next(item for item in trajectory.points if expected_outcome in item.effect)
+    readback = {
+        "result": result.model_dump(mode="json"),
+        "selected_engine_decisions": [
+            item.model_dump(mode="json")
+            for item in result.engine_decisions
+            if item.decision == "selected"
+        ],
+        "receipt_engine_kind": str(
+            getattr(result.receipt.engine_kind, "value", result.receipt.engine_kind)
+        ),
+        "trajectory_identities": [
+            {
+                "engine_kind": str(getattr(item.engine_kind, "value", item.engine_kind)),
+                "method_fqn": item.method_fqn,
+                "objective_ref": item.objective_ref,
+            }
+            for item in result.trajectories
+        ],
+        "effect": float(point.effect[expected_outcome]),
+        "simulation_ref": simulation.simulation_ref,
+    }
+    return {
+        "consumer_pid": os.getpid(),
+        "generation_cycle_source": str(source_path),
+        "positive": positive,
+        "readback": readback,
+        "casless_input": casless_input.model_dump(mode="json") if casless_input else None,
+        "casless_consumer": consume(simulation_value=casless_arbitrary_digest),
+        "negative_consumers": negative_consumers,
+        "sibling_probe": {
+            "original_status": simulation.status,
+            "original_blockers": list(simulation.authority_blockers),
+            "mismatch_status": sibling_mismatch.status,
+            "mismatch_blockers": list(sibling_mismatch.authority_blockers),
+            "original_ref": simulation.simulation_result_ref.model_dump(mode="json"),
+            "mismatch_ref": sibling_mismatch.simulation_result_ref.model_dump(mode="json"),
+            "original_payload_hash": simulation.simulation_ref,
+            "mismatch_payload_hash": sibling_mismatch.simulation_ref,
+        },
+    }
+
+
+_N5_BINDING_PROCESS_DISPATCH = """
+import json
+import sys
+from pathlib import Path
+from tests.unit.remediation.test_cyc_02 import (
+    _n5_binding_consumer_process,
+    _n5_binding_producer_process,
+)
+
+mode = sys.argv[1]
+project_root = Path(sys.argv[2])
+if mode == "produce":
+    result = _n5_binding_producer_process(Path(sys.argv[3]), project_root=project_root)
+elif mode == "consume":
+    result = _n5_binding_consumer_process(json.load(sys.stdin), project_root=project_root)
+else:
+    raise SystemExit(f"unknown N5 binding process mode: {mode}")
+print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+"""
+
+
+def _run_n5_binding_process(
+    *,
+    mode: str,
+    project_root: Path,
+    store_root: Path,
+    handoff: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Start one producer or consumer interpreter with explicit source imports."""
+
+    environment = dict(os.environ)
+    environment["PYTHONPATH"] = os.pathsep.join((str(project_root / "src"), str(project_root)))
+    environment["JAX_PLATFORM_NAME"] = "cpu"
+    environment["XLA_FLAGS"] = "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            _N5_BINDING_PROCESS_DISPATCH,
+            mode,
+            str(project_root),
+            str(store_root),
+        ],
+        cwd=project_root,
+        env=environment,
+        input=json.dumps(handoff) if handoff is not None else None,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    assert completed.returncode == 0, (
+        f"N5 {mode} process failed ({completed.returncode}):\n"
+        f"stderr tail:\n{completed.stderr[-4000:]}\n"
+        f"stdout tail:\n{completed.stdout[-2000:]}"
+    )
+    output_lines = [line for line in completed.stdout.splitlines() if line.strip()]
+    assert output_lines, f"N5 {mode} process returned no JSON output"
+    return json.loads(output_lines[-1])
+
+
+def test_n5_fresh_process_readback_binds_default_n8_to_cas_identity(
+    tmp_path: Path,
+) -> None:
+    """Only the exact fresh N5 bytes and their sibling identity reach conditional N8."""
+
+    project_root = Path(__file__).resolve().parents[3]
+    expected_source_path = (
+        project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+    ).resolve()
+    assert Path(generation_cycle_module.__file__).resolve() == expected_source_path
+    store_root = tmp_path / "n5-binding-cas"
+    produced = _run_n5_binding_process(
+        mode="produce",
+        project_root=project_root,
+        store_root=store_root,
+    )
+    consumed = _run_n5_binding_process(
+        mode="consume",
+        project_root=project_root,
+        store_root=store_root,
+        handoff=produced,
+    )
+
+    assert produced["producer_pid"] != consumed["consumer_pid"]
+    assert produced["generation_cycle_source"] == str(expected_source_path)
+    assert consumed["generation_cycle_source"] == str(expected_source_path)
+    simulation = produced["simulation"]
+    result = produced["result"]
+    context = produced["context"]
+    candidate_atom = produced["candidate"]["atom"]
+    readback = consumed["readback"]
+    selected = [
+        decision
+        for decision in readback["selected_engine_decisions"]
+        if decision["decision"] == "selected"
+    ]
+    assert len(selected) == 1
+    selected_decision = selected[0]
+    selected_identity = {
+        key: selected_decision[key] for key in ("engine_kind", "method_fqn", "objective_ref")
+    }
+    assert readback["receipt_engine_kind"] == selected_identity["engine_kind"]
+    assert readback["trajectory_identities"]
+    assert all(identity == selected_identity for identity in readback["trajectory_identities"])
+    assert (
+        readback["result"]["world_model_record_ref"]
+        == context["world_model_record"]["world_model_record_id"]
+    )
+    assert (
+        readback["result"]["world_model_record_content_hash"]
+        == context["world_model_record"]["content_hash"]
+    )
+    assert tuple(readback["result"]["atom_ids"]) == (candidate_atom["intervention_id"],)
+    assert readback["result"]["selected_outcomes"] == [
+        produced["problem"]["outcome_of_interest"]["target_variable"]
+    ]
+    assert readback["result"] == result
+    assert math.isfinite(readback["effect"])
+    outcome = result["selected_outcomes"][0]
+    producer_trajectory = next(
+        trajectory
+        for trajectory in result["trajectories"]
+        if trajectory["points"] and outcome in trajectory["points"][0]["effect"]
+    )
+    producer_effect = next(
+        float(point["effect"][outcome])
+        for point in producer_trajectory["points"]
+        if outcome in point["effect"]
+    )
+    assert readback["effect"] == producer_effect
+    assert readback["simulation_ref"] == simulation["simulation_ref"]
+    assert readback["result"]["receipt"]["payload_hash"] == simulation["simulation_ref"]
+    assert result["receipt"]["payload_hash"] == simulation["simulation_ref"]
+
+    positive = consumed["positive"]
+    assert positive["status"] == "value_conditional", (
+        f"removed_property_keep_markers:absent_atom_fallback_lost:{positive}"
+    )
+    assert positive["value_ref"] == simulation["simulation_result_ref"]["artifact_id"]
+    assert positive["evaluation_mode"] == "simulate_only"
+    assert positive["decision_grade"] == "low"
+    assert "simulation_only_k_sim_not_world_evidence" in positive["authority_blockers"]
+    assert positive.get("value_receipt") is None
+    assert positive.get("method_selection_receipt") is None
+
+    negatives = consumed["negative_consumers"]
+    assert set(negatives) == {
+        "explicit_empty_candidate_atoms",
+        "absent_candidate_atom_mismatch",
+        "sibling_digest_mismatch",
+        "sibling_digest_missing",
+        "unknown_outcome",
+        "foreign_wmr_id",
+        "foreign_wmr_hash",
+        "missing_cas_ref",
+        "identity_no_selected_decision",
+        "identity_multiple_selected_decisions",
+        "identity_receipt_engine",
+        "identity_trajectory_identity",
+        "tampered_cas_bytes",
+    }
+    for name, negative in negatives.items():
+        assert negative["status"] == "value_blocked", (
+            f"removed_property_keep_markers:n8_negative_admitted:{name}:{negative}"
+        )
+        assert negative.get("value_receipt") is None, f"unexpected_value_receipt:{name}"
+        assert negative.get("method_selection_receipt") is None, (
+            f"unexpected_method_selection_receipt:{name}"
+        )
+
+    # The sole mutation is the sibling digest; N5 status, blocker markers and
+    # CAS ref remain. A marker-only or ref-presence gate would still go green.
+    sibling_probe = consumed["sibling_probe"]
+    assert sibling_probe["mismatch_status"] == sibling_probe["original_status"]
+    assert sibling_probe["mismatch_blockers"] == sibling_probe["original_blockers"]
+    assert sibling_probe["mismatch_ref"] == sibling_probe["original_ref"]
+    assert sibling_probe["mismatch_payload_hash"] != sibling_probe["original_payload_hash"]
+    assert negatives["sibling_digest_mismatch"]["status"] == "value_blocked"
+
+    assert consumed["casless_input"] is None, (
+        "removed_property_keep_markers:casless_digest_admitted_before_fallback:"
+        f"{consumed['casless_input']}"
+    )
+    assert consumed["casless_consumer"]["status"] == "value_blocked"
+    assert consumed["casless_consumer"].get("value_receipt") is None
 
 
 class _RecursiveGenerationPort:

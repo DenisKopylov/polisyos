@@ -17,7 +17,7 @@ evidence = ["tests/unit/ir/test_structural_causal_model_versions.py", "schemas/s
 [[compatibility_change]]
 id = "structural-causal-model-default-version"
 change_class = "persisted-artifact-format"
-impact = "migration"
+impact = "breaking"
 surface = "public_stable: polisyos.ir.StructuralCausalModelSpec"
 owner = "team-ir"
 version_owner = "team-ir"

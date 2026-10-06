@@ -1,0 +1,95 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "s10-verifier",
+  "closure_ids": ["B16"],
+  "bundle_ids": ["EMP-01"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": ["331cffecd64a98152a9933e0f3f3d19caae53dfb"],
+  "candidate_tree_sha": "fc9321208b738924fb4118ccce25f0ce130b2cd3",
+  "branch": "codex/e02-A-s10-verifier",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/README.md",
+    "policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py",
+    "policy-engine/tests/unit/runtime/quality/test_forecast_verification.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "python3 -m ruff check policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py policy-engine/tests/unit/runtime/quality/test_forecast_verification.py",
+      "target_sha": "331cffecd64a98152a9933e0f3f3d19caae53dfb",
+      "environment": "Python 3.14.0; macOS local A worktree",
+      "input_closure": "slice base 198076863e143dea9f89f02734b13d50dae3eed5; verifier module and unit test",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "python3 -m py_compile policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py policy-engine/tests/unit/runtime/quality/test_forecast_verification.py",
+      "target_sha": "331cffecd64a98152a9933e0f3f3d19caae53dfb",
+      "environment": "Python 3.14.0; macOS local A worktree",
+      "input_closure": "slice base 198076863e143dea9f89f02734b13d50dae3eed5; verifier module and unit test",
+      "outcome": "PASS",
+      "output": "Exit 0; no diagnostics."
+    },
+    {
+      "command": "python3 -m pytest -q policy-engine/tests/unit/runtime/quality/test_forecast_verification.py",
+      "target_sha": "331cffecd64a98152a9933e0f3f3d19caae53dfb",
+      "environment": "Python 3.14.0; macOS local A worktree",
+      "input_closure": "slice base 198076863e143dea9f89f02734b13d50dae3eed5; six bounded refusal/comparator controls; no numerical ETS positive run",
+      "outcome": "PASS",
+      "output": "6 passed; one third-party JAX deprecation warning."
+    },
+    {
+      "command": "git diff --cached --check",
+      "target_sha": "331cffecd64a98152a9933e0f3f3d19caae53dfb",
+      "environment": "Git pre-commit; macOS local A worktree",
+      "input_closure": "three leased source/test/documentation paths",
+      "outcome": "PASS",
+      "output": "Exit 0; no whitespace diagnostics."
+    },
+    {
+      "command": "git commit -m 'Add independent S10 forecast verifier' (pre-commit hook)",
+      "target_sha": "331cffecd64a98152a9933e0f3f3d19caae53dfb",
+      "environment": "lefthook 2.1.6; macOS local A worktree",
+      "input_closure": "three leased source/test/documentation paths",
+      "outcome": "PASS",
+      "output": "lefthook completed; nonmatching frontend checks skipped; source commit created."
+    },
+    {
+      "command": "Run registered ETS against a real one-pass E empirical-evidence CAS chain and admitted C series; exercise served POST→GET and reverify the read",
+      "target_sha": "331cffecd64a98152a9933e0f3f3d19caae53dfb",
+      "environment": "Local A numeric slot not scheduled; current base lacks the one-pass E evidence producer interface and admitted C unit/scope/source-time profile",
+      "input_closure": "EMP-01 B16 acceptance path in closure-decisions/A.md; no real profile substituted",
+      "outcome": "UNRUN",
+      "output": "No deciding output. Do not infer a positive S10 credibility result."
+    }
+  ],
+  "property": {
+    "statement": "A's configured in-process verifier resolves the E report and source, independently runs the registered ETS using only the declared train slice, pairs the replayed predictions and intervals with the actual holdout, and recomputes counts, rate and threshold while binding request, evidence and report lineage and all six aware time roles.",
+    "runtime_path": [
+      "E forecast/calibration producer and CAS evidence (one-pass positive path unavailable on this base)",
+      "persisted empirical-evidence, report, source and derived CAS artifacts",
+      "A default RealValueOwnerGateway composition (root-owned bridge remains pending)",
+      "polisyos.runtime.quality.design_axes.forecast_verification.verify_forecast_calibration"
+    ],
+    "proxy_divergence": "A report can carry internally consistent but false interval counters/rate while the resolved holdout and replayed intervals imply a different numerator; checking report counters alone agrees with the declaration, while the verifier's paired recomputation refuses it. The bounded comparator test exercises this distinction, but does not claim a content-valid CAS-chain test.",
+    "negative_controls": [
+      "unresolved or malformed empirical-evidence refs refuse before source resolution or ETS",
+      "self-consistent claimed interval count that disagrees with paired actual holdout hits is refused",
+      "reported held-out outcome differing from resolved source bytes is refused",
+      "duplicate identical manifest (artifact_id, role) edge is refused rather than deduplicated",
+      "persisted per-horizon uncertainty sample_count differing from replayed count is refused"
+    ]
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "implemented_but_not_orchestrated; verification_missing for a full CAS-backed positive; semantic_test_missing for the served lifecycle",
+  "limitations_and_next_owner": [
+    "Root owns the default gateway and HTTP lifecycle composition; the verifier is not yet the production default consumer, and GET must rerun it from resolved inputs.",
+    "The current main E owner does not provide the required one-pass configured empirical-evidence chain; do not manufacture one with a two-pass run or cast ForecastOwnerResult into evidence. Integrate only an accepted E producer contract.",
+    "The admitted C observation projection has source_time_status=not_established and does not bind the target unit or full jurisdiction/scope profile; successful numeric replay therefore remains predictive-only and limited, never S10 authority.",
+    "This base has no typed configured forecast-profile/request CAS binding; the verifier receives the strict request from its caller and reconciles it to E evidence/report/source bytes. Root composition must source that request from the trusted owner path, and this API alone does not establish C admission.",
+    "Full CAS-backed content-valid forged-count, leakage, foreign-scope and temporal-role mutations, real ETS positive replay, changed-holdout response, and served POST→GET remain UNRUN; schedule the numeric path through the root-owned A queue after E/C prerequisites are admitted.",
+    "Relevant pattern pass: P05/P08/P10/P12/P14/P27/P29/P32/P33/P37/P38. The current property basis is not_established for full S10 credibility; the implementation recomputes numeric results but source scope/unit/time admission and served orchestration remain absent."
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "initial-asset-missing/native.txt": {
+    "bytes": 72461,
+    "sha256": "e149a146992087cbce31e1487cb06af739f2644af70264b11036b17647112625"
+  },
+  "initial-asset-missing/native.xml": {
+    "bytes": 49494,
+    "sha256": "00fd63c53327c70ab97f7485381261790555cff736a8ce6f5dd4f31a6c040375"
+  },
+  "initial-asset-missing/run-native.source.txt": {
+    "bytes": 3007,
+    "sha256": "bdbbee1185f1ebe672d1a44ee67e81b7629a90047192af6a1fa860de15f5a73c"
+  },
+  "initial-asset-missing/wrapper.json": {
+    "bytes": 2527,
+    "sha256": "2f1ec2be86ea39aa3e16d12d99edfbb41c5270fc6e3b9def0b705d80746322a5"
+  },
+  "initial-model-input/native.txt": {
+    "bytes": 63618,
+    "sha256": "4a483ce8f62df129e420cbd464350583599c1d38c79118e6e2cc1c7cb657d870"
+  },
+  "initial-model-input/native.xml": {
+    "bytes": 42930,
+    "sha256": "f9b8c6d78531b27440945c765844c898106354fb3c610701464e772f341a022b"
+  },
+  "initial-model-input/run-native.source.txt": {
+    "bytes": 3007,
+    "sha256": "bdbbee1185f1ebe672d1a44ee67e81b7629a90047192af6a1fa860de15f5a73c"
+  },
+  "initial-model-input/wrapper.json": {
+    "bytes": 2499,
+    "sha256": "667ea32a13e3619d48fcb9095d86e9cc52a66fc77cb2d3db02c31f06e4d23ca1"
+  },
+  "qualified-tokenized/native.txt": {
+    "bytes": 77681,
+    "sha256": "5de76f94c30f7886b703e183aacb77b4d9dcab83b116bfbf06226d29f2dc0661"
+  },
+  "qualified-tokenized/native.xml": {
+    "bytes": 29153,
+    "sha256": "9d8b5de0689c61ba312e61ca9ef54d55cbbc01b677084e93cdadd9c9ffc49f61"
+  },
+  "qualified-tokenized/run-native.source.txt": {
+    "bytes": 3493,
+    "sha256": "a84c158248ff0a6dbe0e79b36f963556b64ff6f5425ddfb3c1db055cfdebbb8b"
+  },
+  "qualified-tokenized/test_actual_worker_preserves_a0-physical-provider-work.jsonl": {
+    "bytes": 1454,
+    "sha256": "967c39c2919de9350354138a573d50ea47cef880572907192faffb9e4c54a77d"
+  },
+  "qualified-tokenized/test_actual_worker_preserves_a1-physical-provider-work.jsonl": {
+    "bytes": 8116,
+    "sha256": "e95918d0e1bd8c6b2d960e47638adce1522797f6ebac09c85c80eddb109f6cc1"
+  },
+  "qualified-tokenized/test_actual_worker_preserves_a2-physical-provider-work.jsonl": {
+    "bytes": 1454,
+    "sha256": "967c39c2919de9350354138a573d50ea47cef880572907192faffb9e4c54a77d"
+  },
+  "qualified-tokenized/test_actual_worker_preserves_a3-physical-provider-work.jsonl": {
+    "bytes": 8116,
+    "sha256": "d19261ef38ce62dd8db55c5629b069e09347decfb0d07179cc8732b0d389635d"
+  },
+  "qualified-tokenized/test_actual_worker_preserves_acurrent-physical-provider-work.jsonl": {
+    "bytes": 8116,
+    "sha256": "d19261ef38ce62dd8db55c5629b069e09347decfb0d07179cc8732b0d389635d"
+  },
+  "qualified-tokenized/wrapper.json": {
+    "bytes": 2926,
+    "sha256": "e77c75f28e5eb97edb1993e2574ed746bfea1f7738dca1f668140429c50e1a5d"
+  },
+  "tokenizer-input-receipt.json": {
+    "bytes": 951,
+    "sha256": "ec7e8f4bba970c837058fc8d099f116862d2671e3c37117a146d2ee99709ce67"
+  }
+}

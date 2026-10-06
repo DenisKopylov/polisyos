@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm_schema_removed_v2.py", line 53, in <module>
+    old_errors=list(old.iter_errors(payload));assert len(old_errors)==1 and old_errors[0].validator=="additionalProperties"
+                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

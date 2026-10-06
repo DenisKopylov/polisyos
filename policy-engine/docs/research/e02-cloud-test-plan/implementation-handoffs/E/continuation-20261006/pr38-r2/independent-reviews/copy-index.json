@@ -1,0 +1,628 @@
+{
+  "schema": "policyos.e02.review_copy_index.v1",
+  "records": [
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/review.json",
+      "bytes": 20105,
+      "sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/after.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/after.json",
+      "bytes": 2763,
+      "sha256": "16709d662770bb7f4941f57499f477da7eda4ac54910945fdf5ed564e69c7f63"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/authentic-v1.schema.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/authentic-v1.schema.json",
+      "bytes": 4074,
+      "sha256": "92a594ac542a59e1d4dab4d867b11d9430ecd6f56ee2e6f3fea7c9b0b51089a7"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/author-receipt-integrity.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/author-receipt-integrity.json",
+      "bytes": 4475,
+      "sha256": "1932e2b35435b7693e16f21f98545076c43133960ce5287909565299d15ccc8e"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/before.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/before.json",
+      "bytes": 4892,
+      "sha256": "fff8a90b69ec654998d83650dd124e2dd28fd4584ad28ecc1a56512c508531ca"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-affected-suite.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-affected-suite.json",
+      "bytes": 1305,
+      "sha256": "f31dfa09b787867ca9c228039514a092891a920ef366d874f6e85cdacb7d2673"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-affected-suite.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-affected-suite.stdout",
+      "bytes": 80,
+      "sha256": "b71db6006ecc410f6085db2500759568a2da5d0cdf2fd3f7165307654085abe2"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-affected-suite.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-affected-suite.xml",
+      "bytes": 5276,
+      "sha256": "c233abe078fb221fd3892ebac557aad040360444053aa232d797854044d8df74"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-copy-removal.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-copy-removal.json",
+      "bytes": 1254,
+      "sha256": "30d7d875332720157d6f3af42d78372621ce5b1ee8e7882754b1b492b6c8a563"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-copy-removal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-copy-removal.stdout",
+      "bytes": 2751,
+      "sha256": "782f6feff7cb93fb3f5deabd4132259ab95b7c62e6b42367641961d959b7d756"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-exact58-complete-red.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-exact58-complete-red.json",
+      "bytes": 1291,
+      "sha256": "80d6ed80b1852f0e2c8f2687d859b6b416c58793633135ae15d74c109c76da94"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-exact58-complete-red.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-exact58-complete-red.stdout",
+      "bytes": 1991,
+      "sha256": "748129de713c1d090126d275cbb769d383d2cfb0814fff32477b8af88fcfdd33"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-exact58-red.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-exact58-red.json",
+      "bytes": 1296,
+      "sha256": "74b9ce5ead000d4d2ae6aa44d6c87645bb241762179bc3e10050706c8b149c2b"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-exact58-red.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-exact58-red.stdout",
+      "bytes": 2553,
+      "sha256": "40cc8509fbe9407cabce17634b02466fd6b50b8fd08d7ae20502fae426c7ed13"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-guard-removal.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-guard-removal.json",
+      "bytes": 1257,
+      "sha256": "8ef7d455d11973917cf57a91ecb80c51a8eed3858958859b78dbd75b04535c5a"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-guard-removal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-guard-removal.stdout",
+      "bytes": 1991,
+      "sha256": "f97329c095231bd84eb608d7f6983692953a901d6b32cd0e47357155b7a9c835"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal-native.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal-native.stdout",
+      "bytes": 116697,
+      "sha256": "e21e29a139d8b0474a397ffb4dd44ab62eb07d8ca03b5b76a64dc25c16befc32"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/cal_probe.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal_probe.py",
+      "bytes": 6160,
+      "sha256": "531b9e3b23dad0732ae0dbe89cd010c9dad335585a6bc5136dca395054535c9d"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-affected-suite.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-affected-suite.json",
+      "bytes": 1303,
+      "sha256": "a34fc5ca3ab021b670a86e72fa4c0de0767adcd002e36a8eb6a480e0f6e16b6b"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-affected-suite.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-affected-suite.stdout",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-affected-suite.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-affected-suite.xml",
+      "bytes": 12578,
+      "sha256": "3d7816addbb1ddbfa6b708b8170dfd6c47d6e0e520ec800350847d8423f68ce0"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-exact58-red.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-exact58-red.json",
+      "bytes": 1300,
+      "sha256": "d999f7d80b9ce15e8250ee04d72208dd834da1dd4d1247113e1ea362f9e90502"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-exact58-red.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-exact58-red.stdout",
+      "bytes": 5472,
+      "sha256": "0c744fb7a16eb37000bb263e69cd4bbad66116cb1a42e0e07e7ab90c89f5f764"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-native.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-native.stdout",
+      "bytes": 5988,
+      "sha256": "4290fa4b200f634b9af06eec57239f6a07dbbad174f002727e4749a19c3500f9"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-quantity-removal.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-quantity-removal.json",
+      "bytes": 1265,
+      "sha256": "38219773e236eed5066357be304c4bff8042bf648edadcb6840f74244620779a"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-quantity-removal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-quantity-removal.stdout",
+      "bytes": 383,
+      "sha256": "2bcdba86f6377cf27a1d1adff5868481e0f0a47e61725f0e8118d32c01d883fb"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-schema-removal-recompiled.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-schema-removal-recompiled.json",
+      "bytes": 1273,
+      "sha256": "7f1eb2b69373faa2a1a40bcd09147d353bee817eab18c785d636885444bc048c"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-schema-removal-recompiled.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-schema-removal-recompiled.stdout",
+      "bytes": 413,
+      "sha256": "86dc4839fb3758db5d492d6622c471a8f93a0b05ffefdec95f78a031f0731f63"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-schema-removal.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-schema-removal.json",
+      "bytes": 1260,
+      "sha256": "564355503f6566558f7c5c28cd79f70f479f99cca100f8d5730fdded26d8efde"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-schema-removal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-schema-removal.stdout",
+      "bytes": 5988,
+      "sha256": "4290fa4b200f634b9af06eec57239f6a07dbbad174f002727e4749a19c3500f9"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-source-removal.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-source-removal.json",
+      "bytes": 1263,
+      "sha256": "5589febcb5bdf23703f1095ed6148758b2b68ab7d92567c0fd9b3d88c1029c14"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm-source-removal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm-source-removal.stdout",
+      "bytes": 750,
+      "sha256": "0db979197d8b1ff9ee15977982ceccde861d785ef93bcbeb5ed3a7d9fb7ec766"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm_old_probe.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_old_probe.py",
+      "bytes": 3637,
+      "sha256": "8fbd6f2f89615df3ed3b615b9d3047097350952c737434f5cc99de29b57a5a4d"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm_probe.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_probe.py",
+      "bytes": 9032,
+      "sha256": "dc624fad3b685e26ea7502ed768a244843dd3cdd0743fc16654a5a7bf37f8ef6"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm_schema_removed.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_schema_removed.py",
+      "bytes": 9074,
+      "sha256": "96a35d60aae089b4d53cfc17735b1e3ddb3878fc3951e2a97caea834c6613c8d"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm_schema_removed_v2.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_schema_removed_v2.py",
+      "bytes": 9136,
+      "sha256": "d64ec307bc2beddda49399e5a23753d703a9dfa361302fc086936610f260a4ae"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/environment.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/environment.json",
+      "bytes": 728,
+      "sha256": "236490ed5d635e66029bb09e544daadd477844adb6902b732e065f434c21addc"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/independent-v2-record.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/independent-v2-record.json",
+      "bytes": 2163,
+      "sha256": "fee4a6f1065cb8bd1a60a1fdbd277a08eb2f1dae54ef786259cd1249ca736afb"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/initial-native-commands.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/initial-native-commands.json",
+      "bytes": 1939,
+      "sha256": "b672017b8902a3f970336ea66e02835dee4fdb3b3a36e0f7c7e6fca06db79e26"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/module-source-bindings.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/module-source-bindings.json",
+      "bytes": 201498,
+      "sha256": "14becba504d3d61a28bd12ac6a996a5636a6e5839505ddff08130291cde89682"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/old-cal-overlay-identity.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/old-cal-overlay-identity.json",
+      "bytes": 244,
+      "sha256": "4334f7772e7b822d8d0a1d39e537f6ea34f171b5fd8e68e3163c88dce78779d8"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/run_check.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/run_check.py",
+      "bytes": 1367,
+      "sha256": "afaa4a494709d90bfda600cd6f59c4808c92d6e1f61f02d8944ea49786964232"
+    },
+    {
+      "family": "cal-ddm",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/validate_review.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/validate_review.py",
+      "bytes": 884,
+      "sha256": "8d24981f597917091508fd886dd8e3aac43b49c285088ffe5a1a35a13bd93c29"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-independent-review-f07.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-independent-review-f07.json",
+      "bytes": 16838,
+      "sha256": "5efd1bbc2f423a33918aa8c74dd905c3577ff562314ced7a93ca75cb9f467ba5"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_independent.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+      "bytes": 13745,
+      "sha256": "c0ef33d37cd371022c67eedde3da06cefd47cd205990ca2469266a29835e7cbb"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_consumer_boundary.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_consumer_boundary.py",
+      "bytes": 4514,
+      "sha256": "229f464ee00e0244f71aab984bc279634ce53064a6a1837483068b178dc52095"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-native.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-native.log",
+      "bytes": 5222,
+      "sha256": "6146005c11440ad6457e578cf9009b6dd3ba8a31a592b2107c3441acc48d6198"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-native-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-native-receipt.json",
+      "bytes": 7674,
+      "sha256": "70e6b13070c75e0f9a3f119ceda6bd7575f11041ca347d1cf084858296894ada"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-native-timing.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-native-timing.json",
+      "bytes": 216,
+      "sha256": "13793a3477bb779f8a885c81e85bfc644ab8b516c49e02dc10b0a40a75d9d65b"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-fresh.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-fresh.log",
+      "bytes": 3435,
+      "sha256": "e0d3c5846c280bacbcc01f42befd2481b20470bdfc3b28be6045d694bdb9ca55"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-fresh-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-fresh-receipt.json",
+      "bytes": 5195,
+      "sha256": "e97327e4efbda3f8a3e6352e6e683c43ccf52299ba207e2fdfe5805972418f27"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-fresh-timing.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-fresh-timing.json",
+      "bytes": 215,
+      "sha256": "d5f66ae4aec983cea849566ddd4cb53c1338a68618f1e75feb4bd3350335ea3b"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-targeted.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-targeted.log",
+      "bytes": 99,
+      "sha256": "8344ac07aaa8316530ce9eac7e762bc7c0a88a89c23a09642b10eb07f22669b3"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-ruff.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-ruff.log",
+      "bytes": 45,
+      "sha256": "c6486b51f483249343d4a4bdb91c41be31f0bdc28887b2f4cd4800e174f8bd6b"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe_refs.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_refs.json",
+      "bytes": 2264,
+      "sha256": "130194795032f4583c9940b7e2c4b61bc52fc508396498c0ff90d05e1ef29cb5"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-consumer-boundary.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-consumer-boundary.log",
+      "bytes": 913,
+      "sha256": "46931e297c5e252139fdb09beed20e3c48c64d0bc89416e9615fb1511c924bb5"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-consumer-boundary-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-consumer-boundary-receipt.json",
+      "bytes": 1420,
+      "sha256": "c1c9356e894d997046b7c7f1667e53d82a3a4aa3b24017538c876d17da201a47"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-boundary-timing.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-boundary-timing.json",
+      "bytes": 128,
+      "sha256": "bed8835d1bf7582177365beb108803ab6d95236d9e77a25034514378abef2688"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-native-timing-bootstrap-error.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-native-timing-bootstrap-error.log",
+      "bytes": 60,
+      "sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548"
+    },
+    {
+      "family": "doe",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-consumer-boundary-harness-error.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-consumer-boundary-harness-error.log",
+      "bytes": 2667,
+      "sha256": "b6bea8edced6e3f3eb1672611db91e4c4ce0671cb14b72750288094a05473f52"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/review.json",
+      "bytes": 47288,
+      "sha256": "0b9341bb2fdd27d0568b7557390dc553f65447e7127949e97c61134e5517a805"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backend.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/backend.stdout",
+      "bytes": 80,
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backend.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/backend.xml",
+      "bytes": 369,
+      "sha256": "fade17d6aa03e41bff9854755ac720645a03c8c22c700e71ce99fa8ace977166"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/checks.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/checks.json",
+      "bytes": 8332,
+      "sha256": "c3da619b546faafcd10a79c842d38ab9ef90fe250ec97f4382e54a02f316daa8"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/focused.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/focused.stdout",
+      "bytes": 160,
+      "sha256": "7aab9d03d5aad3ae7953c0ac55e01a47a25a852128e93ee579eb4dadf81d7df0"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/focused.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/focused.xml",
+      "bytes": 12189,
+      "sha256": "bb480d54d3d3546fd28a47c943e8e448c3a3f716d64339cb184d51b8580a3c0f"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/format.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/format.stdout",
+      "bytes": 26,
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/manual.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/manual.stdout",
+      "bytes": 3156,
+      "sha256": "cad446d2598209cc2172c49e625be14f914d37d71366c9e6d13b91a30a9d77af"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native.attempt1.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/native.attempt1.stdout",
+      "bytes": 2811,
+      "sha256": "39c0d7218cc9cff99b44cb68b7310ba3fe8658c06c215f72ddb44e60095b88b5"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native.attempt2.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/native.attempt2.stdout",
+      "bytes": 5643,
+      "sha256": "e9b52a6c45aed583e86be27be020268aebb7d91ef5a8d6c2cda6c47262fc799e"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/native.stdout",
+      "bytes": 2811,
+      "sha256": "39c0d7218cc9cff99b44cb68b7310ba3fe8658c06c215f72ddb44e60095b88b5"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native_noclient.attempt2.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/native_noclient.attempt2.stdout",
+      "bytes": 5643,
+      "sha256": "6089f7f2cfcb4abadca5e5b6bfb98a27be06dfa16551dbcc894ce7f7f45bd4c2"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/old_base.attempt1.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/old_base.attempt1.stdout",
+      "bytes": 7880,
+      "sha256": "2f52d0421a443a7ee4d437df09572c1db26c4ee9d4edec391e4530cf552db850"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/old_base.attempt2.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/old_base.attempt2.stdout",
+      "bytes": 1949,
+      "sha256": "0e616845879eb9132dbb1e9db1945159d33f81ce7ebdda1054d7ef0a9171508b"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/old_base.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/old_base.stdout",
+      "bytes": 7880,
+      "sha256": "2f52d0421a443a7ee4d437df09572c1db26c4ee9d4edec391e4530cf552db850"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.attempt1.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.attempt1.py",
+      "bytes": 15139,
+      "sha256": "3ce05c7d551985cb50f25eeab258e66652318921b4d18d7e30c030fc18cf25bf"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.py",
+      "bytes": 16063,
+      "sha256": "54d981ab1abd88620f103a230e6cfeae6c261daa5408af531a9236b7836f637d"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_graph_store.attempt2.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/remove_graph_store.attempt2.stdout",
+      "bytes": 1582,
+      "sha256": "d6c297930f76d8cf3f43925e56e4a22e3b0f4aed8f3045937cfcdc7de2db5052"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_graph_store.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/remove_graph_store.stdout",
+      "bytes": 1582,
+      "sha256": "f3e8acf748c9b8c1cf7a7c184a2def2d16e111fc102287544a0e17effa4544b3"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_loader_recompute.attempt2.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/remove_loader_recompute.attempt2.stdout",
+      "bytes": 3273,
+      "sha256": "1d36cf35a42f4cf73c78772728335707960a3139209e40cb8d8a85693c113b6d"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/ruff.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/run_checks.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/run_checks.py",
+      "bytes": 3146,
+      "sha256": "1130ed1f4ad8f58c6c7014f9d8b92d2e24ca558b9875d37de12561fdc692f780"
+    },
+    {
+      "family": "pcl",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/runner.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/runner.stdout",
+      "bytes": 3003,
+      "sha256": "35248c7230d7ba9914bd7ed41644a639c19ca9c651558b25c8c517838e813122"
+    },
+    {
+      "family": "mc",
+      "original_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+      "bytes": 2985,
+      "sha256": "ef5c57e883b91f3397cf96f50b11db580a439ce22a919fd398e576599834f8f7"
+    },
+    {
+      "family": "mc",
+      "original_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.stdout.txt",
+      "bytes": 2433,
+      "sha256": "20c3881cdb64681805958b2fcf6f2e0403fe0e5b07c8b04b3d11444ca9a891f0"
+    },
+    {
+      "family": "mc",
+      "original_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.initial-harness-error.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.initial-harness-error.stdout.txt",
+      "bytes": 1094,
+      "sha256": "5a1aea44eb0c3aa3d4b8c1fdedfe04eca1637ec0db7969144b69fee8c1dd0c55"
+    },
+    {
+      "family": "mc",
+      "original_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.py",
+      "bytes": 3934,
+      "sha256": "9cea88d9806b77c80fbd067a763e1caaf063dd1e0510f838408c0d48a34620e1"
+    },
+    {
+      "family": "mc",
+      "original_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.resolved.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.resolved.stdout.txt",
+      "bytes": 391,
+      "sha256": "44f39c8290a06f24dd302772908c95f34038cab9b322a30ce77163cc129d7444"
+    },
+    {
+      "family": "mc",
+      "original_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/review.json",
+      "bytes": 6948,
+      "sha256": "6addb4521bd2d637a8075d416a363e993780fdeedf8778d8e50c08cc8ac8e7e3"
+    }
+  ]
+}

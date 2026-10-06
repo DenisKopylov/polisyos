@@ -14,7 +14,7 @@
     "Scientist uncertainty/welfare nodes use Foundry uncertainty root canonical sampling exports",
     "PCL uses Calibration root persistence/readback exports"
   ],
-  "Core_owner": "Canonical Core artifacts/canon and public-surface owner",
+  "Core_owner": "team-polisyos (polisyos.core and artifacts/canon API), with team-architecture public contract/inventory review",
   "Core_decision": {
     "option_A": "Admit existing curated polisyos.core.artifacts and polisyos.core.canon entrypoints in the public-surface contract, with supported-symbol census and behavioral API tests.",
     "option_B": "Narrow canonical root re-exports for ArtifactRef, ArtifactStore, ArtifactWriteOptions, SchemaInfo, CanonSpec and from_canonical_bytes; E then rewires exact callers.",
@@ -28,7 +28,7 @@
       "scientist.methods.search.sensitivity_adapter\u2192core.artifacts (TYPE_CHECKING)"
     ]
   },
-  "IR_owner": "Canonical IR analytics/public-surface owner",
+  "IR_owner": "team-polisyos (polisyos.ir and analytics API), with team-architecture public contract/inventory review; semantic authority requires separate appointment",
   "IR_decision": {
     "existing_reuse": [
       "DistributionFamily",
@@ -62,5 +62,6 @@
     "trust-posture drift": "A/G contract generator owner",
     "Foundry native snapshot reader/writer/path facade": "Canonical Foundry execution/public API owner; BKT needs load_state_snapshot, put_state_snapshot, get_state_path identity exports through admitted execute facade"
   },
-  "P41": "not_established; old global red is not waived by reported-path overlap"
+  "P41": "not_established; old global red is not waived by reported-path overlap",
+  "Foundry_execute_owner": "team-polisyos (polisyos.foundry compile/execute public API), with team-architecture inventory review"
 }

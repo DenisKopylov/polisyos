@@ -1,0 +1,96 @@
+{
+  "source": "d69d2fad34de9923209fde3e20439e46f36f6750",
+  "independent_covariance_formula": "w.T @ C @ w; tied difference variance 0",
+  "records": [
+    {
+      "method": "random",
+      "law": "full_covariance",
+      "oracle_variance": 0.0145,
+      "actual_callback_draws": 4096,
+      "actual_variance": 0.014453051097087787,
+      "result": "PASS"
+    },
+    {
+      "method": "random",
+      "law": "singular_nullspace",
+      "oracle_variance": 0.0,
+      "actual_callback_draws": 4096,
+      "actual_variance": 0.0,
+      "result": "PASS"
+    },
+    {
+      "method": "random",
+      "entry": "MonteCarloPropagator",
+      "law": "covariance_only_uniform",
+      "callback_count": 0,
+      "result": "typed_refusal"
+    },
+    {
+      "method": "random",
+      "entry": "PropagationDispatcher",
+      "law": "covariance_only_uniform",
+      "callback_count": 0,
+      "result": "typed_refusal"
+    },
+    {
+      "method": "sobol",
+      "law": "full_covariance",
+      "oracle_variance": 0.0145,
+      "actual_callback_draws": 4096,
+      "actual_variance": 0.014497951629009043,
+      "result": "PASS"
+    },
+    {
+      "method": "sobol",
+      "law": "singular_nullspace",
+      "oracle_variance": 0.0,
+      "actual_callback_draws": 4096,
+      "actual_variance": 0.0,
+      "result": "PASS"
+    },
+    {
+      "method": "sobol",
+      "entry": "MonteCarloPropagator",
+      "law": "covariance_only_uniform",
+      "callback_count": 0,
+      "result": "typed_refusal"
+    },
+    {
+      "method": "sobol",
+      "entry": "PropagationDispatcher",
+      "law": "covariance_only_uniform",
+      "callback_count": 0,
+      "result": "typed_refusal"
+    },
+    {
+      "method": "halton",
+      "law": "full_covariance",
+      "oracle_variance": 0.0145,
+      "actual_callback_draws": 4096,
+      "actual_variance": 0.014513885606257847,
+      "result": "PASS"
+    },
+    {
+      "method": "halton",
+      "law": "singular_nullspace",
+      "oracle_variance": 0.0,
+      "actual_callback_draws": 4096,
+      "actual_variance": 0.0,
+      "result": "PASS"
+    },
+    {
+      "method": "halton",
+      "entry": "MonteCarloPropagator",
+      "law": "covariance_only_uniform",
+      "callback_count": 0,
+      "result": "typed_refusal"
+    },
+    {
+      "method": "halton",
+      "entry": "PropagationDispatcher",
+      "law": "covariance_only_uniform",
+      "callback_count": 0,
+      "result": "typed_refusal"
+    }
+  ]
+}

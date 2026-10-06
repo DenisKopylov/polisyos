@@ -1,0 +1,187 @@
+{
+  "actual_source_files_match_target": true,
+  "all_expected_outcomes": true,
+  "baseline_sha": "22998874b5f32434c462065baaca44a78e967f91",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "native"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expected_outcome": true,
+      "mode": "native",
+      "started_epoch": 1791293241.058131,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native.attempt2.stdout",
+      "stdout_bytes": 5643,
+      "stdout_sha256": "e9b52a6c45aed583e86be27be020268aebb7d91ef5a8d6c2cda6c47262fc799e",
+      "wall_seconds": 64.13032984733582
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "native_noclient"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expected_outcome": true,
+      "mode": "native_noclient",
+      "started_epoch": 1791293241.068406,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/native_noclient.attempt2.stdout",
+      "stdout_bytes": 5643,
+      "stdout_sha256": "6089f7f2cfcb4abadca5e5b6bfb98a27be06dfa16551dbcc894ce7f7f45bd4c2",
+      "wall_seconds": 60.435446977615356
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "old_base"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expected_outcome": true,
+      "mode": "old_base",
+      "started_epoch": 1791293241.0701234,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/old_base.attempt2.stdout",
+      "stdout_bytes": 1949,
+      "stdout_sha256": "0e616845879eb9132dbb1e9db1945159d33f81ce7ebdda1054d7ef0a9171508b",
+      "wall_seconds": 38.869640588760376
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "remove_graph_store"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expected_outcome": true,
+      "mode": "remove_graph_store",
+      "started_epoch": 1791293241.0724487,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_graph_store.attempt2.stdout",
+      "stdout_bytes": 1582,
+      "stdout_sha256": "d6c297930f76d8cf3f43925e56e4a22e3b0f4aed8f3045937cfcdc7de2db5052",
+      "wall_seconds": 54.662189245224
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py",
+        "remove_loader_recompute"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "expected_outcome": true,
+      "mode": "remove_loader_recompute",
+      "started_epoch": 1791293241.0730155,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/remove_loader_recompute.attempt2.stdout",
+      "stdout_bytes": 3273,
+      "stdout_sha256": "1d36cf35a42f4cf73c78772728335707960a3139209e40cb8d8a85693c113b6d",
+      "wall_seconds": 61.86373829841614
+    }
+  ],
+  "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": "src",
+    "UV_NO_SYNC": "1"
+  },
+  "footprint_after": {
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml": {
+      "bytes": 1364,
+      "git_target_sha256": "ef2c4f2d03b4bd2dcdf983739f1ae8d60ef890ad4218e0b310cce8dbb17501c9",
+      "sha256": "ef2c4f2d03b4bd2dcdf983739f1ae8d60ef890ad4218e0b310cce8dbb17501c9"
+    },
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py": {
+      "bytes": 42347,
+      "git_target_sha256": "93f563291d569fbb22c36ca47cf9abb2b6478565bd81b390cb9c44d6521a76b8",
+      "sha256": "93f563291d569fbb22c36ca47cf9abb2b6478565bd81b390cb9c44d6521a76b8"
+    },
+    "policy-engine/src/polisyos/foundry/methods/README.md": {
+      "bytes": 9119,
+      "git_target_sha256": "fb0d14b9c3908fb37094f60d5de38399628d2674bd4b0aac6d45fba3d302aa50",
+      "sha256": "fb0d14b9c3908fb37094f60d5de38399628d2674bd4b0aac6d45fba3d302aa50"
+    },
+    "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py": {
+      "bytes": 5418,
+      "git_target_sha256": "e7fdf9ed774330ab9d89290370d1bb93ab604eeec3d69592c9906f1ac78f7e8e",
+      "sha256": "e7fdf9ed774330ab9d89290370d1bb93ab604eeec3d69592c9906f1ac78f7e8e"
+    },
+    "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py": {
+      "bytes": 90744,
+      "git_target_sha256": "66fc76228ba02f1469cae40b33f64ac504845d72451ad6d0668c27a3cdadf9c3",
+      "sha256": "66fc76228ba02f1469cae40b33f64ac504845d72451ad6d0668c27a3cdadf9c3"
+    },
+    "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py": {
+      "bytes": 9343,
+      "git_target_sha256": "621d7aeced8c7efaf3ec078d8b30549f372601a78eed28618a4b63d0ad9ba1f8",
+      "sha256": "ad4c0101b0529b05011cde97a7b23d8d40ee2ffe443aa991556357ced0d4d3ea"
+    }
+  },
+  "footprint_before": {
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml": {
+      "bytes": 1364,
+      "git_target_sha256": "ef2c4f2d03b4bd2dcdf983739f1ae8d60ef890ad4218e0b310cce8dbb17501c9",
+      "sha256": "ef2c4f2d03b4bd2dcdf983739f1ae8d60ef890ad4218e0b310cce8dbb17501c9"
+    },
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py": {
+      "bytes": 42347,
+      "git_target_sha256": "93f563291d569fbb22c36ca47cf9abb2b6478565bd81b390cb9c44d6521a76b8",
+      "sha256": "93f563291d569fbb22c36ca47cf9abb2b6478565bd81b390cb9c44d6521a76b8"
+    },
+    "policy-engine/src/polisyos/foundry/methods/README.md": {
+      "bytes": 9119,
+      "git_target_sha256": "fb0d14b9c3908fb37094f60d5de38399628d2674bd4b0aac6d45fba3d302aa50",
+      "sha256": "fb0d14b9c3908fb37094f60d5de38399628d2674bd4b0aac6d45fba3d302aa50"
+    },
+    "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py": {
+      "bytes": 5418,
+      "git_target_sha256": "e7fdf9ed774330ab9d89290370d1bb93ab604eeec3d69592c9906f1ac78f7e8e",
+      "sha256": "e7fdf9ed774330ab9d89290370d1bb93ab604eeec3d69592c9906f1ac78f7e8e"
+    },
+    "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py": {
+      "bytes": 90744,
+      "git_target_sha256": "66fc76228ba02f1469cae40b33f64ac504845d72451ad6d0668c27a3cdadf9c3",
+      "sha256": "66fc76228ba02f1469cae40b33f64ac504845d72451ad6d0668c27a3cdadf9c3"
+    },
+    "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py": {
+      "bytes": 9343,
+      "git_target_sha256": "621d7aeced8c7efaf3ec078d8b30549f372601a78eed28618a4b63d0ad9ba1f8",
+      "sha256": "ad4c0101b0529b05011cde97a7b23d8d40ee2ffe443aa991556357ced0d4d3ea"
+    }
+  },
+  "head_after": [
+    "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+    "bc60af14857dc90ce9317f3cd826a3455a9eb691"
+  ],
+  "head_before": [
+    "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+    "bc60af14857dc90ce9317f3cd826a3455a9eb691"
+  ],
+  "packages": {
+    "arch": "8.0.0",
+    "jax": "0.8.2",
+    "numpy": "2.3.5",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10",
+    "scipy": "1.16.3",
+    "statsmodels": "0.14.6"
+  },
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "probe_sha256": "54d981ab1abd88620f103a230e6cfeae6c261daa5408af531a9236b7836f637d",
+  "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "python_version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "root_base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "source_files_unchanged": true,
+  "source_sha": "74b26eb067dea76d90b134641e66537759e4dc0f",
+  "source_tree": "dfd78fc6417f8659c8a981a82712bb0e07fcc940"
+}

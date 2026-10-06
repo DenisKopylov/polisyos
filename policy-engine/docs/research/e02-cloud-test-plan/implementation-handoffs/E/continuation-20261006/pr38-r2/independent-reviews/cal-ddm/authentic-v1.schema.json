@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/ddm_15_7/model_registry_record.schema.json",
+  "title": "DDM-15.7 ModelRegistryReadinessRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "model_id",
+    "model_version",
+    "stationarity_regime_id",
+    "calibration_id",
+    "system_fp_budget",
+    "empirical_fp_certificate",
+    "primary_metric_budget",
+    "readiness_state",
+    "readiness_score",
+    "promotion_allowed"
+  ],
+  "properties": {
+    "model_id": { "type": "string", "minLength": 1 },
+    "model_version": { "type": "string", "minLength": 1 },
+    "stationarity_regime_id": { "type": "string", "minLength": 1 },
+    "calibration_id": { "type": "string", "minLength": 1 },
+    "system_fp_budget": { "type": "object" },
+    "empirical_fp_certificate": { "type": "boolean" },
+    "primary_metric_budget": { "type": "object" },
+    "readiness_state": { "enum": ["R4", "R3", "R2", "R1", "R0"] },
+    "readiness_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "last_shift_event": { "type": ["string", "null"] },
+    "last_degradation_event": { "type": ["string", "null"] },
+    "required_action": { "type": ["string", "null"] },
+    "active_incident_id": { "type": ["string", "null"] },
+    "promotion_allowed": { "type": "boolean" },
+    "calibration_validity": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "calibration_id",
+        "detector_id",
+        "stationarity_regime_id",
+        "report_digest",
+        "verifier_id",
+        "verifier_version",
+        "effective_at",
+        "valid_until",
+        "configured_invalidation_triggers",
+        "observed_invalidation_triggers",
+        "observation_status",
+        "status",
+        "reasons"
+      ],
+      "properties": {
+        "calibration_id": { "type": "string", "minLength": 1 },
+        "detector_id": { "type": "string", "minLength": 1 },
+        "stationarity_regime_id": { "type": "string", "minLength": 1 },
+        "report_digest": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "verifier_id": { "type": "string", "minLength": 1 },
+        "verifier_version": { "type": "string", "minLength": 1 },
+        "effective_at": { "type": "string", "format": "date-time" },
+        "valid_until": { "type": "string", "format": "date-time" },
+        "configured_invalidation_triggers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "observed_invalidation_triggers": {
+          "type": ["array", "null"],
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "observation_status": {
+          "enum": ["observed", "unavailable", "not_established"]
+        },
+        "status": {
+          "enum": ["valid", "expired", "invalidated", "not_established"]
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "identity_binding": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "calibration_model_id": { "type": ["string", "null"], "minLength": 1 },
+        "calibration_model_version": { "type": ["string", "null"], "minLength": 1 },
+        "metric_budget_model_id": { "type": ["string", "null"], "minLength": 1 },
+        "metric_budget_model_version": { "type": ["string", "null"], "minLength": 1 },
+        "last_shift_event_model_id": { "type": ["string", "null"], "minLength": 1 },
+        "last_shift_event_model_version": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "last_degradation_event_model_id": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "last_degradation_event_model_version": {
+          "type": ["string", "null"],
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

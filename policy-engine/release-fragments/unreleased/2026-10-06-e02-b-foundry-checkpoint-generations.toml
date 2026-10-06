@@ -3,7 +3,7 @@ title = "Publish complete Foundry checkpoint generations"
 type = "fixed"
 component = "foundry"
 owner = "team-policyos-foundry"
-summary = "Publish state, completed frontier, original result history and NumPy sidecars in one immutable generation selected by an atomic content-bound pointer; keep failed-writer rollback under the same filesystem lock."
+summary = "Publish state, completed frontier, original result history and NumPy sidecars in one immutable generation selected by an atomic content-bound pointer; encode every array with its complete logical root/path, normalize relative paths and keep failed-writer rollback under the same filesystem lock."
 evidence = [
   "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
   "tests/unit/foundry/methods/backends/test_checkpointing.py",

@@ -195,6 +195,7 @@ class ChainCheckpoint:
 
     def save(self, path: Path) -> None:
         """Publish one immutable snapshot generation through an atomic pointer."""
+        path = path.parent.resolve() / path.name
         path.parent.mkdir(parents=True, exist_ok=True)
         with _checkpoint_write_lock(path):
             generation_dir = path.parent / f".{path.name}.generations" / uuid4().hex
@@ -213,32 +214,27 @@ class ChainCheckpoint:
                 )
                 generation_dir.mkdir(parents=True, exist_ok=False)
                 generation_created = True
-                payload, sidecars = _serialise_state(
-                    self.intermediate_state,
-                    "snapshot",
-                    force_encoded=True,
-                )
-                history_payload: dict[str, Any] | None = None
+                if not isinstance(self.intermediate_state, Mapping):
+                    raise CheckpointSerializationError("Checkpoint state root must be a mapping.")
+                snapshot_values: dict[str, Any] = {"intermediate_state": self.intermediate_state}
                 if self.node_results:
-                    history_payload, history_sidecars = _serialise_state(
-                        {"node_results": self.node_results},
-                        "snapshot",
-                        force_encoded=True,
-                    )
-                    sidecars.update(history_sidecars)
+                    snapshot_values["node_results"] = self.node_results
+                # Encode the whole logical snapshot once: each array identity
+                # includes its semantic root as well as its structural path.
+                # User state can therefore contain arbitrary history-like keys.
+                snapshot_payload, sidecars = _serialise_state(
+                    snapshot_values, "snapshot", force_encoded=True
+                )
                 data = {
                     "chain_digest": self.chain_digest,
                     "completed_fqns": self.completed_fqns,
                     "completed_node_ids": self.completed_node_ids,
-                    "intermediate_state": payload,
+                    **snapshot_payload,
                     "node_timing_ms": self.node_timing_ms,
                     "created_at": self.created_at,
                     "execution_digest": self.execution_digest,
                     "history_complete": self.history_complete,
                 }
-                if history_payload is not None:
-                    data["node_results"] = history_payload["node_results"]
-
                 for sidecar_name, arr in sidecars.items():
                     sidecar_path = generation_dir / sidecar_name
                     tmp_sidecar = _tmp_path_for(sidecar_path)

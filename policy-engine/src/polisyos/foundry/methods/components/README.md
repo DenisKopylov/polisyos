@@ -51,10 +51,13 @@ The checkpoint filename now selects one immutable UUID generation through an
 atomic JSON pointer. The pointer binds the complete snapshot bytes; that
 snapshot keeps state, completed frontier and original per-node history in the
 same generation. NumPy state and history sidecars carry content, shape and
-dtype bindings. Readers resolve the selected generation once. Concurrent
-writers hold the same per-checkpoint filesystem lock through publication and
-rollback, and remove only their own unpublished generation after a failed
-save.
+dtype bindings. Readers resolve the selected generation once. State and
+original history share one structural encoder: the complete logical
+root and path distinguish their arrays even when user state contains
+history-like keys. Relative checkpoint paths are normalized to their owning
+directory before publication. Concurrent writers hold the same per-checkpoint
+filesystem lock through publication and rollback, and remove only their own
+unpublished generation after a failed save.
 
 Snapshot files, sidecars and their directories are fsynced before the pointer
 is replaced. If the final pointer-directory fsync fails after replacement,

@@ -1,3 +1,5 @@
+Current criterion-scope correction: [B109/B111/B100 errata](../integration/reviews/original-criteria-errata-2026-10-06.md). B109 is fast/direct comparator acceptance; the served provider is additional capability. B111 keeps invalid-state/partial-denominator/finite-or-unavailable semantics; schema-v3 migration and finite-positive underflow are separately scoped. Historical outcomes and status counts below are retained.
+
 # E02: practical execution plan for owners A–F
 
 **Purpose:** commission finite, source-bound implementation cuts that move accepted bounded code toward real functional capability. This document is planning only: it changes no ledger status and claims no finding closure.

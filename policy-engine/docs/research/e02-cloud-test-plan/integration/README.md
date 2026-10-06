@@ -1,6 +1,8 @@
+Current continuation checkpoint: [checkpoint-12](checkpoint-12.json). [Latest 29-tip intake, independent checks and A–F actions](reviews/2026-10-06-seventh-wave.md) records A11=11 PASS, B16=16 PASS, E77=77 PASS on their exact candidates, C dirty-status and E supplied-Morris-analysis counterexamples. [New E PR38 r2 continuation](../execution-prompts/continuation-2026-10-06/E-resume-after-pr38-r2.md) covers the full54 criteria and current gates. No source is newly merged or finding closed in this record; the common freeze remains pending.
+
 # Непрерывная интеграция E02
 
-Current continuation checkpoint: [checkpoint-11](checkpoint-11.json), accepting
+Prior continuation checkpoint: [checkpoint-11](checkpoint-11.json), accepting
 the bounded A installed-compiler test and evidence slice. Fresh exact-source
 check: 1 PASS; production resolver and full REQ-01 closure remain unestablished.
 [Latest A–F intake and owner actions](reviews/2026-10-06-sixth-wave.md) records

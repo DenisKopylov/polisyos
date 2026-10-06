@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "pip",
+    "install",
+    "--target",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay",
+    "--no-deps",
+    "--require-hashes",
+    "--only-binary",
+    ":all:",
+    "--no-progress",
+    "--python",
+    "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+    "--requirement",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/requirements.txt"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+  "env_overrides": {
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/uv-cache",
+    "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14"
+}

@@ -2334,17 +2334,17 @@
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
         "selected_minimal_route": "**Рекомендуемое решение.** Отдельно отслеживать существование предыдущей группы и применять к ней слабое сравнение второй координаты: строгое улучшение первой уже обеспечено порядком групп. Внутри одной группы сохранять все настоящие равенства её максимума. Дополнить 3D теми же различающими тестами. Для отсутствующего предыдущего значения предпочтителен явный sentinel, не смешиваемый с числом неизвестной метрики.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Run/tenant/cell-bound Pareto provider is not wired from ExecutionContext/workflow construction to served frontier publisher. Literal source census only. Назначенный владелец: A workflow/provider appointment and actual ArtifactStore-bound bridge; D supplies mathematical/snapshot contract..",
-        "next_owner": "A workflow/provider appointment and actual ArtifactStore-bound bridge; D supplies mathematical/snapshot contract.",
-        "remaining_input": "Run/tenant/cell-bound Pareto provider is not wired from ExecutionContext/workflow construction to served frontier publisher. Literal source census only.",
+        "concrete_next_task": "Verify original fast-vs-direct Pareto agreement in 1–4D under normalized directions, permutations, one/all-coordinate ties and distinct duplicate IDs at exact candidate. Preserve current source evidence and P41 limits. Separately appoint/wire A’s run/tenant/cell-bound served provider with D’s registry contract; that additional capability is not the B109 comparator criterion.",
+        "next_owner": "D comparator/oracle owner for original B109; A provider/workflow owner with D for additional served capability.",
+        "remaining_input": "Original B109 exact-current comparator/oracle and required source/input evidence remain individually unadjudicated. Missing default served provider/export is a separately scoped capability, not the original comparator bar.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
           "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py"
         ],
-        "independent_oracle_after_integration": "Независимая O(n²) all-pairs Pareto oracle над typed ObjectiveValues и exact supported hypervolume oracle.",
+        "independent_oracle_after_integration": "Independent slow all-pairs dominance comparator, 1–4D normalized directions, permutations, equal-coordinate groups and distinct duplicates; do not require hypervolume for B109.",
         "negative_control": "Сначала выполнить исходный counterexample/acceptance из полного bundle блока, затем удалить или подменить само runtime property, сохранив контрактные поля/маркеры; consumer result обязан отличиться. Сохранить позитивный контроль из блока.",
         "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
-        "capability_state_label": "implemented_but_not_orchestrated",
+        "capability_state_label": "verification_missing",
         "P40": {
           "bucket": "new_or_distinct_class",
           "relation": null
@@ -2455,9 +2455,9 @@
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
         "selected_minimal_route": "**Рекомендуемое решение.** Перед численным сравнением разрешать каждую обязательную метрику: measured finite / missing / invalid / неприменимо. Сохранять неполные результаты отдельно и выдавать точный следующий запрос, не превращая unknown в лучшую или худшую бесконечность. При изменении множества сравниваемых координат создавать явно другую задачу сравнения. Проверять finite у порогов и индикаторов; не «лечить» NaN произвольным clipping или нулём.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Independent complete source-feasible/unknown producer and bridge absent; ordinary builder still self-derives source denominator. Served champion accepts nonfinite/overflow ranking. Additional independent review residual: persisted snapshot schema_version3.0 is currently admitted; D registry/G profile acceptance must supply explicit known-version admission contract and refusing control. Назначенный владелец: A owns served builder/node; surgical proposed129line patch is supplied, not applied. D registry/G profile acceptance for persisted unknown snapshot version admission..",
+        "concrete_next_task": "Preserve original measured/missing/invalid/nonfinite states, invalid reasons, partial-versus-global denominator and finite-or-explicitly-unavailable outputs through actual CAS/upstream guards. Resolve source-feasible/unknown admission at its canonical producer/consumer. Treat persisted unknown schema-version admission as an additional profile obligation; finite-positive arithmetic underflow is a separately classified numerical limitation, not an automatic original B111 criterion.",
         "next_owner": "A owns served builder/node; surgical proposed129line patch is supplied, not applied. D registry/G profile acceptance for persisted unknown snapshot version admission.",
-        "remaining_input": "Independent complete source-feasible/unknown producer and bridge absent; ordinary builder still self-derives source denominator. Served champion accepts nonfinite/overflow ranking. Additional independent review residual: persisted snapshot schema_version3.0 is currently admitted; D registry/G profile acceptance must supply explicit known-version admission contract and refusing control.",
+        "remaining_input": "Independent source-feasible/unknown basis and truthful partial consumer remain unestablished; current served nonfinite/overflow output must be checked at exact source. Unknown snapshot-version admission is an additional profile/schema limit, separately scoped from original B111.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
           "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py"

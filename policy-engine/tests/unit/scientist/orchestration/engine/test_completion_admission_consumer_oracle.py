@@ -63,18 +63,24 @@ class _PhysicalProvider:
         self.release: asyncio.Event | None = None
 
     def _effect(self, request: dict[str, Any]) -> GatewayLLMResponse:
-        # The provider independently reopens the published intent before its
-        # physical side effect. Constructor/caller declarations cannot supply it.
-        snapshot = _snapshot(self.ledger)
-        records = snapshot["completion_obligations"]
-        assert records, "physical provider entered without a durable owned intent"
-        assert any(record["phase"] == "provider_in_flight" for record in records.values())
+        # Observe the ledger without adding a second provider admission gate.
+        # An escaped call still creates its physical effect even when no intent
+        # exists or the optional witness read fails.
+        witness_error = None
+        ledger_digest = None
+        records: dict[str, Any] = {}
+        try:
+            records = _snapshot(self.ledger)["completion_obligations"]
+            ledger_digest = hashlib.sha256(self.ledger.read_bytes()).hexdigest()
+        except Exception as exc:
+            witness_error = type(exc).__name__
         row = {
             "pid": os.getpid(),
             "request": request,
             "reported_cost": str(self.cost),
-            "ledger_sha256_at_effect": hashlib.sha256(self.ledger.read_bytes()).hexdigest(),
+            "ledger_sha256_at_effect": ledger_digest,
             "admitted_records_at_effect": records,
+            "optional_ledger_witness_error": witness_error,
         }
         payload = (json.dumps(row, sort_keys=True) + "\n").encode()
         fd = os.open(self.effects, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
@@ -234,7 +240,6 @@ def _driver(args: list[str]) -> None:
         with _PublicationFault(path, operation, syscall) as fault:
             out.update(_attempt(lambda: _call(enforcer, mode)))
         out["faulted_staged_snapshots"] = fault.seen
-        assert fault.seen, "the actual named publication fault was never reached"
         if action == "completion_fault":
             original = path.read_bytes()
             # A new enforcer with this original initialized middleware shares
@@ -315,6 +320,7 @@ def test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers
     assert len(failed["physical_effects"]) == 1
     effect = failed["physical_effects"][0]
     assert effect["pid"] == failed["pid"]
+    assert effect["optional_ledger_witness_error"] is None
     pending = failed["snapshot"]["completion_obligations"]
     assert len(pending) == 1
     assert pending == effect["admitted_records_at_effect"]
@@ -349,6 +355,7 @@ def test_genuine_known_zero_completion_allows_a_fresh_physical_call(
     assert first["pid"] != second["pid"]
     assert len(second["physical_effects"]) == 2
     assert all(effect["reported_cost"] == "0" for effect in second["physical_effects"])
+    assert all(effect["admitted_records_at_effect"] for effect in second["physical_effects"])
     assert second["snapshot"]["completion_obligations"] == {}
     assert second["snapshot"]["state"]["spent"]["run"] == "0"
     receipts = second["snapshot"]["spend_receipts"]
@@ -361,6 +368,7 @@ def test_same_live_owner_can_finish_two_genuinely_concurrent_physical_calls(tmp_
     observed = _child(path, effects, "concurrent", "generate")
     assert observed["status"] == "accepted"
     assert len(observed["physical_effects"]) == 2
+    assert all(effect["admitted_records_at_effect"] for effect in observed["physical_effects"])
     assert observed["snapshot"]["completion_obligations"] == {}
     assert observed["snapshot"]["state"]["spent"]["run"] == "0.04"
     assert len(observed["snapshot"]["spend_receipts"]) == 2

@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import ctypes
+import errno
 import hashlib
 import json
 import os
 import re
 import shutil
+import stat
+import sys
 import tarfile
 import tempfile
-from contextlib import suppress
+from contextlib import ExitStack, contextmanager, suppress
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path, PurePosixPath
@@ -17,6 +21,7 @@ from typing import TYPE_CHECKING, BinaryIO, Protocol
 
 from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
 
+from ._atomic_write import AtomicFileDurabilityError, fsync_directory
 from ._integrity_ops import ArtifactIntegrityError, validate_manifest_identity
 from ._manifest_lifecycle import ManifestLifecycle
 from .ids import ArtifactID
@@ -29,7 +34,7 @@ from .signing import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Iterator
     from contextlib import AbstractContextManager
 
 _CAS_EXPORT_MEMBER_RE = re.compile(
@@ -47,6 +52,12 @@ class IntegrityVerificationReport(Protocol):
     """Minimal integrity report protocol used by import verification helpers."""
 
     ok: bool
+
+
+class _TransferReadStream(Protocol):
+    """Byte-only read capability required by the transfer staging owner."""
+
+    def read(self, size: int = -1) -> bytes: ...
 
 
 class CASMemberReceipt(Protocol):
@@ -75,6 +86,7 @@ class ExportReport:
     output_path: Path
     missing_artifacts: list[str]
     missing_manifests: list[str]
+    previous_generation: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -88,6 +100,147 @@ class ImportReport:
     skipped_entries: list[str]
     verification_failed: list[str]
     imported_refs: tuple[ArtifactRef, ...] = ()
+
+
+class ExportDurabilityError(AtomicFileDurabilityError):
+    """Retain publication visibility and the accessible previous generation."""
+
+    def __init__(self, message: str, *, replaced: bool, previous_generation: Path | None) -> None:
+        super().__init__(message, replaced=replaced)
+        self.previous_generation = previous_generation
+
+
+def _regular_archive_mode(target: Path) -> int | None:
+    """Admit the supplied final pathname itself, before any private staging."""
+    try:
+        metadata = target.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(metadata.st_mode):
+        raise ValueError(f"Archive export target must be a regular file: {target}")
+    return stat.S_IMODE(metadata.st_mode)
+
+
+def _publish_archive_generation(staging: Path, target: Path) -> Path | None:
+    """Atomically replace one complete file and retain its previous inode."""
+    previous: Path | None = None
+    if _regular_archive_mode(target) is not None:
+        descriptor, name = tempfile.mkstemp(prefix=f".{target.name}.previous-", dir=target.parent)
+        os.close(descriptor)
+        previous = Path(name)
+        previous.unlink()
+        os.link(target, previous, follow_symlinks=False)
+        try:
+            fsync_directory(target.parent)
+        except OSError as error:
+            raise ExportDurabilityError(
+                f"Previous export retained at {previous}; publication has not occurred",
+                replaced=False,
+                previous_generation=previous,
+            ) from error
+    os.replace(staging, target)
+    try:
+        fsync_directory(target.parent)
+    except OSError as error:
+        raise ExportDurabilityError(
+            f"Export was replaced; parent durability is uncertain; previous={previous}",
+            replaced=True,
+            previous_generation=previous,
+        ) from error
+    return previous
+
+
+def _exchange_directory_generation(staging: Path, target: Path) -> None:
+    """Use one supported native exchange; never fall back to a rename gap."""
+    library = ctypes.CDLL(None, use_errno=True)
+    if sys.platform == "linux":
+        exchange = getattr(library, "renameat2", None)
+        if exchange is None:
+            raise NotImplementedError("Atomic directory exchange is unavailable")
+        exchange.argtypes = [
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_uint,
+        ]
+        exchange.restype = ctypes.c_int
+        result = exchange(-100, os.fsencode(staging), -100, os.fsencode(target), 2)
+    elif sys.platform == "darwin":
+        exchange = getattr(library, "renamex_np", None)
+        if exchange is None:
+            raise NotImplementedError("Atomic directory exchange is unavailable")
+        exchange.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+        exchange.restype = ctypes.c_int
+        result = exchange(os.fsencode(staging), os.fsencode(target), 2)
+    else:
+        raise NotImplementedError("Atomic directory exchange is unavailable")
+    if result != 0:
+        code = ctypes.get_errno()
+        raise OSError(code, os.strerror(code), str(target))
+
+
+def _sync_directory_generation(staging: Path) -> None:
+    """Sync the inventory and every staged directory before selecting the generation."""
+    with (staging / "export_manifest.json").open("rb") as inventory:
+        os.fsync(inventory.fileno())
+    for directory, _directories, _files in os.walk(staging, topdown=False):
+        fsync_directory(Path(directory))
+
+
+@contextmanager
+def _opened_archive(source: Path) -> Iterator[tarfile.TarFile]:
+    """Keep the same archive inode open for metadata and member reads."""
+    if not stat.S_ISREG(source.lstat().st_mode):
+        raise ValueError("Transfer archive source must be a regular file")
+    try:
+        descriptor = os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except OSError as error:
+        if error.errno in {errno.ELOOP, errno.ENXIO, errno.ENODEV, errno.EISDIR}:
+            raise ValueError("Transfer archive source must be a regular file") from error
+        raise
+    with os.fdopen(descriptor, "rb") as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise ValueError("Transfer archive source must be a regular file")
+        with tarfile.open(fileobj=stream, mode="r:*") as archive:
+            yield archive
+
+
+def _read_directory_inventory(descriptor: int) -> bytes | None:
+    try:
+        member = os.open(
+            "export_manifest.json", os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=descriptor
+        )
+    except FileNotFoundError:
+        return None
+    with os.fdopen(member, "rb") as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise ValueError("Transfer inventory must be a regular file")
+        return stream.read()
+
+
+def _iter_directory_members(descriptor: int) -> Iterator[tuple[str, BinaryIO | None]]:
+    """Open members relative to the pinned generation, even after its path is swapped."""
+    for directory, directories, files, parent in os.fwalk(
+        ".", topdown=True, follow_symlinks=False, dir_fd=descriptor
+    ):
+        directories.sort()
+        for name in tuple(directories):
+            metadata = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISDIR(metadata.st_mode):
+                directories.remove(name)
+                yield (PurePosixPath(directory) / name).as_posix(), None
+        for name in sorted(files):
+            relative = (PurePosixPath(directory) / name).as_posix()
+            metadata = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISREG(metadata.st_mode):
+                yield relative, None
+                continue
+            member = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+            with os.fdopen(member, "rb") as stream:
+                if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+                    raise ValueError(f"Transfer member must be a regular file: {relative}")
+                yield relative, stream
 
 
 def _member_digest(path: Path) -> tuple[str, int]:
@@ -194,7 +347,9 @@ def _validate_directory_export(target: Path) -> set[Path]:
         raise ValueError(f"Export target must not be a symlink: {target}")
     if target.exists() and not target.is_dir():
         raise ValueError(f"Export target is not a directory: {target}")
-    target.mkdir(parents=True, exist_ok=True)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists():
+        return set()
     marker = target / "export_manifest.json"
     if marker.is_symlink():
         raise ValueError(f"Export manifest must not be a symlink: {marker}")
@@ -218,9 +373,7 @@ def _validate_directory_export(target: Path) -> set[Path]:
     )
     if previous_members is None:
         raise ValueError("Owned export directory marker has no members inventory")
-    owned_paths = {
-        target / Path(*PurePosixPath(member).parts) for member in previous_members
-    }
+    owned_paths = {target / Path(*PurePosixPath(member).parts) for member in previous_members}
     for member in previous_members:
         path = target / Path(*PurePosixPath(member).parts)
         _reject_symlink_components(path, target, member=member)
@@ -234,13 +387,9 @@ def _validate_directory_export(target: Path) -> set[Path]:
         while parent != target:
             owned_entries.add(parent)
             parent = parent.parent
-    foreign_entries = [
-        path for path in target.rglob("*") if path not in owned_entries
-    ]
+    foreign_entries = [path for path in target.rglob("*") if path not in owned_entries]
     if foreign_entries:
-        raise ValueError(
-            "Refusing to remove unowned files or entries from an export directory"
-        )
+        raise ValueError("Refusing to remove unowned files or entries from an export directory")
     return owned_paths | {marker}
 
 
@@ -252,29 +401,23 @@ def _prepare_directory_export(target: Path) -> None:
             path.unlink()
 
 
-def _publish_directory_generation(staging_root: Path, target: Path) -> None:
-    """Publish a complete staged directory while retaining rollback on swap failure."""
-    if not target.exists():
+def _publish_directory_generation(staging_root: Path, target: Path) -> Path | None:
+    """Select one complete generation atomically and preserve the previous directory."""
+    if not target.exists() or not any(target.iterdir()):
         os.replace(staging_root, target)
-        return
-
-    previous_root = Path(
-        tempfile.mkdtemp(prefix=f".{target.name}.previous-", dir=target.parent)
-    )
-    previous_root.rmdir()
-    os.replace(target, previous_root)
+        previous = None
+    else:
+        _exchange_directory_generation(staging_root, target)
+        previous = staging_root
     try:
-        os.replace(staging_root, target)
-    except BaseException:
-        try:
-            os.replace(previous_root, target)
-        except OSError as restore_error:
-            raise OSError(
-                "Failed to restore the previous directory export after publication failure"
-            ) from restore_error
-        raise
-    if previous_root.exists():
-        shutil.rmtree(previous_root, ignore_errors=True)
+        fsync_directory(target.parent)
+    except OSError as error:
+        raise ExportDurabilityError(
+            f"Export was replaced; parent durability is uncertain; previous={previous}",
+            replaced=True,
+            previous_generation=previous,
+        ) from error
+    return previous
 
 
 def _reject_symlink_components(path: Path, root: Path, *, member: str) -> None:
@@ -296,7 +439,7 @@ def _stage_member(
     *,
     staging_root: Path,
     safe_path: PurePosixPath,
-    data: BinaryIO,
+    data: _TransferReadStream,
     allowed_members: set[str] | None,
     bindings: dict[str, tuple[str, int]],
     binding_failures: set[str],
@@ -411,9 +554,7 @@ def _validate_staged_manifest_views(
         manifest = ArtifactManifest.model_validate_json(manifest_path.read_bytes())
         validate_manifest_identity(artifact_id, manifest)
         if manifest.byte_size != blob_size:
-            raise ArtifactIntegrityError(
-                f"Transfer manifest byte size mismatch for {artifact_id}"
-            )
+            raise ArtifactIntegrityError(f"Transfer manifest byte size mismatch for {artifact_id}")
         profile_sha256 = member_profile_sha256(member)
         if profile_sha256 is not None and ManifestLifecycle.profile_sha256(manifest) != (
             profile_sha256
@@ -434,8 +575,7 @@ def _validate_staged_signatures(
         sig_path = staging_root / Path(*PurePosixPath(sig_member).parts)
         signature_stem = sig_member.removesuffix(".sig")
         blob_member = (
-            f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-            f"/{artifact_id.hex}.blob"
+            f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}/{artifact_id.hex}.blob"
         )
         manifest_member = f"{signature_stem}.manifest.json"
         blob_path = staging_root / Path(*PurePosixPath(blob_member).parts)
@@ -468,9 +608,7 @@ def _validate_staged_signatures(
 
 def export_subgraph(
     *,
-    open_member: Callable[
-        [ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]
-    ],
+    open_member: Callable[[ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]],
     member_name: Callable[[ArtifactID | ArtifactRef, str], str],
     artifact_ids: Iterable[ArtifactID | ArtifactRef | str],
     target: Path,
@@ -482,6 +620,7 @@ def export_subgraph(
     missing_manifests: list[str] = []
     total_bytes = 0
     member_bindings: dict[str, tuple[str, int]] = {}
+    previous_generation: Path | None = None
 
     requests_by_key: dict[tuple[str, str], ArtifactID | ArtifactRef] = {}
     for value in artifact_ids:
@@ -489,8 +628,7 @@ def export_subgraph(
         request = ref or artifact_id
         requests_by_key[(artifact_id.hex, profile_sha256 or "default")] = request
     requests = [
-        requests_by_key[key]
-        for key in sorted(requests_by_key, key=lambda item: (item[0], item[1]))
+        requests_by_key[key] for key in sorted(requests_by_key, key=lambda item: (item[0], item[1]))
     ]
     requested_ids = {key[0] for key in requests_by_key}
     exported_ids: set[str] = set()
@@ -537,48 +675,62 @@ def export_subgraph(
 
     if compress:
         archive_path = normalize_archive_path(target)
+        target_mode = _regular_archive_mode(archive_path)
         archive_path.parent.mkdir(parents=True, exist_ok=True)
-        with tarfile.open(archive_path, "w:gz", format=tarfile.PAX_FORMAT) as tar:
-            for request in requests:
-                artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
-                try:
-                    total_bytes += add_archive_member(tar, request, "blob")
-                except FileNotFoundError:
-                    missing_artifacts.append(str(artifact_id))
-                    continue
-
-                manifest_available = False
-                if include_manifests:
+        descriptor, name = tempfile.mkstemp(
+            prefix=f".{archive_path.name}.staging-", dir=archive_path.parent
+        )
+        os.close(descriptor)
+        staging_archive = Path(name)
+        try:
+            with tarfile.open(staging_archive, "w:gz", format=tarfile.PAX_FORMAT) as tar:
+                for request in requests:
+                    artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
                     try:
-                        total_bytes += add_archive_member(tar, request, "manifest")
-                        manifest_available = True
+                        total_bytes += add_archive_member(tar, request, "blob")
                     except FileNotFoundError:
-                        missing_manifests.append(str(artifact_id))
-                with suppress(FileNotFoundError):
-                    total_bytes += add_archive_member(tar, request, "signature")
-                exported_ids.add(str(artifact_id))
-                if manifest_available:
-                    exported_views.add((str(artifact_id), profile_sha256 or "default"))
+                        missing_artifacts.append(str(artifact_id))
+                        continue
 
-            meta_payload = _inventory_payload(
-                exported=len(exported_ids),
-                requested=len(requested_ids),
-                exported_views=len(exported_views),
-                requested_views=len(requests),
-                members=member_bindings,
-            )
-            meta_bytes = fast_json_dumps_bytes(meta_payload, sort_keys=True)
-            info = tarfile.TarInfo(name="export_manifest.json")
-            info.size = len(meta_bytes)
-            info.mtime = 0
-            tar.addfile(info, BytesIO(meta_bytes))
-            total_bytes += len(meta_bytes)
+                    manifest_available = False
+                    if include_manifests:
+                        try:
+                            total_bytes += add_archive_member(tar, request, "manifest")
+                            manifest_available = True
+                        except FileNotFoundError:
+                            missing_manifests.append(str(artifact_id))
+                    with suppress(FileNotFoundError):
+                        total_bytes += add_archive_member(tar, request, "signature")
+                    exported_ids.add(str(artifact_id))
+                    if manifest_available:
+                        exported_views.add((str(artifact_id), profile_sha256 or "default"))
+
+                meta_payload = _inventory_payload(
+                    exported=len(exported_ids),
+                    requested=len(requested_ids),
+                    exported_views=len(exported_views),
+                    requested_views=len(requests),
+                    members=member_bindings,
+                )
+                meta_bytes = fast_json_dumps_bytes(meta_payload, sort_keys=True)
+                info = tarfile.TarInfo(name="export_manifest.json")
+                info.size = len(meta_bytes)
+                info.mtime = 0
+                tar.addfile(info, BytesIO(meta_bytes))
+                total_bytes += len(meta_bytes)
+            if target_mode is not None:
+                staging_archive.chmod(target_mode)
+            with staging_archive.open("rb") as stream:
+                os.fsync(stream.fileno())
+            previous_generation = _publish_archive_generation(staging_archive, archive_path)
+        finally:
+            staging_archive.unlink(missing_ok=True)
         output_path = archive_path
     else:
         _validate_directory_export(target)
-        target_mode = target.stat().st_mode & 0o7777
+        target_mode = stat.S_IMODE(target.stat().st_mode) if target.exists() else None
         staging_root = Path(
-            tempfile.mkdtemp(prefix=f".{target.name}.staging-", dir=target.parent)
+            tempfile.mkdtemp(prefix=f".{target.name}.generation-", dir=target.parent)
         )
         try:
             for request in requests:
@@ -617,10 +769,15 @@ def export_subgraph(
                 encoding="utf-8",
             )
             total_bytes += meta_path.stat().st_size
-            staging_root.chmod(target_mode)
-            _publish_directory_generation(staging_root, target)
+            if target_mode is not None:
+                staging_root.chmod(target_mode)
+            _sync_directory_generation(staging_root)
+            previous_generation = _publish_directory_generation(staging_root, target)
+        except ExportDurabilityError as error:
+            previous_generation = error.previous_generation
+            raise
         finally:
-            if staging_root.exists():
+            if staging_root.exists() and staging_root != previous_generation:
                 shutil.rmtree(staging_root, ignore_errors=True)
         output_path = target
 
@@ -630,7 +787,9 @@ def export_subgraph(
         output_path=output_path,
         missing_artifacts=missing_artifacts,
         missing_manifests=missing_manifests,
+        previous_generation=previous_generation,
     )
+
 
 def import_subgraph(
     *,
@@ -648,6 +807,8 @@ def import_subgraph(
     staged_members: set[str] = set()
     seen_members: set[str] = set()
     total_bytes = [0]
+    source_handles = ExitStack()
+    source_is_directory = source.is_dir()
     if root.is_symlink():
         raise ValueError("CAS root must not be a symlink")
     root.mkdir(parents=True, exist_ok=True)
@@ -655,45 +816,40 @@ def import_subgraph(
 
     try:
         inventory_data: bytes | None = None
-        if source.is_dir():
+        if source_is_directory:
             if source.is_symlink():
                 raise ValueError("Transfer directory must not be a symlink")
-            manifest_path = source / "export_manifest.json"
-            if manifest_path.is_file() and not manifest_path.is_symlink():
-                inventory_data = manifest_path.read_bytes()
+            directory_descriptor = os.open(source, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            source_handles.callback(os.close, directory_descriptor)
+            inventory_data = _read_directory_inventory(directory_descriptor)
         else:
-            with tarfile.open(source, "r:*") as tar:
-                manifest_members = [
-                    member
-                    for member in tar.getmembers()
-                    if (
-                        member.isfile()
-                        and safe_member_path(member.name)
-                        == PurePosixPath("export_manifest.json")
-                    )
-                ]
-                if len(manifest_members) > 1:
-                    raise ValueError("Transfer contains duplicate export manifests")
-                if manifest_members:
-                    extracted = tar.extractfile(manifest_members[0])
-                    if extracted is None:
-                        raise ValueError("Transfer export manifest cannot be read")
-                    with extracted:
-                        inventory_data = extracted.read()
-
+            tar = source_handles.enter_context(_opened_archive(source))
+            inventory_members = [
+                member
+                for member in tar.getmembers()
+                if (
+                    member.isfile()
+                    and safe_member_path(member.name) == PurePosixPath("export_manifest.json")
+                )
+            ]
+            if len(inventory_members) > 1:
+                raise ValueError("Transfer contains duplicate export manifests")
+            if inventory_members:
+                extracted = tar.extractfile(inventory_members[0])
+                if extracted is None:
+                    raise ValueError("Transfer export manifest cannot be read")
+                with extracted:
+                    inventory_data = extracted.read()
         allowed_members, bindings = _parse_inventory(
             inventory_data or b"{}",
             require_inventory=verify_integrity,
         )
 
-        if source.is_dir():
-            for path in sorted(source.rglob("*")):
-                if path.is_symlink():
-                    skipped_entries.append(str(path.relative_to(source)))
+        if source_is_directory:
+            for relative, stream in _iter_directory_members(directory_descriptor):
+                if stream is None:
+                    skipped_entries.append(relative)
                     continue
-                if not path.is_file():
-                    continue
-                relative = path.relative_to(source).as_posix()
                 safe_path = safe_member_path(relative)
                 if safe_path is None:
                     skipped_entries.append(relative)
@@ -701,15 +857,45 @@ def import_subgraph(
                 if safe_path == PurePosixPath("export_manifest.json"):
                     continue
                 member = safe_path.as_posix()
-                _reject_symlink_components(path, source, member=member)
                 if allowed_members is not None and member not in allowed_members:
                     skipped_entries.append(member)
                     continue
-                with path.open("rb") as stream:
+                _stage_member(
+                    staging_root=staging_root,
+                    safe_path=safe_path,
+                    data=stream,
+                    allowed_members=allowed_members,
+                    bindings=bindings,
+                    binding_failures=binding_failures,
+                    seen_members=seen_members,
+                    imported_artifacts=imported_artifacts,
+                    total_bytes=total_bytes,
+                )
+                staged_members.add(member)
+        else:
+            for tar_member in tar.getmembers():
+                safe_path = safe_member_path(tar_member.name)
+                if safe_path == PurePosixPath("export_manifest.json"):
+                    continue
+                if not tar_member.isfile():
+                    skipped_entries.append(tar_member.name)
+                    continue
+                if safe_path is None:
+                    skipped_entries.append(tar_member.name)
+                    continue
+                member_name = safe_path.as_posix()
+                if allowed_members is not None and member_name not in allowed_members:
+                    skipped_entries.append(member_name)
+                    continue
+                extracted = tar.extractfile(tar_member)
+                if extracted is None:
+                    skipped_entries.append(tar_member.name)
+                    continue
+                with extracted:
                     _stage_member(
                         staging_root=staging_root,
                         safe_path=safe_path,
-                        data=stream,
+                        data=extracted,
                         allowed_members=allowed_members,
                         bindings=bindings,
                         binding_failures=binding_failures,
@@ -717,47 +903,12 @@ def import_subgraph(
                         imported_artifacts=imported_artifacts,
                         total_bytes=total_bytes,
                     )
-                staged_members.add(member)
-        else:
-            with tarfile.open(source, "r:*") as tar:
-                for member in tar.getmembers():
-                    safe_path = safe_member_path(member.name)
-                    if safe_path == PurePosixPath("export_manifest.json"):
-                        continue
-                    if not member.isfile():
-                        skipped_entries.append(member.name)
-                        continue
-                    if safe_path is None:
-                        skipped_entries.append(member.name)
-                        continue
-                    member_name = safe_path.as_posix()
-                    if allowed_members is not None and member_name not in allowed_members:
-                        skipped_entries.append(member_name)
-                        continue
-                    extracted = tar.extractfile(member)
-                    if extracted is None:
-                        skipped_entries.append(member.name)
-                        continue
-                    with extracted:
-                        _stage_member(
-                            staging_root=staging_root,
-                            safe_path=safe_path,
-                            data=extracted,
-                            allowed_members=allowed_members,
-                            bindings=bindings,
-                            binding_failures=binding_failures,
-                            seen_members=seen_members,
-                            imported_artifacts=imported_artifacts,
-                            total_bytes=total_bytes,
-                        )
-                    staged_members.add(member_name)
-
+                staged_members.add(member_name)
         if allowed_members is not None:
             missing_members = allowed_members - staged_members
             if missing_members:
                 raise ValueError(
-                    "Transfer is missing inventory members: "
-                    + ", ".join(sorted(missing_members))
+                    "Transfer is missing inventory members: " + ", ".join(sorted(missing_members))
                 )
 
         staged_by_artifact: dict[str, set[str]] = {}
@@ -775,9 +926,7 @@ def import_subgraph(
                     f"/{artifact_id.hex}.blob"
                 )
                 manifest_members = sorted(
-                    member
-                    for member in artifact_members
-                    if member.endswith(".manifest.json")
+                    member for member in artifact_members if member.endswith(".manifest.json")
                 )
                 if blob_member not in artifact_members or not manifest_members:
                     raise ValueError(
@@ -800,8 +949,7 @@ def import_subgraph(
                     else:
                         manifest = ArtifactManifest.model_validate_json(
                             (
-                                staging_root
-                                / Path(*PurePosixPath(manifest_member).parts)
+                                staging_root / Path(*PurePosixPath(manifest_member).parts)
                             ).read_bytes()
                         )
                         selected = ArtifactRef(
@@ -838,4 +986,5 @@ def import_subgraph(
             imported_refs=imported_refs,
         )
     finally:
+        source_handles.close()
         shutil.rmtree(staging_root, ignore_errors=True)

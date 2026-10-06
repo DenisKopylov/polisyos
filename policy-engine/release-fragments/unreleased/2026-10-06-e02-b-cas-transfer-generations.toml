@@ -1,0 +1,30 @@
+id = "2026-10-06-e02-b-cas-transfer-generations"
+title = "Publish complete CAS transfer generations and preserve their history"
+type = "fixed"
+component = "artifacts"
+owner = "team-runtime"
+summary = "Reusable CAS archives and owned directory exports atomically select complete staged generations; import consumers pin their original generation across concurrent replacement."
+evidence = ["tests/unit/core/artifacts/test_transfer_generation_publication.py", "tests/unit/remediation/test_cas_02.py", "tests/unit/core/artifacts/backends/test_caching_store.py"]
+compatibility = "ExportReport adds an optional previous_generation path. New outputs retain private staging modes (0600 archive, 0700 directory); existing output modes are preserved. Archive symlinks and nonregular final/source paths are refused. Replacing an owned nonempty directory requires supported native atomic exchange; unsupported filesystems/platforms fail before publication."
+change_class = "behavior-runtime"
+surface_classification = "public_stable: filesystem CAS transfer reports; internal: local filesystem publication"
+migration = "Retain and reclaim previous_generation paths according to the caller's history needs. Parent-sync failure after selection reports replaced=True and the retained previous path; treat crash durability as uncertain."
+api = "Existing transfer methods retain their arguments. ExportReport.previous_generation identifies the complete prior package; ExportDurabilityError carries publication visibility after sync failure."
+limitations = "Linux renameat2 is covered by native probes. Darwin renamex_np requires local G verification. No power-loss, hostile filesystem, ACL ownership, or multi-host guarantee."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = ["src/polisyos/core/artifacts/README.md"]
+
+[[compatibility_change]]
+id = "cas-transfer-complete-generations"
+change_class = "behavior-runtime"
+impact = "behavior_change"
+surface = "public_stable: filesystem CAS transfers"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "CAS transfers preserve complete previous generations, refuse nonregular archive destinations, and require atomic exchange when replacing nonempty directory exports."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = ["src/polisyos/core/artifacts/README.md"]

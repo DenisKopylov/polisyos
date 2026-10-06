@@ -8,22 +8,39 @@ import importlib.metadata
 import json
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import time
-import xml.etree.ElementTree as ET
 from pathlib import Path
+
+from defusedxml import ElementTree
+
+
+def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:
+    """Run a resolved Git binary with structured repository-owned arguments."""
+    executable = shutil.which("git")
+    if executable is None:
+        raise FileNotFoundError("Git executable unavailable")
+    command = [str(Path(executable).resolve()), "-C", str(repo), *argv]
+    # Fixed Git subcommands and exact root-supplied refs/paths; shell is never enabled.
+    return subprocess.run(command, capture_output=True, check=False)  # noqa: S603
+
+
+def git_bytes(repo: Path, *argv: str) -> bytes:
+    """Return complete Git output bytes, preserving command failure."""
+    result = git_result(repo, *argv)
+    result.check_returncode()
+    return result.stdout
 
 
 def git(repo: Path, *argv: str) -> str:
-    return subprocess.check_output(["git", "-C", str(repo), *argv], text=True).strip()
+    return git_bytes(repo, *argv).decode().strip()
 
 
 def source_identity(repo: Path) -> dict[str, object]:
     """Hash all tracked inputs, including tools, contracts and test helpers."""
-    paths = subprocess.check_output(["git", "-C", str(repo), "ls-files", "-z"]).split(
-        b"\0"
-    )
+    paths = git_bytes(repo, "ls-files", "-z").split(b"\0")
     digest = hashlib.sha256()
     count = byte_count = 0
     for raw in sorted(path for path in paths if path):
@@ -42,8 +59,8 @@ def source_identity(repo: Path) -> dict[str, object]:
 def junit_counts(path: Path | None) -> dict[str, int] | None:
     if path is None or not path.exists():
         return None
-    counts = dict(cases=0, passed=0, failed=0, errors=0, skipped=0)
-    for case in ET.parse(path).getroot().iter("testcase"):
+    counts = {"cases": 0, "passed": 0, "failed": 0, "errors": 0, "skipped": 0}
+    for case in ElementTree.parse(path, forbid_dtd=True).getroot().iter("testcase"):
         counts["cases"] += 1
         name = (
             "failed"
@@ -97,18 +114,7 @@ def main() -> int:
     }
     # Exact effective config is kept privately in ignored scratch; credentials are
     # never copied into the moderate publication packet or printed to stdout.
-    git_config = subprocess.check_output(
-        [
-            "git",
-            "-C",
-            str(args.repo),
-            "config",
-            "--null",
-            "--list",
-            "--show-origin",
-            "--show-scope",
-        ]
-    )
+    git_config = git_bytes(args.repo, "config", "--null", "--list", "--show-origin", "--show-scope")
     private_root = args.output.parent.parent / "raw"
     private_root.mkdir(parents=True, exist_ok=True)
     private_config = private_root / (args.name + ".git-config-private.nul")
@@ -121,11 +127,7 @@ def main() -> int:
         "bytes": len(git_config),
         "publication": "hash/size only; full private config excluded from Git",
         "effective_core": {
-            name: subprocess.run(
-                ["git", "-C", str(args.repo), "config", "--get", name],
-                capture_output=True,
-                text=True,
-            ).stdout.strip()
+            name: git_result(args.repo, "config", "--get", name).stdout.decode().strip()
             for name in (
                 "core.autocrlf",
                 "core.eol",
@@ -139,7 +141,8 @@ def main() -> int:
     error = None
     with stdout_path.open("xb") as handle:
         try:
-            process = subprocess.Popen(
+            # Exact root-admitted check argv; shell execution is never enabled.
+            process = subprocess.Popen(  # noqa: S603
                 command, cwd=args.cwd, stdout=handle, stderr=subprocess.STDOUT
             )
             _, status, usage = os.wait4(process.pid, 0)
@@ -155,9 +158,7 @@ def main() -> int:
     outcome = "PASS" if exit_code == 0 and immutable else "FAIL"
     if error is not None:
         outcome = "UNRUN"
-    elif (
-        counts is not None and counts["cases"] and counts["skipped"] == counts["cases"]
-    ):
+    elif counts is not None and counts["cases"] and counts["skipped"] == counts["cases"]:
         outcome = "SKIP"
     packages = {}
     for name in (
@@ -208,23 +209,12 @@ def main() -> int:
         }
     after = source_identity(args.repo)
     ending_head = git(args.repo, "rev-parse", "HEAD")
-    config_after = subprocess.check_output(
-        [
-            "git",
-            "-C",
-            str(args.repo),
-            "config",
-            "--null",
-            "--list",
-            "--show-origin",
-            "--show-scope",
-        ]
+    config_after = git_bytes(
+        args.repo, "config", "--null", "--list", "--show-origin", "--show-scope"
     )
     git_input_config["after_sha256"] = hashlib.sha256(config_after).hexdigest()
     git_input_config["stable"] = git_config == config_after
-    immutable = (
-        before == after and ending_head == args.candidate and git_input_config["stable"]
-    )
+    immutable = before == after and ending_head == args.candidate and git_input_config["stable"]
     if not immutable:
         outcome = "FAIL"
     variables = (
@@ -291,7 +281,7 @@ def main() -> int:
         "finding_closure": False,
     }
     receipt_path.write_text(json.dumps(result, indent=2, default=str) + "\n")
-    print(
+    sys.stdout.write(
         json.dumps(
             {
                 key: result[key]
@@ -305,6 +295,7 @@ def main() -> int:
                 )
             }
         )
+        + "\n"
     )
     return exit_code if immutable else 1
 

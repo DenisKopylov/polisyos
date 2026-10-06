@@ -8,7 +8,9 @@ import asyncio
 import hashlib
 import json
 import os
+import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -42,14 +44,46 @@ def runtime_environment(repo: Path) -> dict[str, str]:
         [*prefixes, *(value for value in inherited if value not in prefixes)]
     )
     env["COREPACK_HOME"] = "/workspace/.polisyos-environment/cache/corepack"
-    env["PLAYWRIGHT_BROWSERS_PATH"] = (
-        "/workspace/.polisyos-environment/cache/playwright"
-    )
+    env["PLAYWRIGHT_BROWSERS_PATH"] = "/home/agent/.cache/ms-playwright"
     return env
 
 
+def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:
+    """Run a resolved Git binary with structured repository-owned arguments."""
+    executable = shutil.which("git")
+    if executable is None:
+        raise FileNotFoundError("Git executable unavailable")
+    command = [str(Path(executable).resolve()), "-C", str(repo), *argv]
+    # Fixed Git subcommands and exact root-supplied refs/paths; shell is never enabled.
+    return subprocess.run(command, capture_output=True, check=False)  # noqa: S603
+
+
+def git_bytes(repo: Path, *argv: str) -> bytes:
+    """Return complete Git output bytes, preserving command failure."""
+    result = git_result(repo, *argv)
+    result.check_returncode()
+    return result.stdout
+
+
 def git(repo: Path, *argv: str) -> str:
-    return subprocess.check_output(["git", "-C", str(repo), *argv], text=True).strip()
+    return git_bytes(repo, *argv).decode().strip()
+
+
+def require_absent(path: Path, *, purpose: str) -> None:
+    """Refuse existing entries, including dangling symlinks, without altering them."""
+    if path.exists() or path.is_symlink():
+        raise RuntimeError(purpose + " exists; preserve it and choose fresh scratch")
+
+
+def admit_numeric_scratch(job: dict[str, object]) -> None:
+    """Admit a never-existing pytest basetemp before any process launch."""
+    if job["kind"] != "numerical":
+        return
+    argv = job["argv"]
+    if "--basetemp" not in argv:
+        raise RuntimeError("numerical check requires an explicit fresh basetemp")
+    temporary = Path(argv[argv.index("--basetemp") + 1])
+    require_absent(temporary, purpose="numerical pytest basetemp")
 
 
 def family_for(path: str) -> str | None:
@@ -59,8 +93,7 @@ def family_for(path: str) -> str | None:
     relative = path.removeprefix(prefix)
     if (
         relative.startswith("calibration/")
-        or relative
-        == "foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+        or relative == "foundry/methods/catalog/econometrics/test_advanced_persistence.py"
     ):
         return "PCL_continuous_persistence"
     if relative.startswith("ddm/"):
@@ -72,10 +105,7 @@ def family_for(path: str) -> str | None:
     if (
         relative.startswith("foundry/calibration/")
         or relative == "scientist/nodes/test_calibration_report_consumer.py"
-        or (
-            relative.startswith("scientist/nodes/builtins/simulate/")
-            and "welfare" in relative
-        )
+        or (relative.startswith("scientist/nodes/builtins/simulate/") and "welfare" in relative)
     ):
         return "CAL_and_welfare_consumer"
     if relative.startswith("foundry/uncertainty/") or (
@@ -130,8 +160,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
             }
         elif (
             name is None
-            and path
-            != "policy-engine/tests/unit/runtime/http/test_control_plane_store.py"
+            and path != "policy-engine/tests/unit/runtime/http/test_control_plane_store.py"
         ):
             unassigned.append(path)
     flat = [path for paths in groups.values() for path in paths]
@@ -145,9 +174,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         for path in paths:
             if path not in tracked:
                 continue
-            data = subprocess.check_output(
-                ["git", "-C", str(repo), "show", candidate + ":" + path]
-            )
+            data = git_bytes(repo, "show", candidate + ":" + path)
             source_assets[path] = {
                 "sha256": hashlib.sha256(data).hexdigest(),
                 "bytes": len(data),
@@ -160,22 +187,22 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         ast_counts[name] = count
     upstream = {}
     for name, sha in proposal["required_upstream"].items():
-        result = subprocess.run(
-            ["git", "-C", str(repo), "merge-base", "--is-ancestor", sha, candidate]
-        )
+        result = git_result(repo, "merge-base", "--is-ancestor", sha, candidate)
         upstream[name] = {"sha": sha, "in_candidate_history": result.returncode == 0}
-    output = (
-        args.output_root.resolve()
-        if args.output_root
-        else PREPARATION / "runs" / candidate
-    )
+    output = args.output_root.resolve() if args.output_root else PREPARATION / "runs" / candidate
     py = product / ".venv/bin/python"
     uv = Path("/workspace/.polisyos-environment/uv/bin/uv")
     env = runtime_environment(repo)
     removed_caps = {name: env.pop(name) for name in CAP_VARIABLES if name in env}
     owner_packet_sources = [
-        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
-        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt",
+        (
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-"
+            "handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+        ),
+        (
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-"
+            "handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt"
+        ),
     ]
     packet_inputs = []
     if not args.no_owner_packets:
@@ -183,17 +210,11 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
             if source not in tracked:
                 missing.append(source)
                 continue
-            data = subprocess.check_output(
-                ["git", "-C", str(repo), "show", candidate + ":" + source]
-            )
+            data = git_bytes(repo, "show", candidate + ":" + source)
             destination = (
                 output
                 / "owner-packets"
-                / (
-                    "test_a_cas_contract.py"
-                    if index == 0
-                    else "test_a_status_reason.py"
-                )
+                / ("test_a_cas_contract.py" if index == 0 else "test_a_status_reason.py")
             )
             packet_inputs.append(
                 {
@@ -215,9 +236,8 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
             "pytest",
             "-q",
             "-o",
-            "addopts=",
-            "-p",
-            "no:cacheprovider",
+            "cache_dir=" + str(job_output / "cache/pytest"),
+            "--benchmark-storage=" + (job_output / "cache/benchmarks").as_uri(),
             "--junitxml",
             str(junit),
             "--basetemp",
@@ -360,7 +380,10 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         "repo": str(repo),
         "interpreter": str(py),
         "comparison_base": args.comparison_base,
-        "comparison_meaning": "Original E continuation baseline retained for proxy continuity; no inherited-red attribution.",
+        "comparison_meaning": (
+            "Original E continuation baseline retained for proxy continuity; no "
+            "inherited-red attribution."
+        ),
         "source_runtime_input_path_count": len(source_input_paths),
         "tracked_all_path_count": len(tracked),
         "groups": groups,
@@ -369,12 +392,14 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         "owner_packet_extra_inputs": packet_inputs,
         "test_input_path_count_including_owner_packets": len(flat) + len(packet_inputs),
         "ast_test_function_counts_only": ast_counts,
-        "runtime_test_case_count": "UNRUN; parametrized JUnit counts computed only after actual frozen execution",
-        "old_paths_retained": set(
+        "runtime_test_case_count": (
+            "UNRUN; parametrized JUnit counts computed only after actual frozen execution"
+        ),
+        "old_paths_retained": {
             original["groups"][name][index]
             for name in original["groups"]
             for index in range(len(original["groups"][name]))
-        )
+        }
         <= set(flat),
         "additions": additions,
         "missing_required_paths": sorted(set(missing)),
@@ -397,18 +422,46 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         },
         "removed_inherited_caps": removed_caps,
         "jobs": jobs,
-        "execution_schedule": "Importer must PASS, then seven independent numerical groups concurrently; separate global gate sequence for shared mutable build outputs. No concurrency semaphore, worker/CPU/thread quota or unchanged numerical repeat.",
+        "execution_schedule": (
+            "Importer must PASS, then seven independent numerical groups "
+            "concurrently; separate global gate sequence for shared mutable build "
+            "outputs. No concurrency semaphore, worker/CPU/thread quota or "
+            "unchanged numerical repeat."
+        ),
         "mutable_seams": [
-            "Each pytest group has a distinct never-existing basetemp, tmp-env and own per-test CAS/SQLite; no fixed cross-group ports found in new owned fixtures.",
-            "architecture/runtime API/generator/workspace/CI share policy-engine/_build, schema/frontend generated scratch and npm build caches: execute global gate commands sequentially.",
-            "Umbrella native tests get a distinct basetemp per nested pytest command; staged receipts explicitly mark true fail-fast successors UNRUN.",
-            "CAS/control-plane companion59-case denominator is historical; current JUnit recomputes actual cases on frozen source. SQLite concurrency tests deliberately contend only inside their own tmp_path.",
+            (
+                "Each pytest group has a distinct never-existing basetemp, tmp-env and "
+                "own per-test CAS/SQLite; no fixed cross-group ports found in new owned"
+                " fixtures."
+            ),
+            (
+                "architecture/runtime API/generator/workspace/CI share policy-"
+                "engine/_build, schema/frontend generated scratch and npm build caches:"
+                " execute global gate commands sequentially."
+            ),
+            (
+                "Umbrella native tests get a distinct basetemp per nested pytest "
+                "command; staged receipts explicitly mark true fail-fast successors "
+                "UNRUN."
+            ),
+            (
+                "CAS/control-plane companion59-case denominator is historical; current "
+                "JUnit recomputes actual cases on frozen source. SQLite concurrency "
+                "tests deliberately contend only inside their own tmp_path."
+            ),
         ],
         "custody": {
             "full_stdout_stderr": "checks/<stage>/*.stdout.txt",
             "large_raw": "raw/production-invocation.raw.json kept ignored outside Git",
-            "publish": "Moderate complete deciding outputs, exact refs/hash/size indexes and summaries; no171MBraw dump",
-            "cleanup": "No permanent deletion; refuse existing pytest basetemp/output receipt; native Trash only after receipts and no active users, otherwise list candidates.",
+            "publish": (
+                "Moderate complete deciding outputs, exact refs/hash/size indexes and "
+                "summaries; no171MBraw dump"
+            ),
+            "cleanup": (
+                "No permanent deletion; refuse existing pytest basetemp/output receipt;"
+                " native Trash only after receipts and no active users, otherwise list "
+                "candidates."
+            ),
         },
         "preconditions_for_execute": [
             "root freezes exact clean candidate after every independent review",
@@ -429,6 +482,8 @@ async def execute(plan: dict[str, object]) -> int:
         row["in_candidate_history"] for row in plan["required_upstream"].values()
     ):
         raise RuntimeError("required candidate dependencies missing")
+    for job in plan["jobs"]:
+        admit_numeric_scratch(job)
     if (output / "wave-started.json").exists():
         raise RuntimeError("wave already started; preserve outputs and do not repeat")
     output.mkdir(parents=True, exist_ok=True)
@@ -437,7 +492,9 @@ async def execute(plan: dict[str, object]) -> int:
             {
                 "candidate_sha": plan["candidate_sha"],
                 "started_unix": time.time(),
-                "reviews_requirement": "root caller asserts independent reviews complete before --execute",
+                "reviews_requirement": (
+                    "root caller asserts independent reviews complete before --execute"
+                ),
             },
             indent=2,
         )
@@ -449,20 +506,13 @@ async def execute(plan: dict[str, object]) -> int:
     for row in plan["owner_packet_extra_inputs"]:
         target = Path(row["destination"])
         target.parent.mkdir(parents=True, exist_ok=True)
-        data = subprocess.check_output(
-            [
-                "git",
-                "-C",
-                str(repo),
-                "show",
-                plan["candidate_sha"] + ":" + row["source"],
-            ]
-        )
+        data = git_bytes(repo, "show", plan["candidate_sha"] + ":" + row["source"])
         if target.exists() or hashlib.sha256(data).hexdigest() != row["sha256"]:
             raise RuntimeError("owner packet exists or source identity drift")
         target.write_bytes(data)
 
     async def run(job: dict[str, object]) -> int:
+        admit_numeric_scratch(job)
         local_env = {**env, **job["environment"]}
         Path(local_env["TMPDIR"]).mkdir(parents=True, exist_ok=False)
         command = [
@@ -527,27 +577,24 @@ async def execute(plan: dict[str, object]) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--repo", type=Path, default=Path("/workspace/e02-E-continuation-20261006")
-    )
+    parser.add_argument("--repo", type=Path, default=Path("/workspace/e02-E-continuation-20261006"))
     parser.add_argument("--candidate")
-    parser.add_argument(
-        "--comparison-base", default="198076863e143dea9f89f02734b13d50dae3eed5"
-    )
+    parser.add_argument("--comparison-base", default="198076863e143dea9f89f02734b13d50dae3eed5")
     parser.add_argument("--output-root", type=Path)
     parser.add_argument("--no-owner-packets", action="store_true")
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
+    if args.output_root is not None:
+        require_absent(args.output_root, purpose="requested wave output root")
     plan = prepare(args)
     output = Path(plan["output_root"])
-    output.mkdir(parents=True, exist_ok=True)
+    require_absent(output, purpose="resolved wave output root")
+    output.mkdir(parents=True, exist_ok=False)
     plan_path = output / "plan.json"
     if plan_path.exists():
-        raise RuntimeError(
-            "plan exists; use a fresh output directory and preserve old plan"
-        )
+        raise RuntimeError("plan exists; use a fresh output directory and preserve old plan")
     plan_path.write_text(json.dumps(plan, indent=2) + "\n")
-    print(
+    sys.stdout.write(
         json.dumps(
             {
                 "plan": str(plan_path),
@@ -558,6 +605,7 @@ def main() -> int:
                 "execute_requested": args.execute,
             }
         )
+        + "\n"
     )
     if args.execute:
         return asyncio.run(execute(plan))

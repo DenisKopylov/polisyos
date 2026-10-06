@@ -23,7 +23,8 @@ def main() -> int:
     args.temp_root.mkdir(parents=True)
     sys.path.insert(0, str(args.repo / "policy-engine"))
     from tools.devx.workspace import ci_parity, verify
-    from tools.devx.workspace._common import CommandSpec, run_command as canonical_run
+    from tools.devx.workspace._common import CommandSpec
+    from tools.devx.workspace._common import run_command as canonical_run
 
     verify.PYTEST_NUMERICAL_ENV = {}
     scopes: list[dict[str, object]] = []
@@ -46,9 +47,7 @@ def main() -> int:
             if gate == "verify":
                 commands.extend(
                     verify._backend_commands(
-                        pytest_workers=verify._resolve_pytest_workers(
-                            parsed.pytest_workers
-                        ),
+                        pytest_workers=verify._resolve_pytest_workers(parsed.pytest_workers),
                         pytest_dist=verify._resolve_pytest_dist(),
                     )
                 )
@@ -89,11 +88,19 @@ def main() -> int:
             argv.insert(2, "--no-sync")
         if "pytest" in argv:
             temporary = args.temp_root / (str(invocation) + "-pytest")
-            if temporary.exists():
-                raise RuntimeError(
-                    "pytest basetemp already exists; do not delete evidence"
-                )
-            argv.extend(["--basetemp", str(temporary), "-p", "no:cacheprovider"])
+            benchmark_storage = args.temp_root / (str(invocation) + "-benchmarks")
+            pytest_cache = args.temp_root / (str(invocation) + "-pytest-cache")
+            if temporary.exists() or benchmark_storage.exists() or pytest_cache.exists():
+                raise RuntimeError("pytest scratch already exists; do not delete evidence")
+            argv.extend(
+                [
+                    "--basetemp",
+                    str(temporary),
+                    "-o",
+                    "cache_dir=" + str(pytest_cache),
+                    "--benchmark-storage=" + benchmark_storage.as_uri(),
+                ]
+            )
         row.update(
             command=argv,
             cwd=str(spec.cwd),

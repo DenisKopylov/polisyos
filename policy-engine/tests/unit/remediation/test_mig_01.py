@@ -11,6 +11,7 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import json
+import sys
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -21,6 +22,7 @@ from pydantic import ValidationError
 from polisyos.ir.loading.loaders import PolicyLoadError, load_policy, load_trinity_bundle
 from polisyos.ir.migrations import migrate_policy_ir
 from polisyos.ir.trinity import TrinityBundle
+from tools.lib.imports import RepositoryRootUnavailableError
 from tools.ops_runners.migrations.migrate import main as canonical_main
 
 pytestmark = pytest.mark.unit
@@ -312,3 +314,74 @@ def test_root_entrypoint_delegates_to_the_canonical_executor(
 
     assert root.main(argv) == 17
     assert calls == [argv]
+
+
+def test_installed_migration_resolves_checkout_contracts_without_importing_checkout(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An installed migration runner finds checkout contracts without adding checkout imports."""
+    migration = importlib.import_module("tools.ops_runners.migrations.migrate")
+    installed_module = (
+        tmp_path / "site-packages" / "tools" / "ops_runners" / "migrations" / "migrate.py"
+    )
+    monkeypatch.chdir(PRODUCT_ROOT)
+    monkeypatch.setattr(sys, "path", ["sentinel"])
+
+    repo_root, src_root = migration._resolve_migration_roots(installed_module)
+
+    assert repo_root == PRODUCT_ROOT
+    assert src_root == PRODUCT_ROOT / "src"
+    assert sys.path == ["sentinel"]
+
+
+def test_source_migration_still_bootstraps_its_checkout_import_roots(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The source runner stays anchored to its checkout and keeps source imports available."""
+    migration = importlib.import_module("tools.ops_runners.migrations.migrate")
+    source_module = PRODUCT_ROOT / "tools" / "ops_runners" / "migrations" / "migrate.py"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(sys, "path", ["sentinel"])
+
+    repo_root, src_root = migration._resolve_migration_roots(source_module)
+
+    assert repo_root == PRODUCT_ROOT
+    assert src_root == PRODUCT_ROOT / "src"
+    assert sys.path == [str(src_root), str(repo_root), "sentinel"]
+
+
+def test_venv_installed_migration_does_not_import_checkout_from_its_ancestry(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A site-packages path inside a checkout is not mistaken for a source module."""
+    migration = importlib.import_module("tools.ops_runners.migrations.migrate")
+    installed_module = (
+        PRODUCT_ROOT
+        / ".venv/lib/python3.14/site-packages/tools/ops_runners/migrations/migrate.py"
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(sys, "path", ["sentinel"])
+
+    repo_root, src_root = migration._resolve_migration_roots(installed_module)
+
+    assert repo_root == PRODUCT_ROOT
+    assert src_root == PRODUCT_ROOT / "src"
+    assert sys.path == ["sentinel"]
+
+
+def test_installed_migration_requires_an_existing_checkout_for_contract_lookup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An unanchored installed runner fails with the shared typed error outside a checkout."""
+    migration = importlib.import_module("tools.ops_runners.migrations.migrate")
+    installed_module = (
+        tmp_path / "site-packages" / "tools" / "ops_runners" / "migrations" / "migrate.py"
+    )
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(RepositoryRootUnavailableError):
+        migration._resolve_migration_roots(installed_module)

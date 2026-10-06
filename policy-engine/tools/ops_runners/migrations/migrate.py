@@ -10,9 +10,23 @@ from pathlib import Path
 from typing import Any
 
 from tools.lib.fs import atomic_write_text
-from tools.lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots, repo_root_from
 
-REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
+
+def _resolve_migration_roots(module_path: str | Path) -> tuple[Path, Path]:
+    """Resolve contract lookup roots without adding an installed checkout to ``sys.path``."""
+    module_file = Path(module_path).resolve()
+    repo_root = repo_root_from(module_file, allow_cwd_fallback=True)
+    src_root = repo_root / "src"
+
+    source_module = (repo_root / "tools/ops_runners/migrations/migrate.py").resolve()
+    if module_file == source_module:
+        ensure_repo_import_roots(module_file)
+
+    return repo_root, src_root
+
+
+REPO_ROOT, SRC_ROOT = _resolve_migration_roots(__file__)
 
 try:
     import yaml  # type: ignore

@@ -3,7 +3,7 @@ title = "Execute declared artifact migration bindings"
 type = "fixed"
 component = "migrations"
 owner = "team-ops"
-summary = "The canonical artifact migration CLI now resolves and invokes the callable declared by each helper binding and fails before output publication when that binding cannot resolve."
+summary = "The canonical artifact migration CLI resolves and invokes each declared helper callable, fails before output publication when the binding cannot resolve, and reads checkout contracts from an existing workspace without importing its source into an installed runner."
 evidence = [
   "tools/ops_runners/migrations/README.md",
   "tests/unit/remediation/test_mig_01.py",

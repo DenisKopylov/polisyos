@@ -22,6 +22,8 @@ orchestration stack.
 - Executors in [`executor.py`](executor.py) and [`async_executor.py`](async_executor.py): `WorkflowExecutor` and `AsyncWorkflowExecutor`
 - Checkpoint helpers in [`checkpoint.py`](checkpoint.py): `resume_from_checkpoint(...)`, `acquire_run_lock(...)`, and workflow fingerprint utilities
 - Idempotency/cache helpers in [`idempotency.py`](idempotency.py)
+- Durable budget accounting in [`budget_ledger.py`](budget_ledger.py) and
+  [`budget_middleware.py`](budget_middleware.py)
 - Runner backends and configuration in [`runner/`](runner/): `WorkflowRunnerConfig`, `WorkflowRunnerBackend`, and `build_workflow_runner(...)`
 
 ## Depends On / Depended On By
@@ -43,6 +45,24 @@ Smoke-tested:
 ```bash
 uv run pytest tests/unit/scientist/orchestration/engine/test_condition.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/scientist/orchestration/engine/test_state_merge.py -q
 ```
+
+## Persisted Budget Admission
+
+`FileBudgetLedger` requires an explicit `load_or_bootstrap(initial_state)` before
+public mutation of a missing ledger. An explicit `BudgetState()` bootstrap
+remains unlimited; an empty, malformed, or sparse existing file raises instead
+of acquiring constructor defaults. Persisted non-nullable writer fields are
+required before normalization, including nested state and mutation records.
+Legally omitted nullable fields remain accepted.
+
+`BudgetMiddleware` bootstraps with its configured state, reloads the ledger for
+checks and mutations, and preserves exhaustion on reopen. Real-process tests
+exercise these consumers, duplicate CAS publication, and byte-preserving
+rejection. The independent wire oracle names mandatory fields separately from
+the production schema traversal. Its explicit `E02_B_PROPERTY_REMOVAL=budget-wire`
+control removes only required-field admission inside the child process; the
+same consumer tests must then fail. These witnesses do not establish power-loss
+or multi-host filesystem guarantees.
 
 ## Reference Docs
 

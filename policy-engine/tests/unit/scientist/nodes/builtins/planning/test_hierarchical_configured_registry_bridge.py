@@ -4,10 +4,6 @@ from __future__ import annotations
 
 import pytest
 
-pytest.importorskip("torch", reason="UNRUN: optional native search backend")
-pytest.importorskip("botorch", reason="UNRUN: optional native search backend")
-pytest.importorskip("gpytorch", reason="UNRUN: optional native search backend")
-
 from polisyos.core.security import get_current_tenant_id_or_none, tenant_scope
 from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
 from polisyos.scientist.methods.search.transfer_context import anonymize_tenant_id

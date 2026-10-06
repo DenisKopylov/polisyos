@@ -772,8 +772,21 @@ def main() -> None:
             "deduplicated_native_descriptor_refs": len(native_refs),
             "static_script_rows": len(driver_records),
             "all_recorded_historical_command_lineage_rows": len(all_commands),
+            "unresolved_native_option_grammar_rows": sum(
+                bool(row.get("unresolved_option_grammar")) for row in all_commands
+            ),
             "grade": "input lineage counts only; none is a case count or PASS",
         },
+        "unresolved_native_option_grammar": [
+            {
+                "locator": row["locator"],
+                "argv_sha256": command_id(row["argv"]),
+                "reasons": row["unresolved_option_grammar"],
+                "grade": "UNRESOLVED input lineage; no guessed positional inputs or absence claim",
+            }
+            for row in all_commands
+            if row.get("unresolved_option_grammar")
+        ],
         "ignored_full_lineage": raw_pin,
         "historical_oversized_packet": {
             "commit": "327b90023110f91b42a94e039863e7a8fe1425ec",

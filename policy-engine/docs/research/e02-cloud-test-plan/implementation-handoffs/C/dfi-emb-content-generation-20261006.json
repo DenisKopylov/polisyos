@@ -13,12 +13,15 @@
   ],
   "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
   "implementation_commits": [
-    "f5d66898566cc472a5a3a7309ecb76f0cdb12c45"
+    "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
+    "4a9350bf3e43d1785ab7ff51b37da442e84aca8e",
+    "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63"
   ],
-  "candidate_tree_sha": "b58a865a040bfda3bf012a2a9b27d1a5cd350e1f",
+  "candidate_tree_sha": "fcfe8de3a6cbc0dd1c0df1d02b65cc2d7c1cee04",
   "branch": "codex/e02-C-dfi-emb-20261006",
   "pull_request": null,
   "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006.json",
     "policy-engine/src/polisyos/data_forge/domains/README.md",
     "policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py",
     "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/README.md",
@@ -26,6 +29,7 @@
     "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
@@ -46,6 +50,7 @@
     "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
     "policy-engine/src/polisyos/lex/knowledge/store.py",
     "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_harvester_parallel.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
     "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
     "policy-engine/tests/unit/remediation/test_dfi_02.py",
     "policy-engine/tests/unit/remediation/test_dfi_03.py",
@@ -101,38 +106,78 @@
   ],
   "checks": [
     {
-      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/run_focused_native_evidence.py",
-      "target_sha": "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
-      "environment": "Python 3.14 shared read-only policy-engine venv; PYTHONPATH points at this candidate worktree. Pytest loads repository conftest. The test encoder, tokenizer, vectors, DBs, and corpora are deterministic fixtures; hnswlib is the installed native binary recorded below.",
-      "input_closure": "57 focused DFI/EMB tests and the two real proving-ground search/readback consumers; temporary fixture databases and isolated tmp_path outputs only; no production corpus or pretrained model assets.",
+      "command": "uv run --no-sync polisyos-tools workspace doctor --worktree-admission create --branch codex/e02-C-dfi-emb-20261006 --path /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": "Invoked from the C integration worktree product root `/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine`; selector checked the exact DFI/EMB branch and requested worktree root.",
+      "input_closure": "Fresh create admission; complete observed worktree registrations/admin records and filesystem state; no old stale-registration exception.",
       "outcome": "PASS",
-      "output": "57 tests passed (57 progress dots, pytest exitstatus 0). Runtime module evidence: hnswlib 0.8.0; module and ModuleSpec origin `/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so`; SHA256 `1995d684a31ecce3f0b2f817e283c7ba0d3bd77c961c0f47f2adb552f8cddf4a`. Full output: `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/focused-tests-native-evidence-final.txt`@`e555b203ea9eed0b22d338c3605471ccb67b023741fd54dbda009657a917cfaa`.",
-      "evidence_script": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/run_focused_native_evidence.py@142a186d29917dbad60eb00eb17fb1d722c9d1e3fe437b1a680b64876accc540"
+      "output": "Exit 0; status `admitted`; complete_verdict=true; findings=[]; unresolved_inputs=[]. Full JSON `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb-create.json`@5041bb61afa6b48a2a490440cb03954a4b72875a5c6069997251aa1ad45bdd66 (34,694 bytes).",
+      "predicate_basis": "independently_reconciled"
     },
     {
-      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/run_full_changed_ruff.py",
-      "target_sha": "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
-      "environment": "Python 3.14 shared read-only policy-engine venv; Ruff configuration resolved from policy-engine; every changed Python path from the implementation commit was checked without a select-only filter.",
-      "input_closure": "All 29 changed .py paths in implementation commit f5d66898566cc472a5a3a7309ecb76f0cdb12c45.",
+      "command": "uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch codex/e02-C-dfi-emb-20261006 --path /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": "Invoked from the C integration worktree product root `/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine`; selector checked the exact DFI/EMB branch and attached worktree root.",
+      "input_closure": "Fresh resume admission; complete observed worktree registrations/admin records and filesystem state; no old stale-registration exception.",
+      "outcome": "PASS",
+      "output": "Exit 0; status `admitted`; complete_verdict=true; findings=[]; unresolved_inputs=[]. Full JSON `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb-resume.json`@684e0575e475d0adb3206ebf4ffab280f104bec5ef3625feb08e35890e0aca0e (41,439 bytes).",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "command": "PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_dfi_02.py tests/unit/remediation/test_dfi_03.py tests/unit/remediation/test_emb_02.py tests/unit/remediation/test_emb_03.py tests/unit/data_forge/kernel/test_embeddings.py tests/unit/data_forge/domains/catalog/batch/test_pipeline.py tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py tests/unit/data_forge/domains/catalog/batch/test_graph_builder.py tests/unit/data_forge/domains/catalog/batch/test_benchmark.py tests/unit/data_forge/domains/catalog/batch/test_qc.py tests/unit/data_forge/domains/catalog/batch/test_publish.py -v",
+      "target_sha": "4a9350bf3e43d1785ab7ff51b37da442e84aca8e",
+      "environment": "macOS, Python 3.14 shared read-only policy-engine `.venv`; PYTHONPATH points to the DFI/EMB worktree. This is the earlier frozen 4a candidate run, before the later QC-readset correction.",
+      "input_closure": "The 12 listed DFI/EMB and Catalog producer/consumer test files; temporary fixtures and DBs only; no production corpus or pretrained model assets.",
+      "outcome": "PASS",
+      "output": "158 passed in 32.31s. Complete output `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-158.stdout.txt`@ba4b172c4fe8729a46a02c2d1cb2f14708a060a5068436440ee57d784f919cee."
+    },
+    {
+      "command": "PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/hnsw_origin_probe.py",
+      "target_sha": "4a9350bf3e43d1785ab7ff51b37da442e84aca8e",
+      "environment": "macOS, Python 3.14 shared read-only policy-engine `.venv`; pytest plugin captures module origin after conftest setup. The command ran with `policy-engine/` as working directory.",
+      "input_closure": "One kernel embedding publication test; native hnswlib module/distribution bytes and origin.",
+      "outcome": "PASS",
+      "output": "Native hnswlib 0.8.0; module and ModuleSpec origin `/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so`; binary SHA256 `1995d684a31ecce3f0b2f817e283c7ba0d3bd77c961c0f47f2adb552f8cddf4a`. Deciding stdout `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-native-hnsw.stdout.txt`@a6eba7b8d1d36060ece9ef2cfd99cbdffd473adef97a57cb3bdf02744c95d3b4; probe script `/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/hnsw_origin_probe.py`@06ab30ff71439991ff222e0e4df1620eee730881317e06f95551aa7196c6cc9a ."
+    },
+    {
+      "command": "PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_dfi_03.py::test_real_qc_receipt_binds_shared_merged_and_duplicate_inputs tests/unit/remediation/test_dfi_03.py::test_standalone_content_receipt_requires_stable_inputs_and_real_outputs tests/unit/remediation/test_dfi_03.py::test_qc_resume_rejects_selected_previous_snapshot_payload_change tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py::test_g2_complete_selected_generation_separates_search_and_evidence tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py::test_g1_complete_selected_generation_separates_search_and_evidence tests/unit/data_forge/domains/catalog/batch/test_qc.py tests/unit/data_forge/domains/catalog/batch/test_publish.py tests/unit/data_forge/domains/catalog/batch/test_harvester_parallel.py -v",
+      "target_sha": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+      "environment": "macOS, Python 3.14 shared read-only policy-engine `.venv`; PYTHONPATH points to the final source candidate. Native hnswlib is loaded by the Academic/Catalog consumer fixture tests; encoder/tokenizer/weights remain deterministic test fixtures.",
+      "input_closure": "The QC receipt mutation and producer tests, prior-snapshot invalidation test, both actual fixture database embedding readers, Catalog QC/publish tests, and harvester parallel tests; isolated tmp_path databases only.",
+      "outcome": "PASS",
+      "output": "29 passed in 18.30s. Complete output `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-29.stdout.txt`@21194c454b18e260aa0a8ea19f615877ef311e93fe1780bc7d10b2e318f39cf8."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py policy-engine/tests/unit/remediation/test_dfi_03.py policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py --output-format concise",
+      "target_sha": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+      "environment": "macOS, Python 3.14 shared read-only policy-engine `.venv`; candidate worktree source.",
+      "input_closure": "The four files in the final QC-readset/native-index fixture correction.",
+      "outcome": "PASS",
+      "output": "All checks passed! Complete one-line output is retained at `.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/qc-readset-owned-path-ruff.stdout.txt`@`82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18`."
+    },
+    {
+      "command": "git diff --name-only fd23ed448dd3664b80b499863573900ea03256ea..12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63 -- '*.py' | sort -u | xargs /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check",
+      "target_sha": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+      "environment": "macOS, Python 3.14 shared read-only policy-engine `.venv`; Ruff config from policy-engine; full Python delta path set, no select-only filter.",
+      "input_closure": "All 10 changed Python paths in delta parent fd23ed448dd3664b80b499863573900ea03256ea through candidate 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63.",
       "outcome": "FAIL",
-      "output": "Full Ruff reports 645 diagnostics. Complete output: `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/ruff-full-changed-final.txt`@`27b3898bb14585139489f5707255dd7f0c6308f008eb74773c850810960d68fd`. Diagnostic comparison references: exact slice-base JSON `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/ruff-base.json`@`3b3a4d3ff90c15eb5bd1957ae82b45f97d08d9c7e61bc5318961a15da54dc00c`; candidate JSON `/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/ruff-final.json`@`9f7360695c7e010e4e07bb774df888b9b98ba63a291b250945e84296f463e3ae`. Comparison mapped 657 base diagnostics to 645 candidate diagnostics with 0 unmatched candidate diagnostics and 12 fewer findings. Changed paths overlap Ruff's complete denominator, so the failed gate is not labeled inherited or disjoint; ownership of the remaining findings is not established.",
-      "evidence_script": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/dfi-emb/run_full_changed_ruff.py@2a374f6f21ed5f82ed58db146747d98d061f7067022ff78ac7f2ea93c239aa74"
+      "output": "Full delta Ruff reports 99 diagnostics, all in `core_sources/loaders.py`. Complete output committed as `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ruff99.stdout.txt`@fdc509d58298bac3250a7932a57b066167e7d7ed048293029aca17556e0f4b70. The changed path intersects the gate denominator, so ownership is not established; this is not labeled inherited or green."
     },
     {
-      "command": "git show --check --oneline f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
-      "target_sha": "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
-      "environment": "Git in the authorized C worktree.",
-      "input_closure": "Implementation commit diff.",
+      "command": "git show --check --oneline 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+      "target_sha": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+      "environment": "Git in the attached C DFI/EMB worktree.",
+      "input_closure": "Final source implementation commit.",
       "outcome": "PASS",
-      "output": "No whitespace errors; commit subject `Harden catalog resume and embedding generations`."
+      "output": "No whitespace errors; commit subject `Bind QC receipts to merged quality inputs`."
     },
     {
-      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
-      "target_sha": "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
-      "environment": "Python 3.14 shared read-only venv; import path explicitly points to this worktree. Fresh generated-artifact checks copy the repository into an isolated temporary directory.",
-      "input_closure": "Repository-wide architecture and generated-artifact checks; isolated copy had no node_modules.",
+      "command": "Installed candidate package/wheel import and reader audit (root-coordinated; not run by this author)",
+      "target_sha": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+      "environment": "Pending root installed-candidate audit slot.",
+      "input_closure": "Fresh wheel/package byte origins and actual installed Academic/Catalog/Legal readback required.",
       "outcome": "UNRUN",
-      "output": "Command exited 2 with `Architecture guardrail check UNRUN: required measurements unavailable; no complete verdict.` The generated runtime API and dashboard checks could not find `openapi-typescript` in the copied workspace and exited 254; the output also reported deep-import baseline drift and runtime generated-artifact mismatches. The complete command output was truncated by the tool and was not retained as a raw file. No architecture PASS or ownership attribution is claimed; rerun at the frozen candidate if needed for G admission."
+      "output": "Root has queued the installed candidate audit. No wheel build/install, model asset load, or installed-package proof is claimed in this handoff."
     }
   ],
   "property": {
@@ -147,69 +192,130 @@
       "shared generation publisher and selector",
       "Academic/Catalog/Legal actual database-backed readers and search"
     ],
-    "proxy_divergence": "The old stat fingerprint could stay equal when same-size input bytes were changed and mtime restored; a directory or old manifest marker could exist without a complete selected source result; an index label/ID list could say v2 while a stale selector still returned the old corpus. The new negatives exercise each divergence: source outcome membership and payload bytes are re-read, required outputs and digests are recomputed, and the selector-suppression control leaves v2 metadata on disk while asserting that the real Catalog search does not return the new ds-2 record.",
+    "proxy_divergence": "The former stat/proxy basis could remain equal after same-size/same-mtime content changes; a selected source directory/manifest could exist without complete producer outcomes; an HNSW label/inventory could describe the new corpus while the selector still returned the prior one. The final negative tests mutate merged_records and duplicates_report after real QC and reject the saved receipt; they also validate the actual selected native index and actual fixture readers.",
     "negative_controls": [
       "Overlapping sibling async core-source requests bind distinct compatibility overrides; module globals remain unchanged and each result uses only its own writer/validator dependencies.",
       "A selected two-source harvest with one failed source cannot produce a complete resumable receipt or normalize as complete; retry can complete after recovery.",
       "Same-size/same-mtime source and output byte changes, missing required stage outputs, changed registry/configuration, and tampered receipts all force cache miss or fail closed.",
       "HNSW save fault preserves the prior selector; late alias failure still exposes only the selected immutable generation; suppressing the selector update leaves v2 inventory present but the actual Catalog reader rejects/does not return the new ds-2 query result.",
-      "Legal content edits, encoder-weight changes, membership changes, and entity/fact/provision withdrawal invalidate stale readback; the legacy entrypoint test asserts that its supplied recording encoder is actually called and its identity is bound."
+      "Legal content edits, encoder-weight changes, membership changes, and entity/fact/provision withdrawal invalidate stale readback; the legacy entrypoint test asserts that its supplied recording encoder is actually called and its identity is bound.",
+      "A real QC producer receipt is invalidated by same-mtime merged-record or duplicate-report byte changes; both files are in the shared benchmark/QC/publish basis."
     ]
   },
   "predicate_basis": "recomputed",
   "predicate_basis_detail": {
-    "stage_input_output_and_encoder_digests": "recomputed from current bytes and current runtime assets",
+    "stage_input_output_and_encoder_digests": "recomputed from current local bytes and inspectable encoder artifacts; the model artifacts in these runs were fixtures, and external release provenance is not established",
     "domain_reader_membership": "recomputed by comparing the selected generation with rows returned by the actual fixture database readers",
     "selected_catalog_source_set": "recomputed from the current validated catalog registry bytes and selected source configuration; no claim that this is a globally complete external source universe",
     "production_corpus_completeness": "not_established",
-    "production_model_release_or_weight_provenance": "not_established"
+    "production_model_release_or_weight_provenance": "not_established",
+    "benchmark_qc_publish_quality_readset": "merged-record and duplicate-report bytes are recomputed for all three quality-stage bases; the real QC receipt mutation test exercises same-mtime changes."
   },
-  "capability_state_or_finding_state": "All five ledger findings remain partial; this candidate supplies bounded implementation and fixture evidence but claims no finding closure. See per-finding results and residuals below. Catalog standalone benchmark/QC/publish receipt consumption remains a separate owner integration.",
+  "capability_state_or_finding_state": "Independent adversarial source review is GO for this bounded implementation candidate. All five ledger findings remain partial; closure_ids is empty. The installed candidate audit is queued and production corpus/model provenance are not established.",
   "finding_states": [
     {
       "id": "LA-038",
-      "bundles": ["DFI-01", "DFI-02"],
-      "historical_status": "partial / bridge_missing",
-      "candidate_result": "The legacy facade now binds immutable request-scoped dependencies through ContextVar; six existing leaves resolve their own override. Concurrent sibling async tests pass without module-global broadcast.",
-      "remaining": "Full FQN/external importer and monkeypatch census, production source ingestion parity, and the final compatibility sunset remain not established."
+      "bundles": [
+        "DFI-01",
+        "DFI-02"
+      ],
+      "historical_status": "partial / bridge_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "new_outcome": "bounded code path implemented; adversarial source review GO; finding remains partial and no closure is claimed",
+      "candidate_result": "The legacy core-sources facade carries immutable request-scoped dependencies through ContextVar into six existing leaf modules. The 158-test frozen run includes real pipeline/facade coverage; concurrent sibling requests remain isolated.",
+      "limited": "Evidence is fixture-bound and does not establish complete external import/monkeypatch history or production ingestion parity.",
+      "missing_input": "Full external FQN/importer and monkeypatch census; production source-history parity.",
+      "remaining": "Root installed-candidate audit is queued. Keep the finding partial until the complete compatibility caller census and required source-history evidence exist.",
+      "finding_status": "partial",
+      "independent_installed_proof": {
+        "status": "queued",
+        "scope": "root installed-candidate audit; not run by this author"
+      }
     },
     {
       "id": "LA-039",
-      "bundles": ["EMB-01", "EMB-02"],
-      "historical_status": "partial / verification_missing",
-      "candidate_result": "Academic/Catalog use shared encode/index and text-projection mechanisms with immutable generation publication and selector-authoritative reads. Fault controls and actual Academic/Catalog fixture searches exercise real hnswlib 0.8.0.",
-      "remaining": "Encoder fixtures are deterministic fakes; no production model assets, full source-history census, installed-wheel verification, or production corpus membership were exercised in this lane."
+      "bundles": [
+        "EMB-01",
+        "EMB-02"
+      ],
+      "historical_status": "partial / verification_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "new_outcome": "bounded publication/readback implementation exercised; adversarial source review GO; finding remains partial",
+      "candidate_result": "Academic and Catalog share generation publication and native HNSW/matrix coherence checks while retaining separate text projections. Fault controls preserve the old selector; final delta tests query both real fixture database readers with native hnswlib 0.8.0.",
+      "limited": "SentenceTransformer, tokenizer, and weights are deterministic fakes. The native HNSW binary is real and its origin/version/hash are recorded, but no production model was loaded.",
+      "held": "Do not claim production content authority from fake weights or fixture row membership.",
+      "missing_input": "Actual pretrained model assets/release provenance and complete production Academic/Catalog source membership.",
+      "remaining": "Installed candidate audit is queued; external source authority and model identity/provenance decisions remain open.",
+      "finding_status": "partial",
+      "independent_installed_proof": {
+        "status": "queued",
+        "scope": "root installed-candidate audit; not run by this author"
+      }
     },
     {
       "id": "LA-040",
-      "bundles": ["EMB-03"],
-      "historical_status": "partial / producer_missing",
-      "candidate_result": "Legal generation basis binds projected content, current member IDs, inspectable encoder/tokenizer/projection assets, and required entity/fact/provision outputs; actual legal store query and content/change/withdrawal negatives pass.",
-      "remaining": "External model release/revision provenance and globally authoritative legal corpus inventory remain not established; tests use tiny fixture databases and deterministic fake assets."
+      "bundles": [
+        "EMB-03"
+      ],
+      "historical_status": "partial / producer_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "new_outcome": "bounded legal embedding producer/readback code and fixture negatives are present; finding remains partial",
+      "candidate_result": "The legal generation basis binds current legal member content and IDs, projection inputs, inspectable test encoder/tokenizer identity, and entity/fact/provision outputs. Fixture tests cover edits, identity changes, membership changes, withdrawals, and actual legal-reader readback.",
+      "limited": "The tested model assets and legal database are deterministic tiny fixtures; this does not establish a production legal corpus or external model release.",
+      "held": "External model release/revision authority and globally authoritative legal corpus inventory remain unresolved; do not invent model-policy or source-completeness semantics.",
+      "missing_input": "Production legal corpus history, real encoder/tokenizer assets, and their externally verifiable release/provenance records.",
+      "remaining": "Installed-candidate proof is queued at root; owner decisions and production inputs are still required before any finding closure.",
+      "finding_status": "partial",
+      "independent_installed_proof": {
+        "status": "queued",
+        "scope": "root installed-candidate audit; not run by this author"
+      }
     },
     {
       "id": "LA-041",
-      "bundles": ["DFI-03"],
-      "historical_status": "partial / verification_missing",
-      "candidate_result": "Harvest records per-source outcomes and actual payload digests; failed selected sources block complete stage receipts and normalization. Stage skip recomputes registry/config/input basis and required content output inventory, and standalone benchmark/QC/publish producer helpers can emit/read exact receipts.",
-      "remaining": "No full production history/remote source run; caller-declared selected-source completeness is only as complete as the current validated catalog registry and is not an independent global source authority. Catalog CLI/publisher integration is owned by the Catalog author."
+      "bundles": [
+        "DFI-03"
+      ],
+      "historical_status": "partial / verification_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "new_outcome": "effective stage-basis widening and QC readset correction implemented; independent adversarial source review GO; finding remains partial",
+      "candidate_result": "Stage receipts recompute producer config, current local content inputs, source outcomes, required output inventory, and local encoder identity before reuse. The final correction adds merged_records and duplicates_report to the shared benchmark/QC/publish input basis. A real QC producer test changes each file's bytes while preserving mtime and rejects the saved QC receipt.",
+      "limited": "The basis is bounded by the current validated Catalog registry and observed local inputs. It is not an independent declaration of the global source universe or remote-provider completeness.",
+      "held": "Do not turn caller-selected registry membership or an absent external receipt into authority for complete production history.",
+      "missing_input": "Full production/remote source history and an independently established complete external source universe.",
+      "remaining": "Catalog publisher consumption of the committed exact receipt API is a separate dependent integration check; root installed-candidate proof is queued.",
+      "finding_status": "partial",
+      "independent_installed_proof": {
+        "status": "queued",
+        "scope": "root installed-candidate audit; not run by this author"
+      }
     },
     {
       "id": "LA-042",
-      "bundles": ["EMB-03"],
-      "historical_status": "partial / bridge_missing",
-      "candidate_result": "The legacy embedding API invokes a supported supplied encoder instead of ignoring it; the test observes the actual encode call, bound identity, and legal-reader result.",
-      "remaining": "Full external FQN/notebook/config/caller census, actual pretrained encoder assets, and the semantic owner policy for supported model identities remain unresolved."
+      "bundles": [
+        "EMB-03"
+      ],
+      "historical_status": "partial / bridge_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "new_outcome": "legacy entrypoint invokes and binds a supported supplied encoder in fixture tests; finding remains partial",
+      "candidate_result": "The legacy legal embedding API calls the supplied supported recording encoder, binds its asset identity in the generated basis, and reads back through the legal fixture store. The behavior is exercised by the EMB fixture suite.",
+      "limited": "The recording encoder is a deterministic fixture. No external notebook/config/FQN caller census or real model asset load was performed.",
+      "held": "Supported external model identity/revision policy remains an owner decision; no unsupported identity is silently converted into real release authority.",
+      "missing_input": "Complete external caller/config/notebook inventory and real registered encoder assets/revision provenance.",
+      "remaining": "Root installed-candidate audit is queued; preserve the legacy ABI until full callers and model policy are established.",
+      "finding_status": "partial",
+      "independent_installed_proof": {
+        "status": "queued",
+        "scope": "root installed-candidate audit; not run by this author"
+      }
     }
   ],
   "limitations_and_next_owner": [
-    "Independent review of the frozen implementation commit is pending; this receipt is not a review or closure decision.",
-    "The fixture suite uses native hnswlib 0.8.0, but a deterministic fake SentenceTransformer/tokenizer/weight fixture. Real pretrained-model asset loading and release provenance were not established.",
-    "No production dataset or full production source history was read; results are bounded to synthetic fixture inputs and actual local fixture readers.",
-    "The current validated Catalog registry anchors its selected source set, but no separate authority independently establishes the complete external source universe or all required harvested records.",
-    "Catalog author must consume `current_content_stage_receipt(config, stage)` and `run_content_stage_with_receipt(config, stage)` for standalone real benchmark/QC/publish paths and make publishers refuse unbound reports; those CLI and publisher files were outside this writer lease.",
-    "Fresh-wheel/imported-package verification remains for the root installed audit slot. Architecture guardrails returned UNRUN/exit 2 because isolated generated checks lacked node_modules/openapi-typescript; complete output was not retained. Full Ruff is FAIL with ownership not established, not an inherited-green result.",
-    "The local commit used the parent-authorized per-command `git -c core.hooksPath=/dev/null` because the worktree lacks the lefthook binary; no hook configuration or dependency installation was changed."
+    "Independent adversarial source review is GO and accepted by root for the frozen source candidate; the root installed-candidate audit remains queued.",
+    "No finding IDs are closed; closure_ids is empty and LA-038 through LA-042 remain partial in the ledger.",
+    "The 158-test output targets the earlier frozen source commit 4a9350bf3e43d1785ab7ff51b37da442e84aca8e. The final source commit 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63 has a separate 29-test dependent delta output; these are not represented as one 187-test same-tree run.",
+    "The final delta Ruff gate fails with 99 diagnostics in the changed `core_sources/loaders.py` path. Its path intersects the gate denominator; ownership is not established, and the gate is not labeled inherited or green.",
+    "Real hnswlib 0.8.0 is used and its binary origin/hash is recorded. SentenceTransformer, tokenizer and encoder weights are deterministic fixtures; actual pretrained assets and release provenance were not run or established.",
+    "No production dataset or full production source history was read. Fixture database membership and the current validated registry do not establish global external source completeness.",
+    "Catalog publisher/CLI consumption of `current_content_stage_receipt` and `run_content_stage_with_receipt` remains a separate dependent integration check; this writer did not edit Catalog-owned publisher files.",
+    "Architecture guardrails were not rerun at final candidate 12190. An earlier f5-targeted attempt returned UNRUN because the isolated generated-check copy lacked `openapi-typescript`; its full output was not retained and it is not represented as a final-candidate verdict.",
+    "The fresh create and resume admission checks both returned exit 0/admitted for the exact branch/path, with no stale-registration exception. Their full JSON outputs remain at the cited original-machine paths and hashes.",
+    "Source commit and handoff commit use the parent-authorized per-command `git -c core.hooksPath=/dev/null` because the checkout does not have the lefthook binary; no hook configuration or dependency installation was changed."
   ],
   "source_refs": [
     "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFI-01.md#LA-038",
@@ -221,5 +327,24 @@
     "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMB-03.md#LA-042",
     "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv#LA-038..LA-042",
     "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md#finding-la-038..finding-la-042"
-  ]
+  ],
+  "delta_parent_sha": "fd23ed448dd3664b80b499863573900ea03256ea",
+  "delta_changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+    "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+    "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py",
+    "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
+    "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py"
+  ],
+  "independent_adversarial_review": {
+    "target_sha": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+    "outcome": "GO",
+    "acceptance": "Root accepted the independent adversarial source review after the QC effective-readset correction.",
+    "installed_candidate_audit": "queued"
+  }
 }

@@ -1,0 +1,115 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "unit": "B",
+  "reviewer": "cas_probe",
+  "author": "cmp_res_probe",
+  "bundle_ids": [
+    "JIT-01"
+  ],
+  "finding_ids": [
+    "B49",
+    "B50",
+    "B53"
+  ],
+  "closure_ids": [],
+  "review_scope": "full nine-path source delta and canonical compiler/cache/required-edge consumers; no new runtime execution",
+  "candidate_sha": "ec36f1cbb39f89b7f95f962713182b57b52ebd53",
+  "candidate_tree": "4d11dee082ccc9be299e0ee40bfaee7f8c7494e6",
+  "base_sha": "612351236667277f0f73573a19da9692d045e579",
+  "base_tree": "52cea77f62d0b89a709762ec842fdf1ac79c17f1",
+  "delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-inputs.toml",
+    "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+    "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+    "policy-engine/tests/unit/remediation/test_jit_01.py"
+  ],
+  "source_identity": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-inputs.toml",
+      "sha256": "861df37061b2db418a445126a22a3e0482567082351cb1c0a0f3a691f58e3852"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+      "sha256": "99ba75d7f3848cc77a3fe775a3b394aa1df21e32f10364040345cbb5dc309c06"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "sha256": "4ded29c3bb1ef77202b4a57d9595e8b4665552293e9b92321e675a52dcbee559"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+      "sha256": "b24400ff7d620fc78f040743fe1d24fa1e55db3ed07576f2b7af778a3a30b1ab"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+      "sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+      "sha256": "905f6b9270e7b137a373422e8d0795a451fed6e8639f6fd6a6974e5f8af32251"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/README.md",
+      "sha256": "29a2bce95a856f4089a21dcbbc234c870ae35a88cdaa5650ffac36ab46404841"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+      "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+      "sha256": "42df8ad9ed2a5338479e88192b9efc627768c52af7752993d2fd9abf23241a98"
+    }
+  ],
+  "engineering_source_review": "no_blocking_finding_within_declared_finite_profile",
+  "runtime_acceptance": "not_established_by_this_review; actual native author/root wave remains required",
+  "canonical_consumers": {
+    "compiler": "compiler/__init__.py@ec36f1cbb39f89b7f95f962713182b57b52ebd53 MethodCompiler.compile/_compile_method/compile_chain; _implementation_digest uses shared immutable SourceIdentity plus signature, part of real specialization/cache identity, rechecked before publication and untraced body",
+    "cache": "CompilationCache.claim_flight rechecks ready cache under same cache→flight lock order; publish_flight publishes/notifies atomically; complete_flight failure only uses flight lock, no reverse order; bounded3 invalidation retry/failure broadcast",
+    "required_edges": "backends/chain_executor.py canonical _collect_node_inputs reused by shape preparation and actual compiled runtime; actual materializer/dtype/payload reconcile occurs before numerical body",
+    "surface": "compiler/components READMEs and releasefragment describe unsupported mutable captures and retained old traced handles"
+  },
+  "actual_native_oracle_inputs_read": {
+    "source": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py@ec36f1cbb39f89b7f95f962713182b57b52ebd53",
+    "selectors": [
+      "test_real_jax_same_fqn_source_replacement_matches_cold_preserves_old_handle",
+      "test_real_jax_same_class_helper_replacement_matches_cold_preserves_old_handle",
+      "test_untraced_handle_refuses_helper_replacement_before_real_trace",
+      "test_actual_miss_before_claim_rechecks_peer_terminal_publication",
+      "test_unestablished_mutable_code_capture_is_typed_compiler_boundary",
+      "test_real_materialized_dtype_reconciles_prepared_consumer_specialization",
+      "test_actual_required_alias_runtime_uses_real_producer_output",
+      "test_real_required_compiled_alias_edge_has_no_numeric_preparation"
+    ],
+    "independent_arithmetic": "x10*2=20; replacement uses2+1 so cold/warm=30 and old traced handle remains20. Real edge x3*2 produces6, then+1 yields7; declared float32 preparation vs actual int32 must select different kernel with same7 numeric result. These are reviewed oracle definitions, not newly executed results.",
+    "body_quantity": "sys.getprofile outside mutable scientific closures observes zero numerical bodies during cold/warm preparation, then exact expected body entries at actual execution; original count assertions retained",
+    "canonical_fixture": "test_jit_01 explicit namedtuple materialize/dematerialize adapter replaces ambiguous state assumption without dropping body-count claims"
+  },
+  "boundaries": [
+    "Immutable supported class/code/default/closure graph only; imported mutable module state or external effects are not established by version/identity metadata. SourceIdentityUnavailable is typed CompilationError, not fake fallback identity.",
+    "Low-level build_specialization compatibility calls may omit implementation_hash; this review concerns actual MethodCompiler path, not all conceivable third-party low-level publishers.",
+    "Already-traced old handles deliberately retain old computation; untraced handles reject class-helper changes. No blanket global invalidation/hostile concurrent class-mutation contract is invented.",
+    "No whole64 or whole3 suite repeated, no helper/new worktree, no JIT/production edits, no independent runtimePASS."
+  ],
+  "predicate_basis": "independently_reconciled source structure only; runtime predicate execution not_established",
+  "pattern_pass": [
+    "P31 canonical SourceIdentity and common input collector instead of local key/edge patches",
+    "P38 same-FQN replacement and real int32 edge distinguish metadata-key/provisional-shape proxies",
+    "P35 complete9-path delta inventory from immutable Git pair",
+    "P29 actual JAX/body/peer-publication source inputs, no marker-only runtime verdict",
+    "P41 no inherited-red claim"
+  ],
+  "checks": [
+    {
+      "target_sha": "ec36f1cbb39f89b7f95f962713182b57b52ebd53",
+      "command": "read-only git diff 612351236667277f0f73573a19da9692d045e579 ec36f1cbb39f89b7f95f962713182b57b52ebd53 and exact canonical source/test blocks",
+      "outcome": "UNRUN",
+      "qualification": "source reviewed; no runtime command executed by this reviewer"
+    }
+  ]
+}

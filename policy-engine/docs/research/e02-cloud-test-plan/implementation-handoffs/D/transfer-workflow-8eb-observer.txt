@@ -1,0 +1,76 @@
+import json
+import os
+import sys
+import time
+from collections import Counter
+from importlib.metadata import version
+from pathlib import Path
+import pytest
+
+ROOT=Path('/dev/shm/e02-D2-transfer-composed-8eb')
+SOURCE=ROOT/'policy-engine'/'src'
+class NativeObserver:
+    def __init__(self):
+        self.results=[]
+        self.current=None
+        self.depth=0
+    def profile(self, frame, event, arg):
+        if self.current is None:
+            return
+        file=frame.f_code.co_filename
+        name=frame.f_code.co_name
+        if file.endswith('/search/strategies/bayesian.py') and name=='set_state':
+            if event=='call': self.depth+=1
+            elif event=='return': self.depth-=1
+        if event!='call':
+            return
+        phase='restore' if self.depth else 'ordinary'
+        key=None
+        if file.endswith('/botorch/fit.py') and name=='fit_gpytorch_mll':
+            key='native_fit_gpytorch_mll'
+        elif file.endswith('/botorch/models/gp_regression.py') and name=='__init__' and type(frame.f_locals.get('self')).__name__=='SingleTaskGP':
+            key='native_SingleTaskGP_constructor'
+        elif file.endswith('/gpytorch/mlls/marginal_log_likelihood.py') and name=='__init__' and type(frame.f_locals.get('self')).__name__=='ExactMarginalLogLikelihood':
+            key='native_ExactMarginalLogLikelihood_constructor'
+        elif file.endswith('/search/strategies/bayesian.py') and name=='_fit_full_gp':
+            key='receiver_full_fit'
+        if key:
+            self.current[phase+'.'+key]+=1
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_call(self, item):
+        if 'test_transfer_workflow.py' not in item.nodeid:
+            yield
+            return
+        self.current=Counter()
+        self.depth=0
+        sys.setprofile(self.profile)
+        try:
+            yield
+        finally:
+            sys.setprofile(None)
+            self.results.append({'nodeid':item.nodeid,'observed_calls':dict(self.current)})
+            self.current=None
+    def pytest_sessionfinish(self, session, exitstatus):
+        out={'method':'sys.setprofile call observation only; no replaced native model, MLL, fitting, acquisition or checkpoint function','exitstatus':exitstatus,'tests':self.results}
+        (ROOT/'native-call-observations.json').write_text(json.dumps(out,indent=2)+'\n')
+        print('NATIVE_CALL_OBSERVATIONS='+json.dumps(out,sort_keys=True))
+
+import polisyos.scientist.methods.search.strategies.transfer as transfer
+import polisyos.scientist.methods.search.strategies.bayesian as bayesian
+import polisyos.scientist.methods.autotune.warm_start as warm_start
+import polisyos.scientist.methods.autotune.bayesian_generator as generator
+import polisyos.scientist.methods.autotune.runtime as runtime
+import polisyos.scientist.agent.vector_memory as vector_memory
+import torch,botorch,gpytorch,hnswlib
+modules={name:module.__file__ for name,module in {'transfer':transfer,'bayesian':bayesian,'warm_start':warm_start,'bayesian_generator':generator,'runtime':runtime,'vector_memory':vector_memory,'torch':torch,'botorch':botorch,'gpytorch':gpytorch,'hnswlib':hnswlib}.items()}
+for name in ['transfer','bayesian','warm_start','bayesian_generator','runtime','vector_memory']:
+    assert Path(modules[name]).is_relative_to(SOURCE), (name,modules[name])
+origin={'sha':'8eb99fc1da48232321eba0e92ecff20d96beff1c','tree':'dccf1ce0f5c3c6107b78b60bc2a73bba30327e64','python':sys.executable,'python_version':sys.version,'cwd':os.getcwd(),'PYTHONPATH':os.environ.get('PYTHONPATH'),'sys_path':sys.path,'modules':modules,'versions':{name:version(name) for name in ['torch','botorch','gpytorch','hnswlib','pytest','pydantic']}}
+(ROOT/'module-origins.json').write_text(json.dumps(origin,indent=2)+'\n')
+print('MODULE_ORIGINS='+json.dumps(origin,sort_keys=True),flush=True)
+args=['-c','/dev/null','-p','no:cacheprovider','--confcutdir=tests/unit','-q','tests/unit/scientist/methods/autotune/test_transfer_workflow.py','tests/unit/scientist/methods/search/strategies/test_transfer.py','tests/unit/scientist/methods/autotune/test_warm_start.py','-ra']
+print('PYTEST_ARGS='+json.dumps(args),flush=True)
+start=time.monotonic()
+code=pytest.main(args,plugins=[NativeObserver()])
+print('MEASUREMENT='+json.dumps({'exit_code':code,'wall_seconds':time.monotonic()-start}),flush=True)
+raise SystemExit(code)

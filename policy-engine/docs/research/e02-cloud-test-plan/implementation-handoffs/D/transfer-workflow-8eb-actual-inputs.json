@@ -1,0 +1,1053 @@
+{
+  "source_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+  "actual_execution_input_origin": "After-run capture from the only pytest root containing these workflow fixtures; immutable checkpoint corpus and selected original history bytes are preserved. Mutation controls intentionally leave one original measurement blob corrupted per numerical case.",
+  "cases": [
+    {
+      "case": "healthy",
+      "actual_fixture_path": "/tmp/pytest-of-agent/pytest-239/test_actual_public_workflow_fi0",
+      "conditional_origin": "Analytic fixture descriptors; not production provenance or institutional authorization.",
+      "checkpoints": [
+        {
+          "checkpoint_ref": {
+            "artifact_id": "sha256:cad1d89d363b41eebdc8a1ecac4d1df1802419a19cf5a35010354b493d041326",
+            "kind": "search.strategy_state",
+            "media_type": "application/json"
+          },
+          "checkpoint_bytes_sha256": "cad1d89d363b41eebdc8a1ecac4d1df1802419a19cf5a35010354b493d041326",
+          "backend": {
+            "botorch": "0.16.1",
+            "gpytorch": "1.15.1",
+            "torch": "2.10.0"
+          },
+          "config": {
+            "acquisition": "expected_improvement",
+            "adaptive_acquisition": false,
+            "exploration_switch_threshold": 0.3,
+            "fallback_on_failure": false,
+            "invalid_penalty": 10.0,
+            "max_train_size": 512,
+            "n_initial": 3,
+            "num_restarts": 2,
+            "raw_samples": 32,
+            "refit_interval": 20,
+            "seed": 19,
+            "ucb_beta": 2.0,
+            "warm_start_noise_factor": 0.1
+          },
+          "target_numerical_basis": {
+            "bounds": {
+              "parameters": [
+                {
+                  "categories": null,
+                  "dtype": "continuous",
+                  "log_scale": false,
+                  "lower": 0.0,
+                  "name": "x",
+                  "upper": 1.0
+                }
+              ]
+            },
+            "data_ref": {
+              "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+              "kind": "fixture.numeric.data",
+              "media_type": "application/json"
+            },
+            "direction": "minimize",
+            "evaluator_ref": {
+              "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+              "kind": "fixture.numeric.evaluator",
+              "media_type": "application/json"
+            },
+            "metric": "score",
+            "model_ref": {
+              "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+              "kind": "fixture.numeric.model",
+              "media_type": "application/json"
+            },
+            "origin": "analytic-measurement.v1",
+            "owner_id": "fixture-owner",
+            "owner_ref": {
+              "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+              "kind": "fixture.numeric.owner",
+              "media_type": "application/json"
+            },
+            "profile": "numeric_transfer_basis.v1",
+            "replica_policy": "preserve_explicit_identity.v1",
+            "scalarizer": "direction_normalized_single_objective.v1",
+            "scalarizer_ref": {
+              "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+              "kind": "fixture.numeric.scalarizer",
+              "media_type": "application/json"
+            },
+            "search_space_fingerprint": "f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504",
+            "split": "selection",
+            "split_ref": {
+              "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+              "kind": "fixture.numeric.split",
+              "media_type": "application/json"
+            },
+            "tenant_id": "tenant-a",
+            "unit": "analytic-loss"
+          },
+          "train_X": [
+            [
+              0.3333333333333333
+            ],
+            [
+              0.4444444444444444
+            ],
+            [
+              0.2222222222222222
+            ],
+            [
+              0.5555555555555556
+            ],
+            [
+              0.1111111111111111
+            ],
+            [
+              0.6666666666666666
+            ],
+            [
+              0.7777777777777778
+            ],
+            [
+              0.8888888888888888
+            ]
+          ],
+          "train_y_bo": [
+            [
+              -0.011344444444444445
+            ],
+            [
+              -0.015541975308641973
+            ],
+            [
+              -0.031838271604938274
+            ],
+            [
+              -0.044430864197530874
+            ],
+            [
+              -0.07702345679012346
+            ],
+            [
+              -0.09801111111111109
+            ],
+            [
+              -0.17628271604938273
+            ],
+            [
+              -0.27924567901234565
+            ]
+          ],
+          "last_train_size": 8,
+          "fitted_record_ids": [
+            "28ebfc8e4d41d28edca038e332645c02521411d34e60259e6b5d5e9fa38a23e3",
+            "eb12d9e724dab411ab1be3d6a36f906ec0d6f4550a2364947acce75fd0184e2a",
+            "5a988a79c06d4e73cb4c1050f322b09fc55e85f13145c988a7794a31d792de9e",
+            "94effa10747e8677a5922cc2660e6a798139f69f5fc8dd8a6acdae62a72c2b79",
+            "43d1294f417c21ace8eabcfd503d5d2ece056da3fb8de4563a22b682fe113c6c",
+            "d98714b4517d725baa24db1c89765b13f8ae76569915950bc5ac04d094d5d95e",
+            "d49d78efa3e61d8e78cf0fc1fd5df32752d62c43afb7243de59ba77019b68393",
+            "8cbf210a522845a6aca323c9913d030d49cbdf7bf369efba174cbf0b12d66a92"
+          ],
+          "admitted_original_rows": [
+            {
+              "source_row_index": 2,
+              "candidate_ref": {
+                "artifact_id": "sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.3333333333333333
+              },
+              "params_normalized": [
+                0.3333333333333333
+              ],
+              "scalar_score": 0.011344444444444445,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.011344444444444445,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+              "replica_id": 2
+            },
+            {
+              "source_row_index": 3,
+              "candidate_ref": {
+                "artifact_id": "sha256:4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.4444444444444444
+              },
+              "params_normalized": [
+                0.4444444444444444
+              ],
+              "scalar_score": 0.015541975308641973,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.015541975308641973,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+              "replica_id": 3
+            },
+            {
+              "source_row_index": 1,
+              "candidate_ref": {
+                "artifact_id": "sha256:520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.2222222222222222
+              },
+              "params_normalized": [
+                0.2222222222222222
+              ],
+              "scalar_score": 0.031838271604938274,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.031838271604938274,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+              "replica_id": 1
+            },
+            {
+              "source_row_index": 4,
+              "candidate_ref": {
+                "artifact_id": "sha256:0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.5555555555555556
+              },
+              "params_normalized": [
+                0.5555555555555556
+              ],
+              "scalar_score": 0.044430864197530874,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.044430864197530874,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+              "replica_id": 4
+            },
+            {
+              "source_row_index": 0,
+              "candidate_ref": {
+                "artifact_id": "sha256:098838924b421575100523720a15b2c227d54bceead3479774114c02b23b5706",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.1111111111111111
+              },
+              "params_normalized": [
+                0.1111111111111111
+              ],
+              "scalar_score": 0.07702345679012346,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.07702345679012346,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f",
+              "replica_id": 0
+            },
+            {
+              "source_row_index": 5,
+              "candidate_ref": {
+                "artifact_id": "sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.6666666666666666
+              },
+              "params_normalized": [
+                0.6666666666666666
+              ],
+              "scalar_score": 0.09801111111111109,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.09801111111111109,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+              "replica_id": 5
+            },
+            {
+              "source_row_index": 6,
+              "candidate_ref": {
+                "artifact_id": "sha256:918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.7777777777777778
+              },
+              "params_normalized": [
+                0.7777777777777778
+              ],
+              "scalar_score": 0.17628271604938273,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.17628271604938273,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+              "replica_id": 6
+            },
+            {
+              "source_row_index": 7,
+              "candidate_ref": {
+                "artifact_id": "sha256:fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.8888888888888888
+              },
+              "params_normalized": [
+                0.8888888888888888
+              ],
+              "scalar_score": 0.27924567901234565,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.27924567901234565,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+              "replica_id": 7
+            }
+          ],
+          "source_history_input": {
+            "ref": {
+              "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+              "kind": "search.transfer.history",
+              "media_type": "application/json"
+            },
+            "tracked_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-history-healthy.txt",
+            "sha256": "5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b"
+          },
+          "post_control_corruption": [
+            {
+              "declared_original_ref": {
+                "artifact_id": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "actual_posttest_sha256": "d71abaf37f03439241b0ca6e2c590309de3365e39d094dc6c9c247cb601cc372"
+            }
+          ]
+        }
+      ],
+      "receiving_suites": [
+        {
+          "ref": {
+            "artifact_id": "sha256:2bef833a13f139bd0dd8942c11b22652286ecfa37cfe7ff04f18f490246cca59",
+            "kind": "scientist.autotune.analytic.suite",
+            "media_type": "application/json"
+          },
+          "payload": {
+            "data_basis": "candidate_only",
+            "kind": "analytic",
+            "metadata": {},
+            "suite_id": "analytic-receiving",
+            "suite_version": "1.0"
+          }
+        }
+      ]
+    },
+    {
+      "case": "malformed",
+      "actual_fixture_path": "/tmp/pytest-of-agent/pytest-239/test_actual_public_workflow_fi1",
+      "conditional_origin": "Analytic fixture descriptors; not production provenance or institutional authorization.",
+      "checkpoints": [
+        {
+          "checkpoint_ref": {
+            "artifact_id": "sha256:849f93622863039031bd6798e5b32b2a535ee8cb644a3ce914035055f0284e9d",
+            "kind": "search.strategy_state",
+            "media_type": "application/json"
+          },
+          "checkpoint_bytes_sha256": "849f93622863039031bd6798e5b32b2a535ee8cb644a3ce914035055f0284e9d",
+          "backend": {
+            "botorch": "0.16.1",
+            "gpytorch": "1.15.1",
+            "torch": "2.10.0"
+          },
+          "config": {
+            "acquisition": "expected_improvement",
+            "adaptive_acquisition": false,
+            "exploration_switch_threshold": 0.3,
+            "fallback_on_failure": false,
+            "invalid_penalty": 10.0,
+            "max_train_size": 512,
+            "n_initial": 3,
+            "num_restarts": 2,
+            "raw_samples": 32,
+            "refit_interval": 20,
+            "seed": 19,
+            "ucb_beta": 2.0,
+            "warm_start_noise_factor": 0.1
+          },
+          "target_numerical_basis": {
+            "bounds": {
+              "parameters": [
+                {
+                  "categories": null,
+                  "dtype": "continuous",
+                  "log_scale": false,
+                  "lower": 0.0,
+                  "name": "x",
+                  "upper": 1.0
+                }
+              ]
+            },
+            "data_ref": {
+              "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+              "kind": "fixture.numeric.data",
+              "media_type": "application/json"
+            },
+            "direction": "minimize",
+            "evaluator_ref": {
+              "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+              "kind": "fixture.numeric.evaluator",
+              "media_type": "application/json"
+            },
+            "metric": "score",
+            "model_ref": {
+              "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+              "kind": "fixture.numeric.model",
+              "media_type": "application/json"
+            },
+            "origin": "analytic-measurement.v1",
+            "owner_id": "fixture-owner",
+            "owner_ref": {
+              "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+              "kind": "fixture.numeric.owner",
+              "media_type": "application/json"
+            },
+            "profile": "numeric_transfer_basis.v1",
+            "replica_policy": "preserve_explicit_identity.v1",
+            "scalarizer": "direction_normalized_single_objective.v1",
+            "scalarizer_ref": {
+              "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+              "kind": "fixture.numeric.scalarizer",
+              "media_type": "application/json"
+            },
+            "search_space_fingerprint": "f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504",
+            "split": "selection",
+            "split_ref": {
+              "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+              "kind": "fixture.numeric.split",
+              "media_type": "application/json"
+            },
+            "tenant_id": "tenant-a",
+            "unit": "analytic-loss"
+          },
+          "train_X": [
+            [
+              0.3333333333333333
+            ],
+            [
+              0.4444444444444444
+            ],
+            [
+              0.2222222222222222
+            ],
+            [
+              0.5555555555555556
+            ],
+            [
+              0.6666666666666666
+            ],
+            [
+              0.7777777777777778
+            ],
+            [
+              0.8888888888888888
+            ]
+          ],
+          "train_y_bo": [
+            [
+              -0.011344444444444445
+            ],
+            [
+              -0.015541975308641973
+            ],
+            [
+              -0.031838271604938274
+            ],
+            [
+              -0.044430864197530874
+            ],
+            [
+              -0.09801111111111109
+            ],
+            [
+              -0.17628271604938273
+            ],
+            [
+              -0.27924567901234565
+            ]
+          ],
+          "last_train_size": 7,
+          "fitted_record_ids": [
+            "28ebfc8e4d41d28edca038e332645c02521411d34e60259e6b5d5e9fa38a23e3",
+            "eb12d9e724dab411ab1be3d6a36f906ec0d6f4550a2364947acce75fd0184e2a",
+            "5a988a79c06d4e73cb4c1050f322b09fc55e85f13145c988a7794a31d792de9e",
+            "94effa10747e8677a5922cc2660e6a798139f69f5fc8dd8a6acdae62a72c2b79",
+            "d98714b4517d725baa24db1c89765b13f8ae76569915950bc5ac04d094d5d95e",
+            "d49d78efa3e61d8e78cf0fc1fd5df32752d62c43afb7243de59ba77019b68393",
+            "8cbf210a522845a6aca323c9913d030d49cbdf7bf369efba174cbf0b12d66a92"
+          ],
+          "admitted_original_rows": [
+            {
+              "source_row_index": 2,
+              "candidate_ref": {
+                "artifact_id": "sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.3333333333333333
+              },
+              "params_normalized": [
+                0.3333333333333333
+              ],
+              "scalar_score": 0.011344444444444445,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.011344444444444445,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+              "replica_id": 2
+            },
+            {
+              "source_row_index": 3,
+              "candidate_ref": {
+                "artifact_id": "sha256:4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.4444444444444444
+              },
+              "params_normalized": [
+                0.4444444444444444
+              ],
+              "scalar_score": 0.015541975308641973,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.015541975308641973,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+              "replica_id": 3
+            },
+            {
+              "source_row_index": 1,
+              "candidate_ref": {
+                "artifact_id": "sha256:520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.2222222222222222
+              },
+              "params_normalized": [
+                0.2222222222222222
+              ],
+              "scalar_score": 0.031838271604938274,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.031838271604938274,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+              "replica_id": 1
+            },
+            {
+              "source_row_index": 4,
+              "candidate_ref": {
+                "artifact_id": "sha256:0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.5555555555555556
+              },
+              "params_normalized": [
+                0.5555555555555556
+              ],
+              "scalar_score": 0.044430864197530874,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.044430864197530874,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+              "replica_id": 4
+            },
+            {
+              "source_row_index": 5,
+              "candidate_ref": {
+                "artifact_id": "sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.6666666666666666
+              },
+              "params_normalized": [
+                0.6666666666666666
+              ],
+              "scalar_score": 0.09801111111111109,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.09801111111111109,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+              "replica_id": 5
+            },
+            {
+              "source_row_index": 6,
+              "candidate_ref": {
+                "artifact_id": "sha256:918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.7777777777777778
+              },
+              "params_normalized": [
+                0.7777777777777778
+              ],
+              "scalar_score": 0.17628271604938273,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.17628271604938273,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+              "replica_id": 6
+            },
+            {
+              "source_row_index": 7,
+              "candidate_ref": {
+                "artifact_id": "sha256:fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e",
+                "kind": "search.candidate",
+                "media_type": "application/json"
+              },
+              "evaluation_ref": {
+                "artifact_id": "sha256:b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "history_ref": {
+                "artifact_id": "sha256:61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9",
+                "kind": "search.transfer.history",
+                "media_type": "application/json"
+              },
+              "params": {
+                "x": 0.8888888888888888
+              },
+              "params_normalized": [
+                0.8888888888888888
+              ],
+              "scalar_score": 0.27924567901234565,
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": 0.27924567901234565,
+                  "threshold": null,
+                  "weight": 1.0
+                }
+              ],
+              "provenance_ref": "sha256:b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+              "replica_id": 7
+            }
+          ],
+          "source_history_input": {
+            "ref": {
+              "artifact_id": "sha256:61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9",
+              "kind": "search.transfer.history",
+              "media_type": "application/json"
+            },
+            "tracked_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-history-malformed.txt",
+            "sha256": "61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9"
+          },
+          "post_control_corruption": [
+            {
+              "declared_original_ref": {
+                "artifact_id": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+                "kind": "scientist.autotune.analytic.evaluation",
+                "media_type": "application/json"
+              },
+              "actual_posttest_sha256": "d71abaf37f03439241b0ca6e2c590309de3365e39d094dc6c9c247cb601cc372"
+            }
+          ]
+        }
+      ],
+      "receiving_suites": [
+        {
+          "ref": {
+            "artifact_id": "sha256:2bef833a13f139bd0dd8942c11b22652286ecfa37cfe7ff04f18f490246cca59",
+            "kind": "scientist.autotune.analytic.suite",
+            "media_type": "application/json"
+          },
+          "payload": {
+            "data_basis": "candidate_only",
+            "kind": "analytic",
+            "metadata": {},
+            "suite_id": "analytic-receiving",
+            "suite_version": "1.0"
+          }
+        }
+      ]
+    },
+    {
+      "case": "origin_mismatch",
+      "actual_fixture_path": "/tmp/pytest-of-agent/pytest-239/test_configured_origin_mismatc0",
+      "conditional_origin": "Analytic fixture descriptors; not production provenance or institutional authorization.",
+      "checkpoints": [],
+      "receiving_suites": [],
+      "source_and_target": [
+        {
+          "ref": {
+            "artifact_id": "sha256:5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+            "kind": "search.transfer.history",
+            "media_type": "application/json"
+          },
+          "source_fingerprint": {
+            "best_params": null,
+            "best_score": null,
+            "bounds": {
+              "parameters": [
+                {
+                  "categories": null,
+                  "dtype": "continuous",
+                  "log_scale": false,
+                  "lower": {
+                    "_type": "float",
+                    "repr": "0"
+                  },
+                  "name": "x",
+                  "upper": {
+                    "_type": "float",
+                    "repr": "1"
+                  }
+                }
+              ]
+            },
+            "num_evaluations": 0,
+            "numeric_basis": {
+              "bounds": {
+                "parameters": [
+                  {
+                    "categories": null,
+                    "dtype": "continuous",
+                    "log_scale": false,
+                    "lower": {
+                      "_type": "float",
+                      "repr": "0"
+                    },
+                    "name": "x",
+                    "upper": {
+                      "_type": "float",
+                      "repr": "1"
+                    }
+                  }
+                ]
+              },
+              "data_ref": {
+                "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+                "kind": "fixture.numeric.data",
+                "media_type": "application/json"
+              },
+              "direction": "minimize",
+              "evaluator_ref": {
+                "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+                "kind": "fixture.numeric.evaluator",
+                "media_type": "application/json"
+              },
+              "metric": "score",
+              "model_ref": {
+                "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+                "kind": "fixture.numeric.model",
+                "media_type": "application/json"
+              },
+              "origin": "analytic-measurement.v1",
+              "owner_id": "fixture-owner",
+              "owner_ref": {
+                "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+                "kind": "fixture.numeric.owner",
+                "media_type": "application/json"
+              },
+              "profile": "numeric_transfer_basis.v1",
+              "replica_policy": "preserve_explicit_identity.v1",
+              "scalarizer": "direction_normalized_single_objective.v1",
+              "scalarizer_ref": {
+                "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+                "kind": "fixture.numeric.scalarizer",
+                "media_type": "application/json"
+              },
+              "search_space_fingerprint": "f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504",
+              "split": "selection",
+              "split_ref": {
+                "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+                "kind": "fixture.numeric.split",
+                "media_type": "application/json"
+              },
+              "tenant_id": "tenant-a",
+              "unit": "analytic-loss"
+            },
+            "objective_directions": {
+              "score": "minimize"
+            },
+            "objective_names": [
+              "score"
+            ],
+            "origin": "analytic-measurement.v1",
+            "run_id": "source",
+            "space_hash": "f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504",
+            "split": "selection",
+            "tenant_id": "tenant-a",
+            "units": {
+              "score": "analytic-loss"
+            }
+          },
+          "target_change": {
+            "run_id": "target",
+            "origin": "different-producer",
+            "numeric_basis.origin": "different-producer"
+          }
+        }
+      ]
+    }
+  ]
+}

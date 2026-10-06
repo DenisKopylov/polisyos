@@ -73,5 +73,25 @@
   "limitations": [
     "D old schema1.0 settle_resource consumers require forward port; do not overlay B-owned ledger/middleware.",
     "Current B1015 ledger has no owned resource reservation record or atomic multi-key settlement API. Separate reserve_safe/release_safe operations cannot establish that durable transition."
-  ]
+  ],
+  "dependency_proposal": {
+    "published_owner_ref": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+    "ledger_owner_ref": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+    "composition_owner": "root/B preserve published B authorship; D does not write B mechanism paths",
+    "required_B_paths": [
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/core/llm/settlement.py",
+      "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py"
+    ],
+    "mandatory_companions_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json@562ca2c25ca68fd90c4d5225b1b33fdd5b161940#/changed_paths; use actual LLM/budget tests, two LLM READMEs and current-llm-settlement release fragment; unrelated fabric/pool/serialization mechanism outside minimum consumer dependency",
+    "response_composition": "Keep D979 whole finite/raw/all-alternate/nonzero-underflow cost guards and paid receipt independent from token parsing. Add only B published capability-based _extract_cache_provenance and _extract_physical_provider_response_data helper required by B traced producer (dataclasses.replace import). Do not overlay B562 _as_float negative clamp or broad cost loss over D guards. B canonical owner applies/reviews this merge.",
+    "available_single_key": "B562 enforcer already uses settle_spend_safe/resolve_spend_safe and producer context with retained event/reconcile_settlement; reuse it for native adversary [policy_adversary] now. Durable ack local accounting only, not external billing.",
+    "actual_multi_key_profile": "PolicyTranslatorConfig.budget_keys defaults [policy_translator,policy_briefing]; ScenarioAdversaryConfig defaults [policy_adversary]. Atomic multi-key/owned-reservation extension is conditional on translator profile, not required to run the ordinary adversary single-key path.",
+    "remaining_projection_seam": "Existing B event has amount/cost_origin/kind/content digest, ACK exact receipts, but persisted receipt carries no run/candidate/attempt/evaluation/source scope. D needs actual producer-to-consumer attribution (typed returned settlement or direct callback) and exact readback; snapshot differencing is not stage attribution under concurrency.",
+    "D_test_proof": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py@bd63d1ef98c558774c5849da9a43fc84b45d4db7"
+  }
 }

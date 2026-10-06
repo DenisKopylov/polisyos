@@ -771,7 +771,9 @@ def _worker_control_error(payload: Any) -> BaseException:
     """Restore only the two built-in process control exceptions, without guessing."""
     if not isinstance(payload, dict):
         return _WorkerNodeError(
-            "invalid worker control envelope", category="fatal", code="node.control_protocol"
+            message="invalid worker control envelope",
+            category="fatal",
+            code="node.control_protocol",
         )
     if payload.get("kind") == "KeyboardInterrupt":
         return KeyboardInterrupt()
@@ -780,7 +782,7 @@ def _worker_control_error(payload: Any) -> BaseException:
     ):
         return SystemExit(payload.get("code"))
     return _WorkerNodeError(
-        "invalid worker control envelope", category="fatal", code="node.control_protocol"
+        message="invalid worker control envelope", category="fatal", code="node.control_protocol"
     )
 
 

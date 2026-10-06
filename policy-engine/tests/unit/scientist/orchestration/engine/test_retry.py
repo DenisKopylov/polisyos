@@ -1902,3 +1902,26 @@ def test_completed_provider_error_cannot_emit_retry_after_publication_deadline(t
         else []
     )
     assert [record for record in records if record.event == "NODE_RETRY"] == []
+
+
+@pytest.mark.parametrize(
+    "payload", [{"kind": "unknown"}, {}, {"kind": "SystemExit", "code": {"opaque": True}}]
+)
+def test_real_framed_control_reject_is_typed_terminal(payload):
+    channel = retry_module._WorkerResultChannel(mp.get_context("fork"))
+    try:
+        channel.put(("control", payload))
+        status, received = channel.get(timeout=0.1)
+        assert status == "control"
+        error = retry_module._worker_control_error(received)
+        assert isinstance(error, RuntimeError)
+        assert error.category == "fatal"
+        assert error.code == "node.control_protocol"
+        assert (
+            retry_module._should_retry_exception(
+                error, RetryPolicy(max_retries=1, retry_on=["node.control_protocol"])
+            )
+            is False
+        )
+    finally:
+        channel.close()

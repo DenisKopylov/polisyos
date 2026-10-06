@@ -139,7 +139,18 @@ class SearchSpace:
             if bound.log_scale or bound.dtype == ParameterType.LOG_CONTINUOUS:
                 log_lower = math.log(bound.lower)
                 log_upper = math.log(bound.upper)
-                value = math.exp(log_lower + normalized * (log_upper - log_lower))
+                value = (
+                    bound.lower
+                    if normalized == 0.0
+                    else bound.upper
+                    if normalized == 1.0
+                    else min(
+                        bound.upper,
+                        max(
+                            bound.lower, math.exp(log_lower + normalized * (log_upper - log_lower))
+                        ),
+                    )
+                )
             else:
                 value = bound.lower + normalized * (bound.upper - bound.lower)
             if bound.dtype == ParameterType.INTEGER:

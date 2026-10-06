@@ -1,0 +1,199 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_______ test_unrepresentable_affine_domain_refuses_at_admission[random] ________
+
+consumer = 'random'
+
+    @pytest.mark.parametrize("consumer", ["random", "public"])
+    def test_unrepresentable_affine_domain_refuses_at_admission(consumer):
+        with pytest.raises(ValueError, match="representable span"):
+            if consumer == "random":
+                RandomSearchStrategy(
+                    SearchSpace([ParameterBounds("x", -1e308, 1e308)]), seed=31
+>               ).suggest([])
+                  ^^^^^^^^^^^
+
+tests/unit/remediation/test_opt_02_strategy_consumers.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/random.py:19: in suggest
+    return self._random_candidate(source="random")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/strategies/base.py:205: in _random_candidate
+    return self._space.candidate_from_vector(vector, source_strategy=source)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/strategies/space.py:160: in candidate_from_vector
+    params=params, params_normalized=self.normalize(params), metadata=metadata, **fields
+                                     ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SearchSpace(bounds=[ParameterBounds(name='x', lower=-1e+308, upper=1e+308, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+params = {'x': inf}
+
+    def normalize(self, params: dict[str, Any]) -> NormalizedVector:
+        values: list[float] = []
+        for bound in self.bounds:
+            if bound.dtype == ParameterType.CATEGORICAL:
+                assert bound.categories is not None
+                raw = params.get(bound.name)
+                matches = [
+                    type(raw) is type(candidate) and raw == candidate
+                    for candidate in bound.categories
+                ]
+                if sum(matches) != 1:
+                    raise ValueError(
+                        f"Unknown category '{raw}' for parameter '{bound.name}'. "
+                        f"Allowed: {bound.categories}"
+                    )
+                values.extend(1.0 if match else 0.0 for match in matches)
+                continue
+            value = params.get(bound.name)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(value)
+            ):
+>               raise ValueError(f"Finite physical parameter required for '{bound.name}'")
+E               ValueError: Finite physical parameter required for 'x'
+
+src/polisyos/scientist/methods/search/strategies/space.py:97: ValueError
+
+During handling of the above exception, another exception occurred:
+
+consumer = 'random'
+
+    @pytest.mark.parametrize("consumer", ["random", "public"])
+    def test_unrepresentable_affine_domain_refuses_at_admission(consumer):
+>       with pytest.raises(ValueError, match="representable span"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'representable span'
+E         Actual message: "Finite physical parameter required for 'x'"
+
+tests/unit/remediation/test_opt_02_strategy_consumers.py:26: AssertionError
+_______ test_unrepresentable_affine_domain_refuses_at_admission[public] ________
+
+consumer = 'public'
+
+    @pytest.mark.parametrize("consumer", ["random", "public"])
+    def test_unrepresentable_affine_domain_refuses_at_admission(consumer):
+>       with pytest.raises(ValueError, match="representable span"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_opt_02_strategy_consumers.py:26: Failed
+_______ test_supported_logarithmic_endpoints_are_actual_in_bound_actions _______
+
+    def test_supported_logarithmic_endpoints_are_actual_in_bound_actions():
+        space = SearchSpace([ParameterBounds("x", 1e-308, 1e308, dtype=ParameterType.LOG_CONTINUOUS)])
+        for point in (0, 0.5, 1):
+>           candidate = space.candidate_from_vector((point,))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_opt_02_strategy_consumers.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/space.py:160: in candidate_from_vector
+    params=params, params_normalized=self.normalize(params), metadata=metadata, **fields
+                                     ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SearchSpace(bounds=[ParameterBounds(name='x', lower=1e-308, upper=1e+308, dtype=<ParameterType.LOG_CONTINUOUS: 'log_continuous'>, log_scale=False, categories=None)])
+params = {'x': 9.999999999999866e-309}
+
+    def normalize(self, params: dict[str, Any]) -> NormalizedVector:
+        values: list[float] = []
+        for bound in self.bounds:
+            if bound.dtype == ParameterType.CATEGORICAL:
+                assert bound.categories is not None
+                raw = params.get(bound.name)
+                matches = [
+                    type(raw) is type(candidate) and raw == candidate
+                    for candidate in bound.categories
+                ]
+                if sum(matches) != 1:
+                    raise ValueError(
+                        f"Unknown category '{raw}' for parameter '{bound.name}'. "
+                        f"Allowed: {bound.categories}"
+                    )
+                values.extend(1.0 if match else 0.0 for match in matches)
+                continue
+            value = params.get(bound.name)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(value)
+            ):
+                raise ValueError(f"Finite physical parameter required for '{bound.name}'")
+            raw = float(value)
+            if not bound.lower <= raw <= bound.upper:
+>               raise ValueError(f"Physical parameter '{bound.name}' is outside bounds")
+E               ValueError: Physical parameter 'x' is outside bounds
+
+src/polisyos/scientist/methods/search/strategies/space.py:100: ValueError
+____ test_multiobjective_native_tensor_converter_emits_executed_coordinate _____
+
+    @pytest.mark.skipif(_deps.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_multiobjective_native_tensor_converter_emits_executed_coordinate():
+        space = SearchSpace([ParameterBounds("n", 0, 1, dtype=ParameterType.INTEGER)])
+        optimizer = MOBayesianOptimizer(space, ["a", "b"], [OptimizationDirection.MINIMIZE] * 2)
+        candidate = optimizer._tensor_to_candidate(_deps.require_torch().tensor([0.24]), "fixture", 0.8)
+        assert candidate.params == {"n": 0}
+>       assert candidate.params_normalized == space.normalize(candidate.params)
+E       assert (0.23999999463558197,) == (0.0,)
+E         
+E         At index 0 diff: 0.23999999463558197 != 0.0
+E         Use -v to get more diff
+
+tests/unit/remediation/test_opt_02_strategy_consumers.py:49: AssertionError
+________ test_neural_actual_fit_and_acquisition_emits_attainable_action ________
+
+    @pytest.mark.skipif(_deps.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_neural_actual_fit_and_acquisition_emits_attainable_action():
+        space = SearchSpace([ParameterBounds("n", 0.2, 1.8, dtype=ParameterType.INTEGER)])
+        strategy = NeuralSearchStrategy(space, NeuralSearchConfig(n_initial=3, seed=41))
+        evaluations = [
+            Evaluation(
+                str(i),
+                {"n": 1},
+                space.normalize({"n": 1}),
+                [],
+                float(i),
+                True,
+                metadata={"replica_id": str(i)},
+            )
+            for i in range(4)
+        ]
+        real_fit = _deps.fit_gpytorch_mll
+        with patch.object(_deps, "fit_gpytorch_mll", wraps=real_fit) as fit:
+            candidate = strategy._suggest_from_surrogate(evaluations, None)
+        assert fit.call_count == 1
+        assert candidate.source_strategy == "neural_gp"
+        assert candidate.params == {"n": 1}
+>       assert candidate.params_normalized == (0.5,)
+E       assert (0.0,) == (0.5,)
+E         
+E         At index 0 diff: 0.0 != 0.5
+E         Use -v to get more diff
+
+tests/unit/remediation/test_opt_02_strategy_consumers.py:77: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/remediation/test_opt_02_strategy_consumers.py::test_neural_actual_fit_and_acquisition_emits_attainable_action
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_opt_02_strategy_consumers.py::test_unrepresentable_affine_domain_refuses_at_admission[random]
+FAILED tests/unit/remediation/test_opt_02_strategy_consumers.py::test_unrepresentable_affine_domain_refuses_at_admission[public]
+FAILED tests/unit/remediation/test_opt_02_strategy_consumers.py::test_supported_logarithmic_endpoints_are_actual_in_bound_actions
+FAILED tests/unit/remediation/test_opt_02_strategy_consumers.py::test_multiobjective_native_tensor_converter_emits_executed_coordinate
+FAILED tests/unit/remediation/test_opt_02_strategy_consumers.py::test_neural_actual_fit_and_acquisition_emits_attainable_action
+5 failed, 3 warnings in 7.68s

@@ -172,13 +172,25 @@ class NeuralSearchStrategy(BaseSearchStrategy):
 
         vector = tuple(candidate.squeeze(0).tolist())
         params = self._space.denormalize(vector)
-
-        return PolicyCandidate(
-            params=params,
-            params_normalized=vector,
-            acquisition_value=acq_value.item(),
+        executed = torch.tensor(
+            self._space.normalize(params), dtype=candidate.dtype, device=candidate.device
+        ).reshape(1, -1)
+        with torch.no_grad():
+            posterior = model.posterior(executed)
+            executed_acquisition = acqf(executed.unsqueeze(0)).item()
+            predicted_mean = posterior.mean.squeeze().item()
+            predicted_std = posterior.variance.sqrt().squeeze().item()
+        return self._space.candidate_from_vector(
+            vector,
+            acquisition_value=executed_acquisition,
+            predicted_mean=predicted_mean,
+            predicted_std=predicted_std,
             source_strategy="neural_gp",
-            metadata={"warm_start_count": len(self._warm_data)},
+            metadata={
+                "warm_start_count": len(self._warm_data),
+                "prediction_basis": "executed_action",
+                "acquisition_value_basis": "executed_action",
+            },
         )
 
     def update(self, evaluation: Evaluation) -> None:

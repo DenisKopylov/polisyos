@@ -1,0 +1,156 @@
+"""Independently bind a generated inventory to immutable facade source ASTs."""
+
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+import subprocess
+import sys
+import tomllib
+
+REPO = "/workspace/e02-D-published-oracle"
+SOURCE = "5eca5d0df09f3296aefe20a0797aa14837da01ff"
+PREFIX = "policy-engine/"
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(["git", *args], cwd=REPO)
+
+
+def source(path: str) -> bytes:
+    return git("show", f"{SOURCE}:{PREFIX}{path}")
+
+
+def assigned(tree: ast.Module, name: str) -> object:
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            if any(isinstance(t, ast.Name) and t.id == name for t in node.targets):
+                try:
+                    return ast.literal_eval(node.value)
+                except (ValueError, TypeError):
+                    return None
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            if node.target.id == name and node.value is not None:
+                try:
+                    return ast.literal_eval(node.value)
+                except (ValueError, TypeError):
+                    return None
+    return None
+
+
+def digest(path: str) -> dict[str, object]:
+    raw = source(path)
+    return {"path": PREFIX + path, "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+contract = tomllib.loads(source("architecture/public_surface/contract.toml").decode())
+inventory = json.loads(source("architecture/public_surface/inventory.json"))
+doc = source("docs/reference/public-surface.md").decode()
+checks = []
+dynamic_exports = []
+for package in inventory["packages"]:
+    for entry in package["entrypoints"]:
+        tree = ast.parse(source(entry["source_file"]))
+        literal_exports = assigned(tree, "__all__")
+        if literal_exports is None and any(
+            isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "__all__" for t in n.targets)
+            for n in tree.body
+        ):
+            dynamic_exports.append(entry["module"])
+            continue
+        exports = literal_exports or []
+        functions = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
+        mode = "lazy_facade" if exports and "__getattr__" in functions else "eager_exports" if exports else "module_doc_only"
+        assert entry["exports"] == list(exports), entry["module"]
+        assert entry["export_count"] == len(exports), entry["module"]
+        assert entry["has___getattr__"] == ("__getattr__" in functions), entry["module"]
+        assert entry["has___dir__"] == ("__dir__" in functions), entry["module"]
+        assert entry["facade_mode_observed"] == mode, (entry["module"], entry["facade_mode_observed"], mode)
+        checks.append({"module": entry["module"], "exports": len(exports), "source": digest(entry["source_file"])})
+
+scientist = next(p for p in inventory["packages"] if p["module"] == "polisyos.scientist")
+root_tree = ast.parse(source("src/polisyos/scientist/__init__.py"))
+exports = assigned(root_tree, "__all__")
+lazy = assigned(root_tree, "_LAZY_IMPORTS")
+assert isinstance(exports, list) and isinstance(lazy, dict)
+assert len(exports) == 42 and len(set(exports)) == 42
+assert scientist["exports"] == exports
+assert scientist["entrypoints"][0]["exports"] == exports
+assert set(exports) == set(lazy)
+
+# Execute only the dependency-light facade body, without requesting lazy targets.
+namespace: dict[str, object] = {"__name__": "polisyos.scientist", "__package__": "polisyos.scientist"}
+exec(compile(root_tree, "git:scientist/__init__.py", "exec"), namespace)
+assert namespace["__all__"] == exports
+assert namespace["_LAZY_IMPORTS"] == lazy
+
+new_exports = {
+    "NativeSearchService": ("polisyos.scientist.methods.search.service", "NativeSearchService"),
+    "SearchServiceCheckpoint": ("polisyos.scientist.methods.search.contracts", "SearchServiceCheckpoint"),
+    "SearchLoopRunner": ("polisyos.scientist.methods.autotune.runtime", "SearchLoopRunner"),
+}
+targets = []
+for name, target in new_exports.items():
+    assert lazy[name] == target
+    path = "src/" + target[0].replace(".", "/") + ".py"
+    tree = ast.parse(source(path))
+    defined = [n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == target[1]]
+    assert len(defined) == 1, target
+    targets.append({"export": name, "canonical_target": list(target), "definition_line": defined[0].lineno, "source": digest(path)})
+
+section = doc.split("## `polisyos.scientist`\n", 1)[1].split("\n## `", 1)[0]
+for title in ["Entrypoint exports (42)", "Supported exports (42)"]:
+    tail = section.split(f"<details><summary>{title}</summary>", 1)[1]
+    rendered = tail.split("```text\n", 1)[1].split("\n```", 1)[0].splitlines()
+    assert rendered == exports, title
+
+supported = {e for p in contract["package"] for e in p["supported_entrypoints"]}
+children = []
+for module in ["polisyos.scientist.methods.search", "polisyos.scientist.methods.autotune"]:
+    path = "src/" + module.replace(".", "/") + "/__init__.py"
+    child_exports = assigned(ast.parse(source(path)), "__all__")
+    assert module not in supported
+    assert not any(p["module"] == module for p in inventory["packages"])
+    children.append({"module": module, "declared_exports": len(child_exports), "classification": "internal", "reason": contract["public_surface"]["internal_rule"], "source": digest(path)})
+
+parent = git("rev-parse", SOURCE + "^").decode().strip()
+changed = git("diff", "--name-only", parent, SOURCE).decode().splitlines()
+assert changed == [PREFIX + "architecture/public_surface/inventory.json", PREFIX + "docs/reference/public-surface.md"]
+product_diff = git("diff", "--name-only", parent, SOURCE, "--", PREFIX + "src", PREFIX + "tests").decode()
+assert not product_diff
+old = json.loads(git("show", f"{parent}:{PREFIX}architecture/public_surface/inventory.json"))
+old_scientist = next(p for p in old["packages"] if p["module"] == "polisyos.scientist")
+assert old_scientist["export_count"] == 39
+assert exports[3:] == old_scientist["exports"]
+assert inventory["generated_artifact_families"] == old["generated_artifact_families"]
+
+result = {
+    "schema": "polisyos.e02.independent-public-inventory-binding.v1",
+    "verdict": "PASS",
+    "scope": "Static immutable facade/source and generated identity binding; no backend or whole-gate execution",
+    "source": SOURCE,
+    "tree": git("rev-parse", SOURCE + "^{tree}").decode().strip(),
+    "parent": parent,
+    "changed_paths": changed,
+    "product_and_test_diff_empty": True,
+    "facade_source_checks": checks,
+    "dynamic_export_entrypoints_outside_literal_check": dynamic_exports,
+    "root_scientist_exports": exports,
+    "root_facade_body_executed_without_lazy_target_imports": True,
+    "new_exports": targets,
+    "internal_children": children,
+    "rendered_root_export_lists_exact": True,
+    "generated_artifact_family_inventory_unchanged": True,
+    "inputs": [digest(p) for p in ["architecture/public_surface/contract.toml", "architecture/public_surface/inventory.json", "docs/reference/public-surface.md", "tools/devx/architecture/guardrails.py"]],
+    "limitations": [
+        "Lazy target classes were verified as canonical source definitions; no runtime target object identity or numerical behavior was tested.",
+        "The canonical sync author's PASS is not promoted to a full architecture, README, module-budget, public-link, or quality-gate PASS.",
+        "Child __all__ declarations do not change their internal contract classification.",
+        "Nonliteral dynamic __all__ entrypoints are explicitly outside the supplementary literal inventory check; the Scientist facade has an explicit literal list and was executed directly.",
+        "The attempted nonexistent autotune README read was preparation-only and produced no runtime verdict; no such README is required by this scoped inventory check.",
+        "The first supplementary inventory verifier stopped on an unrelated dynamic __all__ expression; it was corrected to exclude such expressions without changing the literal Scientist export check. No backend execution occurred.",
+    ],
+    "closure_ids": [],
+}
+sys.stdout.write(json.dumps(result, indent=2) + "\n")

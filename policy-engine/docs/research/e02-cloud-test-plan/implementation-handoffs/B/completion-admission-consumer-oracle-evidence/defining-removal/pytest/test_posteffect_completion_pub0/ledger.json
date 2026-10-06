@@ -1,0 +1,152 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:independent-completion-consumer",
+  "revision": 7,
+  "updated_at": "2026-10-06T20:47:23.470761Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:468184:ledger.json",
+    "pid": 468184
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:468184:ledger.json",
+        "pid": 468184
+      },
+      "committed_at": "2026-10-06T20:47:23.445408Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:468184:ledger.json",
+        "pid": 468184
+      },
+      "committed_at": "2026-10-06T20:47:23.447789Z"
+    },
+    {
+      "revision": 2,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:468184:ledger.json",
+        "pid": 468184
+      },
+      "committed_at": "2026-10-06T20:47:23.460244Z"
+    },
+    {
+      "revision": 3,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:468184:ledger.json",
+        "pid": 468184
+      },
+      "committed_at": "2026-10-06T20:47:23.463591Z"
+    },
+    {
+      "revision": 4,
+      "operation": "settle_spend",
+      "key": "run",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "unknown",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:468184:ledger.json",
+        "pid": 468184
+      },
+      "committed_at": "2026-10-06T20:47:23.465055Z"
+    },
+    {
+      "revision": 5,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:468184:ledger.json",
+        "pid": 468184
+      },
+      "committed_at": "2026-10-06T20:47:23.467649Z"
+    },
+    {
+      "revision": 6,
+      "operation": "release",
+      "key": "run",
+      "amount": "0.00004",
+      "applied_amount": "0.00004",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:468184:ledger.json",
+        "pid": 468184
+      },
+      "committed_at": "2026-10-06T20:47:23.469385Z"
+    },
+    {
+      "revision": 7,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:468184:ledger.json",
+        "pid": 468184
+      },
+      "committed_at": "2026-10-06T20:47:23.470757Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "10"
+      }
+    },
+    "spent": {
+      "run": "0.02"
+    },
+    "provider_spent": {
+      "unknown": "0.02"
+    },
+    "reserved": {
+      "run": "0.00004"
+    }
+  },
+  "spend_receipts": {
+    "llm-producer:a1615d5caa1f4314b64834f27a686abf:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+      "event_id": "llm-producer:a1615d5caa1f4314b64834f27a686abf:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+      "payload_digest": "b128c19489c07bfc6b0e496e2a404bc5f03463a5d6c5c6f21bfd39d428e3bb43",
+      "key": "run",
+      "amount": "0.02",
+      "provider": "unknown",
+      "revision": 4,
+      "committed_at": "2026-10-06T20:47:23.464649Z"
+    }
+  },
+  "completion_obligations": {
+    "llm-producer:eb7934b7d56f4574a2e3fd02b6580220": {
+      "obligation_id": "llm-producer:eb7934b7d56f4574a2e3fd02b6580220",
+      "event_payload": {
+        "event_id": "llm-producer:eb7934b7d56f4574a2e3fd02b6580220",
+        "kind": "provider_intent",
+        "amount": null,
+        "request_digest": "sha256:8a28fbeb5ec0d44b5a3555705964818478c40f7cb8b326853d6359b07229212b"
+      },
+      "event_digest": "sha256:efabc207f33544092749fe10db8f9e35c3cd5ca23e60a636361a359cde2be0db",
+      "run_id": "independent-completion-run",
+      "owner_epoch": "468184:e7196301d218471999b4d78197326c3a",
+      "budget_keys": [
+        "run"
+      ],
+      "reserved_amounts": {
+        "run": "0.00004"
+      },
+      "phase": "provider_in_flight",
+      "known_receipt_ids": []
+    }
+  }
+}

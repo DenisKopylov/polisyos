@@ -1,0 +1,52 @@
+{
+  "actual_overlay_qualification": "Source/test content unchanged619; new docs evidence untracked overlay at execution, no production imports.",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "outcome": "PASS",
+      "stdout": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/ruff-stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "outcome": "PASS",
+      "stdout": {
+        "bytes": 25,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence/format-stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      }
+    }
+  ],
+  "input_closure": [
+    {
+      "bytes": 11007,
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    }
+  ],
+  "scope": "Exact new native test file only, canonical own pyproject Ruff config; docs literal witness instruments not linted, no global/style inheritance or exemption claim.",
+  "source_checkout_sha": "619e3834cb56a8109460d07cd5d18fcde1fedc49",
+  "test_overlay": {
+    "bytes": 16267,
+    "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+    "sha256": "7cf7fa2666eb9d7a2d504d0273cfe4e0fabf9c1a0676416001babeee723ebab6"
+  }
+}

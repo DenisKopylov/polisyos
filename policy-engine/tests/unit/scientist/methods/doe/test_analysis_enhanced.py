@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.scientist.methods.doe.analysis import _plan_to_salib_problem
 from polisyos.scientist.methods.doe.designs import (
     ParameterDist,
     ParameterSpec,
-    TriangularDistributionSpecV1,
     RunFailurePolicy,
     SensitivityMethod,
     SensitivityPlan,
+    TriangularDistributionSpecV1,
 )
 from polisyos.scientist.methods.doe.stress_report import VulnerabilityType
 
@@ -30,6 +31,8 @@ class TestS2InteractionRanking:
     def sobol_plan(self):
         return SensitivityPlan(
             method=SensitivityMethod.SOBOL,
+            input_law="independent",
+            seed=31,
             parameter_specs=[
                 ParameterSpec(name="x1", lower_bound=0, upper_bound=1),
                 ParameterSpec(name="x2", lower_bound=0, upper_bound=1),
@@ -121,6 +124,8 @@ class TestDropFailedForSobol:
 
         plan = SensitivityPlan(
             method=SensitivityMethod.SOBOL,
+            input_law="independent",
+            seed=31,
             parameter_specs=[
                 ParameterSpec(name="x1", lower_bound=0, upper_bound=1),
                 ParameterSpec(name="x2", lower_bound=0, upper_bound=1),

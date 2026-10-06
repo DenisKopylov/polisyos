@@ -60,6 +60,30 @@ uncertainty remains unavailable until its coordinate contract is admitted.
 Geometry does not authenticate original trajectory provenance or establish
 statistical sufficiency or absence of failure-selection bias.
 
+## Ordered experiment and consumer readback
+
+Sobol plans now require `input_law="independent"` and an explicit seed before
+sampling. This declares a product parameter experiment; it does not establish
+independence of a population source. Analysis reconciles the entire ordered
+sample matrix with the canonical seeded SALib sampler, and rejects reordered,
+correlated, or differently transformed rows before estimating indices.
+
+The autotune `SensitivityBridge` uses this same producer for distribution,
+seed, and budget admission. Passing its configured `store` persists a
+`doe_sensitivity_analysis` artifact containing the complete plan, ordered
+samples, all outcomes (nonfinite failures have explicit tags), denominator, and result.
+`_receipt.py` owns this internal writer/loader. The existing search
+`SensitivityAwareCandidateGenerator.from_artifact` checks CAS kind/schema and
+integrity, reproduces the native analysis, and carries exact design/analysis
+IDs and the typed reference through both single and batch candidate paths.
+A content-valid receipt with a fabricated index is rejected on readback.
+
+Effects declare `unit_coordinate_full_range` for Morris and `variance_fraction`
+for Sobol/FAST; parameter units remain explicit, with `unspecified` preserved
+as a limitation. Artifacts are exploratory parameter experiments. Evaluator
+provenance, population source-law validity, causal effects, and production
+history remain `not_established`; numerical replay does not create authority.
+
 ## Public API
 
 - `SensitivityPlan`, `ScenarioSweep`, `AblationPlan`
@@ -82,7 +106,7 @@ statistical sufficiency or absence of failure-selection bias.
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-10-05
-- Python modules: 11
+- Последнее обновление: 2026-10-06
+- Python modules: 12
 - Exports: 82
 - README синхронизирован с тем, что `doe` остается upstream для search/stress flows

@@ -1,0 +1,11 @@
+id = "2026-10-06-doe-ordered-experiment"
+title = "Consolidate seeded sensitivity production and reproduce persisted analyses"
+type = "fixed"
+component = "scientist-doe"
+owner = "team-polisyos"
+summary = "Autotune delegates to the canonical SALib sampler; Sobol requires an explicit independent experimental law and replay seed. Complete ordered experiment receipts are reproduced at the existing search consumer."
+evidence = ["tests/unit/scientist/methods/doe/test_analysis_receipt.py"]
+compatibility = "Sobol callers must supply input_law=independent and a seed. Reordered or mismatched design matrices are rejected. Morris callers retain the existing scalar analysis API."
+surface_classification = "internal: polisyos.scientist.methods.doe and sensitivity-aware search"
+migration = "Declare the experimental product law and seed on Sobol plans. Pass the configured store to SensitivityBridge and use SensitivityAwareCandidateGenerator.from_artifact for persisted readback."
+limitations = "Exploratory parameter experiments only; population-law validity, evaluator provenance, production history, and causal authority are not established. Nonuniform Morris uncertainty and seeded FAST analysis remain unavailable."

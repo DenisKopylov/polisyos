@@ -1,0 +1,6 @@
+TARGET: 672f541313c550e96544728ed397daf330c04442
+COMMAND: /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= --import-mode=importlib --strict-markers -q -ra -p no:cacheprovider --tb=short --show-capture=no --disable-warnings tests/unit/remediation/test_scm_02.py::test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest tests/unit/remediation/test_scm_02.py::test_native_counterfactual_job_persists_gaussian_oracle tests/unit/remediation/test_scm_02.py::test_gaussian_oracle_rejects_imputed_residual_with_unchanged_markers tests/unit/remediation/test_scm_02.py::test_native_job_rejects_removed_output_slot_with_historical_keys_intact tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py
+........                                                                 [100%]
+8 passed, 14 warnings in 51.00s
+
+exit_code=0 wall_seconds=66.530 peak_rss_kib=512164

@@ -1,0 +1,433 @@
+COMMAND: /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q -rs tests/unit/ir/test_causal_graph_contract.py
+......FFFFFFFFFFF.........                                               [100%]
+=================================== FAILURES ===================================
+_ test_causal_graph_networkx_preserves_mixed_edge_identity[directed-before-bidirected] _
+
+edge_order = ('directed', 'bidirected')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        [
+            *permutations(("directed", "bidirected")),
+            *permutations(("lag1", "lag2")),
+        ],
+        ids=(
+            "directed-before-bidirected",
+            "bidirected-before-directed",
+            "lag1-before-lag2",
+            "lag2-before-lag1",
+        ),
+    )
+    def test_causal_graph_networkx_preserves_mixed_edge_identity(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Each same-endpoint relation survives export independent of insertion order."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:183:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+_ test_causal_graph_networkx_preserves_mixed_edge_identity[bidirected-before-directed] _
+
+edge_order = ('bidirected', 'directed')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        [
+            *permutations(("directed", "bidirected")),
+            *permutations(("lag1", "lag2")),
+        ],
+        ids=(
+            "directed-before-bidirected",
+            "bidirected-before-directed",
+            "lag1-before-lag2",
+            "lag2-before-lag1",
+        ),
+    )
+    def test_causal_graph_networkx_preserves_mixed_edge_identity(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Each same-endpoint relation survives export independent of insertion order."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:183:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+__ test_causal_graph_networkx_preserves_mixed_edge_identity[lag1-before-lag2] __
+
+edge_order = ('lag1', 'lag2')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        [
+            *permutations(("directed", "bidirected")),
+            *permutations(("lag1", "lag2")),
+        ],
+        ids=(
+            "directed-before-bidirected",
+            "bidirected-before-directed",
+            "lag1-before-lag2",
+            "lag2-before-lag1",
+        ),
+    )
+    def test_causal_graph_networkx_preserves_mixed_edge_identity(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Each same-endpoint relation survives export independent of insertion order."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:183:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+__ test_causal_graph_networkx_preserves_mixed_edge_identity[lag2-before-lag1] __
+
+edge_order = ('lag2', 'lag1')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        [
+            *permutations(("directed", "bidirected")),
+            *permutations(("lag1", "lag2")),
+        ],
+        ids=(
+            "directed-before-bidirected",
+            "bidirected-before-directed",
+            "lag1-before-lag2",
+            "lag2-before-lag1",
+        ),
+    )
+    def test_causal_graph_networkx_preserves_mixed_edge_identity(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Each same-endpoint relation survives export independent of insertion order."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:183:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+_ test_causal_graph_networkx_keys_same_relation_payloads_collision_safely[alpha-alpha-duplicate-zeta] _
+
+edge_order = ('same_alpha', 'same_alpha_duplicate', 'same_zeta')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        list(permutations(("same_alpha", "same_alpha_duplicate", "same_zeta"))),
+        ids=(
+            "alpha-alpha-duplicate-zeta",
+            "alpha-zeta-alpha-duplicate",
+            "alpha-duplicate-alpha-zeta",
+            "alpha-duplicate-zeta-alpha",
+            "zeta-alpha-alpha-duplicate",
+            "zeta-alpha-duplicate-alpha",
+        ),
+    )
+    def test_causal_graph_networkx_keys_same_relation_payloads_collision_safely(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Distinct payloads and exact duplicates get deterministic, unique relation keys."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+_ test_causal_graph_networkx_keys_same_relation_payloads_collision_safely[alpha-zeta-alpha-duplicate] _
+
+edge_order = ('same_alpha', 'same_zeta', 'same_alpha_duplicate')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        list(permutations(("same_alpha", "same_alpha_duplicate", "same_zeta"))),
+        ids=(
+            "alpha-alpha-duplicate-zeta",
+            "alpha-zeta-alpha-duplicate",
+            "alpha-duplicate-alpha-zeta",
+            "alpha-duplicate-zeta-alpha",
+            "zeta-alpha-alpha-duplicate",
+            "zeta-alpha-duplicate-alpha",
+        ),
+    )
+    def test_causal_graph_networkx_keys_same_relation_payloads_collision_safely(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Distinct payloads and exact duplicates get deterministic, unique relation keys."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+_ test_causal_graph_networkx_keys_same_relation_payloads_collision_safely[alpha-duplicate-alpha-zeta] _
+
+edge_order = ('same_alpha_duplicate', 'same_alpha', 'same_zeta')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        list(permutations(("same_alpha", "same_alpha_duplicate", "same_zeta"))),
+        ids=(
+            "alpha-alpha-duplicate-zeta",
+            "alpha-zeta-alpha-duplicate",
+            "alpha-duplicate-alpha-zeta",
+            "alpha-duplicate-zeta-alpha",
+            "zeta-alpha-alpha-duplicate",
+            "zeta-alpha-duplicate-alpha",
+        ),
+    )
+    def test_causal_graph_networkx_keys_same_relation_payloads_collision_safely(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Distinct payloads and exact duplicates get deterministic, unique relation keys."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+_ test_causal_graph_networkx_keys_same_relation_payloads_collision_safely[alpha-duplicate-zeta-alpha] _
+
+edge_order = ('same_alpha_duplicate', 'same_zeta', 'same_alpha')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        list(permutations(("same_alpha", "same_alpha_duplicate", "same_zeta"))),
+        ids=(
+            "alpha-alpha-duplicate-zeta",
+            "alpha-zeta-alpha-duplicate",
+            "alpha-duplicate-alpha-zeta",
+            "alpha-duplicate-zeta-alpha",
+            "zeta-alpha-alpha-duplicate",
+            "zeta-alpha-duplicate-alpha",
+        ),
+    )
+    def test_causal_graph_networkx_keys_same_relation_payloads_collision_safely(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Distinct payloads and exact duplicates get deterministic, unique relation keys."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+_ test_causal_graph_networkx_keys_same_relation_payloads_collision_safely[zeta-alpha-alpha-duplicate] _
+
+edge_order = ('same_zeta', 'same_alpha', 'same_alpha_duplicate')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        list(permutations(("same_alpha", "same_alpha_duplicate", "same_zeta"))),
+        ids=(
+            "alpha-alpha-duplicate-zeta",
+            "alpha-zeta-alpha-duplicate",
+            "alpha-duplicate-alpha-zeta",
+            "alpha-duplicate-zeta-alpha",
+            "zeta-alpha-alpha-duplicate",
+            "zeta-alpha-duplicate-alpha",
+        ),
+    )
+    def test_causal_graph_networkx_keys_same_relation_payloads_collision_safely(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Distinct payloads and exact duplicates get deterministic, unique relation keys."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+_ test_causal_graph_networkx_keys_same_relation_payloads_collision_safely[zeta-alpha-duplicate-alpha] _
+
+edge_order = ('same_zeta', 'same_alpha_duplicate', 'same_alpha')
+
+    @pytest.mark.parametrize(
+        "edge_order",
+        list(permutations(("same_alpha", "same_alpha_duplicate", "same_zeta"))),
+        ids=(
+            "alpha-alpha-duplicate-zeta",
+            "alpha-zeta-alpha-duplicate",
+            "alpha-duplicate-alpha-zeta",
+            "alpha-duplicate-zeta-alpha",
+            "zeta-alpha-alpha-duplicate",
+            "zeta-alpha-duplicate-alpha",
+        ),
+    )
+    def test_causal_graph_networkx_keys_same_relation_payloads_collision_safely(
+        edge_order: tuple[str, ...],
+    ) -> None:
+        """Distinct payloads and exact duplicates get deterministic, unique relation keys."""
+        graph = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=_mixed_edge_variants(edge_order),
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:237:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['X', 'Y'], edges=[CausalEdge(src='X...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+___________ test_causal_graph_networkx_preserves_single_edge_payload ___________
+
+    def test_causal_graph_networkx_preserves_single_edge_payload() -> None:
+        """The directed multigraph export keeps ordinary one-edge payloads intact."""
+        edge = CausalEdge(
+            src="A",
+            dst="B",
+            sources=[EdgeSource.DATA],
+            data_confidence=0.6,
+            evidence_refs=["evidence-1"],
+            metadata={"relation": "single"},
+        )
+        graph = CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["A", "B"],
+            edges=[edge],
+        )
+
+>       exported = graph.to_networkx()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_causal_graph_contract.py:296:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = CausalGraphModel(schema_version='1.0', graph_type=<GraphType.DAG: 'dag'>, nodes=['A', 'B'], edges=[CausalEdge(src='A',...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={})
+
+    def to_networkx(self) -> Any:
+>       import networkx as nx
+E       ModuleNotFoundError: No module named 'networkx'
+
+src/polisyos/ir/analytics/causal_graph.py:379: ModuleNotFoundError
+11 failed, 15 passed in 1.49s
+
+EXIT: 1
+WALL_SECONDS: 6.241
+MAX_RSS_KIB: 94340

@@ -14,6 +14,7 @@ from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData, TwinNetworkQueryData
 from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
+from polisyos.foundry.methods.exceptions import MethodContractError
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
@@ -22,17 +23,15 @@ from polisyos.ir.analytics.causal_graph import (
 )
 from polisyos.ir.analytics.causal_queries import (
     CausalContrastSpec,
-    CausalRegime,
     CausalQuery,
     CausalQueryResult,
+    CausalRegime,
     InterventionSpec,
     InterventionType,
     QueryType,
     load_causal_query_result,
     persist_causal_query_result,
 )
-from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import CausalQueryResultRef
 from polisyos.ir.analytics.structural_causal_model import (
     MechanismFamily,
     MechanismSource,
@@ -41,17 +40,19 @@ from polisyos.ir.analytics.structural_causal_model import (
     persist_structural_causal_model_spec,
 )
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import CausalQueryResultRef
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import RunCausalEnsembleNode
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF,
     ARTIFACT_CAUSAL_QUERY_RESULT_REF,
-    ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _linear_chain(
@@ -288,14 +289,11 @@ def test_attribution_observational_comparator_requires_natural_root_evidence() -
         )
 
     observational_output = _run_contrast({"kind": "observational"})
-    observational_result = CausalQueryResult.model_validate(
-        observational_output["query_result"]
-    )
+    observational_result = CausalQueryResult.model_validate(observational_output["query_result"])
     assert observational_result.metadata["declared_root_hypothesis"] == ["X"]
     assert observational_output["envelope"].gate_eligible is False
     assert any(
-        "declared root hypothesis" in warning
-        for warning in observational_output["warnings"]
+        "declared root hypothesis" in warning for warning in observational_output["warnings"]
     )
 
     explicit_output = _run_contrast(
@@ -449,11 +447,11 @@ def test_explicit_do_zero_is_not_observational_attribution_baseline() -> None:
             "treatment_variable": "X",
             "treatment_value": 2.0,
             "outcome_variable": "Y",
-                "contrast": {
-                    "target": {
-                        "type": "atomic",
-                        "value": 2.0,
-                    },
+            "contrast": {
+                "target": {
+                    "type": "atomic",
+                    "value": 2.0,
+                },
                 "comparator": {
                     "kind": "interventional",
                     "intervention": {"type": "atomic", "value": 0.0},
@@ -501,9 +499,9 @@ def test_explicit_identical_target_and_comparator_have_zero_contrast() -> None:
         "shift": None,
         "legal_constraint_id": None,
     }
-    assert result.metadata["contrast_comparator"]["intervention"] == result.metadata[
-        "contrast_target"
-    ]
+    assert (
+        result.metadata["contrast_comparator"]["intervention"] == result.metadata["contrast_target"]
+    )
 
 
 def test_stochastic_policy_comparison_executes_and_preserves_distinct_arms() -> None:
@@ -539,10 +537,7 @@ def test_stochastic_policy_comparison_executes_and_preserves_distinct_arms() -> 
     assert result.metadata["contrast_target"]["type"] == "stochastic"
     assert result.metadata["contrast_target"]["distribution"] == "uniform(1,2)"
     assert result.metadata["contrast_comparator"]["intervention"]["type"] == "stochastic"
-    assert (
-        result.metadata["contrast_comparator"]["intervention"]["distribution"]
-        == "uniform(3,4)"
-    )
+    assert result.metadata["contrast_comparator"]["intervention"]["distribution"] == "uniform(3,4)"
 
 
 def test_legacy_v1_result_loads_and_writes_matching_v1_1_cas_manifest(tmp_path: Path) -> None:
@@ -618,7 +613,7 @@ def test_legacy_result_rejects_self_attested_provenance_conflict(tmp_path: Path)
     )
     typed_legacy_ref = CausalQueryResultRef.model_validate(legacy_ref.model_dump(mode="json"))
 
-    with pytest.raises(ValueError, match="provenance|manifest"):
+    with pytest.raises(ValueError, match=r"provenance|manifest"):
         load_causal_query_result(store, typed_legacy_ref)
 
 
@@ -643,7 +638,7 @@ def test_raw_legacy_result_rejects_self_attested_provenance_without_cas() -> Non
         "source_schema_name": "attacker.claimed.schema",
     }
 
-    with pytest.raises(ValueError, match="provenance|manifest"):
+    with pytest.raises(ValueError, match=r"provenance|manifest"):
         CausalQueryResult.model_validate(legacy_payload)
 
 
@@ -672,7 +667,7 @@ def test_legacy_provenance_is_manifest_bound_across_result_versions(tmp_path: Pa
         "source_schema_version": "1.0",
         "source_schema_name": "plausible.but.unbound",
     }
-    with pytest.raises(ValueError, match="provenance|manifest"):
+    with pytest.raises(ValueError, match=r"provenance|manifest"):
         CausalQueryResult.model_validate(claimed_legacy_payload)
 
     store = FileSystemCAS(tmp_path / "cas")
@@ -691,7 +686,7 @@ def test_legacy_provenance_is_manifest_bound_across_result_versions(tmp_path: Pa
         canon_spec=CanonSpec(forbid_floats=False),
     )
     typed_v11_ref = CausalQueryResultRef.model_validate(v11_ref.model_dump(mode="json"))
-    with pytest.raises(ValueError, match="provenance|manifest"):
+    with pytest.raises(ValueError, match=r"provenance|manifest"):
         load_causal_query_result(store, typed_v11_ref)
 
 
@@ -717,7 +712,7 @@ def test_causal_result_loader_requires_manifest_schema(tmp_path: Path) -> None:
         canon_spec=CanonSpec(forbid_floats=False),
     )
 
-    with pytest.raises(ValueError, match="manifest|schema"):
+    with pytest.raises(ValueError, match=r"manifest|schema"):
         load_causal_query_result(
             store,
             CausalQueryResultRef.model_validate(ref.model_dump(mode="json")),
@@ -864,39 +859,11 @@ def test_attribution_comparator_is_typed_and_legacy_atomic_value_is_preserved() 
 
 def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The real query node carries both arms through producer persistence."""
+    """The native method job carries both arms through producer persistence."""
     ctx = _build_execution_context(tmp_path, run_id="R_scm02_producer")
-    scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
-
-    def _fake_run_job(*args: object, **kwargs: object) -> JobResult:
-        del args
-        method_state = kwargs["method_state"]
-        query = method_state.query
-        result = CausalQueryResult(
-            query=query,
-            result_mean=6.0,
-            result_std=0.0,
-            result_ci=(6.0, 6.0),
-            result_distribution=[6.0],
-        )
-        return JobResult(
-            job_key=JobKey(value="job:test:scm02-producer"),
-            final_state={
-                "query_result": result.model_dump(mode="json"),
-                "envelope": result.to_uncertainty_envelope().model_dump(mode="json"),
-            },
-            issues=[],
-        )
-
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.ensure_causal_methods_registered",
-        lambda: None,
-    )
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.run_job",
-        _fake_run_job,
+    scm_ref = persist_structural_causal_model_spec(
+        ctx.store, _linear_chain(noise_std=0.0, coefficient=3.0)
     )
 
     state = ExperimentState(
@@ -924,10 +891,30 @@ def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(
     manifest = ctx.store.get_manifest(result_ref.artifact_id)
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.version == "1.1"
-    loaded = load_causal_query_result(ctx.store, CausalQueryResultRef.model_validate(result_ref))
+    # The orchestration state intentionally carries core ArtifactRef DTOs.
+    loaded = load_causal_query_result(
+        ctx.store, CausalQueryResultRef.model_validate(result_ref.model_dump(mode="json"))
+    )
+    assert loaded.result_mean == pytest.approx(6.0)
+    assert loaded.result_std == pytest.approx(0.0)
     assert loaded.query.contrast is not None
     assert loaded.query.contrast.comparator.kind == "observational"
     assert loaded.metadata["contrast_target"]["value"] == pytest.approx(2.0)
+
+    # Exercise the sibling consumer's persisted-result arm, without rerunning
+    # the method or supplying an inline query/result surrogate.
+    ensemble_state = ExperimentState(
+        run_id="R_scm02_consumer",
+        artifacts_index=outcome.state.artifacts_index,
+        params={"causal_ensemble_enabled": True},
+    )
+    consumer_outcome = RunCausalEnsembleNode().execute(ctx, ensemble_state)
+    assert consumer_outcome.status == "ok", consumer_outcome.error
+    consumer_envelope = load_uncertainty_envelope(
+        ctx.store,
+        consumer_outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF],
+    )
+    assert consumer_envelope.point_estimate == pytest.approx(6.0)
 
 
 def test_causal_ensemble_rejects_mixed_canonical_contrast_before_persisting(
@@ -993,3 +980,113 @@ def test_causal_ensemble_rejects_mixed_canonical_contrast_before_persisting(
     assert outcome.error is not None
     assert "mismatched canonical" in outcome.error.message
     assert ARTIFACT_CAUSAL_ENSEMBLE_REF not in outcome.state.artifacts_index
+
+
+@pytest.mark.parametrize(
+    ("condition", "expected_std"),
+    [({"Y": 2.0}, 2.0**-0.5), ({"X": 1.0, "Y": 2.0}, 0.0)],
+    ids=["partial-evidence-posterior", "fully-observed-residual"],
+)
+def test_native_counterfactual_job_persists_gaussian_oracle(
+    tmp_path: Path,
+    condition: dict[str, float],
+    expected_std: float,
+) -> None:
+    """The known Gaussian DGP survives dispatcher, CAS reopen and projection."""
+    ctx = _build_execution_context(tmp_path, run_id="R_scm02_native_abduction")
+    scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
+    state = ExperimentState(
+        run_id="R_scm02_native_abduction",
+        params={
+            "random_seed": 117,
+            "structural_causal_model_ref": scm_ref.model_dump(mode="json"),
+            "causal_query": {
+                "query_type": "counterfactual",
+                "treatment_variable": "X",
+                "treatment_value": 0.0,
+                "outcome_variable": "Y",
+                "condition": condition,
+                "n_samples": 2048,
+            },
+        },
+    )
+    outcome = RunCausalQueriesNode().execute(ctx, state)
+    assert outcome.status == "ok", outcome.error
+    reopened = FileSystemCAS(ctx.store.root)
+    ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_RESULT_REF]
+    result = load_causal_query_result(
+        reopened, CausalQueryResultRef.model_validate(ref.model_dump(mode="json"))
+    )
+    # Independent Gaussian conditioning: Cov(Uy,Y)/Var(Y)=1/2,
+    # hence E[Uy|Y=2]=1 and Var(Uy|Y)=1-1/2. Observing X fixes Uy=1.
+    assert result.result_mean == pytest.approx(1.0, abs=0.08)
+    assert result.result_std == pytest.approx(expected_std, abs=0.08)
+    assert result.metadata["abduction_observed_nodes"] == sorted(condition)
+    assert result.metadata["abduction_profile"] == "linear_gaussian_posterior"
+    envelope = load_uncertainty_envelope(
+        reopened,
+        outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF],
+    )
+    assert envelope.point_estimate == pytest.approx(result.result_mean)
+    assert envelope.gate_eligible is True
+
+
+def test_gaussian_oracle_rejects_imputed_residual_with_unchanged_markers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A posterior label cannot substitute for the conditional noise law."""
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.causal.gcm_query._draw_linear_gaussian_noises",
+        lambda posterior, rng: {"X": 0.0, "Y": 2.0},
+    )
+    output = _run_query(
+        _linear_chain(),
+        {
+            "query_type": "counterfactual",
+            "treatment_variable": "X",
+            "treatment_value": 0.0,
+            "outcome_variable": "Y",
+            "condition": {"Y": 2.0},
+            "n_samples": 64,
+        },
+    )
+    result = CausalQueryResult.model_validate(output["query_result"])
+    assert result.metadata["abduction_profile"] == "linear_gaussian_posterior"
+    assert result.result_mean == pytest.approx(2.0)
+    assert result.result_std == pytest.approx(0.0)
+    with pytest.raises(AssertionError):
+        assert result.result_mean == pytest.approx(1.0, abs=0.08)
+
+
+def test_native_job_rejects_removed_output_slot_with_historical_keys_intact(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A successful pure method is insufficient when its declared ABI is absent."""
+    original = GCMQuery.pure_step
+
+    def without_declared_slot(data: object, params: dict[str, object]) -> dict[str, object]:
+        output = original(data, params)
+        output.pop("causal_query_result")
+        assert "query_result" in output
+        return output
+
+    monkeypatch.setattr(GCMQuery, "pure_step", staticmethod(without_declared_slot))
+    ctx = _build_execution_context(tmp_path, run_id="R_scm02_removed_slot")
+    scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
+    state = ExperimentState(
+        run_id="R_scm02_removed_slot",
+        params={
+            "structural_causal_model_ref": scm_ref.model_dump(mode="json"),
+            "causal_query": {
+                "query_type": "counterfactual",
+                "treatment_variable": "X",
+                "treatment_value": 0.0,
+                "outcome_variable": "Y",
+                "condition": {"X": 1.0, "Y": 2.0},
+                "n_samples": 8,
+            },
+        },
+    )
+    with pytest.raises(MethodContractError, match="missing output for declared slot"):
+        RunCausalQueriesNode().execute(ctx, state)

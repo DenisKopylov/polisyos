@@ -1,0 +1,23 @@
+{
+  "kind": "finite path/definition identity reconciliation only; no selector execution, collection, product import or native result interpretation",
+  "explicit_parent_terminal_admission": true,
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "metadata_implementation_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+  "metadata_map_sha256": "28cd03084e8ce77f913c5f8de1aefbfdbf99148c8702c531df900a5fe50b5863",
+  "unchanged_selector_sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d",
+  "frozen_selector_sha256": "e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0",
+  "original_canonical_absent_names": 14,
+  "historical_equivalent_file_count": 15,
+  "corrected_equivalent_file_count": 25,
+  "all_original_equivalent_files_retained": true,
+  "frozen_native_whole_file_count": 236,
+  "corrected_native_whole_file_count": 236,
+  "added_whole_files": [],
+  "removed_whole_files": [],
+  "unadmitted_candidate_whole_files": [],
+  "selector_admission_state": "SOURCE_BODY_MATCHING_RECONCILED_NO_RUNTIME_CLAIM",
+  "native_case_count_or_PASS": "NOT_ESTABLISHED_BY_THIS_RECONCILIATION",
+  "original_named_selectors_state": "UNRUN remains unchanged",
+  "input_semantic_delta": "Map finding-ID/property/residual interpretation changed. Native DD source bodies, whole-file inputs and outcomes are not retroactively relabeled as future map-SHA PASS."
+}

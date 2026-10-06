@@ -1,0 +1,562 @@
+{
+  "schema": "policyos.e02.c2_hyg_adjudication.v1",
+  "record_kind": "append_only_candidate_adjudication",
+  "append_only": true,
+  "created_on": "2026-10-06",
+  "status": "author_source_frozen_pending_current_native_artifact_audit_and_independent_review",
+  "slice": "HYG-02 / HYG-04; LA-008, LA-009, LA-011, LA-012, LA-013, LA-018",
+  "branch": "codex/e02-C-hygiene-20261006",
+  "adjudication_rule": "Each label is a decision on its own original criterion, not a target distribution. `closed` is scoped to its stated criterion; `open` means author-owned deciding work remains; `held` means a required owner-supplied authority/contract is absent and must not be invented. This candidate record does not amend canonical closure ledgers.",
+  "source_lineage": {
+    "base_revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "previous_full_adjudication": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+      "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+      "source_freeze": "e70e8021aae4067aa3c647cd60bf49ff388b4d2c"
+    },
+    "current_source_freeze": {
+      "commit": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+      "tree": "23e5b56e2a42a652770a698a4259a23f4a41277e",
+      "branch": "codex/e02-C-hygiene-20261006",
+      "attached_branch": true,
+      "readback_status": "## codex/e02-C-hygiene-20261006",
+      "exact_delta_from_e70": [
+        {
+          "status": "M",
+          "path": "policy-engine/tools/lib/imports.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/remediation/test_hyg_04.py"
+        }
+      ],
+      "public_api_signature": "repo_root_from and ensure_repo_import_roots signatures are unchanged."
+    },
+    "complete_base_to_current_name_status": {
+      "command": "git diff --name-status 198076863e143dea9f89f02734b13d50dae3eed5..1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+      "rows": 53,
+      "status_counts": {
+        "M": 33,
+        "A": 10,
+        "D": 10
+      },
+      "path_status": [
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/frontend_workspaces.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/imports/dynamic.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/packages/layout.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/policies/directory_health.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/shims.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/tooling/mypy/generated.ini"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/tooling/mypy/overrides/30-lex-scholar-data-forge-legal.ini"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/tooling/ruff/generated.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/topology.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/explanation/architecture.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/how-to/run-benchmarks.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/reference/frontend/workspace-contract.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/reference/repository-topology.md"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-root-resolution-f0940f.json"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04.json"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/benchmark.txt.gz"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.argv"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.txt"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/lex-consumer.txt"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging-precorrection.txt.gz"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging.txt"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/production-invocation.stdout"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/install.sh"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/jax_bootstrap.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/ops/ci/templates/workflows/causal-phases.yml"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/lex/factlog.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/scientist/evidence/_shim.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/README.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/__init__.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/base.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/legal_pass.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/safety_pass.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/repo_quality/test_chronology_terminal_state.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/repo_quality/tools/test_phase4_consolidation.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/remediation/test_hyg_04.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/scientist/governance/test_shared_shims.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/devx/workspace/_common.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/lib/imports.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/research/benchmarks/README.md"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/tools/research/benchmarks/harness.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/research/benchmarks/jax/bench_domain.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/research/benchmarks/jax/bench_simulation.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/tools/research/benchmarks/metrics.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/tools/research/benchmarks/suite_registry.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/research/demos/run_laffer_demo.py"
+        }
+      ],
+      "attribution": "Full shared branch delta, including earlier C/HYG participant commits and prior committed handoff records; not attributed solely to this author."
+    },
+    "mechanism_budget": {
+      "mechanism_paths": 1,
+      "mechanism": [
+        "policy-engine/tools/lib/imports.py"
+      ],
+      "mandatory_companion_outside_cap": [
+        "policy-engine/tests/unit/remediation/test_hyg_04.py"
+      ],
+      "rule": "P39 counts the mechanism path only; the required regression test is outside the cap."
+    }
+  },
+  "criterion_sources": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-02.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "49eda6637ce236501d3dc1d5648a25ac236be1bb",
+      "criteria": [
+        "LA-008",
+        "LA-009",
+        "LA-018"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-04.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "93c0ca6a3baebc0df20545be0a3e3ede08d145bf",
+      "criteria": [
+        "LA-011",
+        "LA-012",
+        "LA-013"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "finding_ranges_and_sha256": {
+        "LA-008": {
+          "lines": [
+            281,
+            307
+          ],
+          "sha256": "e7780bb070e76c47270d653720b0f71cede3c1e801828130600199e95897e169"
+        },
+        "LA-009": {
+          "lines": [
+            308,
+            338
+          ],
+          "sha256": "b220c209a0b5cae46995a618d971c06ad3193f2943eb0880ea1373f52da29d09"
+        },
+        "LA-011": {
+          "lines": [
+            368,
+            396
+          ],
+          "sha256": "d7234745291e8e2306c2496505f7123214aa6b9cdb9bc4d7dbb7ad5190dd2de2"
+        },
+        "LA-012": {
+          "lines": [
+            397,
+            427
+          ],
+          "sha256": "02813c8895cfae05a30d3702cf9a7f45c4ddfff867ae16694af853ec0f51b94d"
+        },
+        "LA-013": {
+          "lines": [
+            428,
+            454
+          ],
+          "sha256": "0c3e505a88abc7cc6883ee7fe2e4056e8bd5aa2ddaeae38ce8cfde9ea710ad8f"
+        },
+        "LA-018": {
+          "lines": [
+            571,
+            597
+          ],
+          "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421"
+        }
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "git_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "scope": "Planned criterion traceability only; not behavioral proof or closure."
+    }
+  ],
+  "new_root_layout_finding": {
+    "class": "structural workspace-layout validation; distinct from prior installed-module root-origin/CWD selection defect",
+    "P38_property": "Root discovery recognizes a minimal PolicyOS layout only when pyproject.toml is a regular file and tools/ and src/ are directories.",
+    "prior_proxy": "Path.exists() accepted named sentinels of invalid types, allowing a directory named pyproject.toml or regular files named tools/src to pass.",
+    "shared_fix": "_find_repo_root now checks is_file for pyproject.toml and is_dir for tools/src. The same predicate serves ancestry, opt-in CWD fallback, and explicit workspace_root validation.",
+    "boundary": "Typed layout discovery is not Git/worktree identity, source authenticity, or workspace admission. Structurally matching decoys can still match by design. No per-command _common.py patch or new opaque authorization contract.",
+    "independent_falsifier": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/mig-review/final/root-sentinel-probe.txt",
+      "sha256": "a62e1a928defcfeefbe514ca1d6e3ee2451462ac0f963af8369f41969410c278",
+      "output": "{'resolved_root': '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/repo-root-sentinels-v9t1f1qx', 'tools_is_dir': False, 'src_is_dir': False, 'cwd_fallback_accepted': True, 'explicit_root_accepted': True}",
+      "meaning": "The MIG probe observed a false-positive root with invalid tools/src directory types; both CWD fallback and explicit-root selection accepted it."
+    },
+    "P40_bucket": "New structural-root-validation class, separate from the earlier installed-module CWD-selection class; one generic shared guard addresses the structural property.",
+    "regression_test": {
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "name": "test_repo_root_resolution_rejects_malformed_sentinel_layouts",
+      "cases": [
+        "pyproject.toml directory",
+        "tools regular file",
+        "src regular file"
+      ],
+      "routes": [
+        "module ancestry",
+        "installed-module CWD fallback",
+        "installed module nested under fake root",
+        "explicit workspace_root",
+        "ensure_repo_import_roots external and nested module",
+        "real source anchor from malformed CWD"
+      ],
+      "side_effect_control": "sys.path unchanged on rejected resolution/import-root attempts; existing real checkout/explicit-root cases remain green."
+    }
+  },
+  "verification": {
+    "environment": "macOS candidate HYG worktree; existing Python 3.14 venv; no network, model execution, or heavyweight backend.",
+    "checks": [
+      {
+        "command": "PYTHONPATH=src:. PYTHONNOUSERSITE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -B -m pytest -q tests/unit/remediation/test_hyg_04.py -k 'not canonical_benchmark_command_runs_a_real_registered_workload'",
+        "cwd": "policy-engine",
+        "exit_code": 0,
+        "result": "18 tests passed; registered benchmark workload case excluded.",
+        "log": {
+          "path": "policy-engine/.tmp/e02-c-hyg-root-validation/hyg04-final.log",
+          "sha256": "341d5dca33250b815baddbafb6001e174c20bf1716bb74f3d612e77777db8938"
+        }
+      },
+      {
+        "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check tools/lib/imports.py tests/unit/remediation/test_hyg_04.py",
+        "cwd": "policy-engine",
+        "exit_code": 0,
+        "result": "All checks passed!",
+        "log": {
+          "path": "policy-engine/.tmp/e02-c-hyg-root-validation/ruff-check-final.log",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      }
+    ],
+    "format_and_diff": [
+      {
+        "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check tools/lib/imports.py",
+        "exit_code": 0,
+        "result": "1 file already formatted.",
+        "log": {
+          "path": "policy-engine/.tmp/e02-c-hyg-root-validation/ruff-format-imports-final2.log",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        }
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0,
+        "result": "No whitespace errors."
+      }
+    ],
+    "red_green": {
+      "pre_fix_log": {
+        "path": "policy-engine/.tmp/e02-c-hyg-root-validation/red-test.log",
+        "sha256": "bb252e6a7a5a7f1c487e42d3b57b1c60b142e9c99b5aa755020a37e424835da8",
+        "result": "Expected RED: all three malformed-type cases failed to raise under existence-only sentinel check."
+      },
+      "exact_pre_fix_shell_command": "not retained; raw failure output is preserved, no invocation text reconstructed."
+    },
+    "not_run": [
+      "No numerical workload replay after the structural predicate fix.",
+      "No current-SHA wheel/sdist build or installed runtime by this author; serial artifact audit remains pending."
+    ]
+  },
+  "criterion_verdicts": [
+    {
+      "id": "LA-008",
+      "label": "closed",
+      "scope": "Exact retired Scientist evidence shim helper, complete tracked-tree census and runtime import-negative only.",
+      "basis": "Prior full census and shim negative remain the deciding evidence; this new root-validation change does not touch the retired helper or canonical evidence/claims owners.",
+      "evidence_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+        "section": "criterion_verdicts[LA-008]"
+      }
+    },
+    {
+      "id": "LA-009",
+      "label": "closed",
+      "scope": "Three exact Scientist governance re-export aliases; preserve canonical Core pass identity and configured lazy workflow.",
+      "basis": "Prior configured-workflow class identity and real validator issue outputs remain the deciding evidence; this delta does not alter pass owners/consumers.",
+      "evidence_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+        "section": "criterion_verdicts[LA-009]"
+      }
+    },
+    {
+      "id": "LA-011",
+      "label": "open",
+      "scope": "Canonical contributor-checkout bootstrap, JAX default/override/import-order behavior, and installed-wheel module invocation from a checkout.",
+      "basis": "Prior f094 wheel runtime passed from a checkout, and current source tests exercise typed layout selection. But tools/lib/imports.py changed after that wheel, so current-SHA installed -I bootstrap runtime is unverified; previous wheel proof is not transferred.",
+      "capability_label": "verification_missing",
+      "next_action": "Build/install exact current-SHA wheel in the serial artifact slot and run installed bootstrap help from the exact candidate checkout with site-packages-only imports plus malformed-layout negative control.",
+      "evidence_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+        "section": "criterion_verdicts[LA-011]"
+      }
+    },
+    {
+      "id": "LA-012",
+      "label": "closed",
+      "scope": "Exact three benchmark-wrapper retirements and documented checkout CLI workload; no installed-wheel benchmark promise.",
+      "basis": "Prior canonical CLI deterministic smoke receipt passed all 5 cases. This root guard preserves valid source-root recognition; benchmark docs bind this workflow to checkout and say benchmark trees are not wheel promises.",
+      "evidence_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+        "section": "criterion_verdicts[LA-012]"
+      }
+    },
+    {
+      "id": "LA-013",
+      "label": "open",
+      "scope": "Redirect-only README cleanup, current five-package workspace map/lifecycle, and actual native wheel/sdist boundary.",
+      "basis": "Fresh frozen PNPM install, six projects (root plus five package roots), root build/smoke, Atlas typecheck/architecture/tests, and the e70 workspace map are fully cited in the prior handoff. Current native evidence is pending because e70 changed sdist inputs and this freeze changes tools/lib/imports.py in the wheel input set. Neither old f094 nor e70 artifact bytes prove current-source membership.",
+      "capability_label": "verification_missing",
+      "next_action": "Serial artifact auditor to build/read back exact current-source wheel and sdist, reconcile complete archive/source-byte denominators, README exceptions, and payload membership.",
+      "evidence_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+        "section": "criterion_verdicts[LA-013]"
+      },
+      "workspace_count": "Five live package roots plus the product-root project (six PNPM projects); Atlas exposes typecheck and has no package build script."
+    },
+    {
+      "id": "LA-018",
+      "label": "held",
+      "scope": "Lex source selection must retain typed provenance and refuse a source lacking authorization after the reader-alias retirement.",
+      "capability_state": "bridge_missing",
+      "missing_capability_labels": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "verification_missing"
+      ],
+      "basis": "Prior marker-kept actual Fabric→CAS/world→Lex falsifier selected a synthetic source when source authorization was null. The source seam lacks an authorized typed producer/artifact/consumer bridge. Do not infer authority from license, access-tier, or basis strings.",
+      "evidence_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+        "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+        "section": "criterion_verdicts[LA-018]"
+      }
+    }
+  ],
+  "archive_reconciliation": {
+    "old_f094_wheel_transfer": "NOT TRANSFERABLE: configured wheel inputs include tools; tools/lib/imports.py changed in this source freeze.",
+    "old_f094_and_e70_sdist_transfer": "NOT TRANSFERABLE: e70 changed current document bytes and current source/test changes also require a fresh exact archive walk.",
+    "current_artifact_state": "UNRUN by author; exact new-source wheel/sdist build and inventory are assigned to the serial auditor."
+  },
+  "other_owner_gaps": {
+    "held_dynamic_manifest": "The 204-row architecture/imports/dynamic.toml review expiry remains team-architecture-held; it intersects changed inputs and is not inherited under P41. Full evidence is in the prior adjudication.",
+    "partial_static_diagnostic": "The prior production-invocation diagnostic remains partial and is not a witness for any of these six criteria.",
+    "unreceipted_prior_runs": "The prior 36-test and tool-config generator terminal outputs remain unavailable and are not reconstructed.",
+    "evidence_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+      "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5"
+    }
+  },
+  "procedure_deviation": {
+    "occurred": true,
+    "state": "The disclosed detached-checkout removal procedure violation remains part of the record; this source fix neither repairs nor recreates its missing admission evidence.",
+    "evidence_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+      "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+      "section": "procedure_deviation"
+    }
+  },
+  "canonical_closure_separation": {
+    "canonical_ledgers_changed": false,
+    "state": "All six historical C closure rows remain partial and coverage rows remain not_adjudicated; this candidate handoff does not amend either ledger.",
+    "evidence_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json",
+      "sha256": "2d2bb22f0581c76cb024ea5a56df7b3f6031521f8f9373bdb1f4ea696328b9f5",
+      "section": "canonical_closure_separation"
+    }
+  },
+  "pattern_pass": {
+    "P06": "Only exact aliases retired; canonical owners remain.",
+    "P29": "LA-018 is decided from an actual marker-kept consumer falsifier, not string-presence checks.",
+    "P35": "Complete slice base-to-source path/status denominator is the 53-row Git walk above; workspace/archive claims refer to the full prior receipts and explicit denominators.",
+    "P38": "The false-positive root result diverged from expected typed layout. One shared generic guard now checks file/directory types; Git/source admission is independent.",
+    "P39": "One mechanism path; required test companion excluded from mechanism path cap.",
+    "P40": "New structural-layout validation class, distinct from earlier root-origin/CWD-selection defect.",
+    "P41": "Team-architecture dynamic manifest expiry intersects slice changes and remains own held red."
+  },
+  "scope_limits": [
+    "The helper discovers a minimal typed layout; it does not authenticate Git identity, source provenance, or workspace admission.",
+    "No source authorization/authority bridge was invented.",
+    "No numerical workload, current-SHA artifact build, or installed current-wheel runtime is claimed.",
+    "Candidate labels do not update canonical closure ledgers."
+  ],
+  "next_actions": [
+    "Serial auditor: exact current-SHA wheel and sdist build/readback; current installed -I bootstrap probe as required by LA-011 scope.",
+    "Independent reviewer: review the exact two-path source delta and full 53-row base path/status census.",
+    "After artifact review, append a new adjudication JSON; do not edit this record or earlier handoffs."
+  ]
+}

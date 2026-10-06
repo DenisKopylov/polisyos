@@ -2,22 +2,7 @@
   "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "F",
   "slice": "graph-native-20261006",
-  "closure_ids": [
-    "B214",
-    "B215",
-    "B216",
-    "B217",
-    "B218",
-    "B219",
-    "B220",
-    "B221",
-    "B222",
-    "B223",
-    "B224",
-    "B225",
-    "LA-007",
-    "LA-019"
-  ],
+  "closure_ids": [],
   "bundle_ids": [
     "GRF-01",
     "GRF-02",
@@ -290,163 +275,8 @@
     }
   },
   "predicate_basis": "independently_reconciled",
-  "capability_state_or_finding_state": "bounded synthetic graph GO; no ledger closures; B219 held until G accepts current actual-backend evidence",
-  "per_id": [
-    {
-      "finding_id": "B216",
-      "bundle_id": "GRF-01",
-      "criterion": "endpoint-aware m-separation",
-      "check": "2400 exact latent-DAG moralization comparisons + native Rule1",
-      "outcome": "bounded GO",
-      "negative_or_removal": "collider removal: 1 FAIL",
-      "limit_and_next_owner": "general PAG/ID completeness not established",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B217",
-      "bundle_id": "GRF-01",
-      "criterion": "perfect do removes incoming and bidirected influence",
-      "check": "19200 action/query comparisons + actual Rule3",
-      "outcome": "bounded GO",
-      "negative_or_removal": "bidirected surgery removal: 1 FAIL",
-      "limit_and_next_owner": "general PAG/ID completeness not established",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B219",
-      "bundle_id": "GRF-02",
-      "criterion": "genuine NetworkX backend and mixed multiedge readback",
-      "check": "native3.6.1 MultiDiGraph full payload through fresh CAS",
-      "outcome": "held pending G acceptance",
-      "negative_or_removal": "DiGraph substitution assertion fails preserving marks",
-      "limit_and_next_owner": "historical held ledger unchanged; G owns admission",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "held"
-    },
-    {
-      "finding_id": "B220",
-      "bundle_id": "GRF-02",
-      "criterion": "deep immutable topology and cold copy/cache semantics",
-      "check": "native graph contract and mutation/copy cache tests",
-      "outcome": "bounded GO",
-      "negative_or_removal": "mutation raises; empty copy differs from original warm topology",
-      "limit_and_next_owner": "public installed-wheel imports remain C/G packaging criterion",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B214",
-      "bundle_id": "GRF-03",
-      "criterion": "normalize known reverse marks and reject unknown orientation",
-      "check": "existing native GRF03 full selector",
-      "outcome": "bounded GO",
-      "negative_or_removal": "ambiguous partial graph/static projection rejected",
-      "limit_and_next_owner": "sound extension of arbitrary PAG not established",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B218",
-      "bundle_id": "GRF-03",
-      "criterion": "preserve lag payload and reject static lag consumer",
-      "check": "native fresh MultiDiGraph lag1/lag2 full payload + existing GRF03",
-      "outcome": "bounded GO",
-      "negative_or_removal": "lagged graph refused by static graph consumers",
-      "limit_and_next_owner": "temporal causal inference not implemented",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "LA-007",
-      "bundle_id": "GRF-01",
-      "criterion": "only exact empty id_engine sibling retirement; package preserved",
-      "check": "graph owner source unchanged in slice",
-      "outcome": "limited",
-      "negative_or_removal": "installed-wheel remainder not executed",
-      "limit_and_next_owner": "C/G installed wheel and facade acceptance",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "LA-019",
-      "bundle_id": "GRF-01",
-      "criterion": "only exact empty causal_engine/interference siblings; packages preserved",
-      "check": "graph owner source unchanged in slice",
-      "outcome": "limited",
-      "negative_or_removal": "installed-wheel remainder not executed",
-      "limit_and_next_owner": "API/C/G facade and installed wheel acceptance",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B215",
-      "bundle_id": "SCM-02",
-      "criterion": "original bundle criterion retained",
-      "check": "not executed by graph-only frozen slice",
-      "outcome": "limited",
-      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
-      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B223",
-      "bundle_id": "SCM-02",
-      "criterion": "original bundle criterion retained",
-      "check": "not executed by graph-only frozen slice",
-      "outcome": "limited",
-      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
-      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B221",
-      "bundle_id": "SCM-01",
-      "criterion": "original bundle criterion retained",
-      "check": "not executed by graph-only frozen slice",
-      "outcome": "limited",
-      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
-      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B222",
-      "bundle_id": "SCM-01",
-      "criterion": "original bundle criterion retained",
-      "check": "not executed by graph-only frozen slice",
-      "outcome": "limited",
-      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
-      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B224",
-      "bundle_id": "SCM-03",
-      "criterion": "original bundle criterion retained",
-      "check": "not executed by graph-only frozen slice",
-      "outcome": "limited",
-      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
-      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    },
-    {
-      "finding_id": "B225",
-      "bundle_id": "SCM-03",
-      "criterion": "original bundle criterion retained",
-      "check": "not executed by graph-only frozen slice",
-      "outcome": "limited",
-      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
-      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
-      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
-      "recorded_ledger_state": "partial"
-    }
-  ],
+  "capability_state_or_finding_state": "Ancillary historical native checkpoint07: original6 scientific checks and source/tree/evidence unchanged. Zero current per-ID decisions or closure IDs; current35 mapping uses separately referenced SCM6d13rows and B220213one row.",
+  "per_id": [],
   "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/independent-review.json",
   "source_bindings": [
     {
@@ -568,5 +398,253 @@
       "bytes": 937,
       "sha256": "916b996f5ee6e8690b1c88331999d4fdbdb07f65649ee821eae39bb304f5dd78"
     }
-  ]
+  ],
+  "related_finding_ids": [
+    "B214",
+    "B215",
+    "B216",
+    "B217",
+    "B218",
+    "B219",
+    "B220",
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B225",
+    "LA-007",
+    "LA-019"
+  ],
+  "historical_closure_ids": {
+    "classification": "historical_non_deciding",
+    "original_value": [
+      "B214",
+      "B215",
+      "B216",
+      "B217",
+      "B218",
+      "B219",
+      "B220",
+      "B221",
+      "B222",
+      "B223",
+      "B224",
+      "B225",
+      "LA-007",
+      "LA-019"
+    ],
+    "scope": "Original checkpoint uses related coverage IDs; none is a current closure recommendation."
+  },
+  "historical_non_deciding_per_id": {
+    "classification": "historical_non_deciding",
+    "original_value": [
+      {
+        "finding_id": "B216",
+        "bundle_id": "GRF-01",
+        "criterion": "endpoint-aware m-separation",
+        "check": "2400 exact latent-DAG moralization comparisons + native Rule1",
+        "outcome": "bounded GO",
+        "negative_or_removal": "collider removal: 1 FAIL",
+        "limit_and_next_owner": "general PAG/ID completeness not established",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B217",
+        "bundle_id": "GRF-01",
+        "criterion": "perfect do removes incoming and bidirected influence",
+        "check": "19200 action/query comparisons + actual Rule3",
+        "outcome": "bounded GO",
+        "negative_or_removal": "bidirected surgery removal: 1 FAIL",
+        "limit_and_next_owner": "general PAG/ID completeness not established",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B219",
+        "bundle_id": "GRF-02",
+        "criterion": "genuine NetworkX backend and mixed multiedge readback",
+        "check": "native3.6.1 MultiDiGraph full payload through fresh CAS",
+        "outcome": "held pending G acceptance",
+        "negative_or_removal": "DiGraph substitution assertion fails preserving marks",
+        "limit_and_next_owner": "historical held ledger unchanged; G owns admission",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "held"
+      },
+      {
+        "finding_id": "B220",
+        "bundle_id": "GRF-02",
+        "criterion": "deep immutable topology and cold copy/cache semantics",
+        "check": "native graph contract and mutation/copy cache tests",
+        "outcome": "bounded GO",
+        "negative_or_removal": "mutation raises; empty copy differs from original warm topology",
+        "limit_and_next_owner": "public installed-wheel imports remain C/G packaging criterion",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B214",
+        "bundle_id": "GRF-03",
+        "criterion": "normalize known reverse marks and reject unknown orientation",
+        "check": "existing native GRF03 full selector",
+        "outcome": "bounded GO",
+        "negative_or_removal": "ambiguous partial graph/static projection rejected",
+        "limit_and_next_owner": "sound extension of arbitrary PAG not established",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B218",
+        "bundle_id": "GRF-03",
+        "criterion": "preserve lag payload and reject static lag consumer",
+        "check": "native fresh MultiDiGraph lag1/lag2 full payload + existing GRF03",
+        "outcome": "bounded GO",
+        "negative_or_removal": "lagged graph refused by static graph consumers",
+        "limit_and_next_owner": "temporal causal inference not implemented",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "LA-007",
+        "bundle_id": "GRF-01",
+        "criterion": "only exact empty id_engine sibling retirement; package preserved",
+        "check": "graph owner source unchanged in slice",
+        "outcome": "limited",
+        "negative_or_removal": "installed-wheel remainder not executed",
+        "limit_and_next_owner": "C/G installed wheel and facade acceptance",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "LA-019",
+        "bundle_id": "GRF-01",
+        "criterion": "only exact empty causal_engine/interference siblings; packages preserved",
+        "check": "graph owner source unchanged in slice",
+        "outcome": "limited",
+        "negative_or_removal": "installed-wheel remainder not executed",
+        "limit_and_next_owner": "API/C/G facade and installed wheel acceptance",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B215",
+        "bundle_id": "SCM-02",
+        "criterion": "original bundle criterion retained",
+        "check": "not executed by graph-only frozen slice",
+        "outcome": "limited",
+        "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+        "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B223",
+        "bundle_id": "SCM-02",
+        "criterion": "original bundle criterion retained",
+        "check": "not executed by graph-only frozen slice",
+        "outcome": "limited",
+        "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+        "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B221",
+        "bundle_id": "SCM-01",
+        "criterion": "original bundle criterion retained",
+        "check": "not executed by graph-only frozen slice",
+        "outcome": "limited",
+        "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+        "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B222",
+        "bundle_id": "SCM-01",
+        "criterion": "original bundle criterion retained",
+        "check": "not executed by graph-only frozen slice",
+        "outcome": "limited",
+        "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+        "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B224",
+        "bundle_id": "SCM-03",
+        "criterion": "original bundle criterion retained",
+        "check": "not executed by graph-only frozen slice",
+        "outcome": "limited",
+        "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+        "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      },
+      {
+        "finding_id": "B225",
+        "bundle_id": "SCM-03",
+        "criterion": "original bundle criterion retained",
+        "check": "not executed by graph-only frozen slice",
+        "outcome": "limited",
+        "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+        "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+        "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+        "recorded_ledger_state": "partial"
+      }
+    ],
+    "scope": "Original frozen07 primitive/source checkpoint prose outcomes are preserved exactly; all current per-ID decisions are the source6d SCM receipt and fresh213 B220 delta."
+  },
+  "receipt_role": "ancillary_historical_native",
+  "candidate_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+  "historical_capability_state_or_finding_state": "bounded synthetic graph GO; no ledger closures; B219 held until G accepts current actual-backend evidence",
+  "current_decision_refs": [
+    {
+      "artifact_git_ref": "dea737b1ae2bd9a0e974dfc64920da396e3d345c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "candidate_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+      "current_primary_finding_ids": [
+        "B214",
+        "B215",
+        "B216",
+        "B217",
+        "B218",
+        "B219",
+        "B221",
+        "B222",
+        "B223",
+        "B224",
+        "B225",
+        "LA-007",
+        "LA-019"
+      ]
+    },
+    {
+      "artifact_git_ref": "dea737b1ae2bd9a0e974dfc64920da396e3d345c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+      "bytes": 66228,
+      "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b",
+      "candidate_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "candidate_tree_sha": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e",
+      "current_primary_finding_ids": [
+        "B220"
+      ]
+    }
+  ],
+  "metadata_supersession": {
+    "prior_artifact_git_ref": "dea737b1ae2bd9a0e974dfc64920da396e3d345c",
+    "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json",
+    "prior_bytes": 27026,
+    "prior_sha256": "1ad932ccf89773c665f3eb9d1b171a99f2be00796c0888ff7b81610113ab841c",
+    "original_checks_count": 6,
+    "original_checks_unchanged": true,
+    "original_per_id_preserved_exactly": true,
+    "original_closure_ids_preserved_exactly": true,
+    "complete_tracked_handoff_json_files_scanned": 109,
+    "prior_body_hash_parent_reference_count": 0,
+    "scope": "Metadata-only role/closure sealing. No numerical rerun or scientific source/evidence relabel."
+  }
 }

@@ -1,0 +1,2629 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "scm-source-bound-20261006",
+  "closure_ids": [
+    "B214",
+    "B215",
+    "B216",
+    "B217",
+    "B218",
+    "B219",
+    "B220",
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B225",
+    "LA-007",
+    "LA-019"
+  ],
+  "bundle_ids": [
+    "GRF-01",
+    "GRF-02",
+    "GRF-03",
+    "SCM-01",
+    "SCM-02",
+    "SCM-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "07beb7c2986770e1b9901f3061a4768251c5a154",
+    "bea13d4e77a958dea15ff36b3758887441a16beb",
+    "c76b8550c3c858b32a75fa4ef202f7165a15819c",
+    "66e8ab2ffaa5cd1a73cfb76fa50f3f3ec75aa2a2",
+    "9ca3a8b7a9a76ef2a46f904352c76b54366560f6",
+    "c1452438c7f2271ba10f0c6b31bc747dca25a4e7",
+    "581673b96ca26ccb2475d0f6c4675cdf039c9ff6",
+    "2875f5c87b8a4ac2dddc478adb0c601437a9cb4f",
+    "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+    "3046581d98e789ebad2b99bad86de87f6e02b963",
+    "eb93738fb4cd0b302b4e6735e5bb5732324eceed",
+    "1e70434b8e5a04661bb22c02362854ca14714436",
+    "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+    "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+    "914c7b4bed31e2b6e518fca3b9e9be53b74e6762",
+    "eb1599936093ae897c3cb743cf5dd00e4729fcbd",
+    "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+  ],
+  "author_only_implementation_commits": [
+    "07beb7c2986770e1b9901f3061a4768251c5a154",
+    "581673b96ca26ccb2475d0f6c4675cdf039c9ff6",
+    "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+    "1e70434b8e5a04661bb22c02362854ca14714436",
+    "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+    "b69208e65b9dcfa4c7de690ace071abdc9c1fed6"
+  ],
+  "candidate_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "branch": "codex/e02-F-graph-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/foundry/structural-causal-models.md",
+    "policy-engine/docs/reference/ir/schema-catalog.md",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/docs/reference/schemas.md",
+    "policy-engine/docs/reference/scientist/structural-causal-queries.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "policy-engine/release-fragments/unreleased/structural-causal-result-semantics.toml",
+    "policy-engine/schemas/snapshots/ir/_manifest.json",
+    "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+    "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+    "policy-engine/src/polisyos/foundry/README.md",
+    "policy-engine/src/polisyos/foundry/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/README.md",
+    "policy-engine/src/polisyos/foundry/methods/api.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+    "policy-engine/src/polisyos/ir/README.md",
+    "policy-engine/src/polisyos/ir/__init__.py",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+    "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+    "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+    "policy-engine/src/polisyos/ir/api.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+    "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+    "policy-engine/tests/unit/ir/test_causal_queries_contract.py",
+    "policy-engine/tests/unit/remediation/test_cau_04.py",
+    "policy-engine/tests/unit/remediation/test_scm_01.py",
+    "policy-engine/tests/unit/remediation/test_scm_02.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+    "policy-engine/workers/dowhy-014/.python-version",
+    "policy-engine/workers/dowhy-014/README.md",
+    "policy-engine/workers/dowhy-014/protocol.py",
+    "policy-engine/workers/dowhy-014/pyproject.toml",
+    "policy-engine/workers/dowhy-014/tests/test_worker.py",
+    "policy-engine/workers/dowhy-014/uv.lock",
+    "policy-engine/workers/dowhy-014/worker.py"
+  ],
+  "shared_dependency_carries": [
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "70f160c943fd878190479cb81fe80bf710cecb07",
+      "carried_sha": "bea13d4e77a958dea15ff36b3758887441a16beb"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "85cba8f4f40360cd213c66c344300d5e826aff00",
+      "carried_sha": "c76b8550c3c858b32a75fa4ef202f7165a15819c"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "d86a085f07a2d49855f465fe762ef20259b67dc3",
+      "carried_sha": "66e8ab2ffaa5cd1a73cfb76fa50f3f3ec75aa2a2"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "cbb2015e3c96e6442a965e40c779a9c525e5060f",
+      "carried_sha": "9ca3a8b7a9a76ef2a46f904352c76b54366560f6"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "24ed1ec2063b0f2f6b937d5dab72b5fd821ee8d1",
+      "carried_sha": "c1452438c7f2271ba10f0c6b31bc747dca25a4e7"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "a7308b727fe61a4b4e3239964c558332b131f02f",
+      "carried_sha": "2875f5c87b8a4ac2dddc478adb0c601437a9cb4f"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "0e5c2e0999fce2464228439908953a771ba5383c",
+      "carried_sha": "3046581d98e789ebad2b99bad86de87f6e02b963"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+      "carried_sha": "eb93738fb4cd0b302b4e6735e5bb5732324eceed"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+      "carried_sha": "914c7b4bed31e2b6e518fca3b9e9be53b74e6762"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "66c46c32a2a99a4f218a5853174671139252e0db",
+      "carried_sha": "eb1599936093ae897c3cb743cf5dd00e4729fcbd"
+    },
+    {
+      "owner": "F/causal_api",
+      "original_author_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "carried_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+    }
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F01-P025",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "FAILED",
+      "grade": "source-reported compact-only baseline; original artifact bytes not promoted to candidate proof",
+      "full_cell_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/F01-P025.json"
+    },
+    {
+      "cell_id": "F13-P030",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "state": "FAILED",
+      "grade": "source-reported compact-only baseline",
+      "full_cell_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/F13-P030.json"
+    },
+    {
+      "cell_id": "F08-P048",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "state": "FAILED",
+      "grade": "source-reported compact-only baseline",
+      "full_cell_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/F08-P048.json"
+    }
+  ],
+  "baseline_input_denominator": "All matching baseline cells for every14owner IDs transferred withlimit1000 and matching_cells=displayed_cells; F failures30 used only navigation; concrete failed3cells pinned; no baseline futurePASS or inherited verdict",
+  "checks": [
+    {
+      "id": "scm-frozen/docs-gate",
+      "command": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-gate",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "198076863e143dea9f89f02734b13d50dae3eed5"
+      ],
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:.",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+          "UV_NO_SYNC": "1"
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "native full gate actual base198\u2192source changed path denominator; no selector override",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 224.5798889669968,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/docs-gate.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/docs-gate.json",
+      "expected_negative": false,
+      "P41_inherited": "not_established"
+    },
+    {
+      "id": "scm-frozen/emp01",
+      "command": [
+        "/workspace/e02-F-graph-env/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "tests/unit/remediation/test_emp_01.py",
+        "-q"
+      ],
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages"
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 43.45786155000678,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-frozen/gcm-parent",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer",
+        "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_row_permutation_source_and_effective_mechanism_tampering_refused",
+        "-q"
+      ],
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 32.402022673006286,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/gcm-parent.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/gcm-parent.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-frozen/public-abi",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/ir/test_root_facade_closeout.py",
+        "tests/unit/ir/test_schema_catalog.py",
+        "tests/unit/core/contracts/test_ir_ref_facades.py",
+        "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 35.30445980800141,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/public-abi.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/public-abi.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-frozen/schema-full",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "native full gate actual base198\u2192source changed path denominator; no selector override",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 14.77254121900478,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/schema-full.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/schema-full.json",
+      "expected_negative": false,
+      "P41_inherited": "not_established"
+    },
+    {
+      "id": "scm-frozen/semantics",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py"
+      ],
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 37.08441255700018,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/semantics.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/semantics.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-frozen/worker-gcm",
+      "command": [
+        "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/test_worker.py",
+        "-k",
+        "genuine_gcm_assignment or gcm_fit_removal",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short"
+      ],
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014"
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 9.127626132991281,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-gcm.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-gcm.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-frozen/worker-removal",
+      "command": [
+        "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/graph/removal-gcm-fit.py"
+      ],
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014"
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 6.356949983004597,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-removal.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-removal.json",
+      "expected_negative": true
+    },
+    {
+      "id": "scm-final1e/docs-gate",
+      "command": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-gate",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "198076863e143dea9f89f02734b13d50dae3eed5"
+      ],
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:.",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+          "UV_NO_SYNC": "1"
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "native full gate actual base198\u2192source changed path denominator; no selector override",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 298.7305392450071,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-gate.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-gate.json",
+      "expected_negative": false,
+      "P41_inherited": "not_established"
+    },
+    {
+      "id": "scm-final1e/gcm-parent-and-custody",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+        "tests/unit/remediation/test_scm_02.py",
+        "tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+        "-k",
+        "not true_refit_sampling_interval"
+      ],
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 133.64748097899428,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/gcm-parent-and-custody.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/gcm-parent-and-custody.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-final1e/original-scm-cards",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/remediation/test_scm_01.py",
+        "tests/unit/remediation/test_scm_03.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short"
+      ],
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 9.425482242993894,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/original-scm-cards.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/original-scm-cards.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-final1e/public-abi",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/ir/test_root_facade_closeout.py",
+        "tests/unit/ir/test_schema_catalog.py",
+        "tests/unit/core/contracts/test_ir_ref_facades.py",
+        "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 51.746038803990814,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-abi.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-abi.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-final1e/schema-full",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "native full gate actual base198\u2192source changed path denominator; no selector override",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 17.380249645997537,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/schema-full.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/schema-full.json",
+      "expected_negative": false,
+      "P41_inherited": "not_established"
+    },
+    {
+      "id": "scm-final1e/semantics",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py"
+      ],
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 35.36047351099842,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/semantics.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/semantics.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-final1e/worker-gcm",
+      "command": [
+        "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/test_worker.py",
+        "-k",
+        "genuine_gcm_assignment or gcm_fit_removal",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short"
+      ],
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014"
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 6.971740412001964,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-gcm.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-gcm.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-final1e/worker-removal",
+      "command": [
+        "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/graph/removal-gcm-fit.py"
+      ],
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014"
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 12.439406973993755,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-removal.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-removal.json",
+      "expected_negative": true
+    },
+    {
+      "id": "scm-final0b/docs-gate",
+      "command": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-gate",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "198076863e143dea9f89f02734b13d50dae3eed5"
+      ],
+      "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:.",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+          "UV_NO_SYNC": "1"
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "native full gate actual base198\u2192source changed path denominator; no selector override",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 222.09263309199014,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/docs-gate.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/docs-gate.json",
+      "expected_negative": false,
+      "P41_inherited": "not_established"
+    },
+    {
+      "id": "scm-final0b/gcm-root-public-custody",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+        "-k",
+        "public_source_bound_validation or complete_cas_projection or actual_gcm_job"
+      ],
+      "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 64.35443157100235,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/gcm-root-public-custody.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/gcm-root-public-custody.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-final0b/public-abi",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/ir/test_root_facade_closeout.py",
+        "tests/unit/ir/test_schema_catalog.py",
+        "tests/unit/core/contracts/test_ir_ref_facades.py",
+        "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "target_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 18.220721051999135,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/public-abi.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/public-abi.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-final6d/docs-gate",
+      "command": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-gate",
+        "--repo-root",
+        ".",
+        "--base-ref",
+        "198076863e143dea9f89f02734b13d50dae3eed5"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:.",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+          "UV_NO_SYNC": "1"
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "native full gate actual base198\u2192source changed path denominator; no selector override",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 234.75225672099623,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.json",
+      "expected_negative": false,
+      "P41_inherited": "not_established"
+    },
+    {
+      "id": "scm-final6d/gcm-root-public-custody",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+        "-k",
+        "public_source_bound_validation or complete_cas_projection or actual_gcm_job or row_permutation_source"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 81.12756140300189,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/gcm-root-public-custody.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/gcm-root-public-custody.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-final6d/public-abi",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/ir/test_root_facade_closeout.py",
+        "tests/unit/ir/test_schema_catalog.py",
+        "tests/unit/core/contracts/test_ir_ref_facades.py",
+        "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 22.76833506699768,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-abi.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-abi.json",
+      "expected_negative": false
+    },
+    {
+      "id": "scm-final6d/worker-helper-projection",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+        "-k",
+        "public_complete_report_builder"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": {
+        "overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "profile": "exact execution receipt; application Python3.14, selected genuine worker Python3.12.14/DoWhy0.14"
+      },
+      "input_closure": "complete bounded synthetic selector named by argv; no admitted production data",
+      "outcome": "PASS",
+      "exit": 0,
+      "wall_s": 16.84797786899435,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-helper-projection.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-helper-projection.json",
+      "expected_negative": false
+    },
+    {
+      "id": "owned-import-denominator",
+      "command": [
+        "PYTHONPATH=src:.",
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/audit_final6d.py"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": "measured Python3.14.7 app profile; unchanged genuine worker six-assets e589",
+      "input_closure": "all AST imports in every actual changed product src Python file, including fresh carried helper; not whole repository gate",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/owned-import-denominator.json"
+    },
+    {
+      "id": "docs-plan",
+      "command": [
+        "PYTHONPATH=src:.",
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/audit_final6d.py"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": "measured Python3.14.7 app profile; unchanged genuine worker six-assets e589",
+      "input_closure": "path-aware companion predicate only; native full gate retains separate FAIL/UNRUN results",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-plan.json"
+    },
+    {
+      "id": "own-generated-schemas",
+      "command": [
+        "PYTHONPATH=src:.",
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/audit_final6d.py"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": "measured Python3.14.7 app profile; unchanged genuine worker six-assets e589",
+      "input_closure": "full exact owned predicate denominator recorded in output",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/own-generated-schemas.json"
+    },
+    {
+      "id": "public-generated-companions",
+      "command": [
+        "PYTHONPATH=src:.",
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/audit_final6d.py"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": "measured Python3.14.7 app profile; unchanged genuine worker six-assets e589",
+      "input_closure": "full exact owned predicate denominator recorded in output",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-generated-companions.json"
+    },
+    {
+      "id": "public-consumer-census",
+      "command": [
+        "PYTHONPATH=src:.",
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/audit_final6d.py"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": "measured Python3.14.7 app profile; unchanged genuine worker six-assets e589",
+      "input_closure": "full exact owned predicate denominator recorded in output",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-consumer-census.json"
+    },
+    {
+      "id": "worker-math-profile-equivalence",
+      "command": [
+        "PYTHONPATH=src:.",
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/audit_final6d.py"
+      ],
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": "measured Python3.14.7 app profile; unchanged genuine worker six-assets e589",
+      "input_closure": "complete actual worker/protocol/lock/math/test profile identity; parent report projection dependency is separately checked, README docs changed without numeric authority",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-math-profile-equivalence.json"
+    },
+    {
+      "id": "independent-d88-native",
+      "command": "exact native argv in committed execution receipt",
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": "source-specific independent receipt",
+      "input_closure": "20 tests, known synthetic SCM/backend/result semantics",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-native.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-native.json"
+    },
+    {
+      "id": "independent-d88-peer-custody",
+      "command": [
+        "application Python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-probe.py"
+      ],
+      "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+      "environment": "genuine selected GCM worker+real registered query job+unchanged actual CAS result",
+      "input_closure": "actual job then peer-only summary mutation; all backend/source/result-kind markers retained",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding.json",
+      "P40_bucket": "NEW full consumer/result-content custody class repaired at1e"
+    },
+    {
+      "id": "independent-1e-native",
+      "command": "exact native argv in committed execution receipt",
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": "source-specific independent receipt",
+      "input_closure": "22 tests/0skip/0error,31 actual warnings; finite static supported profile",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-native.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-native.json"
+    },
+    {
+      "id": "independent-1e-custody-correction",
+      "command": [
+        "application Python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected-probe.py"
+      ],
+      "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+      "environment": "genuine selected GCM/actual query producer/CAS/fresh Scientist consumer",
+      "input_closure": "same peer-only mutant plus coherent genuine arm2 job against original arm1 request",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected.json"
+    },
+    {
+      "id": "independent-facade-import-delta",
+      "command": "independent actual canonical identity/invocation/pickle probes; exact argv in execution companions",
+      "target_sha": "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+      "environment": "source-specific independent bounded review",
+      "input_closure": "complete1e\u21920b governance facade+generated companions,0b\u2192b692 two import identities; no numerical reclassification",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-final-facade-import-delta-review.json"
+    },
+    {
+      "id": "baseline-production-invocation",
+      "command": "python -m polisyos.runtime.quality.production_invocation --repo-root . --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt scratch/production-invocation-base.json",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": "historical attempted base profile",
+      "input_closure": "broad diagnostic attempted once; killed before completion",
+      "outcome": "ERROR",
+      "exit": 137,
+      "output": "prior graph handoff records empty stdout and absent requested receipt; completed diagnostic UNRUN",
+      "P41_inherited": "not_established"
+    },
+    {
+      "id": "inprocess-optional-backends",
+      "command": "baseline Python3.14 dependency markers",
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": "Python3.14 profile excludes in-process DoWhy/EconML",
+      "input_closure": "no supported native in-process backend selected",
+      "outcome": "UNRUN",
+      "output": "Marker omissions are not a positive backend witness; actual supported subprocess profile has separate defining receipt"
+    },
+    {
+      "id": "schema_docs-docs_accuracy-strict_docs_build",
+      "command": "native check-docs-gate planned downstream commands",
+      "target_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "environment": "UV_NO_SYNC=1 existing application environment",
+      "input_closure": "native gate stops after public_surface command exit2",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt"
+    }
+  ],
+  "property": {
+    "statement": "Real declared DoWhy GCM fits retain source-bound common rows and true residual/root laws through CAS and fresh consumers; outcome/ITE distributions, Gaussian posterior and actual IID refit estimator CI have distinct nonauthoritative semantics; query consumer validates full canonical job payload and original request.",
+    "runtime_path": [
+      "Actual typed source CAS",
+      "existing MethodJob/dispatcher and source context",
+      "strict Python3.12 DoWhy0.14 request\u2192explicit StructuralCausalModel assignment\u2192gcm.fit",
+      "parent SCM1.1 source/rows/profile/model export validation and CAS",
+      "fresh Python3.14 model reader reopens actual source/worker request/code/lock/whole mechanism content",
+      "actual RunCausalQueriesNode\u2192registered GCMQuery\u2192method-result CAS full peer projection/original query/manifest input binding",
+      "fresh CausalQueryResult1.2 readback + public4custodyvalidators + optional actual40refits estimator interval"
+    ],
+    "proxy_divergence": "Installed import/fit_function label alone remains green with actualgcm.fit replaced by per-mechanism fit; code-object4call oracle fails. Source/backend/kind markers and genuineCAS remain green with peer-only mean+5; oldd88 accepted wrongreport,1e fullpayload binding refuses. Coherent genuine arm2 job also refuses against original arm1 request.",
+    "negative_controls": [
+      "true gcm.fit removal keeping actual numerical fit/versions labels:1FAIL expected",
+      "source row permutation, source rebind and coherent forged mechanism exports refuse",
+      "malformed string/bool/oversized numeric primitives refuse before scientific success",
+      "six actual job/CAS peer/request mutation classes typed-refuse",
+      "Gaussian singular incompatiblefacts refuse; no imputed parent becomes factual evidence",
+      "graph collider/bidirected surgery removal each1FAIL expected; genuineNX DiGraph replacement fails lossless payload assertion"
+    ],
+    "input_identity": {
+      "DGP": "known synthetic X~Normal,Y=2X+independentnoise,400rows actualsource; independent rootlaw/polynomial/Gaussiancontrast/static-law fixtures",
+      "iid_units": "complete observation rows, one indexed resample per original sourceArtifactID:index;20..500 actualrefits supported",
+      "width_property": "n400/n80080true refits; approximateiidconditionalgraph estimatorCI property, not repeated nominalcoverage claim",
+      "graph": "200 static three-nodeADMG,2400msep and19200surgery; genuineNX3.6.1mixed/parallel/lag payload,120edge permutations60unique"
+    },
+    "authority_purpose": "candidate computation and bounded generic source-card verification; all result and estimator uncertainty envelopes gate_eligible=False; no admitted real-world causal estimate or policy/legal authority"
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Technical recommendations:10closed bounded originalcard properties; B214/B218limited existing-intake companion, LA007/019limited full installedretirement criterion. No ledger closure writes. SCM entries supersede graph-only notexecuted rows; currentB219actualbackend established supersedes oldreceipt pendingbackend hold reason.",
+  "per_id": [
+    {
+      "finding_id": "B214",
+      "bundle_id": "GRF-03",
+      "criterion": "Normalize known reversed arrow without losing marks; unresolved PAG/CPDAG is preserved/typed-refused rather than arbitrary DAG",
+      "check": "PASS",
+      "outcome": "limited",
+      "oracle_and_deciding_checks": "native GRF03 source projection PASS; separate existing reconciliation endpoint-control FAIL",
+      "negative_or_removal": "CPDAG triangle/unresolved marks refused by actual static GCM; independent reconciliation circle markers survive semantic FAIL.",
+      "limit_and_next_owner": "Source reversed-edge/static-refusal properties are established. Full intake has circle\u2192tail-arrow defect; separate CAU graph-intake author owns bounded repair before integration. General PAG identification not claimed.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-03.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B214.json",
+      "downstream_companion": {
+        "sha": "e6cb0949e58399b0a8f0e3086aecdac70503c138",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
+        "bytes": 34553,
+        "sha256": "eea70a5e18fb463309efb98d531f2d911e2eaf1090c81119a2f25035a1f94a82",
+        "endpoint_check": "FAIL",
+        "temporal_protected_route_check": "UNRUN",
+        "repair_branch": "codex/e02-F-graph-intake-20261006",
+        "next_owner": "F/cau separate canonical reconciliation intake author; root final integration index",
+        "scope": "primitive PASS does not close actual downstream intake class"
+      }
+    },
+    {
+      "finding_id": "B215",
+      "bundle_id": "SCM-02",
+      "criterion": "Gaussian partial factual evidence uses conditional noise posterior; complete facts retain residual inverse",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "independent22 native+semantics15 exactGaussian/singular+freshCAS",
+      "negative_or_removal": "Independent posterior mean/cov formula: X=Ux,Y=X+Uy,evidenceY2 gives Uymean1,var0.5; incompatible singular facts refuse; fullX1,Y2 yieldsY0=1.",
+      "limit_and_next_owner": "Supported affine-Gaussian profile only; empirical residual/nonlinear partial factual abduction returns typed limitation. No real-data identification claim.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B215.json"
+    },
+    {
+      "finding_id": "B216",
+      "bundle_id": "GRF-01",
+      "criterion": "Endpoint-aware static ADMG m-separation, collider/conditioned-descendant semantics and actual rule consumers",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "graph56 native,200graphs\u00d712queries=2400 latent-DAG comparisons",
+      "negative_or_removal": "Keep all graph marks, remove collider predicate:1FAIL expected; genuine Rule1 consumer measured.",
+      "limit_and_next_owner": "Finite three-node fully specified static ADMG primitive; not completeness for arbitrary PAG/ID.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B216.json"
+    },
+    {
+      "finding_id": "B217",
+      "bundle_id": "GRF-01",
+      "criterion": "Perfect do removes incoming directed and incident bidirected influences while preserving outgoing effects",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "graph56 native,200graphs\u00d78actions\u00d712queries=19200 latent-DAG surgery comparisons",
+      "negative_or_removal": "Keep graph declarations, remove bidirected cut:1FAIL expected; genuine Rule3 consumer measured.",
+      "limit_and_next_owner": "Finite fully specified static ADMG; broader identification algorithm completeness not claimed.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B217.json"
+    },
+    {
+      "finding_id": "B218",
+      "bundle_id": "GRF-03",
+      "criterion": "Lag1/lag2/self-lag roundtrip retains causal time; static consumer must refuse absent explicit temporal conversion",
+      "check": "PASS",
+      "outcome": "limited",
+      "oracle_and_deciding_checks": "actualNX lossless lag/self-lag roundtrip PASS and staticGCM lag refusal PASS",
+      "negative_or_removal": "Zero-lag self-loop remains invalid; bidirectional lag feedback remains serialized, staticGCM rejects; finite expandedgraph sanity.",
+      "limit_and_next_owner": "Full graph-intake-to-protected-readiness temporal route UNRUN in current slice; separate intake owner/root integration. Static runtime law remains safe-refusal, no temporal method capability claim.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-03.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B218.json",
+      "downstream_companion": {
+        "sha": "e6cb0949e58399b0a8f0e3086aecdac70503c138",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
+        "bytes": 34553,
+        "sha256": "eea70a5e18fb463309efb98d531f2d911e2eaf1090c81119a2f25035a1f94a82",
+        "endpoint_check": "FAIL",
+        "temporal_protected_route_check": "UNRUN",
+        "repair_branch": "codex/e02-F-graph-intake-20261006",
+        "next_owner": "F/cau separate canonical reconciliation intake author; root final integration index",
+        "scope": "primitive PASS does not close actual downstream intake class"
+      }
+    },
+    {
+      "finding_id": "B219",
+      "bundle_id": "GRF-02",
+      "criterion": "Actual narrow NetworkX mixed/parallel/temporal-edge export and readback is invariant under input ordering",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "genuineNX3.6.1 MultiDiGraph\u2192CAS\u2192freshreader fullpayload\u00d7120permutations",
+      "negative_or_removal": "DiGraph substitution preserves graph markers but full edge-multiset assertion fails;120permutations=60unique because2identicalrecords.",
+      "limit_and_next_owner": "Historical ledger held reason was missing backend witness; actual supported native exporter property now established. Rustworkx/Kuzu not executed/not claimed. Formal ledger remains publisher decision.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "held",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-02.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B219.json"
+    },
+    {
+      "finding_id": "B220",
+      "bundle_id": "GRF-02",
+      "criterion": "Deep immutable graph, cold-copy derived values, warm/cold/dump/cache agreement and weakref cleanup",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "graph56 native contract/mutation/copy/cache selectors",
+      "negative_or_removal": "Nested mutation rejects; copy empty edges after warm export has cold correct projections; old cache entry cleans throughweakref.",
+      "limit_and_next_owner": "Actual topology/cache scope, not live Kuzu mutation or unrestricted algorithms.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-02.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B220.json"
+    },
+    {
+      "finding_id": "B221",
+      "bundle_id": "SCM-01",
+      "criterion": "Persist observed/common-row root law and missing-law uncertainty; dependent roots do not become independent defaults",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "originalSCM01/03 13PASS + genuineGCM4freshchecks+independent22",
+      "negative_or_removal": "Y3T+2Z,Z99/101,doT1 mean203; dependent roots commonaligned rows; selected trueworker fit400 XNormal,Y2X+noise; row permutation/source and coherent fake mechanism export refuse.",
+      "limit_and_next_owner": "Native explicit historical research profile establishes multi-root analyticlaw. Genuine declared GCM profile separately covers source-bound empiricalX/linearY; no automatic nonlinear assignment or admitted real data.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B221.json"
+    },
+    {
+      "finding_id": "B222",
+      "bundle_id": "SCM-01",
+      "criterion": "Execute complete declared polynomial family in query/twin without mixing surrogate coefficients and polynomial residual noise",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "originalSCM01/03 13PASS + native persisted query/twin readers",
+      "negative_or_removal": "x\u00b2 atx2=4 vs forbiddenlinear1.36; positiveLINEAR1+3x at2=7; malformed polynomial refuses rather thanborrow noise.",
+      "limit_and_next_owner": "Already-declared polynomial payload/no cross terms; generic nonlinear abduction/autoassignment is unsupported. Genuine default worker deliberately linear additive-noise only.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B222.json"
+    },
+    {
+      "finding_id": "B223",
+      "bundle_id": "SCM-02",
+      "criterion": "Explicit target/comparator, same-U contrast, observational/stochastic distinction and result law/inference typing",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "independent22 + exacttypedsemantics15 + actualregisteredproducer/CAS/Scientist4freshchecks",
+      "negative_or_removal": "Y1+3X:do2\u2212do0=6,samearm0; fixedn_samples100/10000 does not create estimatorCI; n400\u2192800 actual80-refit estimatorwidth ratio.648 vs predictive.990; genuinewrongarm fullycoherentCAS refuses against originalrequest.",
+      "limit_and_next_owner": "Outcome/ITE predictive spans remain distinct from Gaussian posterior credible span and optional iid-unit refit estimator CI; all nongating. Conditional graph/observational units assumptions remain explicit.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B223.json"
+    },
+    {
+      "finding_id": "B224",
+      "bundle_id": "SCM-03",
+      "criterion": "Perfect do bypasses replaced natural mechanism and prunes irrelevant nodes while retaining factual/shared-noise dependencies",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "originalSCM01/03 13PASS + semantics15 full/pruned/reordered graph seed oracle",
+      "negative_or_removal": "Broken oldnaturalX bypassed bydo2\u2192Y7; shift5+2 stillrequiresnatural5; irrelevant20roots not executed; marker-kept full/pruned commonrow draws agree.",
+      "limit_and_next_owner": "Static declared law/planning profile; temporal/static mismatch returns typed refusal.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-03.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B224.json"
+    },
+    {
+      "finding_id": "B225",
+      "bundle_id": "SCM-03",
+      "criterion": "Retain explicit stochastic policy law; robust truncnormal conditional tails without clipping atoms; unsupported law refuses",
+      "check": "PASS",
+      "outcome": "closed",
+      "oracle_and_deciding_checks": "originalSCM01/03 13PASS + semantics15 independentSciPyCDF controls",
+      "negative_or_removal": "5000draw CDF/DKW extreme8..9 and\u221212..\u221210 controls; positive support/scale; unknown typo law withfallback7 refuses, no atomic relabel.",
+      "limit_and_next_owner": "Supported Normal/Uniform/TruncNormal/explicit atomic laws only; no policy authority or unsupported distribution fallback.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-03.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B225.json"
+    },
+    {
+      "finding_id": "LA-007",
+      "bundle_id": "GRF-01",
+      "criterion": "Only exact empty id_engine.py sibling retirement, package/find_spec/publicAPI/sourceinventory/loader/wheel/sdist acceptance",
+      "check": "UNRUN",
+      "outcome": "limited",
+      "oracle_and_deciding_checks": "Source sibling absent atbase198; source facade native ABI tested, full retirement-specific installed acceptance UNRUN here",
+      "negative_or_removal": "Preserved id_engine package implementation; no assumed absence of external dynamic filename loaders.",
+      "limit_and_next_owner": "API/C/G installed finite loader/resource/retired-package criterion on final composed source remains separate. No deletion/package rewrite in this slice.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/LA-007.json"
+    },
+    {
+      "finding_id": "LA-019",
+      "bundle_id": "GRF-01",
+      "criterion": "Only exact empty causal_engine.py/interference.py siblings, real package preservation and loader/distribution acceptance",
+      "check": "UNRUN",
+      "outcome": "limited",
+      "oracle_and_deciding_checks": "Source two siblings absent atbase198; source public ABI tested, full retirement-specific installed acceptance UNRUN here",
+      "negative_or_removal": "Protected same-name packages remain; no recursive cleanup or guessed file-loader absence.",
+      "limit_and_next_owner": "Same installed-package/external-loader class asLA007; API/C/G owns complete composed distribution acceptance. RootFoundry4helpers native ABI is not full retired-package proof.",
+      "authority": "F-W06 technical method owner recommends this bounded per-card outcome; G accepts code/integration and publishes any ledger decision",
+      "recorded_ledger_state": "partial",
+      "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md",
+      "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/LA-019.json"
+    }
+  ],
+  "independent_review_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-final-facade-import-delta-review.json"
+  ],
+  "graph_prior_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json",
+    "implementation_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+    "source_blobs_identical_at_current_candidate": [
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py"
+    ],
+    "source_scope": "native56+two1FAILremovals retains07exactsource witness; no rerun numerically relabeled"
+  },
+  "wire_and_compatibility": {
+    "causal_query_result": "1.2; historical1.0/1.1decoded as explicit limited nongating distribution",
+    "twin_result": "1.1; historical1.0limited nongating",
+    "selected_gcm_scm": "1.1 requires actualsource/row/provenance; historical/manualdefault1.0preserved",
+    "consumer_abi": "canonical signature slot and historical same-object alias preserved; rootFoundry+methodsfacade4canonical functionaliases identities/invocation/pickle tested; generatedpublicinventory owned4IRtypes+4Foundryhelpers only",
+    "E_global_uncertainty": "existing supported IR kinds only; Euncertainty.py unchanged, no globalv2ratification"
+  },
+  "time_roles": {
+    "execution_utc": "exactstarted times per execution companion",
+    "receipt_prepared_utc": "2026-10-06T11:30:39.081651+00:00",
+    "data_role": "synthetic fixture computation only; no current-production history or source authority"
+  },
+  "environment": {
+    "current_app_python": "3.14.7 measured",
+    "app_executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "worker_python": "3.12.14",
+    "worker_executable": "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+    "worker_dowhy": "0.14",
+    "worker_profile": "fullylocked52packages,6assets identical author e589; no NumPy fallback for selectedfit",
+    "inprocess_markers": "baselinePython3.14 excludesDoWhy/EconML; notPASS",
+    "module_origins": "exact own productpaths from native receipts; selectedworker ownsourcefile, genuine installeddowhy code-object; current audit canonicalprovider source and wrapper origins recorded",
+    "wall_RSS": "wall seconds in all execution receipts; RSS not measured in this author runner, no invented resource verdict"
+  },
+  "source_bindings": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "git_blob": "0ba3d788bb8184eccb1c5e4e2894e8e65b6c4887",
+      "sha256": "ddcb1ae0f632c5e9e59aa55852a47d07b04034aac6a6cdeac8457e8ac4995ecb",
+      "bytes": 221406
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md",
+      "git_blob": "14e15343cc12b70dcaf0624c28bdec109c46af28",
+      "sha256": "d0e6425341ae3d336729a58aa9f0e330d4b71d0c40f7a760f760dd1e7fa3e7a3",
+      "bytes": 23779
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-02.md",
+      "git_blob": "8bc228e2e6d8dff5071925cf7974ad13179424b3",
+      "sha256": "c21aa22fa29e10e261bdb0316ff19a77d01c3de1407ed55690d0785f5b8ef14f",
+      "bytes": 12256
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-03.md",
+      "git_blob": "8cd1caf85dbddf84763cf750303ce351b78cf74d",
+      "sha256": "e30a84b6eca21cc67eafd322cf3cc36bb6b43466537ffbc6f28054078f7cc2bb",
+      "bytes": 13009
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md",
+      "git_blob": "20fc17b509d287f25404ef642f19dda66d214a18",
+      "sha256": "3a6fd6b5ba4b4283ca75516a5dfdf4ef697d694544347932b5760b4a8667ced1",
+      "bytes": 12090
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md",
+      "git_blob": "05fcca4604bcdd2204df1410a5578b1c5c8d5451",
+      "sha256": "aa7488b1bc894c2c7b843cb9ec011273cf798cbaa1c2d0d3a4f066dd3e6c4f49",
+      "bytes": 12188
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-03.md",
+      "git_blob": "52caa96fe6bf2f34a421f8b772f3d1a8ddfe0227",
+      "sha256": "6379b32d4cf9b7f5b61facc5cba12dd65d28a6ee8058c3b8e41cd46581da1b48",
+      "bytes": 13234
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/structural-causal-models.md",
+      "git_blob": "a6c0d9952c24e38093fefd973961029c3bfddb61",
+      "sha256": "3f7dd385fee74bbef605dedb955f214981c1c9da101b59c4514c51f21d93af5a",
+      "bytes": 5399
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "git_blob": "1aeebf1485bfe2d0e9ec27d89c3eb537e19e1c98",
+      "sha256": "03d37a6c16fe61b0b0ec0a3b3536e20c7121ec39fd1b3adbac180c828f7eeada",
+      "bytes": 1641802
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "git_blob": "68e4cd5c8bf59b83ed0d099e47e369a53e27f471",
+      "sha256": "939a51eb09207225f6ccf71c6b6f63f12980146a8707329566077c7f6d6c66b1",
+      "bytes": 153173
+    },
+    {
+      "path": "policy-engine/docs/reference/schemas.md",
+      "git_blob": "486e96471ba0b794b18a3ee5da195002e935c49f",
+      "sha256": "02c3503d4c07dd737103dbaf1f3c80ca25637198513c5b415be5cded36d9d389",
+      "bytes": 29371
+    },
+    {
+      "path": "policy-engine/docs/reference/scientist/structural-causal-queries.md",
+      "git_blob": "8f3fbfa1a2fb3dd12469e13932e9abd4f20b7c68",
+      "sha256": "c85c0f31c370dbc7ff885fc7aa79b6a588d5e5a42f65d2d321e1fc2fc911c9df",
+      "bytes": 3384
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "git_blob": "b04b58837a5767a3194dbaf0dc3cb63580a649ff",
+      "sha256": "5a086df1622e4dfa060b432f0643f3634c839d735894d9640208a66c7ad40a82",
+      "bytes": 36326
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "git_blob": "f3248e61065316f06f7b1dbe5476f09cb3a4588a",
+      "sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8",
+      "bytes": 144848
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "git_blob": "e939b0ef5f8ee2553648e1537268c70dc29a2b20",
+      "sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0",
+      "bytes": 46944
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "bytes": 9504
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+      "git_blob": "16f15d40edd3c1b9838c2d1a125d2cf60808e419",
+      "sha256": "83fe1b1ce98c096d63ba8c71f371e71a5217ed3b7a5103316a8e5cd93642d15f",
+      "bytes": 2580
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/structural-causal-result-semantics.toml",
+      "git_blob": "488bcbef4ab0b8dafffae1f80f3d5729aec4ebdd",
+      "sha256": "2f0accd782f61a4dfa0154ad844a2a8cc769a1a83d5feb73d2c1f6d8f5a76660",
+      "bytes": 2704
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "git_blob": "743caaf9a9287df4ccbe8c7a8a0b8066962cca05",
+      "sha256": "28c3d16267ad9de8c7f741c2547055fafd60275bc0f9f9d9bfee9b5b6abf21ae",
+      "bytes": 52447
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+      "git_blob": "6e94e0ce215e5d0a76548d73f27d07f91e1a8ca4",
+      "sha256": "b86f113bcc605935333601130f235242849ee7ff8bc418954ef3ea32b33bb775",
+      "bytes": 12179
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+      "git_blob": "e306c803b9165b644462e1fc2100a4b71606ec55",
+      "sha256": "6af18c2cdb9901cd54568d0b1e83676ced66d809dc7851817c6efc1def40fde5",
+      "bytes": 15243
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/README.md",
+      "git_blob": "e2ad30f7a316d58969d06930420b652fd581d8e2",
+      "sha256": "05399f18ea677713279b4ff4e9c6a3100ba00c8c4670dbdbb3ac7a2af32f8b72",
+      "bytes": 10085
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/__init__.py",
+      "git_blob": "d663620e99bb1e5434ac9a12a69e9541dd797ada",
+      "sha256": "174daddab888edb803bca47fd1cd5b45d21f15a5a57383f937f964f2f033aaf6",
+      "bytes": 9930
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+      "git_blob": "bc3487e1c22b921abb675a67a16dc503447d9433",
+      "sha256": "241962a02e0e02386d2812c5fb30c44aeffd9af6bd61b9f0ca1946026ca21bb6",
+      "bytes": 9910
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/api.py",
+      "git_blob": "2fe084b25f0d97a624382f344fcbda13d9802a25",
+      "sha256": "ba60c5f67c777c4ab4ce3e76d366956f2ab08fc31cf0065df139d5de4361c1b1",
+      "bytes": 23763
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "git_blob": "63c48e186a542a069a14ad96e3331dc4a3744a37",
+      "sha256": "2edb42da1222cb5fbc4d43a7df1355a3990d58d66293ee035b1cf79d687b1a19",
+      "bytes": 10959
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "git_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+      "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56",
+      "bytes": 16599
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+      "git_blob": "8e42b022245c065a9ca79b67f5a7ca2f59eadb3f",
+      "sha256": "1f3b85621bc414f3aade7344dab0a620c4b282e4f7a24f8e74a844c5b73d0158",
+      "bytes": 4734
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968",
+      "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738",
+      "bytes": 40707
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "git_blob": "99fc9cc09cc915cd5c555d61ff7dd585a519253f",
+      "sha256": "0babf1b38ae1e1146ddfc9ce5d04345601b67b1e60893d282f46fda9a6222867",
+      "bytes": 15982
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+      "git_blob": "749154a57340793c223da2b40d02bd5bcd8e7fea",
+      "sha256": "50e0b78c639b52444cc97abe35f8b71a5ce66c8c33cb2c920c34cbe42633c04e",
+      "bytes": 23546
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "git_blob": "7536aba1de5b2019424afa52bdf0814a9bc85cfa",
+      "sha256": "cb6dfd9197b0f93fde517e96b6dcaf6eda1a2bcba82b83c3be7f43a6d3773568",
+      "bytes": 32094
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "git_blob": "31d3a9093cc5927d360f680da811e2a33b222239",
+      "sha256": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87",
+      "bytes": 74551
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "git_blob": "858c24199eed73f364186e0befe1ae934efd640f",
+      "sha256": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb",
+      "bytes": 26474
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/README.md",
+      "git_blob": "382d844aa91a3ecfb5fd2273128c15d2aefdd87c",
+      "sha256": "136e54f03910db4df31d78c7dacccc3ac200df8260a35b70c13b860cd92b6b14",
+      "bytes": 11429
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "git_blob": "2b0699140cb734b833204332398d05ff3bc8faa2",
+      "sha256": "48610c596a941bb1c0b53d761d93d2a60e0f8ecda035681500e53e1f5bce8954",
+      "bytes": 39303
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "git_blob": "8d212f50c6d9396cbcdde928958ee261ad46c46e",
+      "sha256": "4362ff74bf4ff073ed5b6731f33bfacae6dab6194c8accc2311f1efc7691b4f3",
+      "bytes": 8553
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "git_blob": "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d",
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1",
+      "bytes": 20114
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+      "git_blob": "5c87f7122a5eb816187eb05054d155dde81a802b",
+      "sha256": "704676490c54d5ce21f03d93f8273940b8145c9595cd8ab8b3fa651f53aa7f59",
+      "bytes": 29803
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "git_blob": "f8b14ea9e8fd4a43100193e2781353777f714d2d",
+      "sha256": "a235e72714e9c6709c63ff12cce64251293f63d44be171d55672d693db5502d0",
+      "bytes": 14630
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+      "git_blob": "4da51eb88ac226df1b01f4c1ffd3997304c55512",
+      "sha256": "3dda67abbeca3e6180e8215fe1e55e0699ba3084ee0521ea37ed63a447ab6189",
+      "bytes": 11571
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "git_blob": "d0a7d0e26e625e38557e1cf7b88853bf1cac1d6b",
+      "sha256": "5330aa6b4da8b3f61df54006e193b879c0acb2d52a1f19e779ddf3332a788372",
+      "bytes": 48048
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "git_blob": "84d60e4ee6c17067b0df1e6b9f605cddb9e5ad8f",
+      "sha256": "4ed78953c80ee719ec29d5a7bfb1d8d1bb24c49a500f971a3940dfb5c14f0b2e",
+      "bytes": 16537
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "git_blob": "4535a540ddeca9632b8e254848e28eddd352e941",
+      "sha256": "4ea4c07555000dee55d3b1b4d7ed15b07862899b3776c8362485322a9e64a253",
+      "bytes": 6926
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+      "git_blob": "cf30a5b76ea038d3b394f5d9f79198cc61812d82",
+      "sha256": "b1ab54dad1f2aef2d310a3145dee2970b1f7c703ac8b198fbc156ed7486a34b6",
+      "bytes": 7177
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "git_blob": "5f41c64d6f2df411a0cf49f2d4d19f9dd672ab39",
+      "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095",
+      "bytes": 16553
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "git_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+      "sha256": "acd5d0bd70fa0768df0e517882501d7c8ea836038102f046dac42888e7776d40",
+      "bytes": 21216
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+      "git_blob": "7d3c969bbaeaf8bbf96a11bb35fdff05cdc863c1",
+      "sha256": "545a1ea96087f8564ad9956d4ba2b7bca1667543dd4249af6b54f37b9a6f0520",
+      "bytes": 5469
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+      "git_blob": "523d7934401abe599eb47def2f953398897f9632",
+      "sha256": "ec9b57479a47f26edcee9ee3821dba285ca290b0674d8bd5f20588d17e07f354",
+      "bytes": 13402
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+      "git_blob": "bff3501b591107f234606eb7001eefff479abf74",
+      "sha256": "3ae76719c0a4951ee8d40f7e95b8d6d60e6926d98e4dcdebcd2c3fc0f813c54b",
+      "bytes": 12941
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+      "git_blob": "e727129401c7de566e0dc6d68ea39db617ca47af",
+      "sha256": "7dff47e167e6ecbf5088b755a429047b6aa0586b8e27e927bff997c606a471ec",
+      "bytes": 3423
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_causal_queries_contract.py",
+      "git_blob": "ac8feabbba013add015544ed4fbff7c0601f641d",
+      "sha256": "2cbfdf509b1bf12259c5f9beded7e1aaf49f2dcb059768a1b9396a05a1bacb00",
+      "bytes": 4158
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+      "git_blob": "7991bd45f484ebd01199a5ed092fd58179de6033",
+      "sha256": "7f75f0c230186d6219265df1ce63c94c33012d9720843335089db89c003f8ce2",
+      "bytes": 7543
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+      "git_blob": "d726ce8d81cae1c0a32731613b523af1ac5c3202",
+      "sha256": "540cea3d50bae0d1fed9126800e6142c73cc312f05357c591d8e9876173fb7ce",
+      "bytes": 13073
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+      "git_blob": "2cda4a15513639b37567535daefe4ae3618c93c6",
+      "sha256": "767b12baaaefb3c39d253d8f2adae9b98fc7114a9b7c9d29d70fee4010d66a22",
+      "bytes": 38324
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_scm_03.py",
+      "git_blob": "1544420d83c3e1c51ce864c2210b97050db70bbb",
+      "sha256": "c802ed5607ac6689efe04ac75385890594b1157c557b20565ed258fb7b5f9ea4",
+      "bytes": 11698
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+      "git_blob": "f786c5289eeb1fd613c8b67725d16015992b2904",
+      "sha256": "0459c52da8f553800e4d5ff3bf0244981c76a82f675b9414d13f6ade04bc20b1",
+      "bytes": 8149
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/.python-version",
+      "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "bytes": 5
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/README.md",
+      "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+      "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+      "bytes": 4934
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/protocol.py",
+      "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "bytes": 4704
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "bytes": 379
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/tests/test_worker.py",
+      "git_blob": "c3c81a4f426e3e1301ad986f34925360e08063b6",
+      "sha256": "cd0e9f0547e711c0d5763e91d9ea04e0a9424ec81f52d829b3dc5cff094aca46",
+      "bytes": 10899
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/uv.lock",
+      "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "bytes": 98340
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "bytes": 10652
+    }
+  ],
+  "transport_records": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/docs-gate.json",
+      "bytes": 1076,
+      "sha256": "9084ac4c84e551557fbfd725c4abd04e95b224353464f53b7a4d45b2703dde6b",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/docs-gate.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/docs-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/docs-gate.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/docs-gate.stdout.txt",
+      "bytes": 129224,
+      "sha256": "d4cb757935edad365e6d657f2aefdcf868ecae33dbc039d0289455083eb529c8",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/docs-gate.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.json",
+      "bytes": 1012,
+      "sha256": "d76edf33e4c4b835b826ef9c14a0feea52e6293bdb41ff49343f7a012082c487",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/emp01.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/emp01.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/emp01.stdout.txt",
+      "bytes": 31078,
+      "sha256": "a21c1ae4b6f058bd27b9a2139c1e8605590cb8ac1ec69a7a927b7d8f049ef209",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/emp01.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/gcm-parent.json",
+      "bytes": 1162,
+      "sha256": "fe5b2e4a6150a195cbca241f7274e5132853d0f5cf3fadc678c13adfc36794df",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/gcm-parent.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/gcm-parent.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/gcm-parent.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/gcm-parent.stdout.txt",
+      "bytes": 4344,
+      "sha256": "017032912ec880dde780f09415ae9f889a1347714b3e91307741a565947e9583",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/gcm-parent.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/public-abi.json",
+      "bytes": 1143,
+      "sha256": "f909c1e3ec61fedf707cdc4de60f6fc60a1b348067010a9ea51446161ce699d0",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/public-abi.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/public-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/public-abi.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/public-abi.stdout.txt",
+      "bytes": 100,
+      "sha256": "e630a780a2f38d44faa6908e7ff0130471d5169e652ace96b0ee77d11cb7e713",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/public-abi.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/schema-full.json",
+      "bytes": 923,
+      "sha256": "c4b6cf9e9ccb39e0f5f446f4407667ad763809b6667c257411e184e628f4942e",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/schema-full.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/schema-full.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/schema-full.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/schema-full.stdout.txt",
+      "bytes": 265,
+      "sha256": "66c4356a4fb36b8cd6dea0fb5dd6783ec02ec2af22cf62a51b75dd85f0a5b2ed",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/schema-full.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/semantics.json",
+      "bytes": 995,
+      "sha256": "486aff2b8f6b12650dee7f0cbc134d11ae6fcfcca92510a6d0694943f57837d7",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/semantics.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/semantics.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/semantics.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/semantics.stdout.txt",
+      "bytes": 100,
+      "sha256": "c395170de9dedcd7b353e060170f0a273d13c5d6c317b36bc70abb795084c098",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/semantics.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-gcm.json",
+      "bytes": 1189,
+      "sha256": "e51ffee48501b39e1d50a016ef92a51dcb4cf642325431dd622f351573d06fa4",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/worker-gcm.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-gcm.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/worker-gcm.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-gcm.stdout.txt",
+      "bytes": 36,
+      "sha256": "557691fa77c7d8410892755c0db28f0f2c79ef62e80f160055605ef2c78318d0",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/worker-gcm.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-removal.json",
+      "bytes": 1025,
+      "sha256": "7ca766713b5213371ae76ab82e662b7bf046948f15f09d715c580fa060911b3f",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/worker-removal.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/worker-removal.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-frozen/worker-removal.stdout.txt",
+      "bytes": 954,
+      "sha256": "7bf04eb64b01bf79a54ef7b7cce550c294eadd3c97438756c24c5011b61e63d2",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/worker-removal.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-gate.json",
+      "bytes": 1078,
+      "sha256": "bf4e10d82c80daf00edb929e7c0a80173c2b77ad120d9f530f008706947b1e9b",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/docs-gate.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/docs-gate.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-gate.stdout.txt",
+      "bytes": 129050,
+      "sha256": "dbd127720020cebda89b4978eaa28736b99543a6933da0523469c340f134de3a",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/docs-gate.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/docs-plan.json",
+      "bytes": 13190,
+      "sha256": "2679a352c38c9a98222a720b9f6065676f355adae5f291457dee62024ac64fcb",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/docs-plan.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/gcm-parent-and-custody.json",
+      "bytes": 1197,
+      "sha256": "022c4870fc675df659c03ab5957107616781dcf544e6f5c5aac76b8e22473880",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/gcm-parent-and-custody.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/gcm-parent-and-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/gcm-parent-and-custody.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/gcm-parent-and-custody.stdout.txt",
+      "bytes": 5720,
+      "sha256": "2870159d3b84c7cb5dabf5887c731ae66523ee6754f0c820b0d9c031fdd2e741",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/gcm-parent-and-custody.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/original-scm-cards.json",
+      "bytes": 1044,
+      "sha256": "f42b85afa8dea7393bf889cdc422bd2405adcce61a87cbd7a7784fa0fc6a8284",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/original-scm-cards.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/original-scm-cards.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/original-scm-cards.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/original-scm-cards.stdout.txt",
+      "bytes": 99,
+      "sha256": "21cbb37d66634596521fe4890d1b19c8010a1aa28a4f524641f32fc7df782bfd",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/original-scm-cards.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-abi.json",
+      "bytes": 1146,
+      "sha256": "77bb1584ab9b9156e8bd6763e1e000a0d357366a06f12cf5850a19864fd00fe1",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/public-abi.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/public-abi.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-abi.stdout.txt",
+      "bytes": 100,
+      "sha256": "57a225add7d5fd91564049a8cbbe18f8d56273cf378d076b13198f3659478bd0",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/public-abi.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/public-consumer-census.json",
+      "bytes": 19973,
+      "sha256": "4a2c9ee976ce7d9b1e43ed7ac607e524e60178d29eb2fb58338b78a86437c91d",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/public-consumer-census.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/schema-full.json",
+      "bytes": 926,
+      "sha256": "7b91c977e2db3bcdd759a8bc438de2e259e54cb142d95f003132768dadb7ce9b",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/schema-full.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/schema-full.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/schema-full.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/schema-full.stdout.txt",
+      "bytes": 265,
+      "sha256": "66c4356a4fb36b8cd6dea0fb5dd6783ec02ec2af22cf62a51b75dd85f0a5b2ed",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/schema-full.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/semantics.json",
+      "bytes": 997,
+      "sha256": "abb6ff9c0ff12c52312732947a5b3144eac534ef0ec67bf8e2aaa57c49fd1821",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/semantics.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/semantics.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/semantics.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/semantics.stdout.txt",
+      "bytes": 100,
+      "sha256": "15f830f520f7919e23620578b43253dae7a11016d1aac862ccdab381497aff7b",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/semantics.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-gcm.json",
+      "bytes": 1191,
+      "sha256": "9fd153ba0846c6556200d00749dda4a37f1b30fea106d2a8b6b60e4b7ca7e8bd",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/worker-gcm.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-gcm.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/worker-gcm.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-gcm.stdout.txt",
+      "bytes": 36,
+      "sha256": "1682035ba8535680316a6817bbac60b0329ae3dc4ba384f944138045344cb20a",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/worker-gcm.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-removal.json",
+      "bytes": 1028,
+      "sha256": "9f179b56240a33c60facdc8bdc4bddbdc44a74b21014956dda2a8024c7ca2a8c",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/worker-removal.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/worker-removal.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final1e/worker-removal.stdout.txt",
+      "bytes": 954,
+      "sha256": "2df6c545c8220801aeae00e11c1c75429a6c630dee7f1a5040b10672b397befc",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/worker-removal.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/docs-gate.json",
+      "bytes": 1079,
+      "sha256": "c1b911380a07e0259cfa638d4f44b83cfe386f6ecd0a9061db2b99f3cf02701e",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/docs-gate.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/docs-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/docs-gate.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/docs-gate.stdout.txt",
+      "bytes": 121809,
+      "sha256": "90ce9752abf128a90b2613f3163bb0811b3f3eefdd630392059746b2045721cc",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/docs-gate.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/gcm-root-public-custody.json",
+      "bytes": 1119,
+      "sha256": "c4d4279037f1ea1a0169ee396314835e4dfa24db3e8f6d33b810d2fa5eb0cac9",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/gcm-root-public-custody.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/gcm-root-public-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/gcm-root-public-custody.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/gcm-root-public-custody.stdout.txt",
+      "bytes": 4856,
+      "sha256": "672b11467dd2340eee852fe7b45314c85623de63cdea6a8e37e732f406e90617",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/gcm-root-public-custody.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/own-generated-schemas.json",
+      "bytes": 2282,
+      "sha256": "5689499e702f1d045fe50dd7cf2a2eeeee9be303592baf7dc352068d98322562",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/own-generated-schemas.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/public-abi.json",
+      "bytes": 1146,
+      "sha256": "ccbc7734acf71fd935fbbbd658de8bf4db11fc5541aa4f309e9bcc9f000f404a",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/public-abi.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/public-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/public-abi.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final0b/public-abi.stdout.txt",
+      "bytes": 100,
+      "sha256": "1b00cf5d091cd7606ff3d20fd2bbdd0387c884f9605ec68cef060bb90b7d6093",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final0b/public-abi.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/audit.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/audit.stdout.txt",
+      "bytes": 200,
+      "sha256": "afa25887559e1bc880c2372d6a8dddaf0dda3c644286d80da220582887ad357c",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/audit.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.json",
+      "bytes": 1079,
+      "sha256": "46efcf2d94e60ac6d6f7bd49fa1690d52a38210e077aa3c37f5e81aa5f4f135e",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/docs-gate.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/docs-gate.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-gate.stdout.txt",
+      "bytes": 118648,
+      "sha256": "fb34f36ae1989aad02243e6c989aa205ce43e60f02c4b271f889fee7d3f64751",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/docs-gate.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/docs-plan.json",
+      "bytes": 18615,
+      "sha256": "d99d1ee846ed14e7e36091ca654f5343df0b257280bc6df8b2f5587dbd5bcfd0",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/docs-plan.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/gcm-root-public-custody.json",
+      "bytes": 1145,
+      "sha256": "09659f3f4488289a153d28f18e7000109b5a5ef6f9d41a62a36f8935461a30bd",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/gcm-root-public-custody.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/gcm-root-public-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/gcm-root-public-custody.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/gcm-root-public-custody.stdout.txt",
+      "bytes": 5718,
+      "sha256": "6f70fc603ca360bf9266c8be8c65a105821390641c358142f9776974e43d85d8",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/gcm-root-public-custody.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/own-generated-schemas.json",
+      "bytes": 2366,
+      "sha256": "81543460ad67aafc1cce170fbb6d49e443f1a5e104006ce68d9f17f3c12e209f",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/own-generated-schemas.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/owned-import-denominator.json",
+      "bytes": 26144,
+      "sha256": "f0f516060cfe7f6a32ed4c9fb9f94e11c830442d3cad5ed7a9fbdec574760035",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/owned-import-denominator.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-abi.json",
+      "bytes": 1145,
+      "sha256": "c4e03012de79ea234db4bcee58e6b27804a4019e96f3aa0340105b261ab722b4",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/public-abi.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/public-abi.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-abi.stdout.txt",
+      "bytes": 100,
+      "sha256": "20f34a55a47c74ee7cd82aec76211b73f81fd78d72d6a9f39b2d9de82c2bbee0",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/public-abi.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-consumer-census.json",
+      "bytes": 23635,
+      "sha256": "8530f43acf4a92da0493abccd8d174ce4db44fd390ec52f53576941b9f0ad334",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/public-consumer-census.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/public-generated-companions.json",
+      "bytes": 994,
+      "sha256": "ca865ee61d44caafbeed989b65f5fd3ca387e274822811d2e8d7f594250cd9b2",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/public-generated-companions.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-helper-projection.json",
+      "bytes": 1068,
+      "sha256": "47b2135f9e4ff37207cb6c9099cb6536acf4f86f7c8010291734342fa29889ba",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/worker-helper-projection.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-helper-projection.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/worker-helper-projection.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-helper-projection.stdout.txt",
+      "bytes": 2041,
+      "sha256": "0039c9b7b330e68834ef7b389ebfbecf3306945823851e234c2bf9177d3ca1d7",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/worker-helper-projection.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/scm-final6d/worker-math-profile-equivalence.json",
+      "bytes": 1945,
+      "sha256": "4000cd733d52d982ca64adc03ea7a994a6f7d6ccabcd85730c512d7df2ae17ab",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/worker-math-profile-equivalence.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B214.json",
+      "bytes": 18607,
+      "sha256": "86cecf76538ac661bb57a0bad693ee84d871849b83075718eb35c10e211827e4",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B214.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B215.json",
+      "bytes": 13728,
+      "sha256": "7c6264b975f9f87aacc270b7b262cff77d1ee5e3128564f734f59ec720b92a45",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B215.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B216.json",
+      "bytes": 12498,
+      "sha256": "531353c75914404f32bee1b9320a0947a23942b1f31b45a1a88ff0de9a5241d7",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B216.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B217.json",
+      "bytes": 12498,
+      "sha256": "c2f0ec7377688192457326b928c4ea4a0342c4b11db0025c4825b1e43a1222fe",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B217.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B218.json",
+      "bytes": 18607,
+      "sha256": "6e9c3b09fc02b84621e6ee39a51bd225070913451e10be7dfb1af1aab5fef7a6",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B218.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B219.json",
+      "bytes": 14254,
+      "sha256": "07c87673406b38bf7748e0c1f6423d3c8fb4ecc42743f97f3eb66bd9760c1082",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B219.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B220.json",
+      "bytes": 14287,
+      "sha256": "7dda1f35e7a6869c7717223806b53d73671ab1a6a78dcf6460a56b176f18fe52",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B220.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B221.json",
+      "bytes": 4612,
+      "sha256": "6d42aeeea4cc6e0f78e52903d09d1cc625d30e7ecc0c20c6fd7fb9cf88fa32fe",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B221.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B222.json",
+      "bytes": 4612,
+      "sha256": "963fbd5d6550dbe3c2174ddc0661fce958df0a678bae77c40486ef012dec887d",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B222.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B223.json",
+      "bytes": 13728,
+      "sha256": "86e5388f1027070a93741731c3d2a251f004706d52c3f72271f3884e9ea8d961",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B223.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B224.json",
+      "bytes": 11894,
+      "sha256": "83e9a48612ef053efe79e368d58e92132da7d49458500ca2705722c735c1a835",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B224.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B225.json",
+      "bytes": 11894,
+      "sha256": "3ffada7143e0bc6f6b088d428498439816e0121b6dde2dec64f2e1cea3faa248",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/B225.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/F-failures30.json",
+      "bytes": 19253,
+      "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/F-failures30.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/LA-007.json",
+      "bytes": 12544,
+      "sha256": "af718dcdca2140a35cac940511b84438dc62eba343c7f79e40a215377145fb60",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/LA-007.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/LA-019.json",
+      "bytes": 12544,
+      "sha256": "e305ec2aa48b34b51b1de66fe84c2588674f9798d363f06bd975096afa387b43",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/baseline-routes-full/LA-019.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/run_frozen_scm.py",
+      "bytes": 3418,
+      "sha256": "eedbe3d3a9cd8b58f5838f2c6d1f30e6f0944aa5f966b898c5c268daeb75e89a",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/run_frozen_scm.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/run_final_scm_1e.py",
+      "bytes": 3469,
+      "sha256": "f29fe3d97b917bf62284ad30d87356be5311f16476abac7e261cb295412e0831",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/run_final_scm_1e.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/run_final_scm_0b.py",
+      "bytes": 2720,
+      "sha256": "7dd3c70e59a939665518dca9844d60c1826d48ebd4fa27ccbe847d11cab58061",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/run_final_scm_0b.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/run_final_scm_6d.py",
+      "bytes": 2920,
+      "sha256": "2d804f0e055974caec44d10a21907c85af2ec810b655c3408df19c6f57eeae2a",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/run_final_scm_6d.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/audit_final6d.py",
+      "bytes": 9700,
+      "sha256": "6f78b91c5e5e10e8c30a8909c2acf34e7c0d71b91cb93aafc96a78e863a466e1",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/audit_final6d.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/removal-gcm-fit.py",
+      "bytes": 1450,
+      "sha256": "402acbe4953b43c72f05952bb462d3c23f498190294133e25e25e3382214b234",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/removal-gcm-fit.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/worker-profile-install.txt",
+      "bytes": 1238,
+      "sha256": "071e6c3fa69b12fa5e0aafb5b13fe6e83545b99f3e724d55f253a92d85eb203c",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/worker-profile-install.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/root-import-predicate.json",
+      "bytes": 11233,
+      "sha256": "1c9d940e86d3dc4387167a4e50266213a2d95fe40f4c551d8872c5b19275fa6e",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/root-import-predicate.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/root-public-generation.json",
+      "bytes": 5890,
+      "sha256": "b98b852f20857f191b3d57117a33705d9fe4b2e34478c34ce35315b5b54bc714",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/root-public-generation.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/F01-P025.json",
+      "bytes": 8535,
+      "sha256": "99f5bcef69dfab190026301a6cb6005aae4ef41ee5da3f31321a8170a7cd5fd9",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/F01-P025.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/F13-P030.json",
+      "bytes": 6410,
+      "sha256": "d60d6247cc4356e3129921afaecc406ca2992eb432d7e98e133d09ff65b9f3b8",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/F13-P030.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/author/F08-P048.json",
+      "bytes": 36355,
+      "sha256": "dcb08523ea7435c9b62d623fee4086bc2e2b46a0087e3f3a17ae2657be3dda7a",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/graph/F08-P048.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/run-scm-facade-delta.py",
+      "bytes": 1953,
+      "sha256": "5d8ecab39be33e4947bb622eed0ef446844f5448b279f0e27b370f0e80e797af",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/run-scm-facade-delta.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/run-scm-import-delta.py",
+      "bytes": 1953,
+      "sha256": "2f27dfe500d12712e18673a6b8bca2a85e387d13f0e2073895378ea25ea61cb3",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/run-scm-import-delta.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/run-scm-independent-corrected.py",
+      "bytes": 1953,
+      "sha256": "7bddf034ff26918a61f293e279f0537f3f66c953ae2811ced92b1020132f85c7",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/run-scm-independent-corrected.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/run-scm-independent.py",
+      "bytes": 1953,
+      "sha256": "fd56f3a080a2f8c01e2c7ff7a709829ecff6a43e6122675f27fe2cf685ec9ea1",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/run-scm-independent.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected-probe.py",
+      "bytes": 5065,
+      "sha256": "8e42f71b33e67685ba5f05d3297289b5f3adec5d2c7371b6e5764f24b9e5bdb8",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-corrected-probe.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected.json",
+      "bytes": 6525,
+      "sha256": "c24d2931c25a630a5615b34ec265ee468ec2d71fccf7fa26325e32acb8e2cba1",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-corrected.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected.stderr.txt",
+      "bytes": 1940,
+      "sha256": "dcae352d89af04816e4bb20f03afd5f075cab8875cb2132f3494d3775661e69f",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-corrected.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-corrected.stdout.txt",
+      "bytes": 131712,
+      "sha256": "a4cab484eaeabb6d543f49de9e3308e4be576f46fb11a0567cf438060833d0cc",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-corrected.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding-probe.py",
+      "bytes": 3638,
+      "sha256": "5001cd8e349c3ab3895ee0b833f526e18af96f379364efdf13f175492adf0124",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-probe.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding.json",
+      "bytes": 6208,
+      "sha256": "cbdcc79e6c4a93f2bce9bcecdebab0d9dc23a8ccafd8a48985969e235107045e",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding.stderr.txt",
+      "bytes": 2373,
+      "sha256": "07355e1a5b15a16cfa1396d12bf335b1be39802f9dde150c52642cbee5ba1dd9",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-consumer-binding.stdout.txt",
+      "bytes": 130619,
+      "sha256": "9e7284deccfa06bac48ce80acd8e3f4bf546fb2cd95d2001adb2880452350361",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-facade-delta.json",
+      "bytes": 6863,
+      "sha256": "7676ab378098e224373cf0a677e7963e93dbd45e8d3f060f436c140897493db8",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-facade-delta.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-facade-delta.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-facade-delta.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-facade-delta.stdout.txt",
+      "bytes": 618,
+      "sha256": "ed9515b4da8450fc111400182591b6a9af8a6fdc08ae0041b9c26a8bd8901ac9",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-facade-delta.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-final-facade-import-delta-review.json",
+      "bytes": 15513,
+      "sha256": "7ca3be3b55bc0c106389113c6472b2068eb62fd47d29c391717f7c3e5769926e",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-final-facade-import-delta-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-import-delta.json",
+      "bytes": 6864,
+      "sha256": "8b277a9eb4bb415a20fc090e844fe70c6b9c7a29f6ee3b315b3b89db9fb46452",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-import-delta.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-import-delta.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-import-delta.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-import-delta.stdout.txt",
+      "bytes": 618,
+      "sha256": "e38642ec6bd38fa3ddb7a5faaa808ab28c8df5781e878c71d0e0199ae8ae0532",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-import-delta.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-native.json",
+      "bytes": 6786,
+      "sha256": "65435f7cc5e80f79cd5ca7e3d434652776e10dd3465071d9148ed3a33d6b1d93",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-native.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-native.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-native.stdout.txt",
+      "bytes": 6944,
+      "sha256": "27b8d2333666ad5484843a1f6ab3232204130db766f21c6fc43dde2cab805657",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-native.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-corrected-review.json",
+      "bytes": 6806,
+      "sha256": "84ccc216fd809e6db9b95644cdc3094ed5a37811b3e2b1e15887fb2374040313",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-native.json",
+      "bytes": 6467,
+      "sha256": "407481e43a85f09714a3e9e04d7e15761718688d69381f01666a474b7631544b",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-native.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-native.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-native.stdout.txt",
+      "bytes": 5583,
+      "sha256": "b5a106558a8aea8c58a89c6e27917e3fb449ace0cbe11753d81dbad3341f940b",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-native.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/independent/scm-independent-review.json",
+      "bytes": 4779,
+      "sha256": "28c5604a4a19acf3bd25d2e5ec36ffc9f64fd3e78b94be4a593eac74c1450a9b",
+      "encoding": "identity",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-review.json"
+    }
+  ],
+  "transport_status": "ready_for_ordinary_topic_push; rootpublishesPR; remoteheadmustbeverified_afterpush",
+  "limitations_and_next_owner": [
+    "Full current native docs gate FAIL1/publicsurfaceexit2; complete118648B output preserved, no ownchangedruntime newdeepimports; whole gate P41 inheritednotestablished. Downstreamschema/docsfreshness/strictMkDocs/semanticdocstrings UNRUN by nativebreak.",
+    "Full schema generator FAIL exact1e feedback_solve_result+manifest; owncanonical2entries/hashPASS does not turn fullgenerator green, no Eentry waiver.",
+    "OptionalinprocessDoWhy/EconML omittedmarkers are UNRUN; only explicitlyselected genuineworker profile is backendPASS.",
+    "Approximateiid-unit refit interval conditional on declared static fullyobserved graph/linear empiricallaw, no finitecoverage/realcausalidentification/clusteredpanel guarantee. Gaussianposterior conditions fixed declaredmodel; predictivequantiles are not estimatorCI.",
+    "Actualquery consumer source/result custody repaired as a complete class; dispatcherstill emits retainedunexpected_key/emptywarnings, no universal no-warningABIclaim.",
+    "B214existingreconciliationendpoint/cacheclass repair separateCAUauthorbranch; B218protectedtemporalreadinessrouteUNRUN; rootintegrationindex carries nextcompanion.",
+    "LA007/019source placeholders absentatbase; full filename-loader/retired-package installeddistribution acceptance remains API/C/G, no cleanup deletion in thisslice.",
+    "Installedab56wheel/sdist3+3PASS exists for source-specific stackthrough0b+f6+66; does not include laterb692importidentity/423metadata, no promoted finalsourceinstalledPASS here.",
+    "Productioninvocationbase diagnosticERRORexit137; no completedgate/noP41. EMPexactbase198andgraph07both5FAIL5PASS but full disjointdenominator absent, not inherited.",
+    "Fullproduction inputs read-only remain local. G runs any data-dependent estimand/sourceadmission remainder on acceptedcandidateSHA with actualsource refs; no genericDGPcriterion is held solely for absentproductiondataset."
+  ]
+}

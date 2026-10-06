@@ -6,6 +6,8 @@ import copy
 import hashlib
 import json
 import os
+import pickle
+import pydoc
 import subprocess
 import sys
 from pathlib import Path
@@ -16,6 +18,8 @@ import pytest
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.foundry.methods import causal as public_causal
+from polisyos.foundry.methods.catalog import causal as catalog_causal
 from polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge
 from polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate import DoWhyIdentifyEstimate
 from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData
@@ -75,6 +79,50 @@ def test_missing_installed_profile_assets_are_a_typed_unavailability(tmp_path, m
         bridge._worker_directory()
 
 
+def test_public_complete_report_builder_abi_and_real_producer_invocation(
+    tmp_path, selected_worker, monkeypatch
+):
+    assert public_causal.DoWhyIdentifyEstimate is catalog_causal.DoWhyIdentifyEstimate
+    assert catalog_causal.DoWhyIdentifyEstimate is DoWhyIdentifyEstimate
+    builder = public_causal.DoWhyIdentifyEstimate.report_from_worker_result
+    assert pickle.loads(pickle.dumps(builder)) is builder  # noqa: S301 -- same-process trusted ABI bytes
+    assert builder.__qualname__ == "DoWhyIdentifyEstimate.report_from_worker_result"
+    assert "report_from_worker_result" in pydoc.render_doc(public_causal.DoWhyIdentifyEstimate)
+    calls = []
+
+    def observe(**kwargs):
+        calls.append(kwargs["response"]["request_sha256"])
+        return builder(**kwargs)
+
+    monkeypatch.setattr(
+        public_causal.DoWhyIdentifyEstimate, "report_from_worker_result", staticmethod(observe)
+    )
+    data = dgp()
+    store, source = admit(tmp_path, data)
+    MethodRegistry.get_instance().register(DoWhyIdentifyEstimate, override=True)
+    with bridge.worker_execution_context(store=store, source_ref=source):
+        result = run_job(
+            JobSpec(job_kind="method", method_fqn=DoWhyIdentifyEstimate.signature.fqn),
+            cas_root=tmp_path,
+            method_state=data,
+        )
+    assert not result.issues
+    saved = from_canonical_bytes(store.get_bytes(result.method_result_ref))
+    report = CausalEffectReport.model_validate(saved["report"])
+    assert report.point_estimate == pytest.approx(2.016134929864521)
+    assert len(calls) == 1, "The actual producer must execute the supported facade override"
+    expected = public_causal.DoWhyIdentifyEstimate.report_from_worker_result(
+        data=data, params={}, response=report.metadata["worker"]
+    )
+    assert len(calls) == 2 and calls[0] == calls[1]
+    assert expected == report
+    assert CausalEffectReport.model_validate_json(expected.model_dump_json()) == report
+    resolved = {p.name: p.default for p in DoWhyIdentifyEstimate.signature.parameters}
+    assert builder(data=data, params=resolved, response=report.metadata["worker"]) == report
+    assert report.method_params == resolved
+    assert bridge.artifacts.ArtifactRef is type(source)
+
+
 def test_real_worker_job_cas_fresh_python314_reader(tmp_path, selected_worker):
     data = dgp()
     store, source = admit(tmp_path, data)
@@ -109,6 +157,7 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData
 from polisyos.foundry.methods.catalog.causal._dowhy_worker import validate_persisted_worker_response
+from polisyos.foundry.methods.causal import DoWhyIdentifyEstimate
 store=FileSystemCAS(sys.argv[1])
 result_ref=ArtifactRef.model_validate(json.loads(sys.argv[2]))
 source=ArtifactRef.model_validate(json.loads(sys.argv[3]))
@@ -117,6 +166,7 @@ report=CausalEffectReport.model_validate(payload['report'])
 worker=report.metadata['worker']
 state=GraphCausalData.model_validate(from_canonical_bytes(store.get_bytes(source)))
 validate_persisted_worker_response(response=worker,state=state,store=store,source_ref=source)
+assert report==DoWhyIdentifyEstimate.report_from_worker_result(data=state,params={},response=worker)
 assert sys.version_info[:2]==(3,14)
 assert worker['source']['artifact_ref']==source.model_dump(mode='json')
 assert worker['source']['content_sha256']==hashlib.sha256(store.get_bytes(source)).hexdigest()

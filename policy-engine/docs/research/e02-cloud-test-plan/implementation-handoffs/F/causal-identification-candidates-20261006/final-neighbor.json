@@ -1,0 +1,178 @@
+{
+  "source_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+  "source_tree": "1f288ae61c12a3b8d13578d9d69f0fd8ec68346a",
+  "launch_head": "8e4f98569959570df1916c4a92271e9a60084c19",
+  "launch_head_source_tests_byte_identical_to_source": true,
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/envelope/final-neighbor-cache",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261006/envelope/final-neighbor-tmp",
+    "tests/unit/foundry/methods/catalog/causal/test_did.py",
+    "tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+    "tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py",
+    "tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py",
+    "tests/unit/ir/test_uncertainty.py",
+    "tests/unit/ir/analytics/test_estimand_normalization.py",
+    "tests/unit/ir/mirror_contracts/test_causal.py",
+    "tests/unit/foundry/methods/test_value_evidence.py",
+    "/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "src:."
+  },
+  "python": {
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "versions": {
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "statsmodels": "0.14.6"
+  },
+  "timeout_seconds": 900,
+  "timeout": false,
+  "exit_code": 0,
+  "wall_seconds": 24.821237794996705,
+  "child_max_rss_kib": 639484,
+  "child_rss_scope": "Wrapper child-process high-water mark, including small pre-test Git readback children; Linux KiB.",
+  "no_artificial_cpu_process_thread_quota_introduced": true,
+  "outcome": "PASS",
+  "counts": {
+    "passed": 72,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 23,
+    "errors": 0
+  },
+  "pytest_summary": "72 passed, 23 warnings in 20.26s",
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/envelope/final-neighbor.stdout.txt",
+      "bytes": 5044,
+      "sha256": "a7997849b60b430414169ffbbfd8c6d51989b0bad47edf3b2b1fb7220eefb5ca"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/envelope/final-neighbor.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "input_closure": [
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "1c80a94668b1b0817ca9849cc8d8f2924b4aa081",
+      "bytes": 2598,
+      "sha256": "203e4eecc8898912c72fb61e149cc33d90a5a246daf962303209e347a790ed77"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "34994763117070a0c65e8a2ab5fe28f8307d4c98",
+      "bytes": 1388,
+      "sha256": "ed5a1196a771090b37535bb3f86295707f56a4f574e7253a17b2982c701ac66e"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "4801bf9088aabab7b800477031b8a3b9e22fb771",
+      "bytes": 9449,
+      "sha256": "eba1b551339dac325814a2606b9f4e6f3d4b138697938090b18622c83c56f81d"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "488f4e742e738975c71f3f29cf154cc6f1e30807",
+      "bytes": 1645,
+      "sha256": "774734d700ead76b722b5c7e2dc9ff4367a558de6c446de5aad252cbbb0c9718"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "e99b42f117ce25679a871fa88b4d87450d00468f",
+      "bytes": 12411,
+      "sha256": "77069e5027d3f4e6bbc087a82cc4cbeffac5be27c41acdf726fcbd337b4d7c71"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_estimand_normalization.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "108c6f1ddca657222091589d15e9e7e13ee407c2",
+      "bytes": 3324,
+      "sha256": "e4be2d26f85e46cfea2d964caad84a5e76e42f8cfde47485d8b8b0e2263938b4"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/mirror_contracts/test_causal.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "d5211c82d8f24fef741c1a58ad9a90f6e17073fe",
+      "bytes": 208,
+      "sha256": "3fe44cb614a1917f756901c68c2c32c8fab1d9ce8f565efc0858225e695fef7c"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_value_evidence.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "b2b3d53a5845c4cf006c669db78f5aa7017e4c1a",
+      "bytes": 19771,
+      "sha256": "d81e7d908c3eeebde6fcee02b0a32e888cac031ab9b0ebf1e1ab86aae5416f7e"
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/causal-identification-candidates.md",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "ff68c3556156753552532fc61a20ae0381e8721c",
+      "bytes": 5141,
+      "sha256": "7b48abfd5dae7a5d1e43c4976ce14bfa96a4b90c4f89a5cd499daa7978491f02"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-confidence-candidates.toml",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "106fc6c6d902a675c93dc03b166f8e4b552f83d6",
+      "bytes": 2541,
+      "sha256": "46d3ada55247a11cf0ff8fd679d5d7b221e0c32a663ad84dfd0d35340fb43ce2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "d3cc48fc4e4251408bb3c5977bfd605ddb060b72",
+      "bytes": 76411,
+      "sha256": "76919f3009f48af4c908f0e79a225ed260494119155a57f61e4afdd4f70814fa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "51904add154cf5b2505e72b3e20cf80f2778fc24",
+      "bytes": 10607,
+      "sha256": "63c43ff6299b1c753684c116eb01a651f089a1e3ac6e9df3fa97ac7abfeee934"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "cb8e1cae411b7fd2a48a230b3194a7f7f61529a5",
+      "bytes": 3544,
+      "sha256": "161cdefb4cede557cd81a3c7958778a30fb95c250077af007d4be32545db46f3"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_causal_confidence_candidate.py",
+      "git_ref": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "git_blob": "d6cbb52e5d8228c85830ebe0d45211431d86c6d5",
+      "bytes": 6195,
+      "sha256": "59773498d72d51ed9acda1485b0c733a2e28cd91937925708d54b6a40110c06c"
+    }
+  ],
+  "scratch_test": {
+    "path": "/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py",
+    "bytes": 9361,
+    "sha256": "f5e642c34a078ac4f5ed54e64d8ce30ae62eb7557270d6f11b8916fd4989ad08"
+  },
+  "scope": "Focused existing native DID/RDD/synthetic-control/structural-time-series, uncertainty/estimand/value-evidence consumers and unique adversarial CAS reader carrier; no full integration or real-data admission claim.",
+  "static_mirror_test_scope": "IR mirror-contract file is a structural companion, not identification or numerical evidence."
+}

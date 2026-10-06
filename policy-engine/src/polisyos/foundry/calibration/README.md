@@ -4,7 +4,7 @@
 targets while keeping a strict boundary between synthetic runtime dynamics and
 measurement-aware loss adaptation.
 
-- Last updated: 2026-08-28
+- Last updated: 2026-10-06
 
 Generic calibration diagnostics, recalibration helpers, and validation-report
 adapters live in the shared `polisyos.calibration` package. This package owns
@@ -30,6 +30,60 @@ diagnostics into uncertainty envelopes or post-fit evidence.
 - [report.py](report.py) for persisted reports and fit diagnostics.
 - [identifiability.py](identifiability.py) and [hessian.py](hessian.py) for
   identifiability and second-order diagnostics.
+
+Generic squared/Huber objectives produce raw curvature diagnostics, including
+the derivative dtype and spectrum. They do not produce inferential covariance.
+Negative, flat, singular, or ill-conditioned directions are preserved and never
+repaired into uncertainty. Damping remains a compatibility argument, without
+changing the covariance admission rule.
+The objective itself must return a finite real scalar. A nonfinite constant can
+leave exact gradients and Hessians finite; it still prevents covariance while
+the raw curvature and objective dtype remain available for diagnosis.
+
+Objective identity binds resolved mechanism values and schedules, metric axes,
+normalization scales, complete measurement operands and policy, adapted sample
+weights, constraints, priors, runtime rows, and registries. Measurement weights
+are evaluated once before optimization and remain fixed for all objective and
+Hessian calls. Custom measurement adapters and auxiliary callbacks remain
+`not_established` for functional identity and disable Hessian reuse.
+
+`CalibratorInputs.batch_inputs` accepts a runtime-only `CalibrationBatchInputs`
+with ordered states, schedule times, and unique row IDs. Each cross-sectional row
+executes one scalar step through `run_pure_batch`; the optimizer, final projection,
+and Hessian use this same path. Row states and internal state clocks remain
+separate from schedule times. Calibrator derives a distinct key with
+`fold_in(PRNGKey(config.seed), row_index)` and persists the row context. Targets
+must be exact finite vectors in this order. Time resampling, scan controls,
+measurement bundles, and fetched targets are unsupported in this mode. A batch
+does not establish independent observations, a population law, or covariance.
+
+`CalibratorInputs.gaussian_observation_std` selects a narrow Gaussian NLL
+profile with known noise scales for every target. It requires fixed seeds,
+unweighted absolute MSE target configuration, and no measurement discount,
+GradNorm, prior, constraint, or auxiliary penalty. The actual objective is the
+sum of `0.5 * ((prediction - observation) / sigma)**2`, conditional on the
+configured fixed-seed response. A stationary positive well-conditioned Hessian
+may provide local inverse observed information. Independent Gaussian observation
+assumptions remain `consumer_asserted`; the emitted parameter envelopes are
+heuristic and cannot pass an authority gate.
+
+V2 reports bind their configuration and, for this profile, a separate immutable
+objective-profile artifact. The internal `report.load_calibration_report` reader
+checks the exact CAS profile, kind, schema/version, payload and configuration
+edge. The welfare consumer uses this reader; a byte-identical Funnel artifact
+cannot substitute for a Foundry calibration report. Historical v1 serialization
+keeps its original projection.
+
+The welfare Monte Carlo consumer persists every requested draw outcome in the
+configured CAS, including input content, stable draw indices, successful channel
+values and terminal failure reasons. Fresh readback reconciles all counts, input
+hashes, ordered sample arrays and the outcome lineage. If any channel is undefined,
+all success-only moments and intervals are explicitly conditional diagnostics;
+no unconditional credible interval is emitted. A missing multivariate law remains
+unknown before drawing. The bounded joint path uses the calibration report-owned
+coordinate covariance and projection; dependence labels or marginal envelopes
+alone cannot supply another joint law. These checks do not establish producer
+provenance, source truth, Calibrator authority or gate eligibility.
 
 - [../uncertainty/README.md](../uncertainty/README.md) for downstream
   uncertainty propagation.

@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/workspace/e02-E-cal-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/foundry/calibration/test_hessian.py",
+    "tests/unit/foundry/calibration/test_report.py",
+    "tests/unit/foundry/calibration/test_calibrator_batch.py",
+    "tests/unit/foundry/calibration/test_pure_executor_batch.py",
+    "tests/unit/remediation/test_cal_01.py",
+    "tests/unit/remediation/test_cal_02.py",
+    "tests/unit/remediation/test_cal_03.py",
+    "tests/unit/remediation/test_cal_04.py",
+    "tests/unit/remediation/test_cal_06.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare"
+  ],
+  "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+  "candidate": "0cb369b6ef73f2afd041515a5120eadcc9e1efb9",
+  "tree": "bdda55333993ee5f734cb224e3d3b4299bd7fd84",
+  "source_blob_integrity": "all tracked src file contents identical before and after",
+  "source_file_denominator": 2910,
+  "exit": 0,
+  "wall_seconds": 64.8512694890087,
+  "output": "final-targeted-0cb369b6ef73.log"
+}

@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
 
 from polisyos.scientist.methods.doe.designs import SensitivityResult
 from polisyos.scientist.methods.search.controller import SearchIteration
@@ -33,6 +36,44 @@ class SensitivityAwareCandidateGenerator:
         self._focus_top_n = focus_top_n
         self._exploration_factor = float(exploration_factor)
         self._focus_parameters = set(sensitivity_result.ranking[:focus_top_n])
+        self._analysis_ref: ArtifactRef | None = None
+
+    @classmethod
+    def from_artifact(
+        cls,
+        base_generator: object,
+        store: ArtifactStore,
+        ref: ArtifactRef,
+        *,
+        focus_top_n: int = 3,
+        exploration_factor: float = 1.5,
+    ) -> SensitivityAwareCandidateGenerator:
+        """Reproduce a persisted exploratory analysis before using its ranking."""
+        from polisyos.scientist.methods.doe._receipt import _load_analysis
+
+        instance = cls(
+            base_generator,
+            _load_analysis(store, ref),
+            focus_top_n=focus_top_n,
+            exploration_factor=exploration_factor,
+        )
+        instance._analysis_ref = ref
+        return instance
+
+    def _metadata(self) -> dict[str, Any]:
+        return {
+            "ranking": list(self._result.ranking),
+            "focus_parameters": sorted(self._focus_parameters),
+            "exploration_factor": self._exploration_factor,
+            "method": self._result.method.value,
+            "design_id": self._result.metadata.get("design_id"),
+            "analysis_id": self._result.metadata.get("analysis_id"),
+            "analysis_ref": (
+                self._analysis_ref.model_dump(mode="json") if self._analysis_ref else None
+            ),
+            "authority_purpose": "exploratory_parameter_experiment",
+            "population_law_status": "not_established",
+        }
 
     def generate(
         self,
@@ -42,12 +83,7 @@ class SensitivityAwareCandidateGenerator:
     ) -> dict[str, Any]:
         candidate = self._base.generate(history, current_best, context)
         candidate = dict(candidate)
-        candidate["_sensitivity"] = {
-            "ranking": list(self._result.ranking),
-            "focus_parameters": sorted(self._focus_parameters),
-            "exploration_factor": self._exploration_factor,
-            "method": self._result.method.value,
-        }
+        candidate["_sensitivity"] = self._metadata()
         return candidate
 
     def generate_batch(
@@ -64,12 +100,7 @@ class SensitivityAwareCandidateGenerator:
         return [
             {
                 **dict(candidate),
-                "_sensitivity": {
-                    "ranking": list(self._result.ranking),
-                    "focus_parameters": sorted(self._focus_parameters),
-                    "exploration_factor": self._exploration_factor,
-                    "method": self._result.method.value,
-                },
+                "_sensitivity": self._metadata(),
             }
             for candidate in batch
         ]

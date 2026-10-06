@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-welfare-draw-outcomes"
+title = "Retain and verify complete welfare draw outcomes"
+type = "fixed"
+component = "foundry-calibration"
+owner = "team-foundry"
+surface_classification = "internal"
+summary = "Persist all requested welfare Monte Carlo outcomes and verify inputs, channel failures, counts and ordered sample arrays on fresh CAS readback. Partial support yields only explicitly conditional diagnostics; unsupported marginal-only joint inputs yield unknown before drawing."
+evidence = ["tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py", "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"]
+compatibility = "Existing IR welfare wire models remain unchanged. Calibration-owned projected joint draws and nominal welfare remain available; generic dependence metadata no longer manufactures a joint law."
+limitations = "This bounded internal consumer check does not admit production source law, served producer provenance, Calibrator authority, or gate eligibility."

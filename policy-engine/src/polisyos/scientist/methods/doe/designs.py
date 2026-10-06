@@ -124,6 +124,7 @@ class ParameterSpec(BaseModel):
     distribution_spec: DistributionSpecV1 | None = None
     baseline: float | None = None
     description: str = ""
+    unit: str = Field(default="unspecified", min_length=1)
     num_levels: int = Field(default=4, ge=2)
 
     @model_validator(mode="after")
@@ -164,6 +165,8 @@ class SensitivityPlan(BaseModel):
     n_trajectories: int = Field(default=10, ge=1)
     confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
     seed: int | None = None
+    input_law: Literal["unknown", "independent", "dependent"] = "unknown"
+    """Declared experimental input law; not evidence about a population law."""
 
     # Guardrails for expensive batches.
     max_estimated_runs: int = Field(default=1000, ge=1)
@@ -233,7 +236,7 @@ def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
     """
     if seed is None:
         return None
-    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode("utf-8")
+    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode()
     digest = hashlib.blake2b(payload, digest_size=8).digest()
     return int.from_bytes(digest, byteorder="little") % (2**32)
 
@@ -247,9 +250,7 @@ def _salib_parameter_mapping(
 ) -> tuple[str, list[float]]:
     """Resolve one parameter to the pinned SALib distribution contract."""
     if not math.isfinite(parameter.lower_bound) or not math.isfinite(parameter.upper_bound):
-        raise ValueError(
-            f"parameter '{parameter.name}' requires finite physical bounds for SALib"
-        )
+        raise ValueError(f"parameter '{parameter.name}' requires finite physical bounds for SALib")
 
     lower = parameter.lower_bound
     upper = parameter.upper_bound

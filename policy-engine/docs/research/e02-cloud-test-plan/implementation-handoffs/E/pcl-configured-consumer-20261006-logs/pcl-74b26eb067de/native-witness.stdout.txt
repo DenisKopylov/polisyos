@@ -1,0 +1,8 @@
+2026-10-06 13:20:20 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:20:21 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=692.16 fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:20:21 [info     ] method_registered              backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 lazy=False namespace=econometrics.panel override=False tags=['econometrics', 'estimation', 'garch', 'panel', 'policy-risk', 'structural-break', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-06 13:20:22 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:20:24 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=2001.87 fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:20:24 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:20:25 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=325.02 fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"checks": 3, "artifacts": 12, "output": "/workspace/e02-E-pr38-r2-receipts/pcl-74b26eb067de/native-witness-output.json"}

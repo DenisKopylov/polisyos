@@ -26,6 +26,13 @@
     "primary_metric_budget": { "type": "object" },
     "readiness_state": { "enum": ["R4", "R3", "R2", "R1", "R0"] },
     "readiness_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "readiness_event_id": { "type": ["string", "null"], "minLength": 1 },
+    "readiness_effective_at": { "type": ["string", "null"], "format": "date-time" },
+    "readiness_expires_at": { "type": ["string", "null"], "format": "date-time" },
+    "source_binding_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
     "last_shift_event": { "type": ["string", "null"] },
     "last_degradation_event": { "type": ["string", "null"] },
     "required_action": { "type": ["string", "null"] },

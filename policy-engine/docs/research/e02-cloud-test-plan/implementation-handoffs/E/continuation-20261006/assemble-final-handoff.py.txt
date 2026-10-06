@@ -1,0 +1,134 @@
+"""Assemble receipt-only E handoff after all frozen source checks complete."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import subprocess
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SCRATCH = Path('/workspace/e02-E-20261006-receipts')
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+FROZEN = '58e2d97965c0826c44843a78dcb2f8698d9950a3'
+H = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006'
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
+
+def write(path, data):
+    path.write_text(json.dumps(data, indent=2) + '\n')
+
+def preserve(source, target):
+    target.mkdir(parents=True, exist_ok=True)
+    records = []
+    for p in sorted(source.rglob('*')):
+        if not p.is_file():
+            continue
+        q = target / p.relative_to(source)
+        if q.suffix == '.py':
+            q = q.with_suffix('.py.txt')
+        q.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(p, q)
+        content = p.read_bytes()
+        assert content == q.read_bytes()
+        records.append(dict(source_absolute_path=str(p), git_path=str(q.relative_to(ROOT)), bytes=len(content), sha256=hashlib.sha256(content).hexdigest()))
+    write(target / 'copy-index.json', dict(schema='policyos.e02.evidence_custody.v1', candidate_sha=FROZEN, files=records))
+
+overlay_source = SCRATCH / 'closure-independent/closeout'
+overlay = json.loads((overlay_source / 'all-54-closeout.json').read_text())
+assert overlay['numerical_wave_counts'] == dict(cases=1125, PASS=1123, FAIL=2, ERROR=0, SKIP=0)
+assert len(overlay['rows']) == 54
+assert overlay['review_source_sha'] == FROZEN
+preserve(overlay_source, H / 'closure-frozen')
+preserve(SCRATCH / 'closure-independent/frozen-overlay', H / 'closure-frozen/reconciliation-inputs')
+for script in sorted((SCRATCH / 'closure-independent').glob('*.py')):
+    shutil.copyfile(script, H / 'closure-frozen' / (script.name + '.txt'))
+review_source = SCRATCH / 'final-closeout-review'
+assert review_source.is_dir(), 'Independent final gate review pending'
+preserve(review_source, H / 'final-closeout-review')
+wave = json.loads((H / 'common-wave/summary.json').read_text())
+assert hashlib.sha256((H / 'common-wave/summary.json').read_bytes()).hexdigest() == overlay['common_wave_summary_binding']['sha256']
+
+components = [
+    ('CAL/welfare', 'cal', '9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af', '5cae768523c1e26278bb03da89cf6ec6cf91dfd0', 58, 'calibration-batch-welfare-handoff.json', 'CAL-01 CAL-02 CAL-03 CAL-04 CAL-06', 'Configured Calibrator -> scalar batch caller -> typed CalibrationReport v2 -> configured CAS -> welfare full joint-law/draw-outcome consumer; generic curvature is diagnostic, source inference authority remains unestablished.'),
+    ('CAL05', 'cal05', '2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa', '2643672263971584dcdcf347c6a93c3122d7e7ae', 49, 'cal05-batch-20261006.json', 'CAL-05', 'Scalar lax.map with per-row state/time/independent keys, JIT gradients/Hessian and actual Calibrator caller; vmap(cond) divergence retained.'),
+    ('MC/UQP/UQS', 'mc', '4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f', 'd2a192bb2ea239ea29c12321440100a9efb94af2', 44, 'sampling-admission-20261006-review.json', 'UQP-01 UQP-02 UQP-03 UQS-01', 'Shared pre-draw law/range admission, singular covariance, complete outcomes, bounded IID independent-pilot fixed-N certificate and complete independent Sobol scrambles -> CAS -> fresh Scientist consumer. General served evaluator remains missing.'),
+    ('BKT', 'backtest', '2f442904a1ed77e5907e8bb288a1d742874b31b7', '801045b58cf141e923f129f2eb7649da8edeb4ed', 51, 'backtest-replay-admission.json', 'BKT-01 BKT-02 BKT-03 BKT-04', 'Actual K dispatcher attempts and masked-history CAS, requested/eligible/observed counts, distinct micro/macro, native SciPy inference, defined bootstrap statistic, bounded CV preparation. Native successful forecasting blocked on real Trinity/seed/materializer bridge.'),
+    ('DDM', 'ddm', '052135e93a5c61dab854e17656feef3903042999', '299d165a6040629711019598f2981f7cc3e9c5f6', 41, 'ddm-registry-source-binding.json', 'DDM-01 DDM-02', 'Canonical contracts and facade identities; complete report/model/rule/time/calibration/invalidation source projection -> persisted registry -> rebind/readiness/audit/gate. Default production orchestration still requires owning consumer.'),
+    ('DOE', 'doe', 'e092b1d1796265604df1891340f7a56ce633e745', 'fd6b8f991a77fbb8e9551bce8761766581da15f3', 39, 'doe-ordered-20261006.json', 'DOE-01 DOE-02 DOE-03', 'Canonical SALib sampler/analyzer with ordered design, complete Morris trajectories, declared law/units/scale/seed -> content-bound receipt -> fresh candidate generator. Default producer orchestration remains separate.'),
+    ('FRC', 'frc', '5bd27323ecb0935a38908d2b09fa652762c5e4ea', '213dfb7c4d9768e90e0b443d093c4b1685e8536a', 40, 'frc-configured-producer.json', 'FRC-01 FRC-02', 'Strict configured ForecastOwnerRequest -> actual ETS -> separate content-bound candidate and empirical evidence -> same configured CAS -> fresh full replay. A owns default gateway/generation-cycle/S10/served verification; predictive purpose only, causal authority denied.'),
+    ('PCL', 'pcl', 'f96d964062697d2077be2e59b8e1ce7d27b1f0dd', 'd901d6e301c62ba8c13b49e8a1b6739739279da1', 52, 'pcl-20261006.json', 'PCL-01', 'Actual optional-store Advanced summary caller -> persisted ordered pairs/report/receipt -> fresh recomputation. Default MethodRunner omits store and is not relabelled as persisted orchestration.'),
+]
+accepted = []
+for family, slug, source, published, pr, receipt, bundles, chain in components:
+    assert git('merge-base', '--is-ancestor', published, 'HEAD') == ''
+    accepted.append(dict(family=family, bundle_ids=bundles.split(), implementation_sha=source, implementation_tree_sha=git('rev-parse', source + '^{tree}'), published_receipt_head_sha=published, published_receipt_head_tree_sha=git('rev-parse', published + '^{tree}'), topic='codex/e02-E-' + slug + '-20261006', pull_request='https://github.com/DenisKopylov/polisyos/pull/' + str(pr), receipt='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/' + receipt, bounded_review='independent GO for defined E mechanism; aggregate integration HOLD, G acceptance pending', implemented_chain_and_limit=chain))
+assert sum(len(c['bundle_ids']) for c in accepted) == 22
+
+# Explicit repeatable directory candidates only; preserve all unique deciding logs/CAS.
+candidate_strings = set()
+def collect_abs(value):
+    if isinstance(value, str) and value.startswith('/') and '(' not in value:
+        candidate_strings.add(value)
+    elif isinstance(value, list):
+        for item in value:
+            collect_abs(item)
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            if 'preserve' not in key and 'retain' not in key:
+                collect_abs(item)
+for p in (H.parent).glob('*.json'):
+    d = json.loads(p.read_text())
+    if not isinstance(d, dict):
+        continue
+    for key, value in d.items():
+        if key == 'cleanup':
+            collect_abs(value)
+for lane in ['continuation', 'cal-review']:
+    for subdir in ['policy-engine/.venv', 'policy-engine/node_modules', 'policy-engine/_cache', 'policy-engine/.pytest_cache', 'policy-engine/apps/runtime-dashboard/node_modules', 'policy-engine/apps/runtime-reference-shell/node_modules', 'policy-engine/packages/runtime-api-client/node_modules', 'policy-engine/packages/atlas-ui/node_modules', 'policy-engine/packages/cli/node_modules']:
+        candidate_strings.add('/workspace/e02-E-' + lane + '-20261006/' + subdir)
+candidate_strings.update(str(p) for p in (SCRATCH / 'common-wave').glob('*-temp') if p.is_dir())
+candidate_strings.update(['/home/agent/.cache/ms-playwright/chromium-1217', '/home/agent/.cache/ms-playwright/chromium_headless_shell-1217', '/home/agent/.cache/ms-playwright/ffmpeg-1011'])
+candidates = []
+for name in sorted(candidate_strings):
+    p = Path(name)
+    if p.is_dir() and not p.is_symlink() and name != '/workspace/polisyos/policy-engine/.venv' and name != str(ROOT):
+        candidates.append(dict(absolute_path=name, classification='repeatable bounded fixture/test catalog or installed environment; preserve deciding output first', action='candidate only: native cloud Trash unavailable, do not permanently delete'))
+cleanup = dict(schema='policyos.e02.cleanup_candidates.v1', candidate_sha=FROZEN, trash_tools=dict(gio=shutil.which('gio'), trash_put=shutil.which('trash-put')), disposition='No permanent removal and no Trash emptying. Exact directories listed for future Trash disposition after deciding outputs are safe.', candidates=candidates, preserve=['All ten code worktrees and Git registrations; no automatic prune', 'All tracked source/tests/useful documentation/release fragments and deciding receipts', 'All production history and source-law data (none moved to cloud)', 'All unique synthetic CAS artifacts and scratch logs until deciding evidence custody is independently accepted', '/workspace/e02-E-20261006-receipts/common-wave/production-invocation.raw.json (full raw retained; exact lossless gzip committed)', '/workspace/e02-E-pcl-20261006/package.json and /workspace/e02-E-pcl-20261006/pnpm-lock.yaml incidental files are preserved uncommitted for disposition review', 'Shared /workspace/polisyos/policy-engine/.venv and shared runtime installations'], directory_listing_is_not_cleanup_permission='Only Trash movement is authorized, never permanent deletion.')
+write(H / 'cleanup-candidates.json', cleanup)
+
+assert not git('diff', '--name-only', FROZEN, 'HEAD', '--', 'policy-engine/src', 'policy-engine/tests')
+frozen = json.loads((H / 'common-wave/frozen-candidate.json').read_text())
+handoff = dict(
+    schema='policyos.e02.implementation_handoff.v1', unit='E', slice='full-E-continuation-20261006',
+    slice_base_sha=BASE, slice_base_tree_sha=frozen['base_tree_sha'], integration_anchor='1ddcd7b3905e52c0d19db091823a64830139fa64',
+    candidate_sha=FROZEN, candidate_tree_sha=frozen['candidate_tree_sha'], branch='codex/e02-E-continuation-20261006', pull_request='https://github.com/DenisKopylov/polisyos/pull/38',
+    publication_note='Topic includes receipt-only descendants after source freeze; deciding numerical evidence stays pinned to candidate SHA/tree above. No rebase/reset/force/main/integration write.',
+    source_freeze=dict(src_tree=frozen['src_tree'], tests_tree=frozen['tests_tree'], source_test_framed_sha256=frozen['source_test_framed_sha256'], source_test_path_denominator=6198, post_wave_src_tests_delta='empty', full_diff_paths_ref='common-wave/frozen-candidate.json', raw_source_identity_before_after='all common-wave job JSONs'),
+    accepted_bounded_components=accepted, prior_accepted_slice_delta='accepted-slice-delta.json',
+    admission='root-create.json/root-resume.json and admission/ full ten exact branch/path create+resume JSONs; no placeholder checkout, no prune',
+    independent_review='reviews/ and independent/ retain full mathematical oracles, property-removal/present-but-fake negatives, proxy divergence, actual backend and dtype. final-closeout-review/ independently verifies actual wave/global failures.',
+    common_wave=wave,
+    input_identity='Tracked closure-decisions, full manifest/owner TSVs/original bundle criteria and committed ledger; ignored local outputs are generated evidence, not cloud task input.',
+    findings=dict(ledger_preserved=overlay['ledger_status_counts_preserved'], final_verdict_counts=overlay['finding_verdict_counts'], all_54='closure-frozen/all-54-closeout.json', all_54_human_table='closure-frozen/all-54-closeout.md', criterion_complete_recommendations=overlay['bounded_property_complete_candidate_ids'], recommendation_authority='33 bounded properties for accountable owner adjudication only; no historical partial automatically closed', formal_ledger_write=False),
+    P37_basis='Mathematical properties use independent computed oracles; declared/profile/hash/ref predicates establish content integrity at most, never producer/verifier/serving/institutional authority. Frozen basis is not upgraded by PASS counts.',
+    P40='Whole-quantity repair for missing-law/failed-support/range/draw-budget/objective-identity/recomputed-report escapes. Legacy IR sample-bundle reader and absent default orchestration are finite residuals with owner/falsifier in consumer-frozen/source-trace.json and all-54 overlay.',
+    P41='not_established; no inherited-red claim or waiver; architecture includes newly introduced E imports',
+    runtime_capability=dict(jax_backend='cpu', scipy='1.16.3', SALib='1.5.2', actual_environment='common-wave/actual-environment.json', synthetic_evidence_scope='mathematical backend and configured CAS consumer only; no full production history/source-law evidence', native_positive_forecast='UNRUN: missing admitted Trinity/materializer/exec seed input bridge; observed failed attempts retained'),
+    integration_acceptance=dict(verdict='HOLD', G_code_acceptance='pending', reason='Two current A FRC01 consumer failures and current architecture/schema/OpenAPI/production-invocation gates FAIL. E introduced architecture edges also require E follow-up. Subsequent fail-fast umbrella steps UNRUN.', inherited_waiver=False),
+    boundaries=dict(B194='ledger held, technical limited; narrow bounded IID certificate works, general served evaluator/domain-law bridge missing; Scientist execution owner + G', B197='ledger held, technical limited; configured producer/report-v2/CAS/welfare works, source inferential authority and legacy/served strict downstream consumers remain; Foundry/Scientist/IR consumer owners + G', B198='closed regression preserved on frozen native consumers; no new falsifier', B201_B202='held: appointed IR semantic owner must ratify uncertainty/identification units, independent point and interval functionals, distinct v2 $id preserving v1.1 replay, and CAS-only v2 (recommended) or inline carrier plus persisted ref; E did not silently change wire semantics', FRC='Predictive calibration only; causal/treatment/policy authority denied. A alone owns generation_cycle/default gateway/HTTP/run lifecycle/S10 served verification.'),
+    next_owner_actions=[
+        dict(owner='G', action='Fetch E topic by exact SHA, review accepted bounded source components separately from closure; integrate only after current gates and owner consumer requirements are resolved. No main publication authorized.'),
+        dict(owner='E architecture follow-up and G architecture owner', action='Resolve twelve introduced exact deep imports and assess 35 E-changed-path reports plus full architecture denominator; no exception or baseline widening.'),
+        dict(owner='A FRC lifecycle/S10/default gateway owner', action='Consume strict typed ForecastOwner contract and exact candidate/evidence CAS refs; preserve all time roles and insufficient-history limitation. Resolve same store, independently recompute scope/split/pairs/counts/threshold/time/purpose and repeat on fresh served read; two current FRC01 failures unwaived.'),
+        dict(owner='G/A generated schema and runtime contract owners', action='Resolve feedback_solve_result schema/_manifest, runtime OpenAPI and trust-claim posture register drift via owned generation; E did not regenerate shared wire contracts.'),
+        dict(owner='Scientist/Foundry execution and domain/source-law owners', action='Supply admitted existing evaluator, Trinity/base state/input materializer and effective seed path before claiming actual successful K native replay or B194 general served certificate.'),
+        dict(owner='IR semantic owner', action='Ratify four recorded B201/B202 choices; preserve distinct mean and interval functionals and v1.1 replay until explicit v2 carrier choice.'),
+        dict(owner='G local read-only verifier + accountable finding owners', action='Run exact58e recipes with real local immutable source/history handles where required; return full bounded deciding outputs and negative controls without transferring production bytes. Adjudicate 33 pure bounded criterion recommendations separately from code.'),
+    ],
+    local_production_recipe='closure-frozen/local-G-closeout-recipes.json; exact implementation SHA/tree, actual typed API sequences/minimal input identities, native bounded commands/negative controls and accountable owner; no unresolved command placeholders',
+    cleanup='cleanup-candidates.json; Trash unavailable, exact candidates only, no permanent cleanup',
+    helper_execution=dict(direct_helpers=12, available_concurrency_slots=7, children=0, authors_and_independent_numerical_runners='separate', native_cloud_wave='six independent processes launched concurrently, no artificial heavy process/CPU/thread caps; only dtype/global fixture collisions isolated'),
+)
+write(H / 'final-handoff.json', handoff)
+shutil.copyfile(__file__, H / 'assemble-final-handoff.py.txt')
+print(json.dumps(dict(candidate=FROZEN, components=len(accepted), bundles=sum(len(c['bundle_ids']) for c in accepted), finding_rows=len(overlay['rows']), cleanup_candidates=len(candidates), post_wave_src_tests_delta='empty'), indent=2))

@@ -15,6 +15,8 @@ Required registry fields:
 | `active_incident_id` | Linked incident or `null` |
 | `promotion_allowed` | Persisted baseline permission; for R4/R3, `false` is a binding veto |
 | `calibration_validity` | Optional durable projection of checker context; it is not authority by itself |
+| `readiness_event_id`, `readiness_effective_at`, `readiness_expires_at` | Original readiness event and distinct readiness time roles |
+| `source_binding_digest` | Digest of exact ordered source DTOs; not a self-authenticating receipt |
 
 `calibration_validity` carries the calibration and detector identities, stationarity
 regime, canonical report digest, verifier id/version, effective time, expiration,
@@ -35,6 +37,19 @@ stale payload. Missing context, tampered identity/digest, unavailable
 observations, or a mismatch remain fail-closed; an unavailable observation
 still preserves the deterministic `calibration_expired` reason when the
 current time is past `valid_until`.
+
+Promotion after reload additionally requires the original `readiness_event`,
+`metric_budget`, ordered normalized `shift_events`, and enriched
+`last_degradation_event`. The existing producer compares all shared calibration
+and metric-policy fields, and rebind compares the full source-bound projection.
+Public field mutation cannot modify the private checker projection. Legacy
+records missing their source or time projection stay non-gating. Readiness
+expiry is checked separately at the fresh calibration check's effective time;
+an expired readiness event cannot gain a new TTL by refreshing calibration.
+The same admission recomputes `budget_used` from the exact metric policy,
+confidence bounds and current estimate through the existing readiness helper.
+Nonfinite inputs or a different supplied quantity are not admitted; this does
+not certify the calibration law or the completeness of the observation feed.
 
 Promotion rules:
 

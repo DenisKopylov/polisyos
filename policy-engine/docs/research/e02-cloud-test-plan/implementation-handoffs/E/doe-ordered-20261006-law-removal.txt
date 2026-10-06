@@ -1,0 +1,42 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____ test_sobol_requires_declared_independent_law_before_evaluator[unknown] ____
+
+law = 'unknown'
+
+    @pytest.mark.parametrize("law", ["unknown", "dependent"])
+    def test_sobol_requires_declared_independent_law_before_evaluator(law):
+        calls = []
+>       with pytest.raises(ValueError, match="independent input law"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/doe/test_analysis_receipt.py:95: Failed
+___ test_sobol_requires_declared_independent_law_before_evaluator[dependent] ___
+
+law = 'dependent'
+
+    @pytest.mark.parametrize("law", ["unknown", "dependent"])
+    def test_sobol_requires_declared_independent_law_before_evaluator(law):
+        calls = []
+>       with pytest.raises(ValueError, match="independent input law"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/doe/test_analysis_receipt.py:95: Failed
+=============================== warnings summary ===============================
+tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_requires_declared_independent_law_before_evaluator[unknown]
+tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_requires_declared_independent_law_before_evaluator[dependent]
+  /workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/SALib/sample/sobol.py:136: UserWarning: The balance properties of Sobol' points require n to be a power of 2.
+    base_sequence = qrng.random(N)
+
+tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_requires_declared_independent_law_before_evaluator[unknown]
+tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_requires_declared_independent_law_before_evaluator[dependent]
+  /workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/SALib/analyze/sobol.py:141: RuntimeWarning: invalid value encountered in divide
+    Y = (Y - Y.mean()) / Y.std()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_requires_declared_independent_law_before_evaluator[unknown]
+FAILED tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_requires_declared_independent_law_before_evaluator[dependent]
+2 failed, 17 deselected, 4 warnings in 8.15s

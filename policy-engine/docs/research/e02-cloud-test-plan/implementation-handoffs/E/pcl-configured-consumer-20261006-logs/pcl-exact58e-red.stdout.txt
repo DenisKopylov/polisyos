@@ -1,0 +1,4 @@
+  File "/workspace/e02-E-pr38-r2-receipts/pcl-exact-source-replay.py", line 16
+    print(json.dumps({"source": SOURCE,"mode": "exact_git_blob_import_overlay", "modules": {module:{"path": PATHS[module],"sha256": hashlib.sha256(data).hexdigest(),"bytes":len(data)} for module,data in SOURCES.items()}),flush=True)
+                                                                                                                                                                                                                           ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '{'

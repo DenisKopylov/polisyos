@@ -1,0 +1,16 @@
+id = "2026-10-06-e02-evidence-facades"
+title = "Expose canonical predictive evidence and sampling consumer entrypoints"
+type = "added"
+component = "calibration-foundry-uncertainty"
+owner = "E"
+summary = "Scientist imports predictive evidence and terminal-draw reconciliation through existing Calibration and Foundry uncertainty facades. Exports resolve to canonical objects and preserve non-gating authority boundaries."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.calibration and polisyos.foundry.uncertainty"
+compatibility = "Additive exports; existing entrypoints and candidate schema semantics unchanged. No Core or IR facade admission is inferred."
+migration = "Use package-level exports for the listed Scientist evidence and sampling callers."
+limitations = "Core artifacts/canon and missing IR analytics exports still require their canonical public-surface owner decision."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+evidence = ["tests/unit/calibration/test_evidence_facades.py", "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"]
+migration_docs = ["src/polisyos/calibration/README.md", "src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []

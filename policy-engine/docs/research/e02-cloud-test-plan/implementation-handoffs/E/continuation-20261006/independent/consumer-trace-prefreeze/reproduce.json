@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.read_only_audit_reproduce.v1",
+  "target_sha": "fcb4271c9be301595c7e26bfaeaf368030ad7792",
+  "target_tree_sha": "a19c5b63f64a57604462c1aab8b2a65ffb272124",
+  "cwd": "/workspace/e02-E-continuation-20261006",
+  "commands": [
+    [
+      "python3",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/audit_e_consumers.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--ref",
+      "fcb4271c9be301595c7e26bfaeaf368030ad7792",
+      "--output",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/pre-freeze"
+    ],
+    [
+      "python3",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/plan_wave.py",
+      "--audit",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/pre-freeze/audit.json",
+      "--output",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/pre-freeze/wave-groups.json"
+    ],
+    [
+      "python3",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/write_trace.py",
+      "--audit",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/pre-freeze/audit.json",
+      "--output",
+      "/workspace/e02-E-20261006-receipts/consumer-trace-r4/source-trace.json"
+    ]
+  ],
+  "actual_environment": {
+    "python": "Python 3.12.14",
+    "git": "git version 2.52.0"
+  },
+  "numerical_backends": "Not imported or invoked; this receipt has no numerical PASS.",
+  "files": {
+    "audit_e_consumers.py": {
+      "bytes": 14130,
+      "sha256": "9e2e8ea7dab3454b74a9e2f944abba699a754852e9b2fefc333e1d6cfaea4bdf"
+    },
+    "failures-navigation.json": {
+      "bytes": 10704,
+      "sha256": "8a460d9c71115e5b3fcbb8da0d2242e8a5fbae51f41b360321891a1a956d2916"
+    },
+    "plan_wave.py": {
+      "bytes": 2671,
+      "sha256": "9d3d4c998f961a93484d03db8cee809acf230eec8b7b04a9009e22fd7f7a121c"
+    },
+    "pre-freeze/audit.json": {
+      "bytes": 114315,
+      "sha256": "6683e8972eb22508336f488ed37fc92e51e2f8c101fcf44eb654a696ef6a6772"
+    },
+    "pre-freeze/existing-e-tests.txt": {
+      "bytes": 5418,
+      "sha256": "cb18e4550aee8464f5bd4f1e918af53afc2c02c4d77ad4a6d2a77fd01e3a4d19"
+    },
+    "pre-freeze/summary.json": {
+      "bytes": 1349,
+      "sha256": "86177474ae86170decc74cd4642bfc9d825f564ebfe4ab0108e3e167b1ecb4d7"
+    },
+    "pre-freeze/wave-groups.json": {
+      "bytes": 9199,
+      "sha256": "af382ff5b30ab9f9ac10a5274fcba61131873bc5a82a4e5f1c2e7cec7404d6eb"
+    },
+    "pre-freeze/wave-groups.stdout.txt": {
+      "bytes": 366,
+      "sha256": "32a893daf2f560e613a223d35e3acb70cecb6db8a26cf01b275a98deb9ef1fd4"
+    },
+    "pre-freeze.stdout.txt": {
+      "bytes": 1349,
+      "sha256": "86177474ae86170decc74cd4642bfc9d825f564ebfe4ab0108e3e167b1ecb4d7"
+    },
+    "source-trace.json": {
+      "bytes": 29550,
+      "sha256": "a13477e74e11171351b7bc1bf0bbd52b78afb945ac293c30630af4970a52e3f8"
+    },
+    "source-trace.stdout.txt": {
+      "bytes": 478,
+      "sha256": "5ff48faf6f32c30d389c1116b8ad623d28eb04ee11e3090b067767856b931045"
+    },
+    "write_trace.py": {
+      "bytes": 22693,
+      "sha256": "c87a57118f535b6aeb92fbb522ecd21c0335c8152764ffa03884d34b9d454971"
+    }
+  },
+  "outputs_are_new_this_session": true,
+  "tracked_inputs": "git exact SHA/tree, full E original bundles/manifest, full ownership TSVs/results cells/routes; older ignored outputs are never read as task inputs.",
+  "write_scope": "Scratch reports and scripts only; zero production/config/tests writes, no Git commits or publication performed by this helper."
+}

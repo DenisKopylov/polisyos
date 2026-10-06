@@ -1,0 +1,53 @@
+[
+  {
+    "name": "proxy",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+      "proxy"
+    ],
+    "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+    "exit_code": 0,
+    "wall_s": 0.22760282800300047,
+    "user_cpu_s": 0.210329,
+    "system_cpu_s": 0.016231,
+    "child_max_rss_kib_cumulative": 32376,
+    "output": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/proxy.txt",
+    "original_capture_path": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/proxy.log",
+    "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd"
+  },
+  {
+    "name": "removed",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+      "removed"
+    ],
+    "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+    "exit_code": 1,
+    "wall_s": 13.926429095008643,
+    "user_cpu_s": 13.368226,
+    "system_cpu_s": 0.703232,
+    "child_max_rss_kib_cumulative": 633388,
+    "output": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/removed.txt",
+    "original_capture_path": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/removed.log",
+    "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd"
+  },
+  {
+    "name": "restored",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+      "restored"
+    ],
+    "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+    "exit_code": 0,
+    "wall_s": 11.014547804996255,
+    "user_cpu_s": 10.423941,
+    "system_cpu_s": 0.4036780000000001,
+    "child_max_rss_kib_cumulative": 633388,
+    "output": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/restored.txt",
+    "original_capture_path": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/restored.log",
+    "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd"
+  }
+]

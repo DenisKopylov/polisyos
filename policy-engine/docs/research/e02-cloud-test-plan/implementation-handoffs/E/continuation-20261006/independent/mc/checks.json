@@ -1,0 +1,403 @@
+{
+  "schema": "policyos.e02.independent_review_checks.v1",
+  "head": "cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+  "tree": "d19b525ad520b0397103b0b17cf1173c8fa3d6ad",
+  "dirty_at_start": "",
+  "head_at_end": "cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+  "dirty_at_end": "",
+  "cases": [
+    {
+      "case": "pre_draw_range_random",
+      "outcome": "PASS",
+      "result": {
+        "method": "random",
+        "producer_count": 3,
+        "sampler_and_evaluator_callbacks": 0
+      },
+      "wall_seconds": 0.0014989360061008483
+    },
+    {
+      "case": "pre_draw_range_sobol",
+      "outcome": "PASS",
+      "result": {
+        "method": "sobol",
+        "producer_count": 3,
+        "sampler_and_evaluator_callbacks": 0
+      },
+      "wall_seconds": 0.0007373709959210828
+    },
+    {
+      "case": "pre_draw_range_halton",
+      "outcome": "PASS",
+      "result": {
+        "method": "halton",
+        "producer_count": 3,
+        "sampler_and_evaluator_callbacks": 0
+      },
+      "wall_seconds": 0.00556366000091657
+    },
+    {
+      "case": "actual_JAX_underflow_boundary_and_true_zero",
+      "outcome": "PASS",
+      "result": {
+        "finite_positive_input_boundary": 1.1754943508222875e-38,
+        "subnormal_cast_nonzero": 9.99994610111476e-41,
+        "subnormal_JAX_quadratic_form": 0.0,
+        "normal_boundary_JAX_quadratic_form": 1.1754943508222875e-38,
+        "true_zero_covariance_samples": [
+          0.0
+        ]
+      },
+      "wall_seconds": 0.25822706599137746
+    },
+    {
+      "case": "range_property_removed_markers_retained",
+      "outcome": "PASS",
+      "result": {
+        "removed_sampler_intake_callbacks": 129,
+        "nonfinite_callback_inputs": 128,
+        "markers_retained": "same typed law, covariance metadata, evaluator and nongating output",
+        "acceptance_discriminator": "pre-callback refusal becomes false after property removal"
+      },
+      "wall_seconds": 0.0037337690009735525
+    },
+    {
+      "case": "axis_and_strategy_joint_law",
+      "outcome": "PASS",
+      "result": {
+        "three_axis_matrix": [
+          [
+            1.0,
+            0.20000000298023224,
+            0.30000001192092896
+          ],
+          [
+            0.20000000298023224,
+            4.0,
+            0.4000000059604645
+          ],
+          [
+            0.30000001192092896,
+            0.4000000059604645,
+            9.0
+          ]
+        ],
+        "tied_law": [
+          {
+            "full_flag": true,
+            "backend": "delta",
+            "interval": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "full_flag": true,
+            "backend": "analytical",
+            "interval": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "full_flag": true,
+            "backend": "monte_carlo",
+            "interval": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "full_flag": false,
+            "backend": "delta",
+            "interval": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "full_flag": false,
+            "backend": "analytical",
+            "interval": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "full_flag": false,
+            "backend": "monte_carlo",
+            "interval": [
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "wall_seconds": 0.7739778380055213
+    },
+    {
+      "case": "tied_and_independent_random",
+      "outcome": "PASS",
+      "result": {
+        "method": "random",
+        "tied_variance": 0.0,
+        "independent_variance": 0.00499491569852009,
+        "analytic_variance_difference": 0.005
+      },
+      "wall_seconds": 0.30847340400214307
+    },
+    {
+      "case": "tied_and_independent_sobol",
+      "outcome": "PASS",
+      "result": {
+        "method": "sobol",
+        "tied_variance": 0.0,
+        "independent_variance": 0.004998191144161685,
+        "analytic_variance_difference": 0.005
+      },
+      "wall_seconds": 0.2545030699984636
+    },
+    {
+      "case": "tied_and_independent_halton",
+      "outcome": "PASS",
+      "result": {
+        "method": "halton",
+        "tied_variance": 0.0,
+        "independent_variance": 0.005002722757810749,
+        "analytic_variance_difference": 0.005
+      },
+      "wall_seconds": 0.18193381099263206
+    },
+    {
+      "case": "content_bound_carrier_and_unknown_law",
+      "outcome": "PASS",
+      "result": {
+        "paired_rows": [
+          "r0",
+          "r1",
+          "r2",
+          "r3"
+        ],
+        "law_digest": "9ad73c8e07a87713821b6306809e8dc1bca2963ed14cee92d7e58b728db933bb",
+        "changed_carrier_failure": "incompatible_content_bound_joint_law"
+      },
+      "wall_seconds": 0.15984240599209443
+    },
+    {
+      "case": "source_law_property_removed_markers_retained",
+      "outcome": "FAIL",
+      "exception": "AssertionError",
+      "detail": "",
+      "wall_seconds": 0.16333158400084358
+    },
+    {
+      "case": "failed_support_random",
+      "outcome": "PASS",
+      "result": {
+        "method": "random",
+        "conditional_mean": 0.504732593031,
+        "failed": 515,
+        "complete_mean": -0.004268015804,
+        "partial_certificate_kind": "kolmogorov"
+      },
+      "wall_seconds": 0.15140841100947
+    },
+    {
+      "case": "failed_support_sobol",
+      "outcome": "PASS",
+      "result": {
+        "method": "sobol",
+        "conditional_mean": 0.499999999069,
+        "failed": 512,
+        "complete_mean": -9.31e-10,
+        "partial_certificate_kind": "qmc_variation"
+      },
+      "wall_seconds": 0.0656421390012838
+    },
+    {
+      "case": "failed_support_halton",
+      "outcome": "PASS",
+      "result": {
+        "method": "halton",
+        "conditional_mean": 0.498702724339,
+        "failed": 512,
+        "complete_mean": -0.001297275661,
+        "partial_certificate_kind": "qmc_variation"
+      },
+      "wall_seconds": 0.021603711997158825
+    },
+    {
+      "case": "RQMC_independent_replica_estimator_error",
+      "outcome": "PASS",
+      "result": {
+        "requested_rows": 1000,
+        "actual_rows": 1024,
+        "replica_means": [
+          0.33333333287131006,
+          0.3333333328676721,
+          0.3333333333332199,
+          0.3333333516105389
+        ],
+        "estimator_standard_error": 4.647903317604739e-09,
+        "predictive_std": 0.29814198869296443
+      },
+      "wall_seconds": 0.009517550002783537
+    },
+    {
+      "case": "certificate_fresh_CAS_readback_and_removal",
+      "outcome": "PASS",
+      "result": {
+        "analytic_U": 0.0995612819216314,
+        "all_zero_pilot_N": 408,
+        "CAS_ref": "sha256:4850f871471f694deef8a02fe9cf016696d833e1fc36e3f63866a787b2bab029",
+        "verified_main_mean": 0.0,
+        "negative_controls": [
+          "main_stream",
+          "main_samples",
+          "pilot_mean",
+          "evaluator_sha256",
+          "mean_error_interval",
+          "extraneous_draw_failure",
+          "draw_record_removed_marker_retained"
+        ]
+      },
+      "wall_seconds": 0.16138354799477383
+    },
+    {
+      "case": "duplicate_evidence_and_distinct_functionals",
+      "outcome": "PASS",
+      "result": {
+        "duplicate_interval_level": 0.8,
+        "mean": 1.0,
+        "q05_q95": [
+          0.0,
+          0.0
+        ],
+        "v1_1_semantics": "unchanged; B201/B202 held for IR semantic owner"
+      },
+      "wall_seconds": 0.00027422299899626523
+    },
+    {
+      "case": "legacy_adaptive_fixed_budget",
+      "outcome": "PASS",
+      "result": {
+        "constant_response": 0.2,
+        "fixed_budget": 500,
+        "stopped_early": false
+      },
+      "wall_seconds": 0.10064492699166294
+    },
+    {
+      "case": "actual_Scientist_producer_CAS_consumer_and_fake_content",
+      "outcome": "FAIL",
+      "exception": "CanonViolation",
+      "detail": "float forbidden in canonical JSON",
+      "wall_seconds": 6.999669947006623
+    },
+    {
+      "case": "bounded_IID_mean_empirical_coverage",
+      "outcome": "PASS",
+      "result": {
+        "scope": "admitted canonical Bernoulli responses over mathematical Uniform input law only",
+        "not_established": [
+          "production law custody",
+          "general callback boundedness",
+          "Uniform-output mean certificate"
+        ],
+        "experiments": [
+          {
+            "input": "independent Uniform[0,1] child streams",
+            "response": "indicator(X < 0.001)",
+            "population_mean": 0.001,
+            "seeds": [
+              0,
+              255
+            ],
+            "replications": 256,
+            "covered": 256,
+            "empirical_coverage": 1.0,
+            "coverage_Clopper_Pearson_95": [
+              0.9856936372709606,
+              1.0
+            ],
+            "N_range": [
+              408,
+              435
+            ],
+            "maximum_error": 0.006352941176470588,
+            "zero_pilot_count": 200
+          },
+          {
+            "input": "independent Uniform[0,1] child streams",
+            "response": "indicator(X < 0.01)",
+            "population_mean": 0.01,
+            "seeds": [
+              0,
+              255
+            ],
+            "replications": 256,
+            "covered": 256,
+            "empirical_coverage": 1.0,
+            "coverage_Clopper_Pearson_95": [
+              0.9856936372709606,
+              1.0
+            ],
+            "N_range": [
+              408,
+              504
+            ],
+            "maximum_error": 0.013696682464454974,
+            "zero_pilot_count": 16
+          },
+          {
+            "input": "independent Uniform[0,1] child streams",
+            "response": "indicator(X < 0.5)",
+            "population_mean": 0.5,
+            "seeds": [
+              0,
+              255
+            ],
+            "replications": 256,
+            "covered": 255,
+            "empirical_coverage": 0.99609375,
+            "coverage_Clopper_Pearson_95": [
+              0.9784291096474665,
+              0.9999011072027765
+            ],
+            "N_range": [
+              935,
+              935
+            ],
+            "maximum_error": 0.054010695187165725,
+            "zero_pilot_count": 0
+          },
+          {
+            "input": "independent Uniform[0,1] child streams",
+            "response": "indicator(X < 0.99)",
+            "population_mean": 0.99,
+            "seeds": [
+              0,
+              255
+            ],
+            "replications": 256,
+            "covered": 256,
+            "empirical_coverage": 1.0,
+            "coverage_Clopper_Pearson_95": [
+              0.9856936372709606,
+              1.0
+            ],
+            "N_range": [
+              935,
+              935
+            ],
+            "maximum_error": 0.011390374331550768,
+            "zero_pilot_count": 0
+          }
+        ]
+      },
+      "wall_seconds": 25.755967834003968
+    }
+  ],
+  "wall_seconds": 35.601810693740845,
+  "source_sha_stable": true
+}

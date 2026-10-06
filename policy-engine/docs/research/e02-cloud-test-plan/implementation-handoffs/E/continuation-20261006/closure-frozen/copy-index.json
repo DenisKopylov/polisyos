@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.evidence_custody.v1",
+  "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "files": [
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/all-54-closeout.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/all-54-closeout.json",
+      "bytes": 422505,
+      "sha256": "d8b647ae0bb74fb1149482bad60796826a043b163d34b7bce1bf3c726a4fc795"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/all-54-closeout.md",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/all-54-closeout.md",
+      "bytes": 19322,
+      "sha256": "964a586a2dcc20d4aedae1303f3e895f8e258977e30fc2c1d3154c5b6a13e808"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/closeout-artifact-index.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/closeout-artifact-index.json",
+      "bytes": 4726,
+      "sha256": "45e2b01d1a147609fa3cae2befdb615b66f8ac10fb8a01b2a0b0df7202c20328"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/closeout/local-G-closeout-recipes.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/local-G-closeout-recipes.json",
+      "bytes": 31996,
+      "sha256": "4531866c135a748db1d9b1e6888949f66896ac9b825e30b970af743495af6ba8"
+    }
+  ]
+}

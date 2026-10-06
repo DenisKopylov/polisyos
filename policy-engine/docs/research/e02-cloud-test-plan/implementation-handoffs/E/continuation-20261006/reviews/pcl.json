@@ -1,0 +1,93 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "E",
+  "slice": "PCL",
+  "reviewer": "/root",
+  "author": "/root/pcl_r3",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+  "implementation_tree_sha": "75f0e438e3db6722b407ebb5af817a99a1e9cf7b",
+  "implementation_commits": [
+    "f333db57fbe55510a3eabe03220d8662ee3a1693",
+    "f96d964062697d2077be2e59b8e1ce7d27b1f0dd"
+  ],
+  "diff_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+    "policy-engine/release-fragments/unreleased/2026-10-06-continuous-calibration-pairs.toml",
+    "policy-engine/src/polisyos/calibration/continuous.py",
+    "policy-engine/src/polisyos/calibration/curve.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+    "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+    "policy-engine/tests/unit/calibration/test_continuous.py",
+    "policy-engine/tests/unit/calibration/test_continuous_persistence.py"
+  ],
+  "code_acceptance": "GO within ordered-pair-reconciled continuous diagnostics",
+  "finding_closure": false,
+  "specification_verdict": "limited",
+  "checks": [
+    {
+      "reviewer": "/root",
+      "implementation_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+      "implementation_tree": "75f0e438e3db6722b407ebb5af817a99a1e9cf7b",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/calibration/test_continuous_persistence.py",
+        "tests/unit/calibration/test_continuous.py",
+        "tests/unit/calibration/test_curve.py"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "PYTHONPATH": "/workspace/e02-E-pcl-20261006/policy-engine/src",
+      "exit_code": 0,
+      "wall_seconds": 11.772588611987885,
+      "source_hashes_before": {
+        "policy-engine/src/polisyos/calibration/continuous.py": "309608a01361ece0894c8981b40144a18258b858fdb21033f23156d6673bc032",
+        "policy-engine/src/polisyos/calibration/curve.py": "3a635778d08c783ed5199504c412f9709cb4196533945883085498e5408dc81f",
+        "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py": "2ab1d7cca1782e554b9d8cd9f869f3a1fd382f27daf63b97f6f7884713fa43ee",
+        "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py": "0135c8acc19e8f213ae4bd5304eb0ce0272ba2232a95f9a47ec3cb6244688521"
+      },
+      "source_hashes_after": {
+        "policy-engine/src/polisyos/calibration/continuous.py": "309608a01361ece0894c8981b40144a18258b858fdb21033f23156d6673bc032",
+        "policy-engine/src/polisyos/calibration/curve.py": "3a635778d08c783ed5199504c412f9709cb4196533945883085498e5408dc81f",
+        "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py": "2ab1d7cca1782e554b9d8cd9f869f3a1fd382f27daf63b97f6f7884713fa43ee",
+        "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py": "0135c8acc19e8f213ae4bd5304eb0ce0272ba2232a95f9a47ec3cb6244688521"
+      },
+      "source_immutable": true,
+      "output": "........................................................................ [ 94%]\n....                                                                     [100%]\n=============================== warnings summary ===============================\n../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n76 passed, 1 warning in 6.61s\n",
+      "output_sha256": "813518aed8b46a7e28fd44dc1eaf7df65d4869c72b54a9b70d5d251bad59418e"
+    }
+  ],
+  "independent_basis": [
+    "Actual Foundry interval-summary caller -> configured core CAS pairs/report/receipt -> fresh canonical loader -> actual receipt extraction recomputes full observed pairs.",
+    "Independent direct lower<=outcome<=upper counts distinguish empirical 95/100 or 0/100 from the unchanged nominal .95.",
+    "Schema/hash-valid fake counts/coverage/receipt/outcome/row order fail report reproduction.",
+    "Missing interval sets do not erase observed outcomes; requested/eligible/observed units and unique source/pair counts remain explicit.",
+    "Raw continuous JSON/self receipts are unverified until pair-aware rebind; source declarations remain consumer_asserted and gate_eligible=False."
+  ],
+  "review_findings_resolved": [
+    {
+      "class": "source-vs-pair denominator",
+      "escape": "observed copied eligible, erased known outcomes when intervals absent",
+      "response": "P40 explicit observed outcome-by-level quantity, unique source outcomes and observed pairs with exact incomplete/empty controls"
+    },
+    {
+      "class": "replay input identity",
+      "escape": "seed admission needed exact deterministic type and pre-resample control",
+      "response": "Central integer nonboolean nonnegative seed predicate used before resampling and persist/load; explicit None/boolean/float/string/negative controls"
+    }
+  ],
+  "capability_state": "configured persisted summary seam implemented; default MethodRunner has no ArtifactStore and higher GARCH callers omit store",
+  "limitations_next_owner": [
+    "Foundry method-execution configuration owner must supply existing configured CAS to higher continuous-diagnostics callers; E does not invent a runtime state key or second store.",
+    "Calibration/source owner must supply content-bound production source/split/horizon/time identity when original production criterion requires it.",
+    "Scientist alias migration owner must declare compatible deprecation/retirement window; forwarding alias identity retained.",
+    "G local read-only production check on exact implementation SHA if original source criterion requires history."
+  ],
+  "P41": "not_established; no inherited-red attribution"
+}

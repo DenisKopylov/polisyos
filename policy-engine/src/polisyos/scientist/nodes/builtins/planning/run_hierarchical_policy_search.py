@@ -162,8 +162,16 @@ def _restore_money_parameter_value(value: Any) -> MoneyValue:
         year_present = "nominal_year" in value
     restored = _MoneyParameterTransport.model_validate(parsed.model_dump(mode="python"))
     restored._wire_year_present = year_present
-    if isinstance(value, Mapping) and restored.model_dump(mode="json") != dict(value):
-        raise ValueError("Money parameter input is outside the canonical wire transport profile")
+    if isinstance(value, Mapping):
+        wire = dict(value)
+        if isinstance(wire.get("amount"), Decimal):
+            # The canonical CAS decoder restores its Decimal tag before the
+            # Any-valued ParamValue carrier reaches this same money boundary.
+            wire["amount"] = parsed.model_dump(mode="json")["amount"]
+        if restored.model_dump(mode="json") != wire:
+            raise ValueError(
+                "Money parameter input is outside the canonical wire transport profile"
+            )
     return restored
 
 

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 import pytest
 
 from polisyos.core.security import get_current_tenant_id_or_none, tenant_scope
@@ -563,4 +565,34 @@ def test_actual_canonical_candidate_cas_readback_reaches_node_and_fresh_report(
         execution_context.store, outcome.state.artifacts_index["policy_frontier_report_ref"]
     )
     assert len(report.source_feasible_candidate_hashes) == 3
+    assert report.global_frontier == []
+
+
+def test_direct_canonical_candidate_readback_reaches_adapter_without_json_conversion(
+    tmp_path, execution_context, minimal_state
+):
+    original = _candidate()
+    ref = persist_policy_candidate_schema(execution_context.store, original)
+    readback = load_policy_candidate_schema(execution_context.store, ref)
+    raw_money = readback.trinity_bundle.policy_spec.parameters[0].default_value
+    assert isinstance(raw_money, dict)
+    assert isinstance(raw_money["amount"], Decimal)
+    restored = module._coerce_policy_candidate(readback)
+    assert restored.candidate_hash() == readback.candidate_hash() == original.candidate_hash()
+    assert restored.model_dump(mode="json") == readback.model_dump(mode="json")
+    registry = ParetoRegistry(tmp_path / "registry")
+    result = module.HierarchicalPolicySearchAdapter(pareto_registry=registry).run_search(
+        readback,
+        loop_id="direct_cas",
+        search_config=_config(),
+        stage_b_evaluator=_evaluate,
+    )
+    fresh = ParetoRegistry(registry._root).get_snapshot("direct_cas")
+    assert len(fresh.entries) == 3
+    assert fresh.project_view(ParetoView.GLOBAL_FEASIBLE) == result.pareto_projection
+    report_ref = module._persist_frontier_report(
+        execution_context, state=minimal_state, loop_id="direct_cas", search_result=result
+    )
+    report = load_policy_frontier_report(execution_context.store, report_ref)
+    assert set(report.source_feasible_candidate_hashes) == set(fresh.entries)
     assert report.global_frontier == []

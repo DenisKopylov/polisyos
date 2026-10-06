@@ -1,0 +1,76 @@
+{
+  "base": "73ad9cfaf882660e742d41ebca41376d53e8c369",
+  "target": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+  "target_tree": "c1564e803950379723f0cba96bdbbdeafedc8d96",
+  "full_delta_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/completed-quality-README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+  ],
+  "full_delta_bytes": 6791,
+  "full_delta_sha256": "05a0fb10191a0d648cce83c69ea23343bdc84712f4d67763fada1e7d7d7c8a14",
+  "source_inputs": [
+    {
+      "source_sha": "73ad9cfaf882660e742d41ebca41376d53e8c369",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+      "bytes": 19384,
+      "sha256": "2d6aeb7ff6cb4b83481d9d531d4d42f2f9dd41016d4eb1d670fec61bbe9085fe",
+      "git_blob": "817f8569b2ec68bc931d9254185fd342e25178af"
+    },
+    {
+      "source_sha": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+      "bytes": 19849,
+      "sha256": "bf9ef7c752df342a2e4a2a69d884a3d7b60f7e5ab5b2f34ae70f865eb9ced986",
+      "git_blob": "5253be3db2ef281ff5c4a92c88fae32bdc8b56b7"
+    },
+    {
+      "source_sha": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/completed-quality-README.md",
+      "bytes": 5071,
+      "sha256": "dca8e5017309988dc8701105e585958cb545aa9b7d3b9031e8a554578019025c",
+      "git_blob": "f1b516bfa3a821c9cf497d8fd23752ba9a4ae667"
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "bytes": 103077,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e"
+    }
+  ],
+  "branches": [
+    {
+      "test": "gate in {'ruff', 'format'}",
+      "AST_byte_independent_equal": true
+    },
+    {
+      "test": "gate == 'mypy'",
+      "AST_byte_independent_equal": true
+    },
+    {
+      "test": "gate == 'architecture'",
+      "AST_byte_independent_equal": true
+    },
+    {
+      "test": "gate == 'runtime-api'",
+      "AST_byte_independent_equal": true
+    },
+    {
+      "test": "gate == 'production-invocation'",
+      "AST_byte_independent_equal": true
+    }
+  ],
+  "all_8_gate_command_branches_AST_equal_to_73": true,
+  "format_only_parent": "10639d9dfca7c9966ec3d1166cecc140c714d987",
+  "format_parent_full_launcher_AST_equal": true,
+  "verify_parity_tail_AST_equal": true,
+  "unchanged_function_ASTs": [
+    "git",
+    "require_source",
+    "tracked_read",
+    "tool_read",
+    "changed_python"
+  ],
+  "new_functions": [],
+  "execution": "Git reads plus stdlib AST only. No launcher/helper/canonical owner/project import/uv/cache query/collection/native/gate/generator executed."
+}

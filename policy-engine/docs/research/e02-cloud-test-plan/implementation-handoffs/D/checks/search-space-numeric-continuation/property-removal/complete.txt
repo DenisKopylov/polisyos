@@ -1,0 +1,117 @@
+/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+FF..                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = 100000000000000000...0000000000000000000
+
+    @pytest.mark.integration
+    @pytest.mark.parametrize("invalid", [10**400, -(10**400), True, float("inf")])
+    def test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch(invalid):
+        pytest.importorskip("torch", reason="UNRUN: optional numerical backend", exc_type=ImportError)
+        pytest.importorskip("botorch", reason="UNRUN: optional numerical backend", exc_type=ImportError)
+        pytest.importorskip(
+            "gpytorch", reason="UNRUN: optional numerical backend", exc_type=ImportError
+        )
+        from polisyos.scientist.methods.search.strategies.bayesian import (
+            BayesianConfig,
+            BayesianOptimizer,
+        )
+        from polisyos.scientist.methods.search.strategies.types import Evaluation
+    
+        strategy = BayesianOptimizer(
+            SearchSpace([ParameterBounds("x")]), BayesianConfig(n_initial=6, seed=31)
+        )
+        rows = [
+            Evaluation(name, {"x": x}, (normalized,), [], score, True)
+            for name, x, normalized, score in [
+                ("measured-a", 0.2, 0.2, 2.0),
+                ("invalid", invalid, 0.4, 0.0),
+                ("measured-b", 0.6, 0.6, 1.0),
+            ]
+        ]
+>       assert not strategy._has_compatible_params(rows[1])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/bayesian.py:770: in _has_compatible_params
+    canonical = self._space.normalize(evaluation.params)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/strategies/space.py:93: in normalize
+    raw = finite_real_scalar(value) if isinstance(value, (int, float)) else None
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = 100000000000000000...0000000000000000000
+
+    def removed(value):
+        if isinstance(value,bool) or not isinstance(value,Real):
+            return None
+>       return float(value) if math.isfinite(value) else None
+                               ^^^^^^^^^^^^^^^^^^^^
+E       OverflowError: int too large to convert to float
+
+../../e02-D2-receipts/search-space-removal-80f4b05075094ba08036562ad43af02c/numeric_removal.py:9: OverflowError
+_ test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = -10000000000000000...0000000000000000000
+
+    @pytest.mark.integration
+    @pytest.mark.parametrize("invalid", [10**400, -(10**400), True, float("inf")])
+    def test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch(invalid):
+        pytest.importorskip("torch", reason="UNRUN: optional numerical backend", exc_type=ImportError)
+        pytest.importorskip("botorch", reason="UNRUN: optional numerical backend", exc_type=ImportError)
+        pytest.importorskip(
+            "gpytorch", reason="UNRUN: optional numerical backend", exc_type=ImportError
+        )
+        from polisyos.scientist.methods.search.strategies.bayesian import (
+            BayesianConfig,
+            BayesianOptimizer,
+        )
+        from polisyos.scientist.methods.search.strategies.types import Evaluation
+    
+        strategy = BayesianOptimizer(
+            SearchSpace([ParameterBounds("x")]), BayesianConfig(n_initial=6, seed=31)
+        )
+        rows = [
+            Evaluation(name, {"x": x}, (normalized,), [], score, True)
+            for name, x, normalized, score in [
+                ("measured-a", 0.2, 0.2, 2.0),
+                ("invalid", invalid, 0.4, 0.0),
+                ("measured-b", 0.6, 0.6, 1.0),
+            ]
+        ]
+>       assert not strategy._has_compatible_params(rows[1])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/bayesian.py:770: in _has_compatible_params
+    canonical = self._space.normalize(evaluation.params)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/strategies/space.py:93: in normalize
+    raw = finite_real_scalar(value) if isinstance(value, (int, float)) else None
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = -10000000000000000...0000000000000000000
+
+    def removed(value):
+        if isinstance(value,bool) or not isinstance(value,Real):
+            return None
+>       return float(value) if math.isfinite(value) else None
+                               ^^^^^^^^^^^^^^^^^^^^
+E       OverflowError: int too large to convert to float
+
+../../e02-D2-receipts/search-space-removal-80f4b05075094ba08036562ad43af02c/numeric_removal.py:9: OverflowError
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[inf]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py::test_native_receiver_refuses_invalid_physical_row_and_retains_valid_batch[-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+2 failed, 2 passed, 26 deselected in 0.42s

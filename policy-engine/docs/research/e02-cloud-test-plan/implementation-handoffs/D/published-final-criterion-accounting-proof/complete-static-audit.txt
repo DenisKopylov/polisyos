@@ -1,0 +1,42 @@
+{
+  "schema": "e02.D.final.accounting.static-audit.v1",
+  "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "source_tree": "e674e22edb8d94d47579326135a786c832402a15",
+  "normative_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "findings": 45,
+  "bundles": 17,
+  "occurrences": 46,
+  "dispositions": {
+    "limited": 35,
+    "held": 7,
+    "open": 3
+  },
+  "closed": 0,
+  "verified_reference_observations": 177,
+  "unique_git_refs": 175,
+  "all_source_and_reference_bytes_verified": true,
+  "full_original_fragments_hash_and_card_containment": true,
+  "exact_acceptance_content_UTF8_locators": true,
+  "canonical_17_JUnit_counts": {
+    "tests": 744,
+    "failures": 7,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 737
+  },
+  "final_source_paths": 2910,
+  "src_tree": "ecb33f5d109f3c30ab5e9e59f1447d25cc8f5778",
+  "selector_occurrences": 53,
+  "distinct_files": 38,
+  "changed_fixture_bundles": [
+    "FUN-03",
+    "OPT-01"
+  ],
+  "root_final_receipt_received": true,
+  "new_product_imports": false,
+  "new_backend_execution": false
+}
+deciding_lossless_payloads {"backend_extension": {"all_decoded_raw_file_hashes_verified": true, "complete_raw_files": 11, "decoded_bytes": 33429, "decoded_sha256": "95c427cdcb7ea294ebaefba6328efb726d73926d30b59463b92412cf9cd46df2"}, "backend_first": {"all_decoded_raw_file_hashes_verified": true, "complete_raw_files": 371, "decoded_bytes": 1607629, "decoded_sha256": "bbd99363e3017c36384e5ad9b85c703cbbe45a706e4d05b6c3cc08a88f805a82"}, "frontend_payload": {"all_compressed_and_original_bytes_verified": true, "files": 44}, "production_invocation": {"complete_payload_refs_verified": true, "completed_analyzer_verdict": false, "exit_code": -9, "outcome": "ERROR"}, "root_final_payload": {"all_actual_bytes_verified": true, "files": 23}}
+current_142_received True all11_native_module_bytes_verified True
+supplement_bytes 169250 sha256 bc0107a4918efc95eafead120b81e0bdb53fce29a15d9d66d042dba5817e0ea1
+G_skeleton_bytes 9635

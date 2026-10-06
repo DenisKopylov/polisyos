@@ -1,0 +1,17 @@
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/STR-01' does not exist in '198076863e143dea9f89f02734b13d50dae3eed5'
+Traceback (most recent call last):
+  File "/workspace/e02-D2-receipts/criterion-accounting-final/build_supplement.py", line 229, in <module>
+    assert selected in blob(BASE, card_path), (identifier, card_path)
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D2-receipts/criterion-accounting-final/build_supplement.py", line 26, in blob
+    assert git('cat-file', '-t', f'{sha}:{path}').strip() == b'blob', (sha, path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D2-receipts/criterion-accounting-final/build_supplement.py", line 23, in git
+    return subprocess.check_output(['git', *args], cwd=REPO)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'cat-file', '-t', '198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/STR-01']' returned non-zero exit status 128.

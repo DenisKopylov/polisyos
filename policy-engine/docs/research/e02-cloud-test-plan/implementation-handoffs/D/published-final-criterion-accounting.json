@@ -1,0 +1,3997 @@
+{
+  "schema": "policyos.e02.D.final-criterion-accounting-supplement.v1",
+  "unit": "D",
+  "slice": "published-final-criterion-accounting",
+  "closure_ids": [],
+  "finding_ids": [
+    "B106",
+    "B107",
+    "B108",
+    "B109",
+    "B110",
+    "B111",
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B116",
+    "B117",
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B122",
+    "B123",
+    "B124",
+    "B125",
+    "B126",
+    "B127",
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136",
+    "B137",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165",
+    "B41",
+    "LA-014",
+    "LA-015"
+  ],
+  "role": "Independent criterion/owner/input/evidence accounting only. Reviewer authoredQ5; no independent self-review ofQ5 mechanism. No new backend/runtime execution.",
+  "final_freeze": {
+    "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+    "tree_sha": "e674e22edb8d94d47579326135a786c832402a15",
+    "original_243_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "production_source_tree": "ecb33f5d109f3c30ab5e9e59f1447d25cc8f5778",
+    "complete_production_path_count": 2910,
+    "production_bytes_unchanged": true,
+    "test_delta_paths": [
+      "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py"
+    ]
+  },
+  "preservation": "Append-only supplement. original243delta and original8cdsnapshot remain unchanged; their FAIL/ERROR/UNRUN and exact source/input scopes remain historical evidence.",
+  "canonical_inputs": {
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+      "bytes": 110393,
+      "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d"
+    }
+  },
+  "references": {
+    "original_243_delta": {
+      "source_sha": "fed62e39b486827f18bdfd5a9d7fc916ea58ecee",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting-delta.json",
+      "bytes": 71430,
+      "sha256": "1ee7e78810b9e79a7c352e87b1bad27d64c478d019f9069463df7af641c96ca1"
+    },
+    "original_8cd_snapshot": {
+      "source_sha": "42e37092fca0badd334784f498418e3132ccdfbc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting.json",
+      "bytes": 65594,
+      "sha256": "fd584877e971bbf1d64c348bbab7ac9f5da202737fe679fb4eedcfa81cd3e941"
+    },
+    "canonical_17": {
+      "source_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+      "bytes": 47439,
+      "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88"
+    },
+    "GP26": {
+      "source_sha": "a474ff675264e2264d24e49814f29d873320b1ee",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json",
+      "bytes": 9183,
+      "sha256": "e7cab3ad98416ee911148564f3e98fe58a534ce32857730b7e241ba631e60ceb"
+    },
+    "backend_first": {
+      "source_sha": "35ae64f34805395e29899898da79c769f31d336e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity-243.json",
+      "bytes": 65619,
+      "sha256": "feda42d12b265eaa18676f1f9d6427a8efc2169a170264a01751e962c91dd33b"
+    },
+    "backend_extension": {
+      "source_sha": "56708f9e38b44352e4e38ffe8808f1797764f3dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-extension-243.json",
+      "bytes": 17075,
+      "sha256": "c3fe8929022d3d3be87f8bd28bab0c1a6d2e6e4cb5338fbec3616b7b3a8295ab"
+    },
+    "frontend": {
+      "source_sha": "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-frontend-ci-243.json",
+      "bytes": 13225,
+      "sha256": "89eab51d784d1a124a47f6a98d2f029d2f4d9752a0d320ed0206796cea5395e8"
+    },
+    "production_invocation": {
+      "source_sha": "9465c74a4bc4bdc12b2901104c2d4478cec415a1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-production-invocation-final.json",
+      "bytes": 13981,
+      "sha256": "ba8e137bb4b38b66e3348a2145b028e7e3153435e251a4e486d1a3d221d71f0a"
+    },
+    "FUN03_fixture": {
+      "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration.json",
+      "bytes": 15992,
+      "sha256": "c5e96eb747dfcc9a8966ac3c90295c53ebb9530d2ead0046272c5fcd2f259180"
+    },
+    "root_final_two": {
+      "source_sha": "7602e3e259f6efdaa65104a90b77b6704c4326dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root-replay.json",
+      "bytes": 137229,
+      "sha256": "81ae16dcff4d9bb7203aff9e06f0ce8e4fca8a2fd1d6e4e72ddb177f5da79d27"
+    },
+    "current_142": {
+      "source_sha": "668df4bc66eede8ca285bb8bce231d5e94f8626a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent-review.json",
+      "bytes": 18548,
+      "sha256": "6eef8f6aeedc2ecf99d177f570822b19ee7c4b5873163fc6b086b824b372aba9"
+    },
+    "independent_final_payload_binding": {
+      "source_sha": "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-git-payload-binding-independent-review.json",
+      "bytes": 9309,
+      "sha256": "c979be8fa1402c2c8c0ddcbc56b6a9cb13e6acc27bf1530678ca8b4aeb16c12f"
+    },
+    "independent_final_fixtures": {
+      "source_sha": "4b9f7513aad779bef0bf895337bcd09c8d820e04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent.json",
+      "bytes": 12935,
+      "sha256": "1cea6585ad6ec2ecf9a0b77392e7060b85fd525598410a0e4eab722e0845e0f8"
+    },
+    "canonical_coverage": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+    }
+  },
+  "denominator": {
+    "findings": 45,
+    "bundles": 17,
+    "criterion_occurrences": 46,
+    "accounting_dispositions": {
+      "limited": 35,
+      "held": 7,
+      "open": 3
+    },
+    "closed": 0,
+    "canonical_statuses_not_rewritten": true,
+    "LA015": "Onefinding, two criterion occurrences. ClosureownerSRV-03; CTL-01 is supplier companion only."
+  },
+  "criterion_occurrences": [
+    {
+      "id": "B106@STR-01",
+      "finding_id": "B106",
+      "criterion_card": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-str-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2738,
+          2749
+        ],
+        "byte_offset": 614780,
+        "bytes": 2992,
+        "sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Изменение `collect_top_k` не изменяет итог той же серии. Десять проявлений одной проблемы и одно проявление не смешиваются. При нулевом количестве оценённых сценариев или непроверенных условиях score не должен выглядеть установленной устойчивостью. При адаптивном/раннем прекращении доля в обследованном наборе не является автоматически вероятностью отказа во всём пространстве.",
+        "byte_offset": 617064,
+        "bytes": 706,
+        "sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43"
+      },
+      "canonical_card_pointer": "/canonical_cards/STR-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/STR-01",
+      "missing_input_pointer": "/findings/0/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B107@STR-01",
+      "finding_id": "B107",
+      "criterion_card": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-str-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2750,
+          2761
+        ],
+        "byte_offset": 617772,
+        "bytes": 3238,
+        "sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Табличные контрпримеры для maximize-utility и minimize-cost, порога в обе стороны, отрицательных значений, отсутствующих/нечисленных результатов. Запись worst-case совпадает с определённым нарушением. Эта правка должна идти вместе с B106: правильный экстремум ещё не означает правильно посчитанную полноту/устойчивость.",
+        "byte_offset": 620436,
+        "bytes": 572,
+        "sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3"
+      },
+      "canonical_card_pointer": "/canonical_cards/STR-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/STR-01",
+      "missing_input_pointer": "/findings/1/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B108@OPT-01",
+      "finding_id": "B108",
+      "criterion_card": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2897,
+          2910
+        ],
+        "byte_offset": 647789,
+        "bytes": 3817,
+        "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Эквивалентные кодировки balance/deficit дают одинаковый score; ноль не считается отсутствием; полностью отсутствующее, конфликтующее, non-finite и несовместимые единицы различены. Настоящие симуляционные producer и пользовательский search здесь не запускались.",
+        "byte_offset": 651124,
+        "bytes": 480,
+        "sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142",
+        "root_final_two"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-01",
+      "missing_input_pointer": "/findings/2/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B109@OPT-01",
+      "finding_id": "B109",
+      "criterion_card": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2911,
+          2924
+        ],
+        "byte_offset": 651606,
+        "bytes": 4077,
+        "sha256": "817c0ddda8c8883a0b7cccb111a97d8c230dd67e9859a3fb1fba47553c1b402d"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Согласовать быстрый и прямой фронт для 1–4 измерений, перестановок входа, равенств одной/всех координат и обоих направлений после нормализации. Приведённый тестовый patch использует простой конечный контроль, не предлагается как production-оптимизация. Неправильный конечный выбор пользователя не измерялся; доказано расхождение данного математического helper.",
+        "byte_offset": 654995,
+        "bytes": 686,
+        "sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "root_final_two"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-01",
+      "missing_input_pointer": "/findings/3/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B110@OPT-01",
+      "finding_id": "B110",
+      "criterion_card": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2925,
+          2938
+        ],
+        "byte_offset": 655683,
+        "bytes": 3366,
+        "sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Фронт, его сериализация/round-trip и `is_dominated` дают одно отношение. Смена display-label не меняет решение; смена split не исчезает. Это локальная потеря семантики, а не доказательство, что все производственные policies сейчас имеют такие повторения.",
+        "byte_offset": 658592,
+        "bytes": 455,
+        "sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "root_final_two"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-01",
+      "missing_input_pointer": "/findings/4/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B111@OPT-01",
+      "finding_id": "B111",
+      "criterion_card": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2939,
+          2954
+        ],
+        "byte_offset": 659049,
+        "bytes": 4145,
+        "sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+        "byte_offset": 662708,
+        "bytes": 484,
+        "sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142",
+        "root_final_two"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-01",
+      "missing_input_pointer": "/findings/5/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B112@OPT-02",
+      "finding_id": "B112",
+      "criterion_card": "OPT-02",
+      "canonical_closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2955,
+          2968
+        ],
+        "byte_offset": 663194,
+        "bytes": 3667,
+        "sha256": "ebcbfcc121108068640bc1d871fd4f596f6fdd3c0e6c54203025810562dea15f"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Первый suggest при выбранном штатном SearchSpace проходит без ручного monkeypatch; категории/лог-шкалы round-trip; отсутствие optional stack честно различено. Не следует принимать fixture-контроль за доказательство работы реального Bayesian backend. Эта карточка о стыке, не об отсутствии оптимизатора в проекте.",
+        "byte_offset": 666318,
+        "bytes": 541,
+        "sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-02",
+      "missing_input_pointer": "/findings/6/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B113@OPT-02",
+      "finding_id": "B113",
+      "criterion_card": "OPT-02",
+      "canonical_closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2969,
+          2982
+        ],
+        "byte_offset": 666861,
+        "bytes": 3671,
+        "sha256": "1bd3fb58eb1fd1fbdc00d8a88c085a3c60b33ee11fab6f5e8c8c80c1c5d17115"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Разные физические параметры дают разные ожидаемые координаты; категориальные размеры корректны; полные IDs переживают сериализацию; отсутствие результата не становится нулём. Проверить оба формата истории и фактический caller. Измерение реального качества GP и конкретное downstream-стирание записи по короткому ID не выполнялись; показана потеря информации на самом adapter.",
+        "byte_offset": 669842,
+        "bytes": 688,
+        "sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-02",
+      "missing_input_pointer": "/findings/7/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B114@OPT-03",
+      "finding_id": "B114",
+      "criterion_card": "OPT-03",
+      "canonical_closure_owner": "OPT-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2983,
+          2996
+        ],
+        "byte_offset": 670532,
+        "bytes": 3409,
+        "sha256": "751ea1f4c2439927f429abb7d2be1bd0c15d45fd802529085431f219337fd766"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Один и тот же пригодный корпус, переданный целиком или через warm-start + новую часть, даёт согласованную обучающую выборку и план; отклонённые записи не исчезают без причины; идентичные артефакты не удваивают sample-count; намеренные независимые повторы остаются отдельными.",
+        "byte_offset": 673433,
+        "bytes": 506,
+        "sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-03",
+      "missing_input_pointer": "/findings/8/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B115@OPT-03",
+      "finding_id": "B115",
+      "criterion_card": "OPT-03",
+      "canonical_closure_owner": "OPT-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2997,
+          3010
+        ],
+        "byte_offset": 673941,
+        "bytes": 3548,
+        "sha256": "4d5afea998b22ec18956bf039ae38fd1751fe457a8994ce87161fa2fdac20872"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Проверить на настоящем SingleTaskGP сохранение learned parameters между разрешёнными refit, использование новых наблюдений, правильные transforms и version/shape; смена basis не маскируется повторным использованием. Замерить затраты отдельно от качества. Fixture theta не является найденным конкретным параметром настоящей модели.",
+        "byte_offset": 676923,
+        "bytes": 564,
+        "sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-03",
+      "missing_input_pointer": "/findings/9/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B116@OPT-04",
+      "finding_id": "B116",
+      "criterion_card": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-04",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3011,
+          3024
+        ],
+        "byte_offset": 677489,
+        "bytes": 3727,
+        "sha256": "3f04f3ddd1d21f7ffbea51147028ae51287460255c7b5dc52ad9a1b487e49f98"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Перепутанная пара A/B, чужой loop, неверный split и несовместимая suite не меняют pointer; одинаковая подтверждённая база допускает честное улучшение; ошибка возвращает конкретную несовместимость, а не общий low score. Проверить cache-replay оценки и штатный evaluator-to-registry путь.",
+        "byte_offset": 680728,
+        "bytes": 486,
+        "sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-04",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-04",
+      "missing_input_pointer": "/findings/10/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B117@OPT-04",
+      "finding_id": "B117",
+      "criterion_card": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-04",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3025,
+          3038
+        ],
+        "byte_offset": 681216,
+        "bytes": 3986,
+        "sha256": "716aa89ce5b68d85b0487a8509806214c17d261958740f7363c2228a033f924d"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Управляемая последовательность B/C не ухудшает лучший актуальный результат по одной принятой политике; conflicting predicate возвращается явно. Авария на границе публикации даёт старое или новое согласованное состояние. На production workload конкурентное обращение к этому registry не измерялось; карточка применима при разрешении нескольких писателей. Новый распределённый реестр ради одного локального сценария не нужен.",
+        "byte_offset": 684423,
+        "bytes": 777,
+        "sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-04",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-04",
+      "missing_input_pointer": "/findings/11/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B118@CTL-01",
+      "finding_id": "B118",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "CTL-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3164,
+          3177
+        ],
+        "byte_offset": 712429,
+        "bytes": 4038,
+        "sha256": "c92cdd35554b9006c3632ceb0314c7378ad6ab123b9abf3ce040c25f5ba12b90"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Два независимых run на одном владельце эквивалентны двум новым владельцам; первый результат не изменяется после второго; расходы и sentinels учитываются в своей области. Одновременные run на одном изменяемом контроллере либо поддержаны отдельным состоянием, либо прямо запрещены. Нынешний `SearchLoopRunner`, создающий свежий контроллер, может избегать этого сценария.",
+        "byte_offset": 715794,
+        "bytes": 671,
+        "sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/12/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B119@CTL-01",
+      "finding_id": "B119",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "CTL-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3178,
+          3191
+        ],
+        "byte_offset": 716467,
+        "bytes": 3659,
+        "sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Постоянная пустота заканчивается точным частичным результатом или exhaustion; временная пустота допускает ограниченный переход к настоящему кандидату; бюджет генерации и оплаченные внешние вызовы не теряются. Генератор с отменой и отказом должен сохранять свою причину остановки.",
+        "byte_offset": 719593,
+        "bytes": 531,
+        "sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/13/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B120@CTL-03",
+      "finding_id": "B120",
+      "criterion_card": "CTL-03",
+      "canonical_closure_owner": "CTL-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3192,
+          3205
+        ],
+        "byte_offset": 720126,
+        "bytes": 3460,
+        "sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Одна измеряемая трата видна владельцу, остановке и результату; нет двойного списания кэша и обнуления при retry. Внешняя независимая бюджетная защита может уже остановить соответствующий маршрут: опыт не доказывает обход всех ограничений PolicyOS.",
+        "byte_offset": 723119,
+        "bytes": 465,
+        "sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-03",
+      "missing_input_pointer": "/findings/14/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B121@CTL-03",
+      "finding_id": "B121",
+      "criterion_card": "CTL-03",
+      "canonical_closure_owner": "CTL-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3206,
+          3221
+        ],
+        "byte_offset": 723586,
+        "bytes": 3721,
+        "sha256": "b47c247722c53867b98ba5f11bf37fa25f5a904284cf2cabf99661c5347c5203"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Для явно объявленного бюджета новых оцениваний добавление пригодной истории не уменьшает его; контрольные вычисления расходуют ресурс, не становятся обучающими наблюдениями и не портят best/frontier. Проверяются комбинации с B118–B120.",
+        "byte_offset": 726866,
+        "bytes": 439,
+        "sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-03",
+      "missing_input_pointer": "/findings/15/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B122@STP-01",
+      "finding_id": "B122",
+      "criterion_card": "STP-01",
+      "canonical_closure_owner": "STP-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-stp-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3222,
+          3235
+        ],
+        "byte_offset": 727307,
+        "bytes": 3112,
+        "sha256": "d9413dc95965e6f0b64b056c37dd5a1452b59dd7605a5b9f033db4776ac50f9c"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Ноль, малые значения обоих знаков, регресс и реальный прогресс; критерий после нормализации согласован с направлением цели. Ранее полученный полезный результат сохраняется независимо от того, что следующий шаг остановлен как плато. Повышение терпения и увеличение числа прогонов не устраняют ошибку знака.",
+        "byte_offset": 729833,
+        "bytes": 584,
+        "sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e"
+      },
+      "canonical_card_pointer": "/canonical_cards/STP-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/STP-01",
+      "missing_input_pointer": "/findings/16/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B123@CTL-03",
+      "finding_id": "B123",
+      "criterion_card": "CTL-03",
+      "canonical_closure_owner": "CTL-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3236,
+          3249
+        ],
+        "byte_offset": 730419,
+        "bytes": 3954,
+        "sha256": "a36f027f31c7f0f4b9ff333811b9ecc4bb6a480853a13d7d026d2543593d9a95"
+      },
+      "canonical_content": {
+        "text": "**Не добавлять лишний всеобщий gate.** Корректный legacy-режим без typed-входа остаётся возможен. Использовать существующее разделение research/decision и типизированную диагностику; приведённые различия — требования к семантике, не новые обязательные статусы репозитория. Приёмка связывает сам resolver, реальный ObjectiveStack, потребителя best/frontier и последующую публикацию.",
+        "byte_offset": 733728,
+        "bytes": 643,
+        "sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-03",
+      "missing_input_pointer": "/findings/17/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B124@CTL-02",
+      "finding_id": "B124",
+      "criterion_card": "CTL-02",
+      "canonical_closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3250,
+          3263
+        ],
+        "byte_offset": 734373,
+        "bytes": 3809,
+        "sha256": "77a12566a323c32df2df5d2440997a01226630d79ef6fd1d1f5b939a3b1fa3c5"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Разные даты реального действия дают разные предметные ключи; только дата загрузки/trace не вызывает лишнее вычисление. Тестируется нормальная дедупликация одного и того же канонического входа и сохранение нескольких оценок/реплик. Перестановка полей JSON не меняет смысл, а временные данные не удаляются только по суффиксу имени.",
+        "byte_offset": 737560,
+        "bytes": 620,
+        "sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-02",
+      "missing_input_pointer": "/findings/18/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B125@CTL-02",
+      "finding_id": "B125",
+      "criterion_card": "CTL-02",
+      "canonical_closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3264,
+          3277
+        ],
+        "byte_offset": 738182,
+        "bytes": 3186,
+        "sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Полный persisted round-trip каждого поддерживаемого strategy-state, а не только `get_state/set_state` в одной памяти. Восстановленная следующая последовательность совпадает; повреждённое/чужое состояние не принимается; случайный поток независимой реплики остаётся независимым.",
+        "byte_offset": 740880,
+        "bytes": 486,
+        "sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-02",
+      "missing_input_pointer": "/findings/19/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B126@CTL-02",
+      "finding_id": "B126",
+      "criterion_card": "CTL-02",
+      "canonical_closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3278,
+          3291
+        ],
+        "byte_offset": 741368,
+        "bytes": 3791,
+        "sha256": "f05138039bb68e205dc185417722e7c5113d18276733c1e4f91577e83476e16d"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Одинаковый логический индекс после 1+1+… и пакетной подготовки, до/после checkpoint и при чтении уже известной точки. Без смены объявленного algorithm-version исходное исследование не меняется из-за способа заполнения кэша.",
+        "byte_offset": 744753,
+        "bytes": 404,
+        "sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-02",
+      "missing_input_pointer": "/findings/20/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B127@OPT-02",
+      "finding_id": "B127",
+      "criterion_card": "OPT-02",
+      "canonical_closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3292,
+          3305
+        ],
+        "byte_offset": 745159,
+        "bytes": 3837,
+        "sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Бинарные, integer, categorical и continuous параметры; две разные relaxed-точки с одним эффективным действием; разрешённые независимые реплики; исчерпанное конечное пространство. Проверить фактический адаптер Evaluation и pending/completed-учёт: upstream-канонизация может уже защищать отдельный путь, чего этот локальный опыт не устанавливает.",
+        "byte_offset": 748404,
+        "bytes": 590,
+        "sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-02",
+      "missing_input_pointer": "/findings/21/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B128@TRN-01",
+      "finding_id": "B128",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3417,
+          3430
+        ],
+        "byte_offset": 773355,
+        "bytes": 4127,
+        "sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** реальный сохранённый Evaluation проходит существующий мост без ручного monkeypatch; несовместимая запись различается с действительно пустой историей; количество принятых, отклонённых и недоступных записей согласовано. Конструктор нельзя исправлять отдельно от B130–B132: сейчас эта ошибка маскирует последующие дефекты отбора и смысла.",
+        "byte_offset": 776394,
+        "bytes": 619,
+        "sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-01",
+      "missing_input_pointer": "/findings/22/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B129@TRN-02",
+      "finding_id": "B129",
+      "criterion_card": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3431,
+          3444
+        ],
+        "byte_offset": 777482,
+        "bytes": 3983,
+        "sha256": "b84b680f12b3c9e1226bfe1f0db09c0afb8b4cc338bb20d850188be0ef1fc32b"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** история, найденная в индексе размером более 1000, читается без второго ANN; изменение `top_k` discovery не меняет адресуемость уже выбранного артефакта; повреждённая ссылка не подменяется другой похожей историей. Строгие фильтры применимости учитывать до окончательного лимита, но не смешивать их с адресным чтением.",
+        "byte_offset": 780379,
+        "bytes": 582,
+        "sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-02",
+      "missing_input_pointer": "/findings/23/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B130@TRN-01",
+      "finding_id": "B130",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3445,
+          3458
+        ],
+        "byte_offset": 781465,
+        "bytes": 3702,
+        "sha256": "9f18f5b71de39a4ca820a167f74bf206775f04050db33327aa6ccd6525dca4e7"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** минимум и максимум исходных целей после нормализации приводят к правильному порядку; полные равенства не создают ложных различий; ограничение объёма не превышается, а свободная квота заполняется согласно объявленной политике. Миграция старого корпуса должна установить значение scalar, не угадывать его по имени.",
+        "byte_offset": 784342,
+        "bytes": 593,
+        "sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-01",
+      "missing_input_pointer": "/findings/24/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B131@TRN-01",
+      "finding_id": "B131",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3459,
+          3472
+        ],
+        "byte_offset": 785167,
+        "bytes": 4079,
+        "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** различающиеся пространства не считаются численно тождественными; разрешённый адаптер преобразует действительные параметры; несовместимая оценка остаётся доступной как идея с ограничением. Новая версия данных может требовать переоценки, но не полного запрета межзадачного обучения. Проверить tenant/split у действительного владельца, а не доверять тексту метаданных.",
+        "byte_offset": 788048,
+        "bytes": 691,
+        "sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-01",
+      "missing_input_pointer": "/findings/25/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B132@TRN-01",
+      "finding_id": "B132",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3473,
+          3486
+        ],
+        "byte_offset": 789246,
+        "bytes": 3673,
+        "sha256": "53d130ee4cb74e9043c80076be6e6c123789c8d6d9de51e7105c1901f1243894"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** разные кандидаты сохраняют разные настоящие ссылки; координаты не попадают в метрики; direction round-trip не меняет смысл; отсутствующий holdout остаётся отсутствующим; nonpromotable продолжает действовать. Прежние placeholder-записи не повышать автоматически при миграции.",
+        "byte_offset": 791900,
+        "bytes": 482,
+        "sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-01",
+      "missing_input_pointer": "/findings/26/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B133@TRN-02",
+      "finding_id": "B133",
+      "criterion_card": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3487,
+          3500
+        ],
+        "byte_offset": 792919,
+        "bytes": 3384,
+        "sha256": "8c7d3f2d133708780969d4ad10524a5cf9b461acb4d24117f4bb39506962890a"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** новый допустимый snapshot одинаково читается холодным и тёплым путями; replay конкретной старой ссылки остаётся старым; мутация потребителя не меняет общий результат; ограничение памяти не скрывает действительный артефакт. B129 должен передать точную ссылку, иначе этот ремонт останется неполным.",
+        "byte_offset": 795310,
+        "bytes": 552,
+        "sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-02",
+      "missing_input_pointer": "/findings/27/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B134@TRN-02",
+      "finding_id": "B134",
+      "criterion_card": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3501,
+          3514
+        ],
+        "byte_offset": 796303,
+        "bytes": 4534,
+        "sha256": "c877d26c3cb5a8d078a8e40b23e6d1bf3cf5ff5844a4357b08db2f8fb447cd3e"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** отказ добавления не портит старые запросы; failed load оставляет прежнее полностью согласованное поколение; загрузка без нужных bytes не публикуется частично; проверены capacity, неверная форма и настоящие нативные исключения. Resize допустим только внутри выделенного ресурса. Не снимать лимиты и не перестраивать весь индекс на каждом нормальном запросе.",
+        "byte_offset": 799747,
+        "bytes": 651,
+        "sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-02",
+      "missing_input_pointer": "/findings/28/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B135@TRN-03",
+      "finding_id": "B135",
+      "criterion_card": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3515,
+          3528
+        ],
+        "byte_offset": 800837,
+        "bytes": 3204,
+        "sha256": "2616ea6686a29681f5379ae2e54588f2a82afd9882dd1909aa261ee5990ed1e7"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** вложенный объект, сериализованный объект и равнозначные явные поля ведут к одному эффективному предметному контексту; настоящее разрешённое override работает; невалидный base имеет адресный результат; isolated-fallback остаётся для действительно неизвестной области.",
+        "byte_offset": 803219,
+        "bytes": 490,
+        "sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-03",
+      "missing_input_pointer": "/findings/29/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B136@TRN-03",
+      "finding_id": "B136",
+      "criterion_card": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3529,
+          3542
+        ],
+        "byte_offset": 804041,
+        "bytes": 3976,
+        "sha256": "1182d49f6e0f40a47b62e7bfe488d75ff540516f4ba6f022cbedba1340c60deb"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** переданный threshold и trust-filter соблюдаются независимо от маршрута; локальный промах не меняет требования; действительно допустимая transferred-карточка возвращается; несоответствующая не материализуется зря. Проверить source_run_id и политику частичного ответа, не только два численных примера.",
+        "byte_offset": 807152,
+        "bytes": 535,
+        "sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-03",
+      "missing_input_pointer": "/findings/30/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B137@TRN-03",
+      "finding_id": "B137",
+      "criterion_card": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-trn-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3543,
+          3556
+        ],
+        "byte_offset": 808017,
+        "bytes": 4247,
+        "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** любое число обычных чтений не повышает доверие; настоящая разрешённая ревалидация создаёт новую версию с новыми основаниями; повторный холодный и тёплый запрос дают одинаковую содержательную степень актуальности. Retention может учитывать популярность, evidence sufficiency — нет. Проверить восстановление после restart и перенос, а не только пару запросов в одной памяти.",
+        "byte_offset": 811080,
+        "bytes": 676,
+        "sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f"
+      },
+      "canonical_card_pointer": "/canonical_cards/TRN-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/TRN-03",
+      "missing_input_pointer": "/findings/31/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B156@FUN-01",
+      "finding_id": "B156",
+      "criterion_card": "FUN-01",
+      "canonical_closure_owner": "FUN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4105,
+          4116
+        ],
+        "byte_offset": 945137,
+        "bytes": 3951,
+        "sha256": "88bc80dd038085f5bdb4e2715279d0cc6a06fa677d318e847dc00614e6a56ca0"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** одинаковый эффективный запрос переиспользует результат; новая версия входа не получает старый score; новый независимый контроль действительно исполняется; история обычной попытки не изменяется. Приоритет высокий на stateful-маршруте, сложность средняя. Связь: B60–B61, B118, B127; здесь другой владелец и непосредственная связь Stage A/B.",
+        "byte_offset": 948475,
+        "bytes": 611,
+        "sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-01",
+      "missing_input_pointer": "/findings/32/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B157@FUN-02",
+      "finding_id": "B157",
+      "criterion_card": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4117,
+          4128
+        ],
+        "byte_offset": 949088,
+        "bytes": 3269,
+        "sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** сравнить прямую L4 с L3→L4 на одном исходном запросе; effective full-конфигурация и допустимые выходы должны совпасть, caller-context неизменен, L3 действительно остаётся более дешёвым. Не выключать L3 и не запускать всё в максимальной точности. Приоритет высокий на соответствующем пути; локальная правка с небольшим объёмом. Связь B59/B96 — общая причина aliasing, но здесь затронута достоверность названия fidelity.",
+        "byte_offset": 951621,
+        "bytes": 734,
+        "sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-02",
+      "missing_input_pointer": "/findings/33/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B158@FUN-01",
+      "finding_id": "B158",
+      "criterion_card": "FUN-01",
+      "canonical_closure_owner": "FUN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4129,
+          4140
+        ],
+        "byte_offset": 952357,
+        "bytes": 3201,
+        "sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** единый и раздельный вызовы на неизменных входах дают одинаковый набор разрешённых вычислений, расходы и причины остановки. На изменённых входах фиксируется необходимое различие. Опыт использует scheduler-фикстуру, не доказывает обход внешнего бюджета или полномочий. Приоритет высокий, сложность небольшая/средняя; связь B120: допуск расхода не зависит от формы обращения.",
+        "byte_offset": 954860,
+        "bytes": 696,
+        "sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-01",
+      "missing_input_pointer": "/findings/34/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B159@FUN-01",
+      "finding_id": "B159",
+      "criterion_card": "FUN-01",
+      "canonical_closure_owner": "FUN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4141,
+          4152
+        ],
+        "byte_offset": 955558,
+        "bytes": 3330,
+        "sha256": "d079d053de81c0e87ac40adcb2b25c4d1b5ed34f95636412a1abec5c629e0696"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** повтор без новых оснований не расходует ресурс; разрешённое изменение создаёт проверяемое продолжение; постоянный blocker не исчезает; lineage и расходы сохраняются. Приоритет высокий для итеративного исследования; сложность средняя. Это расширение способности продолжать работу, не ослабление критерия её допустимости. Связь B09/B12/B118: содержательное продолжение, получение нового основания и отдельный запуск.",
+        "byte_offset": 958121,
+        "bytes": 765,
+        "sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-01",
+      "missing_input_pointer": "/findings/35/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B160@FUN-02",
+      "finding_id": "B160",
+      "criterion_card": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4153,
+          4164
+        ],
+        "byte_offset": 958888,
+        "bytes": 3102,
+        "sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** обе пустые конфигурации возвращают неоценённость без положительного score; настоящий ноль от выполненного корректного метода сохраняется; маршруты с разрешённым малым числом стадий работают. Прямой исход в лабораторных адаптерах не доказывает признания публикации настоящим владельцем. Приоритет высокий для первого сквозного теста, локальный ремонт. Связь B108/B123 — другой источник ложного положительного результата.",
+        "byte_offset": 961198,
+        "bytes": 790,
+        "sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-02",
+      "missing_input_pointer": "/findings/36/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B161@FUN-03",
+      "finding_id": "B161",
+      "criterion_card": "FUN-03",
+      "canonical_closure_owner": "FUN-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4165,
+          4176
+        ],
+        "byte_offset": 961990,
+        "bytes": 3383,
+        "sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** разрешённое уточнение действительно меняет текущий результат; независимый высокий риск не затирается; другая популяция не замещает прежнюю неизвестность. Здесь доказано расхождение агрегата и последней стадии; конкретный downstream-отказ из-за него не воспроизведён. Приоритет по фактическому потребителю, сложность средняя. Связь S03/S08 и B137 — различие изменения знания и простого обращения к истории.",
+        "byte_offset": 964619,
+        "bytes": 752,
+        "sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "FUN03_fixture",
+        "root_final_two"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-03",
+      "missing_input_pointer": "/findings/37/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B162@FUN-02",
+      "finding_id": "B162",
+      "criterion_card": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4177,
+          4188
+        ],
+        "byte_offset": 965373,
+        "bytes": 3199,
+        "sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** ошибочный, отсутствующий и действительный нулевой вход различимы; правильный конечный интервал сохраняет расчёт; остальные доступные результаты не теряются. Переход в настоящую публикацию не проверялся. Приоритет высокий на этом адаптере, локальный ремонт. Связь B105: здесь другой конкретный переход потери смысла uncertainty.",
+        "byte_offset": 967958,
+        "bytes": 612,
+        "sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-02",
+      "missing_input_pointer": "/findings/38/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B163@FUN-03",
+      "finding_id": "B163",
+      "criterion_card": "FUN-03",
+      "canonical_closure_owner": "FUN-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4189,
+          4200
+        ],
+        "byte_offset": 968572,
+        "bytes": 3310,
+        "sha256": "0c5055c18e4bbfb9bc2ed8cbc6904766eb95627e736de08f4084a90fb2be8ba5"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** оба публичных интерфейса согласованы; пустой и статистически плохой корпуса различимы; ограничения публикации не снимаются ради зелёного статуса; совместимая калибровка переиспользуется. Подключение node статически прочитано, полный runtime не запущен. Приоритет высокий на новом/восстановленном tracker; сложность небольшая/средняя. Связь B114/B137 — нужное прошлое не теряется и не становится новым доказательством без оснований.",
+        "byte_offset": 971083,
+        "bytes": 797,
+        "sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "FUN03_fixture",
+        "root_final_two"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-03",
+      "missing_input_pointer": "/findings/39/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B164@FUN-03",
+      "finding_id": "B164",
+      "criterion_card": "FUN-03",
+      "canonical_closure_owner": "FUN-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4201,
+          4212
+        ],
+        "byte_offset": 971882,
+        "bytes": 3528,
+        "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** ограниченный режим не вызывает запрещённый producer; нормальный режим сохраняет работу; готовый результат доступен по своей политике; потеря разрешения перед commit обнаруживается владельцем. Реальная авторизация, запись в реестр и публикация не исполнялись, поэтому обход системных полномочий не заявлен. Приоритет высокий для callback-пути, локальный preflight плюс согласование владельца. Связь B78/B117 — иной участок границы решения и эффекта.",
+        "byte_offset": 974595,
+        "bytes": 813,
+        "sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "FUN03_fixture",
+        "root_final_two"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-03",
+      "missing_input_pointer": "/findings/40/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B165@FUN-02",
+      "finding_id": "B165",
+      "criterion_card": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4213,
+          4224
+        ],
+        "byte_offset": 975410,
+        "bytes": 3244,
+        "sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** наличие или отсутствие промежуточного необязательного verdict не меняет сводное состояние при одном исходе. Реальный score сохранён, полномочия не повышены, consumers не выбирают случайно удобное поле. Интеграция всех потребителей Stage B не запускалась. Приоритет высокий перед внешним представлением результата; сложность небольшая/средняя. Связь B123/B160: здесь потеря именно агрегированного решения после выполненной стадии.",
+        "byte_offset": 977869,
+        "bytes": 783,
+        "sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e"
+      },
+      "canonical_card_pointer": "/canonical_cards/FUN-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/FUN-02",
+      "missing_input_pointer": "/findings/41/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "B41@STP-01",
+      "finding_id": "B41",
+      "criterion_card": "STP-01",
+      "canonical_closure_owner": "STP-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-stp-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          770,
+          783
+        ],
+        "byte_offset": 157036,
+        "bytes": 3079,
+        "sha256": "e1f40309a038a4a6b1e8e41e5c6aca361111791be6f58a32d8f4ccd8812d680a"
+      },
+      "canonical_content": {
+        "text": "**Проверка:** отказ/отсутствие текущего embedding не создаёт semantic-convergence; корректные одинаковые текущие векторы дают соответствующий ограниченный результат; другая размерность/версия embedding не сравнивается без совместимости. Приоритет условный до подтверждения использования detector в нужном пользовательском пути.",
+        "byte_offset": 159547,
+        "bytes": 566,
+        "sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937"
+      },
+      "canonical_card_pointer": "/canonical_cards/STP-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/STP-01",
+      "missing_input_pointer": "/findings/42/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "finding_id": "LA-014",
+      "criterion_card": "SRV-01",
+      "canonical_closure_owner": "SRV-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          455,
+          481
+        ],
+        "byte_offset": 52637,
+        "bytes": 2835,
+        "sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.",
+        "byte_offset": 54712,
+        "bytes": 284,
+        "sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-01",
+      "missing_input_pointer": "/findings/43/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "finding_id": "LA-015",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "SRV-03",
+      "role": "supplier_companion_only",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "finding_id": "LA-015",
+      "criterion_card": "SRV-03",
+      "canonical_closure_owner": "SRV-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-03",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-03",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs"
+    }
+  ],
+  "findings": [
+    {
+      "id": "B106",
+      "queue": 5,
+      "canonical_closure_owner": "STR-01",
+      "criterion_occurrences": [
+        "B106@STR-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/0",
+      "historical_owner_mechanism_keys": [
+        "q5_owner",
+        "q4_independent"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Observed finite sample fraction is not population probability or model uncertainty; empirical completeness requires its declared scenario/profile input.",
+      "unreceived_inputs_or_APIs": {
+        "empirical_scenario_profile_ref": null,
+        "full_empirical_attempt_series_ref": null
+      },
+      "next_owner": "STR-01 verification owner / scenario-profile supplier / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/16/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B107",
+      "queue": 5,
+      "canonical_closure_owner": "STR-01",
+      "criterion_occurrences": [
+        "B107@STR-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/1",
+      "historical_owner_mechanism_keys": [
+        "q5_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "No runtime for unreceived production/historical backend inputs or empirical stress-search quality is inferred.",
+      "unreceived_inputs_or_APIs": {
+        "production_objective_direction_profile_ref": null,
+        "empirical_stress_search_backend_ref": null
+      },
+      "next_owner": "STR-01 verification owner / scenario-profile supplier / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/17/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B108",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "criterion_occurrences": [
+        "B108@OPT-01"
+      ],
+      "accounting_disposition": "held",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/2",
+      "historical_owner_mechanism_keys": [
+        "q1_scalar_correction"
+      ],
+      "historical_corrective_keys": [
+        "oracle"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142",
+        "root_final_two"
+      ],
+      "remaining_input_or_consumer": "Owner-declared fiscal units and served owner input remain absent. Current3f38 native-controller10+fiscal30 execution resolves the older425 joined-source gap for exactly those unchanged controls; finalOPT01 independently receives75PASS. Neither appoints units, source-universe law or unreceived empirical input.",
+      "unreceived_inputs_or_APIs": {
+        "served_fiscal_metric_source_ref": null,
+        "owner_declared_fiscal_unit_profile_ref": null
+      },
+      "next_owner": "Fiscal metric/input owner / search_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/18/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B109",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "criterion_occurrences": [
+        "B109@OPT-01"
+      ],
+      "accounting_disposition": "open",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/3",
+      "historical_owner_mechanism_keys": [
+        "q1_pareto"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "root_final_two"
+      ],
+      "remaining_input_or_consumer": "A-owned frontier export patch is UNAPPLIED, provider ABSENT and dependency runtime FAIL in q1_pareto. Resolve the actual provider/export route before declaring that route accepted.",
+      "unreceived_inputs_or_APIs": {
+        "A_frontier_provider_minref": null,
+        "A_frontier_export_API": null
+      },
+      "next_owner": "A frontier provider/export owner / search_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/19/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B110",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "criterion_occurrences": [
+        "B110@OPT-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/4",
+      "historical_owner_mechanism_keys": [
+        "q1_pareto"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "root_final_two"
+      ],
+      "remaining_input_or_consumer": "Historical selector reconciliation and appointed coordinate conventions remain separate; high-dimensional approximation is not exact hypervolume.",
+      "unreceived_inputs_or_APIs": {
+        "appointed_coordinate_unit_profile_ref": null,
+        "historical_selector_reconciliation_ref": null
+      },
+      "next_owner": "OPT-01 verification owner / coordinate-profile owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/21/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B111",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-01",
+      "criterion_occurrences": [
+        "B111@OPT-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/5",
+      "historical_owner_mechanism_keys": [
+        "q1_pareto",
+        "q3_owner"
+      ],
+      "historical_corrective_keys": [
+        "oracle"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142",
+        "root_final_two"
+      ],
+      "remaining_input_or_consumer": "FinalOPT01 receives75PASS including raw-CAS malformed/nonfinite consumer fixtures. Current3f38 native-controller10+fiscal30 independently receives40PASS; former425 controller/service differences are resolved by actual current execution for these inputs. A assessment eligibility/denominator/scientific basis remains unreceived.",
+      "unreceived_inputs_or_APIs": {
+        "A_assessment_eligibility_denominator_ref": null,
+        "A_scientific_basis_appointment_ref": null
+      },
+      "next_owner": "search_owner / gp_witness / A assessment producer / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/22/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B112",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-02",
+      "criterion_occurrences": [
+        "B112@OPT-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/6",
+      "historical_owner_mechanism_keys": [
+        "q1_state",
+        "q1_continuation"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "remaining_input_or_consumer": "All-strategy/deployed caller identity and unsupported legacy GP/RL profiles are not established by this state slice.",
+      "unreceived_inputs_or_APIs": {
+        "all_supported_strategy_checkpoint_profiles_ref": null,
+        "deployed_strategy_factory_ref": null
+      },
+      "next_owner": "OPT-02 verification owner / strategy-profile owners / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/23/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B113",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-02",
+      "criterion_occurrences": [
+        "B113@OPT-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/7",
+      "historical_owner_mechanism_keys": [
+        "q1_continuation",
+        "q1_executed"
+      ],
+      "historical_corrective_keys": [
+        "receiver"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "remaining_input_or_consumer": "Current243 GP26 now includes independent physical-coordinate/posterior controls and genuine nativeCAS positive8/7-row workflow; malformed stage primitive refusal remains received. Live observation truth and unreceived complete empirical profile remain separate.",
+      "unreceived_inputs_or_APIs": {
+        "live_observation_issuer_ref": null,
+        "complete_empirical_coordinate_profile_ref": null
+      },
+      "next_owner": "search_owner / transfer_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/24/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B114",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-03",
+      "criterion_occurrences": [
+        "B114@OPT-03"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/8",
+      "historical_owner_mechanism_keys": [
+        "q1_warm_content",
+        "q1_reader",
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [
+        "receiver"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "remaining_input_or_consumer": "Current243 nativeCAS workflow actually fits8 ordinary or7 legitimate-false-outcome-excluded rows, reopens native strategy-state CAS and verifies posterior parity; malformed whole-corpus negative retains zero-fit evidence. Live history issuer and unreceived full empirical corpus remain absent.",
+      "unreceived_inputs_or_APIs": {
+        "live_history_issuer_ref": null,
+        "unreceived_empirical_training_corpus_ref": null
+      },
+      "next_owner": "search_owner / transfer_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/25/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B115",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-03",
+      "criterion_occurrences": [
+        "B115@OPT-03"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/9",
+      "historical_owner_mechanism_keys": [
+        "q1_continuation",
+        "q1_warm_content",
+        "q1_gp_independent",
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "remaining_input_or_consumer": "Current243 independent analytic/nativeCAS26 now verifies genuine fitted transforms, conditioning/refit cadence and content-bound restore; no empirical optimization-quality benefit or unsupported legacy profile equivalence is inferred.",
+      "unreceived_inputs_or_APIs": {
+        "unsupported_legacy_GP_RL_profile_ref": null,
+        "empirical_optimization_quality_input_ref": null
+      },
+      "next_owner": "OPT-03 verification owner / search_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/26/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B116",
+      "queue": 3,
+      "canonical_closure_owner": "OPT-04",
+      "criterion_occurrences": [
+        "B116@OPT-04"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/10",
+      "historical_owner_mechanism_keys": [
+        "q3_owner",
+        "q3_independent"
+      ],
+      "historical_corrective_keys": [
+        "receiver"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Preserved-basis raw metric/count/guard primitive controls refuse atc812. CanonicalOPT04 actually28PASS at243 with final unchanged-input lineage; active-context paired comparison and predecessor/race proofs remain individually pinned. Conditional analytic descriptors do not appoint institutional source/split rights or a scientific evaluator.",
+      "unreceived_inputs_or_APIs": {
+        "institutional_source_split_rights_ref": null,
+        "scientific_evaluator_appointment_ref": null
+      },
+      "next_owner": "gp_witness / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/27/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B117",
+      "queue": 3,
+      "canonical_closure_owner": "OPT-04",
+      "criterion_occurrences": [
+        "B117@OPT-04"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/11",
+      "historical_owner_mechanism_keys": [
+        "q3_owner",
+        "q3_independent"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Evidence is bounded to local POSIX concurrency/fault injection/fresh reader; real process-kill/power-loss or distributed guarantees are not established.",
+      "unreceived_inputs_or_APIs": {
+        "distributed_lock_persistence_profile_ref": null,
+        "real_process_kill_power_loss_receipt_ref": null
+      },
+      "next_owner": "OPT-04 verification owner / registry boundary owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/28/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B118",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-01",
+      "criterion_occurrences": [
+        "B118@CTL-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/12",
+      "historical_owner_mechanism_keys": [
+        "q4_owner",
+        "q3_lifecycle"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Deployed caller census and finding-level lifecycle acceptance remain separate from repeated-run fixtures.",
+      "unreceived_inputs_or_APIs": {
+        "deployed_factory_caller_census_ref": null
+      },
+      "next_owner": "SRV lifecycle owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/29/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B119",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-01",
+      "criterion_occurrences": [
+        "B119@CTL-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/13",
+      "historical_owner_mechanism_keys": [
+        "q4_owner",
+        "q3_lifecycle"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Finite empty-supplier mechanisms are bounded controls, not exhaustive future supplier behavior.",
+      "unreceived_inputs_or_APIs": {
+        "future_empty_supplier_contract_ref": null
+      },
+      "next_owner": "CTL-01 verification owner / native supplier owners / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/30/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B120",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-03",
+      "criterion_occurrences": [
+        "B120@CTL-03"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/14",
+      "historical_owner_mechanism_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "historical_corrective_keys": [
+        "Gateway_red",
+        "Gateway_green",
+        "Gateway_owner_corrective"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142"
+      ],
+      "remaining_input_or_consumer": "Current3f38 actual Gateway/parser/enforcer/middleware/ledger98+nonzero-underflow4 controls receive102PASS; prior90FAIL8PASS and range4FAIL remain historical red. Provider-reported fixture receipts do not establish external invoice truth, numerical-resource costs or deployed factory scope.",
+      "unreceived_inputs_or_APIs": {
+        "external_billing_reconciliation_ref": null,
+        "numerical_resource_charge_profile_ref": null,
+        "deployed_native_factory_ref": null
+      },
+      "next_owner": "funnel_owner / resource cost-intake owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/32/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B121",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-03",
+      "criterion_occurrences": [
+        "B121@CTL-03"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/15",
+      "historical_owner_mechanism_keys": [
+        "q4_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Caller/profile-specific counting and transfer admission remain bounded; no whole deployed execution census is inferred.",
+      "unreceived_inputs_or_APIs": {
+        "served_budget_counter_profile_ref": null,
+        "complete_deployed_counter_caller_census_ref": null
+      },
+      "next_owner": "CTL-03 verification owner / native caller-profile owners / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/33/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B122",
+      "queue": 5,
+      "canonical_closure_owner": "STP-01",
+      "criterion_occurrences": [
+        "B122@STP-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/16",
+      "historical_owner_mechanism_keys": [
+        "q5_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Absent units do not establish convergence; converted/custom coefficients are not canonical1.0 equivalence without that declared profile.",
+      "unreceived_inputs_or_APIs": {
+        "live_objective_declared_unit_ref": null,
+        "live_plateau_coefficient_profile_ref": null
+      },
+      "next_owner": "STP-01 verification owner / objective-unit/profile supplier / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/34/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B123",
+      "queue": 4,
+      "canonical_closure_owner": "CTL-03",
+      "criterion_occurrences": [
+        "B123@CTL-03"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/17",
+      "historical_owner_mechanism_keys": [
+        "q4_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "An unsupported schema/profile must be supplied explicitly; no fabricated typed schema or universal legacy removal is asserted.",
+      "unreceived_inputs_or_APIs": {
+        "unsupported_typed_result_schema_ref": null,
+        "downstream_publication_consumer_ref": null
+      },
+      "next_owner": "CTL-03 verification owner / typed result producer / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/35/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B124",
+      "queue": 1,
+      "canonical_closure_owner": "CTL-02",
+      "criterion_occurrences": [
+        "B124@CTL-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/18",
+      "historical_owner_mechanism_keys": [
+        "q1_state",
+        "q1_continuation"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Full candidate-profile/deployed canonicalization acceptance remains separate from bounded nested-date cases.",
+      "unreceived_inputs_or_APIs": {
+        "deployed_candidate_canonicalization_profile_ref": null
+      },
+      "next_owner": "CTL-02 verification owner / candidate-schema owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/36/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B125",
+      "queue": 1,
+      "canonical_closure_owner": "CTL-02",
+      "criterion_occurrences": [
+        "B125@CTL-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/19",
+      "historical_owner_mechanism_keys": [
+        "q1_state",
+        "q1_continuation"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Unsupported RL profiles are refused; no arbitrary external RNG/backend checkpoint equivalence is claimed.",
+      "unreceived_inputs_or_APIs": {
+        "external_RNG_checkpoint_profile_ref": null,
+        "unsupported_RL_checkpoint_profile_ref": null
+      },
+      "next_owner": "CTL-02 verification owner / strategy-profile owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/37/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B126",
+      "queue": 1,
+      "canonical_closure_owner": "CTL-02",
+      "criterion_occurrences": [
+        "B126@CTL-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/20",
+      "historical_owner_mechanism_keys": [
+        "q1_state",
+        "q1_continuation"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Unreceived backend/profile variants require their own exact checkpoint inputs; no cross-version equivalence is inferred.",
+      "unreceived_inputs_or_APIs": {
+        "unreceived_versioned_backend_checkpoint_input_ref": null
+      },
+      "next_owner": "CTL-02 verification owner / backend-profile owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/38/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B127",
+      "queue": 1,
+      "canonical_closure_owner": "OPT-02",
+      "criterion_occurrences": [
+        "B127@OPT-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/21",
+      "historical_owner_mechanism_keys": [
+        "q1_executed",
+        "q1_continuation"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Complete MO/NN checkpoint replay and deployed adapters are not established by the executed-coordinate slice.",
+      "unreceived_inputs_or_APIs": {
+        "complete_MO_NN_checkpoint_profile_ref": null,
+        "deployed_discrete_execution_adapter_ref": null
+      },
+      "next_owner": "OPT-02 verification owner / MO/NN adapter owners / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/39/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B128",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "criterion_occurrences": [
+        "B128@TRN-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/22",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [
+        "receiver"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "remaining_input_or_consumer": "Current243 actual HNSW/CAS to SearchLoopRunner/BGC to genuineGP positive8/7 rows is received, with malformed primitive whole-corpus refusal separately retained. Live history issuer remains absent.",
+      "unreceived_inputs_or_APIs": {
+        "live_history_issuer_ref": null
+      },
+      "next_owner": "transfer_owner / search_owner / live history issuer / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/40/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B129",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-02",
+      "criterion_occurrences": [
+        "B129@TRN-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/23",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "remaining_input_or_consumer": "Second-process pinned snapshot and live history availability are not asserted by local exact-ref controls.",
+      "unreceived_inputs_or_APIs": {
+        "live_history_availability_ref": null,
+        "second_process_pinned_snapshot_receipt_ref": null
+      },
+      "next_owner": "TRN-02 verification owner / history availability owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/41/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B130",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "criterion_occurrences": [
+        "B130@TRN-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/24",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "remaining_input_or_consumer": "No acceleration or optimization-quality benefit follows from transfer ordering alone.",
+      "unreceived_inputs_or_APIs": {
+        "empirical_transfer_optimization_quality_ref": null
+      },
+      "next_owner": "TRN-01 verification owner / numerical-profile owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/43/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B131",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "criterion_occurrences": [
+        "B131@TRN-01"
+      ],
+      "accounting_disposition": "held",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/25",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [
+        "receiver"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "remaining_input_or_consumer": "Institutional tenant, split and source-access owner authorization is absent; technical labels do not appoint it.",
+      "unreceived_inputs_or_APIs": {
+        "institutional_tenant_source_access_ref": null,
+        "authorized_split_owner_ref": null
+      },
+      "next_owner": "Institutional source-access/split owner / transfer_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/44/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B132",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-01",
+      "criterion_occurrences": [
+        "B132@TRN-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/26",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "remaining_input_or_consumer": "Live benchmark issuer is missing; no fabricated holdout or promotion authority is created.",
+      "unreceived_inputs_or_APIs": {
+        "live_benchmark_issuer_ref": null,
+        "authorized_holdout_input_ref": null
+      },
+      "next_owner": "Benchmark/input issuer / transfer_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/45/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B133",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-02",
+      "criterion_occurrences": [
+        "B133@TRN-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/27",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Local history cache is not a principal/latest distributed pointer; owner-authorized live history remains separate.",
+      "unreceived_inputs_or_APIs": {
+        "distributed_latest_history_pointer_contract_ref": null,
+        "owner_authorized_live_history_ref": null
+      },
+      "next_owner": "TRN-02 verification owner / history issuer / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/46/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B134",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-02",
+      "criterion_occurrences": [
+        "B134@TRN-02"
+      ],
+      "accounting_disposition": "held",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/28",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Live owner-issued generation metadata and second-process scope remain unestablished.",
+      "unreceived_inputs_or_APIs": {
+        "live_generation_metadata_issuer_ref": null,
+        "second_process_generation_receipt_ref": null
+      },
+      "next_owner": "Index-generation metadata owner / transfer_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/47/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B135",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-03",
+      "criterion_occurrences": [
+        "B135@TRN-03"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/29",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Task-family/domain labels do not establish authorization or arbitrary invalid-base/override profile behavior.",
+      "unreceived_inputs_or_APIs": {
+        "authorized_task_context_profile_ref": null,
+        "arbitrary_invalid_override_profile_ref": null
+      },
+      "next_owner": "TRN-03 verification owner / context-profile owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/48/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B136",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-03",
+      "criterion_occurrences": [
+        "B136@TRN-03"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/30",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Tenant labels and shared filtering are not institutional access authority.",
+      "unreceived_inputs_or_APIs": {
+        "institutional_access_authority_ref": null
+      },
+      "next_owner": "Access/filter-profile owner / transfer_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/49/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B137",
+      "queue": 2,
+      "canonical_closure_owner": "TRN-03",
+      "criterion_occurrences": [
+        "B137@TRN-03"
+      ],
+      "accounting_disposition": "held",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/31",
+      "historical_owner_mechanism_keys": [
+        "q2_matrix"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Genuine authorized revalidation event, grounds and time issuer are absent; no empirical confidence truth is inferred.",
+      "unreceived_inputs_or_APIs": {
+        "authorized_revalidation_event_ref": null,
+        "revalidation_grounds_time_issuer_API": null
+      },
+      "next_owner": "Revalidation-event issuer / lesson lifecycle owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/50/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B156",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-01",
+      "criterion_occurrences": [
+        "B156@FUN-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/32",
+      "historical_owner_mechanism_keys": [
+        "q4_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Deployed context/caller profile coverage is not established by fixture identity controls.",
+      "unreceived_inputs_or_APIs": {
+        "deployed_context_caller_profile_ref": null
+      },
+      "next_owner": "FUN-01 verification owner / caller/context owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/71/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B157",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "criterion_occurrences": [
+        "B157@FUN-02"
+      ],
+      "accounting_disposition": "held",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/33",
+      "historical_owner_mechanism_keys": [
+        "q4_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Native policy runtime lacks the required raw-sample/estimand provider port; fixed500/64/32 labels are not actual sample counts.",
+      "unreceived_inputs_or_APIs": {
+        "native_raw_sample_estimand_provider_API": null,
+        "actual_native_sample_input_refs": null
+      },
+      "next_owner": "B runtime/factory owner / F or E estimand/input supplier / funnel_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/72/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B158",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-01",
+      "criterion_occurrences": [
+        "B158@FUN-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/34",
+      "historical_owner_mechanism_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "historical_corrective_keys": [
+        "Gateway_red",
+        "Gateway_green",
+        "Gateway_owner_corrective"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142"
+      ],
+      "remaining_input_or_consumer": "L2 scheduler path and deployed factory/profile remain distinct from recorded L3/L4 split caller controls.",
+      "unreceived_inputs_or_APIs": {
+        "deployed_L2_scheduler_factory_contract_ref": null
+      },
+      "next_owner": "FUN-01 verification owner / L2 scheduler/factory owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/73/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B159",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-01",
+      "criterion_occurrences": [
+        "B159@FUN-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/35",
+      "historical_owner_mechanism_keys": [
+        "q4_owner"
+      ],
+      "historical_corrective_keys": [
+        "Gateway_red",
+        "Gateway_green",
+        "Gateway_owner_corrective"
+      ],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142"
+      ],
+      "remaining_input_or_consumer": "Stage-owned blockers without an actual reevaluable prerequisite remain unsupported; no blanket resume permission is inferred.",
+      "unreceived_inputs_or_APIs": {
+        "stage_owned_reevaluable_prerequisite_contract_ref": null
+      },
+      "next_owner": "FUN-01 verification owner / blocker prerequisite owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/74/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B160",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "criterion_occurrences": [
+        "B160@FUN-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/36",
+      "historical_owner_mechanism_keys": [
+        "q4_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "External projection/finding acceptance remains separate from bounded empty-stage outcomes.",
+      "unreceived_inputs_or_APIs": {
+        "external_empty_stage_projection_contract_ref": null
+      },
+      "next_owner": "FUN-02 verification owner / projection consumer owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/76/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B161",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-03",
+      "criterion_occurrences": [
+        "B161@FUN-03"
+      ],
+      "accounting_disposition": "held",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/37",
+      "historical_owner_mechanism_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "FUN03_fixture",
+        "root_final_two"
+      ],
+      "remaining_input_or_consumer": "Permitted same-subject/value/input/rule/time update and supersession relation is missing; do not appoint global-minimum or last-write semantics.",
+      "unreceived_inputs_or_APIs": {
+        "permitted_same_subject_basis_update_ref": null,
+        "uncertainty_supersession_rule_ref": null
+      },
+      "next_owner": "Uncertainty update/supersession rule owner / funnel_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/77/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B162",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "criterion_occurrences": [
+        "B162@FUN-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/38",
+      "historical_owner_mechanism_keys": [
+        "q4_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Native scientific interval provenance and declared profile validity remain supplied-input boundaries.",
+      "unreceived_inputs_or_APIs": {
+        "native_interval_source_provenance_ref": null,
+        "declared_empirical_interval_profile_ref": null
+      },
+      "next_owner": "FUN-02 verification owner / scientific interval supplier / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/78/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B163",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-03",
+      "criterion_occurrences": [
+        "B163@FUN-03"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/39",
+      "historical_owner_mechanism_keys": [
+        "q4_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "FUN03_fixture",
+        "root_final_two"
+      ],
+      "remaining_input_or_consumer": "Calibration corpus/provider/profile validity is not appointed by tracker labels.",
+      "unreceived_inputs_or_APIs": {
+        "authorized_calibration_corpus_ref": null,
+        "calibration_provider_profile_ref": null
+      },
+      "next_owner": "Calibration corpus/profile owner / funnel_owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/79/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B164",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-03",
+      "criterion_occurrences": [
+        "B164@FUN-03"
+      ],
+      "accounting_disposition": "held",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/40",
+      "historical_owner_mechanism_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "FUN03_fixture",
+        "root_final_two"
+      ],
+      "remaining_input_or_consumer": "Final FUN03 receives52PASS and owner retained-marker effective guard removal gives2FAIL. Generic callbacks produce zero effects; typed issuer/current verifier/revoke-serialized writer APIs remain absent and valid owner-issued typed positive remains UNRUN/bridge_missing.",
+      "unreceived_inputs_or_APIs": {
+        "typed_permit_issuer_API": null,
+        "current_permit_verifier_API": null,
+        "revoke_serialized_writer_API": null,
+        "valid_owner_issued_positive_ref": null
+      },
+      "next_owner": "Typed promotion issuer/verifier/writer boundary owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/80/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B165",
+      "queue": 4,
+      "canonical_closure_owner": "FUN-02",
+      "criterion_occurrences": [
+        "B165@FUN-02"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/41",
+      "historical_owner_mechanism_keys": [
+        "q4_owner",
+        "q4_independent"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "No downstream publication or promotion authority follows from the compatibility verdict alone.",
+      "unreceived_inputs_or_APIs": {
+        "downstream_publication_authority_ref": null
+      },
+      "next_owner": "FUN-02 verification owner / downstream publisher / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/81/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "B41",
+      "queue": 5,
+      "canonical_closure_owner": "STP-01",
+      "criterion_occurrences": [
+        "B41@STP-01"
+      ],
+      "accounting_disposition": "limited",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/42",
+      "historical_owner_mechanism_keys": [
+        "q5_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Historical/live profile equivalence and finding-level acceptance are not inferred from fresh controls.",
+      "unreceived_inputs_or_APIs": {
+        "live_iteration_input_model_profile_ref": null,
+        "served_N6_detector_call_ref": null
+      },
+      "next_owner": "STP-01 verification owner / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/166/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "LA-014",
+      "queue": 3,
+      "canonical_closure_owner": "SRV-01",
+      "criterion_occurrences": [
+        "LA-014@SRV-01"
+      ],
+      "accounting_disposition": "open",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/43",
+      "historical_owner_mechanism_keys": [
+        "q3_owner",
+        "q3_lifecycle"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Served hierarchical factory/cutover consumer remains missing; global architecture/import/release failures/errors are not waived.",
+      "unreceived_inputs_or_APIs": {
+        "served_hierarchical_factory_cutover_API": null,
+        "admitted_live_search_factory_input_ref": null
+      },
+      "next_owner": "SRV-01 served factory/cutover owner / gp_witness / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/238/selected_plan_not_executed"
+      }
+    },
+    {
+      "id": "LA-015",
+      "queue": 3,
+      "canonical_closure_owner": "SRV-03",
+      "criterion_occurrences": [
+        "LA-015@CTL-01",
+        "LA-015@SRV-03"
+      ],
+      "accounting_disposition": "open",
+      "canonical_closure_now": "not_adjudicated",
+      "prior_243_row_pointer": "/findings/44",
+      "historical_owner_mechanism_keys": [
+        "q3_owner",
+        "q3_lifecycle",
+        "q4_owner"
+      ],
+      "historical_corrective_keys": [],
+      "received_supplement_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "remaining_input_or_consumer": "Persisted SearchService restore/public resume, reader-window history/import retirement and rollback characterization remain missing. CTL-01 supplier evidence does not transfer SRV-03 closure ownership.",
+      "unreceived_inputs_or_APIs": {
+        "persisted_SearchService_restore_resume_API": null,
+        "legacy_history_import_retirement_contract_ref": null,
+        "rollback_characterization_ref": null
+      },
+      "next_owner": "SRV-03 persistence/cutover/retirement owner / gp_witness / G",
+      "finding_closed": false,
+      "canonical_selected_route_ref": {
+        "document_ref_key": "canonical_coverage",
+        "json_pointer": "/findings/239/selected_plan_not_executed"
+      }
+    }
+  ],
+  "canonical_command_outcomes": {
+    "CTL-01": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_search_loop.py tests/unit/scientist/search/test_controller_api.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 35,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 35
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/0"
+    },
+    "CTL-02": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_strategy_state.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 31,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 31
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/1"
+    },
+    "CTL-03": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 90,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 90
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/2"
+    },
+    "FUN-01": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 80,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 80
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/3"
+    },
+    "FUN-02": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/remediation/test_fun_02.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 36
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/4"
+    },
+    "FUN-03": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_level6_promotion.py tests/unit/remediation/test_fun_03.py -ra",
+      "outcome": "FAIL",
+      "actual_JUnit_counts": {
+        "tests": 52,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 50
+      },
+      "final_source_lineage": "changed_fixture_requires_exact_final_replay",
+      "changed_test_inputs": [
+        "policy-engine/tests/unit/remediation/test_fun_03.py"
+      ],
+      "complete_artifact_ref_pointer": "/checks/5"
+    },
+    "OPT-01": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+      "outcome": "FAIL",
+      "actual_JUnit_counts": {
+        "tests": 75,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 70
+      },
+      "final_source_lineage": "changed_fixture_requires_exact_final_replay",
+      "changed_test_inputs": [
+        "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py"
+      ],
+      "complete_artifact_ref_pointer": "/checks/6"
+    },
+    "OPT-02": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_bayesian_generator.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_effective_actions.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 48,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 48
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/7"
+    },
+    "OPT-03": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 9
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/8"
+    },
+    "OPT-04": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 28
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/9"
+    },
+    "SRV-01": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_contracts.py tests/unit/scientist/search/test_search_loop.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 36
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/10"
+    },
+    "SRV-03": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 25
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/11"
+    },
+    "STP-01": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 36
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/12"
+    },
+    "STR-01": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 38,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 38
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/13"
+    },
+    "TRN-01": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 48,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 48
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/14"
+    },
+    "TRN-02": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 59,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 59
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/15"
+    },
+    "TRN-03": {
+      "executed_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+      "outcome": "PASS",
+      "actual_JUnit_counts": {
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 18
+      },
+      "final_source_lineage": "lineage_checked_only_no_new_execution",
+      "changed_test_inputs": [],
+      "complete_artifact_ref_pointer": "/checks/16"
+    }
+  },
+  "final_lineage": {
+    "selector_occurrences": 53,
+    "distinct_test_files": 38,
+    "configs": {
+      "policy-engine/pytest.ini": {
+        "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+        "path": "policy-engine/pytest.ini",
+        "bytes": 1021,
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "policy-engine/pyproject.toml": {
+        "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+        "path": "policy-engine/pyproject.toml",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "policy-engine/uv.lock": {
+        "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+        "path": "policy-engine/uv.lock",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      }
+    },
+    "fifteen_unmodified_commands": "Original243 executions plus final lineage_checked only. No new execution claim.",
+    "two_changed_commands": "Exact final independent root replays resolve through root_final_two; historical243 failures are preserved.",
+    "complete_actual_input_lineage_ref": {
+      "source_sha": "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/canonical15-input-lineage.json",
+      "bytes": 37518,
+      "sha256": "144414d578a7da8d1b41bdec55526befa36def8a4bb80afbb63411636a70306c"
+    }
+  },
+  "received_outcome_subsets": {
+    "original_243_canonical17": {
+      "commands": 17,
+      "command_PASS": 15,
+      "command_FAIL": 2,
+      "executions": 744,
+      "PASS": 737,
+      "FAIL": 7,
+      "ERROR": 0,
+      "SKIP": 0,
+      "count_scope": "Repeated execution occurrences, not unique test IDs; not the incomplete80-file union."
+    },
+    "current_243_independent_GP": {
+      "PASS": 26,
+      "analytic": 23,
+      "native_CAS": 3,
+      "ERROR": 0,
+      "SKIP": 0,
+      "artifacts": {
+        "input_command": {
+          "source_sha": "216e83a87c0f35ec304f0c4490eeed2b29449630",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-runtime-command.json",
+          "bytes": 4167,
+          "sha256": "fd974d6887fdf72a5c1a985c96891930634805955cd97235be4804872bbf5e38"
+        },
+        "complete_output": {
+          "source_sha": "216e83a87c0f35ec304f0c4490eeed2b29449630",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent26.txt",
+          "bytes": 9636,
+          "sha256": "39a2db70b4de14a85d487d2ef6f8b28060917c735fccf8c035802a7d4ae7d80a"
+        },
+        "actual_JUnit": {
+          "source_sha": "216e83a87c0f35ec304f0c4490eeed2b29449630",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent26.xml",
+          "bytes": 5326,
+          "sha256": "851412969fd8a53f7bfe0e6bcaaceec7062313b4e37ade88d8deb5e33e867b9a"
+        },
+        "actual_runtime_origins": {
+          "source_sha": "216e83a87c0f35ec304f0c4490eeed2b29449630",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-actual-origin-cells.json",
+          "bytes": 3968,
+          "sha256": "3e12f0b4d8934b1f81fcb3d5afefe78dacee3b99d8ec0e17e718858d059ca36d"
+        },
+        "exact_child_observation_source": {
+          "source_sha": "216e83a87c0f35ec304f0c4490eeed2b29449630",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-child.py.txt",
+          "bytes": 2264,
+          "sha256": "35bb6f197d1333ce27bfcc39f5af80bb8f088d1f13ee24cc3624df1b9d58dd6f"
+        }
+      },
+      "scope": "Genuine GP independent analytic conditional model, nativeCAS8/7-row binding/restore and incompatible-basis refusal; source2910bytes unchanged final. No empirical benefit/history issuer or scientific authority."
+    },
+    "FUN03_owner_fixture": {
+      "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "PASS": 52,
+      "effective_guard_removal_FAIL": 2,
+      "typed_authorized_positive": "UNRUN/bridge_missing",
+      "artifacts": {
+        "canonical-a935.txt": {
+          "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.txt",
+          "bytes": 634,
+          "sha256": "ce30af50c864f42e8aecb5fe574f6cdf58e7af9d0171b8457d4b87cc76db9678"
+        },
+        "canonical-a935.xml": {
+          "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.xml",
+          "bytes": 8648,
+          "sha256": "68ad14ba4e08d64f82c4b400f337c54ed4d503e70401d945d8ce167c8ae75a0a"
+        },
+        "canonical-a935-result.json": {
+          "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935-result.json",
+          "bytes": 1287,
+          "sha256": "1c20c540c88a4bc002c3b0b73438a9c78b22524d56b07461318dfb5fbdc8c47c"
+        },
+        "native-intermediate.txt": {
+          "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/native-intermediate.txt",
+          "bytes": 3232,
+          "sha256": "760936074963662fa31347d9458a1b90ec24a9f5318eaa9fc27821bd9d18c6f9"
+        },
+        "guard-removal.txt": {
+          "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal.txt",
+          "bytes": 5528,
+          "sha256": "d34e3ddd3f44661ca8cdef7ddd45f98af2ca944c251b2f6a50b991b891a7563f"
+        },
+        "guard-removal-result.json": {
+          "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal-result.json",
+          "bytes": 390,
+          "sha256": "9779553e87e70de0d04209d4a95982f87497d1d280b3172890c4b2314a065c2c"
+        },
+        "fun03_guard_removal.py": {
+          "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/fun03_guard_removal.py.txt",
+          "bytes": 1849,
+          "sha256": "800f0c9e0f992cc7be1fbfc1017d9c4cb266ca386bb010a4aff6e9c2abb41762"
+        }
+      }
+    },
+    "final_two_independent_root_receipt": {
+      "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "checks": [
+        {
+          "bundle": "FUN-03",
+          "outcome": "PASS",
+          "passed": 52,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+          "complete_output": {
+            "source_sha": "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/FUN-03-final.txt",
+            "bytes": 634,
+            "sha256": "ce30af50c864f42e8aecb5fe574f6cdf58e7af9d0171b8457d4b87cc76db9678"
+          },
+          "full_JUnit": {
+            "source_sha": "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/FUN-03-final.xml",
+            "bytes": 8648,
+            "sha256": "c7a75cd9a2658f871e6796b164ac1b7ba6669c1f2499f47b03bf65d94ac1d97b"
+          }
+        },
+        {
+          "bundle": "OPT-01",
+          "outcome": "PASS",
+          "passed": 75,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+          "complete_output": {
+            "source_sha": "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/OPT-01-final.txt",
+            "bytes": 714,
+            "sha256": "799174c28e65ed9816ca8ee604889008e32b6e6cedb2414808b4d2876562c209"
+          },
+          "full_JUnit": {
+            "source_sha": "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/OPT-01-final.xml",
+            "bytes": 14009,
+            "sha256": "3cfcbd59c2d3d2ad033246b485e8f1a595f8b902ab8b909ffd79e45b1ce06949"
+          }
+        }
+      ],
+      "PASS": 127,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "manifest": {
+        "source_sha": "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/manifest.json",
+        "bytes": 8741,
+        "sha256": "d8b16485034ce22067d10af78900a1cd47ba2fb36d1140c98e56fe74b789b4c8"
+      },
+      "scope": "Actual two-command execution/output/JUnit and byte metadata. Fifteen prior executed commands use lineage_checked input identity only; no fresh execution, overall acceptance or scientific/institutional closure inference.",
+      "fifteen_lineage": {
+        "source_sha": "5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/canonical15-input-lineage.json",
+        "bytes": 37518,
+        "sha256": "144414d578a7da8d1b41bdec55526befa36def8a4bb80afbb63411636a70306c"
+      },
+      "Ruff108": "Actual final108path ruffcheck/format PASS; remaining architecture/backend/frontend errors and fails remain unaccepted."
+    },
+    "backend": {
+      "gates": [
+        {
+          "id": "B01",
+          "label": "lint imports",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B02",
+          "label": "check package import gates (shell-package closure)",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B03",
+          "label": "lint foundry",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B04",
+          "label": "check state reads",
+          "status": "FAIL_COMPLETED_CONTRACT"
+        },
+        {
+          "id": "B05",
+          "label": "check scholar imports",
+          "status": "PASS"
+        },
+        {
+          "id": "B06",
+          "label": "check connector contracts",
+          "status": "PASS"
+        },
+        {
+          "id": "B07",
+          "label": "check schema freshness",
+          "status": "ERROR_INCOMPLETE_SIGNAL"
+        },
+        {
+          "id": "B08",
+          "label": "check runtime API contract",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B09",
+          "label": "check last-mile inventory baseline",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B10",
+          "label": "build honest diagnostics coverage dashboard",
+          "status": "ERROR_INCOMPLETE_SIGNAL"
+        },
+        {
+          "id": "B11",
+          "label": "check honest diagnostics substrate drift",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B12",
+          "label": "check extension example contract coverage",
+          "status": "PASS"
+        },
+        {
+          "id": "B13",
+          "label": "check schemas pure-data closure",
+          "status": "PASS"
+        },
+        {
+          "id": "B14",
+          "label": "pytest fast backend gate",
+          "status": "ERROR_INCOMPLETE_SIGNAL"
+        },
+        {
+          "id": "B15",
+          "label": "pytest runtime/http",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B16",
+          "label": "check directory health ratchet",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B17",
+          "label": "check test ratchets and helper topology",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B18",
+          "label": "check architecture phase6-1 report-only contracts",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B19",
+          "label": "check validator module-size budget",
+          "status": "FAIL_COMPLETED_CONTRACT"
+        },
+        {
+          "id": "B20",
+          "label": "report debt ledger reconciliation",
+          "status": "PASS"
+        },
+        {
+          "id": "B21",
+          "label": "check extension example installability",
+          "status": "PASS",
+          "successor_receipt_key": "backend_extension"
+        },
+        {
+          "id": "B22",
+          "label": "check ADR thematic index freshness",
+          "status": "PASS"
+        },
+        {
+          "id": "B23",
+          "label": "check docs accuracy",
+          "status": "FAIL_COMPLETED_CONTRACT"
+        },
+        {
+          "id": "B24",
+          "label": "build docs in strict mode",
+          "status": "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE"
+        },
+        {
+          "id": "B25",
+          "label": "check semantic docstring quality",
+          "status": "ERROR_INCOMPLETE_SIGNAL"
+        }
+      ],
+      "counts": {
+        "ERROR_ENVIRONMENT_RESOURCE_BLOCKED_UNRUN_INCOMPLETE": 11,
+        "FAIL_COMPLETED_CONTRACT": 3,
+        "PASS": 7,
+        "ERROR_INCOMPLETE_SIGNAL": 4
+      },
+      "incomplete": 15,
+      "literal_wrappers": "UNRUN incompatible capped profile",
+      "completed_FAIL_details": {
+        "B04": "Nine missing state-read declarations at run_causal_evaluation.py, full1494-byte output.",
+        "B19": "Actual module-size artifact77 contract errors +6 report-only findings; full JSON retained.",
+        "B23": "10 docs accuracy violations; full2589-byte output.",
+        "base_waivers": "None. No identical pinned-base complete-input replay or zero input-intersection proof; no inherited-red waiver."
+      },
+      "scope": "Actual243 gates only; no identical full-input pinned-base waiver. B21 successor completes documented7examples."
+    },
+    "frontend": {
+      "gates": 8,
+      "PASS": 1,
+      "incomplete": 6,
+      "UNRUN": 1,
+      "complete_PASS": "contracts:verify",
+      "native_readiness": "Separate pinned native Chromium launch/CDP/DOM and doctor successors receivedPASS; not served dashboard/Storybook/e2e/visual acceptance.",
+      "scope": "Source243; blocked producers and conditional ratchet remain incomplete/UNRUN."
+    },
+    "production_invocation": {
+      "status": "ERROR",
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "exit_code": -9,
+      "stdout_bytes": 0,
+      "completed_diagnostic_verdict": false,
+      "runtime_invocation_established": false,
+      "scope": "Mandatory complete attempted static denominator did not finish. No runtime call graph, absence or scientific/authority verdict."
+    },
+    "original_80_file_attempt": {
+      "status": "ERROR",
+      "exit_code": -9,
+      "complete_JUnit": false,
+      "remaining_cells": "UNRUN",
+      "cause": null
+    },
+    "original_243_unmodified15": {
+      "commands": 15,
+      "PASS": 617,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "final_status": "lineage_checked_only_no_new_execution",
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+    },
+    "current_3f38_independent_142": {
+      "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "PASS": 142,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "subsets": {
+        "native_controller_frontier": 10,
+        "fiscal_objective_intake": 30,
+        "native_Gateway_ledger": 98,
+        "native_nonzero_underflow": 4
+      },
+      "artifacts": {
+        "command.json": {
+          "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/command.json",
+          "bytes": 4166,
+          "sha256": "91fbef0289614bd5d49403b0f60fbd99401aa7ff04242945e2f61fb42dbfd16b"
+        },
+        "actual-origins.json": {
+          "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/actual-origins.json",
+          "bytes": 7015,
+          "sha256": "6f23e7d60e13c92cf6d4def232e9f0019f5da59d110a7d25d74dd1663d335555"
+        },
+        "complete.txt": {
+          "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/complete.txt",
+          "bytes": 24362,
+          "sha256": "7d4227496be1f6c39e4d66f1409a3d6a5f58a711f57a59fa0dd381e0b77c3b3c"
+        },
+        "junit.xml": {
+          "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/junit.xml",
+          "bytes": 28407,
+          "sha256": "59d1e356b3d98ce171c47a4a8804c4b5a426aa842a14b1a28710aa410536342e"
+        },
+        "observations.json": {
+          "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/observations.json",
+          "bytes": 5126,
+          "sha256": "5abe61fd3d4aaf4676707ff341327dfba29e039f4e786723da36070391399194"
+        },
+        "run_current142.py.txt": {
+          "source_sha": "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent/run_current142.py.txt",
+          "bytes": 7693,
+          "sha256": "54a70d36830ab02ebded59c0c7e758c6565f43c953eaf65b9ad5040a8548489d"
+        }
+      },
+      "actual_native_Git_origin_matches": 11,
+      "scope": "Actual current-source joined controller/service10+fiscal30 resolves the older425 source gap only for these exact inputs. Native98+range4 actual Gateway/parser/enforcer/middleware/ledger inputs remain fixture provider inputs, not external invoice or production deployment truth.",
+      "helper_quality": "FAIL82 archived helper Ruff diagnostics retained; runtime/JUnit/Git matching is not lint acceptance."
+    },
+    "quality_scope": "Final existing108path Ruffcheck/format PASS is received in root_final_two. Original search helper65FAIL and independent archived helper82FAIL remain. Backend3completedFAIL/15incomplete, frontend6incomplete/1UNRUN and productiongraphERROR remain unaccepted."
+  },
+  "authority_boundary": {
+    "institutional_issuer": null,
+    "scientific_truth": false,
+    "signature_authority_from_hashes": false,
+    "G_combined_acceptance": null,
+    "main_publication_authorization": null
+  },
+  "local_preservation": {
+    "production_or_root_writes": false,
+    "new_backend_or_product_imports": false,
+    "new_archives": false,
+    "manual_deletion_cleanup": false,
+    "scope": "Static tracked Git bytes + committed deciding outputs only. Prior receipts retain framework-transient/deletion deviations; no global preservation claim."
+  },
+  "pattern_pass": [
+    "P14",
+    "P29",
+    "P31",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "canonical_original_documents": {
+    "B_r19": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "bytes": 1336380,
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    "LA_r09": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "bytes": 648034,
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+    }
+  },
+  "canonical_cards": {
+    "CTL-01": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+      "bytes": 17621,
+      "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f"
+    },
+    "CTL-02": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+      "bytes": 16456,
+      "sha256": "e84619189496527f0f6cc2d75d395ef17279dea27112c8b6669f99a8579a1197"
+    },
+    "CTL-03": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-03.md",
+      "bytes": 16904,
+      "sha256": "96e6ce518edd40fa702efe89415427396b8e086ad4f7f3533c9227cb2919065e"
+    },
+    "FUN-01": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+      "bytes": 15946,
+      "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482"
+    },
+    "FUN-02": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+      "bytes": 18569,
+      "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1"
+    },
+    "FUN-03": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+      "bytes": 16050,
+      "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b"
+    },
+    "OPT-01": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+      "bytes": 20853,
+      "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e"
+    },
+    "OPT-02": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+      "bytes": 16968,
+      "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f"
+    },
+    "OPT-03": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+      "bytes": 12239,
+      "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b"
+    },
+    "OPT-04": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+      "bytes": 13217,
+      "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684"
+    },
+    "SRV-01": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+      "bytes": 8706,
+      "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0"
+    },
+    "SRV-03": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+      "bytes": 9440,
+      "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0"
+    },
+    "STP-01": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+      "bytes": 11176,
+      "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c"
+    },
+    "STR-01": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+      "bytes": 11099,
+      "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966"
+    },
+    "TRN-01": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+      "bytes": 21441,
+      "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+    },
+    "TRN-02": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+      "bytes": 17678,
+      "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+    },
+    "TRN-03": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "bytes": 16604,
+      "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+    }
+  },
+  "canonical_content_quantity": "Exact acceptance paragraph from each original canonical block. Complete criterion is the full pinned original fragment, verified verbatim in its canonical card; no criterion rewrite.",
+  "history_resolver": "Original8cd mechanism keys resolve /receipts in original_8cd_snapshot. Original243 corrective keys resolve /delta_receipts in original_243_delta. Both receipts and every referenced original payload are byte-verified; old executions remain source-bound history.",
+  "unreceived_input_quantity": "Nulls name precise unreceived owner inputs, APIs or optional profile extensions in the recorded residual scope. Optional profile extensions are outside new mandatory criteria. These nulls do not amend canonical criteria or create a new signature requirement; limited engineering results stay received within their actual inputs.",
+  "deciding_payload_integrity": {
+    "root_final_payload": {
+      "files": 23,
+      "all_actual_bytes_verified": true
+    },
+    "backend_first": {
+      "artifact": {
+        "source_sha": "35ae64f34805395e29899898da79c769f31d336e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity-243-complete.json.gz",
+        "bytes": 276469,
+        "sha256": "3b43811027e728a29773621628325adedaa4605a229edf6cda18f31cb0893b96"
+      },
+      "decoded_bytes": 1607629,
+      "decoded_sha256": "bbd99363e3017c36384e5ad9b85c703cbbe45a706e4d05b6c3cc08a88f805a82",
+      "complete_raw_files": 371,
+      "all_decoded_raw_file_hashes_verified": true
+    },
+    "backend_extension": {
+      "artifact": {
+        "source_sha": "56708f9e38b44352e4e38ffe8808f1797764f3dc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-extension-243-complete.json.gz",
+        "bytes": 9345,
+        "sha256": "6a1a5257aea16f1c1d3be9db045292624bd1f6ea830651d6be5a6301c6ee9640"
+      },
+      "decoded_bytes": 33429,
+      "decoded_sha256": "95c427cdcb7ea294ebaefba6328efb726d73926d30b59463b92412cf9cd46df2",
+      "complete_raw_files": 11,
+      "all_decoded_raw_file_hashes_verified": true
+    },
+    "frontend_payload": {
+      "manifest": {
+        "source_sha": "fc53f483f032e12afeeea5dbd59a5f2c68431fee",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/manifest.json",
+        "bytes": 26303,
+        "sha256": "0be01280170b3cf9383286902b3d39b404d8f93cdb2cca7d2c3771b560c95c13"
+      },
+      "files": 44,
+      "all_compressed_and_original_bytes_verified": true
+    },
+    "production_invocation": {
+      "complete_payload_refs_verified": true,
+      "outcome": "ERROR",
+      "exit_code": -9,
+      "completed_analyzer_verdict": false
+    }
+  },
+  "static_accounting_proof": {
+    "predicate_basis": "recomputed",
+    "quantity": "Actual complete canonical owner/criterion/source and selected deciding payload byte reconciliation. No runtime, authority or finding-closure verdict.",
+    "proof_commit": "bea825370313fb91a8a1cd659a77a3ca341dfadc",
+    "proof_tree": "1b76503a9743b8fe161d8c31af1af883b2267c3e",
+    "artifacts": {
+      "command.json": {
+        "source_sha": "bea825370313fb91a8a1cd659a77a3ca341dfadc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting-proof/command.json",
+        "bytes": 1053,
+        "sha256": "abf1a170a9ac2548984a7683c8584d713bb626e6b247341a9802b89b4768f2ed"
+      },
+      "complete-static-audit.txt": {
+        "source_sha": "bea825370313fb91a8a1cd659a77a3ca341dfadc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting-proof/complete-static-audit.txt",
+        "bytes": 1981,
+        "sha256": "b4b4029424d422ab1546ba5c04afe1e0693374305bfa6de4580a2f16ebbad773"
+      },
+      "preparation-path-error.txt": {
+        "source_sha": "bea825370313fb91a8a1cd659a77a3ca341dfadc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting-proof/preparation-path-error.txt",
+        "bytes": 1513,
+        "sha256": "de0f0b6fe9e1737415193926bf82f36a64100c7b8fa88e0da18719f2bebd6ae0"
+      },
+      "static_byte_accounting.py.txt": {
+        "source_sha": "bea825370313fb91a8a1cd659a77a3ca341dfadc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting-proof/static_byte_accounting.py.txt",
+        "bytes": 38319,
+        "sha256": "92036e125629b16cc7f6a47a3e8214078a2db23be0b2e3d7386c82ff2e54cbcc"
+      }
+    },
+    "preparation_error_preserved": true,
+    "reference_coverage": "175uniqueGitrefs plus426encoded raw payloads and23rootpayloadfiles verified; source2910/config/selectors and all46fragments/passage locators verified. Other unreceived owner input/API quantities remain explicit null."
+  },
+  "canonical_selected_route_ref_semantics": "Each finding-row canonical_selected_route_ref resolves document_ref_key through this receipt references, then evaluates json_pointer in that pinned canonical coverage JSON. These are not pointers into this receipt findings array.",
+  "metadata_correction": {
+    "reason": "Clarify owner-declared fiscal units without implying a cryptographic signature, and bind selected-route JSON pointers explicitly to canonical coverage. Optional profile/extensions remain outside new mandatory criteria.",
+    "prior_accounting_ref": {
+      "source_sha": "e8c27984472bea72ed1a565ac816aa75db5e3bbe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "bytes": 171442,
+      "sha256": "4af18432fca4a8915df64c7ffb710cdd8f1972d69d918ccce417ba15fef51182"
+    },
+    "historical_243_delta_preserved": true,
+    "source_test_runtime_evidence_changed": false,
+    "new_runtime": false
+  }
+}

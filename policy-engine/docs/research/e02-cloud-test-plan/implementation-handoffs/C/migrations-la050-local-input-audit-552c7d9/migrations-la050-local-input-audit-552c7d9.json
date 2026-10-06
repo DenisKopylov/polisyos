@@ -1,0 +1,360 @@
+{
+  "adjudication": "LA-050 remains limited. A historical persisted DatasetManifest fixture and its mapping/lineage are still required before closure.",
+  "audit_commit_context": {
+    "append_after_commit": "552c7d923130b25480fc3f43eae0164e38063f1d",
+    "append_after_tree": "2f306377ddc5d01603695dc208957568419ac1de",
+    "source_freeze_commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "source_freeze_tree": "5369c0167bc63096a12ee1bea666b42c837ea78b"
+  },
+  "bounded_local_scope": {
+    "candidate_count": 19,
+    "catalog": {
+      "application_rows_read": false,
+      "candidate_column_count": 0,
+      "candidate_column_name_terms": [
+        "manifest",
+        "schema_version",
+        "dataset_name",
+        "raw_hash"
+      ],
+      "column_metadata_count": 129,
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "query": "SELECT table_schema, table_name, column_name, data_type FROM information_schema.columns ORDER BY table_schema, table_name, ordinal_position",
+      "readonly": true,
+      "table_count": 10
+    },
+    "curated_manifest_scope": "find -type f under the documented original production_data root with names matching *manifest*.json, *manifest*.yaml, or *manifest*.yml; 19 candidates, all JSON; no symlink traversal or path outside this root is claimed.",
+    "current_dataset_field_name_shape_count": 4,
+    "different_manifest_kinds_observed": [
+      {
+        "bytes": 4735,
+        "metadata": {
+          "kind": "publish"
+        },
+        "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/datasets_full_phase3full_20260327_183054/manifest.json",
+        "sha256": "bbd5e6794717fb00e153be01860021e29c664da6d0d3938f05daefdd527a92ea"
+      },
+      {
+        "bytes": 5434,
+        "metadata": {
+          "kind": "policyos.production_data_root",
+          "schema_version": "1.0"
+        },
+        "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json",
+        "sha256": "9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105"
+      }
+    ],
+    "four_shape_matched_inputs": [
+      {
+        "byte_identical": false,
+        "dataset_name": "agents",
+        "exit_code": 0,
+        "json_semantically_equal": true,
+        "original_bytes": 497,
+        "original_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/canonical/local_data_20260501/policy_engine_data/curated/agents_manifest.json",
+        "original_sha256": "7cf8d529077c89b2416fe7fd0c62a2d239296b2f6e627a79ede463b08d4b1c10",
+        "original_unchanged": true,
+        "private_cli_output_bytes": 498,
+        "private_cli_output_path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/outputs-replay/agents-manifest.json",
+        "private_cli_output_sha256": "6cba2c8e6ef7787b145431db28cde5a259ae733370bbe88978af91f51309d32f",
+        "private_input_copy_path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/inputs/agents-manifest.json",
+        "private_input_copy_sha256": "7cf8d529077c89b2416fe7fd0c62a2d239296b2f6e627a79ede463b08d4b1c10",
+        "private_input_copy_unchanged": true,
+        "schema_version": "1.0",
+        "strict_dto_dump_exclude_unset_matches_output": true,
+        "strict_installed_fabric_dto_accepted": true
+      },
+      {
+        "byte_identical": true,
+        "dataset_name": "entity_resolution",
+        "exit_code": 0,
+        "json_semantically_equal": true,
+        "original_bytes": 444,
+        "original_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/canonical/local_data_20260501/policy_engine_data/curated/entity_resolution_manifest.json",
+        "original_sha256": "588129ee63efa47df6177a8483e51146fd12d2a88a61a74e528de912cef152f0",
+        "original_unchanged": true,
+        "private_cli_output_bytes": 444,
+        "private_cli_output_path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/outputs-replay/entity_resolution-manifest.json",
+        "private_cli_output_sha256": "588129ee63efa47df6177a8483e51146fd12d2a88a61a74e528de912cef152f0",
+        "private_input_copy_path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/inputs/entity_resolution-manifest.json",
+        "private_input_copy_sha256": "588129ee63efa47df6177a8483e51146fd12d2a88a61a74e528de912cef152f0",
+        "private_input_copy_unchanged": true,
+        "schema_version": "1.0",
+        "strict_dto_dump_exclude_unset_matches_output": true,
+        "strict_installed_fabric_dto_accepted": true
+      },
+      {
+        "byte_identical": false,
+        "dataset_name": "interactions",
+        "exit_code": 0,
+        "json_semantically_equal": true,
+        "original_bytes": 495,
+        "original_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/canonical/local_data_20260501/policy_engine_data/curated/interactions_manifest.json",
+        "original_sha256": "f2a20c82d32a88c54fd74e158a7ee1766e2a2f1365b74c197d2a15e9af33a047",
+        "original_unchanged": true,
+        "private_cli_output_bytes": 496,
+        "private_cli_output_path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/outputs-replay/interactions-manifest.json",
+        "private_cli_output_sha256": "7f6829e92f46059aabd6507a1ec02a745f8a944f905a17b48a5d1fd0de1aa80a",
+        "private_input_copy_path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/inputs/interactions-manifest.json",
+        "private_input_copy_sha256": "f2a20c82d32a88c54fd74e158a7ee1766e2a2f1365b74c197d2a15e9af33a047",
+        "private_input_copy_unchanged": true,
+        "schema_version": "1.0",
+        "strict_dto_dump_exclude_unset_matches_output": true,
+        "strict_installed_fabric_dto_accepted": true
+      },
+      {
+        "byte_identical": false,
+        "dataset_name": "macro",
+        "exit_code": 0,
+        "json_semantically_equal": true,
+        "original_bytes": 472,
+        "original_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/canonical/local_data_20260501/policy_engine_data/curated/macro_manifest.json",
+        "original_sha256": "a7d3ae4517c6c542e7acded7941ae88f7e90dfad6980e3d33ca8f525d45735fa",
+        "original_unchanged": true,
+        "private_cli_output_bytes": 473,
+        "private_cli_output_path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/outputs-replay/macro-manifest.json",
+        "private_cli_output_sha256": "aea1fea18daea4760626cf7adb65a60e0ecb8e23766d8c15985a6dfc91a32d64",
+        "private_input_copy_path": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/inputs/macro-manifest.json",
+        "private_input_copy_sha256": "a7d3ae4517c6c542e7acded7941ae88f7e90dfad6980e3d33ca8f525d45735fa",
+        "private_input_copy_unchanged": true,
+        "schema_version": "1.0",
+        "strict_dto_dump_exclude_unset_matches_output": true,
+        "strict_installed_fabric_dto_accepted": true
+      }
+    ],
+    "manifest_named_file_type_counts": {
+      "json": 19,
+      "yaml": 0
+    },
+    "original_product_data_root": "/Users/deniskopylov/polisyos/policy-engine/production_data",
+    "owner_map": [
+      {
+        "path": "policy-engine/architecture/policies/data.toml",
+        "source_freeze_blob": "f208efe782bcd18761c5cf4a8a1a7e219651b9b7"
+      },
+      {
+        "path": "policy-engine/data/policy-engine-local/README.md",
+        "source_freeze_blob": "5d66575d485ee67ef8265e108d00922a9f5498cb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/identity/manifest.py",
+        "source_freeze_blob": "e45d04099d856b1ab7b59f91062b06011f0d1e3d"
+      }
+    ],
+    "private_inputs_and_outputs_stayed_out_of_git": true,
+    "private_run_root": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55",
+    "root_mode": "0555"
+  },
+  "captures": [
+    {
+      "bytes": 2,
+      "path": "captures/census/dataset-catalog-schema-census.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/census/dataset-catalog-schema-census.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 15967,
+      "path": "captures/census/dataset-catalog-schema-census.stdout",
+      "sha256": "4fed6511e84c2af18d40afd3c0645c12328c1f1ee209ff417c557123edc89adb"
+    },
+    {
+      "bytes": 2,
+      "path": "captures/census/manifest-name-census.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/census/manifest-name-census.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 12326,
+      "path": "captures/census/manifest-name-census.stdout",
+      "sha256": "123eb6af96c8c51f99f299af9180e00cdf3c0fb12c6b66682db2ee6537938cfd"
+    },
+    {
+      "bytes": 2,
+      "path": "captures/installed/agents-public-cli.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/agents-public-cli.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/agents-public-cli.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2,
+      "path": "captures/installed/entity_resolution-public-cli.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/entity_resolution-public-cli.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/entity_resolution-public-cli.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2,
+      "path": "captures/installed/interactions-public-cli.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/interactions-public-cli.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/interactions-public-cli.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2,
+      "path": "captures/installed/macro-public-cli.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/macro-public-cli.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/macro-public-cli.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2,
+      "path": "captures/installed/public-runner.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/public-runner.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 12883,
+      "path": "captures/installed/public-runner.stdout",
+      "sha256": "b9a0dcac06c17ead58aefadb93b0bb6635056c21b0adb9819926b8a0c556b4e3"
+    },
+    {
+      "bytes": 2,
+      "path": "captures/installed/strict-readback.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 0,
+      "path": "captures/installed/strict-readback.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2311,
+      "path": "captures/installed/strict-readback.stdout",
+      "sha256": "0ba5c85ce3b51f07b2d513101dfaea328f8f76910b290aeb1e4e9acb41aef977"
+    }
+  ],
+  "census_commands": [
+    {
+      "argv": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -I <manifest_name_census.py>",
+      "cwd": "/tmp",
+      "result_capture": "captures/census/manifest-name-census.stdout"
+    },
+    {
+      "argv": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -I <dataset_catalog_schema_census.py>",
+      "cwd": "/tmp",
+      "result_capture": "captures/census/dataset-catalog-schema-census.stdout"
+    }
+  ],
+  "criterion": "LA-050",
+  "evidence_scripts": [
+    {
+      "bytes": 6068,
+      "path": "current_v1_public_noop.py",
+      "sha256": "e2e740fccb0a4a54cb6e7f705f8fb95dfa7445d68f3e374e7494dfc619ac19a1"
+    },
+    {
+      "bytes": 3333,
+      "path": "current_v1_strict_readback.py",
+      "sha256": "de5a54a8ca27e2769b73f69e9ec4670cb919040d7f030d705522b8f783abd7f5"
+    },
+    {
+      "bytes": 1974,
+      "path": "dataset_catalog_schema_census.py",
+      "sha256": "c4b930aba2a6ccdc0a0f32c38b09e3361db94967e9ac91f0e73e79883f5a65ba"
+    },
+    {
+      "bytes": 3388,
+      "path": "manifest_name_census.py",
+      "sha256": "45cc804f4dbf0c59991c4cef9ad0ec0091096c5490f3c8f7cafad20810b21fbd"
+    }
+  ],
+  "installed_cli_probe": {
+    "candidate_source_checkout_on_strict_reader_sys_path": false,
+    "child_environment": "The runner copies its environment, unsets PYTHONPATH and PYTHONHOME, and records that delta per dataset. Full environment values were not retained.",
+    "current_version_readback_command": "<venv-base>/bin/python -I <current_v1_strict_readback.py> --input-dir <private_run_root>/inputs --output-dir <private_run_root>/outputs-replay",
+    "distribution": "policy-engine",
+    "distribution_version": "0.1.0",
+    "installed_candidate": {
+      "commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+      "tree": "5369c0167bc63096a12ee1bea666b42c837ea78b"
+    },
+    "installed_cli_argv": "Each exact console-script argv, cwd, child environment delta, stdout/stderr text, exit code, duration, and before/after hashes are retained in captures/installed/public-runner.stdout. Four command streams are separately retained by dataset name.",
+    "interpreter": "Python 3.14.0",
+    "outer_runner_argv": [
+      "python3",
+      "-I",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/current_v1_public_noop.py",
+      "--run-dir",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55",
+      "--output-dir",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/outputs-replay",
+      "--commands-dir",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/commands-replay-cli",
+      "--receipt-path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/public-cli-results-replay.json"
+    ],
+    "outer_runner_command": "python3 -I <current_v1_public_noop.py> --run-dir <private_run_root> --output-dir <private_run_root>/outputs-replay --commands-dir <private_run_root>/commands-replay-cli --receipt-path <private_run_root>/public-cli-results-replay.json",
+    "outer_runner_cwd": "/tmp",
+    "outer_runner_mode": "Python isolated mode; the helper removes PYTHONPATH and PYTHONHOME from the child environment before invoking the installed console script.",
+    "strict_dto_module_origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/lib/python3.14/site-packages/polisyos/fabric/identity/manifest.py",
+    "strict_dto_module_sha256": "d9b63a4ab032cfc0a3a3ffc39814fe78a59707774e12f4eb5cc08f65e9dbaaab",
+    "strict_readback_argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+      "-I",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/current_v1_strict_readback.py",
+      "--input-dir",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/inputs",
+      "--output-dir",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/outputs-replay"
+    ],
+    "strict_readback_cwd_argument": "/tmp",
+    "strict_readback_reported_resolved_cwd": "/private/tmp",
+    "target_schema_version": "1.0",
+    "wheel_sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9"
+  },
+  "limitations": [
+    "The filesystem search is limited to manifest-named JSON/YAML files beneath the documented production_data root. It does not establish global absence in archives, other roots, non-manifest-named files, or JSONL payloads.",
+    "Dataset catalog inspection queried information_schema.columns only; no application-table rows or values were read.",
+    "The four identified local DatasetManifest-shaped artifacts all declare schema_version 1.0; no historical 0.9 DatasetManifest artifact or mapping was identified in this bounded scope.",
+    "The public CLI probe is current-version 1.0-to-1.0 behavior on private copies. It does not exercise historical conversion; the installed synthetic 0.9 fixture remains synthetic evidence only.",
+    "Original source files were only hashed for before/after immutability checks; their bytes were never passed as CLI inputs or modified. Private copied inputs and outputs remain only under the ignored local scratch root."
+  ],
+  "recorded_ledger_status": "partial / bridge_missing",
+  "result": "Four genuine local current-version DatasetManifest files were found and the installed 1.0 public CLI persisted strict-readable 1.0 outputs from private copies. This is a current-version no-op/serialization control; it does not establish a historical 0.9 mapping.",
+  "schema": "policyos.e02.c.migrations.la050_local_input_audit.v1",
+  "status": "limited"
+}

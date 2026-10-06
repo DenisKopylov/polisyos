@@ -568,7 +568,7 @@
     },
     "LA-050": {
       "disposition": "limited",
-      "basis": "Installed public CLI performed a synthetic v0.9\u21921.0 DatasetManifest conversion, strict persisted DTO readback, input preservation, and conflict/unknown-field controls. No real historical persisted DatasetManifest artifact was found; that card condition remains unresolved."
+      "basis": "Installed public CLI performed a synthetic v0.9\u21921.0 DatasetManifest conversion, strict persisted DTO readback, input preservation, and conflict/unknown-field controls. A bounded audit of the documented local production_data root found four real persisted DatasetManifest-shaped artifacts, all schema_version 1.0; the installed public CLI and strict Fabric DTO accepted private-copy 1.0-to-1.0 round trips. This current-version control does not prove historical conversion or mapping. No historical 0.9 DatasetManifest was identified in that bounded input scope, so the card condition remains unresolved. See policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/migrations-la050-local-input-audit-552c7d9.json."
     }
   },
   "artifact_and_owner_boundaries": {
@@ -749,7 +749,15 @@
       "raw_ignored_receipt": "policy-engine/docs/research/e02-cloud-test-plan/raw/c-migrations/production-invocation.json@9137128d21f8ae0309072f090e981519e5969ae5a5e44d89590627d2e79c7c5b",
       "P41": "Attribution is not_established: no exact-base replay plus complete input-denominator/path zero-intersection proof was performed. This static failure is not a runtime negative and does not invalidate actual bounded CLI/DuckDB commands."
     },
-    "historical_artifacts": "No real persisted historical DatasetManifest fixture was located. Synthetic v0.9 fixtures establish the converter path but not historical provenance.",
+    "historical_artifacts": "The bounded local-input audit found four real current schema 1.0 DatasetManifest-shaped manifests; a synthetic v0.9 fixture still establishes only converter mechanics, not historical provenance. No historical 0.9 artifact was identified in the documented production_data manifest-name census; archives, non-manifest-named files, JSONL payloads, and other roots were not searched, and DatasetManifest-like records were not searched in database rows. Historical mapping and lineage remain unestablished.",
+    "la050_local_input_audit": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/migrations-la050-local-input-audit-552c7d9.json@adfb9b1345ab60969e4d62611f986bef562018fcaca22bad2206686a4af5cab7",
+      "manifest_name_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/captures/census/manifest-name-census.stdout@123eb6af96c8c51f99f299af9180e00cdf3c0fb12c6b66682db2ee6537938cfd",
+      "catalog_schema_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/captures/census/dataset-catalog-schema-census.stdout@4fed6511e84c2af18d40afd3c0645c12328c1f1ee209ff417c557123edc89adb",
+      "installed_public_cli": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/captures/installed/public-runner.stdout@b9a0dcac06c17ead58aefadb93b0bb6635056c21b0adb9819926b8a0c556b4e3",
+      "strict_installed_dto_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/captures/installed/strict-readback.stdout@0ba5c85ce3b51f07b2d513101dfaea328f8f76910b290aeb1e4e9acb41aef977",
+      "scope": "Four private copies of local current 1.0 manifests were tested; original local data was only read and hash-checked, and no input or output payload was committed. LA-050 remains limited."
+    },
     "database": "No PostgreSQL connection or durable database write was attempted.",
     "whole_package": "No author-built wheel, full backend/CI parity, production dataset, or service/database verification was performed."
   },

@@ -1,0 +1,1744 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-successor-final-gate-independent-audit",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "bundle_scope_qualification": "Independent final B execution accounting only; no per-finding technical closure assigned by this slice.",
+  "slice_base_sha": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+  "implementation_commits": [
+    "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272"
+  ],
+  "candidate_sha": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+  "candidate_tree_sha": "34f1b82c77c63fc4aff1105ca9a5390572f7fa14",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/instrument.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/profile-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/profile-review.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-B-cohort-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-B-cohort.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-ruff-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-ruff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-prefreeze-openapi-02ff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-prefreeze-openapi-02ff.txt"
+  ],
+  "source_changed_paths": [],
+  "production_and_test_delta": "ZERO_DIFF",
+  "baseline_cells": [],
+  "baseline_cells_qualification": "Historical source-reported cell summaries are not inputs or proof for these new DD root runs.",
+  "checks": [
+    {
+      "id": "successor-final-B-cohort",
+      "executed_by": "root frozen launcher; independent reviewer reconciled existing full outputs without rerunning",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-pytest",
+        "-o",
+        "cache_dir=/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-cache",
+        "--junitxml=/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_environment": {
+          "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "LANG": "C.UTF-8",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_B_PROPERTY_REMOVAL": null,
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "E02_B_COHORT_INVENTORY_PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort-inventory.json"
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-B-cohort-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 20483,
+          "sha256": "4efb2a6adb5f2d4c51c3598f831f1b8edc71fc4d9f10211b0d5b75a3f3bede83"
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-B-cohort.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2866,
+          "sha256": "bec139fa5bfc2c15a12e4deac7bb3c8bc7eb414fe1ed1bb71d7a093e429bf111"
+        }
+      },
+      "input_closure": {
+        "root_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "complete_registered_dispatch": {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@dd9584728bd96f204983615216efdbc58117e713",
+          "prefix": "successor-final",
+          "tags": [
+            "successor-final-B-cohort",
+            "successor-final-all-changed-format",
+            "successor-final-all-changed-ruff",
+            "successor-final-architecture",
+            "successor-final-parity-uncapped",
+            "successor-final-production-invocation",
+            "successor-final-runtime-api",
+            "successor-final-verify-uncapped"
+          ],
+          "denominator": 8
+        },
+        "registered_launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+        },
+        "capturing_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+        },
+        "actual_profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-B-cohort-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 20483,
+          "sha256": "4efb2a6adb5f2d4c51c3598f831f1b8edc71fc4d9f10211b0d5b75a3f3bede83"
+        },
+        "actual_wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-B-cohort.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2866,
+          "sha256": "bec139fa5bfc2c15a12e4deac7bb3c8bc7eb414fe1ed1bb71d7a093e429bf111"
+        },
+        "tracked_source_universe_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "source_universe",
+          "qualification": "Git tracked object census, not complete dynamic runtime read set"
+        },
+        "read_receipts_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "explicit_reads"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.txt",
+        "bytes": 3267622,
+        "sha256": "3d3ac32f7a36c9af45e2fcb0605641977794dbad4b9146143baf4fcb0c52b30e",
+        "retention": "ignored full raw; no transferred full-byte evidence claimed"
+      },
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "source_head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "wall_s": 2923.339981056997,
+      "maxrss_kib": 3309280,
+      "per_premise_basis": {
+        "source_output_exit_hash_reconciliation": "independently_reconciled",
+        "dynamic_runtime_complete_inputs": "not_established",
+        "inherited_P41_provenance": "not_established",
+        "criterion_or_production_acceptance": "not_established"
+      }
+    },
+    {
+      "id": "successor-final-all-changed-format",
+      "executed_by": "root frozen launcher; independent reviewer reconciled existing full outputs without rerunning",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta_first.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_release.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-profile-seam-evidence/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cache-type-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/derive-cohort-selector-audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/environment-capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/late-flight-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/property-removal-final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/rate-finite-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-affected.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-final-llm-126.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/unbound-owner-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/adjudicate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/audit_evidence.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/denominator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/cas_duplicate_inventory_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline_navigation.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native_original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-discriminator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/ruff_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/test_jit_late_arrival_oracle.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/source_replacement_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/read_only_jit_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03_artifact_custody.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/inspect-retained.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-import-worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-test-acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_bruteforce.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/dur02_property_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/probe_bound_upsert.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/store_mutation_census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gate-execution-independent-audit/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-receiver-consumer-evidence/retain_llm_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/replay-previous-production.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/read_b73_e56.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-extended.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-settled.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_fbc.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_unrun.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/context-consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/typevar-census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/legacy-ownership.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-invalid-proof.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit-portable.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/snapshot.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+        "src/polisyos/common/async_tools.py",
+        "src/polisyos/core/artifacts/__init__.py",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/_signature_ops.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py",
+        "src/polisyos/core/artifacts/async_store.py",
+        "src/polisyos/core/artifacts/backends/caching_store.py",
+        "src/polisyos/core/artifacts/cas_integrity_report.py",
+        "src/polisyos/core/artifacts/ir_adapter.py",
+        "src/polisyos/core/artifacts/manifest_profile.py",
+        "src/polisyos/core/artifacts/protocol.py",
+        "src/polisyos/core/artifacts/signing.py",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/components/_cli_crypto.py",
+        "src/polisyos/core/llm/response.py",
+        "src/polisyos/core/llm/settlement.py",
+        "src/polisyos/core/llm/traced_client.py",
+        "src/polisyos/fabric/connectors/pool.py",
+        "src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "src/polisyos/foundry/methods/artifacts/__init__.py",
+        "src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/foundry/methods/backends/__init__.py",
+        "src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "src/polisyos/foundry/methods/backends/chain_executor.py",
+        "src/polisyos/foundry/methods/backends/checkpointing.py",
+        "src/polisyos/foundry/methods/compiler/__init__.py",
+        "src/polisyos/foundry/methods/compiler/specialization.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/linker.py",
+        "src/polisyos/foundry/methods/exceptions.py",
+        "src/polisyos/runtime/http/services/control_plane_store.py",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "src/polisyos/scientist/orchestration/engine/executor.py",
+        "src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "src/polisyos/scientist/orchestration/engine/retry.py",
+        "src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "src/polisyos/scientist/orchestration/llm/factory.py",
+        "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+        "tests/unit/common/installed_wheel_bridge_consumer.py",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/common/test_async_tools_installed_wheel.py",
+        "tests/unit/core/artifacts/batch_duplicate_worker.py",
+        "tests/unit/core/artifacts/snapshot_special_path_worker.py",
+        "tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/connectors/test_resilience_e02.py",
+        "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+        "tests/unit/foundry/methods/test_linker.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/remediation/test_dur_02_process.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_wire_01.py",
+        "tests/unit/runtime/http/test_control_plane_store.py",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "tests/unit/scientist/orchestration/engine/_retry_setup_probe.py",
+        "tests/unit/scientist/orchestration/engine/fixtures/remote_scope_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "LANG": "C.UTF-8",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_B_PROPERTY_REMOVAL": null,
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "E02_B_COHORT_INVENTORY_PATH": null
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 80987,
+          "sha256": "524397af5b165f71f3ae51adcd030b71a31469180e66aef31e3b2d6d91f6e736"
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 25789,
+          "sha256": "74e96794cd2ec23e82da135f7c6be598144af9651f29aa7011e18c6c734f7454"
+        }
+      },
+      "input_closure": {
+        "root_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "complete_registered_dispatch": {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@dd9584728bd96f204983615216efdbc58117e713",
+          "prefix": "successor-final",
+          "tags": [
+            "successor-final-B-cohort",
+            "successor-final-all-changed-format",
+            "successor-final-all-changed-ruff",
+            "successor-final-architecture",
+            "successor-final-parity-uncapped",
+            "successor-final-production-invocation",
+            "successor-final-runtime-api",
+            "successor-final-verify-uncapped"
+          ],
+          "denominator": 8
+        },
+        "registered_launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+        },
+        "capturing_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+        },
+        "actual_profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 80987,
+          "sha256": "524397af5b165f71f3ae51adcd030b71a31469180e66aef31e3b2d6d91f6e736"
+        },
+        "actual_wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 25789,
+          "sha256": "74e96794cd2ec23e82da135f7c6be598144af9651f29aa7011e18c6c734f7454"
+        },
+        "tracked_source_universe_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "source_universe",
+          "qualification": "Git tracked object census, not complete dynamic runtime read set"
+        },
+        "read_receipts_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "explicit_reads"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format.txt",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 13414,
+        "sha256": "dd14a88e7d1879b15972307ce2d814b5748c4b6a52d93c72aa4270f210b4f6da"
+      },
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "source_head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "wall_s": 0.19630909099942073,
+      "maxrss_kib": 33816,
+      "per_premise_basis": {
+        "source_output_exit_hash_reconciliation": "independently_reconciled",
+        "dynamic_runtime_complete_inputs": "not_established",
+        "inherited_P41_provenance": "not_established",
+        "criterion_or_production_acceptance": "not_established"
+      }
+    },
+    {
+      "id": "successor-final-all-changed-ruff",
+      "executed_by": "root frozen launcher; independent reviewer reconciled existing full outputs without rerunning",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta_first.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_release.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-profile-seam-evidence/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cache-type-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/derive-cohort-selector-audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/environment-capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/late-flight-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/property-removal-final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/rate-finite-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-affected.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-final-llm-126.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/unbound-owner-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/adjudicate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/audit_evidence.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/denominator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/cas_duplicate_inventory_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline_navigation.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native_original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-discriminator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/ruff_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/test_jit_late_arrival_oracle.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/source_replacement_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/read_only_jit_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03_artifact_custody.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/inspect-retained.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-import-worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-test-acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_bruteforce.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/dur02_property_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/probe_bound_upsert.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/store_mutation_census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gate-execution-independent-audit/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-receiver-consumer-evidence/retain_llm_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/replay-previous-production.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/read_b73_e56.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-extended.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-settled.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_fbc.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_unrun.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/context-consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/typevar-census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/legacy-ownership.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-invalid-proof.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit-portable.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/snapshot.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+        "src/polisyos/common/async_tools.py",
+        "src/polisyos/core/artifacts/__init__.py",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/_signature_ops.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py",
+        "src/polisyos/core/artifacts/async_store.py",
+        "src/polisyos/core/artifacts/backends/caching_store.py",
+        "src/polisyos/core/artifacts/cas_integrity_report.py",
+        "src/polisyos/core/artifacts/ir_adapter.py",
+        "src/polisyos/core/artifacts/manifest_profile.py",
+        "src/polisyos/core/artifacts/protocol.py",
+        "src/polisyos/core/artifacts/signing.py",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/components/_cli_crypto.py",
+        "src/polisyos/core/llm/response.py",
+        "src/polisyos/core/llm/settlement.py",
+        "src/polisyos/core/llm/traced_client.py",
+        "src/polisyos/fabric/connectors/pool.py",
+        "src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "src/polisyos/foundry/methods/artifacts/__init__.py",
+        "src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/foundry/methods/backends/__init__.py",
+        "src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "src/polisyos/foundry/methods/backends/chain_executor.py",
+        "src/polisyos/foundry/methods/backends/checkpointing.py",
+        "src/polisyos/foundry/methods/compiler/__init__.py",
+        "src/polisyos/foundry/methods/compiler/specialization.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/linker.py",
+        "src/polisyos/foundry/methods/exceptions.py",
+        "src/polisyos/runtime/http/services/control_plane_store.py",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "src/polisyos/scientist/orchestration/engine/executor.py",
+        "src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "src/polisyos/scientist/orchestration/engine/retry.py",
+        "src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "src/polisyos/scientist/orchestration/llm/factory.py",
+        "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+        "tests/unit/common/installed_wheel_bridge_consumer.py",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/common/test_async_tools_installed_wheel.py",
+        "tests/unit/core/artifacts/batch_duplicate_worker.py",
+        "tests/unit/core/artifacts/snapshot_special_path_worker.py",
+        "tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/connectors/test_resilience_e02.py",
+        "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+        "tests/unit/foundry/methods/test_linker.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/remediation/test_dur_02_process.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_wire_01.py",
+        "tests/unit/runtime/http/test_control_plane_store.py",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "tests/unit/scientist/orchestration/engine/_retry_setup_probe.py",
+        "tests/unit/scientist/orchestration/engine/fixtures/remote_scope_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "LANG": "C.UTF-8",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_B_PROPERTY_REMOVAL": null,
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "E02_B_COHORT_INVENTORY_PATH": null
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-ruff-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 80987,
+          "sha256": "c4a62d6a46a5443eec590f7918a15f1fa66a6a16d988bdaca742f43df644f750"
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-ruff.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 25788,
+          "sha256": "eedd85fe38597382307d88ddfeba890c34cfc5c94bf33fc41c5a6535f2762ab4"
+        }
+      },
+      "input_closure": {
+        "root_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "complete_registered_dispatch": {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@dd9584728bd96f204983615216efdbc58117e713",
+          "prefix": "successor-final",
+          "tags": [
+            "successor-final-B-cohort",
+            "successor-final-all-changed-format",
+            "successor-final-all-changed-ruff",
+            "successor-final-architecture",
+            "successor-final-parity-uncapped",
+            "successor-final-production-invocation",
+            "successor-final-runtime-api",
+            "successor-final-verify-uncapped"
+          ],
+          "denominator": 8
+        },
+        "registered_launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+        },
+        "capturing_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+        },
+        "actual_profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-ruff-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 80987,
+          "sha256": "c4a62d6a46a5443eec590f7918a15f1fa66a6a16d988bdaca742f43df644f750"
+        },
+        "actual_wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-ruff.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 25788,
+          "sha256": "eedd85fe38597382307d88ddfeba890c34cfc5c94bf33fc41c5a6535f2762ab4"
+        },
+        "tracked_source_universe_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "source_universe",
+          "qualification": "Git tracked object census, not complete dynamic runtime read set"
+        },
+        "read_receipts_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "explicit_reads"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-ruff.txt",
+        "bytes": 2911509,
+        "sha256": "fbd0d530a76b9eed40e2908c5272f4489fc1c045e03efc3658128f2f9d74ad6b",
+        "retention": "ignored full raw; no transferred full-byte evidence claimed"
+      },
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "source_head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "wall_s": 0.4645099699991988,
+      "maxrss_kib": 57296,
+      "per_premise_basis": {
+        "source_output_exit_hash_reconciliation": "independently_reconciled",
+        "dynamic_runtime_complete_inputs": "not_established",
+        "inherited_P41_provenance": "not_established",
+        "criterion_or_production_acceptance": "not_established"
+      }
+    },
+    {
+      "id": "successor-final-architecture",
+      "executed_by": "root frozen launcher; independent reviewer reconciled existing full outputs without rerunning",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "LANG": "C.UTF-8",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_B_PROPERTY_REMOVAL": null,
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "E02_B_COHORT_INVENTORY_PATH": null
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2260,
+          "sha256": "e5f23de583e54ffe179eabddbda2694de5b36112b1bf2aeeb07dbba6c5423a66"
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2370,
+          "sha256": "a5992868aa96648b99c4c72b6bd5e1b3fa59dd5c1ce898b1586daefc601aa648"
+        }
+      },
+      "input_closure": {
+        "root_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "complete_registered_dispatch": {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@dd9584728bd96f204983615216efdbc58117e713",
+          "prefix": "successor-final",
+          "tags": [
+            "successor-final-B-cohort",
+            "successor-final-all-changed-format",
+            "successor-final-all-changed-ruff",
+            "successor-final-architecture",
+            "successor-final-parity-uncapped",
+            "successor-final-production-invocation",
+            "successor-final-runtime-api",
+            "successor-final-verify-uncapped"
+          ],
+          "denominator": 8
+        },
+        "registered_launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+        },
+        "capturing_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+        },
+        "actual_profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2260,
+          "sha256": "e5f23de583e54ffe179eabddbda2694de5b36112b1bf2aeeb07dbba6c5423a66"
+        },
+        "actual_wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2370,
+          "sha256": "a5992868aa96648b99c4c72b6bd5e1b3fa59dd5c1ce898b1586daefc601aa648"
+        },
+        "tracked_source_universe_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "source_universe",
+          "qualification": "Git tracked object census, not complete dynamic runtime read set"
+        },
+        "read_receipts_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "explicit_reads"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture.txt",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 123875,
+        "sha256": "479a319a2882490b7a8afe0cbb1823c8bec3a5c1690fbb6d090bf2d741c97f4d"
+      },
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "source_head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "wall_s": 244.11753706699528,
+      "maxrss_kib": 1168280,
+      "per_premise_basis": {
+        "source_output_exit_hash_reconciliation": "independently_reconciled",
+        "dynamic_runtime_complete_inputs": "not_established",
+        "inherited_P41_provenance": "not_established",
+        "criterion_or_production_acceptance": "not_established"
+      }
+    },
+    {
+      "id": "successor-final-parity-uncapped",
+      "executed_by": "root frozen launcher; independent reviewer reconciled existing full outputs without rerunning",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+        "--product-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--uv",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "--suite",
+        "ci-parity",
+        "--execute",
+        "--expected-source",
+        "dd9584728bd96f204983615216efdbc58117e713",
+        "--",
+        "--skip-browser"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "LANG": "C.UTF-8",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_B_PROPERTY_REMOVAL": null,
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "E02_B_COHORT_INVENTORY_PATH": null
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 3216,
+          "sha256": "8f24e40e87987d566999a50879b5b988ff248a6be0e3258aabfff58f8cc20c76"
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2771,
+          "sha256": "0ed4941f30088dae23437b6ba2f7edae624c53df7135390d4db551e44075f358"
+        }
+      },
+      "input_closure": {
+        "root_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "complete_registered_dispatch": {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@dd9584728bd96f204983615216efdbc58117e713",
+          "prefix": "successor-final",
+          "tags": [
+            "successor-final-B-cohort",
+            "successor-final-all-changed-format",
+            "successor-final-all-changed-ruff",
+            "successor-final-architecture",
+            "successor-final-parity-uncapped",
+            "successor-final-production-invocation",
+            "successor-final-runtime-api",
+            "successor-final-verify-uncapped"
+          ],
+          "denominator": 8
+        },
+        "registered_launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+        },
+        "capturing_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+        },
+        "actual_profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 3216,
+          "sha256": "8f24e40e87987d566999a50879b5b988ff248a6be0e3258aabfff58f8cc20c76"
+        },
+        "actual_wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2771,
+          "sha256": "0ed4941f30088dae23437b6ba2f7edae624c53df7135390d4db551e44075f358"
+        },
+        "tracked_source_universe_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "source_universe",
+          "qualification": "Git tracked object census, not complete dynamic runtime read set"
+        },
+        "read_receipts_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "explicit_reads"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped.txt",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 28824,
+        "sha256": "58ec835f6baab8ab189bb94b5eae7199271576af29feae26dbdf45388655b825"
+      },
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "source_head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "wall_s": 81.88612799299881,
+      "maxrss_kib": 1190144,
+      "per_premise_basis": {
+        "source_output_exit_hash_reconciliation": "independently_reconciled",
+        "dynamic_runtime_complete_inputs": "not_established",
+        "inherited_P41_provenance": "not_established",
+        "criterion_or_production_acceptance": "not_established"
+      }
+    },
+    {
+      "id": "successor-final-production-invocation",
+      "executed_by": "root frozen launcher; independent reviewer reconciled existing full outputs without rerunning",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/tmp/e02-B-successor-final/raw/review/successor-final-production-invocation-full.json"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "LANG": "C.UTF-8",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_B_PROPERTY_REMOVAL": null,
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "E02_B_COHORT_INVENTORY_PATH": null
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2564,
+          "sha256": "fa62c3a6b1b86db072e755fafc1f5b01b1987568bfb185f6e14bb37f9c55121f"
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2592,
+          "sha256": "0ba4e7bb411c874414b594593da7a3c81a48d92e5a55612b1c0e0013b08d808e"
+        }
+      },
+      "input_closure": {
+        "root_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "complete_registered_dispatch": {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@dd9584728bd96f204983615216efdbc58117e713",
+          "prefix": "successor-final",
+          "tags": [
+            "successor-final-B-cohort",
+            "successor-final-all-changed-format",
+            "successor-final-all-changed-ruff",
+            "successor-final-architecture",
+            "successor-final-parity-uncapped",
+            "successor-final-production-invocation",
+            "successor-final-runtime-api",
+            "successor-final-verify-uncapped"
+          ],
+          "denominator": 8
+        },
+        "registered_launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+        },
+        "capturing_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+        },
+        "actual_profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2564,
+          "sha256": "fa62c3a6b1b86db072e755fafc1f5b01b1987568bfb185f6e14bb37f9c55121f"
+        },
+        "actual_wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2592,
+          "sha256": "0ba4e7bb411c874414b594593da7a3c81a48d92e5a55612b1c0e0013b08d808e"
+        },
+        "tracked_source_universe_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "source_universe",
+          "qualification": "Git tracked object census, not complete dynamic runtime read set"
+        },
+        "read_receipts_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "explicit_reads"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation.txt",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 17100,
+        "sha256": "dac6c1312029f29ccad83fd610bd37d801f533c51c4fd251cc011bf5cd17335a"
+      },
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "source_head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "wall_s": 227.33780026400927,
+      "maxrss_kib": 8367788,
+      "per_premise_basis": {
+        "source_output_exit_hash_reconciliation": "independently_reconciled",
+        "dynamic_runtime_complete_inputs": "not_established",
+        "inherited_P41_provenance": "not_established",
+        "criterion_or_production_acceptance": "not_established"
+      }
+    },
+    {
+      "id": "successor-final-runtime-api",
+      "executed_by": "root frozen launcher; independent reviewer reconciled existing full outputs without rerunning",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "polisyos-tools",
+        "runtime",
+        "check-runtime-api-contract"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "LANG": "C.UTF-8",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_B_PROPERTY_REMOVAL": null,
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "E02_B_COHORT_INVENTORY_PATH": null
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2312,
+          "sha256": "e8f7724c2597fa9c5783bd7ac619786bd0fc9ffe984401329373e971debd1463"
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2418,
+          "sha256": "84527056299644ca338c8f6e03fb39c3d21aaa8cdf38c00e8dc623bed4e20eff"
+        }
+      },
+      "input_closure": {
+        "root_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "complete_registered_dispatch": {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@dd9584728bd96f204983615216efdbc58117e713",
+          "prefix": "successor-final",
+          "tags": [
+            "successor-final-B-cohort",
+            "successor-final-all-changed-format",
+            "successor-final-all-changed-ruff",
+            "successor-final-architecture",
+            "successor-final-parity-uncapped",
+            "successor-final-production-invocation",
+            "successor-final-runtime-api",
+            "successor-final-verify-uncapped"
+          ],
+          "denominator": 8
+        },
+        "registered_launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+        },
+        "capturing_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+        },
+        "actual_profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2312,
+          "sha256": "e8f7724c2597fa9c5783bd7ac619786bd0fc9ffe984401329373e971debd1463"
+        },
+        "actual_wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2418,
+          "sha256": "84527056299644ca338c8f6e03fb39c3d21aaa8cdf38c00e8dc623bed4e20eff"
+        },
+        "tracked_source_universe_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "source_universe",
+          "qualification": "Git tracked object census, not complete dynamic runtime read set"
+        },
+        "read_receipts_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "explicit_reads"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api.txt",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 7059,
+        "sha256": "a0ee7dc4ea91da8b7d74043ca0df20ac15b33ccb673182033858ec8da572408b"
+      },
+      "exit_code": 0,
+      "harness_state": "EXECUTED",
+      "source_head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "wall_s": 72.51038870099,
+      "maxrss_kib": 1195796,
+      "per_premise_basis": {
+        "source_output_exit_hash_reconciliation": "independently_reconciled",
+        "dynamic_runtime_complete_inputs": "not_established",
+        "inherited_P41_provenance": "not_established",
+        "criterion_or_production_acceptance": "not_established"
+      }
+    },
+    {
+      "id": "successor-final-verify-uncapped",
+      "executed_by": "root frozen launcher; independent reviewer reconciled existing full outputs without rerunning",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+        "--product-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--uv",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "--suite",
+        "verify",
+        "--execute",
+        "--expected-source",
+        "dd9584728bd96f204983615216efdbc58117e713",
+        "--",
+        "--backend-only"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "source_environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+          "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "LANG": "C.UTF-8",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+          "E02_B_PROPERTY_REMOVAL": null,
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+          "UV_NO_SYNC": "1",
+          "E02_B_COHORT_INVENTORY_PATH": null
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 3213,
+          "sha256": "67c1241e1b09ffde7004547a91dcb7973898453215f402dacd51dd9a72197060"
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2767,
+          "sha256": "fac5ceae3501dd7ebbe031d81ae41e4e200a132bb40851554148d0c222be6ece"
+        }
+      },
+      "input_closure": {
+        "root_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+        "complete_registered_dispatch": {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py@dd9584728bd96f204983615216efdbc58117e713",
+          "prefix": "successor-final",
+          "tags": [
+            "successor-final-B-cohort",
+            "successor-final-all-changed-format",
+            "successor-final-all-changed-ruff",
+            "successor-final-architecture",
+            "successor-final-parity-uncapped",
+            "successor-final-production-invocation",
+            "successor-final-runtime-api",
+            "successor-final-verify-uncapped"
+          ],
+          "denominator": 8
+        },
+        "registered_launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+        },
+        "capturing_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+        },
+        "actual_profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped-profile.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 3213,
+          "sha256": "67c1241e1b09ffde7004547a91dcb7973898453215f402dacd51dd9a72197060"
+        },
+        "actual_wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped.json",
+          "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+          "bytes": 2767,
+          "sha256": "fac5ceae3501dd7ebbe031d81ae41e4e200a132bb40851554148d0c222be6ece"
+        },
+        "tracked_source_universe_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "source_universe",
+          "qualification": "Git tracked object census, not complete dynamic runtime read set"
+        },
+        "read_receipts_reference": {
+          "audit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 505515,
+            "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+          },
+          "field": "explicit_reads"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped.txt",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 18074,
+        "sha256": "23466b43a52b841ca1b3e0ecb7367d1636302d96a28f7f19e2ab3f906f8deae3"
+      },
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "source_head_after": "dd9584728bd96f204983615216efdbc58117e713",
+      "wall_s": 4.085936097995727,
+      "maxrss_kib": 126952,
+      "per_premise_basis": {
+        "source_output_exit_hash_reconciliation": "independently_reconciled",
+        "dynamic_runtime_complete_inputs": "not_established",
+        "inherited_P41_provenance": "not_established",
+        "criterion_or_production_acceptance": "not_established"
+      }
+    },
+    {
+      "id": "independent-once-execution-accounting",
+      "executed_by": "EXE independent gate accountant, not production mechanism reviewer",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-I",
+        "-B",
+        "/tmp/e02-B-successor-gate-audit-exe/instrument.source.txt",
+        "--root",
+        "/workspace/e02-B-current-coordination",
+        "--raw",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review",
+        "--profile-raw",
+        "/tmp/e02-B-successor-final/raw/review",
+        "--target-sha",
+        "dd9584728bd96f204983615216efdbc58117e713",
+        "--prefix",
+        "successor-final",
+        "--out",
+        "/tmp/e02-B-successor-gate-audit-exe/audit.json",
+        "--instrument-out",
+        "/tmp/e02-B-successor-gate-audit-exe/execution.json"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+      },
+      "input_closure": {
+        "original_reader": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+          "source_sha": "a4640e6812123877ce40685a3ca9c7974c856fc7",
+          "sha256": "4140d5996c7563eb3cd40d58eeed0e122d2d011b19808f1f0c1eddfe7968e7ed",
+          "target_byte_equal": true,
+          "executed_copy": "/tmp/e02-B-successor-gate-audit-exe/audit-a464.source.txt"
+        },
+        "launcher": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb"
+        },
+        "capture": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+          "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+          "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+        },
+        "all_input_routes": {
+          "ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/execution.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 8244,
+            "sha256": "7d93bf4845d44139a086727eb3762ae9718477fd90f30d8f0494b65faca4c746"
+          },
+          "field": "input_routes"
+        },
+        "predicate_source_changes": []
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.stdout.txt",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 513,
+        "sha256": "85e1d53c763196ee9f47b1f27283b576bebd007b6f36c023d3abb5ea5096ac55"
+      },
+      "report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 505515,
+        "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+      },
+      "instrument_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/execution.json",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 8244,
+        "sha256": "7d93bf4845d44139a086727eb3762ae9718477fd90f30d8f0494b65faca4c746"
+      },
+      "meaning": "Read-only accounting completed; this is not a PASS for the seven failed root commands."
+    },
+    {
+      "id": "architecture-runtime-freshness-profile-readonly-review",
+      "executed_by": "EXE independent profile accountant",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/tmp/e02-B-successor-gate-audit-exe/profile-review.source.txt"
+      ],
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "environment": {
+        "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+      },
+      "input_closure": {
+        "complete_source_refs": {
+          "report": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/profile-review.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 30807,
+            "sha256": "58b30a44a07e7c697e097fd92c4ab58b037498e19158e7fe86b1a98a14114ea8"
+          },
+          "field": "source_refs"
+        },
+        "actual_read_inputs": {
+          "report": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/profile-review.json",
+            "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+            "bytes": 30807,
+            "sha256": "58b30a44a07e7c697e097fd92c4ab58b037498e19158e7fe86b1a98a14114ea8"
+          },
+          "field": "evidence_refs"
+        },
+        "canonical_generator_sha": "02ff9d0467423a99c2b4c737329da0c629e6b869"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/profile-review.json",
+        "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+        "bytes": 30807,
+        "sha256": "58b30a44a07e7c697e097fd92c4ab58b037498e19158e7fe86b1a98a14114ea8"
+      },
+      "meaning": "Actual architecture FAIL and runtime API PASS reconciled; causality of generated byte mismatch remains not_established."
+    }
+  ],
+  "property": {
+    "statement": "Account every actually executed terminal root command, complete planned constituent remainder, source/argv/environment identity and output bytes without promoting static or profile-limited evidence to product acceptance.",
+    "runtime_path": [
+      "registered root launcher@DD",
+      "captured full stdout/wrapper/profile",
+      "unchanged pinned a464 read-only parser",
+      "independent byte/output/source reconciliation",
+      "committed execution accounting with bounded input disclosure"
+    ],
+    "proxy_divergence": "An exit-zero read-only auditor can correctly report seven failed gates; its success is not product acceptance. Direct runtime API byte-drift PASS also does not establish the registered isolated-copy freshness probe PASS; actual architecture says FAIL.",
+    "negative_controls": [
+      "Existing actual FAIL commands and UNRUN constituent remainders remain unchanged.",
+      "Full native XML retains140FAIL600ERROR2SKIP; no inherited attribution or testcase removal.",
+      "Actual production format failure executor.py remains a product-file failure.",
+      "New runtime/source/test/collection/generator/gate/replay by reviewer: UNRUN."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "declared_dispatch_and_literal_source_denominator": "recomputed",
+    "captured_source_output_argv_exit_hashes": "independently_reconciled",
+    "architecture_recipe_and_consumer_bindings": "recomputed",
+    "generated_profile_mismatch_cause": "not_established",
+    "full1502dependency_worker_mapping": "not_established",
+    "complete_dynamic_gate_reads": "not_established",
+    "production_or_criterion_acceptance": "not_established",
+    "inherited_P41_waiver": "not_established",
+    "receiving_machine_large_raw_byte_availability": "not_established"
+  },
+  "capability_state_or_finding_state": "Complete bounded execution accounting; root quality FAIL and native non-pass retained; no closure or author-source acceptance.",
+  "limitations_and_next_owner": [
+    {
+      "boundary": "Future repaired source",
+      "next_owner": "B root/G",
+      "action": "This DD run is historical exact source evidence and cannot be inherited as a future candidate PASS."
+    },
+    {
+      "boundary": "Generated runtime/trust freshness",
+      "next_owner": "team-polisyos/team-runtime and team-architecture",
+      "action": "Registered architecture mismatch remains FAIL. Full isolated generated payload/1502dependency map not retained, so cause not established."
+    },
+    {
+      "boundary": "Native3622 non-pass140FAIL600ERROR2SKIP",
+      "next_owner": "B root and canonical mechanism/test/backend owners",
+      "action": "Use complete actual XML/inventory to classify each failure; no P41 waiver from this audit."
+    },
+    {
+      "boundary": "Literal style and static invocation diagnostics",
+      "next_owner": "B family authors, team-devx/team-architecture",
+      "action": "Keep actual canonical executor.py format FAIL, research Ruff/style failures,7static regressions/193newunresolved. No mass repair or runtime claim."
+    },
+    {
+      "boundary": "Verify/parity unentered commands",
+      "next_owner": "B root/team-devx",
+      "action": "13verify and34parity constituents UNRUN; native capped umbrellaCLI UNRUN. No claimed full compatibility."
+    },
+    {
+      "boundary": "Large ignored deciding raw",
+      "next_owner": "G receiving evidence reviewer",
+      "action": "Full bytes remain at original ignored path@SHA; if unavailable after transfer, exact source-bound rerun is required, not summary substitution."
+    }
+  ],
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/evidence-index.json",
+    "commit": "6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272",
+    "bytes": 14919,
+    "sha256": "bd2cf38f8d51cfe92a26fab908227e9cff20ecbf0b873d34b3672831149157f1"
+  },
+  "observed_terminal_totals": {
+    "tags": 8,
+    "outer_native_tags": 1,
+    "quality_tags": 7,
+    "all_tag_outcomes": {
+      "FAIL": 7,
+      "PASS": 1
+    },
+    "quality_outcomes": {
+      "FAIL": 6,
+      "PASS": 1
+    },
+    "native_case_counts": {
+      "PASS": 2880,
+      "FAIL": 140,
+      "ERROR": 600,
+      "SKIP": 2
+    },
+    "native_case_denominator": 3622,
+    "verify_constituents": {
+      "PASS": 1,
+      "FAIL": 1,
+      "UNRUN": 13
+    },
+    "parity_constituents": {
+      "FAIL": 1,
+      "UNRUN": 34
+    },
+    "literal_format_denominator": 248,
+    "literal_format_would_reformat": 102,
+    "static_invocation_diagnostic": {
+      "status": "FAILED",
+      "coverage": "partial",
+      "runtime_invocation_established": false,
+      "regression_count": 7,
+      "new_unresolved_count": 193,
+      "unresolved_construction": 9263,
+      "unresolved_receivers": 140038
+    }
+  },
+  "resume_admission": {
+    "path": "/tmp/e02-B-successor-gate-audit-exe/admission/resume.json",
+    "bytes": 135822,
+    "sha256": "98738204c67517ea92330bcf9647c06007770f1bd04946353585a5aadea994a2",
+    "status": "admitted",
+    "complete_json_retained": true
+  },
+  "transport_status": "awaiting_normal_publication_readback",
+  "publication_qualification": "No new remote head claim until exact normal push/readback succeeds; expired-token failure must retain local commits/patch and transport_blocked."
+}

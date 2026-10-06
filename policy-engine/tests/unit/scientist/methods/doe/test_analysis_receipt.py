@@ -10,7 +10,7 @@ import pytest
 pytest.importorskip("SALib")
 
 from polisyos.scientist.methods.autotune.sensitivity_bridge import SensitivityBridge
-from polisyos.scientist.methods.doe._receipt import _load_analysis
+from polisyos.scientist.methods.doe._receipt import _load_analysis, _persist_analysis
 from polisyos.scientist.methods.doe.analysis import analyze_sensitivity
 from polisyos.scientist.methods.doe.designs import ParameterSpec, SensitivityPlan
 from polisyos.scientist.methods.doe.sampling import generate_sensitivity_samples
@@ -87,6 +87,78 @@ def test_sobol_native_linear_oracle_and_replay():
     assert result.s2["x"]["z"] == pytest.approx(0.0, abs=0.02)
     np.testing.assert_array_equal(samples, generate_sensitivity_samples(plan))
     assert result.metadata["design_order_basis"] == "recomputed"
+
+
+def test_sobol_whole_paired_block_replay_keeps_estimands_and_rebinds_content(store):
+    from polisyos.core.artifacts import FileSystemCAS
+
+    plan = _plan(n_trajectories=1024, max_estimated_runs=6144)
+    samples = generate_sensitivity_samples(plan)
+    outputs = samples[:, 0] + samples[:, 1] + 2 * samples[:, 0] * samples[:, 1]
+    original = analyze_sensitivity(plan, samples, outputs)
+    original_ref = _persist_analysis(store, plan, samples, outputs, original)
+    block_size = 2 * plan.num_parameters + 2
+    # Preserve every A/AB/BA/B role inside its block and move paired outcomes with X.
+    order = np.random.default_rng(7903).permutation(plan.n_trajectories)
+    replay_samples = samples.reshape(-1, block_size, 2)[order].reshape(-1, 2)
+    replay_outputs = outputs.reshape(-1, block_size)[order].reshape(-1)
+    replay = analyze_sensitivity(plan, replay_samples, replay_outputs)
+    assert replay.s1 == pytest.approx({"x": 12 / 25, "z": 12 / 25}, abs=0.01)
+    assert replay.st == pytest.approx({"x": 13 / 25, "z": 13 / 25}, abs=0.01)
+    assert replay.s2["x"]["z"] == pytest.approx(1 / 25, abs=0.01)
+    assert replay.s1 == pytest.approx(original.s1, abs=1e-12)
+    assert replay.st == pytest.approx(original.st, abs=1e-12)
+    assert replay.s2["x"]["z"] == pytest.approx(original.s2["x"]["z"], abs=1e-12)
+    for key in (
+        "ordered_samples_sha256",
+        "ordered_outputs_sha256",
+        "design_id",
+        "analysis_id",
+    ):
+        assert replay.metadata[key] != original.metadata[key]
+    with pytest.raises(ValueError, match="does not bind"):
+        _persist_analysis(store, plan, replay_samples, replay_outputs, original)
+    replay_ref = _persist_analysis(store, plan, replay_samples, replay_outputs, replay)
+    assert replay_ref != original_ref
+    fresh_store = FileSystemCAS(store.root)
+    assert _load_analysis(fresh_store, original_ref) == original
+    assert _load_analysis(fresh_store, replay_ref) == replay
+    reader = SensitivityAwareCandidateGenerator.from_artifact(
+        _BaseGenerator(), fresh_store, replay_ref
+    )
+    assert (
+        reader.generate([], None, {})["_sensitivity"]["analysis_id"]
+        == replay.metadata["analysis_id"]
+    )
+    # Integrity-valid new bytes paired with an old receipt still fail at the real reader.
+    import json
+
+    stale = json.loads(store.get_bytes(original_ref))
+    stale["samples"] = replay_samples.tolist()
+    stale["outputs"] = replay_outputs.tolist()
+    stale_ref = put_json_artifact(store, stale, kind="doe_sensitivity_analysis")
+    assert fresh_store.verify(stale_ref).ok
+    with pytest.raises(ValueError, match="does not reproduce"):
+        SensitivityAwareCandidateGenerator.from_artifact(_BaseGenerator(), fresh_store, stale_ref)
+
+
+@pytest.mark.parametrize("mutation", ["rows", "duplicate_block", "missing_block"])
+def test_sobol_refuses_broken_block_membership_or_interior_roles(mutation):
+    plan = _plan()
+    samples = generate_sensitivity_samples(plan)
+    outputs = samples[:, 0] + samples[:, 1]
+    block_size = 2 * plan.num_parameters + 2
+    if mutation == "rows":
+        # Paired outputs follow rows, but AB/BA roles are now wrong inside one block.
+        samples[[0, 1]] = samples[[1, 0]]
+        outputs[[0, 1]] = outputs[[1, 0]]
+    elif mutation == "duplicate_block":
+        samples[block_size : 2 * block_size] = samples[:block_size]
+        outputs[block_size : 2 * block_size] = outputs[:block_size]
+    else:
+        samples, outputs = samples[:-block_size], outputs[:-block_size]
+    with pytest.raises(ValueError, match="canonical seeded ordered design"):
+        analyze_sensitivity(plan, samples, outputs)
 
 
 @pytest.mark.parametrize("law", ["unknown", "dependent"])

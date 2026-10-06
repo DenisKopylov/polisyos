@@ -256,6 +256,25 @@ def _fit_method_from_summary(summary: Mapping[str, int]) -> str:
     return "hybrid"
 
 
+def _gcm_number(value: Any) -> float:
+    """Require an actual finite JSON number before interpreting a GCM export."""
+    if type(value) not in {int, float}:
+        raise ValueError("GCM numerical exports require finite JSON numbers, not coercible values")
+    try:
+        number = float(value)
+    except OverflowError as exc:
+        raise ValueError("GCM numerical export is outside finite floating-point range") from exc
+    if not np.isfinite(number):
+        raise ValueError("GCM numerical exports must be finite")
+    return number
+
+
+def _gcm_vector(value: Any) -> np.ndarray:
+    if not isinstance(value, list):
+        raise ValueError("GCM numerical export vector must be a JSON array")
+    return np.asarray([_gcm_number(item) for item in value], dtype=float)
+
+
 def _gcm_spec_from_worker(
     payload: SCMFitData,
     response: Mapping[str, Any],
@@ -297,7 +316,7 @@ def _gcm_spec_from_worker(
                 or result["family"] != "empirical"
             ):
                 raise ValueError(f"unsupported GCM root mechanism for {node}")
-            observed = np.asarray(result["observed_samples"], dtype=float)
+            observed = _gcm_vector(result["observed_samples"])
             if observed.shape != y.shape or not np.array_equal(observed, y):
                 raise ValueError(f"GCM root samples differ from source rows for {node}")
             family = MechanismFamily.EMPIRICAL
@@ -323,8 +342,10 @@ def _gcm_spec_from_worker(
             coefficients = result["coefficients"]
             if not isinstance(coefficients, Mapping) or set(coefficients) != set(expected_parents):
                 raise ValueError(f"GCM coefficient binding mismatch for {node}")
-            intercept = float(result["intercept"])
-            residual = np.asarray(result["residual_samples"], dtype=float)
+            intercept = _gcm_number(result["intercept"])
+            coefficients = {parent: _gcm_number(value) for parent, value in coefficients.items()}
+            noise_std = _gcm_number(result["noise_std"])
+            residual = _gcm_vector(result["residual_samples"])
             prediction = intercept + sum(
                 float(coefficients[parent]) * frame[:, columns[parent]]
                 for parent in expected_parents
@@ -351,11 +372,9 @@ def _gcm_spec_from_worker(
                 or not np.allclose(residual, y - prediction, atol=1.0e-8, rtol=1.0e-8)
             ):
                 raise ValueError(f"GCM fitted residuals differ from source rows for {node}")
-            if not np.isfinite(prediction).all() or not np.isfinite(float(result["noise_std"])):
+            if not np.isfinite(prediction).all() or noise_std < 0:
                 raise ValueError(f"nonfinite GCM conditional mechanism for {node}")
-            if not np.isclose(
-                float(result["noise_std"]), float(np.std(residual)), atol=1.0e-8, rtol=1.0e-8
-            ):
+            if not np.isclose(noise_std, float(np.std(residual)), atol=1.0e-8, rtol=1.0e-8):
                 raise ValueError(
                     f"GCM residual scale differs from actual source-row residuals for {node}"
                 )
@@ -363,7 +382,7 @@ def _gcm_spec_from_worker(
             params = {
                 "intercept": intercept,
                 "coefficients": dict(coefficients),
-                "noise_std": float(result["noise_std"]),
+                "noise_std": noise_std,
                 "residual_samples": residual.tolist(),
                 "fit_mode": "dowhy_linear_additive_noise",
             }

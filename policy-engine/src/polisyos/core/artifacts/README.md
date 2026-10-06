@@ -63,5 +63,8 @@ A parent-directory sync failure after replacement raises `ExportDurabilityError`
 `replaced=True` and `previous_generation`; both complete generations remain readable, while
 crash durability remains uncertain. This is a local filesystem publication boundary, not a
 power-loss, hostile-parent-mutation, ACL/ownership, or distributed filesystem guarantee.
+Archive import sources likewise require a regular supplied pathname and a regular opened
+descriptor, with no-follow and nonblocking open flags. Ordinary permission modes are verified;
+special set-ID bits and uid/gid ownership remain outside the native permission witness.
 Importers keep one archive inode or one directory descriptor pinned from inventory through
 member reads, so a concurrent generation replacement cannot mix their input bytes.

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ctypes
+import errno
 import hashlib
 import json
 import os
@@ -190,8 +191,19 @@ def _sync_directory_generation(staging: Path) -> None:
 @contextmanager
 def _opened_archive(source: Path) -> Iterator[tarfile.TarFile]:
     """Keep the same archive inode open for metadata and member reads."""
-    with tarfile.open(source, "r:*") as archive:
-        yield archive
+    if not stat.S_ISREG(source.lstat().st_mode):
+        raise ValueError("Transfer archive source must be a regular file")
+    try:
+        descriptor = os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except OSError as error:
+        if error.errno in {errno.ELOOP, errno.ENXIO, errno.ENODEV, errno.EISDIR}:
+            raise ValueError("Transfer archive source must be a regular file") from error
+        raise
+    with os.fdopen(descriptor, "rb") as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise ValueError("Transfer archive source must be a regular file")
+        with tarfile.open(fileobj=stream, mode="r:*") as archive:
+            yield archive
 
 
 def _read_directory_inventory(descriptor: int) -> bytes | None:
@@ -811,8 +823,6 @@ def import_subgraph(
             source_handles.callback(os.close, directory_descriptor)
             inventory_data = _read_directory_inventory(directory_descriptor)
         else:
-            if not stat.S_ISREG(source.stat().st_mode):
-                raise ValueError("Transfer archive must be a regular file")
             tar = source_handles.enter_context(_opened_archive(source))
             inventory_members = [
                 member

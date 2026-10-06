@@ -5,7 +5,7 @@ component = "artifacts"
 owner = "team-runtime"
 summary = "Reusable CAS archives and owned directory exports atomically select complete staged generations; import consumers pin their original generation across concurrent replacement."
 evidence = ["tests/unit/core/artifacts/test_transfer_generation_publication.py", "tests/unit/remediation/test_cas_02.py", "tests/unit/core/artifacts/backends/test_caching_store.py"]
-compatibility = "ExportReport adds an optional previous_generation path. New outputs retain private staging modes (0600 archive, 0700 directory); existing output modes are preserved. Archive symlinks and nonregular final paths are refused. Replacing an owned nonempty directory requires supported native atomic exchange; unsupported filesystems/platforms fail before publication."
+compatibility = "ExportReport adds an optional previous_generation path. New outputs retain private staging modes (0600 archive, 0700 directory); existing output modes are preserved. Archive symlinks and nonregular final/source paths are refused. Replacing an owned nonempty directory requires supported native atomic exchange; unsupported filesystems/platforms fail before publication."
 change_class = "behavior-runtime"
 surface_classification = "public_stable: filesystem CAS transfer reports; internal: local filesystem publication"
 migration = "Retain and reclaim previous_generation paths according to the caller's history needs. Parent-sync failure after selection reports replaced=True and the retained previous path; treat crash durability as uncertain."

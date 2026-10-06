@@ -30,9 +30,9 @@ def _archive_property_removal_control(monkeypatch: pytest.MonkeyPatch) -> None:
         return
     original = tarfile.open
 
-    def write_live(path, mode="r", *args, **kwargs):
-        candidate = Path(path)
-        if mode == "w:gz" and ".staging-" in candidate.name:
+    def write_live(path=None, mode="r", *args, **kwargs):
+        candidate = Path(path) if path is not None else None
+        if mode == "w:gz" and candidate is not None and ".staging-" in candidate.name:
             live_name = candidate.name.split(".staging-", 1)[0].removeprefix(".")
             live = candidate.with_name(live_name)
             if live.exists():
@@ -459,3 +459,129 @@ def test_unavailable_native_exchange_refuses_before_removing_the_current_directo
     assert _package_bytes(target) == old_bytes
     assert not list(tmp_path.glob(".export.generation-*"))
     _assert_imported(target, tmp_path / "unsupported-reader", OLD)
+
+
+@pytest.mark.parametrize(
+    "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+)
+def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+    tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = FileSystemCAS(tmp_path / "source")
+    incoming = _put(source, NEW)
+    legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+    legitimate_bytes = legitimate.read_bytes()
+    alias = tmp_path / "input.tar.gz"
+    sock = None
+    if kind == "regular_symlink":
+        alias.symlink_to(legitimate)
+    elif kind == "dangling_symlink":
+        alias.symlink_to(tmp_path / "absent")
+    elif kind == "fifo":
+        os.mkfifo(alias)
+    elif kind == "socket":
+        sock = socket.socket(socket.AF_UNIX)
+        previous_cwd = Path.cwd()
+        monkeypatch.chdir(tmp_path)
+        sock.bind(alias.name)
+        monkeypatch.chdir(previous_cwd)
+    else:
+        alias.write_bytes(legitimate_bytes)
+    receiver = FileSystemCAS(tmp_path / "receiver")
+    prior = _put(receiver, OLD)
+    owner_bytes = {
+        p.relative_to(receiver.root).as_posix(): p.read_bytes()
+        for p in receiver.root.rglob("*")
+        if p.is_file()
+    }
+    before = alias.lstat()
+    context = multiprocessing.get_context("spawn")
+    parent, child = context.Pipe()
+    process = context.Process(
+        target=_import_path_probe,
+        args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+    )
+    process.start()
+    try:
+        assert parent.poll(20), "import path probe did not start"
+        assert parent.recv() == "ready"
+        assert parent.poll(2), "import opened a nonregular archive and blocked"
+        result = parent.recv()
+        assert result["type"] == "ValueError", result
+        assert "regular file" in result["message"]
+        if kind == "fifo_at_open":
+            assert result["substituted"]
+            assert stat.S_ISFIFO(alias.lstat().st_mode)
+            assert alias.with_name("retained-before-open.tar.gz").read_bytes() == legitimate_bytes
+        else:
+            after = alias.lstat()
+            assert (after.st_ino, stat.S_IFMT(after.st_mode)) == (
+                before.st_ino,
+                stat.S_IFMT(before.st_mode),
+            )
+        process.join(20)
+        assert process.exitcode == 0
+        assert legitimate.read_bytes() == legitimate_bytes
+        assert {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        } == owner_bytes
+        reopened = FileSystemCAS(receiver.root)
+        assert reopened.get_bytes(prior) == OLD
+        assert reopened.verify(prior).ok
+        assert not reopened.has(incoming)
+        assert not list(receiver.root.glob(".cas-import-*"))
+    finally:
+        if process.is_alive():
+            process.terminate()
+        process.join(20)
+        parent.close()
+        child.close()
+        if sock is not None:
+            sock.close()
+
+
+def _import_path_probe(cas_root: str, source_name: str, substitute: bool, connection: Any) -> None:
+    import builtins
+
+    source = Path(source_name)
+    real_open = builtins.open
+    real_os_open = transfer.os.open
+    substituted = False
+
+    def exchange_source(path) -> None:
+        nonlocal substituted
+        if not substitute or substituted or not isinstance(path, (str, os.PathLike)):
+            return
+        if Path(path) == source:
+            source.rename(source.with_name("retained-before-open.tar.gz"))
+            os.mkfifo(source)
+            substituted = True
+
+    def open_stream(path, *args, **kwargs):
+        exchange_source(path)
+        return real_open(path, *args, **kwargs)
+
+    def open_descriptor(path, *args, **kwargs):
+        exchange_source(path)
+        return real_os_open(path, *args, **kwargs)
+
+    builtins.open = open_stream
+    transfer.os.open = open_descriptor
+    store = FileSystemCAS(Path(cas_root))
+    connection.send("ready")
+    try:
+        store.import_subgraph(source, verify_integrity=True)
+    except Exception as error:
+        connection.send(
+            {"type": type(error).__name__, "message": str(error), "substituted": substituted}
+        )
+    else:
+        connection.send(
+            {
+                "type": "published",
+                "message": "nonregular input was admitted",
+                "substituted": substituted,
+            }
+        )

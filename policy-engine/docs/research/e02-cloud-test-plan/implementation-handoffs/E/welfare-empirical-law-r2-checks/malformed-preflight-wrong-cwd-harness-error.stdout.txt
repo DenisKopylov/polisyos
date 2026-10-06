@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/welfare-malformed-preflight.py", line 7, in <module>
+    fixture=runpy.run_path('tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py')
+  File "<frozen runpy>", line 293, in run_path
+  File "<frozen runpy>", line 261, in _get_code_from_file
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-backtest-20261006/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py'

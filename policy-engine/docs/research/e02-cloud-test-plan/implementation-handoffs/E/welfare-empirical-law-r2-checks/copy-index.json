@@ -98,5 +98,20 @@
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/format.stdout.txt",
     "bytes": 26,
     "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/malformed-preflight.py.txt",
+    "bytes": 1913,
+    "sha256": "4e275d2181e838337cf173c6b4a125ffef0e2373cb0533f2c925eb3b844d83de"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/malformed-preflight.stdout.txt",
+    "bytes": 1671,
+    "sha256": "fb3941b71bd630c6952fe0db8bf4a1bc64a6c5417667770f9f46c362c34ff493"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2-checks/malformed-preflight-wrong-cwd-harness-error.stdout.txt",
+    "bytes": 508,
+    "sha256": "581698953db2e8663091e1cead1a42059f3955319a0c909b034586e2792db53e"
   }
 ]

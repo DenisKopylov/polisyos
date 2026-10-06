@@ -34,6 +34,88 @@ def git(*args: str) -> str:
     ).strip()
 
 
+def bind_verification_inputs(env: dict[str, str]) -> dict[str, object]:
+    """Bind the prepared wheel and real task-owned PostgreSQL fixture explicitly."""
+    setting = os.environ.get("E02_LA057_COHORT_INPUT_FILE")
+    if not setting:
+        raise RuntimeError("Supply the exact prepared installed-wheel cohort input file")
+    wheel_profile = Path(setting).resolve(strict=True)
+    values = json.loads(wheel_profile.read_text())
+    required = {
+        "E02_LA057_WHEEL_PATH",
+        "E02_LA057_INSTALLED_SITE",
+        "E02_LA057_SOURCE_ROOT",
+        "E02_LA057_SOURCE_SHA",
+        "E02_LA057_INSTALLED_PYTHON",
+        "E02_LA057_CONSUMER_SHA256",
+        "E02_LA057_OUTER_TEST_SHA256",
+    }
+    if not isinstance(values, dict) or set(values) != required:
+        raise RuntimeError("Installed-wheel profile must contain exactly seven declared inputs")
+    if any(not isinstance(value, str) or not value for value in values.values()):
+        raise RuntimeError("Installed-wheel profile values must be nonempty strings")
+    if values["E02_LA057_SOURCE_SHA"] != SHA:
+        raise RuntimeError("Installed wheel belongs to another source candidate")
+    if Path(values["E02_LA057_SOURCE_ROOT"]).resolve(strict=True) != PRODUCT:
+        raise RuntimeError("Installed wheel source root differs from the declared B root")
+    common_tests = PRODUCT / "tests/unit/common"
+    for filename, key in (
+        ("test_async_tools_installed_wheel.py", "E02_LA057_OUTER_TEST_SHA256"),
+        ("installed_wheel_bridge_consumer.py", "E02_LA057_CONSUMER_SHA256"),
+    ):
+        if hashlib.sha256((common_tests / filename).read_bytes()).hexdigest() != values[key]:
+            raise RuntimeError(
+                "Installed-wheel native input bytes differ from the prepared profile"
+            )
+    for key in (
+        "E02_LA057_WHEEL_PATH",
+        "E02_LA057_INSTALLED_SITE",
+        "E02_LA057_INSTALLED_PYTHON",
+    ):
+        if not Path(values[key]).is_absolute() or not Path(values[key]).exists():
+            raise RuntimeError("Installed-wheel artifact paths must be actual absolute paths")
+    env.update(values)
+    dsn_setting = os.environ.get("E02_B38_POSTGRES_DSN_FILE")
+    driver_setting = os.environ.get("E02_B38_POSTGRES_DRIVER_ROOT")
+    if not dsn_setting or not driver_setting:
+        raise RuntimeError("Supply the exact private PostgreSQL DSN file and driver root")
+    dsn_file = Path(dsn_setting).resolve(strict=True)
+    driver_root = Path(driver_setting).resolve(strict=True)
+    if not driver_root.is_dir() or not (driver_root / "psycopg").is_dir():
+        raise RuntimeError("Prepared PostgreSQL driver directory is absent")
+    if dsn_file.stat().st_mode & 0o077:
+        raise RuntimeError("Private PostgreSQL fixture DSN must have owner-only permissions")
+    dsn = dsn_file.read_text().strip()
+    if not dsn:
+        raise RuntimeError("Private PostgreSQL fixture DSN is empty")
+    env["PYTHONPATH"] = str(driver_root) + ":" + env["PYTHONPATH"]
+    env["E02_B38_POSTGRES_DSN"] = dsn
+    env["POLISYOS_TEST_PG_DSN"] = dsn
+    env["POLISYOS_DS9_REQUIRE_PG"] = "1"
+    return {
+        "installed_wheel_profile": str(wheel_profile),
+        "installed_wheel_profile_sha256": hashlib.sha256(wheel_profile.read_bytes()).hexdigest(),
+        "installed_wheel_inputs": values,
+        "wheel_sha256": hashlib.sha256(
+            Path(values["E02_LA057_WHEEL_PATH"]).read_bytes()
+        ).hexdigest(),
+        "postgres_private_dsn_file": str(dsn_file),
+        "postgres_driver_root": str(driver_root),
+        "postgres_driver_distribution_profile": (
+            "Task-only psycopg and psycopg-binary 3.3.2; "
+            "inherited 194-distribution environment unchanged"
+        ),
+        "postgres_dsn_values": (
+            "Private credentials passed only to actual fixture consumers; "
+            "omitted from public profiles"
+        ),
+        "postgres_existing_optional_native_profile": (
+            "POLISYOS_TEST_PG_DSN supplied and POLISYOS_DS9_REQUIRE_PG=1; "
+            "unavailable backend is a failure, not a silent skip"
+        ),
+    }
+
+
 def main() -> None:
     """Launch one named gate on the supplied, clean attached immutable candidate."""
     if len(sys.argv) != 3 or len(SHA) != 40 or any(c not in "0123456789abcdef" for c in SHA):
@@ -70,6 +152,7 @@ def main() -> None:
     raw.mkdir(parents=True, exist_ok=True)
     inputs: object = None
     if tag == "successor-final-B-cohort":
+        verification_inputs = bind_verification_inputs(env)
         selector = json.loads((SCRATCH / "raw/successor-final-selector.json").read_text())
         if selector["root_snapshot_sha"] != SHA:
             raise RuntimeError("Selector belongs to another candidate")
@@ -105,6 +188,7 @@ def main() -> None:
             "--junitxml=" + str(raw / "successor-final-B-cohort.xml"),
         ]
         inputs = {
+            "verification_inputs": verification_inputs,
             "selector_path": str(SCRATCH / "raw/successor-final-selector.json"),
             "selector_sha256": hashlib.sha256(
                 (SCRATCH / "raw/successor-final-selector.json").read_bytes()

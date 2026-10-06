@@ -1,0 +1,90 @@
+{
+  "source_sha": "1ca25193d10787cbc545490c4a954b15b8a6b227",
+  "source_tree": "0317a2fa0f944990b38995c5fce793ff26c154c3",
+  "test_commit": "678a8bdb06103009d0547e55e00022061dfca4c3",
+  "test_path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_intake.py",
+  "test_sha256": "d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6",
+  "modules": {
+    "polisyos.core.llm.response": {
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/core/llm/response.py",
+      "sha256": "619b1932b93254b0c3853f479d0892caf982f39ceb68bc0d9cfa74f2b8ccbcbc",
+      "bytes": 7900,
+      "root_source_blob": "e6a71a76afaab0baf1915a252c4d301c6574442d",
+      "original_test_source_blob": "945eb3ecb08171ca53484333d7456d47e7b61a51"
+    },
+    "polisyos.scientist.orchestration.llm.gateway_client": {
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "bytes": 28121,
+      "root_source_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "original_test_source_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4"
+    },
+    "polisyos.scientist.orchestration.llm.budget_enforcer": {
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b",
+      "bytes": 21033,
+      "root_source_blob": "918e2a7a8f4fa6f833f34836e81ab894ea259c07",
+      "original_test_source_blob": "918e2a7a8f4fa6f833f34836e81ab894ea259c07"
+    },
+    "polisyos.scientist.orchestration.engine.budget_middleware": {
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7",
+      "bytes": 6361,
+      "root_source_blob": "42e0153104c00c238debbb2c0ce5848978e9d2b6",
+      "original_test_source_blob": "42e0153104c00c238debbb2c0ce5848978e9d2b6"
+    },
+    "polisyos.scientist.orchestration.engine.budget_ledger": {
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773",
+      "bytes": 27862,
+      "root_source_blob": "14235963d9cf58232d762b8cf6d4317a14a26ee7",
+      "original_test_source_blob": "14235963d9cf58232d762b8cf6d4317a14a26ee7"
+    }
+  },
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-c",
+    "/workspace/e02-D-published-root/policy-engine/pytest.ini",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/e02-D-root-gateway-green-34f895d306114ac282827b098192af56/new-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-root-gateway-green-34f895d306114ac282827b098192af56/result.xml",
+    "-q",
+    "-rA",
+    "/dev/shm/e02-D-root-gateway-green-34f895d306114ac282827b098192af56/test_native_gateway_cost_intake.py"
+  ],
+  "cwd": "/workspace/e02-D-published-root/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "POLISYOS_PYTEST_WORKERS": null
+  },
+  "exit_code": 0,
+  "wall_seconds": 1.5840602410025895,
+  "cases": {
+    "collected": 98,
+    "failed": 0,
+    "error": 0,
+    "skipped": 0,
+    "passed": 98
+  },
+  "complete_output": {
+    "path": "/dev/shm/e02-D-root-closeout/gateway-green.txt",
+    "bytes": 10446,
+    "sha256": "21820877b801ddfaa580e90ce16c69a628773f5efd65d4209a601d4ec9418c36"
+  },
+  "preserved_scratch": "/dev/shm/e02-D-root-gateway-green-34f895d306114ac282827b098192af56",
+  "source_after": "1ca25193d10787cbc545490c4a954b15b8a6b227",
+  "post_status": "",
+  "scope": "Actual native Gateway parser/enforcer/persisted ledger with conditional HTTP raw payload; no external billing authority or whole repository claim"
+}

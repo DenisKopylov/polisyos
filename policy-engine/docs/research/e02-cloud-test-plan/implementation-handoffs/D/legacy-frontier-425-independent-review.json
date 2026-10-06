@@ -1,0 +1,351 @@
+{
+  "schema_version": "e02.D.independent-native-legacy-frontier-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "f12d4e2027b7613f664e3759e10d926c2519a102",
+  "proof_tree": "b1b987a63151beb175bd083fb061dbebdf6a40f7",
+  "production_writes": false,
+  "source_commit": "425c90e8a698edf40f345baf1395d11545bb01d1",
+  "source_tree": "49916b434ecc8a2d30b14d9626d3617e5c95a05d",
+  "snapshot_root": "/dev/shm/e02-oracle-legacy-425/archive",
+  "selected_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-input-manifest.json",
+    "sha256": "9306315616f466ebdddb267f1e9d63c6f1fbd46cacd963ad8aa344996eb2f356",
+    "bytes": 2226479
+  },
+  "selected_tracked_file_count": 7637,
+  "selection": [
+    "policy-engine/src",
+    "policy-engine/tools",
+    "policy-engine/architecture",
+    "policy-engine/tests",
+    "policy-engine/schemas",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/uv.lock",
+    "policy-engine/uv.toml",
+    "policy-engine/hatch.toml",
+    "policy-engine/ruff.toml",
+    "policy-engine/.python-version",
+    "policy-engine/CONTRIBUTING.md",
+    "AGENTS.md"
+  ],
+  "omitted_scope": "Docs/apps/data/examples/vendor/release omitted apart from exact unique CLI overlays; no claim for tests requiring omitted inputs",
+  "source_cells": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-replay-source-cells.json",
+    "sha256": "b02fb096bb8d284ba9381730ed87c91678780d3167ea522cdbb5430406552b4a",
+    "bytes": 7488
+  },
+  "source_origins": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-source-origin-cells.txt",
+    "sha256": "1851f83ca0576d9ae6ddc3e75ce99e4aa08df072a71983cd452e1bb3311242a3",
+    "bytes": 2636
+  },
+  "actual_runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "module_cells": [
+      {
+        "module": "polisyos.scientist.methods.search.frontier",
+        "origin": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "bytes": 8407,
+        "sha256": "9b25db434f925ed289e4fa6531eb39c65cf3a6b5f8b150641a3e43568f706a87",
+        "git_source_sha256": "9b25db434f925ed289e4fa6531eb39c65cf3a6b5f8b150641a3e43568f706a87",
+        "matches_pinned_git_source": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.objective",
+        "origin": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "bytes": 10078,
+        "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+        "git_source_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+        "matches_pinned_git_source": true
+      },
+      {
+        "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+        "origin": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "bytes": 21632,
+        "sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+        "git_source_sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+        "matches_pinned_git_source": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.controller",
+        "origin": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "bytes": 50528,
+        "sha256": "a6b90f6451de6b7da55bb823d908212d8a41c2b464681864b73209e014b8a11a",
+        "git_source_sha256": "a6b90f6451de6b7da55bb823d908212d8a41c2b464681864b73209e014b8a11a",
+        "matches_pinned_git_source": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.service",
+        "origin": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "bytes": 11909,
+        "sha256": "0b9e880e3c6e03a34ce6b250a0c1b6b66a3d138a2f128ca446d12bf8689aba51",
+        "git_source_sha256": "0b9e880e3c6e03a34ce6b250a0c1b6b66a3d138a2f128ca446d12bf8689aba51",
+        "matches_pinned_git_source": true
+      },
+      {
+        "module": "polisyos.scientist.methods.search.strategies.bayesian",
+        "origin": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "bytes": 48512,
+        "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+        "git_source_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+        "matches_pinned_git_source": true
+      }
+    ],
+    "versions": {
+      "torch": "2.10.0",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "numpy": "2.3.5",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5"
+    },
+    "environment": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "SCIENTIST_TORCH_NUM_THREADS": null,
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null
+    }
+  },
+  "tests_and_original_cli_overlays": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+      "commit": "57d5ae63bb1c4fec25a0451ef40402db922e84c8",
+      "sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641",
+      "bytes": 7968
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+      "commit": "966772c181e8cbf90b8fdf6632315555082ef6d0",
+      "sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b",
+      "bytes": 3352
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+      "commit": "9221a2591a44a978ba105da1fc85379690f24be8",
+      "sha256": "ed422145e1ae049004652a188e1da0b192375d17376b83af0469c77c52c987f5",
+      "bytes": 8551
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py",
+      "commit": "258200631ba7831321437955cb357515eecac5bd",
+      "sha256": "b8dc514a33b73c5c08a1740db9babaca5df7676d773a9a1c93ddea6601e6e1ce",
+      "bytes": 3229
+    }
+  ],
+  "unchanged_after_replay": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+      "expected_sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641",
+      "actual_sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641",
+      "matches": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+      "expected_sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b",
+      "actual_sha256": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b",
+      "matches": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+      "expected_sha256": "ed422145e1ae049004652a188e1da0b192375d17376b83af0469c77c52c987f5",
+      "actual_sha256": "ed422145e1ae049004652a188e1da0b192375d17376b83af0469c77c52c987f5",
+      "matches": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py",
+      "expected_sha256": "b8dc514a33b73c5c08a1740db9babaca5df7676d773a9a1c93ddea6601e6e1ce",
+      "actual_sha256": "b8dc514a33b73c5c08a1740db9babaca5df7676d773a9a1c93ddea6601e6e1ce",
+      "matches": true
+    }
+  ],
+  "deciding_native_cell": {
+    "command": {
+      "source_commit": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "source_tree": "49916b434ecc8a2d30b14d9626d3617e5c95a05d",
+      "cwd": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+        "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+        "--basetemp=/dev/shm/e02-oracle-425-native40-8ab1373966d04c1095bb90b6d71c6142",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "-rA"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "basetemp_before_exists": false,
+      "started_at_utc": "2026-10-06T11:38:28Z",
+      "caps_added": false,
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T11:38:44Z",
+      "basetemp_after_exists": false,
+      "log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-native40.txt",
+        "bytes": 7654,
+        "sha256": "82ff823027db7469575ce9f192b49e2e49f78a095b34d6a598aa0f1c584832fb"
+      }
+    },
+    "input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-native40-command.json",
+      "sha256": "f146c8b23954cb84c6134bce1639696e18413b6ea9269a502365a8056a88d67e",
+      "bytes": 1135
+    },
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-native40.txt",
+      "sha256": "82ff823027db7469575ce9f192b49e2e49f78a095b34d6a598aa0f1c584832fb",
+      "bytes": 7654
+    },
+    "result": "PASS",
+    "summary": "40 passed,2 warnings in10.71s",
+    "denominator": {
+      "legacy_frontier": 10,
+      "fiscal_intake": 30
+    }
+  },
+  "historical_cli_replay": {
+    "commands": [
+      {
+        "cwd": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine",
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+          "--source-root",
+          "/dev/shm/e02-oracle-legacy-425/archive/policy-engine",
+          "--source-sha",
+          "425c90e8a698edf40f345baf1395d11545bb01d1"
+        ],
+        "exit_code": 0,
+        "started_at_utc": "2026-10-06T11:39:30Z",
+        "finished_at_utc": "2026-10-06T11:39:43Z",
+        "log": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli27.txt",
+          "bytes": 9845,
+          "sha256": "93fac373289dfa028be74e7e263a5249cbce746005a362ae2d18029e35765b41"
+        }
+      },
+      {
+        "cwd": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine",
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py",
+          "--source-root",
+          "/dev/shm/e02-oracle-legacy-425/archive/policy-engine",
+          "--source-sha",
+          "425c90e8a698edf40f345baf1395d11545bb01d1"
+        ],
+        "exit_code": 0,
+        "started_at_utc": "2026-10-06T11:39:43Z",
+        "finished_at_utc": "2026-10-06T11:39:54Z",
+        "log": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli-single.txt",
+          "bytes": 1362,
+          "sha256": "613ba272fd3d0ee67b1600a805dfe34c560b91f7546294fa01c4f6c92fbb63b0"
+        }
+      }
+    ],
+    "CLI27": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli27.txt",
+        "sha256": "93fac373289dfa028be74e7e263a5249cbce746005a362ae2d18029e35765b41",
+        "bytes": 9845
+      },
+      "deciding_cases": 27,
+      "passed": 27,
+      "failed": 0,
+      "observations_only": 3,
+      "result": "PASS"
+    },
+    "single_front": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-original-cli-single.txt",
+        "sha256": "613ba272fd3d0ee67b1600a805dfe34c560b91f7546294fa01c4f6c92fbb63b0",
+        "bytes": 1362
+      },
+      "result": "PASS"
+    }
+  },
+  "original_red": {
+    "source_commit": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+    "proof_commit": "966772c181e8cbf90b8fdf6632315555082ef6d0",
+    "receipt_commit": "155476663aa455bffb5ea70efe11d1d94cf307b2",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-review.json",
+      "sha256": "ec98b761fd330e468927ccafaebd4c42d5eb389ba48b8bf12732d52e3d6c1724",
+      "bytes": 7262
+    },
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-red.txt",
+      "sha256": "9c008186c535c47f1008e5d62d39338bbd89a5e459c42a413e71b7823282fef0",
+      "bytes": 33830
+    },
+    "result": "FAIL",
+    "summary": "10 failed,2 warnings in9.26s",
+    "original_single_probe_commit": "258200631ba7831321437955cb357515eecac5bd",
+    "original_single_result": "FAIL"
+  },
+  "independent_expected": {
+    "objectives": ["gdp_growth maximize", "budget_deficit minimize"],
+    "seed": "GDP1,balance-10 gives normalized(-1,10),complete finite",
+    "challenger": "GDP2 with missing/null/boolFalse/boolTrue/malformed/NaN/+Inf/-Inf/conversionOverflow/conflicting fiscal aliases gives(-2,unavailable)",
+    "property": "An unavailable required coordinate cannot establish strict Pareto dominance. Keep measured seed as sole exported frontier member, retain unavailable challenger history details, and admit neither zero imputation nor scalar fallback.",
+    "unit": "not_established",
+    "served_owner": "not_established"
+  },
+  "observed": "All10 actual public SearchController.run cases retain measured seed as sole frontier point; scalar best is measured9 and unusable challenger remains visibly unavailable in history. All30 independent raw fiscal/native controller/Bayesian receiver checks and original CLI27 remain passing.",
+  "production_delta_review": {
+    "from_commit": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+    "full_changed_production_paths": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+    ],
+    "full_diff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-production-review.diff",
+      "sha256": "e9033a9dc0968faabad9843484d26124b0fe9e2a0d76d9eac919c528d9663b4a",
+      "bytes": 8029
+    },
+    "frontier": "Before comparison and export, validate finite real nonboolean complete objective vectors, unique declared names and supported directions. Derive normalized coordinates from raw values, reject inconsistent existing normalized/basis state and changed ordered basis; unavailable incoming points cannot replace admitted finite points. Raw dominates also requires nonempty equally sized finite vectors.",
+    "bayesian_receiver": "Malformed-present stage_a_passed no longer becomes truthy success or reaches scalar score fallback. Visible invalid_reason records malformed_stage_a_passed; genuinely missing legacy stage flag behavior remains declared existing behavior.",
+    "prior_independent_chain": [
+      "31527a86e4618f9e7164ff41b4ed146749b7017f",
+      "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+    ],
+    "new_actionable_discrepancies": []
+  },
+  "classification": {
+    "bucket": "P40 existing OPT01/B111 complete finite objective-vector invariant, exposed in actual legacy consumer",
+    "owner": "search_owner",
+    "status": "PASS for bounded correction on unchanged independent cases",
+    "causality": "No introduced-by-fiscal-change or inherited-base denominator claim; exact893 red and exact425 green independently retained."
+  },
+  "runtime_profile": {
+    "no_reviewer_CPU_process_test_worker_cap": true,
+    "native_runtime_defaults": "Unchanged production runtime may set its own Torch defaults; no claim of unrestricted native thread profile.",
+    "fresh_nonexisting_basetemp": "--basetemp=/dev/shm/e02-oracle-425-native40-8ab1373966d04c1095bb90b6d71c6142",
+    "observed_exists_before": false,
+    "observed_exists_after": false,
+    "absence_note": "These40 cases request no pytest temporary fixture; absent path may never have been created and does not prove deletion.",
+    "sequential_backend_jobs": true,
+    "no_manual_deletion": true,
+    "no_additional_archive_after_root_OOM_note": true
+  },
+  "closure_ids": [],
+  "verdict": "PASS for bounded complete finite legacy-frontier consumption and fiscal/Bayesian intake regression. Full B108/B111 scientific-unit, authoritative served-input and global frontier authority remain not established.",
+  "cleanup_candidates": ["/dev/shm/e02-oracle-legacy-425/archive"]
+}

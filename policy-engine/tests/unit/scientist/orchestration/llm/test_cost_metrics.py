@@ -12,9 +12,11 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.orchestration.llm.cost_anomaly import CostAnomalyDetector
+from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -40,13 +42,15 @@ def _make_enforcer(
     )
 
 
-def _mock_response(prompt_tokens: int = 100, completion_tokens: int = 50) -> MagicMock:
-    resp = MagicMock()
-    usage = MagicMock()
-    usage.prompt_tokens = prompt_tokens
-    usage.completion_tokens = completion_tokens
-    resp.usage = usage
-    return resp
+def _mock_response(prompt_tokens: int = 100, completion_tokens: int = 50) -> GatewayLLMResponse:
+    return GatewayLLMResponse(
+        content="response",
+        usage=GatewayUsage(
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            cost_usd=None,
+        ),
+    )
 
 
 # ---------------------------------------------------------------------------

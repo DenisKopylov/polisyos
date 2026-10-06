@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-typed-original-input-and-reporting",
+  "closure_ids": [],
+  "finding_ids": [
+    "B128",
+    "B131",
+    "B132"
+  ],
+  "bundle_ids": [
+    "TRN-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "a650be9a35f5c06bfa70a4086b578099a9b6356e",
+    "5465dce82bc0d3daf1b4774edec2967af31719b4"
+  ],
+  "candidate_tree_sha": "8ab66b6732804580e35f1e2d45eadc1330230007",
+  "class": "Same original-input content binding one level deeper: original benchmark physical metadata must have actual declared typed domain, not Python truthy numeric equality.",
+  "review_trigger": "Exact ab660 actualcandidate/row x1.0 with persisted original benchmark metadata.params.x=True was admitted2/2 with coherent full refs and full bases.",
+  "mechanism": "One generic typed physical-input/domain comparison is used for both original candidate and original benchmark. Bridge preserves copied last_load_report independently of repeated canonical receiver callbacks.",
+  "input": "Real CAS candidate/original benchmark/history with preserved markers and reference identities; source-load2/1/1 followed by reader1/1/0.",
+  "owner": "D transfer/bridge; numerical meaning remains conditional on explicit configured/source technical basis.",
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -c /dev/null -p no:cacheprovider --confcutdir=tests/unit -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py -ra",
+      "target_sha": "5465dce82bc0d3daf1b4774edec2967af31719b4",
+      "source": "immutable git archive src/tools/architecture/tests/pyproject",
+      "outcome": "PASS",
+      "result": "45 passed, 2 warnings in 13.37s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/typed-input-immutable.txt",
+        "sha256": "6527b1f14607a9cdc7a391a46ae81ef449e31e78eeced651118d9d107ce62f7c"
+      }
+    },
+    {
+      "command": "same unchanged new controls on immutable ab660 source; pytest -k original_benchmark_physical_input or malformed_source_refusal",
+      "target_sha": "ab660ec3bd39875beef395b9d4ec06b7d8152874",
+      "outcome": "EXPECTED_FAIL",
+      "result": "2 failed, 43 deselected, 2 warnings in 11.82s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/typed-input-base.txt",
+        "sha256": "f19e07bdd9282f57ee1b7e67abf6b95415bde14ee8eb6e836c2a8029e7da2058"
+      }
+    }
+  ],
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/typed-input-origins.txt",
+      "sha256": "c46cd3f9a66e6023340b6036ecf2959a64f97b6077bc73819cf572a252c558ec"
+    }
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Conditional typed input identity/reporting mechanism; combined actual GP workflow remains pending",
+  "proxy_divergence": "Coherent refs/basis markers cannot substitute for actual typed persisted physical input. Callback acceptance of remaining good rows cannot erase source-load rejection denominator.",
+  "infrastructure_retry": "Initial extraction/replay hit ENOSPC and was not counted as PASS. Final outputs above are successful complete replay after retry. Permanent scratch cleanup violated user native Trash instruction; separate transfer-scratch-trash-deviation.json records exact action/paths. No further deletion permitted.",
+  "limitations_and_next_owner": [
+    "No scientific truth, production performance or institutional source authorization claim.",
+    "Actual configured GP source successor and final immutable combined consumer rerun remain pending G."
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "receipt_commit": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-successor-c812.json",
+  "receipt_sha256": "33cfeab4bf1610b827c9b43a7bcd833d7f35661f1aa9800805430a66d7adaabb",
+  "checked_git_bindings": [
+    {
+      "pointer": "/unchanged_oracle",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720",
+      "matching_git_sources": [
+        "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/baseline_failure_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-review-fac5.json",
+      "sha256": "5c81bcafe1a8bc478cae556396cee79dd1d24cc91152d2cf7d60bb84e7f9ec2d",
+      "matching_git_sources": [
+        "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a",
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/source_identities/0",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+      "matching_git_sources": [
+        "c812510541c898d7118004661ce07335823d2209"
+      ]
+    },
+    {
+      "pointer": "/source_identities/1",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c",
+      "matching_git_sources": [
+        "c812510541c898d7118004661ce07335823d2209"
+      ]
+    },
+    {
+      "pointer": "/source_identities/2",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "matching_git_sources": [
+        "c812510541c898d7118004661ce07335823d2209"
+      ]
+    },
+    {
+      "pointer": "/source_identities/3",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "matching_git_sources": [
+        "c812510541c898d7118004661ce07335823d2209"
+      ]
+    },
+    {
+      "pointer": "/source_identities/4",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3",
+      "matching_git_sources": [
+        "c812510541c898d7118004661ce07335823d2209",
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/source_identities/5",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "sha256": "d2d1d6ba7ac45a473a2a185410d0e0b132eb72582fc4796dcb639b24e835adb7",
+      "matching_git_sources": [
+        "c812510541c898d7118004661ce07335823d2209",
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/tracked_execution_inputs",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-tracked-inputs.json",
+      "sha256": "e537882c6110ecfbb4fb6597c28fc7d25180338b90872f0706daec1ccbfd95d7",
+      "matching_git_sources": [
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/actual_module_origins_and_environment",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-origins.json",
+      "sha256": "473eaad40d258db4305e7c66553b2afd1fb805478739d1026b01b861196f67b6",
+      "matching_git_sources": [
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/checks/0/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-complete.txt",
+      "sha256": "c6e7edcabac87e4396a9fabd24945b60308d8958518f039b27c12d6173a404d0",
+      "matching_git_sources": [
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/observation_method/script",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-observer.txt",
+      "sha256": "5ca99f9fc9cf865913fb9e701f0330e1ff8cc48824a0de6675af80a216b35af2",
+      "matching_git_sources": [
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/observation_method/complete_measurement",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-native-observation.json",
+      "sha256": "a5865faeb086cef8465991830c29b2f878d70626401c91312bc533e7fd0e3f0f",
+      "matching_git_sources": [
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/complete_actual_input_capture",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-actual-inputs.json",
+      "sha256": "c093bc732c9c1a85ad2cb7d6f1878b8bc4beff462dd337864059934dd177ae7e",
+      "matching_git_sources": [
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

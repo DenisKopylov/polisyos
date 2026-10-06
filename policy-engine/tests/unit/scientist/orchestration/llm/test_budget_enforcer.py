@@ -7,19 +7,27 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetLimit, BudgetState
+
+from polisyos.scientist.orchestration.engine.budget import (
+    BudgetExhaustedError,
+    BudgetLimit,
+    BudgetState,
+)
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
+from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
 
 
 def _make_response_mock(prompt_tokens: int = 100, completion_tokens: int = 50):
     """Create a mock LLM response with usage data."""
-    response = MagicMock()
-    response.usage = MagicMock()
-    response.usage.prompt_tokens = prompt_tokens
-    response.usage.completion_tokens = completion_tokens
-    response.usage.total_tokens = prompt_tokens + completion_tokens
-    response.content = "test response"
-    response.model = "test-model"
+    response = GatewayLLMResponse(
+        content="test response",
+        model="test-model",
+        usage=GatewayUsage(
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            total_tokens=prompt_tokens + completion_tokens,
+        ),
+    )
     # Make raw dict for extract_llm_response_data
     response.raw = {
         "usage": {

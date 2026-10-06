@@ -1,0 +1,44 @@
+{
+  "source_commit": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+  "source_tree": "23b8421a276ca45ad80df29568afc2596c585e37",
+  "delta_parent": "678a8bdb06103009d0547e55e00022061dfca4c3",
+  "source_read_mechanism": "read-only git show/diff exact objects; no mutable writer import, checkout or archive",
+  "input_cells": [
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "git_blob": "e6a71a76afaab0baf1915a252c4d301c6574442d",
+      "bytes": 7900,
+      "sha256": "619b1932b93254b0c3853f479d0892caf982f39ceb68bc0d9cfa74f2b8ccbcbc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "git_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "git_blob": "918e2a7a8f4fa6f833f34836e81ab894ea259c07",
+      "bytes": 21033,
+      "sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b"
+    },
+    {
+      "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "git_blob": "525c0b4e7baa8124e42b103fa60e185eabe2891e",
+      "bytes": 6919,
+      "sha256": "d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6"
+    },
+    {
+      "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_range.py",
+      "git_blob": "cc77392bf47cb08752d9f37b44db6f35fa6660c3",
+      "bytes": 1118,
+      "sha256": "7071b401d3c4bca91da5e7fe1f02a23f1de0d8c8cce2411cb60ed429b404726c"
+    }
+  ],
+  "complete_review_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-979-source-review-inputs.txt",
+    "bytes": 32746,
+    "sha256": "11cf399c3d47d71de217cd22f37ba41b8e4b0ce3f3a187201764cb769175ac6f"
+  },
+  "runtime": "UNRUN by this independent reviewer on979; root/author separate runtime proofs are not adopted as own results"
+}

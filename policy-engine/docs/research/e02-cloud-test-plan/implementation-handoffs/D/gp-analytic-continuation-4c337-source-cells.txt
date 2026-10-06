@@ -1,0 +1,41 @@
+{
+  "source_commit": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5",
+  "source_tree": "ae6f687cb1edb76e61aa380c263a2a91d3966eab",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "torch": "2.10.0+cu128",
+  "botorch": "0.16.1",
+  "gpytorch": "1.15.1",
+  "numpy": "2.3.5",
+  "modules": [
+    {
+      "name": "polisyos.scientist.methods.search.strategies.bayesian",
+      "origin": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "9543a7aca75fe0bb7f3cdd808028da94f107d9a3df876df714c32abdd1f0fa1f"
+    },
+    {
+      "name": "polisyos.scientist.methods.search.strategies.base",
+      "origin": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+    },
+    {
+      "name": "polisyos.scientist.methods.search.strategies.types",
+      "origin": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "sha256": "6e564fff723950b196ca67f4bcd1e32bc0b157b1d9bbd3c0655671a676b6b92e"
+    },
+    {
+      "name": "polisyos.scientist.methods.search.strategies.space",
+      "origin": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "sha256": "441166aa06a15c504b70f22484e38f6800c8b95f8bcacf7122ecafe83bce45e0"
+    },
+    {
+      "name": "polisyos.scientist.methods.search.strategies.rl_wrapper",
+      "origin": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "sha256": "59556a5a75b44151d4bd04ffb701e0ec64aae64e4a71032e25959edb1e6cf315"
+    },
+    {
+      "name": "polisyos.scientist.methods.autotune.bayesian_generator",
+      "origin": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "be329fb5862cdee4d5ed416bebabfabcc3c956592fe8261d4d71454efa650db9"
+    }
+  ]
+}

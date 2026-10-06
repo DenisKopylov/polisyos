@@ -1,0 +1,24 @@
+{
+  "source_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e",
+  "source_tree": "ac0d0ef78d26aa697663c20ff67c00eb891133aa",
+  "test_commit": "57d5ae63bb1c4fec25a0451ef40402db922e84c8",
+  "test_sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+    "--basetemp=/dev/shm/e02-oracle-fiscal-893-native30-47db582183564666b98fab07c8c2fd32",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "-rA"
+  ],
+  "cwd": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine",
+  "basetemp": "/dev/shm/e02-oracle-fiscal-893-native30-47db582183564666b98fab07c8c2fd32",
+  "nonexisting_before_pytest": true,
+  "PYTHONPATH": "src:.",
+  "PYTHONDONTWRITEBYTECODE": "1",
+  "no_reviewer_CPU_process_worker_caps": true
+}

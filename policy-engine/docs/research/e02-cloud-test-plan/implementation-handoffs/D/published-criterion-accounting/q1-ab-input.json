@@ -1,0 +1,20 @@
+{
+  "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+  "tree": "87804edd3be6bcefb0de06e509e7c73e88934aaa",
+  "selected_git_pathspecs": [
+    "policy-engine/src",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/tests/_helpers",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/quarantine.toml",
+    "policy-engine/tests/unit/scientist"
+  ],
+  "archive_path": "/dev/shm/e02-D-q1-canonical-review-ab7577cc.tar",
+  "archive_sha256": "352228b11d4e0b689131a11b4460cd1aa6a3db8673bbe9c5c5dcddcd18d55868",
+  "archive_bytes": 123576320,
+  "export_path": "/dev/shm/e02-D-q1-canonical-review-ab7577cc",
+  "proof_overlays": [],
+  "cleanup": "none; no deletion/native Trash operation performed"
+}

@@ -1,0 +1,35 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_full_vulnerability_payloads_are_bounded_during_real_run _________
+
+    def test_full_vulnerability_payloads_are_bounded_during_real_run() -> None:
+        gc.collect()
+        before = sum(type(obj) is Vulnerability for obj in gc.get_objects())
+        observed = []
+    
+        def evaluator(candidate: dict, context: dict) -> dict:
+            gc.collect()
+            observed.append(sum(type(obj) is Vulnerability for obj in gc.get_objects()) - before)
+            return {"simulation_results": {"budget_deficit": 3.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1.0, upper_bound=1.0)],
+                strategy=AdversarialStrategy.RANDOM_TAIL,
+                max_iterations=20,
+                vulnerability_threshold=2.0,
+                stop_on_first_vulnerability=False,
+                collect_top_k=2,
+                seed=7,
+            ),
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=evaluator,
+        )
+>       assert max(observed) <= 3
+E       assert 19 <= 3
+E        +  where 19 = max([0, 1, 2, 3, 4, 5, ...])
+
+tests/unit/scientist/search/test_adversarial_streaming.py:264: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_full_vulnerability_payloads_are_bounded_during_real_run
+1 failed in 11.04s

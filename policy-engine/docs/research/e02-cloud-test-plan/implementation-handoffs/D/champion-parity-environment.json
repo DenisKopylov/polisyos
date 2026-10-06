@@ -1,0 +1,206 @@
+{
+  "schema": "policyos.e02.parity_environment_preparation.v1",
+  "source_sha": "290def7c3800aa818a07299a4402ec6dd072d2ef",
+  "status": "prepared runtime profile only; full extension/discovery/pytest and backend/CI parity UNRUN pending aggregate freeze",
+  "plan_source_sha": "290def7c3800aa818a07299a4402ec6dd072d2ef",
+  "plan_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/uncapped-verification-plan.json",
+  "plan_input_source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+  "source_inputs": [
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/uv.lock",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tools/devx/workspace/_common.py",
+      "git_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+      "bytes": 7324
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tools/quality/validation/check_extension_examples.py",
+      "git_blob": "3de29e47e42614bc0bc080c7ff9f69cc5faf62bc",
+      "sha256": "ff61698d5cd82893d79d1199fb60e4bc7ccdcaa0d0cdb10c52d7965b6cef3c58",
+      "bytes": 17431
+    }
+  ],
+  "overlay": {
+    "path": "/dev/shm/e02-D-parity-env",
+    "creator_argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "venv",
+      "--without-pip",
+      "/dev/shm/e02-D-parity-env"
+    ],
+    "fresh_path": true,
+    "git_checkout_or_worktree_created": false,
+    "actual_sys_prefix": "/dev/shm/e02-D-parity-env",
+    "actual_purelib": "/dev/shm/e02-D-parity-env/lib/python3.14/site-packages",
+    "pth_bridge": "/workspace/e02-D-locked-env/lib/python3.14/site-packages",
+    "pth_sha256": "39cdb2bc073e96697f0b35a35b298355c512829a6e9ffc53d1b058d7481d9b33"
+  },
+  "profile_install": {
+    "profiles": [
+      "docs",
+      "ml"
+    ],
+    "exact_locked_closure": 57,
+    "missing_installed": 24,
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+      "pip",
+      "install",
+      "--python",
+      "/dev/shm/e02-D-parity-env/bin/python",
+      "--no-deps",
+      "--require-hashes",
+      "-r",
+      "/workspace/e02-D2-receipts/champion/parity-profile-requirements-hashed.txt"
+    ],
+    "env_overrides": {
+      "UV_CACHE_DIR": "/dev/shm/e02-D-parity-uv-cache"
+    },
+    "sync_executed": false,
+    "target_overlay_only": true,
+    "actual_imports": "13 third-party modules,8 from locked+5 from overlay and2production modules actual source origins/hashes in captured runtime JSON; no GP fit execution implied"
+  },
+  "canonical_uv": {
+    "source_baseline": "tools/devx/workspace/_common.py@185a3492900044046ec2996c42875314979d8b4b:UV_BASELINE=0.9.21",
+    "installed_version": "0.9.21",
+    "actual_binary": "/dev/shm/e02-D-parity-env/bin/uv",
+    "version_probe": "uv0.9.21",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+      "pip",
+      "install",
+      "--python",
+      "/dev/shm/e02-D-parity-env/bin/python",
+      "--no-deps",
+      "uv==0.9.21"
+    ],
+    "scope": "canonical tool pin, not a uv.lock project dependency"
+  },
+  "locked_environment_integrity": {
+    "unchanged_measured_scope": "pyvenv.cfg plus all1417 captured dist-info files and pathset; package installation targeted overlay",
+    "whole_environment_immutable": "not established",
+    "bytecode_deviation": "Initial actual import probes omitted PYTHONDONTWRITEBYTECODE;69 .pyc paths have mtimes after before-metadata snapshot. No before .pyc census and no exclusive actor attribution. No removal performed. Future imports/subprocesses use PYTHONDONTWRITEBYTECODE=1."
+  },
+  "execution_revision": {
+    "environment_for_all_children": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absolute aggregate product src plus product root after final freeze"
+    },
+    "interpreter_for_docs_ml_and_full_extension_commands": "/dev/shm/e02-D-parity-env/bin/python",
+    "path_prefix_for_canonical_uv": "/dev/shm/e02-D-parity-env/bin",
+    "frontends": "absolute aggregate PYTHONPATH instead of cwd-relative src:. when npm child invokes Python",
+    "numeric_or_worker_caps_added": false,
+    "exact_argv_selectors": "retain published source-derived25backend+8frontend plan; bind final aggregate source/cwd/profile and allocate fresh basetemp per pytest child at execution",
+    "literal_verify_ci_wrappers": "UNRUN/incompatible user instruction because wrappers inject numeric-thread caps=1; no wrapper PASS claim"
+  },
+  "full_extension_gate": {
+    "actual_installer_read": true,
+    "example_denominator": 7,
+    "installer": "canonical helper selects overlay python-mpip if available, otherwise uvpip--pythonoverlay--no-deps-e actual example path; no replacement helper",
+    "consumer": "six actual component entry-point semantic probes plus one governance pass discovery; all remain UNRUN pending aggregate freeze",
+    "pytest_children": 1,
+    "ordinary_env_basetemp": "allocate fresh nonexistent /dev/shm UUID in PYTEST_ADDOPTS; preserve after run; no substituted pytest or skip flags for full PASS"
+  },
+  "preservation": {
+    "environment_and_cache_preserved": [
+      "/dev/shm/e02-D-parity-env",
+      "/dev/shm/e02-D-parity-uv-cache"
+    ],
+    "manual_cleanup_or_Trash": false,
+    "automatic_installer_cleanup": "uv built autograd-gamma and installed wheeled packages; internal transient build cleanup scope unmeasured, no universal preservation claim",
+    "probe_preparation_errors": "two import probes failed due omitted source PYTHONPATH then incorrect service module name; corrected actual probe passed. Tracebacks observed in tool output, not separately retained; structured errors preserved."
+  },
+  "closure_ids": [],
+  "log_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-locked-metadata-before.json.gz",
+      "sha256": "19bf8d0dc7334dccd36ab5a006f8e39524791126e947053eac9c0e589183851a",
+      "bytes": 47675,
+      "decoded_sha256": "58b886a497f2ee9bb76fd1a85e5c4d698ce26c8bac5e626df7f123d7e6c69c7a",
+      "decoded_bytes": 323483,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/parity-locked-metadata-before.json",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-profile-plan.json.gz",
+      "sha256": "8f97ac78620b61c82cfd2e6b0c7e4952190cae333ecfa39182258e27a437b68e",
+      "bytes": 1384,
+      "decoded_sha256": "b12ee42a15c4cec58a747ec9da595e1e0787c7731beb0513174c5e411d286adf",
+      "decoded_bytes": 12717,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/parity-profile-plan.json",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-profile-requirements-hashed.txt.gz",
+      "sha256": "fddbb9ca6299a4e8d36704c3fb411c90aa3a1892320816bf96b8a25b917ebb24",
+      "bytes": 2728,
+      "decoded_sha256": "0056875be48644f3cbee627f292049858c72bcd8b83de893f4fbc978e0ec3475",
+      "decoded_bytes": 5285,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/parity-profile-requirements-hashed.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-profile-install.txt.gz",
+      "sha256": "843ae344ff0a733c3c0783eed171cc260dbefe81a866acc01c96c5df366b021b",
+      "bytes": 459,
+      "decoded_sha256": "ce21cb8da55d472c121fe529d47ad58f05a5ddea69749c3afdda6bba9e9bd716",
+      "decoded_bytes": 915,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/parity-profile-install.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-uv-baseline-install.txt.gz",
+      "sha256": "1853f01b98d4e9610d6e62b22af020aa790a40aadc2e7c4836b5fe5f9dda1deb",
+      "bytes": 167,
+      "decoded_sha256": "865de24f0d8635d84e009e078edd0019ebeae0e4a84443671a8691a4cdad95e5",
+      "decoded_bytes": 199,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/parity-uv-baseline-install.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-overlay-create.txt.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "bytes": 20,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/parity-overlay-create.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-overlay-after.json.gz",
+      "sha256": "713c89b0e9069b955303e09593937bd7aa2cb7dfe4cb3b6e5cf76e2d091a33b2",
+      "bytes": 1855,
+      "decoded_sha256": "33b9b84eeeece501b27a4fcbd91a92cb5938bf71d6604cc902fa2a72e9320418",
+      "decoded_bytes": 6329,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/parity-overlay-after.json",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-preparation-errors.json.gz",
+      "sha256": "76e2832cdbf1f9b1ee822fe344ac395a4951a143509112cebcb93af230f72180",
+      "bytes": 265,
+      "decoded_sha256": "e484744b979707d9dea8249fa5f35266f888da9441b137b0e544bd45e5df1fc8",
+      "decoded_bytes": 591,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/parity-preparation-errors.json",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-locked-recent-bytecode.json.gz",
+      "sha256": "75f8006d83726cbc58ad5bc7d47cc10e152633da483a3e97b719df63383469fc",
+      "bytes": 1501,
+      "decoded_sha256": "a62a82ee536d84b7e283740700e875857ac44f89f8ed76b3df852dee0e9e1b1d",
+      "decoded_bytes": 13311,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/parity-locked-recent-bytecode.json",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    }
+  ]
+}

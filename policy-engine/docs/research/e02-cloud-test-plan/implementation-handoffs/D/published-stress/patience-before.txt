@@ -1,0 +1,67 @@
+F.FF                                                                     [100%]
+=================================== FAILURES ===================================
+__________________ test_malformed_patience_is_rejected[True] ___________________
+
+patience = True
+
+    @pytest.mark.parametrize("patience", [True, False, 1.5, "2"])
+    def test_malformed_patience_is_rejected(patience: object) -> None:
+>       with pytest.raises(ValueError, match="patience"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/test_stopping_limitations.py:30: Failed
+___________________ test_malformed_patience_is_rejected[1.5] ___________________
+
+patience = 1.5
+
+    @pytest.mark.parametrize("patience", [True, False, 1.5, "2"])
+    def test_malformed_patience_is_rejected(patience: object) -> None:
+>       with pytest.raises(ValueError, match="patience"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/test_stopping_limitations.py:30: Failed
+____________________ test_malformed_patience_is_rejected[2] ____________________
+
+patience = '2'
+
+    @pytest.mark.parametrize("patience", [True, False, 1.5, "2"])
+    def test_malformed_patience_is_rejected(patience: object) -> None:
+        with pytest.raises(ValueError, match="patience"):
+>           ImprovementPlateau(patience=patience, objective_unit="points")
+
+tests/unit/scientist/methods/search/test_stopping_limitations.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.search.stopping.ImprovementPlateau object at 0x7f6d7aedcb00>
+patience = '2', min_improvement = 0.01, objective_key = 'objective_value'
+
+    def __init__(
+        self,
+        patience: int = 3,
+        min_improvement: float = 0.01,
+        objective_key: str = "objective_value",
+        *,
+        objective_unit: str | None = None,
+        direction: OptimizationDirection = OptimizationDirection.MINIMIZE,
+        absolute_tolerance: float = 0.01,
+        profile_version: str | None = "1.0",
+    ):
+>       if patience < 1:
+           ^^^^^^^^^^^^
+E       TypeError: '<' not supported between instances of 'str' and 'int'
+
+src/polisyos/scientist/methods/search/stopping.py:138: TypeError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_malformed_patience_is_rejected[True]
+FAILED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_malformed_patience_is_rejected[1.5]
+FAILED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_malformed_patience_is_rejected[2]
+3 failed, 1 passed, 3 deselected, 2 warnings in 11.97s

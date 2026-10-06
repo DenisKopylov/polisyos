@@ -1,0 +1,43 @@
+{
+  "schema_version": "e02.D.independent-five-queue-review-resource-addendum.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "previous_matrix_commit": "8c12389d38f4837c7a29e285911141a25c49c7b1",
+  "proof_commit": "6065d9a9a5b82951234af5b98bc97af96f410cf5",
+  "proof_tree": "172a75e17315d200f7a4986480eb0415fe1a7ff0",
+  "rows": [
+    {
+      "queue": 1,
+      "result": "PARTIAL",
+      "gp_source": "87f22cab5d270c3b3c6c4d37e33328d09ed06494",
+      "gp_continuation": "PASS23",
+      "canonical_extreme_domain": "FAIL4c; correction pending immutable review",
+      "pareto_and_transfer_composition": "UNRUN by this continuation reviewer"
+    },
+    {
+      "queue": 2,
+      "result": "UNRUN",
+      "reason": "No immutable transfer/ANN/lesson source routed yet"
+    },
+    {
+      "queue": 3,
+      "result": "UNRUN",
+      "reason": "No immutable champion/service source routed yet"
+    },
+    {
+      "queue": 4,
+      "result": "PARTIAL",
+      "source": "c8aafea4540b7d2a2873a73456d6c1d396dce552",
+      "reported_resource_mechanism": "PASS36 unchanged independent corpus",
+      "external_billing_authority": "not_established",
+      "effective_engine_and_typed_permission": "UNRUN in this settlement replay",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-independent-review.json"
+    },
+    {
+      "queue": 5,
+      "result": "UNRUN",
+      "reason": "No immutable selected STP/scenario-fraction STR source routed yet"
+    }
+  ],
+  "closure_ids": [],
+  "verdict": "Bounded GP and reported-resource properties pass their corrected immutable sources; five-queue verification remains incomplete, with exact coordinate FAIL and consumer UNRUN cells retained."
+}

@@ -1,0 +1,63 @@
+"""Verify the complete tracked historical index and one derived-field falsifier."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import time
+import uuid
+
+ROOT = Path('/workspace/e02-D-published-root')
+PLAN = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan'
+OUT = Path('/dev/shm/e02-D-root-closeout')
+
+
+def main() -> None:
+    source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    scratch = Path('/dev/shm/e02-D-index-negative-' + uuid.uuid4().hex)
+    scratch.mkdir()
+    names = ['results', 'full-run/allocation.json', 'full-run/finding-routes.json', 'execution-organization/finding-owners.tsv']
+    copied = {}
+    for name in names:
+        original = PLAN / name
+        target = scratch / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if original.is_dir():
+            shutil.copytree(original, target)
+            files = list(original.rglob('*'))
+        else:
+            shutil.copy2(original, target)
+            files = [original]
+        for path in files:
+            if path.is_file():
+                raw = path.read_bytes()
+                copied[str(path.relative_to(PLAN))] = {'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+    script = PLAN / 'results/import_results.py'
+    checks = []
+    for case, selected in [('tracked', PLAN / 'results'), ('exact-copy', scratch / 'results'), ('retained-markers-derived-count-mutation', scratch / 'results')]:
+        if case.endswith('mutation'):
+            path = selected / 'verification.json'
+            value = json.loads(path.read_text())
+            original_count = value['primary_cells']
+            value['primary_cells'] = original_count + 1
+            path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+        command = [sys.executable, '-B', str(script), '--root', str(selected), '--check']
+        started = time.monotonic()
+        result = subprocess.run(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = OUT / ('index-' + case + '.txt')
+        output.write_bytes(result.stdout)
+        checks.append({'case': case, 'command': command, 'exit_code': result.returncode, 'wall_seconds': time.monotonic() - started, 'output': str(output), 'bytes': len(result.stdout), 'sha256': hashlib.sha256(result.stdout).hexdigest()})
+    assert checks[0]['exit_code'] == checks[1]['exit_code'] == 0
+    assert checks[2]['exit_code'] == 1
+    assert b'derived artifact drift: verification.json' in Path(checks[2]['output']).read_bytes()
+    receipt = {'source_sha': source, 'scope': 'Complete historical transferred input/index binding only; not behavioral closure', 'copied_complete_inputs': copied, 'preserved_scratch': str(scratch), 'mutation': {'path': 'results/verification.json', 'field': 'primary_cells', 'before': original_count, 'after': original_count + 1, 'other_semantic_values_preserved': True}, 'checks': checks, 'result': 'PASS for recomputed transfer/index binding and expected falsifier rejection', 'cleanup': 'Preserved; no permanent deletion or Trash clearing'}
+    (OUT / 'index-binding-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+    print(json.dumps({'source': source, 'checks': [{'case': c['case'], 'exit_code': c['exit_code']} for c in checks], 'scratch': str(scratch)}))
+
+
+if __name__ == '__main__':
+    main()

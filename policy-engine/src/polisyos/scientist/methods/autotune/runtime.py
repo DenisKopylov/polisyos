@@ -3,12 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
-from pydantic import BaseModel
-
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, input_ref_from_artifact_ref
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
@@ -22,18 +19,25 @@ from polisyos.scientist.methods.search.objective import (
 from polisyos.scientist.methods.search.stopping import MaxIterations
 
 from .models import (
+    BenchmarkComparisonBasis,
     BenchmarkEvaluation,
     ChampionPointer,
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
     default_store,
     load_model_artifact,
     persist_benchmark_evaluation,
     persist_mutation_artifact,
 )
 from .registry import ChampionRegistry
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
 
 ModelT = TypeVar("ModelT", bound=MutationArtifact)
 
@@ -55,7 +59,7 @@ def seed_loop_baseline(
     *,
     loop_id: str,
     baseline: MutationArtifact,
-    store: FileSystemCAS | None = None,
+    store: ArtifactStore | None = None,
     registry: ChampionRegistry | None = None,
     suite_version: str = "1.0",
     metadata: dict[str, Any] | None = None,
@@ -97,7 +101,7 @@ class ChampionBackedRuntimeLoader(Generic[ModelT]):
         loop_id: str,
         model_cls: type[ModelT],
         baseline_factory: Any,
-        store: FileSystemCAS | None = None,
+        store: ArtifactStore | None = None,
         registry: ChampionRegistry | None = None,
         suite_version: str = "1.0",
     ) -> None:
@@ -123,7 +127,7 @@ class ChampionBackedRuntimeLoader(Generic[ModelT]):
         if champion is None:
             champion = self.ensure_baseline(context)
         payload = load_model_artifact(self._store, champion.candidate_ref, self._model_cls)
-        return cast("ModelT", payload)
+        return payload
 
 
 class _AutotuneObjective(BaseObjective):
@@ -170,14 +174,13 @@ class SequenceCandidateGenerator:
     ) -> dict[str, Any]:
         del history, current_best, context
         if self._index >= len(self._candidates):
+            last = self._candidates[-1]
             return (
-                self._candidates[-1].model_dump(mode="json")
-                if isinstance(self._candidates[-1], BaseModel)
-                else dict(self._candidates[-1])
+                last.model_dump(mode="json") if isinstance(last, MutationArtifact) else dict(last)
             )
         candidate = self._candidates[self._index]
         self._index += 1
-        if isinstance(candidate, BaseModel):
+        if isinstance(candidate, MutationArtifact):
             return candidate.model_dump(mode="json")
         return dict(candidate)
 
@@ -188,7 +191,7 @@ class SearchLoopRunner:
     def __init__(
         self,
         *,
-        store: FileSystemCAS | None = None,
+        store: ArtifactStore | None = None,
         registry: ChampionRegistry | None = None,
     ) -> None:
         self._store = store or default_store()
@@ -227,7 +230,7 @@ class SearchLoopRunner:
         )
         initial_payload = (
             initial_candidate.model_dump(mode="json")
-            if isinstance(initial_candidate, BaseModel)
+            if isinstance(initial_candidate, MutationArtifact)
             else initial_candidate
         )
         from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
@@ -251,24 +254,47 @@ class SearchLoopRunner:
         candidate = codec.decode(candidate_payload)
         candidate_ref = persist_mutation_artifact(
             self._store,
-            cast("MutationArtifact", candidate),
-            inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+            candidate,
+            inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
         )
+        basis = benchmark_comparison_basis(
+            self._store,
+            suite_ref,
+            spec.promotion_policy,
+            benchmark_evaluator_profile(spec.benchmark_evaluator),
+        )
+        current = self._registry.get(spec.loop_id)
+        evaluation_context = {
+            **dict(context),
+            "store": self._store,
+            "registry": self._registry,
+            "policy": spec.promotion_policy,
+            "loop_id": spec.loop_id,
+            "benchmark_comparison_incumbent": current.model_copy(deep=True)
+            if current is not None
+            else None,
+        }
         evaluation = spec.benchmark_evaluator.evaluate(
             candidate_ref,
             suite_ref,
-            {
-                **dict(context),
-                "store": self._store,
-                "registry": self._registry,
-                "policy": spec.promotion_policy,
-                "loop_id": spec.loop_id,
-            },
+            evaluation_context,
         )
+        evaluation = self._bind_comparison(evaluation, basis)
+        incumbent_ref = None
+        if current is not None:
+            # The module build identity does not bind context callbacks or
+            # their state. Execute the incumbent under this same active context
+            # even when the persisted suite and evaluator module are unchanged.
+            incumbent = spec.benchmark_evaluator.evaluate(
+                current.candidate_ref, suite_ref, evaluation_context
+            )
+            incumbent = self._bind_comparison(incumbent, basis)
+            incumbent_ref = persist_benchmark_evaluation(self._store, incumbent)
+            evaluation = evaluation.model_copy(update={"incumbent_evaluation_ref": incumbent_ref})
         evaluation_ref = persist_benchmark_evaluation(
             self._store,
             evaluation,
-            inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+            inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
         )
         decision = self._registry.consider_promotion(
             spec.loop_id,
@@ -292,6 +318,21 @@ class SearchLoopRunner:
                 "status": evaluation.status,
             },
         }
+
+    @staticmethod
+    def _bind_comparison(
+        evaluation: BenchmarkEvaluation, basis: BenchmarkComparisonBasis
+    ) -> BenchmarkEvaluation:
+        """Retain producer input binding; candidate-only evaluators have no external data."""
+        if evaluation.incumbent_evaluation_ref is not None:
+            raise ValueError("benchmark_evaluator_supplied_comparison_incumbent")
+        if evaluation.comparison_basis is None:
+            if basis.data_basis != "candidate_only":
+                raise ValueError("benchmark_evaluator_did_not_bind_consumed_inputs")
+            return evaluation.model_copy(update={"comparison_basis": basis})
+        if evaluation.comparison_basis != basis:
+            raise ValueError("benchmark_evaluator_comparison_basis_mismatch")
+        return evaluation
 
 
 __all__ = [

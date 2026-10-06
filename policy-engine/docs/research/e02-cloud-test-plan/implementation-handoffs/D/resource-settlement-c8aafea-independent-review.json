@@ -1,0 +1,158 @@
+{
+  "schema_version": "e02.D.independent-resource-final-correction-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "6065d9a9a5b82951234af5b98bc97af96f410cf5",
+  "proof_tree": "172a75e17315d200f7a4986480eb0415fe1a7ff0",
+  "production_writes": false,
+  "unchanged_oracle_commit": "fd7ecbaf6237966ae46a116af3d1a3a877ebf424",
+  "unchanged_oracle_path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+  "unchanged_oracle_sha256": "69bda1a6d8be607344ef1dc8eb9cc523a4e365810aa8f9dafcf9e4705597ad70",
+  "source_target": {
+    "commit": "c8aafea4540b7d2a2873a73456d6c1d396dce552",
+    "tree": "ce6907e1dd1b95f5a8acdfbd05f0c625af91bf57",
+    "snapshot_root": "/dev/shm/e02-oracle-resource-c8aafea/archive",
+    "snapshot_kind": "Exact selected tracked Git archive on separate /dev/shm volume; not a checkout/worktree and not a full repository archive",
+    "selected_trees": [
+      "policy-engine/src",
+      "policy-engine/tools",
+      "policy-engine/architecture",
+      "policy-engine/tests",
+      "policy-engine/schemas",
+      "policy-engine/pyproject.toml",
+      "policy-engine/pytest.ini",
+      "policy-engine/uv.lock",
+      "policy-engine/uv.toml",
+      "policy-engine/hatch.toml",
+      "policy-engine/ruff.toml",
+      "policy-engine/.python-version",
+      "policy-engine/CONTRIBUTING.md",
+      "AGENTS.md"
+    ],
+    "tracked_input_count": 7629,
+    "input_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-input-manifest.json",
+      "sha256": "0a4b864e172d5d5b8d4e61983cabafcd4de5716f3b77ed5d6d5ed91003bd1731",
+      "bytes": 2061643
+    },
+    "actual_fixtures": "Local explicit provider receipt dictionaries and fresh tmp_path ledger files; no external dataset/CAS/model fixture used",
+    "omitted_scope": "Product docs/apps/data/examples/vendor/release and unrelated root resources omitted; no claim for tests requiring those inputs"
+  },
+  "environment": {
+    "source_commit": "c8aafea4540b7d2a2873a73456d6c1d396dce552",
+    "source_tree": "ce6907e1dd1b95f5a8acdfbd05f0c625af91bf57",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "modules": [
+      {
+        "name": "polisyos.scientist.orchestration.engine.budget_ledger",
+        "origin": "/dev/shm/e02-oracle-resource-c8aafea/archive/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "sha256": "80f68d9574cdf0c8fa51543b21c72e5aa48ab1b12c52c62d42221f7646b06fe2"
+      },
+      {
+        "name": "polisyos.scientist.orchestration.engine.budget_middleware",
+        "origin": "/dev/shm/e02-oracle-resource-c8aafea/archive/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7"
+      },
+      {
+        "name": "polisyos.scientist.orchestration.llm.budget_enforcer",
+        "origin": "/dev/shm/e02-oracle-resource-c8aafea/archive/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b"
+      },
+      {
+        "name": "polisyos.core.llm.response",
+        "origin": "/dev/shm/e02-oracle-resource-c8aafea/archive/policy-engine/src/polisyos/core/llm/response.py",
+        "sha256": "0def9331959e5b56467d156e757692b3e759817266b473f23052185a008f8695"
+      }
+    ]
+  },
+  "source_cells": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-source-cells.txt",
+    "sha256": "9d73215f7208a166c4763e48485cfa3a8a5471698d8a427b8cf291817bc9db51",
+    "bytes": 1435
+  },
+  "source_review": {
+    "previous": "Full resource source and eleven-path d80->dcb delta recorded by8c12389d38f4837c7a29e285911141a25c49c7b1",
+    "correction": "All four-path dcb->c8aafea source/test/release delta reviewed. Independently valid cost/provider/request extracted before fallible token counts; generic ancillary metadata exception resets only counts. Invalid present cost retains explicit refusal; no fallback to zero/tariff. Known amount is persisted before latency metrics. No financial authority contract invented.",
+    "unchanged_mechanism": "Existing LLMBudgetEnforcer -> BudgetMiddleware -> FileBudgetLedger owned reservations, physical receipt identity/dedupe, durable events, canonical reread/atomic persisted snapshot retained."
+  },
+  "deciding_cell": {
+    "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/orchestration/engine/test_budget_ledger.py tests/integration/scientist/orchestration/llm/test_budget_enforcer.py tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py -o addopts='' -q -s -rA",
+    "cwd": "/dev/shm/e02-oracle-resource-c8aafea/archive/policy-engine",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-independent-review.txt",
+      "sha256": "1fa8eb80bbacfad07a89b5d4288df551bbed1252d66e17f9ad5018a20df31cb0",
+      "bytes": 5933
+    },
+    "summary": "36 passed in 0.30s",
+    "result": "PASS bounded reported-spend mechanism",
+    "exit_code": 0,
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0,
+    "owner_cases": 18,
+    "independent_cases": 18,
+    "denominator": "Prior35 cases unchanged, plus one new native SDK paid-token case; own18 oracle byte-identical tofd7."
+  },
+  "inputs": {
+    "run": "independent-run",
+    "provider": "independent-provider-fixture",
+    "physical_request_ids": ["physical-1", "physical-2"],
+    "candidate_ids": ["candidate-1", "candidate-2"],
+    "amounts_usd": ["1.1", "2.2"],
+    "budget_keys": ["run", "unlimited"],
+    "run_limit_usd": "5",
+    "expected_total_usd": "3.3",
+    "expected_remaining_usd": "1.7",
+    "paid_error_controls": [
+      "Definite reported cost1 plus raising latency metric",
+      "Definite cost1/provider/request plus malformed prompt token count"
+    ],
+    "malformed_cost_controls": [
+      "Negative",
+      "NaN",
+      "Inf",
+      "True",
+      "False",
+      "malformed string"
+    ],
+    "alternate_cost_locations": ["usage", "payload"],
+    "expected_bad_cost_result": "Refuse without settled events/tariff, retain unresolved reservation"
+  },
+  "passing_scope": [
+    "Exact native full/split events, Decimal amounts and independent fresh reopen",
+    "Provider/cache/retry identity and occurrence amounts; different-content duplicate refusal",
+    "Owned reservation release, actual greater than estimate, unlimited keys and journal eviction",
+    "Missing measurement remains pending rather than estimated spend",
+    "Known paid receipt survives token metadata failure and later latency/consumer failure",
+    "All12 independent malformed-present cost plus valid-alternate controls refuse; native corresponding cases pass",
+    "Keep actual tracecost1 and displayed new-charge1, remove settlement: persisted debit assertion becomes red as required"
+  ],
+  "prior_failing_evidence": [
+    {
+      "commit": "21c05c056d043f37b7346863f004f3e9bce0c485",
+      "source": "d80bfc2bb6775ddad69ecdcc1271528db182af21",
+      "result": "FAIL2/14",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-d80-independent-review.json"
+    },
+    {
+      "commit": "8c12389d38f4837c7a29e285911141a25c49c7b1",
+      "source": "dcb203fdff6b0b8747e55bc3bc53a29f66db953b",
+      "result": "FAIL1/34",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-independent-review.json"
+    }
+  ],
+  "finding_status": "Three measured-accounting/normalization witnesses now pass unchanged independent runtime assertions; this is code/property acceptance within the tested bounded mechanism, not finding closure.",
+  "external_billing_authority": "not_established; local provider reports are not authenticated billing-service attestation",
+  "closure_ids": [],
+  "limitations": [
+    "Controller/blueprint consumer, translator/adversary measurement ports, typed promotion permission and full search lifecycle remain outside this settlement replay.",
+    "No objective-resource equivalence, production deployment, authenticated external billing, distributed filesystem guarantee or production-history claim.",
+    "No claim for tests requiring omitted docs/apps/data/examples/vendor/release resources; all actual receipts and ledger fixtures used by these36 cases are included or generated explicitly."
+  ],
+  "cleanup_candidates": [
+    "/dev/shm/e02-oracle-resource-c8aafea/archive",
+    "Earlier four exact oracle snapshots named in previous receipts",
+    "Fresh pytest temporary directories; cloud Trash unavailable; no permanent deletion."
+  ]
+}

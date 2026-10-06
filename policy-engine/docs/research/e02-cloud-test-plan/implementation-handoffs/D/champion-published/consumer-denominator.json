@@ -1,0 +1,96 @@
+{
+  "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+  "tree": "ecc9631463819d1d71c4eb1f87bdead50fdfe31f",
+  "repository_tracked_path_denominator": 13706,
+  "production_src_path_denominator": 2910,
+  "production_src_python_path_denominator": 2698,
+  "literal_selector": {
+    "path_selection": "all tracked files outside policy-engine/tests and node_modules with exact extensions listed; includes documentation-embedded code only if executable extension",
+    "extensions": [
+      ".cjs",
+      ".js",
+      ".jsx",
+      ".mjs",
+      ".py",
+      ".sh",
+      ".ts",
+      ".tsx"
+    ],
+    "path_denominator": 5016,
+    "hits": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py",
+        "line": 72,
+        "text": "SearchLoopRunner,"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py",
+        "line": 81,
+        "text": "\"SearchLoopRunner\","
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py",
+        "line": 102,
+        "text": "\"SearchLoopRunner\": ("
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py",
+        "line": 104,
+        "text": "\"SearchLoopRunner\","
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "line": 188,
+        "text": "class SearchLoopRunner:"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "line": 341,
+        "text": "\"SearchLoopRunner\","
+      }
+    ],
+    "claim": "No concrete SearchLoopRunner call appears among these six literal hits. This is text selection, not a complete dynamic invocation graph.",
+    "unresolved_by_construction": [
+      "dynamic imports and reflection",
+      "dependency injection and configured callbacks",
+      "external or untracked callers",
+      "runtime dispatch and actual deployment"
+    ]
+  },
+  "autotune_python_path_denominator": 17,
+  "direct_module_class_evaluate_definitions": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+      "class": "CalibrationMetaEvaluator"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/cheap_stage.py",
+      "class": "CheapStageBenchmarkEvaluator"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+      "class": "ClaimGoldEvaluator"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+      "class": "ExecutionPlanBenchmarkEvaluator"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "class": "BenchmarkedEvaluator"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/reflexion.py",
+      "class": "ReflexionRoutingEvaluator"
+    }
+  ],
+  "builtin_producer_paths": [
+    "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/cheap_stage.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/reflexion.py"
+  ],
+  "binding": "builtin writer completeness limited to actual five evaluator classes; other runtime evaluator inputs remain caller supplied",
+  "direct_module_class_evaluate_definitions_note": "Includes the BenchmarkedEvaluator protocol declaration; actual built-in writers are the five explicitly listed paths."
+}

@@ -1,0 +1,185 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "independent-receiver-unchanged-successor-replay-c812",
+  "recorded_at": "2026-10-06T11:39:54.481964+00:00",
+  "closure_ids": [],
+  "source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "frozen_combined_sha": "c812510541c898d7118004661ce07335823d2209",
+  "frozen_combined_tree_sha": "40fbf8a3a53949eacc1c0bed58f90f0aac141382",
+  "supplier_corrections": [
+    {
+      "owner": "search_owner",
+      "sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "scope": "Present malformed stage_a outcome rejected before scalar fallback, history and frontier receivers."
+    },
+    {
+      "owner": "gp_witness",
+      "sha": "c84725cfe54525356aabaab6124e6e5fb324be27",
+      "scope": "Annotation-derived declared primitive families and finite values checked before artifact model coercion."
+    }
+  ],
+  "reviewer_production_changes": [],
+  "reviewer_test_changes_for_successor": [],
+  "unchanged_oracle": {
+    "path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+    "test_commit": "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+    "git_blob": "720e2fb78a4f67cdd125c19f587680ca9bab7d8d",
+    "rawfile_sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720",
+    "byte_size": 8341,
+    "before_and_after_replay_equal": true
+  },
+  "baseline_failure_receipt": {
+    "publisher_commit": "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-review-fac5.json",
+    "rawfile_sha256": "5c81bcafe1a8bc478cae556396cee79dd1d24cc91152d2cf7d60bb84e7f9ec2d",
+    "byte_size": 17907,
+    "meaning": "Preserved actual fac5 Q1 native eight-row malformed declaration failure and all three corrected-fixture Q3 raw primitive promotion failures. Three initial Q3 fixture setup errors remain classified separately."
+  },
+  "source_identities": [
+    {
+      "module": "models",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "source_sha": "c812510541c898d7118004661ce07335823d2209",
+      "git_blob": "66417098881a5d2f8200120d22c9eacb8367b40b",
+      "rawfile_sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+      "byte_size": 27900,
+      "post_check_bytes_equal_pinned_git": true
+    },
+    {
+      "module": "registry",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "source_sha": "c812510541c898d7118004661ce07335823d2209",
+      "git_blob": "195ab88a8d761b4a4c369bb4f38c02a5a3c8620b",
+      "rawfile_sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c",
+      "byte_size": 26820,
+      "post_check_bytes_equal_pinned_git": true
+    },
+    {
+      "module": "generator",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "source_sha": "c812510541c898d7118004661ce07335823d2209",
+      "git_blob": "8beaf54d546dc2fcb3b9a61d6075f7a0b26e32a6",
+      "rawfile_sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "byte_size": 21632,
+      "post_check_bytes_equal_pinned_git": true
+    },
+    {
+      "module": "bayesian",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "source_sha": "c812510541c898d7118004661ce07335823d2209",
+      "git_blob": "8491843135fa4d9f54d5176464a812f2285a8b3c",
+      "rawfile_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "byte_size": 48512,
+      "post_check_bytes_equal_pinned_git": true
+    },
+    {
+      "module": "transfer",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "source_sha": "c812510541c898d7118004661ce07335823d2209",
+      "git_blob": "ed9db38c5193a3ba3671f6378d1baad0b839c247",
+      "rawfile_sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3",
+      "byte_size": 32366,
+      "post_check_bytes_equal_pinned_git": true
+    },
+    {
+      "module": "warm_start",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "source_sha": "c812510541c898d7118004661ce07335823d2209",
+      "git_blob": "e3eb54a04c0121c548fb31fb6a7dc6d9c7504578",
+      "rawfile_sha256": "d2d1d6ba7ac45a473a2a185410d0e0b132eb72582fc4796dcb639b24e835adb7",
+      "byte_size": 4727,
+      "post_check_bytes_equal_pinned_git": true
+    }
+  ],
+  "tracked_execution_inputs": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-tracked-inputs.json",
+    "rawfile_sha256": "e537882c6110ecfbb4fb6597c28fc7d25180338b90872f0706daec1ccbfd95d7",
+    "byte_size": 1052
+  },
+  "actual_module_origins_and_environment": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-origins.json",
+    "rawfile_sha256": "473eaad40d258db4305e7c66553b2afd1fb805478739d1026b01b861196f67b6",
+    "byte_size": 1761
+  },
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python /dev/shm/e02-D2-receiver-review-c812/run_successor_review.py",
+      "working_directory": "/dev/shm/e02-D2-receiver-review-c812/policy-engine",
+      "pytest_arguments": [
+        "-c",
+        "/dev/null",
+        "-p",
+        "no:cacheprovider",
+        "--confcutdir=tests/unit",
+        "--basetemp=/dev/shm/e02-D2-receiver-review-c812/pytest-negative-01",
+        "-q",
+        "-s",
+        "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+        "-ra"
+      ],
+      "result": "4 passed, 1 warning in 1.40s",
+      "exit_code": 0,
+      "measured_pytest_wall_seconds": 3.353740755992476,
+      "warning": "PytestAssertRewriteWarning: jaxtyping was imported before plugin assertion rewriting.",
+      "skips": 0,
+      "deselections": 0,
+      "denominator": "The unchanged whole unique four-case receiver review file, three cold registry parameter controls and one configured native-backend generator negative.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-complete.txt",
+        "rawfile_sha256": "c6e7edcabac87e4396a9fabd24945b60308d8958518f039b27c12d6173a404d0",
+        "byte_size": 11485
+      }
+    }
+  ],
+  "observation_method": {
+    "description": "sys.setprofile records ordinary Python call/return events without altering models/readers/fits. Records actual ChampionRegistry decisions and native fit/ExactMLL/SingleTaskGP constructor calls; script can record passed train tensors when a model is constructed. No model is constructed in this negative replay.",
+    "script": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-observer.txt",
+      "rawfile_sha256": "5ca99f9fc9cf865913fb9e701f0330e1ff8cc48824a0de6675af80a216b35af2",
+      "byte_size": 3819
+    },
+    "complete_measurement": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-native-observation.json",
+      "rawfile_sha256": "a5865faeb086cef8465991830c29b2f878d70626401c91312bc533e7fd0e3f0f",
+      "byte_size": 6297
+    },
+    "actual_native_fit_gpytorch_mll": 0,
+    "actual_native_ExactMarginalLogLikelihood": 0,
+    "actual_native_SingleTaskGP": 0
+  },
+  "requirements_to_evidence": [
+    {
+      "requirement": "Malformed caller stage flag must not become a favorable admitted true observation with numerical/CAS identities held fixed.",
+      "actual_result": "PASS for unchanged observed negative: adapter rejects malformed present outcome, and configured generator returns through the oracle-approved whole-corpus refusal path with model None. Zero native conditioning/model construction observed. All eight legitimate rows still pass the actual bridge baseline admission assertion before the caller mutation.",
+      "source_explanation": "Read-only source explains zero conditioning: the invalid tagged row is submitted to canonical training admission before ordinary is_valid filtering; its altered declared outcome no longer matches original CAS, so the exact encoded admission check refuses the corpus. This explanation is source inference; executed facts are the passing unchanged oracle/model None and zero native calls.",
+      "limit": "No seven-row GP fit or new healthy native fit is established by this negative. Prior native workflow remains separately bound to 8eb; root owns wider corrected-source positive reruns."
+    },
+    {
+      "requirement": "Raw CAS metric bool, sample-count bool and guard integer must refuse before cold champion promotion with full consumed basis unchanged.",
+      "actual_result": "PASS for three unchanged controls: actual legitimate baseline ChampionRegistry decision promoted in each case; malformed counterpart refused, no negative champion pointer created, all full refs/comparison basis/producer/input markers preserved in actual CAS capture.",
+      "limit": "Only the three exposed primitive cases are freshly verified here; supplier broader field/version controls remain separate evidence, not imported as this reviewer coverage."
+    }
+  ],
+  "verification_verdict": {
+    "scoped_observed_receiver_controls": "PASS",
+    "overall_findings_or_production_workflow": "PARTIAL; no global closure or full production benefit/source-authority verdict.",
+    "institutional_scope": "Caller-declared technical identities and conditional analytic producer only; independent institutional evaluator/source/data rights appointment remains outside this receipt."
+  },
+  "complete_actual_input_capture": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-actual-inputs.json",
+    "rawfile_sha256": "c093bc732c9c1a85ad2cb7d6f1878b8bc4beff462dd337864059934dd177ae7e",
+    "byte_size": 266387
+  },
+  "complete_actual_input_file_count": 176,
+  "negative_champion_pointer_count": 0,
+  "proxy_divergence": "Actual configured receiving generator and cold CAS registry were executed with real locked native packages. Q1 controlled refusal means no numerical conditioning occurred in this negative. Conditional analytic inputs bind technical identities only, not scientific measurement truth, source permission or an institutional issuer.",
+  "timing_limit": "Fresh shared Python startup/import was delayed under host pressure before test execution. Measured wall_seconds brackets pytest.main only, not preparation or process startup; total startup elapsed was not instrumented and is not fabricated.",
+  "storage_and_cleanup": {
+    "remaining_candidate": "/dev/shm/e02-D2-receiver-review-c812",
+    "fresh_basetemp": "/dev/shm/e02-D2-receiver-review-c812/pytest-negative-01",
+    "basetemp_preexisted": false,
+    "action": "Preserved all snapshot and fixture data. No deletion, reuse, Trash operation or shared environment mutation. Preparation diagnostics also remain under /dev/shm/e02-D2-receiver-review-fac5; no additional snapshot created."
+  },
+  "remaining_scope": "G decides finding acceptance/closure separately. Future independent FUN owner changes do not change these pinned receiving source blobs without another frozen-source replay."
+}

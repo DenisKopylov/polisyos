@@ -1,0 +1,74 @@
+{
+  "schema_version": "e02.D.independent-oracle-runtime-profile-supersession.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "9221a2591a44a978ba105da1fc85379690f24be8",
+  "proof_tree": "7974e04970f25e59fa74596e58c017677f3414e0",
+  "production_writes": false,
+  "source_commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+  "source_tree": "b0631ecb8840fc2d9482ddeb283e9c8a823ac5fc",
+  "previous_receipt": "31527a86e4618f9e7164ff41b4ed146749b7017f",
+  "deviation": "Reviewer-owned test_gp_coordinate_consumers_independent_oracle.py called torch.set_num_threads(1) in its neural test. This violated the requested no cloud CPU/process/test-worker cap profile. The prior 66-case aggregate and prior cb47 7-case coordinate executions contain this deviation; their logs and semantic assertions remain preserved, but they are not evidence of the requested uncapped-by-reviewer runtime profile.",
+  "correction": {
+    "test_commit": "83889657e13d37fe11e048c5298b2f8c64044c08",
+    "change": "Only delete torch.set_num_threads(1); all seven semantic assertions unchanged",
+    "test_path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+    "test_sha256": "0e898bae6c41af2c79af671f35dea23df1db5048b0d32995189a81991897b4c8"
+  },
+  "deciding_cell": {
+    "input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-uncapped-coordinate-input.json",
+      "bytes": 1073,
+      "sha256": "6c1d7b8f10b7afe93fdc6549740dde0e38f9333e798b4dd62997ac727133c9ef"
+    },
+    "command": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+      "--basetemp=/dev/shm/e02-oracle-ebeb-uncapped7-b3637b7e35f344ac8b5a6e8ca7dc0206",
+      "-o",
+      "addopts=",
+      "-q",
+      "-s",
+      "-rA"
+    ],
+    "cwd": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine",
+    "environment": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-uncapped-coordinate-review.txt",
+      "bytes": 3733,
+      "sha256": "633c452e9b1a1183d214eaccd3a6e63143b1c62539f2676b4ff1e796d9ab0bae"
+    },
+    "exit_code": 0,
+    "summary": "7 passed,3 warnings in10.29s",
+    "result": "PASS"
+  },
+  "cap_audit": {
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-runtime-cap-audit.txt",
+      "bytes": 2051,
+      "sha256": "11f7274fac0a623933594ffaf4498591d5afd3dfe1fa1967a3c8891b3180b622"
+    },
+    "scope": "All three reviewer-owned new tests plus reviewer-owned *probe.py companions searched for thread/process/worker cap setters and limits. No remaining setter matches after correction. Budget probe was then formatted and given explicit source-root/SHA arguments; final file independently rescanned below.",
+    "final_budget_probe_sha256": "ed422145e1ae049004652a188e1da0b192375d17376b83af0469c77c52c987f5",
+    "final_budget_probe_matches": [],
+    "actual_native_environment": {}
+  },
+  "native_runtime_boundary": "Source runtime.py independently applies its existing native Torch settings (default SCIENTIST_TORCH_NUM_THREADS=4). This reviewer did not edit production settings or impose cloud/process/test-worker limits. No global unlimited-thread claim.",
+  "temporary_state": {
+    "path": "/dev/shm/e02-oracle-ebeb-uncapped7-b3637b7e35f344ac8b5a6e8ca7dc0206",
+    "nonexisting_before_pytest": true,
+    "preserved_after": false,
+    "no_manual_deletion": true,
+    "warning": "Earlier default pytest runs may have automatically pruned older default temporary fixtures; no global preservation claim."
+  },
+  "closure_ids": [],
+  "verdict": "PASS for unchanged seven coordinate/vector semantics after removing reviewer cap; previous runtime profile deviation explicitly retained. Complete aggregate needs parent uncapped successor replay.",
+  "cleanup_candidates": [
+    "/dev/shm/e02-oracle-search-ebeb/archive",
+    "/dev/shm/e02-oracle-ebeb-uncapped7-b3637b7e35f344ac8b5a6e8ca7dc0206"
+  ]
+}

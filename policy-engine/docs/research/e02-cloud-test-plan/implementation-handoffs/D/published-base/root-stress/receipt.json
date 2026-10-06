@@ -1,0 +1,38 @@
+{
+  "source_sha": "9fceccd0005f420a6ed417ae55b9772a60f5e8ea",
+  "source_tree": "1e3cdff91ec9c26464da591a0d847ee4bd577475",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_search_loop.py",
+    "tests/unit/scientist/search/test_cost_stopping.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "-ra"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 47.25402657801169,
+  "cwd": "/workspace/e02-D-published-root/policy-engine",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "packages": {
+    "torch": "2.10.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2"
+  },
+  "module_origins": {
+    "polisyos.scientist.methods.search.stopping": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+    "polisyos.scientist.methods.search.adversarial": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "polisyos.scientist.orchestration.engine.convergence": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py"
+  },
+  "seed_inputs": "exact native GDP/cost/CAS scenario fixtures, seed7 plus source-bound default fixture seeds and decimal constant oracles",
+  "deciding_output": "........................................................................ [ 61%]\n.............................................                            [100%]\n=============================== warnings summary ===============================\n../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474\n../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474\n  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
+  "output_sha256": "a4fbad45c36cb443c3922999fb28654e28082098f7198373c4731be4c081aee9",
+  "scope": "bounded declared-unit plateau and observed finite stress accounting; no population probability or model uncertainty claim"
+}

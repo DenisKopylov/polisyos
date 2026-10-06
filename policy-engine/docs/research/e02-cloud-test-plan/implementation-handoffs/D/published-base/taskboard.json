@@ -1,0 +1,206 @@
+{
+  "schema": "policyos.e02.D.taskboard.v4",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "queues": [
+    {
+      "owner": "search_owner",
+      "queue": "search",
+      "branch": "codex/e02-D-published-search",
+      "worktree_root": "/workspace/e02-D-published-search",
+      "bundles": [
+        "OPT-01",
+        "OPT-02",
+        "OPT-03",
+        "CTL-02"
+      ],
+      "finding_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111",
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B124",
+        "B125",
+        "B126",
+        "B127"
+      ],
+      "state": "All canonical paths present at ab7577; exact893 independent fiscal30 PASS. New real receiver stage_a primitive and legacy controller incomplete-frontier falsifiers FAIL; owner corrections and unchanged replay active. Earlier66 profile superseded by explicit uncapped7 proof.",
+      "independent_reviewer": [
+        "root",
+        "numerical_oracle"
+      ],
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/search-create.json",
+      "admission_resume": "admission/search-resume.json",
+      "implementation_source_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e"
+    },
+    {
+      "owner": "transfer_owner",
+      "queue": "transfer",
+      "branch": "codex/e02-D-published-transfer",
+      "worktree_root": "/workspace/e02-D-published-transfer",
+      "bundles": [
+        "TRN-01",
+        "TRN-02",
+        "TRN-03"
+      ],
+      "finding_ids": [
+        "B128",
+        "B129",
+        "B130",
+        "B131",
+        "B132",
+        "B133",
+        "B134",
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "state": "Actual frozen8eb CAS to GP48 PASS, fit1 then restore fit0/MLL0; final2aa ten-finding matrix7 limited/3 held. Owner now independent reviewer of Q1/Q3 preserved-basis intake controls.",
+      "independent_reviewer": [
+        "root"
+      ],
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/transfer-create.json",
+      "admission_resume": "admission/transfer-resume.json",
+      "implementation_source_sha": "5239df01fb7e6a1c66c9b7453556fd3009f022f0"
+    },
+    {
+      "owner": "gp_witness",
+      "queue": "champion",
+      "branch": "codex/e02-D-published-champion",
+      "worktree_root": "/workspace/e02-D-published-champion",
+      "bundles": [
+        "OPT-04",
+        "SRV-01",
+        "SRV-03"
+      ],
+      "finding_ids": [
+        "B116",
+        "B117",
+        "LA-014",
+        "LA-015"
+      ],
+      "state": "Independent real callback and competing writers af3 FAIL/b328 PASS; canonical lifecycle185 eight PASS. New raw CAS numeric/bool coercion3 FAIL; owner corrects existing typed model admission. Served/persisted consumer missing; full quality wave waits freeze.",
+      "independent_reviewer": [
+        "root",
+        "baseline_census"
+      ],
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/champion-create.json",
+      "admission_resume": "admission/champion-resume.json",
+      "implementation_source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12"
+    },
+    {
+      "owner": "funnel_owner",
+      "queue": "funnel",
+      "branch": "codex/e02-D-published-funnel",
+      "worktree_root": "/workspace/e02-D-published-funnel",
+      "bundles": [
+        "CTL-01",
+        "CTL-03",
+        "FUN-01",
+        "FUN-02",
+        "FUN-03"
+      ],
+      "finding_ids": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "B156",
+        "B157",
+        "B158",
+        "B159",
+        "B160",
+        "B161",
+        "B162",
+        "B163",
+        "B164",
+        "B165"
+      ],
+      "state": "Paid projection8eb FAIL/a23 PASS; independent actual consumer57 PASS, paid2 PASS, stress4 PASS and removal rejects MODEL complement. Final510 receipt retained; new actual Gateway raw negative cost normalized0 falsifier reopened core cost intake. Typed permit positive UNRUN/bridge_missing.",
+      "independent_reviewer": [
+        "root",
+        "numerical_oracle",
+        "baseline_census"
+      ],
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/funnel-create.json",
+      "admission_resume": "admission/funnel-resume.json",
+      "implementation_source_sha": "a23da7a9d17a13738804b535491798e63af43e3c"
+    },
+    {
+      "owner": "baseline_census",
+      "queue": "stress",
+      "branch": "codex/e02-D-published-stress",
+      "worktree_root": "/workspace/e02-D-published-stress",
+      "bundles": [
+        "STP-01",
+        "STR-01"
+      ],
+      "finding_ids": [
+        "B106",
+        "B107",
+        "B122",
+        "B41"
+      ],
+      "state": "Four bounded mechanisms root117 execute PASS and six removal falsifiers FAIL; independent actual stress producer/CAS/L5/Funnel4 PASS plus MODEL-complement removal rejection. Owner now independent45-finding denominator/accounting reviewer.",
+      "independent_reviewer": [
+        "root"
+      ],
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/stress-create.json",
+      "admission_resume": "admission/stress-resume.json",
+      "implementation_source_sha": "592b6943c198b1b08295708bf065f29c635339fe"
+    }
+  ],
+  "oracle": {
+    "owner": "numerical_oracle",
+    "branch": "codex/e02-D-published-oracle",
+    "production_writes": false,
+    "test_lease": [
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py"
+    ]
+  },
+  "finding_count": 45,
+  "bundle_count": 17,
+  "criterion_occurrences": 46,
+  "input_predicate_basis": "recomputed",
+  "closure_ids": [],
+  "state": "canonical_paths_complete_new_actual_receiver_falsifiers_reopened_before_aggregate_freeze",
+  "rules": [
+    "one writer per leased path",
+    "no children",
+    "no cloud CPU/process/worker quota",
+    "G sole integration publisher",
+    "one broad wave after source review/freeze"
+  ],
+  "recorded_source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+  "active_agent_slots": 7,
+  "direct_helpers": 6,
+  "maximum_available_slots": 7,
+  "historical_ledger_status": "partial, preserved separately from check result and current finding verdict",
+  "final_wave": "single broad union of all17 exact defining commands plus changed/affected native consumers after canonical test placement, source review, and immutable freeze",
+  "cleanup": "no native Trash capability; preserve remaining data and exact candidates; explicit deviations and framework retention noted separately",
+  "closeout_preparation": {
+    "source_before_freeze": "f425927362d97001020632f7f0bf1504a9b44214",
+    "source_delta": "All five owner candidates plus independent corrective evidence integrated; no further product writer active",
+    "independent_correctives": {
+      "frontier_fiscal": "425 unchanged40PASS; originalCLI27PASS",
+      "CAS_stage_champion": "c812 unchanged4PASS; malformedcorpus0GP/fit/MLL",
+      "raw_gateway": "c81290FAIL8PASS ->1ca98PASS unchanged98"
+    },
+    "current_quality": "106 changed Python files Ruffcheck+formatPASS atf425; fullsource backend/CI/architecture stillpending",
+    "remaining": "Aexport actual2FAIL; production/local profiles and typedpermit owner APIs unavailable. No closure adjudication."
+  }
+}

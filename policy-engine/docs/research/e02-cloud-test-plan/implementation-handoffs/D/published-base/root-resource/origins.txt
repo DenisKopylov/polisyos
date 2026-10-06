@@ -1,0 +1,16 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "packages": {
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "tiktoken": "0.12.0"
+  },
+  "origins": {
+    "polisyos.core.llm.response": "/workspace/e02-D-published-root/policy-engine/src/polisyos/core/llm/response.py",
+    "polisyos.scientist.orchestration.engine.budget_ledger": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "polisyos.scientist.orchestration.engine.budget_middleware": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "polisyos.scientist.orchestration.llm.budget_enforcer": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "polisyos.scientist.methods.search.controller": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+    "polisyos.scientist.methods.search.service": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/service.py"
+  }
+}

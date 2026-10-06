@@ -5,6 +5,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from decimal import Decimal
 from math import isfinite
 from typing import Any, Literal
 
@@ -127,6 +128,7 @@ def statistical_uncertainty_from_ci_width(
         recommended_action=recommended_action,
     )
 
+
 # ---------------------------------------------------------------------------
 # §8.5 — CheapSignalVector
 # ---------------------------------------------------------------------------
@@ -182,6 +184,9 @@ class FunnelStageResult(StageResult):
     cheap_signal: CheapSignalVector | None = None
     failure_cards: list[TypedFailureCard] = field(default_factory=list)
     compute_actual_usd: float = 0.0
+    compute_cost_source: Literal["estimated", "provider_reported_only"] = "estimated"
+    provider_spend_usd: Decimal | None = None
+    resource_event_ids: tuple[str, ...] = ()
     fidelity_level: int = 0
     audit_refs: list[ArtifactRef] = field(default_factory=list)
     actionable_side_information_ref: ArtifactRef | None = None

@@ -1,0 +1,21 @@
+{
+  "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+  "cwd": "/dev/shm/e02-D-q1-canonical-review-ab7577cc/policy-engine",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D2-receipts/criterion-accounting/q1_pareto_removal.py",
+    "/dev/shm/e02-D-q1-ab-pareto-remove-temp-20261006-1133"
+  ],
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:."
+  },
+  "basetemp": null,
+  "basetemp_precondition": "explicit nonexistent path checked for pytest invocations",
+  "exit_code": 1,
+  "wall_seconds": 12.929786680993857,
+  "max_rss_kib": 1157316,
+  "rss_scope": "completed-child cumulative high-water in this capture process",
+  "log_sha256": "b52cb6dab5c40308dba6aadbeb7d54939ae689861cc7df6586feb7cf3bc752b8"
+}

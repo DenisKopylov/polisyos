@@ -1,0 +1,67 @@
+import importlib.metadata
+import json
+import os
+import sys
+import time
+from collections import Counter
+from pathlib import Path
+
+import pytest
+import botorch
+import gpytorch
+import hnswlib
+import torch
+import polisyos.scientist.methods.autotune.models as models
+import polisyos.scientist.methods.autotune.registry as registry
+import polisyos.scientist.methods.autotune.bayesian_generator as generator
+import polisyos.scientist.methods.search.strategies.bayesian as bayesian
+import polisyos.scientist.methods.search.strategies.transfer as transfer
+import polisyos.scientist.methods.autotune.warm_start as warm_start
+
+ROOT=Path('/dev/shm/e02-D2-receiver-review-c812')
+base=ROOT/'pytest-negative-01'
+assert not base.exists(), 'fresh basetemp must not preexist'
+origin={name:module.__file__ for name,module in {'models':models,'registry':registry,'generator':generator,'bayesian':bayesian,'transfer':transfer,'warm_start':warm_start}.items()}
+for path in origin.values():assert Path(path).is_relative_to(ROOT/'policy-engine'/'src')
+versions={name:importlib.metadata.version(name) for name in ['torch','botorch','gpytorch','hnswlib','pytest','pydantic']}
+record={'production_sha':'c812510541c898d7118004661ce07335823d2209','modules':origin,'native_modules':{name:module.__file__ for name,module in {'torch':torch,'botorch':botorch,'gpytorch':gpytorch,'hnswlib':hnswlib}.items()},'versions':versions,'python':sys.executable,'python_version':sys.version,'cwd':os.getcwd(),'PYTHONPATH':os.environ.get('PYTHONPATH'),'basetemp':str(base),'basetemp_preexisted':False}
+(ROOT/'origins.json').write_text(json.dumps(record,indent=2)+'\n')
+print('SOURCE_ORIGINS='+json.dumps(record),flush=True)
+counts=Counter()
+cases=[]
+active={}
+def observe(frame,event,arg):
+    path=frame.f_code.co_filename
+    name=frame.f_code.co_name
+    if event=='call':
+        key=None
+        if name=='fit_gpytorch_mll' and path.endswith('/botorch/fit.py'):key='actual_native_fit_gpytorch_mll'
+        elif name=='__init__' and path.endswith('/gpytorch/mlls/exact_marginal_log_likelihood.py'):key='actual_native_ExactMarginalLogLikelihood'
+        elif name=='__init__' and path.endswith('/botorch/models/gp_regression.py') and type(frame.f_locals.get('self')).__name__=='SingleTaskGP':
+            key='actual_native_SingleTaskGP'
+            active.setdefault('native_model_inputs',[]).append({field:frame.f_locals[field].detach().cpu().tolist() for field in ['train_X','train_Y']})
+        if key:
+            counts[key]+=1
+            active.setdefault('native_calls',Counter())[key]+=1
+    elif event=='return' and name=='consider_promotion' and path==registry.__file__ and arg is not None:
+        active.setdefault('actual_registry_decisions',[]).append(arg.model_dump(mode='json'))
+class Observer:
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_call(self,item):
+        global active
+        active={'nodeid':item.nodeid}
+        sys.setprofile(observe)
+        try:yield
+        finally:
+            sys.setprofile(None)
+            active['native_calls']=dict(active.get('native_calls',{}))
+            cases.append(active)
+            print('ACTUAL_CASE_OBSERVATION='+json.dumps(active),flush=True)
+args=['-c','/dev/null','-p','no:cacheprovider','--confcutdir=tests/unit','--basetemp='+str(base),'-q','-s','tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py','-ra']
+print('PYTEST_ARGS='+json.dumps(args),flush=True)
+start=time.monotonic()
+code=pytest.main(args,plugins=[Observer()])
+measurement={'exit_code':code,'wall_seconds':time.monotonic()-start,'native_observed_calls':dict(counts),'basetemp_preserved':base.exists(),'cases':cases}
+(ROOT/'native-observation.json').write_text(json.dumps(measurement,indent=2)+'\n')
+print('MEASUREMENT='+json.dumps(measurement),flush=True)
+raise SystemExit(code)

@@ -1,0 +1,37 @@
+{
+  "source_sha": "a5dc97ba998f24bda34efdeb6190845da34f3ba3",
+  "source_tree": "2030375fc8b5920fc88b67510f4616fba9ee75b0",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/remediation/test_ctl_02.py",
+    "tests/unit/remediation/test_opt_02.py",
+    "tests/unit/scientist/search/strategies/test_space_codec.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+  ],
+  "cwd": "/workspace/e02-D-published-root/policy-engine",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "packages": {
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pytest": "9.0.2"
+  },
+  "module_origins": {
+    "polisyos.scientist.methods.search.strategies.base": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "polisyos.scientist.methods.search.strategies.types": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+    "polisyos.scientist.methods.autotune.bayesian_generator": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+  },
+  "PYTHONPATH": "src:.",
+  "elapsed_seconds": 11.287631505008903,
+  "exit_code": 0,
+  "deciding_output": ".......................................................                  [100%]\n=============================== warnings summary ===============================\n../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474\n../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474\n  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n55 passed, 2 warnings in 0.36s\n",
+  "sha256": "6d71c4ec1f05a8e2d1a35846f2dd8252a25d371d32a79d818adf7f32c5f393a0",
+  "check_scope": "common state/action, native adapter consumers; no GP or whole-finding closure"
+}

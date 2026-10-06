@@ -1,0 +1,33 @@
+{
+  "source_commit": "425c90e8a698edf40f345baf1395d11545bb01d1",
+  "source_tree": "49916b434ecc8a2d30b14d9626d3617e5c95a05d",
+  "cwd": "/dev/shm/e02-oracle-legacy-425/archive/policy-engine",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+    "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+    "--basetemp=/dev/shm/e02-oracle-425-native40-8ab1373966d04c1095bb90b6d71c6142",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "-rA"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "basetemp_before_exists": false,
+  "started_at_utc": "2026-10-06T11:38:28Z",
+  "caps_added": false,
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-06T11:38:44Z",
+  "basetemp_after_exists": false,
+  "log": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-native40.txt",
+    "bytes": 7654,
+    "sha256": "82ff823027db7469575ce9f192b49e2e49f78a095b34d6a598aa0f1c584832fb"
+  }
+}

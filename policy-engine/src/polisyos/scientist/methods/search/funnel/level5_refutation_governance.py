@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import UTC, datetime
+from math import isclose, isfinite
 from typing import Any
 
 from polisyos.common.logger import get_logger
@@ -139,6 +140,18 @@ class Level5RefutationGovernanceStage(FunnelStage):
             CrossGraphEvidenceProfile,
             context.get("cross_graph_profile"),
         )
+        stress_assessment = _observed_stress_assessment(stress_report)
+        if stress_report is not None and stress_assessment["status"] != "complete":
+            failure_cards.append(
+                TypedFailureCard(
+                    judge_name="L5_refutation_governance",
+                    failure_type="stress_observed_sample_incomplete",
+                    severity=FailureSeverity.WARNING,
+                    description="Stress observations do not cover every planned finite scenario; model uncertainty remains unassessed.",
+                    uncertainty_type=UncertaintyType.MODEL,
+                    metadata=stress_assessment,
+                )
+            )
 
         selection_split_card = _runtime_split_failure_card(
             evaluation=selection,
@@ -305,7 +318,10 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 "fidelity_level": self.fidelity_level,
                 "hidden_holdout_present": hidden_holdout is not None,
                 "hidden_holdout_degradation": holdout_delta,
-                "stress_robust": None if stress_report is None else stress_report.is_robust,
+                "stress_robust": stress_report.is_robust
+                if stress_report is not None and stress_assessment["status"] == "complete"
+                else None,
+                "stress_observed_sample_assessment": stress_assessment,
                 "governance_verdict": None
                 if governance_report is None
                 else governance_report.verdict,
@@ -404,6 +420,59 @@ def _runtime_split_failure_card(
     )
 
 
+def _observed_stress_assessment(report: StressTestReport | None) -> dict[str, Any]:
+    """Check observed-sample accounting without assigning population probability."""
+    unavailable = {
+        "status": "unassessed",
+        "score_scope": "not_established",
+        "population_probability": "not_established",
+    }
+    if report is None:
+        return unavailable
+    metadata = report.metadata
+    names = (
+        "attempted",
+        "finite_evaluated",
+        "violated_scenarios",
+        "unknown_or_nonfinite",
+        "planned_scenarios",
+    )
+    if any(type(metadata.get(name)) is not int or metadata[name] < 0 for name in names):
+        return unavailable
+    attempted, finite, violated, unknown, planned = (metadata[name] for name in names)
+    if finite + unknown != attempted or attempted > planned or violated > finite:
+        return unavailable
+    if (
+        metadata.get("score_scope") != "observed_finite_scenarios"
+        or metadata.get("score_formula") != "(finite_evaluated-violated_scenarios)/finite_evaluated"
+    ):
+        return unavailable
+    fraction = (finite - violated) / finite if finite else None
+    reported = report.robustness_score
+    if (fraction is None and reported is not None) or (
+        fraction is not None
+        and (
+            reported is None
+            or not isfinite(reported)
+            or not isclose(reported, fraction, rel_tol=0, abs_tol=1e-12)
+        )
+    ):
+        return unavailable
+    complete = planned > 0 and attempted == finite == planned and unknown == 0
+    if metadata.get("completeness") is not complete or report.set_adequacy_status != (
+        "complete" if complete else "partial"
+    ):
+        return unavailable
+    return {
+        "status": "complete" if complete else "partial",
+        "score_scope": "observed_finite_scenarios",
+        "observed_fraction": fraction,
+        "finite_evaluated": finite,
+        "planned_scenarios": planned,
+        "population_probability": "not_established",
+    }
+
+
 def _level5_uncertainty_envelope(
     *,
     prior_result: FunnelStageResult | None,
@@ -417,9 +486,6 @@ def _level5_uncertainty_envelope(
         else UncertaintyEnvelope.unknown()
     )
     transport_level = 1.0 if holdout_delta is None else min(1.0, max(0.0, holdout_delta))
-    model_level = 0.5
-    if stress_report is not None and stress_report.robustness_score is not None:
-        model_level = min(1.0, max(0.0, 1.0 - float(stress_report.robustness_score)))
     optimization_level = (
         1.0 if platform_meta is not None and not platform_meta.promotion_safe else 0.25
     )
@@ -437,9 +503,9 @@ def _level5_uncertainty_envelope(
         .with_update(
             UncertaintyType.MODEL,
             UncertaintyEstimate(
-                level=model_level,
+                level=1.0,
                 source="level5_stress_refutation",
-                quantification_method="stress_report_robustness",
+                quantification_method="stress_sample_does_not_establish_model_uncertainty",
                 is_reducible=True,
                 recommended_action="Address high-severity stress vulnerabilities before promotion.",
             ),

@@ -23,6 +23,7 @@ def main() -> None:
     parser.add_argument("--sha", required=True)
     parser.add_argument("--equivalents", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--raw-output")
     args = parser.parse_args()
     repo = Path(args.repo)
     sha = args.sha
@@ -294,7 +295,7 @@ def main() -> None:
                 "source_points": {
                     k: v
                     for k, v in d.items()
-                    if ("sha" in k or "commit" in k) and isinstance(v, str)
+                    if isinstance(v, str) and re.fullmatch(r"[0-9a-f]{40}", v)
                 },
                 "generation": "historical_type_only_input"
                 if Path(rootpath).name == "run-typevar.json"
@@ -523,6 +524,7 @@ def main() -> None:
         ],
     }
     result["derivation"] = {
+        "cwd": str(Path.cwd()),
         "driver_path": str(Path(__file__)),
         "driver_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "equivalence_map_path": str(mapping_path),
@@ -543,6 +545,8 @@ def main() -> None:
             "fresh reviewed static map and immutable Git inputs; no ignored runtime output input"
         ),
     }
+    if args.raw_output:
+        result["derivation"]["argv"].extend(["--raw-output", args.raw_output])
     result["finding_criteria"] = [f for f in coverage["findings"] if f.get("unit") == "B"]
     result["bundle_absent_selector_map"] = {
         b: [
@@ -560,7 +564,113 @@ def main() -> None:
         "UNRUN: parameterized case count and successful native collection "
         "must be measured on final root freeze"
     )
-    Path(args.output).write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+    raw_pin = None
+    if args.raw_output:
+        raw_path = Path(args.raw_output)
+        if "_build" not in raw_path.parts and ".polisyos" not in raw_path.parts:
+            raise ValueError("Large full metadata belongs only in ignored raw storage")
+        raw_bytes = (json.dumps(result, indent=2, ensure_ascii=False) + "\n").encode()
+        raw_path.write_bytes(raw_bytes)
+        raw_pin = {
+            "path": str(raw_path.resolve()),
+            "source_git_sha": sha,
+            "sha256": hashlib.sha256(raw_bytes).hexdigest(),
+            "bytes": len(raw_bytes),
+            "grade": "ignored full lineage; compact census/source Git refs are authoritative",
+        }
+
+    def command_id(value: object) -> str:
+        return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+    native_refs = {}
+    descriptor_paths = set()
+    for command in commands:
+        key = command_id({"locator": command["locator"], "argv": command["argv"]})
+        if key not in native_refs:
+            native_refs[key] = {
+                "command_id": key,
+                "locator": command["locator"],
+                "argv_sha256": command_id(command["argv"]),
+                "selector_paths": sorted({normalize(x) for x in command["selectors"]}),
+                "bundle_ids": [],
+            }
+        row = native_refs[key]
+        row["bundle_ids"] = sorted(set(row["bundle_ids"]) | set(command["bundle_ids"]))
+        if ".json" in command["locator"]:
+            descriptor_paths.add(command["locator"].split(".json", 1)[0] + ".json")
+    cells_by_finding = {
+        finding: sorted({r["cell_id"] for r in route_records if r["finding_id"] == finding})
+        for finding in sorted(ids)
+    }
+    card_names = {
+        bundle: sorted(p for p, advertised in planned.items() if bundle in advertised)
+        for bundle in sorted(bundles)
+    }
+    descriptor_inputs = [identity(p) for p in sorted(descriptor_paths) if p in tracked]
+    descriptor_indexes = {row["path"]: i for i, row in enumerate(descriptor_inputs)}
+    compact_native_refs = []
+    for row in native_refs.values():
+        path, pointer = row["locator"].split(".json", 1)
+        compact_native_refs.append(
+            {
+                "command_id": row["command_id"],
+                "input_index": descriptor_indexes[path + ".json"],
+                "descriptor_pointer": pointer,
+                "bundle_ids": row["bundle_ids"],
+                "grade": "recorded native argv input; not executed case count or PASS",
+            }
+        )
+    compact = {
+        "schema": "policyos.e02.cohort_selector_audit.v2",
+        "state": result["state"],
+        "root_snapshot_sha": sha,
+        "root_snapshot_tree": tree,
+        "root_snapshot_custody": result["root_snapshot_custody"],
+        "canonical_denominator": result["canonical_denominator"],
+        "historical_snapshot_only": result["historical_snapshot_only"],
+        "input_identities": result["input_identities"],
+        "canonical_cards": result["canonical_cards"],
+        "finding_criterion_refs": [
+            {k: f[k] for k in ("id", "primary_bundle", "criterion_refs")}
+            for f in result["finding_criteria"]
+        ],
+        "cells_by_finding_navigation_only": cells_by_finding,
+        "candidate_whole_file_count": len(existing),
+        "test_paths": result["test_paths"],
+        "candidate_whole_file_identities": [x["identity"] for x in existing],
+        "absent_named_selectors": missing,
+        "bundle_planned_names": card_names,
+        "owner_receipt_identities": receipt_manifest,
+        "native_command_descriptor_refs": compact_native_refs,
+        "descriptor_pointer_dialect": (
+            "Dict/list traversal; /decoded parses a serialized JSON string. "
+            "The complete deterministic walk is in this committed derivation driver."
+        ),
+        "command_descriptor_input_identities": descriptor_inputs,
+        "script_native_child_descriptors": driver_records,
+        "changed_defining_source_inputs": changed_defining,
+        "changed_test_and_helper_inputs": changed_tests,
+        "descriptor_counts_only": {
+            "top_receipts": len(receipt_manifest),
+            "native_argv_lineage_rows": len(commands),
+            "deduplicated_native_descriptor_refs": len(native_refs),
+            "static_script_rows": len(driver_records),
+            "all_recorded_historical_command_lineage_rows": len(all_commands),
+            "grade": "input lineage counts only; none is a case count or PASS",
+        },
+        "ignored_full_lineage": raw_pin,
+        "historical_oversized_packet": {
+            "commit": "327b90023110f91b42a94e039863e7a8fe1425ec",
+            "path": handoff + "current-adapters-evidence/cohort-selector-audit.json",
+            "sha256": "7d9c8a9c1507753635d553f98c90e533524024d8b30c05094efdc1b155ccb922",
+            "bytes": 6125292,
+            "grade": "historical publishing mistake; superseded, not current input proof",
+        },
+        "derivation": result["derivation"],
+        "known_pending_candidate_case_count": result["known_pending_candidate_case_count"],
+        "non_execution_limits": result["non_execution_limits"],
+    }
+    Path(args.output).write_text(json.dumps(compact, indent=2, ensure_ascii=False) + "\n")
     sys.stdout.write(
         json.dumps(
             {

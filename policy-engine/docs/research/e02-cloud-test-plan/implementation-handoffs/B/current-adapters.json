@@ -4172,11 +4172,12 @@
   "successor_test_companions": [
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/wire-process-ancestry-companion.json",
-      "sha256": "9834b3f59a09eaec9d3c08c73245d3a62c8aba293eb7c8ba8a5e0b41da0de9c8",
-      "bytes": 18444,
+      "sha256": "84686fb1a532b871048c9bc69ece7ffb371362410b3755c4407cc29581e3b1cd",
+      "bytes": 18980,
       "implementation_sha": "3543f89a3a247bf01294d98e5dfa0f36cfefd958",
       "root_execution_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
-      "grade": "test-only real OS ancestry contract; independent full15 351PASS2FAIL at a6 then353PASS at933; original source126 receipt remains unchanged"
+      "grade": "test-only real OS ancestry contract; independent full15 351PASS2FAIL at a6 then353PASS at933; original source126 receipt remains unchanged",
+      "root_receipt_commit": "44af46ed73f73ee5ff6e2eadf46a0a648efe6201"
     }
   ]
 }

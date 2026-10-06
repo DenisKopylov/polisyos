@@ -332,5 +332,13 @@
     "Root native15 runs bind complete root candidate933 rather than leaf354 in isolation; author did not rerun another redundant wave.",
     "Full15 PASS is bounded native evidence, no all-B closure/institutional grant/deployed profile claim.",
     "Original a6 failures retained complete and classified as test topology assumption; no production serialization bug inferred."
-  ]
+  ],
+  "root_authoritative_receipt": {
+    "commit": "44af46ed73f73ee5ff6e2eadf46a0a648efe6201",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer.json",
+    "sha256": "4d51ddd4688a80e698f6175248f990ed3412c3135de50bf48a3546310a8cff90",
+    "bytes": 18718,
+    "root_actual_execution_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+    "grade": "Independent root published full15/WIRE acceptance at exactsource933;353 cases only, wholeBcohort remains separate."
+  }
 }

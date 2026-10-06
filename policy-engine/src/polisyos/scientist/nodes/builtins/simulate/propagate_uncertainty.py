@@ -17,14 +17,14 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
 from polisyos.foundry.calibration.report import CalibrationReport
-from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
-from polisyos.foundry.uncertainty.protocol import PropagationResult
-from polisyos.foundry.uncertainty.sampling_admission import (
+from polisyos.foundry.uncertainty import (
     BoundedIndicatorResponse,
     reconcile_draw_outcomes,
     verify_mean_certificate,
 )
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
+from polisyos.foundry.uncertainty.protocol import PropagationResult
 from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     load_uncertainty_envelope,

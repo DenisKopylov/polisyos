@@ -31,6 +31,10 @@ from polisyos.foundry.calibration.report import (
     load_calibration_report,
 )
 from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
+from polisyos.foundry.uncertainty import (
+    reconcile_draw_outcomes,
+    sampling_content_digest,
+)
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.covariance import (
     CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
@@ -38,10 +42,6 @@ from polisyos.foundry.uncertainty.covariance import (
     build_covariance_matrix,
     calibration_covariance_blocks_agree_v1,
     preserve_singular_covariance,
-)
-from polisyos.foundry.uncertainty.sampling_admission import (
-    reconcile_draw_outcomes,
-    sampling_content_digest,
 )
 from polisyos.ir.analytics.dependence_structure import (
     DependenceStructure,

@@ -24,8 +24,14 @@ separate `scientist/calibration` package root.
 - `apply_calibrator`
 - `compare_calibrators`
 - `to_validation_report`
+- `persist_continuous_evaluation` / `load_continuous_evaluation`
 
-## Internal forecast evidence boundary
+## Predictive evidence entrypoints
+
+Scientist imports the typed profile, context, candidate references and
+producer/readback functions from `polisyos.calibration`. These lazy exports
+resolve to the canonical `forecast_bridge` objects; they introduce no second
+implementation or authority. Generic diagnostics retain their existing API.
 
 `forecast_bridge` persists and reloads empirical evidence independently of the
 ETS owner result. A configured `ForecastCalibrationProfile` content-binds an

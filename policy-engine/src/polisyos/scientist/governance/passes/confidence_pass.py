@@ -90,7 +90,9 @@ class ConfidencePass(ValidatorPass):
                     exc=exc,
                     details={"simulation_result_id": str(sim_result_id)},
                 )
-                return [
+                # Loading a sibling artifact cannot withdraw an issue already
+                # established from the consumer's offered inputs.
+                issues.append(
                     ComplianceIssue(
                         pass_id=self.pass_id,
                         path=["artifacts_index", "simulation_result_ref"],
@@ -98,7 +100,8 @@ class ConfidencePass(ValidatorPass):
                         severity=IssueSeverity.WARNING,
                         code="CONFIDENCE_SIM_RESULT_LOAD_FAILED",
                     )
-                ]
+                )
+                return issues
 
             if sim_result.uncertainty_envelopes:
                 for metric_id, ref in sim_result.uncertainty_envelopes.items():

@@ -79,9 +79,28 @@ scores remain explicitly descriptive. Bootstrap accepts a one-dimensional
 sample and a scalar statistic; a custom callable label remains
 `consumer_asserted`, never verified functional provenance.
 
-The native Scientist facade receives the same configured core CAS. Successful
-forecast execution still requires an admitted Trinity/model/registry and a
-compatible masked-history materializer. Generic `params.random_seed` is a
-dispatch request; the native Foundry `ExecConfig.seed` binding is not established
-by this backtest adapter. A missing configured producer remains explicit and
-does not turn its native refusal or a controlled dispatch spy into backend PASS.
+The native Scientist facade receives the same configured core CAS. The opt-in
+`params.backtest_native_forecast` profile declares `purpose=predictive_simulation`,
+future `origin`/`time_index`, source `history_columns` and target
+`metric`/registered `slot_id`/`unit_id`/`reduction`. The bounded default-workflow
+adapter verifies the original source/Trinity/registry identities, persists an
+immutable historical prefix with row IDs and times, and derives a Trinity whose
+ModelSpec binds that exact snapshot. Explicit input-binding rules may consume
+only declared prefix positions. Prebound state, hidden parameters and unscoped
+model time-series/network dependencies are refused before backend execution.
+
+Each counted replay invokes the existing default Scientist workflow and native
+Foundry executor with its actual `ExecConfig.seed`. Each future step consumes the
+previous native state, advances the declared clock and resolves the registered
+target state slot. The persisted typed trajectory preserves all execution
+bindings, SimulationResults, state snapshots and configuration refs; the
+backtest consumer reopens CAS and independently recomputes the target values.
+Counters, scalar effects and pooled uncertainty outputs cannot substitute for
+these observations. Failed native execution produces an unavailable result with
+no naive forecast fallback. This path emits no inferred prediction interval.
+
+The profile expresses predictive simulation of the declared model. It does not
+establish a calibrated production source law, independent stochastic worlds,
+causal authority, a trust grade or historical finding closure. Model/history
+owners still supply the exact production model, rows, temporal meaning and
+feature lineage when a criterion requires production evidence.

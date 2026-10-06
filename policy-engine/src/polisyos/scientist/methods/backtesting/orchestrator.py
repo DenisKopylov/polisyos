@@ -375,6 +375,15 @@ class BacktestOrchestrator:
             scenario_metadata["historical_snapshot_ref"] = prediction_payload[
                 "historical_snapshot_ref"
             ]
+        for key in (
+            "native_forecast_ref",
+            "native_request_ref",
+            "native_trinity_ref",
+            "actual_foundry_seed",
+            "native_forecast_purpose",
+        ):
+            if key in prediction_payload:
+                scenario_metadata[key] = prediction_payload[key]
         if "interval_type" in prediction_payload:
             scenario_metadata["interval_type"] = prediction_payload["interval_type"]
         if "interval_metadata_source" in prediction_payload:
@@ -469,6 +478,9 @@ class BacktestOrchestrator:
             naive["degraded"] = True
             naive["degraded_reasons"] = [reason]
             return naive
+
+        if "backtest_native_forecast" in plan.scientist_state.get("params", {}):
+            return self._predict_native_forecast(plan)
 
         state_payload = dict(plan.scientist_state)
         params = dict(state_payload.get("params", {}))
@@ -587,6 +599,63 @@ class BacktestOrchestrator:
         }
         result.update(interval_metadata)
         return result
+
+    def _predict_native_forecast(self, plan: HistoricalValidationPlan) -> dict[str, Any]:
+        """Consume a native trajectory or preserve an explicit unavailable outcome."""
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.scientist.methods.backtesting.native_replay import (
+            FORECAST_KEY,
+            REQUEST_KEY,
+            load_native_forecast,
+            prepare_native_replay,
+        )
+
+        attempted = False
+        state: dict[str, Any] | None = None
+        try:
+            state = prepare_native_replay(
+                self._scientist_store, plan, self._load_historical_data(plan)
+            )
+            attempted = True
+            result = run_experiment(state, store=self._scientist_store)
+            forecast_ref = ArtifactRef.model_validate(result["artifacts_index"][FORECAST_KEY])
+            request_ref = ArtifactRef.model_validate(state["params"][REQUEST_KEY])
+            forecast, request = load_native_forecast(
+                self._scientist_store, forecast_ref, request_ref
+            )
+            if result["run_id"] != request.run_id or request.seed != plan.random_seed:
+                raise ValueError("native forecast actual run/seed differs from backtest plan")
+            return {
+                "predictions": forecast.values,
+                "intervals": {},
+                "warnings": [],
+                "prediction_mode_effective": PredictionSource.SCIENTIST.value,
+                "degraded": False,
+                "degraded_reasons": [],
+                "historical_snapshot_ref": request.data_snapshot_ref.model_dump(mode="json"),
+                "backend_attempted": True,
+                "backend_run_id": request.run_id,
+                "native_forecast_ref": forecast_ref.model_dump(mode="json"),
+                "native_request_ref": request_ref.model_dump(mode="json"),
+                "native_trinity_ref": request.trinity_bundle_ref.model_dump(mode="json"),
+                "actual_foundry_seed": request.seed,
+                "native_forecast_purpose": request.profile.purpose,
+            }
+        except Exception as exc:
+            reason = f"native_forecast_unavailable:{type(exc).__name__}:{exc}"
+            failure: dict[str, Any] = {
+                "predictions": {},
+                "intervals": {},
+                "warnings": [reason],
+                "prediction_mode_effective": "scientist_unavailable",
+                "degraded": True,
+                "degraded_reasons": [reason],
+                "backend_attempted": attempted,
+                "backend_run_id": (state or plan.scientist_state).get("run_id"),
+            }
+            if state is not None:
+                failure["historical_snapshot_ref"] = state["inputs"]["data_snapshot_ref"]
+            return failure
 
     def _extract_intervals_from_simulation_result(
         self,

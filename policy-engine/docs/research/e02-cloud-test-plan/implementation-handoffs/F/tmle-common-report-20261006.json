@@ -771,12 +771,14 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/baseline-red-v2.junit.xml",
-      "bytes": 4002,
-      "sha256": "2bc8b3864078f578a1bd332db5c3941132cb529524570f26ce76cc6303afcb99",
+      "bytes": 1416,
+      "sha256": "ea1fb03ec53255b6c5467ecbb3bfd56a512df15860b4fb6cb0fe78ea09802255",
       "original_path": "/tmp/e02-F-continuation-20261006/tmle-common-report/baseline-red-v2.junit.xml",
       "decoded_bytes": 4002,
       "decoded_sha256": "2bc8b3864078f578a1bd332db5c3941132cb529524570f26ce76cc6303afcb99",
-      "lossless_utf8_json": false
+      "lossless_utf8_json": false,
+      "encoding": "gzip",
+      "lossless_gzip": true
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/baseline-red-v2.stderr.txt.json",
@@ -807,12 +809,14 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/baseline-red.junit.xml",
-      "bytes": 2233,
-      "sha256": "89b70f2fd6bb880c815601f41d26eadbd1b9d3b1ed8a17c5b299136abe316d50",
+      "bytes": 988,
+      "sha256": "d9e8c143869195180f094ee9cf32f5aca3e92eb2f93572b7ad6173e4014eda4a",
       "original_path": "/tmp/e02-F-continuation-20261006/tmle-common-report/baseline-red.junit.xml",
       "decoded_bytes": 2233,
       "decoded_sha256": "89b70f2fd6bb880c815601f41d26eadbd1b9d3b1ed8a17c5b299136abe316d50",
-      "lossless_utf8_json": false
+      "lossless_utf8_json": false,
+      "encoding": "gzip",
+      "lossless_gzip": true
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/baseline-red.stderr.txt.json",
@@ -951,12 +955,14 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/native-draft-v2.junit.xml",
-      "bytes": 8998,
-      "sha256": "8bb87c79af3bb1d904f7731d795a2c38cb1342b12c54bc968a7d15125f961610",
+      "bytes": 995,
+      "sha256": "0ed081ed4648edb3b3056594ee40ce46c0c458f30037201564cfd801446588ba",
       "original_path": "/tmp/e02-F-continuation-20261006/tmle-common-report/native-draft-v2.junit.xml",
       "decoded_bytes": 8998,
       "decoded_sha256": "8bb87c79af3bb1d904f7731d795a2c38cb1342b12c54bc968a7d15125f961610",
-      "lossless_utf8_json": false
+      "lossless_utf8_json": false,
+      "encoding": "gzip",
+      "lossless_gzip": true
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/native-draft-v2.stderr.txt.json",
@@ -987,12 +993,14 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/native-draft.junit.xml",
-      "bytes": 9989,
-      "sha256": "5a95595c40e319c12441719af3a7c7d53e28c71a76f21d52d698572d97214c7a",
+      "bytes": 1417,
+      "sha256": "bb1c0052343ac4b161342c6e749be772c4f77f5594247ca8fccecc808fc33742",
       "original_path": "/tmp/e02-F-continuation-20261006/tmle-common-report/native-draft.junit.xml",
       "decoded_bytes": 9989,
       "decoded_sha256": "5a95595c40e319c12441719af3a7c7d53e28c71a76f21d52d698572d97214c7a",
-      "lossless_utf8_json": false
+      "lossless_utf8_json": false,
+      "encoding": "gzip",
+      "lossless_gzip": true
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/native-draft.stderr.txt.json",
@@ -1023,12 +1031,14 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/native-frozen.junit.xml",
-      "bytes": 31549,
-      "sha256": "62d852dcf6e26807e7a52868f42a4c627cc3e0ea07542ce7424353cefa9316ea",
+      "bytes": 2774,
+      "sha256": "9f774d62b9b3a473e0499de8a4b98904dc24f48923c4b0d0da963915a0f7c9aa",
       "original_path": "/tmp/e02-F-continuation-20261006/tmle-common-report/native-frozen.junit.xml",
       "decoded_bytes": 31549,
       "decoded_sha256": "62d852dcf6e26807e7a52868f42a4c627cc3e0ea07542ce7424353cefa9316ea",
-      "lossless_utf8_json": false
+      "lossless_utf8_json": false,
+      "encoding": "gzip",
+      "lossless_gzip": true
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/native-frozen.stderr.txt.json",
@@ -1068,12 +1078,14 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/removal-adjustment_basis.junit.xml",
-      "bytes": 3137,
-      "sha256": "4bf02c89a2e5ec94d33187932a36ab965cecce584f880d38e1a7cda9ab54181d",
+      "bytes": 1140,
+      "sha256": "994623492438e42bf2e4580f5f635c1d4f76bbdd5fe4ce9478c298736d64ad87",
       "original_path": "/tmp/e02-F-continuation-20261006/tmle-common-report/removal-adjustment_basis.junit.xml",
       "decoded_bytes": 3137,
       "decoded_sha256": "4bf02c89a2e5ec94d33187932a36ab965cecce584f880d38e1a7cda9ab54181d",
-      "lossless_utf8_json": false
+      "lossless_utf8_json": false,
+      "encoding": "gzip",
+      "lossless_gzip": true
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/removal-adjustment_basis.stderr.txt.json",
@@ -1104,12 +1116,14 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/removal-limited_disposition.junit.xml",
-      "bytes": 3365,
-      "sha256": "dd8bbf6d4728e598415e5d4bc4aa0a1729398bcbe0e4c765db83a1e09744dbb9",
+      "bytes": 1178,
+      "sha256": "de637cfe29efec9dacdae10090011a39162bdc591df9c41e3f6ef34191ad0357",
       "original_path": "/tmp/e02-F-continuation-20261006/tmle-common-report/removal-limited_disposition.junit.xml",
       "decoded_bytes": 3365,
       "decoded_sha256": "dd8bbf6d4728e598415e5d4bc4aa0a1729398bcbe0e4c765db83a1e09744dbb9",
-      "lossless_utf8_json": false
+      "lossless_utf8_json": false,
+      "encoding": "gzip",
+      "lossless_gzip": true
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/removal-limited_disposition.stderr.txt.json",
@@ -1140,12 +1154,14 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/removal-native_interval.junit.xml",
-      "bytes": 2691,
-      "sha256": "ae789bf54c78ae691594a5d43d788c141cde416df40eb4294edc4fcd982da0e8",
+      "bytes": 1162,
+      "sha256": "9215ec74f4233f5b98c87aacd9d94dc507a670104da879d1280017191d3c66c0",
       "original_path": "/tmp/e02-F-continuation-20261006/tmle-common-report/removal-native_interval.junit.xml",
       "decoded_bytes": 2691,
       "decoded_sha256": "ae789bf54c78ae691594a5d43d788c141cde416df40eb4294edc4fcd982da0e8",
-      "lossless_utf8_json": false
+      "lossless_utf8_json": false,
+      "encoding": "gzip",
+      "lossless_gzip": true
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/removal-native_interval.stderr.txt.json",
@@ -2048,7 +2064,7 @@
       "lossless_utf8_json": false
     }
   ],
-  "artifact_policy": "Complete moderate decidinglogs/rawwarnings/errors and scratchreplayers transported byte-for-byte or losslessUTF8JSON; hashes decoded/stored. Trackedsource/card bodies and Gitderivedtargetviews referenced immutably, not copied. Temporarypartial recovery backups remain /tmp, unique snapshot classifications/hash custody retained.",
+  "artifact_policy": "Complete moderate decidinglogs/rawwarnings/errors and scratchreplayers transported byte-for-byte or losslessUTF8JSON; hashes decoded/stored. Trackedsource/card bodies and Gitderivedtargetviews referenced immutably, not copied. Temporarypartial recovery backups remain /tmp, unique snapshot classifications/hash custody retained. PytestXML outputs keep owned paths but are losslessgzip (encoding field authoritative); gzip.decompress restores exact decoded bytes/hash. OriginalrawXML Git identity retained in appendhistory.",
   "recovery": {
     "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/recovery/forward-recovery.json",
     "merge_commit": "66588374da9f407a870880be675b5c751aef44da",
@@ -2057,5 +2073,79 @@
     "first_add_ignored_paths": "Retained actualexit1; scopedforce-add onlyGit-targetpaths completed exacttargettree, no unrelatedfiles."
   },
   "closure_id_semantics": "Empty: companion bridge does not close actualproductionB56 and does not republish existingB54technicalclosure.",
-  "further_verification": "G runs exact final integratedcandidate with actualowneradmitted input/study/budget packet locally; retain full folds/seeds/configs/competingjobtrace and current Runtime context plus sourcebound freshreader. Fullproductioninputs remain local."
+  "further_verification": "G runs exact final integratedcandidate with actualowneradmitted input/study/budget packet locally; retain full folds/seeds/configs/competingjobtrace and current Runtime context plus sourcebound freshreader. Fullproductioninputs remain local.",
+  "receipt_append_history": [
+    {
+      "reason": "Lossless pytest XML representation correction after raw traceback trailing-whitespace check. Earlier commit continued due a shell exit guard omission; no source/result/test outcome changed. All raw bytes remain in historical Git and decode exactly from currentgzip.",
+      "prior_receipt_commit": "6e408dcd04b5e98b39995898ff00461ac7d85e92",
+      "scientific_implementation_unchanged": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+      "xml_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/baseline-red-v2.junit.xml",
+          "historical_raw_git_ref": "6e408dcd04b5e98b39995898ff00461ac7d85e92",
+          "raw_bytes": 4002,
+          "raw_sha256": "2bc8b3864078f578a1bd332db5c3941132cb529524570f26ce76cc6303afcb99",
+          "stored_bytes": 1416,
+          "stored_sha256": "ea1fb03ec53255b6c5467ecbb3bfd56a512df15860b4fb6cb0fe78ea09802255"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/baseline-red.junit.xml",
+          "historical_raw_git_ref": "6e408dcd04b5e98b39995898ff00461ac7d85e92",
+          "raw_bytes": 2233,
+          "raw_sha256": "89b70f2fd6bb880c815601f41d26eadbd1b9d3b1ed8a17c5b299136abe316d50",
+          "stored_bytes": 988,
+          "stored_sha256": "d9e8c143869195180f094ee9cf32f5aca3e92eb2f93572b7ad6173e4014eda4a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/native-draft-v2.junit.xml",
+          "historical_raw_git_ref": "6e408dcd04b5e98b39995898ff00461ac7d85e92",
+          "raw_bytes": 8998,
+          "raw_sha256": "8bb87c79af3bb1d904f7731d795a2c38cb1342b12c54bc968a7d15125f961610",
+          "stored_bytes": 995,
+          "stored_sha256": "0ed081ed4648edb3b3056594ee40ce46c0c458f30037201564cfd801446588ba"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/native-draft.junit.xml",
+          "historical_raw_git_ref": "6e408dcd04b5e98b39995898ff00461ac7d85e92",
+          "raw_bytes": 9989,
+          "raw_sha256": "5a95595c40e319c12441719af3a7c7d53e28c71a76f21d52d698572d97214c7a",
+          "stored_bytes": 1417,
+          "stored_sha256": "bb1c0052343ac4b161342c6e749be772c4f77f5594247ca8fccecc808fc33742"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/native-frozen.junit.xml",
+          "historical_raw_git_ref": "6e408dcd04b5e98b39995898ff00461ac7d85e92",
+          "raw_bytes": 31549,
+          "raw_sha256": "62d852dcf6e26807e7a52868f42a4c627cc3e0ea07542ce7424353cefa9316ea",
+          "stored_bytes": 2774,
+          "stored_sha256": "9f774d62b9b3a473e0499de8a4b98904dc24f48923c4b0d0da963915a0f7c9aa"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/removal-adjustment_basis.junit.xml",
+          "historical_raw_git_ref": "6e408dcd04b5e98b39995898ff00461ac7d85e92",
+          "raw_bytes": 3137,
+          "raw_sha256": "4bf02c89a2e5ec94d33187932a36ab965cecce584f880d38e1a7cda9ab54181d",
+          "stored_bytes": 1140,
+          "stored_sha256": "994623492438e42bf2e4580f5f635c1d4f76bbdd5fe4ce9478c298736d64ad87"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/removal-limited_disposition.junit.xml",
+          "historical_raw_git_ref": "6e408dcd04b5e98b39995898ff00461ac7d85e92",
+          "raw_bytes": 3365,
+          "raw_sha256": "dd8bbf6d4728e598415e5d4bc4aa0a1729398bcbe0e4c765db83a1e09744dbb9",
+          "stored_bytes": 1178,
+          "stored_sha256": "de637cfe29efec9dacdae10090011a39162bdc591df9c41e3f6ef34191ad0357"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006/producer/removal-native_interval.junit.xml",
+          "historical_raw_git_ref": "6e408dcd04b5e98b39995898ff00461ac7d85e92",
+          "raw_bytes": 2691,
+          "raw_sha256": "ae789bf54c78ae691594a5d43d788c141cde416df40eb4294edc4fcd982da0e8",
+          "stored_bytes": 1162,
+          "stored_sha256": "9215ec74f4233f5b98c87aacd9d94dc507a670104da879d1280017191d3c66c0"
+        }
+      ],
+      "source_retests": "UNRUN; metadata encoding only, no source change"
+    }
+  ]
 }

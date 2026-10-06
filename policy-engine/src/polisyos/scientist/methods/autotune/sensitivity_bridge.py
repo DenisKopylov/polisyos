@@ -143,9 +143,16 @@ class SensitivityBridge:
 
         answer = {"ranking": ranking, "result": result, "method": method}
         if store is not None:
+            from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
             from polisyos.scientist.methods.doe._receipt import _persist_analysis
 
-            answer["analysis_ref"] = _persist_analysis(store, plan, samples, outputs, result)
+            ref = _persist_analysis(store, plan, samples, outputs, result)
+            snapshot = store.get_verified_snapshot(ref)
+            answer["analysis_ref"] = ref.model_copy(
+                update={
+                    "manifest_profile_sha256": artifact_manifest_profile_sha256(snapshot.manifest)
+                }
+            )
         return answer
 
 
@@ -174,7 +181,7 @@ class _AnalysisSnapshotReader:
 
 
 def read_search_analysis(
-    store: ArtifactStore, ref: ArtifactRef
+    store: ArtifactStore, ref: ArtifactRef, *, require_selected_profile: bool = True
 ) -> tuple[SensitivityResult, SensitivityPlan]:
     """Recompute the E analysis from one full-reference B verified snapshot.
 
@@ -187,12 +194,10 @@ def read_search_analysis(
     from polisyos.scientist.methods.doe._receipt import _AnalysisReceipt, _load_analysis
 
     ref = ArtifactRef.model_validate(ref)
-    if ref.manifest_profile_sha256 is None:
+    if require_selected_profile and ref.manifest_profile_sha256 is None:
         raise ValueError("Sensitivity consumption requires the full selected manifest reference")
     snapshot = store.get_verified_snapshot(ref)
     reader = _AnalysisSnapshotReader(ref, snapshot)
     result = _load_analysis(cast("ArtifactStore", reader), ref)
     receipt = _AnalysisReceipt.model_validate(from_canonical_bytes(snapshot.data))
-    if result.failed_runs or result.total_runs == 0 or result.successful_runs != result.total_runs:
-        raise ValueError("Sensitivity ordering requires a complete finite experimental basis")
     return result, receipt.plan

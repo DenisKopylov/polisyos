@@ -55,9 +55,12 @@ class SensitivityAwareCandidateGenerator:
         from polisyos.scientist.methods.autotune.sensitivity_bridge import read_search_analysis
 
         ref = ArtifactRef.model_validate(ref)
-        result, plan = read_search_analysis(store, ref)
         if isinstance(base_generator, cls):
             base_generator = base_generator._base
+        configure = getattr(base_generator, "configure_sensitivity_order", None)
+        result, plan = read_search_analysis(
+            store, ref, require_selected_profile=callable(configure)
+        )
         instance = cls(
             base_generator,
             result,
@@ -65,7 +68,6 @@ class SensitivityAwareCandidateGenerator:
             exploration_factor=exploration_factor,
         )
         instance._analysis_ref = ref
-        configure = getattr(base_generator, "configure_sensitivity_order", None)
         if callable(configure):
             policy = cls._ordering_policy(result, plan, ref)
 
@@ -87,6 +89,12 @@ class SensitivityAwareCandidateGenerator:
     def _ordering_policy(
         result: SensitivityResult, plan: SensitivityPlan, ref: ArtifactRef
     ) -> dict[str, Any]:
+        if (
+            result.failed_runs
+            or result.total_runs == 0
+            or result.successful_runs != result.total_runs
+        ):
+            raise ValueError("Sensitivity ordering requires a complete finite experimental basis")
         names = [parameter.name for parameter in plan.parameter_specs]
         if (
             len(result.ranking) != len(names)
@@ -170,6 +178,10 @@ class SensitivityAwareCandidateGenerator:
             "ranking_consumer": "native_coordinate_order"
             if self._order_profile
             else "metadata_only",
+            "manifest_selection": "selected"
+            if self._analysis_ref is not None
+            and self._analysis_ref.manifest_profile_sha256 is not None
+            else "legacy_content_only",
         }
 
     def generate(

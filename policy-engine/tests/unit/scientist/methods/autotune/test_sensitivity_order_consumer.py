@@ -191,6 +191,12 @@ def test_integrity_valid_forged_receipt_refuses_before_native_change(tmp_path, m
         ),
     )
     invalid_ref = store.put_json(raw, options, canon_spec=canon.CanonSpec(forbid_floats=False))
+    from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
+
+    snapshot = store.get_verified_snapshot(invalid_ref)
+    invalid_ref = invalid_ref.model_copy(
+        update={"manifest_profile_sha256": artifact_manifest_profile_sha256(snapshot.manifest)}
+    )
     generator = cold()
     before = generator.get_state()
     with pytest.raises(ValueError):
@@ -276,3 +282,34 @@ def test_resolved_adapter_reaches_actual_default_loop_persisted_consumer(tmp_pat
     assert generator.get_state()["config"]["sensitivity_order"]["analysis_ref"] == answer[
         "analysis_ref"
     ].model_dump(mode="json")
+
+
+@pytest.mark.parametrize("selection", [None, "sha256:" + "0" * 64])
+def test_unselected_or_forged_manifest_ref_cannot_activate_native_order(tmp_path, selection):
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    answer = analysis(store)
+    malformed = answer["analysis_ref"].model_copy(update={"manifest_profile_sha256": selection})
+    generator = cold()
+    before = generator.get_state()
+    with pytest.raises((ValueError, artifacts.ArtifactIntegrityError)):
+        SensitivityAwareCandidateGenerator.from_artifact(generator, store, malformed)
+    assert generator.get_state() == before
+    assert generator._optimizer._model is None
+
+
+def test_same_source_revalidation_preserves_active_stream_and_changed_source_refuses(tmp_path):
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    original = analysis(store, dominant="z")
+    changed = analysis(store, dominant="x")
+    adapter = SensitivityAwareCandidateGenerator.from_artifact(
+        cold(), store, original["analysis_ref"]
+    )
+    adapter.generate([], None, {})
+    before = adapter.get_state()
+    repeated = SensitivityAwareCandidateGenerator.from_artifact(
+        adapter, store, original["analysis_ref"]
+    )
+    assert repeated.get_state() == before
+    with pytest.raises(ValueError, match="precede"):
+        SensitivityAwareCandidateGenerator.from_artifact(adapter, store, changed["analysis_ref"])
+    assert adapter.get_state() == before

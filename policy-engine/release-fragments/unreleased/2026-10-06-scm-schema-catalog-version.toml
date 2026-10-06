@@ -1,0 +1,28 @@
+id = "2026-10-06-scm-schema-catalog-version"
+title = "Align the structural model default and catalog with the selected producer"
+type = "fixed"
+component = "ir"
+owner = "team-ir"
+summary = "Advertise StructuralCausalModelSpec 1.1 consistently and retain historical CAS 1.0 payload versions without upgrading backend claims."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: polisyos.ir.StructuralCausalModelSpec"
+compatibility = "The current 1.1 reader directly reads 1.0 and retains its original wire version. New constructors default to 1.1; selected gcm models require source-bound rows and observed worker provenance. No forward compatibility of old readers with new producers is declared."
+migration = "Set schema_version='1.0' explicitly in historical/manual replay fixtures. Use a genuine source-bound worker fit for the selected gcm profile; a version marker does not provide that authority."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/ir/schema-catalog.md", "src/polisyos/ir/analytics/README.md"]
+runbook_docs = ["docs/reference/foundry/structural-causal-models.md"]
+evidence = ["tests/unit/ir/test_structural_causal_model_versions.py", "schemas/snapshots/ir/structural_causal_model_spec.schema.json"]
+
+[[compatibility_change]]
+id = "structural-causal-model-default-version"
+change_class = "persisted-artifact-format"
+impact = "migration"
+surface = "public_stable: polisyos.ir.StructuralCausalModelSpec"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "2 minor releases"
+release_note = "StructuralCausalModelSpec defaults to 1.1; the current reader preserves explicit and historical missing-version CAS 1.0 without new backend authority."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/ir/schema-catalog.md", "src/polisyos/ir/analytics/README.md"]
+runbook_docs = ["docs/reference/foundry/structural-causal-models.md"]

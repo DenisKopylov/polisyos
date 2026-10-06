@@ -6,7 +6,7 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "c71544dc72dbf1e4c00f09208a9cd4c43ae530520050493523c1483781ee2723",
+  "content_hash": "5011cb1a2c9ca6e6b9dbcf4325d0854219b3a1b8d46fb975406488ff237b94d3",
   "generated_at": "2026-09-22T16:59:24+00:00",
   "generator_version": "1.0.0",
   "models": {
@@ -1085,9 +1085,9 @@
       "lifecycle": "active",
       "priority": "p1",
       "schema_file": "structural_causal_model_spec.schema.json",
-      "schema_version": "1.0",
-      "sha256_full": "371fb54bb46ea64fb2dc2537953e204cbcb5104600fa549fa33b843e100b98d3",
-      "sha256_semantic": "c1a5c16bcf04ff43e3e3ee266f16be208ffc259d43e8f439c2f39313349b8bd4",
+      "schema_version": "1.1",
+      "sha256_full": "699017daf1e4e5b848c24489197dd839eda9a34012cdf9a81146b78f62675ee5",
+      "sha256_semantic": "8ce5963b79c8be7dcf7e3a8493242023a8fcf990db72d364f0d80eec0bdf1613",
       "version_field": "schema_version"
     },
     "survival_data_bundle_manifest": {

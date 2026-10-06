@@ -19390,12 +19390,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.0`
+- Current version: `1.1`
 - Exported from: `polisyos.ir.analytics:StructuralCausalModelSpec`, `polisyos.ir:StructuralCausalModelSpec`
 - ABI snapshot: `structural_causal_model_spec` / `schemas/snapshots/ir/structural_causal_model_spec.schema.json`
-- Compatibility mode: `—`
+- Compatibility mode: `backward`
 - References: `polisyos.ir.analytics.causal_graph.CausalGraphModel`, `polisyos.ir.analytics.structural_causal_model.NodeMechanism`, `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance`, `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows`
 - Summary: Serializable structural causal model with graph and node mechanisms.
+- Declared readable versions: `1.0`
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -19406,7 +19407,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `graph` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` | `yes` | `—` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` |
 | `mechanism_source_summary` | `dict[str, int]` | `no` | `—` | — |
 | `mechanisms` | `list[polisyos.ir.analytics.structural_causal_model.NodeMechanism]` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.NodeMechanism` |
-| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `schema_version` | `str` | `no` | `'1.1'` | — |
 | `skg_snapshot_ref` | `str \| NoneType` | `no` | `—` | — |
 | `training_rows` | `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows \| NoneType` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows` |
 

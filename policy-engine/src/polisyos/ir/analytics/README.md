@@ -39,6 +39,21 @@ Package facade `polisyos.ir.analytics` намеренно уже, чем пол�
 | `polisyos.ir.analytics.StrategicSCM`, `StrategicResponseBundle`, `MeanFieldEquilibriumCertificate`     | Нужен strategic-response / performative-analysis surface, включая MFG certificates     | [`strategic.py`](./strategic.py)                             |
 | `polisyos.ir.analytics.DoWhyGraphBridge`, `EconMLDesignBridge`                                         | Нужны interoperability bridges в external causal toolchains                            | [`ecosystem_bridges.py`](./ecosystem_bridges.py)             |
 
+## Structural model schema compatibility
+
+`StructuralCausalModelSpec` defaults to schema 1.1, matching the selected GCM
+producer, schema snapshot and reflection catalog. A selected `fit_method="gcm"`
+model requires training rows and observed worker provenance; the schema version
+alone does not establish source custody or causal authority. The existing
+source-bound reader reopens the actual CAS source and validates that provenance.
+
+Current readers also accept schema 1.0. They retain 1.0 when a historical CAS
+manifest omits the payload version, rather than inheriting the new constructor
+default. Historical/manual fixtures should declare `schema_version="1.0"`
+explicitly when replaying that profile. Reading or rewriting them does not
+create selected worker provenance. Old 1.0 readers are not declared compatible
+with a new 1.1 producer.
+
 ## Causal result interval semantics
 
 `CausalQueryResult` schema 1.2 and `TwinNetworkResult` schema 1.1 distinguish

@@ -386,6 +386,12 @@ export type ComponentId = RuntimeApiComponents["schemas"]["ComponentId"];
 export type ConditionalDeltaAmount =
   RuntimeApiComponents["schemas"]["ConditionalDeltaAmount"];
 
+export type ConditionalSimulationObservation =
+  RuntimeApiComponents["schemas"]["ConditionalSimulationObservation"];
+
+export type ConditionalSimulationValueProjection =
+  RuntimeApiComponents["schemas"]["ConditionalSimulationValueProjection"];
+
 export type ConfidenceLedgerPolicy =
   RuntimeApiComponents["schemas"]["ConfidenceLedgerPolicy"];
 

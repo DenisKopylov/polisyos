@@ -87,6 +87,10 @@ from polisyos.core.contracts.decision_validity import (
     DecisionTriggerType,
     DecisionValidityStatus,
 )
+from polisyos.core.contracts.runtime import (
+    ConditionalSimulationObservation,
+    ConditionalSimulationValueProjection,
+)
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.security import AccessScope, clear_tenant_context, tenant_scope
 from polisyos.runtime.http.errors import conflict, forbidden, unprocessable_entity
@@ -3645,6 +3649,123 @@ class ControlPlaneService(
             )
             return replace(record, progress=progress)
         return record
+
+    def resolve_conditional_simulation_values(
+        self,
+        run_id: str,
+        *,
+        expected_tenant_id: str | None,
+        expected_cell_id: str | None,
+    ) -> tuple[ConditionalSimulationValueProjection, ...]:
+        """Resolve the owned completed source and consume its N5 values again.
+
+        The outward reader supplies the already authorized run scope. Mutable
+        progress selects no authority: the completed Core attempt owns the
+        compiled artifact, and the N4/N5/context owners resolve its exact basis.
+        No simulation, promotion, or persisted pass status is replayed as truth.
+        """
+        record = self._control_store.get_latest_job_by_run(run_id)
+        if record is None or record.kind != "natural_language_run" or record.state != "completed":
+            return ()
+
+        def refused(reason: str) -> tuple[ConditionalSimulationValueProjection, ...]:
+            return (
+                ConditionalSimulationValueProjection(
+                    candidate_id=None,
+                    job_id=record.job_id,
+                    run_id=run_id,
+                    observation=ConditionalSimulationObservation(
+                        status="value_blocked",
+                        authority_blockers=(reason,),
+                        reason=reason,
+                        predicate_basis="not_established",
+                    ),
+                ),
+            )
+
+        try:
+            payload = self._load_payload_ref(record.payload_ref)
+            if (
+                not expected_tenant_id
+                or not expected_cell_id
+                or not isinstance(payload, Mapping)
+                or payload.get("tenant_id") != expected_tenant_id
+                or payload.get("cell_id") != expected_cell_id
+                or payload.get("run_id") != run_id
+            ):
+                return refused("conditional_simulation_owned_scope_mismatch")
+            terminal = self.resolve_completed_control_job_core_run_source(
+                record,
+                expected_control_run_id=run_id,
+                tenant_id=expected_tenant_id,
+                cell_id=expected_cell_id,
+            )
+            outputs = terminal.manifest.outputs
+            compiled_outputs = tuple(
+                ref for ref in outputs if ref.kind == "runtime.compiled_recursive_generation_cycle"
+            )
+            normative_outputs = tuple(
+                ref for ref in outputs if ref.kind == "runtime.normative_generation_composition"
+            )
+            if (
+                terminal.manifest.status != "ok"
+                or len(compiled_outputs) != 1
+                or len(normative_outputs) > 1
+                or len(outputs) != len(compiled_outputs) + len(normative_outputs)
+            ):
+                return refused("conditional_simulation_owned_output_shape_mismatch")
+            compiled_ref = compiled_outputs[0]
+            raw = self._artifact_store.get_bytes(compiled_ref)
+            if str(compiled_ref.artifact_id) != "sha256:" + hashlib.sha256(raw).hexdigest():
+                return refused("conditional_simulation_compiled_content_mismatch")
+            from polisyos.runtime.http.services.control.generation_cycle import (
+                CompiledRecursiveGenerationCycleRun,
+            )
+            from polisyos.runtime.quality.conditional_simulation_replay import (
+                replay_conditional_simulation_values,
+            )
+            from polisyos.runtime.quality.cycle_substrate import (
+                CycleSubstrateContextArtifactOwner,
+            )
+
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(from_canonical_bytes(raw))
+            rows = replay_conditional_simulation_values(
+                compiled.recursive_run,
+                store=self._artifact_store,
+                context_owner=CycleSubstrateContextArtifactOwner(store=self._artifact_store),
+                admission_owner=self._cycle_substrate_context_admission_owner,
+                expected_job_id=record.job_id,
+                expected_run_id=run_id,
+                expected_tenant_id=expected_tenant_id,
+                expected_cell_id=expected_cell_id,
+            )
+            return tuple(
+                ConditionalSimulationValueProjection(
+                    candidate_id=row.candidate_id,
+                    job_id=record.job_id,
+                    run_id=run_id,
+                    profile_config_ref=row.profile_config_ref,
+                    world_model_record_id=row.world_model_record_id,
+                    world_model_record_content_hash=row.world_model_record_content_hash,
+                    n5_result_ref=row.n5_result_ref,
+                    observation=ConditionalSimulationObservation(
+                        status=row.observation.status,
+                        value_ref=row.observation.value_ref,
+                        authority_blockers=row.observation.authority_blockers,
+                        reason=row.observation.reason or "conditional_simulation_value_unavailable",
+                        predicate_basis=(
+                            "recomputed"
+                            if row.projection_source == "recomputed_from_n5_cas"
+                            else "not_established"
+                        ),
+                    ),
+                )
+                for row in rows
+            )
+        except (OSError, RuntimeError, TypeError, ValueError, KeyError) as exc:
+            return refused(
+                str(getattr(exc, "code", None) or "conditional_simulation_replay_failed")
+            )
 
     def get_latest_job_for_run(self, run_id: str) -> ControlJobRecord | None:
         """Return the newest durable control job attached to one runtime run."""

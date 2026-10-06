@@ -23,6 +23,7 @@ from polisyos.core.contracts.runtime import (
     ArtifactLineageView,
     CompareCandidatesResponse,
     CompareRunResponse,
+    ConditionalSimulationValueProjection,
     RunDetailsResponse,
     RunEvidenceContextResponse,
     RunEvidenceContextView,
@@ -1142,6 +1143,20 @@ if router is not None:
             updates["operator_diagnostic"] = operator_diagnostic
         if policy_design_case_projection is not None:
             updates["policy_design_case_projection"] = policy_design_case_projection
+        control_service = _control_service_from_request(request)
+        resolve_conditional = getattr(
+            control_service, "resolve_conditional_simulation_values", None
+        )
+        if callable(resolve_conditional):
+            conditional_values = resolve_conditional(
+                run_id,
+                expected_tenant_id=run.details.tenant_id,
+                expected_cell_id=run.details.cell_id,
+            )
+            updates["conditional_simulation_values"] = [
+                ConditionalSimulationValueProjection.model_validate(row)
+                for row in conditional_values
+            ]
         if updates:
             run_details = run_details.model_copy(update=updates)
         return RunDetailsResponse(

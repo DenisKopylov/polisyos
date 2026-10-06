@@ -7762,6 +7762,150 @@
         "title": "ConditionalDeltaAmount",
         "type": "object"
       },
+      "ConditionalSimulationObservation": {
+        "additionalProperties": false,
+        "description": "A replayed simulation-only value, without causal or promotion authority.",
+        "properties": {
+          "authority_blockers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authority Blockers",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "const": "conditional_simulation_only",
+            "default": "conditional_simulation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "evaluation_mode": {
+            "const": "simulate_only",
+            "default": "simulate_only",
+            "title": "Evaluation Mode",
+            "type": "string"
+          },
+          "predicate_basis": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Predicate Basis",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "value_conditional",
+              "value_blocked"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Ref"
+          }
+        },
+        "required": [
+          "status",
+          "authority_blockers",
+          "reason",
+          "predicate_basis"
+        ],
+        "title": "ConditionalSimulationObservation",
+        "type": "object"
+      },
+      "ConditionalSimulationValueProjection": {
+        "additionalProperties": false,
+        "description": "The scoped candidate and persisted N5 basis consumed again by N8.",
+        "properties": {
+          "candidate_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Id"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "n5_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observation": {
+            "$ref": "#/components/schemas/ConditionalSimulationObservation"
+          },
+          "profile_config_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Config Ref"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "world_model_record_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "World Model Record Content Hash"
+          },
+          "world_model_record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "World Model Record Id"
+          }
+        },
+        "required": [
+          "job_id",
+          "run_id",
+          "observation"
+        ],
+        "title": "ConditionalSimulationValueProjection",
+        "type": "object"
+      },
       "ConfidenceLedgerPolicy": {
         "additionalProperties": false,
         "description": "Top-level delta policy and exact conditionality statement.",
@@ -30423,6 +30567,13 @@
               }
             ],
             "title": "Cell Id"
+          },
+          "conditional_simulation_values": {
+            "items": {
+              "$ref": "#/components/schemas/ConditionalSimulationValueProjection"
+            },
+            "title": "Conditional Simulation Values",
+            "type": "array"
           },
           "control_job_id": {
             "anyOf": [
@@ -58105,18 +58256,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+                      "projection_hash": "sha256:2f1b827420d2cd61ac28354c9c0c5c0774bb2b2f88eb098b8bbda755b5853899",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Afe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A2f1b827420d2cd61ac28354c9c0c5c0774bb2b2f88eb098b8bbda755b5853899&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A984d3eaba73af27bf8837557143303e2e291a7e3250b364e8bb92f1a70a369f7",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+                        "projection_hash": "sha256:2f1b827420d2cd61ac28354c9c0c5c0774bb2b2f88eb098b8bbda755b5853899",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b"
+                        "source_dependency_hash": "sha256:984d3eaba73af27bf8837557143303e2e291a7e3250b364e8bb92f1a70a369f7"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -58125,8 +58276,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
-                          "bound_dependency_count": 1489,
+                          "bound_dependency_aggregate_identity": "sha256:984d3eaba73af27bf8837557143303e2e291a7e3250b364e8bb92f1a70a369f7",
+                          "bound_dependency_count": 1492,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -58141,16 +58292,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2"
+                          "worker_validation_receipt_hash": "sha256:afa7e469ebc7846f8c0b4ac08f18a04b9acebd3230d37d214a75fec370725936"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+                      "source_dependency_hash": "sha256:984d3eaba73af27bf8837557143303e2e291a7e3250b364e8bb92f1a70a369f7",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2"
+                      "worker_validation_receipt_hash": "sha256:afa7e469ebc7846f8c0b4ac08f18a04b9acebd3230d37d214a75fec370725936",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:afa7e469ebc7846f8c0b4ac08f18a04b9acebd3230d37d214a75fec370725936"
                     }
                   }
                 },

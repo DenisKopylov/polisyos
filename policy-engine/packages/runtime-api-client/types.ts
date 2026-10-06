@@ -5089,6 +5089,60 @@ export interface components {
             semantic_role: string;
         };
         /**
+         * ConditionalSimulationObservation
+         * @description A replayed simulation-only value, without causal or promotion authority.
+         */
+        ConditionalSimulationObservation: {
+            /** Authority Blockers */
+            authority_blockers: string[];
+            /**
+             * Authority Purpose
+             * @default conditional_simulation_only
+             * @constant
+             */
+            authority_purpose: "conditional_simulation_only";
+            /**
+             * Evaluation Mode
+             * @default simulate_only
+             * @constant
+             */
+            evaluation_mode: "simulate_only";
+            /**
+             * Predicate Basis
+             * @enum {string}
+             */
+            predicate_basis: "recomputed" | "not_established";
+            /** Reason */
+            reason: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "value_conditional" | "value_blocked";
+            /** Value Ref */
+            value_ref?: string | null;
+        };
+        /**
+         * ConditionalSimulationValueProjection
+         * @description The scoped candidate and persisted N5 basis consumed again by N8.
+         */
+        ConditionalSimulationValueProjection: {
+            /** Candidate Id */
+            candidate_id?: string | null;
+            /** Job Id */
+            job_id: string;
+            n5_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            observation: components["schemas"]["ConditionalSimulationObservation"];
+            /** Profile Config Ref */
+            profile_config_ref?: string | null;
+            /** Run Id */
+            run_id: string;
+            /** World Model Record Content Hash */
+            world_model_record_content_hash?: string | null;
+            /** World Model Record Id */
+            world_model_record_id?: string | null;
+        };
+        /**
          * ConfidenceLedgerPolicy
          * @description Top-level delta policy and exact conditionality statement.
          */
@@ -14316,6 +14370,8 @@ export interface components {
             capability_manifest_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /** Cell Id */
             cell_id?: string | null;
+            /** Conditional Simulation Values */
+            conditional_simulation_values?: components["schemas"]["ConditionalSimulationValueProjection"][];
             /** Control Job Id */
             control_job_id?: string | null;
             /**

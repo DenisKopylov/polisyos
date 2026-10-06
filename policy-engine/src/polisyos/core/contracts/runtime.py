@@ -1895,6 +1895,59 @@ class RunOperatorDiagnostic(BaseModel):
     projection_labels: list[RunOperatorProjectionStateLabel] = Field(default_factory=list)
 
 
+class ConditionalSimulationObservation(BaseModel):
+    """A replayed simulation-only value, without causal or promotion authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["value_conditional", "value_blocked"]
+    value_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_blockers: tuple[str, ...]
+    reason: str
+    evaluation_mode: Literal["simulate_only"] = "simulate_only"
+    predicate_basis: Literal["recomputed", "not_established"]
+    authority_purpose: Literal["conditional_simulation_only"] = "conditional_simulation_only"
+
+    @model_validator(mode="after")
+    def _conditional_value_requires_resolved_basis(self) -> ConditionalSimulationObservation:
+        if self.status == "value_conditional" and (
+            self.value_ref is None
+            or not self.authority_blockers
+            or self.predicate_basis != "recomputed"
+        ):
+            raise ValueError("conditional_simulation_resolved_basis_missing")
+        return self
+
+
+class ConditionalSimulationValueProjection(BaseModel):
+    """The scoped candidate and persisted N5 basis consumed again by N8."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    candidate_id: str | None = None
+    job_id: str
+    run_id: str
+    profile_config_ref: str | None = None
+    world_model_record_id: str | None = None
+    world_model_record_content_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    n5_result_ref: ArtifactRef | None = None
+    observation: ConditionalSimulationObservation
+
+    @model_validator(mode="after")
+    def _conditional_value_is_bound_to_its_projection(self) -> ConditionalSimulationValueProjection:
+        if self.observation.status == "value_conditional" and (
+            not self.candidate_id
+            or self.n5_result_ref is None
+            or self.world_model_record_content_hash is None
+            or not self.world_model_record_id
+            or self.observation.value_ref != str(self.n5_result_ref.artifact_id)
+        ):
+            raise ValueError("conditional_simulation_projection_binding_missing")
+        return self
+
+
 class RunDetails(RunRecordV1):
     """Run details public type."""
 
@@ -1911,6 +1964,9 @@ class RunDetails(RunRecordV1):
     decision_superseded_by_ref: ArtifactRef | None = None
     operator_diagnostic: RunOperatorDiagnostic | None = None
     policy_design_case_projection: PolicyDesignCaseProjection | None = None
+    conditional_simulation_values: list[ConditionalSimulationValueProjection] = Field(
+        default_factory=list, exclude_if=lambda rows: not rows
+    )
 
 
 class RunTimelineEvent(BaseModel):

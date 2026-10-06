@@ -158,7 +158,7 @@ def test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_cons
     ).resume(
         _spec(answer),
         suite_ref=suite,
-        checkpoint_ref=result.telemetry["checkpoint_ref"],
+        checkpoint_ref=ArtifactRef.model_validate(result.telemetry["checkpoint_ref"]),
         max_iterations=1,
     )
     assert fresh.history == result.history
@@ -186,6 +186,8 @@ def test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analy
     ).create_service(_spec(answer), suite_ref=suite, max_iterations=3)
     fresh.restore(acknowledged)
     actual = fresh.ask(None, None, {})[0]
+    print("actual_next_action", actual.model_dump(mode="json"))
+    print("expected_next_action", expected.model_dump(mode="json"))
     assert actual == expected
     assert fresh.controller._history == source.controller._history
     saved = from_canonical_bytes(fresh_store.get_verified_snapshot(fresh.checkpoint_ref).data)

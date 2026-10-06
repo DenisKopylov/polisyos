@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "tests/unit/remediation/test_req_01_installed.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+  "returncode": 0,
+  "source_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+  "candidate_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+  "qualification": "Prior command on ignored selected-copy path failed test-specific configuration discovery; actual canonical test path/profile measured here."
+}

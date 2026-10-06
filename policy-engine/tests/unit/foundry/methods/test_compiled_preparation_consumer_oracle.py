@@ -7,9 +7,11 @@ independent validation of JAX's random-number implementation or distribution.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import sys
+import threading
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from pathlib import Path
@@ -23,6 +25,7 @@ import pytest
 import polisyos.foundry.methods.compiler as compiler_module
 from polisyos.foundry.methods.base import (
     ComplexityClass,
+    ComputeBackend,
     FidelityLevel,
     MethodMetadata,
     MethodSignature,
@@ -255,3 +258,280 @@ def test_explicit_numerical_warmup_is_separate_from_preparation_and_future_seeds
         "direct_draws": np.asarray(direct.draws).tolist(),
     }
     (tmp_path / "numerical-observations.json").write_text(json.dumps(observations, indent=2) + "\n")
+
+
+def _ordering_owner() -> tuple[Any, Any, Any, Any]:
+    registry = MethodRegistry._create_fresh()
+    registry.register(_Draw)
+    registry.register(_Reduce)
+    composer = MethodComposer(registry=registry)
+    reducer = composer.add(_Reduce.signature.fqn)
+    producer = composer.add(_Draw.signature.fqn, scale=0.5)
+    return registry, composer.build(), producer, reducer
+
+
+def _parallel_signature(
+    name: str, output: str, *, requires: frozenset[str] = frozenset(), window: bool = False
+) -> MethodSignature:
+    return MethodSignature(
+        name=name,
+        namespace="tests.independent_plan_parallel",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset({_slot(output)}),
+        parameters=(ParameterSpec("window", default=20, is_static=True),) if window else (),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_N,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+        requires=requires,
+    )
+
+
+class _ParallelRequired:
+    signature: ClassVar = _parallel_signature("required", "required", window=True)
+    metadata: ClassVar = MethodMetadata(description="Real independent required branch")
+
+    @staticmethod
+    def pure_step(state: dict[str, Any], params: Mapping[str, Any]) -> dict[str, float]:
+        state["events"].append(["required", "entered", params["window"]])
+        state["barrier"].wait()
+        value = math.fsum(float(item) ** 2 for item in state["values"][: params["window"]])
+        state["events"].append(["required", "computed", value])
+        return {"required": value}
+
+
+class _ParallelSibling:
+    signature: ClassVar = _parallel_signature("sibling", "sibling")
+    metadata: ClassVar = MethodMetadata(description="Real independent sibling branch")
+
+    @staticmethod
+    def pure_step(state: dict[str, Any], _params: Mapping[str, Any]) -> dict[str, float]:
+        state["events"].append(["sibling", "entered"])
+        state["barrier"].wait()
+        value = math.fsum(float(item) for item in state["values"])
+        state["events"].append(["sibling", "computed", value])
+        return {"sibling": value}
+
+
+class _ParallelDependent:
+    signature: ClassVar = _parallel_signature(
+        "dependent", "dependent", requires=frozenset({_ParallelRequired.signature.fqn})
+    )
+    metadata: ClassVar = MethodMetadata(description="Real consumer of required branch value")
+
+    @staticmethod
+    def pure_step(state: dict[str, Any], _params: Mapping[str, Any]) -> dict[str, float]:
+        value = state["required"] + 7.0
+        state["events"].append(["dependent", "computed", value])
+        return {"dependent": value}
+
+
+@pytest.mark.parametrize("mode", ["async", "auto"])
+def test_reopened_plan_keeps_independent_real_branches_parallel(tmp_path: Path, mode: str) -> None:
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.foundry.methods.artifacts import (
+        CompiledChainPlan,
+        load_compiled_chain_plan,
+        store_compiled_chain_plan,
+    )
+
+    registry = MethodRegistry._create_fresh()
+    for method in (_ParallelRequired, _ParallelSibling, _ParallelDependent):
+        registry.register(method)
+    composer = MethodComposer(registry=registry)
+    dependent = composer.add(_ParallelDependent.signature.fqn)
+    required = composer.add(_ParallelRequired.signature.fqn)
+    sibling = composer.add(_ParallelSibling.signature.fqn)
+    chain = composer.build()
+    plan = CompiledChainPlan.from_chain(chain)
+    ref = store_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), plan)
+    restored = load_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), ref, registry=registry)
+    assert restored.dag.edges == {}
+    assert set(restored.dag.compute_parallel_levels()[0]) == {required.id, sibling.id}
+    events: list[list[Any]] = []
+    result = restored.execute_heterogeneous(
+        state={
+            "values": [2.0, -3.0, 4.0],
+            "barrier": threading.Barrier(2, timeout=5),
+            "events": events,
+        },
+        registry=registry,
+        executor_mode=mode,
+    )
+    assert result.final_state["required"] == 29.0
+    assert result.final_state["sibling"] == 3.0
+    assert result.final_state["dependent"] == 36.0
+    assert {event[0] for event in events[:2]} == {"required", "sibling"}
+    assert all(event[1] == "entered" for event in events[:2])
+    assert ["required", "entered", 20] in events
+    assert events[-1] == ["dependent", "computed", 36.0]
+    assert {node_id for node_id, _ in result.node_results} == {
+        required.id,
+        sibling.id,
+        dependent.id,
+    }
+    (tmp_path / "reopened-parallel-observations.json").write_text(
+        json.dumps(
+            {
+                "mode": mode,
+                "ref": ref.model_dump(mode="json"),
+                "events": events,
+                "node_results": [str(node_id) for node_id, _ in result.node_results],
+                "numeric_results": {
+                    name: result.final_state[name] for name in ("required", "sibling", "dependent")
+                },
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+@pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+    tmp_path: Path, mode: str
+) -> None:
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.foundry.methods.artifacts import (
+        CompiledChainPlan,
+        load_compiled_chain_plan,
+        store_compiled_chain_plan,
+    )
+
+    registry, chain, producer, reducer = _ordering_owner()
+    state = _state()
+    with _body_observer() as calls:
+        assert chain.dag.edges == {}
+        plan = CompiledChainPlan.from_chain(chain)
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = store_compiled_chain_plan(cas, plan)
+        reopened = FileSystemCAS(tmp_path / "cas")
+        wire = reopened.get_bytes(ref)
+        assert wire == plan.to_canonical_bytes()
+        restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+        assert calls == {"draw": 0, "reduce": 0}
+    assert tuple(restored.execution_order) == (producer.id, reducer.id)
+    assert restored.dag.edges == {}
+    assert restored.get_node(producer.id).static_params == producer.static_params
+    params = {producer.id: {"seed": 23}, reducer.id: {"offset": 0.75}}
+    observed_order = list(restored.execution_order)
+    if mode.startswith("compiled"):
+        executor = MethodCompiler(registry=registry, cache=CompilationCache()).compile_chain(
+            restored, state, jit=mode == "compiled-jit", infer_shapes=True
+        )
+        result = executor(state, params)
+    else:
+        from polisyos.foundry.methods.backends.chain_executor import execute_heterogeneous_chain
+        from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+        from polisyos.foundry.methods.backends.jax_runner import JaxRunner
+
+        # The real JAX runner owns its compiler. Bind the same explicit registry
+        # used to restore this plan instead of relying on an unrelated singleton.
+        dispatcher = MethodDispatcher()
+        dispatcher.register_runner(JaxRunner(MethodCompiler(registry=registry)))
+        execution = execute_heterogeneous_chain(
+            restored,
+            state=state,
+            params_per_node=params,
+            registry=registry,
+            dispatcher=dispatcher,
+            executor_mode=mode,
+        )
+        observed_order = [node_id for node_id, _ in execution.node_results]
+        result = execution.final_state
+    result.total.block_until_ready()
+    expected_draws, expected_total = _oracle(state, 23, 0.5, 0.75)
+    (tmp_path / "reopened-plan-observations.json").write_text(
+        json.dumps(
+            {
+                "mode": mode,
+                "ref": ref.model_dump(mode="json"),
+                "wire_sha256": hashlib.sha256(wire).hexdigest(),
+                "execution_order": [str(value) for value in restored.execution_order],
+                "actual_node_result_order": [str(value) for value in observed_order],
+                "predecessors": {
+                    str(key): sorted(str(value) for value in values)
+                    for key, values in restored.dag.predecessors.items()
+                },
+                "data_flow_edge_count": len(restored.dag.edges),
+                "seed": 23,
+                "offset": 0.75,
+                "draws": np.asarray(result.draws).tolist(),
+                "total": float(result.total),
+                "oracle_total": expected_total,
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+    np.testing.assert_allclose(np.asarray(result.draws), expected_draws, rtol=1e-6, atol=1e-7)
+    assert float(result.total) == pytest.approx(expected_total, rel=1e-6)
+    assert tuple(observed_order) == (producer.id, reducer.id)
+    assert restored.dag.predecessors[reducer.id] == frozenset({producer.id})
+
+
+@pytest.mark.parametrize("damage", ["required-edge", "required-node", "cycle"])
+def test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies(
+    tmp_path: Path, damage: str
+) -> None:
+    from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
+    from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+    from polisyos.foundry.methods.artifacts import CompiledChainPlan, load_compiled_chain_plan
+    from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
+
+    registry, chain, producer, reducer = _ordering_owner()
+    payload = json.loads(CompiledChainPlan.from_chain(chain).to_canonical_bytes())
+    producer_id, reducer_id = str(producer.id), str(reducer.id)
+    if damage == "required-edge":
+        payload["predecessors"][reducer_id] = []
+        expected_error, message = ValueError, "effective dependency mismatch"
+    elif damage == "required-node":
+        payload["nodes"] = [node for node in payload["nodes"] if node["node_id"] != producer_id]
+        payload["nodes"][0]["insertion_order"] = 0
+        payload["execution_order"] = [reducer_id]
+        del payload["predecessors"][producer_id]
+        payload["predecessors"][reducer_id] = []
+        del payload["cache_keys"][producer_id]
+        expected_error, message = MissingRequirementError, "draw"
+    else:
+        payload["predecessors"][producer_id] = [reducer_id]
+        expected_error, message = CyclicDependencyError, "draw|reduce"
+    wire = to_canonical_bytes(payload, CanonSpec(forbid_floats=False, exclude_none=False))
+    cas = FileSystemCAS(tmp_path / "cas")
+    ref = cas.put_bytes(
+        wire,
+        PutOptions(
+            kind="foundry.compiled_chain_plan",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.foundry.compiled_chain_plan", version="1.0.0"),
+        ),
+    )
+    ref = ArtifactRef(
+        artifact_id=ref.artifact_id,
+        kind=ref.kind,
+        media_type=ref.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(cas.get_manifest(ref)),
+    )
+    with _body_observer() as calls:
+        with pytest.raises(expected_error, match=message) as refusal:
+            load_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), ref, registry=registry)
+        assert calls == {"draw": 0, "reduce": 0}
+    (tmp_path / "damaged-plan-observations.json").write_text(
+        json.dumps(
+            {
+                "damage": damage,
+                "ref": ref.model_dump(mode="json"),
+                "wire_sha256": hashlib.sha256(wire).hexdigest(),
+                "refusal_type": type(refusal.value).__name__,
+                "refusal": str(refusal.value),
+                "body_entries": calls,
+            },
+            indent=2,
+        )
+        + "\n"
+    )

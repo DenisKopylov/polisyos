@@ -609,12 +609,12 @@ class NativeSearchService:
             SensitivityAwareCandidateGenerator,
         )
 
-        base = generator._base if type(generator) is SensitivityAwareCandidateGenerator else generator
+        base = (
+            generator._base if type(generator) is SensitivityAwareCandidateGenerator else generator
+        )
         return base if type(base) is BayesianCandidateGenerator else None
 
-    def _bind_native_candidate_identity(
-        self, candidate: dict[str, Any], candidate_id: str
-    ) -> None:
+    def _bind_native_candidate_identity(self, candidate: dict[str, Any], candidate_id: str) -> None:
         """Assign the admitted subject before its native history consumer sees it."""
         if self._canonical_native_generator() is None:
             return

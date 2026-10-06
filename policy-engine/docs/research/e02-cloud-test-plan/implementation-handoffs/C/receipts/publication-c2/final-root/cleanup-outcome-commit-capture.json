@@ -1,0 +1,153 @@
+{
+  "head": "c321c9f1a353d5dddeeae0453c5387335ffa8af7",
+  "tree": "d0b2eca52df816b4a61d8f3851abe7b045f0e739",
+  "parent": "242da377ddae9868907edcca1976d74e46fe6aa5",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "--short",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "242da377ddae9868907edcca1976d74e46fe6aa5\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-ignore",
+        "-v",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.intent.jsonl"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "policy-engine/.gitignore:104:*.jsonl\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.intent.jsonl\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.intent.jsonl"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da-capture.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.intent.jsonl\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preparation-commit-capture.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preservation-readback-242da.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-release-template-v2-preflight-20261006T200643194248Z.json.gz\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-root-release-242da.json.gz\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-root-released-242da.json.gz\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-v5-preflight-20261006T200643194248Z.json.gz\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/index.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/preflight-final-242da-capture.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "## codex/e02-C-continuation-20261006\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da-capture.json\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.intent.jsonl\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.json\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preparation-commit-capture.json\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preservation-readback-242da.json\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-release-template-v2-preflight-20261006T200643194248Z.json.gz\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-root-release-242da.json.gz\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-root-released-242da.json.gz\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-v5-preflight-20261006T200643194248Z.json.gz\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/index.json\nA  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/preflight-final-242da-capture.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "commit",
+        "-m",
+        "Record final C handoff and verified Trash-only cleanup\n\nRetain complete operation and preservation readback with lossless compressed exact input selections. The mandatory fsynced recovery journal is force-added despite the global *.jsonl ignore: it is the exact 42-line deciding cleanup evidence, not a generic raw log. The initial staging omitted this ignored journal; the complete outcome inventory was reconciled before commit. No production payload or source archive is included.\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "[codex/e02-C-continuation-20261006 c321c9f1a] Record final C handoff and verified Trash-only cleanup\n 12 files changed, 2191 insertions(+)\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da-capture.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.intent.jsonl\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preparation-commit-capture.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preservation-readback-242da.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-release-template-v2-preflight-20261006T200643194248Z.json.gz\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-root-release-242da.json.gz\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-root-released-242da.json.gz\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-v5-preflight-20261006T200643194248Z.json.gz\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/index.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/preflight-final-242da-capture.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "c321c9f1a353d5dddeeae0453c5387335ffa8af7\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "d0b2eca52df816b4a61d8f3851abe7b045f0e739\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "## codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    }
+  ],
+  "complete_inventory_paths_read_back": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da-capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.intent.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preparation-commit-capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preservation-readback-242da.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-release-template-v2-preflight-20261006T200643194248Z.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-root-release-242da.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-root-released-242da.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-v5-preflight-20261006T200643194248Z.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/preflight-final-242da-capture.json"
+  ],
+  "initial_staging_note": "Global *.jsonl ignored mandatory journal; measured missing path, explicitly force-added with commit reason; no HEAD/tree recovery or history changes."
+}

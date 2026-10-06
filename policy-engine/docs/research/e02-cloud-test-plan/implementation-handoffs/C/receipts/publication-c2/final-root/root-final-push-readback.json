@@ -1,0 +1,242 @@
+{
+  "schema": "policyos.e02.topic_publication.v1",
+  "unit": "C",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "main_publication": false,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "198076863e143dea9f89f02734b13d50dae3eed5"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007591000001411885,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "--short",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.0055532080004923046,
+      "exit_code": 0,
+      "stdout": "codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.07147845800500363,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006158290954772383,
+      "exit_code": 0,
+      "stdout": "c321c9f1a353d5dddeeae0453c5387335ffa8af7\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "c321c9f1a353d5dddeeae0453c5387335ffa8af7"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.013991792045999318,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "d50d28e4555c4e87e1d4732b81836ae8502c6849",
+        "c321c9f1a353d5dddeeae0453c5387335ffa8af7"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007117791974451393,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "d50d28e4555c4e87e1d4732b81836ae8502c6849^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006760624994058162,
+      "exit_code": 0,
+      "stdout": "58d0bfc902b9cff182fe959a99a337223bcb1656\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "c321c9f1a353d5dddeeae0453c5387335ffa8af7:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007063166005536914,
+      "exit_code": 0,
+      "stdout": {
+        "tracked_blob": "c321c9f1a353d5dddeeae0453c5387335ffa8af7:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json",
+        "bytes": 4344,
+        "sha256": "795e17eef8ac5d27f3d1c6cdc377630fb67cb5a3af677a978d7de8a6c95fd651"
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "c321c9f1a353d5dddeeae0453c5387335ffa8af7"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.013076999981421977,
+      "exit_code": 0,
+      "stdout": "M\tpolicy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-organization/C-continuation-20261006.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-streaming-c2.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-census-receipt-path-correction.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/publication-first-c2.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/berl-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/berl-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/canon-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/canon-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/catalog-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/catalog-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/client-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/client-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/dfi-emb-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/dfi-emb-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/federation-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/federation-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/hygiene-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/hygiene-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/index.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/ing-oracle-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/ing-oracle-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/migrations-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/migrations-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/obs-udf-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/obs-udf-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/plugins-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/plugins-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/schema-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/schema-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/scholar-create.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/admission-c2/scholar-resume.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da-capture.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.intent.jsonl\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-operation-242da.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preparation-commit-capture.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-preservation-readback-242da.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-release-template-v2-preflight-20261006T200643194248Z.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-root-release-242da.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-root-released-242da.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/cleanup-selection-v5-preflight-20261006T200643194248Z.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/index.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-outcome-c2/preflight-final-242da-capture.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/build_cleanup_preflight_v5.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/builder-v5-run-capture-20261006T204000Z.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/builder-v5-run-capture-20261006T204300Z.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v1-20261006.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v1-20261006.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v2-20261006.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-review-v2-20261006.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-static-review-v3-20261006T194800Z.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/cleanup-mover-static-review-v3-20261006T194800Z.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/eligible-env-cache-v2.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/execute_cleanup_capture.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/index.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/move_released_to_trash.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-normal-held-selection-0ccb29b1f100.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-normal-held-selection-0ccb29b1f100.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-optimized-before-argv-0ccb29b1f100.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-control-optimized-before-argv-0ccb29b1f100.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-controls-latest-5dfe.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-preparation-c2/negative-precondition-controls-v2-0ccb29b1f100.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/index.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-environment.provenance.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-10/client-python-sync.result.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment-install.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-32/migration-build-environment.command-results.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-environment.provenance.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/cleanup-provenance-c2/row-33/root-python-sync.result.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/coverage-c2/C54-label-reconciliation.command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/coverage-c2/C54-label-reconciliation.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/coverage-c2/C54-label-reconciliation.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/coverage-c2/closure-coverage-self-check.command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/coverage-c2/closure-coverage-self-check.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/coverage-c2/closure-coverage-self-check.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/coverage-c2/reconcile_c_labels.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/late-la039/command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/late-la039/composition_receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/late-la039/evidence-manifest.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/late-la039/exit.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/late-la039/probe.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/late-la039/script_source_binding_postrun.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/late-la039/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/late-la039/stdout.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/source-inputs/C54-final-reviewcut-20261006-v8.json.gz\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/source-inputs/C54-finding-inventory.tsv\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/source-inputs/README.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/final-handoff.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/generation/command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/generation/exit.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/generation/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/generation/stdout.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/prior-author-validator-criterion-sha-drift.stdout.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/prior-author-validator-drift-controls.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/prior-author-validator.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/prior-v8-full-review.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/v10-independent-delta-review.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/v10-summary-count-alias-control.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/v10-summary-count-alias-control.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/v10-summary-count-alias-control.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/validation/command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/validation/exit.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/validation/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/validation/stdout.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/admission-create.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/admission-resume.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.result.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/candidate68-removal-controls-final.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/candidate68-removal-controls-receipt.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.result.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-diff.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-diff.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-diff.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-format.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-format.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-format.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-ruff.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-ruff.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-ruff.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/independent-oracle-initial-deciding-receipt.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-build.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-build.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-command-results.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-ing-probe.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-ing-runtime.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-install.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-install.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-package-census.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-runtime.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.result.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/returned-ref-before-fix-red.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.command.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.result.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/cat-adjudicated-final-push-readback.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/cat-final-push-readback.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/dfi-final-push-readback.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/hyg-final-topic-push-readback.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/mig-current-input-push-readback.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/mig-final-topic-push-readback.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/plg-final-topic-push-readback.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/schema-final-topic-push-readback.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/second-ready-topic-push-readback.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/check_worktrees.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/deciding-commands.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/index.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/namespace-refs.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/report.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/report.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/worktree-state.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/supplier-refresh-c2/supplier-contract-refresh-correction.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/supplier-refresh-c2/supplier-contract-refresh.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/runtime-dependency-c2.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py\nM\tpolicy-engine/pyproject.toml\nA\tpolicy-engine/release-fragments/unreleased/2026-10-06-c2-runtime-jsonschema.toml\nA\tpolicy-engine/release-fragments/unreleased/2026-10-06-c2-stream-admission.toml\nM\tpolicy-engine/src/polisyos/fabric/data_plane/README.md\nM\tpolicy-engine/src/polisyos/fabric/data_plane/modes.py\nA\tpolicy-engine/src/polisyos/fabric/data_plane/schema_rows.py\nM\tpolicy-engine/src/polisyos/fabric/data_plane/streaming.py\nA\tpolicy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py\nM\tpolicy-engine/tests/unit/fabric/data_plane/test_processing_guarantees.py\nM\tpolicy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py\nM\tpolicy-engine/uv.lock\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "c321c9f1a353d5dddeeae0453c5387335ffa8af7^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.006546500022523105,
+      "exit_code": 0,
+      "stdout": "d0b2eca52df816b4a61d8f3851abe7b045f0e739\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "push",
+        "origin",
+        "codex/e02-C-continuation-20261006:refs/heads/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 2.36151262500789,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "To https://github.com/DenisKopylov/polisyos.git\n   9f35e19ff..c321c9f1a  codex/e02-C-continuation-20261006 -> codex/e02-C-continuation-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "refs/heads/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.5282420419971459,
+      "exit_code": 0,
+      "stdout": "c321c9f1a353d5dddeeae0453c5387335ffa8af7\trefs/heads/codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-C-continuation-20261006:refs/remotes/origin/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.5175207090214826,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.005797291989438236,
+      "exit_code": 0,
+      "stdout": "c321c9f1a353d5dddeeae0453c5387335ffa8af7\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-continuation-20261006^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.0069101249682717025,
+      "exit_code": 0,
+      "stdout": "d0b2eca52df816b4a61d8f3851abe7b045f0e739\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "refs/remotes/origin/codex/e02-C-continuation-20261006:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "wall_seconds": 0.007073540997225791,
+      "exit_code": 0,
+      "stdout": {
+        "tracked_blob": "refs/remotes/origin/codex/e02-C-continuation-20261006:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json",
+        "bytes": 4344,
+        "sha256": "795e17eef8ac5d27f3d1c6cdc377630fb67cb5a3af677a978d7de8a6c95fd651"
+      },
+      "stderr": ""
+    }
+  ],
+  "topics": [
+    {
+      "branch": "codex/e02-C-continuation-20261006",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "expected_head": "c321c9f1a353d5dddeeae0453c5387335ffa8af7",
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json",
+      "implementation_sha": "d50d28e4555c4e87e1d4732b81836ae8502c6849",
+      "implementation_tree": "58d0bfc902b9cff182fe959a99a337223bcb1656",
+      "tree": "d0b2eca52df816b4a61d8f3851abe7b045f0e739",
+      "handoff_sha256": "795e17eef8ac5d27f3d1c6cdc377630fb67cb5a3af677a978d7de8a6c95fd651",
+      "handoff_bytes": 4344,
+      "branch_readback_validated": true,
+      "remote_readback_validated": true
+    }
+  ],
+  "complete": true,
+  "next_owner": "G; ordinary Git topics and committed handoffs, no other user chat message"
+}

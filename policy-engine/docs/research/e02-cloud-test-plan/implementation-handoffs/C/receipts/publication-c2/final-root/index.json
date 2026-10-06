@@ -1,0 +1,23 @@
+{
+  "schema": "policyos.e02.C.final_publication_index.v1",
+  "published_candidate": "c321c9f1a353d5dddeeae0453c5387335ffa8af7",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/final-root/root-final-push-readback.json",
+      "sha256": "3735bb42460b46e59a5eaa84796816a5cad9e50a8097f812b04456e31b61c468",
+      "bytes": 30969
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/final-root/all13-final-heads-readback.json",
+      "sha256": "e1ae3ee08413cfd63d261176cbbefdf2882c8842a2910b56c170ddd84105499e",
+      "bytes": 5321
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/final-root/cleanup-outcome-commit-capture.json",
+      "sha256": "1e3d19133ee5aacd66419f59a1644ea100843eebd7b137d3a7a435e3a1388e2d",
+      "bytes": 11590
+    }
+  ],
+  "full_source_family_count": 13,
+  "no_main_publication": true
+}

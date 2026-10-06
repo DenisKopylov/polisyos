@@ -1,0 +1,119 @@
+{
+  "argv": [
+    "git",
+    "ls-remote",
+    "--heads",
+    "origin",
+    "refs/heads/codex/e02-C-federation-20261006",
+    "refs/heads/codex/e02-C-continuation-20261006",
+    "refs/heads/codex/e02-C-scholar-20261006",
+    "refs/heads/codex/e02-C-hygiene-20261006",
+    "refs/heads/codex/e02-C-client-20261006",
+    "refs/heads/codex/e02-C-plugins-20261006",
+    "refs/heads/codex/e02-C-migrations-20261006",
+    "refs/heads/codex/e02-C-obs-udf-20261006",
+    "refs/heads/codex/e02-C-schema-20261006",
+    "refs/heads/codex/e02-C-catalog-20261006",
+    "refs/heads/codex/e02-C-canon-20261006",
+    "refs/heads/codex/e02-C-dfi-emb-20261006",
+    "refs/heads/codex/e02-C-berl-20261006"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "exit_code": 0,
+  "stdout": "8aecb0b6e08f8d37f09c70927761576583a89828\trefs/heads/codex/e02-C-berl-20261006\n9f84276408fc6b776e35050afece5c4e74ed413d\trefs/heads/codex/e02-C-canon-20261006\nf428b114f4afb5c9cdde93a8e9bf036abe5ac329\trefs/heads/codex/e02-C-catalog-20261006\n5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1\trefs/heads/codex/e02-C-client-20261006\nc321c9f1a353d5dddeeae0453c5387335ffa8af7\trefs/heads/codex/e02-C-continuation-20261006\n40d27423aa7835bc8439f139d84ff1bc909ea14a\trefs/heads/codex/e02-C-dfi-emb-20261006\n26ba51d571a5ccb5da26502d4d097d801cdc5b04\trefs/heads/codex/e02-C-federation-20261006\n4f55312a51bcd95ee125ac2f1bec1df59b0d65c3\trefs/heads/codex/e02-C-hygiene-20261006\nfe15a3604801f9a8c4fda51c73f51976f52d6c25\trefs/heads/codex/e02-C-migrations-20261006\n705575be73510d40d726c82c5a0af4bf8635a2a8\trefs/heads/codex/e02-C-obs-udf-20261006\n976212bbefb684da4823f61d810bf7a208a6e298\trefs/heads/codex/e02-C-plugins-20261006\n28b04149e6477216f37c2ab2e0abfc54b8857ac6\trefs/heads/codex/e02-C-schema-20261006\nf7af77f3373e4d22f703efa7208c19c6ffed1746\trefs/heads/codex/e02-C-scholar-20261006\n",
+  "stderr": "",
+  "complete_family_denominator": 13,
+  "rows": [
+    {
+      "family": "FED",
+      "branch": "codex/e02-C-federation-20261006",
+      "published_head": "26ba51d571a5ccb5da26502d4d097d801cdc5b04",
+      "source_snapshot_head": "26ba51d571a5ccb5da26502d4d097d801cdc5b04",
+      "ancestor_verified": true
+    },
+    {
+      "family": "ING",
+      "branch": "codex/e02-C-continuation-20261006",
+      "published_head": "c321c9f1a353d5dddeeae0453c5387335ffa8af7",
+      "source_snapshot_head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+      "ancestor_verified": true
+    },
+    {
+      "family": "SCL",
+      "branch": "codex/e02-C-scholar-20261006",
+      "published_head": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+      "source_snapshot_head": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+      "ancestor_verified": true
+    },
+    {
+      "family": "HYG",
+      "branch": "codex/e02-C-hygiene-20261006",
+      "published_head": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+      "source_snapshot_head": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+      "ancestor_verified": true
+    },
+    {
+      "family": "CLI",
+      "branch": "codex/e02-C-client-20261006",
+      "published_head": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+      "source_snapshot_head": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+      "ancestor_verified": true
+    },
+    {
+      "family": "PLG",
+      "branch": "codex/e02-C-plugins-20261006",
+      "published_head": "976212bbefb684da4823f61d810bf7a208a6e298",
+      "source_snapshot_head": "976212bbefb684da4823f61d810bf7a208a6e298",
+      "ancestor_verified": true
+    },
+    {
+      "family": "MIG",
+      "branch": "codex/e02-C-migrations-20261006",
+      "published_head": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+      "source_snapshot_head": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+      "ancestor_verified": true
+    },
+    {
+      "family": "OBS",
+      "branch": "codex/e02-C-obs-udf-20261006",
+      "published_head": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+      "source_snapshot_head": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+      "ancestor_verified": true
+    },
+    {
+      "family": "DFK",
+      "branch": "codex/e02-C-schema-20261006",
+      "published_head": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+      "source_snapshot_head": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+      "ancestor_verified": true
+    },
+    {
+      "family": "CAT",
+      "branch": "codex/e02-C-catalog-20261006",
+      "published_head": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+      "source_snapshot_head": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+      "ancestor_verified": true
+    },
+    {
+      "family": "CAN",
+      "branch": "codex/e02-C-canon-20261006",
+      "published_head": "9f84276408fc6b776e35050afece5c4e74ed413d",
+      "source_snapshot_head": "9f84276408fc6b776e35050afece5c4e74ed413d",
+      "ancestor_verified": true
+    },
+    {
+      "family": "DFI",
+      "branch": "codex/e02-C-dfi-emb-20261006",
+      "published_head": "40d27423aa7835bc8439f139d84ff1bc909ea14a",
+      "source_snapshot_head": "40d27423aa7835bc8439f139d84ff1bc909ea14a",
+      "ancestor_verified": true
+    },
+    {
+      "family": "BER",
+      "branch": "codex/e02-C-berl-20261006",
+      "published_head": "8aecb0b6e08f8d37f09c70927761576583a89828",
+      "source_snapshot_head": "8aecb0b6e08f8d37f09c70927761576583a89828",
+      "ancestor_verified": true
+    }
+  ]
+}

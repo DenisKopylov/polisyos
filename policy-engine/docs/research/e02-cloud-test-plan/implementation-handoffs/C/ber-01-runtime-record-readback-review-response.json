@@ -1,0 +1,117 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "ber-01-runtime-record-readback-review-response",
+  "created_at": "2026-10-06T12:35:33Z",
+  "closure_ids": [],
+  "bundle_ids": ["BER-01"],
+  "slice_base_sha": "3148bfb589182d7f85f0d5fedbfa7f5071058456",
+  "slice_base_tree_sha": "44b4a95abb6c9f119b3f45a77b94ae6437009890",
+  "previous_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2-review-response.json",
+  "implementation_commits": ["87999f69c5f99d69ee2622ef00cd7f4e04d7d572"],
+  "source_correction_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+  "source_correction_tree_sha": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+  "candidate_tree_sha": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+  "branch": "codex/e02-C-berl-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py",
+    "policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py"
+  ],
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.0",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "jsonschema": "4.25.1"
+    },
+    "source": "admitted branch source through PYTHONPATH=policy-engine; shared contributor environment remained read-only; no wheel build/install or environment sync",
+    "inputs": "synthetic BERL bundle fixtures and a private temporary FileSystemCAS; no production rows, law artifacts, or production CAS"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=policy-engine python3 -m pytest -q policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py",
+      "target_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "input_closure": "Full changed Runtime BERL reliability test module: 11 cases, including actual builder output written to temporary FileSystemCAS, canonical byte readback, and Runtime evaluator for persisted profile versions 1.0.0 and 1.1.0; unresolved conditional evidence and markers-only controls; callback call count asserted zero.",
+      "output": "........... [100%]. Existing environment warning: JAX DeprecationWarning for jax_pmap_shmap_merge; process exit 0.",
+      "output_ref": ".tmp/e02-C2/raw/installed/berl/runtime-record-readback/pytest.stdout@3283f0bdcc3ce64cef2bfae2cca6410f933a797571440d42eb4bc363f53b11c9"
+    },
+    {
+      "command": "python3 -m ruff check policy-engine/src/polisyos/runtime/quality/explanation_reliability.py policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py",
+      "target_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "input_closure": "Changed Runtime producer and mirrored Runtime reliability tests.",
+      "output": "All checks passed!",
+      "output_ref": ".tmp/e02-C2/raw/installed/berl/runtime-record-readback/ruff.stdout@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "command": "git diff --check before source commit",
+      "target_sha": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "input_closure": "Complete source/test patch in the implementation commit.",
+      "output": "No output."
+    }
+  ],
+  "property": {
+    "statement": "The Runtime warrant-reliability builder must persist the actual full version-pinned ExplanationBundle that the Runtime consumer validates. The normalized four-field explanation summary is a consumer result and is not a persisted ExplanationBundle.",
+    "runtime_path": [
+      "build_berl_warrant_reliability_record receives the full serialized bundle and computes validation summary fields.",
+      "The builder output is written to a private FileSystemCAS using canonical JSON, then read back with from_canonical_bytes.",
+      "evaluate_warrant_berl_reliability passes the stored full payload to validate_persisted_explanation_bundle and derives a fresh Runtime threshold result.",
+      "For conditional bundles, the existing central validator continues to reject conditional authority; injected verifier callbacks remain unused."
+    ],
+    "proxy_divergence": "Before the source correction, the builder replaced the complete explanation_bundle with only bundle_id, schema_version, display_policy, and faithfulness_claim. The consumer treated that summary as the versioned persisted bundle and stopped at missing created_at, before the intended conditional refusal. The builder now preserves the full input under the existing field; no wire version, field, default, timestamp, or identifier was added.",
+    "negative_controls": [
+      "A full 1.1.0 conditional evidence payload with unresolved law/model references remains failed with conditional_law_authority_not_admitted:kernel_shap_conditional after CAS readback.",
+      "Removing conditional_evidence while retaining conditional method and dependence markers remains failed with conditional_law_evidence_missing:kernel_shap_conditional after CAS readback.",
+      "The injected Echo verifier is never called in either negative case (calls == 0)."
+    ]
+  },
+  "predicate_basis": "The full-record preservation, canonical byte roundtrip, generated persisted-profile validation, and Runtime outcomes are recomputed on synthetic fixtures. E/F law/model source authority, production CAS provenance, external persisted consumers, and fresh installed-wheel behavior remain not_established.",
+  "capability_state_or_finding_state": "This Runtime builder-to-persisted-record-to-evaluator shape defect is fixed and locally exercised. The broader conditional-authority chain remains candidate-only: source-law producer/artifact and source/model/output-bound verifier are producer_missing, artifact_missing, and verification_missing. Runtime and Phase 5 conditional gates remain fail-closed; external analyst-facing attribution surface is not established.",
+  "finding_dispositions": [
+    {
+      "id": "LA-034",
+      "code_acceptance": "Runtime record builder now preserves the full owner wire payload; 1.0.0 and 1.1.0 records pass actual temporary-CAS write/readback into the Runtime evaluator, and the conditional refusal controls still fail closed.",
+      "finding_closure": "partial; not claimed. Production CAS provenance and external schema consumers remain not_established; the new run was a focused Runtime test module, not the full 73-test suite or a fresh installed-wheel audit.",
+      "status_labels": ["Runtime consumer wired", "verification locally exercised", "external consumer not_established"]
+    },
+    {
+      "id": "LA-036",
+      "code_acceptance": "This correction preserves the existing fail-closed conditional Runtime verdict through the real builder/CAS/evaluator path.",
+      "finding_closure": "partial; not claimed. No E/F source-law producer/artifact, actual law-content resolver, model-byte verifier, global-output-bound verifier, or admitted conditional consumer verifier was introduced.",
+      "status_labels": ["producer_missing", "artifact_missing", "verification_missing", "surface_out_of_scope"]
+    }
+  ],
+  "pattern_pass": {
+    "P01_P02": "The builder and Runtime consumer now agree on the persisted artifact shape; no conditional source-law authority is inferred from a summary.",
+    "P29_P38": "The regression executes the actual builder, CAS canonical serialization/readback, persisted schema validator, and consumer decision. It asserts the full payload survives and the consumer reaches the substantive conditional refusal rather than accepting or stopping on a proxy summary.",
+    "P37": "No new gate predicate or callback authority was added. Conditional law/model provenance remains not_established and fail-closed.",
+    "P40": "This is the same persisted-consumer record-shape class reported by the installed audit, closed at the owned builder seam. No second semantic policy was added.",
+    "P41": "No architecture-gate inheritance claim is made; architecture guardrails were not rerun for this focused correction."
+  },
+  "review": {
+    "independent_review": "pending; source commit is frozen for parent/independent review",
+    "self_review": "not represented as independent review"
+  },
+  "raw_evidence": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/installed_berl_probe.py@0ac53b6fa768f87a87703f1d338fc9fcf4f50bcf1316680f812e7bada9692596",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/installed-berl-runtime.json@a61b165dc3e8bce3f1f8a35d30cedc7853cc0cd695db16bc64e312aca1c7bbc3",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/installed-berl-runtime-final.stdout@71a4bb58d1f02e44282f8b8da0f015d99c59b09ea10075b12a7bb5d84288a06e",
+    ".tmp/e02-C2/raw/installed/berl/runtime-record-readback/pytest.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/e02-C2/raw/installed/berl/runtime-record-readback/pytest.result.json@c42bc23d82da72412dd4681010ff0b7f697c188eee2d8bbf1df8b057b3dfb077",
+    ".tmp/e02-C2/raw/installed/berl/runtime-record-readback/ruff.result.json@f8a45721f0c928b93a02b920c86b4b31c9b965ad6d4ead0fa16a1c25f7d5f36e"
+  ],
+  "transport": {
+    "implementation_remote_head_verified": false,
+    "push": "not performed; parent review/integration pending",
+    "implementation_tree_readback": true,
+    "handoff_commit_separate": true,
+    "fresh_installed_wheel_audit": "pending parent queue; current installed audit evidence refers to candidate 999f56c443e3b4ef74d849828641836a8f335b3d, before this correction"
+  }
+}

@@ -19,6 +19,27 @@ ablation и adversarial планы, генерацию sample sets и пост-�
 - **Coverage benchmarks** — analytic truth suites, empirical coverage metrics, and approval profiles.
 - **StressTestReport** — итоговая форма публикации robustness issues.
 
+## Observed stress scenario evidence
+
+`StressTestReport` 1.1 adds optional `scenario_evidence` and per-component evidence.
+The adversarial producer counts attempts, finite outcomes, violated scenarios,
+unknown outcomes and planned scenarios before issue grouping or top-k. Its score
+is `(finite_evaluated - violated_scenarios) / finite_evaluated`; each scenario
+contributes at most one violation. Severity occurrence counts remain independent
+of retained issue examples. Thresholds use the declared objective's coordinates
+and direction; absent thresholds, zero finite outcomes and unsupported legacy
+component bases yield an unavailable score. Unknown or unfinished runs remain
+partial. Complete means the declared observed stream, not the whole parameter
+space or a population probability. These fractions do not establish model
+uncertainty. The blueprint carries and replaces complete component count bases
+without deriving them from issue lists.
+
+New readers accept legacy 1.0 reports without inventing scenario evidence;
+`is_robust` requires complete, available evidence with no observed violation.
+Strict legacy readers must be upgraded before consuming 1.1 output. Optional
+absent evidence is omitted from legacy serialization. `StressScenarioEvidence`
+and threshold admission live in the documented `doe.stress_report` module.
+
 ## Bounded distribution contract (DOE-02)
 
 `ParameterSpec.lower_bound` and `upper_bound` are always physical support.  The

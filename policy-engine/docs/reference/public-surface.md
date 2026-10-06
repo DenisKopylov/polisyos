@@ -2309,7 +2309,7 @@ world
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
-| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `eager_exports` | 19 |
+| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `eager_exports` | 20 |
 
 #### `polisyos.foundry`
 
@@ -2403,7 +2403,7 @@ resolve_execution_posture
 - Facade: `eager_exports`
 - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
 
-<details><summary>Entrypoint exports (19)</summary>
+<details><summary>Entrypoint exports (20)</summary>
 
 ```text
 AdaptiveStoppingConfig
@@ -2422,6 +2422,7 @@ compute_first_order_indices
 empirical_cdf
 extract_std
 fabric_uncertainty_context_from_decision_data
+load_foundry_calibration_report
 reconcile_draw_outcomes
 sampling_content_digest
 verify_mean_certificate

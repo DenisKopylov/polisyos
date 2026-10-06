@@ -2450,7 +2450,7 @@
         {
           "module": "polisyos.foundry.uncertainty",
           "facade_mode_observed": "eager_exports",
-          "export_count": 19,
+          "export_count": 20,
           "exports": [
             "AdaptiveStoppingConfig",
             "AggregationStrategy",
@@ -2468,6 +2468,7 @@
             "empirical_cdf",
             "extract_std",
             "fabric_uncertainty_context_from_decision_data",
+            "load_foundry_calibration_report",
             "reconcile_draw_outcomes",
             "sampling_content_digest",
             "verify_mean_certificate"

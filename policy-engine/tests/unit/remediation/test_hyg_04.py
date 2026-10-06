@@ -195,6 +195,66 @@ def test_repo_root_resolution_rejects_non_workspace_cwd_with_typed_error(
         tool_imports.repo_root_from(installed_module, allow_cwd_fallback=True)
 
 
+@pytest.mark.parametrize(
+    ("malformed_sentinel", "malformed_type"),
+    [("pyproject.toml", "directory"), ("tools", "file"), ("src", "file")],
+)
+def test_repo_root_resolution_rejects_malformed_sentinel_layouts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    malformed_sentinel: str,
+    malformed_type: str,
+) -> None:
+    """Root lookup requires the expected file/directory types, not just named paths."""
+
+    fake_root = tmp_path / f"malformed-{malformed_sentinel.replace('.', '-')}"
+    fake_root.mkdir()
+    for sentinel in ("pyproject.toml", "tools", "src"):
+        path = fake_root / sentinel
+        if sentinel == malformed_sentinel:
+            if malformed_type == "directory":
+                path.mkdir()
+            else:
+                path.write_text("not a directory", encoding="utf-8")
+        elif sentinel == "pyproject.toml":
+            path.write_text("[project]\nname = 'decoy'\n", encoding="utf-8")
+        else:
+            path.mkdir()
+
+    fake_module = fake_root / "fake_module.py"
+    fake_module.write_text("", encoding="utf-8")
+    installed_module = _installed_workspace_module_path(tmp_path)
+    installed_module.touch()
+    installed_module_under_fake_root = _installed_workspace_module_path(fake_root)
+    installed_module_under_fake_root.touch()
+    monkeypatch.chdir(fake_root)
+    monkeypatch.setattr(sys, "path", sys.path.copy())
+    original_sys_path = sys.path.copy()
+
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(fake_module)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(installed_module, allow_cwd_fallback=True)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(installed_module_under_fake_root)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(installed_module, workspace_root=fake_root)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.ensure_repo_import_roots(installed_module)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.ensure_repo_import_roots(installed_module_under_fake_root)
+    assert sys.path == original_sys_path
+
+    # The real source anchor remains authoritative even when the CWD is malformed.
+    assert (
+        tool_imports.repo_root_from(
+            REPO_ROOT / "tools" / "lib" / "imports.py",
+            allow_cwd_fallback=True,
+        )
+        == REPO_ROOT
+    )
+
+
 def test_repo_root_resolution_preserves_source_anchor_and_default_behavior(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

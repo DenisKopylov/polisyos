@@ -1,0 +1,41 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/foundry/agent_sim/test_gini_consumers.py:3:1
+   |
+ 1 |   """Current-population readers and explicitly dated distribution snapshots."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import jax
+ 6 | | import jax.numpy as jnp
+ 7 | | import numpy as np
+ 8 | | import pytest
+ 9 | |
+10 | | from polisyos.foundry.agent_sim.analysis import BehaviorAnalyzer
+11 | | from polisyos.foundry.agent_sim.credit_assignment import CentralizedCritic
+12 | | from polisyos.foundry.agent_sim.distribution_executor import DistributionAwareExecutor
+13 | | from polisyos.foundry.agent_sim.distributions import (
+14 | |     DistributionConfig,
+15 | |     RewardConfig,
+16 | |     compress_distribution_state,
+17 | |     compute_distribution_aware_reward,
+18 | |     compute_gini_hard,
+19 | | )
+20 | | from polisyos.foundry.agent_sim.executor import PureExecutor
+21 | | from polisyos.foundry.agent_sim.government_policy import (
+22 | |     GovernmentTrainingConfig,
+23 | |     build_government_welfare_reward,
+24 | | )
+25 | | from polisyos.foundry.agent_sim.mechanisms import ConsumptionMechanism
+26 | | from polisyos.foundry.agent_sim.metrics import MetricsCollector, standard_training_metrics
+27 | | from polisyos.foundry.agent_sim.modes import social_welfare_objective
+28 | | from polisyos.foundry.agent_sim.policy import SharedPolicy
+29 | | from polisyos.foundry.agent_sim.state import GlobalState
+30 | | from polisyos.foundry.methods.catalog.simulation.dynamics import AgentPopulationSimulationEstimator
+31 | | from polisyos.foundry.plugins.economics import EconomicsPlugin, EconomicState
+32 | | from polisyos.foundry.plugins.economics.objectives import SocialWelfareObjective
+   | |________________________________________________________________________________^
+   |
+help: Organize imports
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

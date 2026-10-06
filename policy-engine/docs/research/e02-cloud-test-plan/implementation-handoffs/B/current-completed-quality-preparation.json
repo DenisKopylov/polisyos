@@ -225,7 +225,7 @@
         "-B",
         "/tmp/e02-B-completed-quality-preparation-capture.py"
       ],
-      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "cwd": "/workspace/e02-B-current-runtime",
       "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
       "environment": {
         "source_ref": "be5c558d91541cf22c960a2a472aa7fe1d178b8c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
@@ -257,7 +257,8 @@
         "bytes": 5283,
         "sha256": "99cc047c9f06583b2a5499fa03f4c3c1c52f8be19e71385cda598e697ae53b3d"
       },
-      "grade": "Complete AST literal and syntax only; no imports or gates executed"
+      "grade": "Complete AST literal and syntax only; no imports or gates executed",
+      "qualification": "This command is the actual outer preparation driver; it includes all inner checks and the final AST/syntax census"
     }
   ],
   "property": {

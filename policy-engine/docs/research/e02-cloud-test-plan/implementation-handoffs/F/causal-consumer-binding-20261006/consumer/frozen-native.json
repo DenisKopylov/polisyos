@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "93eed731088175fd244c5c66532ab6bd54e793b2",
+  "tree": "5deefe459b0b0c55d6f421258322ad5447dfc166",
+  "status": "",
+  "exit": 0,
+  "wall_s": 51.74103127299168,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/frozen-native.stdout",
+      "sha256": "7f1f90f6e69c48114294313f11f1e16fa8972699f10cb9f5dd5cb0658d3f374e",
+      "bytes": 2187
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/frozen-native.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "e67860362fdf9f891755d8f7b3401147039e68fa",
+  "tree": "7045539ea303e1223df9dc640c2af78d9117f0d5",
+  "status": "M policy-engine/docs/reference/foundry/causal-statistical-validity.md\n M policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py\n?? policy-engine/release-fragments/unreleased/2026-10-06-causal-consumer-binding.toml\n?? policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+  "exit": 1,
+  "wall_s": 52.83236155100167,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/development-native.stdout",
+      "sha256": "eed7b0788e134fadb1ef8dea79afe5dfd86142d42c42bd69363811ce9347250c",
+      "bytes": 6175
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/development-native.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

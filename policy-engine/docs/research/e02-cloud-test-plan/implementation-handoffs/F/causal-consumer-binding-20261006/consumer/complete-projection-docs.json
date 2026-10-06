@@ -1,0 +1,35 @@
+{
+  "source_start": "d550a8980ec32fc5cf6186c253b409fdc75ec47e",
+  "tree_start": "030404edf62392258f5144a04cc326dc0a02582c",
+  "status_start": "",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "validation",
+    "check-docs-gate",
+    "--repo-root",
+    ".",
+    "--base-ref",
+    "e67860362fdf9f891755d8f7b3401147039e68fa"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "d550a8980ec32fc5cf6186c253b409fdc75ec47e",
+  "tree": "030404edf62392258f5144a04cc326dc0a02582c",
+  "status": "",
+  "exit": 1,
+  "wall_s": 215.9147708340024,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/complete-projection-docs.stdout",
+      "sha256": "a85a952a4a0d2428742d85b336b005cf2245962968b2915bf2b1250a6e283527",
+      "bytes": 128645
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/complete-projection-docs.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

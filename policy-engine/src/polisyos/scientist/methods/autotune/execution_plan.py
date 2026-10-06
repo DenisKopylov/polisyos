@@ -35,8 +35,10 @@ from .models import (
     MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
+    load_benchmark_inputs,
     load_model_artifact,
-    read_split_manifest,
 )
 from .registry import ChampionRegistry
 from .runtime import PydanticMutationCodec
@@ -676,17 +678,19 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
             raise ValueError("ExecutionPlanBenchmarkEvaluator requires a CAS store")
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, ExecutionPlanSearchConfig)
-        if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError(
-                "Execution plan benchmark suite requires dataset_path and split_manifest_path"
-            )
         runner = context.get("execution_plan_runner")
         if not callable(runner):
             raise ValueError("context['execution_plan_runner'] must be callable")
-        rows = _read_jsonl(Path(suite.dataset_path))
-        split_manifest = read_split_manifest(Path(suite.split_manifest_path))
+        rows, split_manifest = load_benchmark_inputs(store, suite)
         champion_governance = self._champion_governance_score(
             candidate_ref=candidate_ref,
+            comparison_basis=benchmark_comparison_basis(
+                store,
+                suite_ref,
+                context.get("policy") or default_execution_plan_policy(),
+                benchmark_evaluator_profile(self),
+            ),
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             suite=suite,
             rows=rows,
             runner=runner,

@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-D-published-champion"
+title = "Bind champion comparisons to immutable inputs and drive native ask/tell"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "public-contract"
+summary = "Benchmark suites snapshot data and split references; generic champion comparison validates complete candidate, evaluation, suite and consumed-input identities, evaluator build and metric policy. Suite changes evaluate the actual incumbent before canonical lock-held comparison. The existing native autotune runner calls public ask/tell through one controller acceptance owner."
+evidence = ["tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py", "tests/unit/scientist/methods/autotune/test_registry_and_runner.py", "tests/unit/remediation/test_srv_01.py", "tests/unit/remediation/test_srv_03.py"]
+compatibility = "Old unbound generic comparison inputs are refused; candidate-only suites explicitly declare that basis. Existing narrow independently verified claim-promotion compatibility remains. POSIX flock, canonical reread and atomic pointer replacement remain; metadata attachment cannot replace a champion."
+limitations = "Content identity and evaluator build do not appoint a promotion authority. Persisted SearchService restore, served hierarchical caller cutover and distributed registry coordination remain unestablished. Imported resource supplier history does not establish resource-accounting closure."

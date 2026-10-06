@@ -7,7 +7,7 @@ from typing import Any, Generic, TypeVar, cast
 
 from pydantic import BaseModel
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
@@ -22,12 +22,15 @@ from polisyos.scientist.methods.search.objective import (
 from polisyos.scientist.methods.search.stopping import MaxIterations
 
 from .models import (
+    BenchmarkComparisonBasis,
     BenchmarkEvaluation,
     ChampionPointer,
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
     default_store,
     load_model_artifact,
     persist_benchmark_evaluation,
@@ -252,23 +255,49 @@ class SearchLoopRunner:
         candidate_ref = persist_mutation_artifact(
             self._store,
             cast("MutationArtifact", candidate),
-            inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+            inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
         )
+        basis = benchmark_comparison_basis(
+            self._store,
+            suite_ref,
+            spec.promotion_policy,
+            benchmark_evaluator_profile(spec.benchmark_evaluator),
+        )
+        evaluation_context = {
+            **dict(context),
+            "store": self._store,
+            "registry": self._registry,
+            "policy": spec.promotion_policy,
+            "loop_id": spec.loop_id,
+        }
         evaluation = spec.benchmark_evaluator.evaluate(
             candidate_ref,
             suite_ref,
-            {
-                **dict(context),
-                "store": self._store,
-                "registry": self._registry,
-                "policy": spec.promotion_policy,
-                "loop_id": spec.loop_id,
-            },
+            evaluation_context,
         )
+        evaluation = self._bind_comparison(evaluation, basis)
+        incumbent_ref = None
+        current = self._registry.get(spec.loop_id)
+        if current is not None:
+            prior = load_model_artifact(self._store, current.evaluation_ref, BenchmarkEvaluation)
+            if prior.comparison_basis != basis:
+                # Expensive work stays outside the registry transaction. The
+                # persisted record names the exact incumbent actually executed;
+                # the registry rechecks it against its canonical current pointer.
+                incumbent = spec.benchmark_evaluator.evaluate(
+                    current.candidate_ref,
+                    suite_ref,
+                    evaluation_context,
+                )
+                incumbent = self._bind_comparison(incumbent, basis)
+                incumbent_ref = persist_benchmark_evaluation(self._store, incumbent)
+                evaluation = evaluation.model_copy(
+                    update={"incumbent_evaluation_ref": incumbent_ref}
+                )
         evaluation_ref = persist_benchmark_evaluation(
             self._store,
             evaluation,
-            inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+            inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
         )
         decision = self._registry.consider_promotion(
             spec.loop_id,
@@ -292,6 +321,21 @@ class SearchLoopRunner:
                 "status": evaluation.status,
             },
         }
+
+    @staticmethod
+    def _bind_comparison(
+        evaluation: BenchmarkEvaluation, basis: BenchmarkComparisonBasis
+    ) -> BenchmarkEvaluation:
+        """Retain producer input binding; candidate-only evaluators have no external data."""
+        if evaluation.incumbent_evaluation_ref is not None:
+            raise ValueError("benchmark_evaluator_supplied_comparison_incumbent")
+        if evaluation.comparison_basis is None:
+            if basis.data_basis != "candidate_only":
+                raise ValueError("benchmark_evaluator_did_not_bind_consumed_inputs")
+            return evaluation.model_copy(update={"comparison_basis": basis})
+        if evaluation.comparison_basis != basis:
+            raise ValueError("benchmark_evaluator_comparison_basis_mismatch")
+        return evaluation
 
 
 __all__ = [

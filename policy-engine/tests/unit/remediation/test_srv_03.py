@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.autotune import (
     BenchmarkEvaluation,
@@ -266,7 +267,7 @@ def test_current_autotune_runner_characterizes_real_cas_consumer_path(
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="srv03-suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="srv03-suite", suite_version="1.0"),
     )
     spec = SearchLoopSpec(
         loop_id="srv03-loop",

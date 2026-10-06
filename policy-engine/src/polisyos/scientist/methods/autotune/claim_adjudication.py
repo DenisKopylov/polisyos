@@ -28,8 +28,10 @@ from .models import (
     MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
+    load_benchmark_inputs,
     load_model_artifact,
-    read_split_manifest,
 )
 from .registry import ChampionRegistry
 from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
@@ -154,15 +156,12 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
             raise ValueError("ClaimGoldEvaluator requires a CAS store")
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, ClaimAdjudicationSearchConfig)
-        if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError("ClaimGoldEvaluator requires dataset_path and split_manifest_path")
         predictor = context.get("claim_predictor")
         if not callable(predictor):
             raise ValueError(
                 "context['claim_predictor'] must be callable for claim adjudication benchmark evaluation"
             )
-        rows = _read_jsonl(Path(suite.dataset_path))
-        split_manifest = read_split_manifest(Path(suite.split_manifest_path))
+        rows, split_manifest = load_benchmark_inputs(store, suite)
         per_item, invalid_count, total_cost = self._predict_dataset(
             rows=rows,
             config=config,
@@ -171,6 +170,13 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
         )
         current_recall = self._champion_recall(
             candidate_ref=candidate_ref,
+            comparison_basis=benchmark_comparison_basis(
+                store,
+                suite_ref,
+                context.get("policy") or default_claim_adjudication_promotion_policy(),
+                benchmark_evaluator_profile(self),
+            ),
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             suite=suite,
             rows=rows,
             predictor=predictor,
@@ -234,9 +240,7 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
         champion_cfg = load_model_artifact(
             store, champion.candidate_ref, ClaimAdjudicationSearchConfig
         )
-        split_manifest = read_split_manifest(
-            Path(suite.split_manifest_path or DEFAULT_CLAIM_GOLD_SPLIT_PATH)
-        )
+        _, split_manifest = load_benchmark_inputs(store, suite)
         champion_items, invalid_count, total_cost = self._predict_dataset(
             rows=rows,
             config=champion_cfg,

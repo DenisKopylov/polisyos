@@ -21,8 +21,10 @@ from .models import (
     MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
+    load_benchmark_inputs,
     load_model_artifact,
-    read_split_manifest,
 )
 from .registry import ChampionRegistry
 from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
@@ -182,15 +184,19 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             raise ValueError("CalibrationMetaEvaluator requires a CAS store")
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, CalibrationMetaSearchConfig)
-        if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError("Calibration meta suite requires dataset_path and split_manifest_path")
         runner = context.get("calibration_runner")
         if not callable(runner):
             raise ValueError("context['calibration_runner'] must be callable")
-        rows = _read_jsonl(Path(suite.dataset_path))
-        split_manifest = read_split_manifest(Path(suite.split_manifest_path))
+        rows, split_manifest = load_benchmark_inputs(store, suite)
         champion_uncertainty = self._champion_uncertainty_score(
             candidate_ref=candidate_ref,
+            comparison_basis=benchmark_comparison_basis(
+                store,
+                suite_ref,
+                context.get("policy") or default_calibration_policy(),
+                benchmark_evaluator_profile(self),
+            ),
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             suite=suite,
             rows=rows,
             runner=runner,

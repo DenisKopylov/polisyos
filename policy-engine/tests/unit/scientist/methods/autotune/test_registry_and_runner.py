@@ -3,6 +3,8 @@ from __future__ import annotations
 import threading
 
 import pytest
+from pydantic import ConfigDict, Field
+
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.autotune import (
@@ -19,13 +21,17 @@ from polisyos.scientist.methods.autotune import (
     persist_benchmark_suite,
     persist_mutation_artifact,
 )
-from polisyos.scientist.methods.autotune.models import default_store, load_model_artifact
+from polisyos.scientist.methods.autotune.models import (
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
+    default_store,
+    load_model_artifact,
+)
 from polisyos.scientist.methods.autotune.runtime import (
     ChampionBackedRuntimeLoader,
     PydanticMutationCodec,
     SequenceCandidateGenerator,
 )
-from pydantic import ConfigDict, Field
 
 
 class DummyMutationConfig(MutationArtifact):
@@ -122,6 +128,12 @@ def _persist_evaluation(
         guardrails={"score_present": True},
         promotable=True,
         runtime_split_type=runtime_split_type,
+        comparison_basis=benchmark_comparison_basis(
+            store,
+            suite_ref,
+            _promotion_policy(loop_id=loop_id),
+            benchmark_evaluator_profile(PredictableDummyEvaluator()),
+        ),
     )
     return persist_benchmark_evaluation(
         store,
@@ -175,7 +187,7 @@ def test_search_loop_runner_promotes_and_runtime_loader_reads_champion(tmp_path)
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     loader = ChampionBackedRuntimeLoader(
         loop_id="dummy_loop",
@@ -224,7 +236,7 @@ def test_champion_registry_is_idempotent_for_same_candidate_and_evaluation(tmp_p
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     candidate_ref = _persist_candidate(store, value=3, suite_ref=suite_ref)
     evaluation_ref = _persist_evaluation(
@@ -260,7 +272,7 @@ def test_champion_registry_rejects_omitted_suite_binding(tmp_path) -> None:
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="foreign_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="foreign_suite", suite_version="1.0"),
     )
     candidate_ref = _persist_candidate(store, value=7, suite_ref=suite_ref)
     evaluation_ref = _persist_evaluation(
@@ -288,7 +300,7 @@ def test_champion_registry_rejects_evaluation_for_different_candidate(tmp_path) 
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     candidate_a = _persist_candidate(store, value=3, suite_ref=suite_ref)
     candidate_b = _persist_candidate(store, value=7, suite_ref=suite_ref)
@@ -317,7 +329,7 @@ def test_champion_registry_rejects_evaluation_for_different_loop(tmp_path) -> No
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     candidate_ref = _persist_candidate(store, value=7, suite_ref=suite_ref)
     evaluation_ref = _persist_evaluation(
@@ -346,7 +358,7 @@ def test_champion_registry_rejects_policy_for_different_loop(tmp_path) -> None:
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     candidate_ref = _persist_candidate(store, value=7, suite_ref=suite_ref)
     evaluation_ref = _persist_evaluation(
@@ -386,7 +398,7 @@ def test_champion_registry_rejects_incompatible_suite(
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id=suite_id, suite_version=suite_version),
+        BenchmarkSuite(data_basis="candidate_only", suite_id=suite_id, suite_version=suite_version),
     )
     candidate_ref = _persist_candidate(store, value=7, suite_ref=suite_ref)
     evaluation_ref = _persist_evaluation(
@@ -416,11 +428,21 @@ def test_champion_registry_rejects_evaluation_from_different_suite_basis(tmp_pat
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     evaluation_suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0", metadata={"basis": "a"}),
+        BenchmarkSuite(
+            data_basis="candidate_only",
+            suite_id="dummy_suite",
+            suite_version="1.0",
+            metadata={"basis": "a"},
+        ),
     )
     requested_suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0", metadata={"basis": "b"}),
+        BenchmarkSuite(
+            data_basis="candidate_only",
+            suite_id="dummy_suite",
+            suite_version="1.0",
+            metadata={"basis": "b"},
+        ),
     )
     candidate_ref = _persist_candidate(store, value=7, suite_ref=evaluation_suite_ref)
     evaluation_ref = _persist_evaluation(
@@ -448,7 +470,7 @@ def test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis(tmp_p
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     baseline_candidate = _persist_candidate(store, value=1, suite_ref=suite_ref)
     baseline_evaluation = _persist_evaluation(
@@ -490,7 +512,7 @@ def test_champion_registry_rejects_wrong_comparison_split(tmp_path) -> None:
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     candidate_ref = _persist_candidate(store, value=7, suite_ref=suite_ref)
     evaluation_ref = _persist_evaluation(
@@ -521,7 +543,7 @@ def test_champion_registry_rejects_missing_runtime_split_when_resolution_disagre
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     candidate_ref = _persist_candidate(store, value=7, suite_ref=suite_ref)
     evaluation_ref = _persist_evaluation(
@@ -550,7 +572,7 @@ def test_champion_registry_keeps_newer_champion_when_stale_score_arrives(tmp_pat
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     current_candidate = _persist_candidate(store, value=3, suite_ref=suite_ref)
     current_evaluation = _persist_evaluation(
@@ -600,7 +622,7 @@ def test_champion_registry_serializes_compare_and_publish_against_new_predecesso
     seed_registry = ChampionRegistry(root=root, store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     seed_candidate = _persist_candidate(store, value=1, suite_ref=suite_ref)
     seed_evaluation = _persist_evaluation(
@@ -737,7 +759,7 @@ def test_search_loop_runner_rejects_evaluator_from_foreign_suite(tmp_path) -> No
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+        BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
     )
     spec = SearchLoopSpec(
         loop_id="dummy_loop",

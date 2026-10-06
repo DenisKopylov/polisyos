@@ -19,7 +19,10 @@ from .models import (
     MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
     default_cas_root,
+    load_benchmark_inputs,
     load_model_artifact,
 )
 from .registry import ChampionRegistry
@@ -106,14 +109,7 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
             raise ValueError("CheapStageBenchmarkEvaluator requires a CAS store")
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         candidate = load_model_artifact(store, candidate_ref, CheapStageTuningConfig)
-        if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError(
-                "CheapStage benchmark suite requires dataset_path and split_manifest_path",
-            )
-        records = _read_jsonl(Path(suite.dataset_path))
-        split_manifest = BenchmarkSplitManifest.model_validate_json(
-            Path(suite.split_manifest_path).read_text(encoding="utf-8")
-        )
+        records, split_manifest = load_benchmark_inputs(store, suite)
         selection_records = _records_for_split(
             records,
             split_manifest=split_manifest,
@@ -158,6 +154,13 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
             suite_id=suite.suite_id,
             suite_version=suite.suite_version,
             candidate_ref=candidate_ref,
+            comparison_basis=benchmark_comparison_basis(
+                store,
+                suite_ref,
+                context.get("policy") or default_cheap_stage_policy(),
+                benchmark_evaluator_profile(self),
+            ),
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             selection_metrics=selection_metrics,
             holdout_metrics=holdout_metrics,
             sample_counts={

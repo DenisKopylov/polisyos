@@ -10,7 +10,7 @@ import pytest
 import statsmodels.api as sm
 
 from protocol import REQUEST_SCHEMA, decode, digest, validate_request
-from worker import execute, interval, linear_ate
+from worker import execute, interval, linear_ate, scalar
 
 
 def request(seed=19, n=500):
@@ -117,6 +117,48 @@ def test_intervals_are_rejected_without_flattening_selection_or_repair(value):
 @pytest.mark.parametrize("value", [[1, 2], [[1, 2]], None])
 def test_exact_supported_interval_shapes_and_legitimate_point_only(value):
     assert interval(value) == (None if value is None else [1.0, 2.0])
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("interval", ["1.0", "3.0"]),
+        ("interval", [True, 3.0]),
+        ("value", "2.0"),
+        ("value", True),
+        ("standard_error", "0.1"),
+        ("standard_error", False),
+    ],
+)
+def test_actual_backend_numeric_primitives_are_not_coerced(monkeypatch, field, value):
+    from dowhy import CausalModel
+
+    original = CausalModel.estimate_effect
+    calls = []
+
+    def malformed(self, *args, **kwargs):
+        actual = original(self, *args, **kwargs)
+        calls.append(type(actual.estimator).__module__)
+        if field == "interval":
+            actual.get_confidence_intervals = lambda **kwargs: value
+        elif field == "standard_error":
+            actual.get_standard_error = lambda: value
+        else:
+            actual.value = value
+        return actual
+
+    monkeypatch.setattr(CausalModel, "estimate_effect", malformed)
+    with pytest.raises(ValueError, match="numeric primitives"):
+        linear_ate(request())
+    assert calls == ["dowhy.causal_estimators.linear_regression_estimator"]
+
+
+def test_actual_numpy_numeric_scalar_and_interval_types_remain_supported():
+    for value in [np.float32(2), np.float64(2), np.int32(2), np.int64(2)]:
+        assert scalar(value) == 2.0
+    for dtype in [np.float32, np.float64, np.int32, np.int64]:
+        assert interval(np.array([1, 3], dtype=dtype)) == [1.0, 3.0]
+        assert interval(np.array([[1, 3]], dtype=dtype)) == [1.0, 3.0]
 
 
 def test_real_estimator_point_only_is_retained_without_synthesizing_ci(monkeypatch):

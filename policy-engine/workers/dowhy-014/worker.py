@@ -7,7 +7,11 @@ import importlib.metadata
 import platform
 import sys
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import numpy as np
+    from numpy.typing import NDArray
 
 # Python -I excludes the script directory; add only this fixed standalone owner.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -22,24 +26,37 @@ from protocol import (
 )
 
 
-def scalar(value: object) -> float:
-    """Require a finite scalar backend value."""
+def _finite_numeric_array(value: object) -> NDArray[np.float64]:
+    """Validate actual numeric primitives before any floating-point conversion."""
     import numpy as np
 
-    a = np.asarray(value, dtype=float)
-    if a.size != 1 or not np.isfinite(a).all():
+    raw = np.asarray(value, dtype=object)
+    if any(
+        isinstance(x, (bool, np.bool_))
+        or not isinstance(x, (int, float, np.integer, np.floating))
+        for x in raw.flat
+    ):
+        raise ValueError("finite numeric primitives required; no string/bool conversion")
+    a = raw.astype(float)
+    if not np.isfinite(a).all():
+        raise ValueError("finite numeric primitives required")
+    return a
+
+
+def scalar(value: object) -> float:
+    """Require a finite scalar backend value without primitive coercion."""
+    a = _finite_numeric_array(value)
+    if a.size != 1:
         raise ValueError("finite scalar estimate required")
     return float(a.reshape(-1)[0])
 
 
 def interval(value: object) -> list[float] | None:
     """Accept one ordered finite scalar interval, without flattening or repair."""
-    import numpy as np
-
     if value is None:
         return None
-    a = np.asarray(value, dtype=float)
-    if a.shape not in {(2,), (1, 2)} or not np.isfinite(a).all():
+    a = _finite_numeric_array(value)
+    if a.shape not in {(2,), (1, 2)}:
         raise ValueError("unsupported confidence interval shape/value")
     lo, hi = (float(x) for x in a.reshape(2))
     if lo > hi:
@@ -192,7 +209,7 @@ def gcm_fit(request: dict[str, Any]) -> dict[str, Any]:
                     "parents": parents,
                     "family": "linear_additive_noise",
                     "intercept": scalar(predictor.intercept_),
-                    "coefficients": {name: float(coeff[i]) for i, name in enumerate(parents)},
+                    "coefficients": {name: scalar(coeff[i]) for i, name in enumerate(parents)},
                     "residual_samples": residuals,
                     "noise_std": float(np.std(residuals)),
                 }

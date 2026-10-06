@@ -32,6 +32,7 @@
     "test_path": "policy-engine/tests/unit/remediation/test_plg_03.py",
     "test_file_git_blob_sha1": "30786ba124a172e19502d1e196ec503e9b0a90cd",
     "test_file_sha256": "d523133120baa67b700f881adca297be4528a66a75e31ef3e910685069231972",
+    "full_slice_base_diff_path_inventory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/plg03-numerical-controls-20261006/slice-base-to-test-source-paths.txt@b136c1a912a2608da5ac4d27a028d453ead51911bc1557d16c9f0fe029a608ec",
     "production_implementation_freeze_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
     "production_implementation_freeze_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
     "relationship": "The numerical selectors ran against this separately pinned test-source commit. The production implementation freeze remains a452011da3de26d90877ae95ab10a72cce8e0b45/tree d35c3e132b930eb7b9512ab7314a5f94c4733d3a; this verification commit adds tests and handoff evidence, and does not revise the production freeze. The exact command is pinned in the subsequent run-plan receipt."
@@ -39,7 +40,12 @@
   "candidate_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
   "branch": "codex/e02-C-plugins-20261006",
   "pull_request": null,
+  "changed_path_denominator": 10,
+  "mandatory_companion_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/domain-plugin-training.json"
+  ],
   "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/domain-plugin-training.json",
     "policy-engine/release-fragments/unreleased/2026-10-06-e02-domain-plugin-training-cli.toml",
     "policy-engine/src/polisyos/foundry/plugins/README.md",
     "policy-engine/src/polisyos/foundry/plugins/cli.py",
@@ -50,6 +56,25 @@
     "policy-engine/tests/unit/remediation/test_plg_02.py",
     "policy-engine/tests/unit/remediation/test_plg_03.py"
   ],
+  "package_transfer": {
+    "product_archive_commit": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+    "product_archive_tree": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+    "source_to_package_mapping": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/changed-source-map.json@f6065214cdfbcd0f4f0dacaa9b9b45391a370f9397ca70e577d2b36a59cf0118",
+    "configured_payload_scope": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/payload-scope.json@2465350f607ff438237574fc17ae0d4354c7de17d6fd0e321198157bbfeb19b4",
+    "package_census": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/domain-plugin-final/package-census.json@d635e33190f18fb3d85a14be07d7a156c6c15da1c511ce64500854938f9ea290",
+    "product_payload_denominators": {
+      "slice_archive_paths": 13673,
+      "sdist_members": 8464,
+      "wheel_payload_files": 3450,
+      "slice_base_to_product_changed_paths": 10
+    },
+    "verification_test_path": "policy-engine/tests/unit/remediation/test_plg_03.py",
+    "product_freeze_test_sha256": "675d78bdb476b4f592298426a0866a84ffcd5824221531f36df3cffe7657338b",
+    "verification_source_test_sha256": "d523133120baa67b700f881adca297be4528a66a75e31ef3e910685069231972",
+    "test_path_in_wheel_payload": false,
+    "test_path_in_product_sdist": false,
+    "transfer_basis": "The product source-to-package map is pinned to a452011da3de26d90877ae95ab10a72cce8e0b45 and includes the old test file digest. That mapping records both wheel_path and sdist_path as null for tests/unit/remediation/test_plg_03.py; the configured wheel policy excludes tests, and exact readback of the retained a452 sdist found no member ending in that path. Verification commit 443f346f5cf33f37175fc8e4dfe61d1060bc07f5 changes only the test source plus non-package evidence, without pyproject/lock or package-source changes. The existing wheel/sdist payload audit therefore transfers for the product package; this handoff does not claim the verification-test extension itself was installed or included in the package."
+  },
   "baseline_cells": ["Q03", "Q04", "Q05"],
   "checks": [
     {

@@ -1,0 +1,531 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "continuous-pairs-20261006",
+  "closure_ids": [
+    "LA-052",
+    "LA-053"
+  ],
+  "bundle_ids": [
+    "PCL-01"
+  ],
+  "ledger_status": {
+    "LA-052": "partial",
+    "LA-053": "partial"
+  },
+  "finding_verdict": {
+    "LA-052": "limited",
+    "LA-053": "limited"
+  },
+  "finding_closure": false,
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "f333db57fbe55510a3eabe03220d8662ee3a1693",
+    "f96d964062697d2077be2e59b8e1ce7d27b1f0dd"
+  ],
+  "candidate_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+  "candidate_tree_sha": "75f0e438e3db6722b407ebb5af817a99a1e9cf7b",
+  "branch": "codex/e02-E-pcl-20261006",
+  "worktree": "/workspace/e02-E-pcl-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+    "policy-engine/release-fragments/unreleased/2026-10-06-continuous-calibration-pairs.toml",
+    "policy-engine/src/polisyos/calibration/continuous.py",
+    "policy-engine/src/polisyos/calibration/curve.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+    "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+    "policy-engine/tests/unit/calibration/test_continuous.py",
+    "policy-engine/tests/unit/calibration/test_continuous_persistence.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell": "F01-P087",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "source_locator": "results/received/F01.txt:204",
+      "source_text_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "source_metadata": {
+        "locator": "results/received/F01.txt:4-114",
+        "source_tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F01.txt:4-114"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "test_source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F03-P040",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "source_locator": "results/received/F03.txt:170",
+      "source_text_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "source_metadata": {
+        "locator": "results/received/F03.txt:6-128",
+        "source_tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F03.txt:6-128"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/calibration/test_continuous.py",
+        "test_source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F04-P123",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+      "state": "PASS",
+      "source_locator": "results/received/F04.txt:333",
+      "source_text_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "source_metadata": {
+        "locator": "results/received/F04.txt:4-78",
+        "source_tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F04.txt:4-78"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+        "test_source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F05-P060",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "source_locator": "results/received/F05.txt:470",
+      "source_text_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "source_metadata": {
+        "locator": "results/received/F05.txt:7-408",
+        "source_tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F05.txt:7-408"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/calibration/test_continuous.py",
+        "test_source_commit": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F06-P108",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "source_locator": "results/received/F06.txt:292",
+      "source_text_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "source_metadata": {
+        "locator": "results/received/F06.txt:3-126",
+        "source_tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F06.txt:3-126"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "test_source_commit": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F07-P037",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "source_locator": "results/received/F07.txt:43",
+      "source_text_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "source_metadata": {
+        "locator": "results/received/F07.txt:5-5",
+        "source_tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F07.txt:5-5"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/calibration/test_continuous.py",
+        "test_source_commit": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F09-P090",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "source_locator": "results/received/F09.txt:206",
+      "source_text_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "source_metadata": {
+        "locator": "results/received/F09.txt:5-113",
+        "source_tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F09.txt:5-113"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "test_source_commit": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F12-P048",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "source_locator": "results/received/F12.txt:633",
+      "source_text_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "source_metadata": {
+        "locator": "results/received/F12.txt:5-194",
+        "source_tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F12.txt:5-194"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/calibration/test_continuous.py",
+        "test_source_commit": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F12-P086",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "source_locator": "results/received/F12.txt:671",
+      "source_text_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "source_metadata": {
+        "locator": "results/received/F12.txt:5-194",
+        "source_tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F12.txt:5-194"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "test_source_commit": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F13-P048",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "source_locator": "results/received/F13.txt:175",
+      "source_text_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "source_metadata": {
+        "locator": "results/received/F13.txt:5-125",
+        "source_tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F13.txt:5-125"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/calibration/test_continuous.py",
+        "test_source_commit": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    },
+    {
+      "cell": "F15-P102",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "source_locator": "results/received/F15.txt:257",
+      "source_text_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "source_metadata": {
+        "locator": "results/received/F15.txt:5-153",
+        "source_tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "raw_archive_transfer": "missing",
+        "environment_grade": "source_reported_only",
+        "environment_ref": "results/received/F15.txt:5-153"
+      },
+      "data_identity": {
+        "kind": "repository synthetic test fixture",
+        "source_test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "test_source_commit": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "raw_input_bytes": "not_transferred"
+      },
+      "backend": "source test NumPy calibration/report path; per-call backend not independently verified",
+      "grade": "transfer_navigation_only"
+    }
+  ],
+  "checks": [
+    {
+      "name": "native",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/calibration",
+        "tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+        "tests/unit/foundry/methods/catalog/validation/test_diagnostics.py",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced.py"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_s": 50.52558974499698,
+      "user_cpu_s": 51.195902000000004,
+      "system_cpu_s": 1.117137,
+      "child_max_rss_kib_cumulative": 736572,
+      "output": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/native.txt",
+      "original_capture_path": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/native.log",
+      "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/environment.json",
+      "input_closure": "tracked mirrored test selectors and analytic fixture recipe; FS CAS under isolated pytest temp directories",
+      "outcome": "PASS",
+      "expected_exit_code": 0,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/native.txt",
+      "output_sha256": "41c1aa6baf5aea6a1b066d44bbb4bae31e3c023777deee97d083b10e6133060b"
+    },
+    {
+      "name": "proxy",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+        "proxy"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_s": 0.22760282800300047,
+      "user_cpu_s": 0.210329,
+      "system_cpu_s": 0.016231,
+      "child_max_rss_kib_cumulative": 32376,
+      "output": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/proxy.txt",
+      "original_capture_path": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/proxy.log",
+      "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/environment.json",
+      "input_closure": "tracked mirrored test selectors and analytic fixture recipe; FS CAS under isolated pytest temp directories",
+      "outcome": "PASS",
+      "expected_exit_code": 0,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/proxy.txt",
+      "output_sha256": "c7fe42dcf5cc078edbcd8acace63e010f9bc96bce18707debb179a273d520e83"
+    },
+    {
+      "name": "removed",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+        "removed"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "exit_code": 1,
+      "wall_s": 13.926429095008643,
+      "user_cpu_s": 13.368226,
+      "system_cpu_s": 0.703232,
+      "child_max_rss_kib_cumulative": 633388,
+      "output": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/removed.txt",
+      "original_capture_path": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/removed.log",
+      "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/environment.json",
+      "input_closure": "tracked mirrored test selectors and analytic fixture recipe; FS CAS under isolated pytest temp directories",
+      "outcome": "FAIL",
+      "expected_exit_code": 1,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/removed.txt",
+      "output_sha256": "2f979b18bd26ff3c22acc959367d0fcaedaa5ab2ff71f55e8fb4b777424471b0"
+    },
+    {
+      "name": "restored",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+        "restored"
+      ],
+      "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_s": 11.014547804996255,
+      "user_cpu_s": 10.423941,
+      "system_cpu_s": 0.4036780000000001,
+      "child_max_rss_kib_cumulative": 633388,
+      "output": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/restored.txt",
+      "original_capture_path": "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/restored.log",
+      "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/environment.json",
+      "input_closure": "tracked mirrored test selectors and analytic fixture recipe; FS CAS under isolated pytest temp directories",
+      "outcome": "PASS",
+      "expected_exit_code": 0,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/restored.txt",
+      "output_sha256": "84424faeb368fe15ea01d414e8834bd6b596692c1dcc3756085d4cb34d59f19b"
+    },
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "outcome": "PASS",
+      "output": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}"
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff check changed source/test/probe Python paths",
+      "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+      "outcome": "PASS",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/lint.txt"
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+      "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+      "outcome": "UNRUN",
+      "execution_state": "running; exact unified exec session 10058",
+      "output_path": "/workspace/e02-E-20261006-receipts/pcl-architecture.log",
+      "next_owner": "E root collect completion; no PASS or inherited-red attribution"
+    }
+  ],
+  "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/environment.json",
+  "admission_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/admission-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/admission-resume.json"
+  ],
+  "property": {
+    "statement": "A continuous calibration receipt is descriptive only and reproduces full diagnostics from the exact ordered inputs; persisted pairs, report and receipt resolve through the same configured CAS and are recomputed on readback. Unbound raw reports cannot emit a positive receipt.",
+    "runtime_path": [
+      "evaluate_continuous",
+      "persist_continuous_evaluation -> continuous_calibration_pairs + continuous_calibration_diagnostics on configured ArtifactStore",
+      "actual Foundry advanced::_summarize_interval_diagnostics when configured calibration_store supplied",
+      "load_continuous_evaluation -> actual CAS kind/schema/integrity checks -> evaluate_continuous",
+      "CalibrationDiagnosticsReport.to_truthfulness_receipt / canonical generic extraction"
+    ],
+    "oracle": "Independent direct hits =95/100 at nominal.95 gives ECE0;0/100 gives ECE.95. Two requested levels with one missing intervalset: requested200 eligible100 observed200, observed_outcomes100 observed_pairs100 missing100. Empty comparison request remains not_evaluated with100 observed source outcomes.",
+    "negative_controls": [
+      "content-valid false report count",
+      "content-valid false coverage",
+      "content-valid false receipt",
+      "replaced observed outcome",
+      "reordered intervals",
+      "kind/schema mismatch",
+      "raw positive self receipt",
+      "model_copy positive self receipt",
+      "projection mutation invalidates private binding",
+      "missing bootstrap replay seed",
+      "present fake None/bool/float/string/negative seed rejected before callback",
+      "two-dimensional observations",
+      "reversed bounds",
+      "empty and incomplete pair denominators"
+    ],
+    "proxy_divergence": "Exact predecessor base accepts approximate_calibrated from raw n_obs100/ece0 plus self receipt without pairs; same payload on candidate is unverified. Valid CAS hash is still insufficient: changed pair contents with retained report markers reject.",
+    "removal": "Isolated process replaces only two full-report/full-receipt comparison predicates with False guards while retaining schema/ref/result markers: 5 controls fail; fresh restored process passes5."
+  },
+  "predicate_basis": {
+    "numerical_pairs": "recomputed",
+    "CAS_content_integrity": "recomputed",
+    "external_source_split_horizon_temporal_roles": "consumer_asserted when supplied, otherwise not_established",
+    "production_calibration_authority": "not_established; gate_eligible=False",
+    "independence_effective_N": "not_established; repeated levels do not add source independence"
+  },
+  "capability_state_or_finding_state": "bounded producer/artifact/actual caller/readback implemented; higher runtime CAS composition implemented_but_not_orchestrated; source authority not_established",
+  "authority_purpose": "descriptive_predictive_calibration; causal/treatment/policy authority denied",
+  "schema_rule": "internal continuous-calibration-pairs-v1 and diagnostics-v1 CAS kind/schema1.0; public IR wire unchanged; v1.1 uncertainty contracts untouched",
+  "actual_caller_trace": {
+    "caller": "advanced::_summarize_interval_diagnostics",
+    "higher_callers": [
+      "advanced::_evaluate_panel_volatility_scenario",
+      "NonstationaryGARCHEstimator.pure_step segment summary",
+      "NonstationaryGARCHEstimator.pure_step overall summary"
+    ],
+    "runtime_entry": "MethodDispatcher -> NumpyRunner.execute -> pure_step(state,resolved)",
+    "missing_configuration": "MethodRunner protocol offers state/params/seed, NumpyRunner injects only __rng__/__seed__; no configured ArtifactStore reaches these three higher callers",
+    "owner": "Foundry runtime composition owner; E PCL owns canonical producer/loader; A owns shared generation cycle separately"
+  },
+  "review": {
+    "owner": "E root independent reviewer",
+    "candidate": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+    "state": "GO within bounded pair-reconciled continuous diagnostics; gate=false; higher default configured-store orchestration missing",
+    "independent_test_count": 76,
+    "review_receipt_owner": "E root publishes its independent reviews/pcl.json separately"
+  },
+  "limitations_and_next_owner": [
+    "LA-052 remains ledger partial / verdict limited: descriptive math and readback proven, higher configured-store composition belongs to Foundry owner. No production history/source law is inferred from analytic fixture.",
+    "LA-053 remains ledger partial / verdict limited: supported alias is the same canonical objects; compatibility window/deprecation decision and external consumer inventory require canonical calibration and Scientist API owner. No alias retirement or sunset date invented.",
+    "G accepts code separately from finding closure and can reproduce native selectors on exact candidate; production-dependent historical claims, if made, require local read-only original ordered outcomes and intervals with owner-issued source/split/horizon/temporal identities. No full production data is needed for the bounded generic property.",
+    "Architecture job still running at handoff construction; E root must collect exact output/outcome before final combined freeze.",
+    "No inherited-red claim: P41 raw historical replay/input-denominator attribution remains not_established."
+  ],
+  "pattern_pass": [
+    "P01/P02 existing actual caller + configured CAS readback, higher composition gap explicit",
+    "P05/P08/P09/P10/P14 purpose scope, temporal source assumptions, measured denominator and independence retained",
+    "P27/P29/P31/P32/P33 canonical evaluator, full content reproduction, present-fake/removal controls",
+    "P35/P37/P38 exact routed sourcecells + frozen basis + concrete predecessor proxy divergence",
+    "P40 input-identity class: batched full observed-support and common exact bootstrap seed admission",
+    "P41 no inherited attribution"
+  ],
+  "cleanup": {
+    "native_trash_available": "not_established; no permanent deletion performed",
+    "cleanup_candidates": [
+      "/workspace/e02-E-pcl-20261006/node_modules",
+      "/workspace/e02-E-pcl-20261006/package.json",
+      "/workspace/e02-E-pcl-20261006/pnpm-lock.yaml",
+      "/workspace/e02-E-pcl-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-pcl-20261006/policy-engine/_cache/pytest",
+      "/workspace/e02-E-pcl-20261006/policy-engine/policy-engine"
+    ],
+    "preserve": [
+      "/workspace/e02-E-pcl-20261006",
+      "/workspace/e02-E-20261006-receipts/pcl-actual-cas",
+      "all committed deciding outputs, useful documentation and code",
+      "borrowed E-root Python environment remains root-owned until overall work complete"
+    ]
+  },
+  "transport": {
+    "source_remote_verified": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+    "PR": "https://github.com/DenisKopylov/polisyos/pull/52",
+    "attachment": "attach_artifact requested; host RPC stalled and isolated cell terminated after no result; E root notified to attach",
+    "main_push": false,
+    "history": "append-only"
+  }
+}

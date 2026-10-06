@@ -38,11 +38,7 @@ def _validate_rate(
 
 def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
     """Compute per-agent tax liabilities from reported income and an applied rate."""
-    rate = _validate_rate(
-        rate,
-        label="tax rate",
-        dtype=jnp.promote_types(state.agents.reported_income.dtype, jnp.float32),
-    )
+    rate = _validate_rate(rate, label="tax rate", dtype=jnp.promote_types(state.agents.reported_income.dtype, jnp.float32))
     tax = state.agents.reported_income * rate
     active_mask = getattr(state.agents, "active", None)
     if active_mask is None:

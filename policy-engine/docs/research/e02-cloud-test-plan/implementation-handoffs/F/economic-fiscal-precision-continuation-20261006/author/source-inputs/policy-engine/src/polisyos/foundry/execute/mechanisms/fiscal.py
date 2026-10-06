@@ -22,10 +22,8 @@ def _combine_masks(
     return jnp.asarray(target_mask, dtype=jnp.bool_) & jnp.asarray(active_mask, dtype=jnp.bool_)
 
 
-def _validate_rate(
-    rate: jnp.ndarray | float, *, label: str = "rate", dtype=jnp.float32
-) -> jnp.ndarray:
-    rate_arr = jnp.asarray(rate, dtype=dtype)
+def _validate_rate(rate: jnp.ndarray | float, *, label: str = "rate") -> jnp.ndarray:
+    rate_arr = jnp.asarray(rate, dtype=jnp.float32)
     if is_jax_tracer(rate_arr):
         return rate_arr
     rate_np = np.asarray(rate_arr)
@@ -38,11 +36,7 @@ def _validate_rate(
 
 def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
     """Compute per-agent tax liabilities from reported income and an applied rate."""
-    rate = _validate_rate(
-        rate,
-        label="tax rate",
-        dtype=jnp.promote_types(state.agents.reported_income.dtype, jnp.float32),
-    )
+    rate = _validate_rate(rate, label="tax rate")
     tax = state.agents.reported_income * rate
     active_mask = getattr(state.agents, "active", None)
     if active_mask is None:
@@ -62,12 +56,7 @@ class TaxSubsidy(Mechanism):
     target_sector_mask: jnp.ndarray
 
     def __init__(self, rate: float, n_agents: int, **kwargs: Any):
-        # Preserve source precision until the receiving income dtype is known.
-        self.rate = _validate_rate(
-            rate,
-            label="subsidy rate",
-            dtype=jnp.promote_types(jnp.asarray(rate).dtype, jnp.float32),
-        )
+        self.rate = _validate_rate(rate, label="subsidy rate")
         self.target_sector_mask = jnp.ones(n_agents)
         self.fidelity = FidelityLevel.SURROGATE_FLUID
 
@@ -81,10 +70,7 @@ class TaxSubsidy(Mechanism):
         *,
         target_mask=None,
     ) -> tuple[PatchMap, jax.Array]:
-        calculation_dtype = jnp.promote_types(state.agents.income.dtype, jnp.float32)
-        rate = _validate_rate(self.rate, label="subsidy rate", dtype=calculation_dtype)
-        sector_weights = jnp.asarray(self.target_sector_mask, dtype=calculation_dtype)
-        subsidy_amount = state.agents.income * rate * sector_weights
+        subsidy_amount = state.agents.income * self.rate * self.target_sector_mask
         mask = _combine_masks(target_mask, getattr(state.agents, "active", None))
         if mask is not None:
             subsidy_amount = jnp.where(mask, subsidy_amount, 0.0)
@@ -115,12 +101,7 @@ class IncomeTax(Mechanism):
     rate: jnp.ndarray
 
     def __init__(self, rate: float, n_agents: int, **kwargs: Any):
-        # Preserve source precision until the receiving income dtype is known.
-        self.rate = _validate_rate(
-            rate,
-            label="income tax rate",
-            dtype=jnp.promote_types(jnp.asarray(rate).dtype, jnp.float32),
-        )
+        self.rate = _validate_rate(rate, label="income tax rate")
         self.fidelity = FidelityLevel.SURROGATE_FLUID
 
     def init_state(self, state: GlobalState, key: jax.Array) -> tuple[GlobalState, jax.Array]:

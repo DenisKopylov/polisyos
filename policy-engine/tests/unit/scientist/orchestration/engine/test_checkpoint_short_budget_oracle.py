@@ -112,6 +112,7 @@ async def test_original_budget_refuses_new_phases_and_retains_entered_io(
     original_gc = checkpoint_module.gc_checkpoints
     original_mkstemp, original_fsync, original_replace = tempfile.mkstemp, os.fsync, os.replace
     original_read = Path.read_bytes
+    original_read_text = Path.read_text
     head_fds: set[int] = set()
     gc_thread: list[int] = []
     counts = {"checkpoint_put": 0, "head_replace": 0, "gc_entered": 0}
@@ -168,11 +169,11 @@ async def test_original_budget_refuses_new_phases_and_retains_entered_io(
             counts["head_replace"] += 1
         original_replace(source, destination)
 
-    def observed_read(path: Path) -> bytes:
+    def observed_read_text(path: Path, *args: object, **kwargs: object) -> str:
         if stage == "gc_read" and path == history_path and threading.get_ident() in gc_thread:
             history_at_gate.append(original_read(path))
             barrier()
-        return original_read(path)
+        return original_read_text(path, *args, **kwargs)
 
     monkeypatch.setattr(store, "put_json", observed_put)
     monkeypatch.setattr(checkpoint_module, "update_checkpoint_head", observed_head)
@@ -180,7 +181,7 @@ async def test_original_budget_refuses_new_phases_and_retains_entered_io(
     monkeypatch.setattr(tempfile, "mkstemp", observed_mkstemp)
     monkeypatch.setattr(os, "fsync", observed_fsync)
     monkeypatch.setattr(os, "replace", observed_replace)
-    monkeypatch.setattr(Path, "read_bytes", observed_read)
+    monkeypatch.setattr(Path, "read_text", observed_read_text)
     task = asyncio.create_task(executor.execute(workflow, ExperimentState(run_id="R_budget")))
     error: BaseException | None = None
     result = None
@@ -198,7 +199,9 @@ async def test_original_budget_refuses_new_phases_and_retains_entered_io(
             "stop": stop,
             "budget_seconds": 2,
             "error_type": type(error).__name__ if error is not None else None,
-            "error_details": error.details if isinstance(error, WorkflowTimeoutError) else None,
+            "error_details": dict(error.details)
+            if isinstance(error, WorkflowTimeoutError)
+            else None,
             "accepted_result": result is not None,
             "head_at_return": load_checkpoint_head(run_dir) is not None,
             "physical_workers_at_return": async_tools.get_shared_executor()._physical_workers,

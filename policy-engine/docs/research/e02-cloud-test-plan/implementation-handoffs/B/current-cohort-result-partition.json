@@ -7,22 +7,382 @@
   "finding_ids": [],
   "slice_base_sha": "d242c3ceb940ddb322dd0b03659c4ade98554ccb",
   "implementation_commits": [
-    "f600d4cfeffabe36b7ecdaa86596383fcfaecaa4"
+    "f600d4cfeffabe36b7ecdaa86596383fcfaecaa4",
+    "c81c1f1087dc7aed1edc505116c9faadfda3010a",
+    "3cd679570eb1b0b83a0f7f4e3ffe599282815af3"
   ],
-  "candidate_sha": "f600d4cfeffabe36b7ecdaa86596383fcfaecaa4",
-  "candidate_tree_sha": "db4127b27d133c5d5162232b19b2f26d70c99c1a",
+  "candidate_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+  "candidate_tree_sha": "c62e48e50a505bd35fbf3b4e1a97383a561870fd",
   "branch": "codex/e02-B-current-adapters",
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
   "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/format.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/mypy.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/mypy.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/ruff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/syntax.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/syntax.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py"
   ],
   "source_identity": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
-    "bytes": 23529,
-    "sha256": "2e1c4068ceeda898f5f7ec0fda9e30827ca19991743ee9d61ec761823426c507"
+    "bytes": 27053,
+    "sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf"
   },
   "baseline_cells": [],
   "checks": [
+    {
+      "id": "syntax",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-c",
+        "from pathlib import Path; p=Path(\"docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py\"); compile(p.read_bytes(), str(p), \"exec\"); print(\"Syntax PASS; parser not imported or executed\")"
+      ],
+      "target_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "pytest_source_profile": "9.0.2",
+        "process_worker_numerical_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+        "source_bytes": 27053,
+        "execution": "static check only; no parser/native cohort execution"
+      },
+      "returncode": 0,
+      "outcome": "PASS",
+      "tool_reported_wall_seconds": 2.4364e-05,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/syntax.txt",
+        "bytes": 45,
+        "sha256": "e5d79977240302e0849f2d529247258d301e6785ee6f836a924f3f8aec36dd27"
+      }
+    },
+    {
+      "id": "ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py"
+      ],
+      "target_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "pytest_source_profile": "9.0.2",
+        "process_worker_numerical_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+        "source_bytes": 27053,
+        "execution": "static check only; no parser/native cohort execution"
+      },
+      "returncode": 0,
+      "outcome": "PASS",
+      "tool_reported_wall_seconds": 3.3745e-05,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/ruff.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    {
+      "id": "format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py"
+      ],
+      "target_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "pytest_source_profile": "9.0.2",
+        "process_worker_numerical_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+        "source_bytes": 27053,
+        "execution": "static check only; no parser/native cohort execution"
+      },
+      "returncode": 0,
+      "outcome": "PASS",
+      "tool_reported_wall_seconds": 2.4814e-05,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/format.txt",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      }
+    },
+    {
+      "id": "mypy",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py"
+      ],
+      "target_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "pytest_source_profile": "9.0.2",
+        "process_worker_numerical_quota": "none imposed"
+      },
+      "input_closure": {
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+        "source_bytes": 27053,
+        "execution": "static check only; no parser/native cohort execution"
+      },
+      "returncode": 0,
+      "outcome": "PASS",
+      "tool_reported_wall_seconds": 0.338693056,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/mypy.txt",
+        "bytes": 42,
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+      }
+    },
+    {
+      "id": "complete-final-root-case-interpretation",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "--inventory",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json",
+        "--junit",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+        "--wrapper",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+        "--profile",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+        "--selectors",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-selector.json",
+        "--stdout",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+        "--source-sha",
+        "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "--repo",
+        "/workspace/e02-B-current-adapters",
+        "--output",
+        "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/final-root-case-partition-3cd-recorded.json"
+      ],
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "target_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+      "runtime_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "Python 3.14.2",
+        "parser_source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+        "parser_source_bytes": 27053,
+        "process_worker_numerical_quota": "none imposed",
+        "execution": "Read completed root native artifacts only; no pytest import, native test, collection or gate invocation"
+      },
+      "input_closure": {
+        "raw_input_identities": {
+          "inventory": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json",
+            "bytes": 15412075,
+            "sha256": "48b98aad10a0ea46954f6aa0f9f166114f699672b6d332aaf78df8b7e3fe04c8"
+          },
+          "wrapper": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+            "bytes": 2338,
+            "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f"
+          },
+          "profile": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+            "bytes": 10440,
+            "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+          },
+          "selectors": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-selector.json",
+            "bytes": 519067,
+            "sha256": "19207856a245f157f0fd8a478fbf1f69767de17cc62adda1ebdc22bd974d5a05"
+          },
+          "junit": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+            "bytes": 1333443,
+            "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b"
+          },
+          "stdout": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+            "bytes": 1431050,
+            "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7"
+          }
+        },
+        "parser_source_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+        "parser_source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+        "observer_source_sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+        "native_junit_source_sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+        "execution_overlay": "none; completed root artifacts only; no product process invocation"
+      },
+      "returncode": 0,
+      "wall_seconds": 0.39162321800540667,
+      "outcome": "PASS",
+      "outcome_scope": "Parser read/write invocation only; native cohort has actualexit1 and failures/errors, never relabeled PASS.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/actual-parser.txt",
+        "bytes": 2165,
+        "sha256": "8dc1b8974c830537945c58f3dbe47aaeacfc748088b10d4f058fc809f85b22e2"
+      },
+      "repeat_qualification": "First 3cd actual decode produced identical ignored fullpartition; this second cheap data-only decode captures complete deciding stdout durably. No native wave was repeated.",
+      "same_bytes_as_first_decode": true,
+      "original_raw_duplicate_cleanup_candidate": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/final-root-case-partition-3cd.json"
+    }
+  ],
+  "evidence_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/actual-parser.json",
+      "bytes": 4836,
+      "sha256": "cb20db1bffb9dcc6f173cb84116529a3bc32a595c709dbb7041c887767f2886b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/actual-parser.txt",
+      "bytes": 2165,
+      "sha256": "8dc1b8974c830537945c58f3dbe47aaeacfc748088b10d4f058fc809f85b22e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/format.json",
+      "bytes": 1365,
+      "sha256": "0ec4c84614f15cb0862ef0f4f2280d430b06bcc71ac91b903cb6cfdf9f8bf581"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/format.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/mypy.json",
+      "bytes": 1333,
+      "sha256": "f3a978e350018ee2452f87cff1c12995947dc728195d764f6fc2499d9843da06"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/mypy.txt",
+      "bytes": 42,
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/ruff.json",
+      "bytes": 1345,
+      "sha256": "a4146cc1d4300447596df5053cdded3925e7603b3395f8ce221a4c27518e3288"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/ruff.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/syntax.json",
+      "bytes": 1462,
+      "sha256": "dba9856af55b760b1f000e92fd22bc81761148970b53e2082cb073564f8b62a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/syntax.txt",
+      "bytes": 45,
+      "sha256": "e5d79977240302e0849f2d529247258d301e6785ee6f836a924f3f8aec36dd27"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/format.json",
+      "bytes": 1359,
+      "sha256": "64cb9e4bec5ab7481c192056ef9f4e3d442c0406ffc89f0bc61eac6152dc54ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/format.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/mypy.json",
+      "bytes": 1327,
+      "sha256": "22fddc1845d127e0c986f0ff63e31b948cb5f370a77814183e879209ed1c32ab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/mypy.txt",
+      "bytes": 42,
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/ruff.json",
+      "bytes": 1339,
+      "sha256": "0f71f35b4e6dcda4f2fa7c64af4e753abec0c40ce84d4f0d8213892ada8f73f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/ruff.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/syntax.json",
+      "bytes": 1456,
+      "sha256": "3b4c6aa29387e1b2294a1ef672d120f23aaed7c5767826aabb7cf3a3767a635b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/syntax.txt",
+      "bytes": 45,
+      "sha256": "e5d79977240302e0849f2d529247258d301e6785ee6f836a924f3f8aec36dd27"
+    }
+  ],
+  "property": {
+    "statement": "Interpret the complete observed real case/phase/collector/JUnit set with one primary state per unambiguous native case, preserve mixed phases and actual process exit separately.",
+    "runtime_path": [
+      "root actual pytest wave at4e7",
+      "frozen e692 observer inventory and native JUnit plus wait4/profile/selector/fullstdout",
+      "this read-only parser",
+      "ignored fullcase partition and moderate receipt"
+    ],
+    "proxy_divergence": "Call failure plus teardown error emits two native XML testcase representations for one actual nodeid; summary counts cannot substitute for all source reports.",
+    "negative_controls": [
+      "Independent RUN source AST discriminator: historicalf600/c81 2match2difference, final3cd 4match0difference; exact stdout/source companions bound in independent review above.",
+      "No extra pytest/cohort/collection invocation by this leaf. ActualrootERROR/FAIL remain in the complete partition instead of being omitted to make the parser green."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Complete actual input interpretation from source-bound reports; does not decide property adequacy, institutional permission, all read-sets or inherited-red ownership.",
+  "capability_state_or_finding_state": "observed_completed_native_report_partition; nativeFAIL/ERROR preserved; no finding closures",
+  "limitations_and_next_owner": [
+    "Root owns final native wave source4e7 and actual wait4 exit1; root/G adjudicate25 callFAIL and252 setupERROR on exactsource/input, with P41 before inherited-red attribution. No automatic finding closure or defect diagnosis from counts.",
+    "Six setupSKIP remain actual runtime skips; collection222 allpassed,0deselected,0XFAIL/XPASS/UNRUN.14 absent namedselectors remain UNRUN_named_selector_absent in original manifest, with no fabricated case cardinality.",
+    "Both collection/definition files observed110.py and2253same lexicalpaths in this invocation; no numericfile premise or universal symlink/inode proof.",
+    "5437 hook-time module entries/5215 distinct backingfiles: all5215 reads stable,2181 tracked Git-byte matches,3034 have no tracked match premise; child/transient/resource/service/in-memory/finalization reads not established.",
+    "Full inventory15412075B and partition4297291B remain cloud-local ignored artifacts; original native fullstdout/JUnit portable publication is root-owned. G must fetch deciding bytes or rerun exact declared command if a conclusion depends on unavailable complete inputs; a compact summary is not a substitute.",
+    "Future unsupported rerun/subtest/xdist/custom metadata profiles remain outside declaredplainpytest9 interpretation. All27 explicit binding/identity/native-projection checks true here does not imply allPASS."
+  ],
+  "actual_execution": {
+    "parser": "COMPLETE full six-input data-only decode; same result bytes across two cheap decodes",
+    "native_cohort_by_this_leaf": "UNRUN; nativewave performed once byroot and preserved above",
+    "collection_by_this_leaf": "UNRUN",
+    "finding_closure": "none"
+  },
+  "interpretation_guide": {
+    "source_sha": "b766309e4cf887fbd2b4bcea13e59d4dc16831f8",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-consumer-guide.json",
+    "sha256": "a98693e2dfeedc16f4ca34624c0ace0411d6c86cc7ed4cdbf96a1ad6c3226f13"
+  },
+  "observer_review": {
+    "source_sha": "8d01c7b07976ae1b500c8c07e73a120fdebb82dd",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-source-review.json",
+    "sha256": "a6d09fbba039c52502d7b9e59abd40a1fbb4bfd02028d66cbe1630c846663d3c",
+    "scope": "Independent CMP source-only observer review; parser actual runtime remains UNRUN."
+  },
+  "earlier_source_checks": [
     {
       "id": "syntax",
       "command": [
@@ -150,83 +510,203 @@
       }
     }
   ],
-  "evidence_companions": [
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/syntax.json",
-      "bytes": 1456,
-      "sha256": "3b4c6aa29387e1b2294a1ef672d120f23aaed7c5767826aabb7cf3a3767a635b"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/syntax.txt",
-      "bytes": 45,
-      "sha256": "e5d79977240302e0849f2d529247258d301e6785ee6f836a924f3f8aec36dd27"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/ruff.json",
-      "bytes": 1339,
-      "sha256": "0f71f35b4e6dcda4f2fa7c64af4e753abec0c40ce84d4f0d8213892ada8f73f3"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/ruff.txt",
-      "bytes": 19,
-      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/format.json",
-      "bytes": 1359,
-      "sha256": "64cb9e4bec5ab7481c192056ef9f4e3d442c0406ffc89f0bc61eac6152dc54ee"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/format.txt",
-      "bytes": 25,
-      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/mypy.json",
-      "bytes": 1327,
-      "sha256": "22fddc1845d127e0c986f0ff63e31b948cb5f370a77814183e879209ed1c32ab"
-    },
-    {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/static/mypy.txt",
-      "bytes": 42,
-      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
-    }
+  "mechanism_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py"
   ],
-  "property": {
-    "statement": "Interpret the complete observed real case/phase/collector/JUnit set with one primary state per unambiguous native case, preserve mixed phases and actual process exit separately.",
-    "runtime_path": [
-      "root actual pytest wave at4e7",
-      "frozen e692 observer inventory and native JUnit plus wait4/profile/selector/fullstdout",
-      "this read-only parser",
-      "ignored fullcase partition and moderate receipt"
-    ],
-    "proxy_divergence": "Call failure plus teardown error emits two native XML testcase representations for one actual nodeid; summary counts cannot substitute for all source reports.",
-    "negative_controls": [
-      "Parser refuses a non-session_finished inventory; actual execution is pending the final root completed artifacts, no synthetic gate PASS."
-    ]
+  "source_checkpoint_qualifications": {
+    "f600": "historical nonfinal: definition-path ambiguity and non-BMP native mapping mismatch; no actualroot parse on this source",
+    "c81": "historical nonfinal: dualfiledenominator accepted but native regex mismatch; no actualroot parse on this source",
+    "3cd": "final source-only independent review accepted; actual complete data-only parse performed twice with identical partition bytes to retain durable stdout; no repeated native wave"
   },
-  "predicate_basis": "recomputed",
-  "predicate_scope": "Static source checks only so far; actual interpretation waits on the root final wave.",
-  "capability_state_or_finding_state": "verification_missing: actual completed input parse UNRUN",
-  "limitations_and_next_owner": [
-    "Root owns only native wave, source4e7a4924e6466e1b4eaa39b504435a1243aeb90b/tree9beb525a5dfd68a610ceb719d4f5b802c3da0e2c. No duplicate pytest/collection/gates invoked.",
-    "Only plain unique-nodeid single-attempt native pytest9.0.2 is interpreted as an exclusive case partition; unsupported repeated/subtest/xdist profiles remain explicit.",
-    "Case states never prove scientific criterion adequacy/finding closure or all resource/source/service reads. Hook-time module origins and hook argument exit remain bounded observations."
-  ],
-  "actual_execution": {
-    "parser": "UNRUN awaiting completed root artifacts",
-    "native_cohort_by_this_leaf": "UNRUN",
-    "collection_by_this_leaf": "UNRUN"
+  "independent_parser_source_review": {
+    "source_sha": "ade80582565bb7b4ab53120ff5da54f854de867e",
+    "source_tree_sha": "14b3ae6fe92256db732b954d72dadccb645bbcef",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/review.json",
+    "bytes": 22223,
+    "sha256": "1b94b2f181b74ff91301befb128d0d98b46fe1659d208b3d52c50ccb8d59441b",
+    "reviewed_source_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+    "scope": "Bounded RUN source-only review and pure source AST native regex discriminator; actual case outputs independently interpreted by this leaf, not claimed as reviewer runtime"
   },
-  "interpretation_guide": {
-    "source_sha": "b766309e4cf887fbd2b4bcea13e59d4dc16831f8",
-    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-consumer-guide.json",
-    "sha256": "a98693e2dfeedc16f4ca34624c0ace0411d6c86cc7ed4cdbf96a1ad6c3226f13"
+  "raw_partition": {
+    "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/final-root-case-partition-3cd-recorded.json",
+    "bytes": 4297291,
+    "sha256": "ecd0944bf9ca6a02f2785b06ca7e7e6d2f1830a9b3f30f0125cf8fe700730492",
+    "storage": "ignored full derived case/event partition; not tracked as a large duplicate of source inventory"
   },
-  "observer_review": {
-    "source_sha": "8d01c7b07976ae1b500c8c07e73a120fdebb82dd",
-    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-source-review.json",
-    "sha256": "a6d09fbba039c52502d7b9e59abd40a1fbb4bfd02028d66cbe1630c846663d3c",
-    "scope": "Independent CMP source-only observer review; parser actual runtime remains UNRUN."
+  "runtime_wave": {
+    "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "source_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+    "input_identities": {
+      "inventory": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json",
+        "bytes": 15412075,
+        "sha256": "48b98aad10a0ea46954f6aa0f9f166114f699672b6d332aaf78df8b7e3fe04c8"
+      },
+      "wrapper": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+        "bytes": 2338,
+        "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f"
+      },
+      "profile": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+        "bytes": 10440,
+        "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+      },
+      "selectors": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-selector.json",
+        "bytes": 519067,
+        "sha256": "19207856a245f157f0fd8a478fbf1f69767de17cc62adda1ebdc22bd974d5a05"
+      },
+      "junit": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+        "bytes": 1333443,
+        "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b"
+      },
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+        "bytes": 1431050,
+        "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7"
+      }
+    },
+    "actual_process_exit_code": 1,
+    "grade": "Real root native execution; preservedFAIL/ERROR/SKIP, not a green/cohort finding-closure claim"
+  },
+  "observed_summary": {
+    "case_counts": {
+      "PASS": 1970,
+      "FAIL": 25,
+      "ERROR": 252,
+      "XFAIL": 0,
+      "SKIP": 6,
+      "UNRUN": 0
+    },
+    "denominators": {
+      "requested_whole_files": 110,
+      "session_item_entries": 2253,
+      "unique_nodeids": 2253,
+      "collection_file_types_item_entries": {
+        ".py": 2253
+      },
+      "definition_path_file_types_item_entries": {
+        ".py": 2253
+      },
+      "distinct_collection_files": 110,
+      "distinct_definition_paths": 110,
+      "distinct_collection_file_types": {
+        ".py": 110
+      },
+      "distinct_definition_path_file_types": {
+        ".py": 110
+      },
+      "phase_reports": 6501,
+      "collection_reports": 222,
+      "deselected_item_entries": 0,
+      "junit_representations": 2253
+    },
+    "phase_event_counts": {
+      "setup/passed/passed": 1995,
+      "call/passed/passed": 1970,
+      "teardown/passed/passed": 2253,
+      "call/failed/failed": 25,
+      "setup/failed/failed": 252,
+      "setup/skipped/skipped": 6
+    },
+    "collection_event_counts": {
+      "passed": 222
+    },
+    "session": {
+      "observer_state": "session_finished",
+      "observed_sessionfinish_exitstatus_argument": 1,
+      "actual_wait4_exit_code": 1,
+      "hook_argument_matches_wait4": true,
+      "session_testsfailed_report_count": 277,
+      "session_testscollected": 2253,
+      "wall_seconds": 946.6183245200082,
+      "process_rusage_maxrss_kib": 1546164,
+      "exit_boundary": "Hook argument is not guaranteed final exit; actual wait4 code is independent deciding status."
+    },
+    "module_origin_summary": {
+      "native_junit_file_backend_indexes": [
+        63
+      ],
+      "native_junit_source_expected_sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+      "native_junit_source_matches_expected": true,
+      "module_entry_denominator": 5437,
+      "distinct_file_backend_denominator": 5215,
+      "recorded_denominator_match": true,
+      "module_states": {
+        "file_backed_module": 5290,
+        "fileless_module": 146,
+        "non_module_entry": 1
+      },
+      "file_scopes": {
+        "standard_library_file": 292,
+        "repository_untracked_or_ignored_file": 2742,
+        "repository_tracked_file": 2181
+      },
+      "file_backends": {
+        "file_backed_loader_origin": 4961,
+        "extension_module_file": 254
+      },
+      "file_types": {
+        ".py": 4961,
+        ".so": 254
+      },
+      "read_states": {
+        "read": 5215
+      },
+      "git_byte_match": {
+        "None": 3034,
+        "True": 2181
+      },
+      "nonmatching_or_unreadable_file_indexes": [],
+      "loaded_instrument_source_git_byte_match": true,
+      "boundary": "Hook-time declared origins/backing bytes only; no loader read-set, after-finalization, child, transient or resource/service census."
+    },
+    "collection_definition_relation": {
+      "normalization": "Root-relative lexical normpath; not symlink/inode/read-set proof.",
+      "same_lexical_path_cases": 2253,
+      "different_declared_path_cases": 0,
+      "mismatching_case_indices": []
+    },
+    "nonstrict_xpass_cases": 0,
+    "strict_xpass_cases": 0,
+    "incomplete_cases": 0,
+    "reconciliation_check_count": 27
+  },
+  "reconciliation_checks": {
+    "pytest_source_profile": true,
+    "plain_single_process_observation": true,
+    "phase_annotations_present": true,
+    "session_count_binding": true,
+    "wrapper_source": true,
+    "profile_source": true,
+    "same_source_tree": true,
+    "observer_start_source": true,
+    "observer_finish_source": true,
+    "observer_source_tree": true,
+    "same_command": true,
+    "same_cwd": true,
+    "stdout_binding": true,
+    "selector_hash_binding": true,
+    "selector_list_binding": true,
+    "selector_denominator": true,
+    "case_identity_unique": true,
+    "case_partition_total": true,
+    "case_file_groupings_complete": true,
+    "all_reports_have_admitted_nodeid": true,
+    "same_junit_path": true,
+    "native_xml_case_projection": true,
+    "native_junit_source_profile": true,
+    "native_xml_collector_projection": true,
+    "origins_recorded_denominators": true,
+    "instrument_byte_match": true,
+    "every_xml_representation_assigned": true
+  },
+  "junit_projection_agreement": {
+    "case_projection_mismatches": [],
+    "collector_projection_mismatches": [],
+    "all_native_case_projections_match": true,
+    "all_native_collector_projections_match": true
   }
 }

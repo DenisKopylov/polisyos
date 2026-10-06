@@ -1,0 +1,33 @@
+{
+  "id": "format",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py"
+  ],
+  "target_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "environment": {
+    "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "python_version": "3.14.2",
+    "pytest_source_profile": "9.0.2",
+    "process_worker_numerical_quota": "none imposed"
+  },
+  "input_closure": {
+    "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+    "source_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+    "source_bytes": 27053,
+    "execution": "static check only; no parser/native cohort execution"
+  },
+  "returncode": 0,
+  "outcome": "PASS",
+  "tool_reported_wall_seconds": 2.4814e-05,
+  "output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition-evidence/final-static/format.txt",
+    "bytes": 25,
+    "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+  }
+}

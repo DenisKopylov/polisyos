@@ -144,3 +144,25 @@ async def test_native_http_cache_reported_cost_cannot_disagree_with_paid_origin(
         await enforcer.generate(user="original request", temperature=0.0, _prompt_tokens_estimate=1)
     assert middleware.resolve_spend_safe(origin.ack.receipts[0].event_id) == origin.ack.receipts[0]
     assert gateway.transport.calls == 1 and middleware.budget_state.spent["run"] == 1
+
+
+@pytest.mark.asyncio
+async def test_native_http_estimated_origin_remains_estimated_on_unchanged_cache_reuse(tmp_path):
+    gateway = _text["TextGateway"](
+        _text["response_text"]("usage", "cost_usd", "null"), model="gpt-3.5-turbo"
+    )
+    _, _, enforcer, middleware, _ = _owner["_durable_stack"](tmp_path, gateway=gateway)
+    first = await enforcer.generate(
+        user="original request", temperature=0.0, _prompt_tokens_estimate=1
+    )
+    original = producer_settlement(first)
+    assert original.event.cost_origin == "estimated" and original.event.amount > 0
+    with funnel_resource_receipt_context(middleware):
+        reused = await enforcer.generate(
+            user="original request", temperature=0.0, _prompt_tokens_estimate=1
+        )
+    actual = producer_settlement(reused)
+    assert actual.event.kind == "reuse" and actual.event.amount == 0
+    assert actual.event.origin_event_id == original.event.event_id
+    assert gateway.transport.calls == 1
+    assert middleware.budget_state.spent["run"] == original.event.amount

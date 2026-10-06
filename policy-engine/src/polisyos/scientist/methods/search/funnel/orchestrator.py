@@ -525,7 +525,12 @@ class FunnelOrchestrator:
                     reuse = [event for event in fresh if event.kind == "reuse"]
                     has_reported = any(event.cost_origin == "reported" for event in events)
                     has_reuse = any(event.kind == "reuse" for event in events)
+                    recorded = sum((event.amount for event in fresh), Decimal(0))
                     feedback = dict(result.feedback)
+                    # This is confirmed local accounting, including any amount
+                    # the existing producer explicitly estimated. Only the
+                    # reported subset below is provider-reported spend.
+                    feedback["resource_local_recorded_spend_usd"] = str(recorded)
                     feedback["resource_settlement_sources"] = {
                         event.event_id: event.cost_origin for event in events
                     }
@@ -545,6 +550,7 @@ class FunnelOrchestrator:
                         result = replace(
                             result,
                             is_promising=False,
+                            terminal_action="reject",
                             failure_cards=[
                                 *result.failure_cards,
                                 TypedFailureCard(
@@ -564,6 +570,7 @@ class FunnelOrchestrator:
                     result = replace(
                         result,
                         feedback=feedback,
+                        compute_actual_usd=float(recorded),
                         resource_event_ids=tuple(event.event_id for event in events),
                         provider_spend_usd=measured if has_reported or has_reuse else None,
                         compute_cost_source="mixed" if has_reported or has_reuse else "estimated",

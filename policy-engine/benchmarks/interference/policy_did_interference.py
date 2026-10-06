@@ -39,7 +39,9 @@ from benchmarks.reporting import (  # noqa: E402
     print_preflight,
 )
 from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
-from polisyos.foundry.methods.catalog.causal.did import StandardDifferenceInDifferences  # noqa: E402
+from polisyos.foundry.methods.catalog.causal.did import (  # noqa: E402
+    StandardDifferenceInDifferences,
+)
 from polisyos.foundry.methods.catalog.causal.interference import (
     identify_interference_effect,  # noqa: E402
 )

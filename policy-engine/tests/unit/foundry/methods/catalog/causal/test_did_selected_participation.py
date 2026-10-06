@@ -240,19 +240,23 @@ def _dgp(seed, *, shift):
 def test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds():
     """A bounded known-DGP check, not a nominal-coverage claim on admitted real data."""
     repetitions = 160
-    rejected, covered, powered = 0, 0, 0
+    rejected, covered, powered, alternative_covered = 0, 0, 0, 0
     for replication in range(repetitions):
         seed = 73000 + replication
         null = _run(_dgp(seed, shift=0.0), seed=seed + 1000)
         alternative = _run(_dgp(seed, shift=1.5), seed=seed + 1000)
         assert null.status is alternative.status is EstimationStatus.SUCCESS
-        rejected += null.p_value < 0.05
+        rejected += null.method_params["null_rejected"]
         covered += null.confidence_interval[0] <= 0.0 <= null.confidence_interval[1]
-        powered += alternative.p_value < 0.05
+        powered += alternative.method_params["null_rejected"]
+        alternative_covered += (
+            alternative.confidence_interval[0] <= 1.5 <= alternative.confidence_interval[1]
+        )
     lower, upper = binom.interval(0.995, repetitions, 0.05)
     assert lower <= rejected <= upper, (rejected, lower, upper)
     lower, upper = binom.interval(0.995, repetitions, 0.95)
     assert lower <= covered <= upper, (covered, lower, upper)
+    assert lower <= alternative_covered <= upper, (alternative_covered, lower, upper)
     assert powered >= 0.95 * repetitions
     print(
         {
@@ -260,6 +264,7 @@ def test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds():
             "null_rejected": rejected,
             "null_covered": covered,
             "alternative_rejected": powered,
+            "alternative_covered": alternative_covered,
             "confidence": 0.995,
             "size": "pointwise iid-unit asymptotic only",
         }

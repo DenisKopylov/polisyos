@@ -1,0 +1,1706 @@
+{
+  "schema": "F-root-current35-adjudication/1",
+  "scope": "complete35",
+  "root_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "root_source_tree_sha": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "formal_G_ledger_acceptance": "not_issued",
+  "rows": [
+    {
+      "finding_id": "B204",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Standard DiD: estimable pre/post contrast, ATT3, truthful pretrend states; no identification proof",
+      "actual_consumer": "StandardDifferenceInDifferences.pure_step → canonical report; root diagnostic reader is a separate bound consumer",
+      "source_scope": "Standard estimability and honest pretrend disposition, hand ATT3",
+      "oracle_and_negative": "Zero-pre guard removal FAIL; native ATT3, not_testable/nonrejection/violation, retained time_treatment-only diagnostic attack",
+      "original_criterion_remainder": "None for this original finite design predicate.",
+      "separate_unavailable_inputs_or_authority": "Untreated real parallel trends and causal identification are not established by pretrend nonsignificance.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Standard estimability and honest pretrend disposition, hand ATT3. Independent oracle/retained-marker negative: Zero-pre guard removal FAIL; native ATT3, not_testable/nonrejection/violation, retained time_treatment-only diagnostic attack. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+          "json_pointer": "/per_finding/B204"
+        },
+        {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+          "json_pointer": "/per_finding/B204"
+        }
+      ]
+    },
+    {
+      "finding_id": "B205",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Standard DiD HC1/CR0 covariance with unit clustering",
+      "actual_consumer": "StandardDifferenceInDifferences.pure_step → actual OLS scores/unit groups → report",
+      "source_scope": "Actual HC1 and unit-cluster CR0 execution",
+      "oracle_and_negative": "Independent Statsmodels HC1/CR0, duplicated periods and unit identity; HC1-for-CR0 removal FAIL",
+      "original_criterion_remainder": "None in declared large-unit covariance algebra.",
+      "separate_unavailable_inputs_or_authority": "Small-cluster nominal coverage and real-design admission remain outside property.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Actual HC1 and unit-cluster CR0 execution. Independent oracle/retained-marker negative: Independent Statsmodels HC1/CR0, duplicated periods and unit identity; HC1-for-CR0 removal FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+          "json_pointer": "/per_finding/B205"
+        },
+        {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+          "json_pointer": "/per_finding/B205"
+        }
+      ]
+    },
+    {
+      "finding_id": "B206",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Requested confidence level in BOTH Standard DiD and sharp RDD",
+      "actual_consumer": "StandardDifferenceInDifferences AND RegressionDiscontinuity → native report → MethodJob/CAS/canonical dematerializer/fresh reader",
+      "source_scope": "Requested confidence level actually changes BOTH DiD and RDD bounds",
+      "oracle_and_negative": "80/95/99 quantiles, point preservation/invalid levels; hardcoded95 removal FAIL; RBC current source supplement",
+      "original_criterion_remainder": "None in requested-level interval construction.",
+      "separate_unavailable_inputs_or_authority": "This does not prove B205 covariance or B210 RBC coverage.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Requested confidence level actually changes BOTH DiD and RDD bounds. Independent oracle/retained-marker negative: 80/95/99 quantiles, point preservation/invalid levels; hardcoded95 removal FAIL; RBC current source supplement. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+          "json_pointer": "/per_finding/B206"
+        },
+        {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+          "json_pointer": "/per_finding/B206"
+        }
+      ]
+    },
+    {
+      "finding_id": "B207",
+      "check": "PASS",
+      "outcome": "limited",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Selected-cohort scalar/share-ratio influence function under declared IID-unit profile",
+      "actual_consumer": "StaggeredDifferenceInDifferences → genuine MethodJob/CAS → fresh report reader",
+      "source_scope": "Fixed selected-participation estimand with estimated-share ratio IF and one iid unit multiplier",
+      "oracle_and_negative": "Independent share derivative and shared-unit law; single-cell variance, serial multi-cohort MC160 retained, share-IF removal FAIL",
+      "original_criterion_remainder": "Original selected iid-unit scientific discriminator is established; final composition source must stay distinct.",
+      "separate_unavailable_inputs_or_authority": "Full production EvalSafety/admitted units/real graph and parallel trends remain UNRUN separately.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Fixed selected-participation estimand with estimated-share ratio IF and one iid unit multiplier. Independent oracle/retained-marker negative: Independent share derivative and shared-unit law; single-cell variance, serial multi-cohort MC160 retained, share-IF removal FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+          "json_pointer": "/per_finding/B207"
+        },
+        {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+          "json_pointer": "/per_finding/B207"
+        }
+      ]
+    },
+    {
+      "finding_id": "B208",
+      "check": "PASS",
+      "outcome": "limited",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "One centered studentized unit-bootstrap null test and consistent CI inversion",
+      "actual_consumer": "StaggeredDifferenceInDifferences → result null/CI → actual native consumer",
+      "source_scope": "Centered studentized null test with the SAME closed finite-B CI inversion",
+      "oracle_and_negative": "MC160 exact oldsource null6/160 and coverage154/160; endpoint integer-tail24 controls and uncentered removal FAIL",
+      "original_criterion_remainder": "None in selected pointwise iid-unit finite-B law.",
+      "separate_unavailable_inputs_or_authority": "No small-G/simultaneous/real-data coverage claim.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Centered studentized null test with the SAME closed finite-B CI inversion. Independent oracle/retained-marker negative: MC160 exact oldsource null6/160 and coverage154/160; endpoint integer-tail24 controls and uncentered removal FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+          "json_pointer": "/per_finding/B208"
+        },
+        {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+          "json_pointer": "/per_finding/B208"
+        }
+      ]
+    },
+    {
+      "finding_id": "B209",
+      "check": "PASS",
+      "outcome": "limited",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Fixed eligible horizons and full-cohort anticipation/baseline admission",
+      "actual_consumer": "StaggeredDifferenceInDifferences → whole requested cohort admission → CAS refusal/readback",
+      "source_scope": "Anticipation-safe controls and full fixed eligible-horizon target; no silent drops",
+      "oracle_and_negative": "g=t+a excluded, never-treated/a0 positive; missing baseline/support refuses full requested target; changed E changes binding",
+      "original_criterion_remainder": "None in declared synthetic eligibility predicate.",
+      "separate_unavailable_inputs_or_authority": "Chosen anticipation window is not empirical proof of a real window.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Anticipation-safe controls and full fixed eligible-horizon target; no silent drops. Independent oracle/retained-marker negative: g=t+a excluded, never-treated/a0 positive; missing baseline/support refuses full requested target; changed E changes binding. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+          "json_pointer": "/per_finding/B209"
+        },
+        {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+          "json_pointer": "/per_finding/B209"
+        }
+      ]
+    },
+    {
+      "finding_id": "B210",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Finite sharp RDD RBC/HC0 profile with real rdrobust oracle",
+      "actual_consumer": "RegressionDiscontinuity → MethodJob/CAS → canonical dematerializer/fresh reader",
+      "source_scope": "Sharp fixed-profile CCT robust bias correction and variance",
+      "oracle_and_negative": "Actual rdrobust2.1.0 dev parity36 + two2000-replicate coverage groups; repaired full removal4036 rejects",
+      "original_criterion_remainder": "None for selected finite sharp HC0 profile.",
+      "separate_unavailable_inputs_or_authority": "No fuzzy/cluster/selector/real-design identification; no parallel shim.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Sharp fixed-profile CCT robust bias correction and variance. Independent oracle/retained-marker negative: Actual rdrobust2.1.0 dev parity36 + two2000-replicate coverage groups; repaired full removal4036 rejects. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+          "bytes": 68616,
+          "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60"
+        }
+      ]
+    },
+    {
+      "finding_id": "B211",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Weighted RDD algebra and supported kernels/design orders",
+      "actual_consumer": "RegressionDiscontinuity weighted design → report/dispatcher",
+      "source_scope": "RDD weighted O(np) structures preserve supported numerical kernels/order/SE",
+      "oracle_and_negative": "Native permutation/kernel/order/reference and no dense diag control",
+      "original_criterion_remainder": "None in selected supported linear-algebra property.",
+      "separate_unavailable_inputs_or_authority": "No whole-estimator measured speedup or new statistical law inferred.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: RDD weighted O(np) structures preserve supported numerical kernels/order/SE. Independent oracle/retained-marker negative: Native permutation/kernel/order/reference and no dense diag control. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+          "bytes": 68616,
+          "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60"
+        }
+      ]
+    },
+    {
+      "finding_id": "B212",
+      "check": "PASS",
+      "outcome": "limited",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Actual backend shapes and point-only noneligible result disposition",
+      "actual_consumer": "DoWhyIdentifyEstimate → actual Python3.12 worker estimate → parent report/CAS → fresh3.14 reader",
+      "source_scope": "Real backend point-only uncertainty has NO invented CI; real CI stays compatible",
+      "oracle_and_negative": "Actual estimate getCI None remains noneligible point-only; malformed numeric shapes refuse; genuine backend property removal",
+      "original_criterion_remainder": "Finite original backend/shape criterion measured; latest root/installed receipt composition must remain exact.",
+      "separate_unavailable_inputs_or_authority": "Production source/identification authority and optional unselected3.14 backend are UNRUN.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Real backend point-only uncertainty has NO invented CI; real CI stays compatible. Independent oracle/retained-marker negative: Actual estimate getCI None remains noneligible point-only; malformed numeric shapes refuse; genuine backend property removal. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+          "bytes": 93732,
+          "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833"
+        },
+        {
+          "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+          "bytes": 93732,
+          "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833",
+          "json_pointer": "/per_finding/0"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+          "bytes": 209475,
+          "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+          "json_pointer": "/per_id/B212"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+          "bytes": 71310,
+          "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde",
+          "json_pointer": "/per_id/B212"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "B213",
+      "check": "PASS",
+      "outcome": "limited",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Actual estimand_type/contrast/target and identify_effect/estimate_effect request binding on maintained dispatcher/worker profile",
+      "actual_consumer": "DoWhyIdentifyEstimate → actual requested estimand_type/contrast/target → genuine identify_effect/estimate_effect → canonical report factory and persisted CAS/fresh reader",
+      "source_scope": "Request estimand type/contrast/target and actual backend identification/estimation binding",
+      "oracle_and_negative": "Actual supported ATE/backdoor adjustment, independent OLS; unsupported requests refuse; source/CAS payload binding negatives",
+      "original_criterion_remainder": "Selected ATE finite profile only, not universal backend method capability.",
+      "separate_unavailable_inputs_or_authority": "Admitted real-world graph/source validity and authority positive remain UNRUN.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Request estimand type/contrast/target and actual backend identification/estimation binding. Independent oracle/retained-marker negative: Actual supported ATE/backdoor adjustment, independent OLS; unsupported requests refuse; source/CAS payload binding negatives. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+          "bytes": 93732,
+          "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833"
+        },
+        {
+          "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+          "bytes": 93732,
+          "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833",
+          "json_pointer": "/per_finding/1"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+          "bytes": 209475,
+          "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+          "json_pointer": "/per_id/B213"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+          "bytes": 71310,
+          "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde",
+          "json_pointer": "/per_id/B213"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "B214",
+      "check": "PASS",
+      "outcome": "limited",
+      "technical_original_criterion_recommendation": "limited",
+      "criterion_short_ru": "Endpoint-preserving canonical graph intake; unresolved PAG/circles refuse static identification",
+      "actual_consumer": "ReconcileCausalGraph intake/CAS + static ADMG/GCM consumers",
+      "source_scope": "Known reversed arrow normalization and explicit unresolved endpoint/cycle refusal",
+      "oracle_and_negative": "Source reverse-arrow positive and circle/PAG/lag typed refusal; static518 now rejects all6 unsupported endpoint pairs",
+      "original_criterion_remainder": "Latest shared518 static entry admission and reverse normalization are measured. Canonical DAG Scientist node profile does not claim arbitrary PAG/CPDAG completion or protected readiness. Keep current limited without a new original-per-ID authority decision.",
+      "separate_unavailable_inputs_or_authority": "General PAG identification and protected authority are not claimed.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Known reversed arrow normalization and explicit unresolved endpoint/cycle refusal. Independent oracle/retained-marker negative: Source reverse-arrow positive and circle/PAG/lag typed refusal; static518 now rejects all6 unsupported endpoint pairs. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/0"
+        },
+        {
+          "head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+          "bytes": 150755,
+          "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e",
+          "json_pointer": "/per_finding/0"
+        }
+      ]
+    },
+    {
+      "finding_id": "B215",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Declared affine Gaussian conditioning and evidence/singular-law semantics",
+      "actual_consumer": "GCMQuery/TwinNetworkQuery → typed conditional result → genuine CAS/fresh reader",
+      "source_scope": "Actual conditional Gaussian noise posterior and complete-fact residual inverse",
+      "oracle_and_negative": "Independent affine Gaussian mean/cov/singular evidence; Y2 gives Uy mean1/var.5; fullX1Y2→Y0=1",
+      "original_criterion_remainder": "None for declared affine Gaussian profile.",
+      "separate_unavailable_inputs_or_authority": "Nonlinear/unknown-law partial posterior is typed limited; no real-data identification.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Actual conditional Gaussian noise posterior and complete-fact residual inverse. Independent oracle/retained-marker negative: Independent affine Gaussian mean/cov/singular evidence; Y2 gives Uy mean1/var.5; fullX1Y2→Y0=1. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/1"
+        }
+      ]
+    },
+    {
+      "finding_id": "B216",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Independent static ADMG m-separation plus actual do/sigma/ID/IDC/IDC*/AMN/CTF callers",
+      "actual_consumer": "CachedAdjacency/m_separation → actual do/sigma/ID/IDC/IDC*/AMN/CTF finite static ADMG callers",
+      "source_scope": "Endpoint-aware m-separation AND actual do/sigma/IDC consumer paths",
+      "oracle_and_negative": "200ADMG×12 independent latent moralization plus static518 real fork/collider/descendant, do/sigma, two actual IDC ID calls and IDC*",
+      "original_criterion_remainder": "Finite supported fully specified static ADMG only; malformed fixture failures retained.",
+      "separate_unavailable_inputs_or_authority": "No completeness for arbitrary PAG/temporal identification.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Endpoint-aware m-separation AND actual do/sigma/IDC consumer paths. Independent oracle/retained-marker negative: 200ADMG×12 independent latent moralization plus static518 real fork/collider/descendant, do/sigma, two actual IDC ID calls and IDC*. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/2"
+        },
+        {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+          "bytes": 50088,
+          "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+          "json_pointer": "/per_id/B216"
+        },
+        {
+          "head": "46bbfa53adc8da775a08b66b80d02109cc5b2db8",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006.json",
+          "bytes": 62265,
+          "sha256": "64f54650f7e13d33c11a7ac4fa84b48e25abef1183349a9c38dec96496e3913c",
+          "json_pointer": "/per_id/B216"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "B217",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Perfect graph surgery including bidirected-edge cuts",
+      "actual_consumer": "ADMG perfect surgery → real Rule3/do consumer",
+      "source_scope": "Perfect do removes latent incoming ends and preserves outgoing effects",
+      "oracle_and_negative": "200graphs×8actions×12 explicit latent-DAG surgery; bidirected-cut removal FAIL; known reverse normalization",
+      "original_criterion_remainder": "None within finite supported static ADMG.",
+      "separate_unavailable_inputs_or_authority": "Conditioning/fixing and universal ID completeness are separate laws.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Perfect do removes latent incoming ends and preserves outgoing effects. Independent oracle/retained-marker negative: 200graphs×8actions×12 explicit latent-DAG surgery; bidirected-cut removal FAIL; known reverse normalization. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/3"
+        },
+        {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+          "bytes": 50088,
+          "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+          "json_pointer": "/per_id/B217"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "B218",
+      "check": "PASS",
+      "outcome": "limited",
+      "technical_original_criterion_recommendation": "limited",
+      "criterion_short_ru": "Lag/self-lag representation retained; compact temporal graph refuses static identification",
+      "actual_consumer": "CausalGraphModel → actual NetworkX/CAS roundtrip → static GCM/ADMG/intake",
+      "source_scope": "Lag/self-lag survives representation/export; static inference refuses absent unrolling",
+      "oracle_and_negative": "Actual lag1/lag2/self-lag export; static refusal and expanded finite graph sanity",
+      "original_criterion_remainder": "Lag/self-lag representation/export and typed compact-temporal refusal retained. Latest518 broad static consumers measured; no time-unrolled causal estimator or protected readiness claimed. Keep current limited.",
+      "separate_unavailable_inputs_or_authority": "Unprovided temporal identification/real readiness are separate unknown capabilities.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Lag/self-lag survives representation/export; static inference refuses absent unrolling. Independent oracle/retained-marker negative: Actual lag1/lag2/self-lag export; static refusal and expanded finite graph sanity. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/4"
+        },
+        {
+          "head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+          "bytes": 150755,
+          "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e",
+          "json_pointer": "/per_finding/1"
+        }
+      ]
+    },
+    {
+      "finding_id": "B219",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Actual NetworkX MultiDiGraph preserves full parallel-edge payload",
+      "actual_consumer": "CausalGraphModel.to_networkx → NetworkX3.6.1 MultiDiGraph → CAS/fresh reader",
+      "source_scope": "Actual mixed parallel edge export preserves complete keyed multiset/order",
+      "oracle_and_negative": "Fullpayload120 permutations/60unique; DiGraph substitution retains markers but edge multiset FAIL",
+      "original_criterion_remainder": "None for actual native NetworkX export profile.",
+      "separate_unavailable_inputs_or_authority": "Live Kuzu/Rustworkx transports not run, not implied.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Actual mixed parallel edge export preserves complete keyed multiset/order. Independent oracle/retained-marker negative: Fullpayload120 permutations/60unique; DiGraph substitution retains markers but edge multiset FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/5"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "B220",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Internal graph/cache lifecycle invariant; internal-stable change fragment",
+      "actual_consumer": "CausalGraphModel model_copy/dump/ancestors/export/rows → real native cache readers",
+      "source_scope": "Deep immutable topology, detached rows, warmed-copy freshness and weakref cleanup",
+      "oracle_and_negative": "Native75+independent23; nested-freeze/row-alias/weakref removals each actualFAIL;518 retained19cache cases",
+      "original_criterion_remainder": "None for original local cache divergence property.",
+      "separate_unavailable_inputs_or_authority": "Live Kuzu/readiness/real causal authority remain UNRUN outside local property.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Deep immutable topology, detached rows, warmed-copy freshness and weakref cleanup. Independent oracle/retained-marker negative: Native75+independent23; nested-freeze/row-alias/weakref removals each actualFAIL;518 retained19cache cases. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+          "bytes": 66228,
+          "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+          "bytes": 66228,
+          "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b",
+          "json_pointer": "/per_id/0"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+          "bytes": 209475,
+          "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+          "json_pointer": "/per_id/B220"
+        },
+        {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+          "bytes": 50088,
+          "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+          "json_pointer": "/per_id/B220"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "B221",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Real GCM fitting/source-row lineage and fresh fitted-model query consumer",
+      "actual_consumer": "Actual GCMFit worker/source rows → source-bound SCM → GCMQuery fresh reader",
+      "source_scope": "Observed root/joint-row law survives fit/model/runtime; unknown law stays limited",
+      "oracle_and_negative": "Truefit n400 selected backend + rootlaw/dependentrow oracle and coherent fake fit/source permutations",
+      "original_criterion_remainder": "Supported declared empirical/affine profile.",
+      "separate_unavailable_inputs_or_authority": "No automatic nonlinear fitter or real-data identification.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Observed root/joint-row law survives fit/model/runtime; unknown law stays limited. Independent oracle/retained-marker negative: Truefit n400 selected backend + rootlaw/dependentrow oracle and coherent fake fit/source permutations. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/6"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+          "bytes": 209475,
+          "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+          "json_pointer": "/per_id/B221"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+          "bytes": 71310,
+          "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde",
+          "json_pointer": "/per_id/B221"
+        },
+        {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+          "bytes": 131648,
+          "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+          "json_pointer": "/per_id/B221"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "B222",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Existing additive-polynomial helper payload in typed manual SCM1.0; not a new nonlinear default fitter",
+      "actual_consumer": "Existing _fit_additive_noise_poly → typed manual SCM1.0 → actual MethodJob/CAS → fresh GCMQuery/TwinNetworkQuery process",
+      "source_scope": "Conditional fitted additive polynomial payload executes its declared law throughout query/twin",
+      "oracle_and_negative": "Exact6f helper101x² produces do2=4; LINEAR samefields7; factual1/1.25 counter4.25 ITE3; independent cubic8/8.25/3.25; evaluator removal2FAIL1LINEARPASS",
+      "original_criterion_remainder": "Finite no-cross-term additive payload; partial nonlinear posterior remains typed limited.",
+      "separate_unavailable_inputs_or_authority": "No new default nonlinear Hybrid/DoWhy fitter, general posterior or real authority.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Conditional fitted additive polynomial payload executes its declared law throughout query/twin. Independent oracle/retained-marker negative: Exact6f helper101x² produces do2=4; LINEAR samefields7; factual1/1.25 counter4.25 ITE3; independent cubic8/8.25/3.25; evaluator removal2FAIL1LINEARPASS. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/7"
+        },
+        {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+          "bytes": 131648,
+          "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+          "json_pointer": "/per_id/B222"
+        },
+        {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006.json",
+          "bytes": 44860,
+          "sha256": "2aa65d305f67d094489b849ee64cff927db717bd866acb51484e99ed051f91f4",
+          "json_pointer": "/per_id/B222"
+        }
+      ]
+    },
+    {
+      "finding_id": "B223",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Explicit outcome/ITE versus optional IID-refit estimator interval semantics and query binding",
+      "actual_consumer": "GCMQuery/TwinNetworkQuery → result DTO/CAS → real RunCausalQueriesNode",
+      "source_scope": "Explicit target/comparator and same-U causal contrast; law/inference kinds remain separate",
+      "oracle_and_negative": "do2−do0=6,samearm0; actual changed-arm coherent job/CAS refuses; predictive vs optional iid-refit typed intervals",
+      "original_criterion_remainder": "Finite declared static profiles and explicit comparators.",
+      "separate_unavailable_inputs_or_authority": "No gating identification based on simulated draw-count narrowing.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Explicit target/comparator and same-U causal contrast; law/inference kinds remain separate. Independent oracle/retained-marker negative: do2−do0=6,samearm0; actual changed-arm coherent job/CAS refuses; predictive vs optional iid-refit typed intervals. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/8"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+          "bytes": 209475,
+          "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+          "json_pointer": "/per_id/B223"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+          "bytes": 71310,
+          "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde",
+          "json_pointer": "/per_id/B223"
+        },
+        {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+          "bytes": 131648,
+          "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+          "json_pointer": "/per_id/B223"
+        }
+      ]
+    },
+    {
+      "finding_id": "B224",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Surgical planning bypasses intervened natural mechanisms, preserves declared comparators",
+      "actual_consumer": "GCMQuery surgical planning/sampler → CAS result reader",
+      "source_scope": "Perfect do bypasses replaced natural mechanism and prunes irrelevant work safely",
+      "oracle_and_negative": "Broken oldmechanism bypass do2→7;shift still requiresnatural; full/pruned/reordered common-row draws and unexecuted20roots",
+      "original_criterion_remainder": "Static declared law/planning only.",
+      "separate_unavailable_inputs_or_authority": "Temporal mismatch refuses; no unsupported law authority.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Perfect do bypasses replaced natural mechanism and prunes irrelevant work safely. Independent oracle/retained-marker negative: Broken oldmechanism bypass do2→7;shift still requiresnatural; full/pruned/reordered common-row draws and unexecuted20roots. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/9"
+        },
+        {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+          "bytes": 131648,
+          "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+          "json_pointer": "/per_id/B224"
+        }
+      ]
+    },
+    {
+      "finding_id": "B225",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Supported-law conditional tails with independent stdlib math.erfc CDF oracle",
+      "actual_consumer": "GCMQuery stochastic intervention sampler → outcome DTO/CAS",
+      "source_scope": "Declared stochastic-law parsing/support and numerically stable conditional tails",
+      "oracle_and_negative": "Independent math.erfc Normal CDF; positive-tail survival-function differences; original test_scm_result_semantics.py@6dcb lines222–250. No same-SciPy-CDF independence claim.",
+      "original_criterion_remainder": "Supported Normal/Uniform/TruncNormal/explicit atomic laws.",
+      "separate_unavailable_inputs_or_authority": "No unknown policy law admission or policy authority.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Declared stochastic-law parsing/support and numerically stable conditional tails. Independent oracle/retained-marker negative: Independent math.erfc Normal CDF; positive-tail survival-function differences; original test_scm_result_semantics.py@6dcb lines222–250. No same-SciPy-CDF independence claim.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/10"
+        },
+        {
+          "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+          "bytes": 131648,
+          "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+          "json_pointer": "/per_id/B225"
+        }
+      ]
+    },
+    {
+      "finding_id": "B54",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Native TMLE cache/fit identity and immutable current-reader materialization",
+      "actual_consumer": "fit_crossfit_nuisance_bundle → controlled issued fit core → fit_tmle_ate/TMLEEstimator",
+      "source_scope": "Fit-cache identity separates nuisance fit from current diagnostics and immutable readers",
+      "oracle_and_negative": "All32contractfields/currentfitcalls; changeddata/seed/splits invalidates; reader/cache/precomputed identity removals FAIL",
+      "original_criterion_remainder": "Finite original native cache/reader property.",
+      "separate_unavailable_inputs_or_authority": "Untrusted externally supplied prediction provenance is not accepted; production causal authority separate.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Fit-cache identity separates nuisance fit from current diagnostics and immutable readers. Independent oracle/retained-marker negative: All32contractfields/currentfitcalls; changeddata/seed/splits invalidates; reader/cache/precomputed identity removals FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+          "bytes": 28486,
+          "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429"
+        },
+        {
+          "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+          "bytes": 28486,
+          "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+          "json_pointer": "/finding_decisions/0"
+        },
+        {
+          "head": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json",
+          "bytes": 125989,
+          "sha256": "53688e8d8ea8bc96ecdcf52a6e6d57bd0f4203ca6d23dca276cd45753f299056",
+          "json_pointer": "/per_id/0"
+        },
+        {
+          "head": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json",
+          "bytes": 81022,
+          "sha256": "e6bdc12b130a81b2f9f5d7b7261d0ba20809a2ebcb620c8bec17f420a7d95a9d",
+          "json_pointer": "/per_id/0"
+        },
+        {
+          "head": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json",
+          "bytes": 91876,
+          "sha256": "0818e463b5e8c942eba6d9f696932b3a0ad3deab79657199ae692f2e39c9fe5d",
+          "json_pointer": "/per_id/B54"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "B56",
+      "check": "UNRUN",
+      "outcome": "limited",
+      "technical_original_criterion_recommendation": "limited",
+      "criterion_short_ru": "Actual admitted common-study workload/budget remains UNRUN; configured MethodJob bridge is a separate bounded property",
+      "actual_consumer": "Actual investigated runtime route DurableControlWorker → RunLifecycle → run_experiment → sync_run_causal_full. Separate configured real TMLE MethodJob → numerical result/report/envelope → CAS/fresh reader and internal run_primary source/projection checks. Attempted common causal LocalWorkerPool FAIL execution_context_missing before0fits; no production LocalWorkerPool/TaskRouter constructor witness; admitted shared workload/budget is UNRUN.",
+      "source_scope": "All folds/repeats/seeds/results survive common admitted-work resource accounting",
+      "oracle_and_negative": "Historical cap1/2 custom-fixture four-study/24-fold bounded numerical/profile checks retained on their old source; not the actual production resource route. New typed producer configured6/default15 actual folds and selected CAS/projection/source-equality controls PASS on6c/d09/12 sources. Actual investigated Runtime route DurableControlWorker → RunLifecycle → run_experiment → sync_run_causal_full has no measured production LocalWorkerPool/TaskRouter constructor. Whole admitted common study workload/budget positive remains UNRUN; attempted common causal pool FAIL execution_context_missing before0fits is not execution evidence.",
+      "original_criterion_remainder": "Actual admitted Runtime route DurableControlWorker → RunLifecycle → run_experiment → sync_run_causal_full: shared study workload with complete current context/verifier/HTE ingress and common-budget measurements; no self-issued authority or fake pool.",
+      "separate_unavailable_inputs_or_authority": "No cloud verification quota; production admission positive and native thread quota not inferred.",
+      "latest_owner_packet": "Published6c producer@3ae04 receipt, generated27f289@27f172 receipt and root12dce consumer@39133 receipt establish their bounded MethodJob/CAS/selected-helper properties. Original shared resource criterion remains UNRUN/limited; no pending producer publication is inferred.",
+      "next_owner": "F TMLE resource owner / root then G",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: All folds/repeats/seeds/results survive common admitted-work resource accounting. Independent oracle/retained-marker negative: Historical cap1/2 custom-fixture four-study/24-fold bounded numerical/profile checks retained on their old source; not the actual production resource route. New typed producer configured6/default15 actual folds and selected CAS/projection/source-equality controls PASS on6c/d09/12 sources. Actual investigated Runtime route DurableControlWorker → RunLifecycle → run_experiment → sync_run_causal_full has no measured production LocalWorkerPool/TaskRouter constructor. Whole admitted common study workload/budget positive remains UNRUN; attempted common causal pool FAIL execution_context_missing before0fits is not execution evidence.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+          "bytes": 28486,
+          "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429"
+        },
+        {
+          "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+          "bytes": 28486,
+          "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+          "json_pointer": "/finding_decisions/1"
+        },
+        {
+          "head": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json",
+          "bytes": 125989,
+          "sha256": "53688e8d8ea8bc96ecdcf52a6e6d57bd0f4203ca6d23dca276cd45753f299056",
+          "json_pointer": "/per_id/1"
+        },
+        {
+          "head": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json",
+          "bytes": 81022,
+          "sha256": "e6bdc12b130a81b2f9f5d7b7261d0ba20809a2ebcb620c8bec17f420a7d95a9d",
+          "json_pointer": "/per_id/1"
+        },
+        {
+          "head": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json",
+          "bytes": 91876,
+          "sha256": "0818e463b5e8c942eba6d9f696932b3a0ad3deab79657199ae692f2e39c9fe5d",
+          "json_pointer": "/per_id/B56"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "LA-001",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Versioned native RNG caller/compile/execute migration with historical plans",
+      "actual_consumer": "compile.api.compile → compile_trinity → TreasuryPlan → execute.api.execute → execute_program_graph → adaptive_agent",
+      "source_scope": "Treasury relocation preserves seed/IDs/salts/plans and actual RNG behavior",
+      "oracle_and_negative": "Seed0/nonzero, recompilation/permutation, unmarked historical plans, realnativekey/dispatcher; salt removal retainsmarkers and FAIL",
+      "original_criterion_remainder": "Versioned v1 intentionally has same node draw at steps0/1; unchanged temporal law.",
+      "separate_unavailable_inputs_or_authority": "No newly commissioned fresh innovation law or real economic validity.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Treasury relocation preserves seed/IDs/salts/plans and actual RNG behavior. Independent oracle/retained-marker negative: Seed0/nonzero, recompilation/permutation, unmarked historical plans, realnativekey/dispatcher; salt removal retainsmarkers and FAIL. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+          "bytes": 77903,
+          "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-002",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Supported finite catalog/IC/native IR/caller migration; optional family execution is not original criterion",
+      "actual_consumer": "Catalog → real ICVerificationRequest → IR certificate CAS/fresh reader; actual native runtime descriptor",
+      "source_scope": "Canonical family catalog, real IC service/certificates, reexports and supported runtime loading",
+      "oracle_and_negative": "All4 concretepositive certificates + wrong-payment negative; family-owner/catalog-as-IC removals FAIL; actual native income_tax",
+      "original_criterion_remainder": "None in original supported finite catalog/IC/native IR/direct caller/docs/install migration; optional new family state kernels and full compatibility retirement are not original acceptance prerequisites.",
+      "separate_unavailable_inputs_or_authority": "Four new optional family execution mappings and real-world IC are outside criterion.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Canonical family catalog, real IC service/certificates, reexports and supported runtime loading. Independent oracle/retained-marker negative: All4 concretepositive certificates + wrong-payment negative; family-owner/catalog-as-IC removals FAIL; actual native income_tax. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+          "bytes": 77903,
+          "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-003",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Native fiscal/labor PatchMap consumer migration and admitted precision profile; original law/mask/RNG/ABI retained",
+      "actual_consumer": "Maintained mechanism registry/spec → compile API/ParamDecimal/CAS/ExecutorGraph → IncomeTax/Employer/subsidy PatchMap → actual GlobalState/balance/current metrics → fresh reader; old fingerprints/laws and active-population admission retained.",
+      "source_scope": "Named fiscal/labor baseline relocation with PatchMap/mask/key/spec/compiler/replay ABI",
+      "oracle_and_negative": "Real registry ParamDecimal .10 → lowered CAS → native fiscal eager/JIT PatchMap/state → fresh CAS reader exact budget; existing34/24 FP32 profiles preserved, min32/64 active-state dtype compatibility declared; forced32 actualCAS and3 marker-retaining removals FAIL. Native124PASS/1 separately reported ABM diagnostic FAIL retained; P41 not_established; FIT independent83PASS plus2 realCAS controls.",
+      "original_criterion_remainder": "None for bounded original native fiscal/labor migration with declared precision compatibility profile. ABM diagnostic FAIL is separately reported and remains red; selected base replay does not establish P41.",
+      "separate_unavailable_inputs_or_authority": "No equivalence to richer plugin or admitted production calibration.",
+      "latest_owner_packet": "Published fiscal source 1324d2fcd7b75e448ad0fa1cce128a79101df1aa/treedc4b6a932a11cba4470b9bbcf299d2d2f51b2301 carried by 3912782bfd55cc87f76757310c32603ecbe58cc3; no automatic original-finding closure.; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named fiscal/labor baseline relocation with PatchMap/mask/key/spec/compiler/replay ABI. Independent oracle/retained-marker negative: Real registry ParamDecimal .10 → lowered CAS → native fiscal eager/JIT PatchMap/state → fresh CAS reader exact budget; existing34/24 FP32 profiles preserved, min32/64 active-state dtype compatibility declared; forced32 actualCAS and3 marker-retaining removals FAIL. Native124PASS/1 separately reported ABM diagnostic FAIL retained; P41 not_established; FIT independent83PASS plus2 realCAS controls.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+          "bytes": 109240,
+          "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e"
+        },
+        {
+          "head": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+          "bytes": 127652,
+          "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+          "json_pointer": "/per_id_outcomes/0"
+        },
+        {
+          "head": "3912782bfd55cc87f76757310c32603ecbe58cc3",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json",
+          "bytes": 229832,
+          "sha256": "540ea3357ab032df188b2b8c413aa6e8fa45ce81055e2e8f3bdcb7f3ef06979b"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-004",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Actual matched and deliberately distinct fiscal/labor versus CompositeExecutor model profiles, not Gini",
+      "actual_consumer": "Registry-created native fiscal/labor → PatchMap/apply_patch_map/GlobalState versus EconomicsPlugin.get_mechanisms → CompositeExecutor/EconomicState; actual matched and deliberately distinct finite laws.",
+      "source_scope": "Two DISTINCT economic profiles: matched regimes, deliberate divergence, accounting, seeds and observables",
+      "oracle_and_negative": "532matchedtax/subsidy + distinctunits/means-test/laborseed; latest412 realComposite tax/labor states and zero-employment match/diverge",
+      "original_criterion_remainder": "None for original finite matched/deliberately distinct model profile. Universal replacement/calibration/real authority not claimed.",
+      "separate_unavailable_inputs_or_authority": "No fullmodel calibration/replacement/migration or externaleconomicnorm implied.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Two DISTINCT economic profiles: matched regimes, deliberate divergence, accounting, seeds and observables. Independent oracle/retained-marker negative: 532matchedtax/subsidy + distinctunits/means-test/laborseed; latest412 realComposite tax/labor states and zero-employment match/diverge. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+          "bytes": 109240,
+          "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e"
+        },
+        {
+          "head": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+          "bytes": 127652,
+          "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+          "json_pointer": "/per_id_outcomes/1"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-007",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Exact id_engine.py sibling already absent at base198; bounded maintained package/loader/docs/install migration",
+      "actual_consumer": "Declared facade loaders/direct/star/private historical windows → actual native algorithms/FQN/pickle/pydoc/patch consumers → isolated source-wheel and rebuilt-sdist sites, canonical dispatcher/CAS/fresh reader",
+      "source_scope": "Exact EMPTY id_engine.py sibling absent; preserved package/algorithms and finite loader/install consumers; exact source8236 site profile, finite supported manifest; computed/external unknown clients remain unestablished",
+      "oracle_and_negative": "Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT adoption remains UNRUN; old5cd/ab56 native results remain historical.",
+      "original_criterion_remainder": "None for the bounded maintained filename/package/facade/loader/docs/install window. Exact source8236 full census and both installed profiles are published and independently read; unresolved computed/external consumers remain explicit outside that supported window.",
+      "separate_unavailable_inputs_or_authority": "38 finite UNKNOWN/incomplete export candidates and arbitrary computed/external clients are not established supported consumers. Whole Runtime authority, distinct PDC semantic ingress and G formal finding closure remain separate unissued/unmeasured inputs.",
+      "latest_owner_packet": [
+        {
+          "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+          "bytes": 50455,
+          "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "next_owner": "No original finite technical migration remainder. API owner retains declared compatibility window; external/computed unknown consumers require their actual configuration/source packet before extension.",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Exact EMPTY id_engine.py sibling absent; preserved package/algorithms and finite loader/install consumers; exact source8236 site profile, finite supported manifest; computed/external unknown clients remain unestablished. Independent oracle/retained-marker negative: Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT adoption remains UNRUN; old5cd/ab56 native results remain historical.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/11"
+        },
+        {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+          "json_pointer": "/per_id/1"
+        },
+        {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1"
+        },
+        {
+          "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+          "bytes": 50455,
+          "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29",
+          "json_pointer": "/per_id/0"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "LA-016",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Maintained dedicated Standard DiD FQN/flags/slots/request metadata migration; explicit historical replay",
+      "actual_consumer": "Maintained G2 request candidate → dedicated standardFQN → actual registry/dispatcher/CAS; declared historical direct adapter",
+      "source_scope": "Dedicated DiD metadata/callers/flags/slots and default-registry retirement with historical replay",
+      "oracle_and_negative": "0b/f88 complete maintained source/config6507/6509+outside4694 census, actualroute9PASS; restoreoldFQN1FAIL; original wrappers/metadata poison",
+      "original_criterion_remainder": "Bounded supported maintained window, historical direct-import replay kept explicit.",
+      "separate_unavailable_inputs_or_authority": "Unenumerated external dynamic/frozen inputs require owner packet, not universal criterion.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Dedicated DiD metadata/callers/flags/slots and default-registry retirement with historical replay. Independent oracle/retained-marker negative: 0b/f88 complete maintained source/config6507/6509+outside4694 census, actualroute9PASS; restoreoldFQN1FAIL; original wrappers/metadata poison. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+        },
+        {
+          "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+          "bytes": 216928,
+          "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+          "json_pointer": "/per_finding/LA-016"
+        },
+        {
+          "head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+          "bytes": 162688,
+          "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+          "json_pointer": "/per_finding/LA-016"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-017",
+      "check": "PASS",
+      "outcome": "limited",
+      "technical_original_criterion_recommendation": "limited",
+      "criterion_short_ru": "Supported legal impact caller/config migration; dedupe is a bounded partial property",
+      "actual_consumer": "NormImpactAnalyzer actual LegalPass→CAS→fresh NormDiff/Impact reader→CLI markdown",
+      "source_scope": "Norm diff/issues/pass config/report refs/topic hypotheses survive actual supported consumers",
+      "oracle_and_negative": "00a24native checks, duplicateplan dedupe3FAIL controls, actualsyntheticLegalPass→persistedreport",
+      "original_criterion_remainder": "Original full supported caller/config migration/corpus compatibility still needs exact owner packet; dedupe alone is partial.",
+      "separate_unavailable_inputs_or_authority": "Current-law authority/source corpus is local and UNRUN; topics are not causal quantified effects.",
+      "latest_owner_packet": "Published exact API owner evidence c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json; current assembled install/explicit ROOT decision remain separate. Finite UNKNOWN candidates are not established clients.",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Norm diff/issues/pass config/report refs/topic hypotheses survive actual supported consumers. Independent oracle/retained-marker negative: 00a24native checks, duplicateplan dedupe3FAIL controls, actualsyntheticLegalPass→persistedreport. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "77166daa0ff8b9659e3978447f9016c691694266",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+          "bytes": 24363,
+          "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a"
+        },
+        {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+          "json_pointer": "/per_id/3"
+        },
+        {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-019",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Exact causal_engine.py/interference.py siblings already absent at base198; bounded maintained package/caller/docs/install migration",
+      "actual_consumer": "Declared facade loaders/direct/star/private historical windows → actual native algorithms/FQN/pickle/pydoc/patch consumers → isolated source-wheel and rebuilt-sdist sites, canonical dispatcher/CAS/fresh reader",
+      "source_scope": "Exact EMPTY causal_engine.py/interference.py siblings absent; preserve packages and known loaders; exact source8236 site profile, finite supported manifest; computed/external unknown clients remain unestablished",
+      "oracle_and_negative": "Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT adoption remains UNRUN; old5cd/ab56 native results remain historical.",
+      "original_criterion_remainder": "None for the bounded maintained filename/package/facade/loader/docs/install window. Exact source8236 full census and both installed profiles are published and independently read; unresolved computed/external consumers remain explicit outside that supported window.",
+      "separate_unavailable_inputs_or_authority": "38 finite UNKNOWN/incomplete export candidates and arbitrary computed/external clients are not established supported consumers. Whole Runtime authority, distinct PDC semantic ingress and G formal finding closure remain separate unissued/unmeasured inputs.",
+      "latest_owner_packet": [
+        {
+          "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+          "bytes": 50455,
+          "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "next_owner": "No original finite technical migration remainder. API owner retains declared compatibility window; external/computed unknown consumers require their actual configuration/source packet before extension.",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Exact EMPTY causal_engine.py/interference.py siblings absent; preserve packages and known loaders; exact source8236 site profile, finite supported manifest; computed/external unknown clients remain unestablished. Independent oracle/retained-marker negative: Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT adoption remains UNRUN; old5cd/ab56 native results remain historical.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+        },
+        {
+          "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "json_pointer": "/per_id/12"
+        },
+        {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+          "json_pointer": "/per_id/2"
+        },
+        {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1"
+        },
+        {
+          "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+          "bytes": 50455,
+          "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29",
+          "json_pointer": "/per_id/1"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "LA-020",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Declared supported public facade/FQN/patch/docs/client/install window on the final common source",
+      "actual_consumer": "Declared facade loaders/direct/star/private historical windows → actual native algorithms/FQN/pickle/pydoc/patch consumers → isolated source-wheel and rebuilt-sdist sites, canonical dispatcher/CAS/fresh reader",
+      "source_scope": "Explicit supported public facade manifest, canonical identities/FQNs/patch consumers/docs/install; exact source8236 site profile, finite supported manifest; computed/external unknown clients remain unestablished",
+      "oracle_and_negative": "Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT adoption remains UNRUN; old5cd/ab56 native results remain historical.",
+      "original_criterion_remainder": "None for the bounded maintained filename/package/facade/loader/docs/install window. Exact source8236 full census and both installed profiles are published and independently read; unresolved computed/external consumers remain explicit outside that supported window.",
+      "separate_unavailable_inputs_or_authority": "38 finite UNKNOWN/incomplete export candidates and arbitrary computed/external clients are not established supported consumers. Whole Runtime authority, distinct PDC semantic ingress and G formal finding closure remain separate unissued/unmeasured inputs.",
+      "latest_owner_packet": [
+        {
+          "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+          "bytes": 50455,
+          "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "next_owner": "No original finite technical migration remainder. API owner retains declared compatibility window; external/computed unknown consumers require their actual configuration/source packet before extension.",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Explicit supported public facade manifest, canonical identities/FQNs/patch consumers/docs/install; exact source8236 site profile, finite supported manifest; computed/external unknown clients remain unestablished. Independent oracle/retained-marker negative: Published actual source8236 API census16819tracked/6815parsed,243literalimports;225dynamicAST candidates(155unresolved/36finite/13other/21literal); 753filename lexical matches/73ASTloader calls with4runtime computed unresolved. Computed candidates are not established clients. Final actual wheel/sdist each199PASS,5source-census deselections,0SKIP/ERROR,90LGBM feature-name warnings; eight installed marker-preserving removals actualFAIL and complete3459resource files/site postguardsPASS. Both immutable primary receipts and all115author+53independent complete bodies are Git-bound. ROOT adoption remains UNRUN; old5cd/ab56 native results remain historical.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+          "bytes": 33029,
+          "sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99"
+        },
+        {
+          "head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+          "bytes": 33029,
+          "sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99",
+          "json_pointer": "/per_id/LA-020"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+          "bytes": 209475,
+          "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908",
+          "json_pointer": "/per_id/LA-020"
+        },
+        {
+          "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+          "bytes": 71310,
+          "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde",
+          "json_pointer": "/per_id/LA-020"
+        },
+        {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+          "json_pointer": "/per_id/0"
+        },
+        {
+          "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+          "bytes": 36426,
+          "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1"
+        },
+        {
+          "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+          "bytes": 50455,
+          "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29",
+          "json_pointer": "/per_id/2"
+        },
+        {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        }
+      ],
+      "current_exact_consumer_receipts": {
+        "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+        "installed_receipt": {
+          "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+          "bytes": 60843,
+          "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+        },
+        "scope": "Only actual selected MethodJob, CAS/fresh reader and supported finite installed cases; not whole Runtime Node authority or common competing-workload admission."
+      }
+    },
+    {
+      "finding_id": "LA-035",
+      "check": "UNRUN",
+      "outcome": "held",
+      "technical_original_criterion_recommendation": "held",
+      "criterion_short_ru": "Historical normalized-income loss replay is measured; actual optimizer and normative intent packet held",
+      "actual_consumer": "economics.baselines.normalized_income_budget_loss → two legacy aliases → nativeGlobalState/real guardrail/JIT/grad; actual maintained optimizer caller not supplied",
+      "source_scope": "Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate",
+      "oracle_and_negative": "532positive/zero/negative/mixed/populations/scales/breach/NaNInf/JITgrad/importer; >=1nonnegative score−1 preserved;412 appended actualwholeconsumer tests pendingreceipt",
+      "original_criterion_remainder": "Technical historical baseline/replay/aliases profile is measured, but latest user continuation requires actual optimizer and semantic intent packet. Missing unit/population/time/sign intent and named optimizer keep whole LA035 held per economics owner.",
+      "separate_unavailable_inputs_or_authority": "No actual production optimizer, normative unit/population/time/sign intent owner packet, policy objective or full external retirement established.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate",
+      "next_owner": "@foundry-owners objective intent + named optimizer consumer",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate. Independent oracle/retained-marker negative: 532positive/zero/negative/mixed/populations/scales/breach/NaNInf/JITgrad/importer; >=1nonnegative score−1 preserved;412 appended actualwholeconsumer tests pendingreceipt. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+          "bytes": 109240,
+          "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e"
+        },
+        {
+          "head": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+          "bytes": 127652,
+          "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+          "json_pointer": "/per_id_outcomes/2"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-037",
+      "check": "PASS",
+      "outcome": "closed",
+      "technical_original_criterion_recommendation": "closed",
+      "criterion_short_ru": "Actual IR slot/compiler/state/doc/install migration; optional family state execution is separate",
+      "actual_consumer": "IR.kernel.slots → TrinityCompiler/default registry → PatchOp/state/CAS; scoped realMkDocs Python handler; installed owners",
+      "source_scope": "Native IR slot owner, direct compiler/docs caller and supported wrapper/install compatibility",
+      "oracle_and_negative": "7f05native40 + actualcompile1 + layoutCAS3, layout removalFAIL; realstatepage buildPASS; exactownerbytes installed5cd13wheel/13sdist",
+      "original_criterion_remainder": "None in original supported finite catalog/IC/native IR/direct caller/docs/install migration; optional new family state kernels and full compatibility retirement are not original acceptance prerequisites.",
+      "separate_unavailable_inputs_or_authority": "Fullstrictdocs/architecture/production admission not implied by scoped page; optionalfamilyexecution notcriterion.",
+      "latest_owner_packet": "published source receipts above; root/G re-adjudication remains separate; exact source8236 quality-equivalence receipt preserves prior scientific source provenance and all historical red checks separately",
+      "next_owner": "F root criterion reconciliation; G code/admitted-input acceptance",
+      "technical_check": "PASS",
+      "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Native IR slot owner, direct compiler/docs caller and supported wrapper/install compatibility. Independent oracle/retained-marker negative: 7f05native40 + actualcompile1 + layoutCAS3, layout removalFAIL; realstatepage buildPASS; exactownerbytes installed5cd13wheel/13sdist. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+      "deciding_receipt_refs": [
+        {
+          "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+          "bytes": 77903,
+          "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e"
+        }
+      ]
+    }
+  ],
+  "pending_scientific_blockers": {
+    "status": "resolved",
+    "scope": "Codeable consumer/source publication checkpoints completed. Unavailable institutional/semantic/real-data inputs and global checker red remain separate typed residuals, not fabricated PASS.",
+    "checks": [
+      {
+        "owner": "ROOT owned source quality",
+        "check": "PASS",
+        "head": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "deciding_receipt_refs": [
+          {
+            "head": "613a55a5946bdeff2dc849f2488fb88c81b01360",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006.json",
+            "bytes": 75400,
+            "sha256": "ba0914774ffa573f16517b3ec20fae283bc06eb749104b496c2abcd85ebd60fd"
+          }
+        ],
+        "scope": "Nine F files AST/pytest-collection compatibility and Ruff scoped checkpoint; global quality FAIL preserved."
+      },
+      {
+        "owner": "API current supported consumer census",
+        "check": "PASS",
+        "head": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "deciding_receipt_refs": [
+          {
+            "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+            "bytes": 50455,
+            "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+          }
+        ],
+        "scope": "Actual full tracked/config/docs/import/filename-loader denominator on source8236; unresolved computed/external consumers explicit."
+      },
+      {
+        "owner": "Foundry independent assembled installed consumer",
+        "check": "PASS",
+        "head": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "deciding_receipt_refs": [
+          {
+            "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+            "bytes": 60843,
+            "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+          },
+          {
+            "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+            "bytes": 50455,
+            "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+          }
+        ],
+        "scope": "Two199case profiles, eight expected retained-marker FAIL probes, full byte guards and warning denominator; no authority admission."
+      },
+      {
+        "owner": "ROOT original35 explicit adjudication",
+        "check": "PASS",
+        "head": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "deciding_receipt_refs": [
+          {
+            "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+            "bytes": 50455,
+            "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+          },
+          {
+            "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+            "bytes": 60843,
+            "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+          },
+          {
+            "head": "613a55a5946bdeff2dc849f2488fb88c81b01360",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006.json",
+            "bytes": 75400,
+            "sha256": "ba0914774ffa573f16517b3ec20fae283bc06eb749104b496c2abcd85ebd60fd"
+          }
+        ],
+        "scope": "All35 rows/original36byte bindings/17owners independently reviewed against full source cards and exact deciding refs; signed independent semantic review separately carried. Not institutional/G acceptance."
+      }
+    ]
+  }
+}

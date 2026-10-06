@@ -120,6 +120,15 @@ def main() -> None:
         "limitations_and_next_owner",
     ]
     output = {key: old[key] for key in copied}
+    output["metadata_audit"] = {
+        "source_cut": HISTORICAL,
+        "original_detailed_intake": old["metadata_audit"],
+        "current_compaction": (
+            "Preserves60 semantic decisions, resolves127 unique check references, and "
+            "rechecks26 original receipt identities. Historical runtime/output-byte checks "
+            "remain bound to their original sources; this is not a fresh product verification."
+        ),
+    }
     output.update(
         {
             "schema": "policyos.e02.implementation_handoff.v1",

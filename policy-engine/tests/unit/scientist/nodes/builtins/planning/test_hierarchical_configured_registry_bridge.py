@@ -392,3 +392,29 @@ def test_actual_report_refuses_nonprojectable_candidate_envelopes(
             execution_context, state=minimal_state, loop_id="nonprojectable", search_result=result
         )
     assert len(ParetoRegistry(registry._root).get_snapshot("nonprojectable").entries) == 1
+
+
+@pytest.mark.parametrize("subject", ["candidate_id", "candidate_hash", "unbound"])
+def test_parameterless_wrong_subject_refuses_without_registry_effect(tmp_path, subject):
+    registry = ParetoRegistry(tmp_path / "registry")
+
+    def wrong_subject(payload, context):
+        result = _evaluate(payload, context)
+        vector = result["policy_evaluation"]
+        if subject == "candidate_id":
+            vector["candidate_id"] = "different_policy"
+        elif subject == "candidate_hash":
+            vector["metadata"]["candidate_hash"] = "sha256:" + "f" * 64
+        else:
+            vector["candidate_id"] = None
+            vector["metadata"].pop("candidate_hash")
+        return result
+
+    with pytest.raises(ValueError, match="subject|candidate"):
+        module.HierarchicalPolicySearchAdapter(pareto_registry=registry).run_search(
+            _candidate(parameterless=True),
+            loop_id="wrong_subject",
+            search_config=_config(),
+            stage_b_evaluator=wrong_subject,
+        )
+    assert ParetoRegistry(registry._root).get_snapshot("wrong_subject").entries == {}

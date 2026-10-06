@@ -16,7 +16,11 @@ from polisyos.scientist.policy_design.objectives import (
     PolicyEvaluationVector,
 )
 from polisyos.scientist.policy_design.output import load_policy_frontier_report
-from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+from polisyos.scientist.policy_design.schema import (
+    PolicyCandidateSchema,
+    load_policy_candidate_schema,
+    persist_policy_candidate_schema,
+)
 from polisyos.scientist.policy_design.search import HierarchicalSearchConfig
 from tests.unit.scientist.nodes.builtins.planning.test_run_hierarchical_policy_search import _bundle
 
@@ -506,3 +510,57 @@ def test_actual_node_money_intake_failure_preserves_source_and_never_observes(
     assert outcome.state is state
     assert outcome.state.params["policy_candidate_schema"] == payload
     assert calls == []
+
+
+@pytest.mark.parametrize("profile", ["absent", "explicit_null", "explicit_year"])
+def test_money_parameter_wire_presence_preserves_current_values_and_identity(profile):
+    payload = _candidate().model_dump(mode="json")
+    policy = payload["trinity_bundle"]["policy_spec"]
+    values = [
+        policy["parameters"][0][key] for key in ("default_value", "min_value", "max_value")
+    ] + [
+        policy["interventions"][0]["params"]["amount"],
+        payload["parameter_schedule"][0]["scheduled_value"],
+    ]
+    for value in values:
+        if profile == "absent":
+            value.pop("nominal_year", None)
+        elif profile == "explicit_year":
+            value["nominal_year"] = 2020
+    before = PolicyCandidateSchema.model_validate(payload)
+    after = module._coerce_policy_candidate(payload)
+    assert after.candidate_hash() == before.candidate_hash()
+    assert after.model_dump(mode="json") == before.model_dump(mode="json")
+    money = after.trinity_bundle.policy_spec.parameters[0].default_value
+    for update in ({"amount": money.amount + 1}, {"currency": "USD"}, {"nominal_year": 2021}):
+        altered = money.model_copy(update=update)
+        assert altered.model_dump(mode="json") != money.model_dump(mode="json")
+    with pytest.raises(ValueError):
+        money.model_copy(update={"amount": True}).model_dump(mode="json")
+
+
+def test_actual_canonical_candidate_cas_readback_reaches_node_and_fresh_report(
+    execution_context, minimal_state, monkeypatch
+):
+    original = _candidate()
+    ref = persist_policy_candidate_schema(execution_context.store, original)
+    readback = load_policy_candidate_schema(execution_context.store, ref)
+    assert readback.candidate_hash() == original.candidate_hash()
+    state = minimal_state.model_copy(deep=True)
+    state.params["policy_candidate_schema"] = readback.model_dump(mode="json")
+    state.params["hierarchical_policy_search_config"] = _config().model_dump(mode="json")
+    calls = []
+
+    def evaluator(ctx, state, *, candidate_payload, context):
+        calls.append(context["run_id"])
+        return _evaluate(candidate_payload, context)
+
+    monkeypatch.setattr(module, "_evaluate_candidate_payload", evaluator)
+    outcome = module.RunHierarchicalPolicySearchNode().execute(execution_context, state)
+    assert outcome.status == "ok", outcome.error
+    assert calls == [state.run_id] * 3
+    report = load_policy_frontier_report(
+        execution_context.store, outcome.state.artifacts_index["policy_frontier_report_ref"]
+    )
+    assert len(report.source_feasible_candidate_hashes) == 3
+    assert report.global_frontier == []

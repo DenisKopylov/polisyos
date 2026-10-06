@@ -14,10 +14,11 @@ from collections.abc import Mapping
 from contextlib import nullcontext
 from copy import deepcopy
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from pydantic import ValidationError
+from pydantic import PrivateAttr, ValidationError, model_serializer
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -124,6 +125,47 @@ from polisyos.scientist.policy_design.search import (
     HierarchicalSearchResult,
     PolicySearchLevel,
 )
+
+
+class _MoneyParameterTransport(MoneyValue):
+    """Kernel money fields with only their admitted wire-null presence retained."""
+
+    _wire_year_present: bool | None = PrivateAttr(default=None)
+
+    @model_serializer(mode="wrap")
+    def _serialize_transport(self, handler: Any) -> dict[str, Any]:
+        # Model-copy action updates serialize current validated fields. A saved
+        # presentation flag cannot conceal changed amounts, units, or years.
+        if not isinstance(self.amount, Decimal):
+            raise ValueError("Money transport amount must retain its validated Decimal type")
+        MoneyValue.model_validate(
+            {"amount": self.amount, "currency": self.currency, "nominal_year": self.nominal_year}
+        )
+        payload = handler(self)
+        if self._wire_year_present is True or (
+            self._wire_year_present is False and self.nominal_year is not None
+        ):
+            payload["nominal_year"] = self.nominal_year
+        elif self._wire_year_present is False:
+            payload.pop("nominal_year", None)
+        return payload
+
+
+def _restore_money_parameter_value(value: Any) -> MoneyValue:
+    if isinstance(value, MoneyValue):
+        parsed = MoneyValue.model_validate(value.model_dump(mode="python"))
+        year_present = (
+            value._wire_year_present if isinstance(value, _MoneyParameterTransport) else None
+        )
+    else:
+        parsed = MoneyValue.model_validate(value)
+        year_present = "nominal_year" in value
+    restored = _MoneyParameterTransport.model_validate(parsed.model_dump(mode="python"))
+    restored._wire_year_present = year_present
+    if isinstance(value, Mapping) and restored.model_dump(mode="json") != dict(value):
+        raise ValueError("Money parameter input is outside the canonical wire transport profile")
+    return restored
+
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_hierarchical_policy_search@1.0.0"),
@@ -1202,15 +1244,11 @@ def _restore_policy_money_parameters(candidate: PolicyCandidateSchema) -> Policy
             if not parameter.tunable or not declared_money:
                 parameters.append(parameter)
                 continue
-            money = MoneyValue.model_validate(
-                default.model_dump(mode="python") if isinstance(default, MoneyValue) else default
-            )
+            money = _restore_money_parameter_value(default)
             basis = (money.currency, money.nominal_year)
 
             def bound(value: Any, *, declared_basis: tuple[str, int | None] = basis) -> MoneyValue:
-                restored = MoneyValue.model_validate(
-                    value.model_dump(mode="python") if isinstance(value, MoneyValue) else value
-                )
+                restored = _restore_money_parameter_value(value)
                 if (restored.currency, restored.nominal_year) != declared_basis:
                     raise ValueError(
                         "Money parameter currency/year differs from its declared basis"
@@ -1254,11 +1292,7 @@ def _restore_policy_money_parameters(candidate: PolicyCandidateSchema) -> Policy
         if money is None:
             schedules.append(entry)
             continue
-        scheduled = MoneyValue.model_validate(
-            entry.scheduled_value.model_dump(mode="python")
-            if isinstance(entry.scheduled_value, MoneyValue)
-            else entry.scheduled_value
-        )
+        scheduled = _restore_money_parameter_value(entry.scheduled_value)
         if (scheduled.currency, scheduled.nominal_year) != (money.currency, money.nominal_year):
             raise ValueError("Scheduled money parameter currency/year differs from its basis")
         schedules.append(entry.model_copy(update={"scheduled_value": scheduled}))

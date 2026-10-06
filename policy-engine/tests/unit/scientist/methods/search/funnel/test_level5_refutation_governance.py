@@ -2,32 +2,57 @@
 
 import pytest
 
-from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.doe.designs import (
+    AdversarialPlan,
+    AdversarialStrategy,
+    ParameterSpec,
+)
+from polisyos.scientist.methods.doe.stress_report import StressScenarioEvidence, StressTestReport
+from polisyos.scientist.methods.search.adversarial import run_stress_test
 from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
+from polisyos.scientist.methods.search.objective import BudgetDeficitObjective, CompositeObjective
 from polisyos.scientist.methods.search.uncertainty import UncertaintyType
 
 
 def report(*, finite, unknown, planned, violated=0):
     attempted = finite + unknown
     complete = planned > 0 and attempted == finite == planned
+    if complete and not violated:
+        # The complete positive comes from the actual configured producer basis.
+        return run_stress_test(
+            adversarial_plan=AdversarialPlan(
+                parameter_specs=[ParameterSpec(name="p", lower_bound=-1, upper_bound=1)],
+                strategy=AdversarialStrategy.RANDOM_TAIL,
+                max_iterations=planned,
+                vulnerability_threshold=2,
+                stop_on_first_vulnerability=False,
+                seed=7,
+            ),
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"budget_deficit": 1}
+            },
+        )
+    evidence = StressScenarioEvidence(
+        attempted=attempted,
+        finite_evaluated=finite,
+        violated_scenarios=violated,
+        unknown_or_nonfinite=unknown,
+        planned_scenarios=planned,
+        assessment_rule="objective_threshold",
+        objective_direction="minimize",
+        vulnerability_threshold=2,
+    )
     return StressTestReport(
         report_id="stress-1",
-        total_scenarios_evaluated=attempted,
+        total_scenarios_evaluated=finite,
         robustness_score=(finite - violated) / finite if finite else None,
+        scenario_evidence=evidence,
         set_adequacy_status="complete" if complete else "partial",
-        metadata={
-            "attempted": attempted,
-            "finite_evaluated": finite,
-            "violated_scenarios": violated,
-            "unknown_or_nonfinite": unknown,
-            "planned_scenarios": planned,
-            "completeness": complete,
-            "score_scope": "observed_finite_scenarios",
-            "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
-        },
+        metadata=evidence.accounting_metadata(),
     )
 
 
@@ -72,12 +97,50 @@ def test_real_level5_consumes_adequacy_scope_without_probability_claim(
     ],
 )
 def test_missing_or_malformed_scope_is_unassessed_even_with_score_one(corrupt):
-    stress = report(finite=2, unknown=0, planned=2)
+    stress = StressTestReport.model_validate(
+        report(finite=2, unknown=0, planned=2).model_dump(exclude={"scenario_evidence"})
+    )
     stress.metadata = {} if not corrupt else {**stress.metadata, **corrupt}
     stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
     result = stage.evaluate({}, {"stress_test_report": stress})
     assert result.feedback["stress_observed_sample_assessment"]["status"] == "unassessed"
     assert result.feedback["stress_robust"] is None
+    assert result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL].level == 1
+
+
+@pytest.mark.parametrize("cost", [1, 3])
+def test_actual_producer_partial_preserves_observed_critical_failure_and_high_violation(cost):
+    values = iter([None, cost])
+    stress = run_stress_test(
+        adversarial_plan=AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p", lower_bound=-1, upper_bound=1)],
+            strategy=AdversarialStrategy.RANDOM_TAIL,
+            max_iterations=2,
+            vulnerability_threshold=2,
+            stop_on_first_vulnerability=False,
+            seed=7,
+        ),
+        base_objective=CompositeObjective([BudgetDeficitObjective()]),
+        stage_b_evaluator=lambda candidate, context: (
+            {"simulation_results": {"budget_deficit": value}}
+            if (value := next(values)) is not None
+            else None
+        ),
+    )
+    result = Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
+        {}, {"stress_test_report": stress}
+    )
+    assert stress.set_adequacy_status == "partial"
+    assert result.feedback["stress_robust"] is None
+    # Actual producer explicitly classifies its evaluator failure as critical;
+    # partial coverage alone is a warning, this observed failure remains a block.
+    assert stress.critical_count == 1
+    assert stress.high_count == (1 if cost == 3 else 0)
+    assert not result.is_promising
+    assert any(
+        card.failure_type == "stress_test_failed" and card.is_blocker
+        for card in result.failure_cards
+    )
     assert result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL].level == 1
 
 

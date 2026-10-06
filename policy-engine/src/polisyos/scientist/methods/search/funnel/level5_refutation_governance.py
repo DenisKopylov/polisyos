@@ -210,7 +210,11 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 )
             )
 
-        if stress_report is not None and not stress_report.is_robust:
+        if stress_report is not None and (
+            stress_report.critical_count > 0
+            or stress_report.high_count > 0
+            or any(item.severity in {"critical", "high"} for item in stress_report.vulnerabilities)
+        ):
             failure_cards.append(
                 TypedFailureCard(
                     judge_name="L5_refutation_governance",
@@ -427,9 +431,12 @@ def _observed_stress_assessment(report: StressTestReport | None) -> dict[str, An
         "score_scope": "not_established",
         "population_probability": "not_established",
     }
-    if report is None:
+    if report is None or report.scenario_evidence is None:
         return unavailable
     metadata = report.metadata
+    evidence = report.scenario_evidence
+    if any(metadata.get(name) != value for name, value in evidence.accounting_metadata().items()):
+        return unavailable
     names = (
         "attempted",
         "finite_evaluated",

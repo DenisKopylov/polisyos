@@ -424,8 +424,21 @@ def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
         )
         result = executor(state, params)
     else:
-        execution = restored.execute_heterogeneous(
-            state=state, params_per_node=params, registry=registry, executor_mode=mode
+        from polisyos.foundry.methods.backends.chain_executor import execute_heterogeneous_chain
+        from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+        from polisyos.foundry.methods.backends.jax_runner import JaxRunner
+
+        # The real JAX runner owns its compiler. Bind the same explicit registry
+        # used to restore this plan instead of relying on an unrelated singleton.
+        dispatcher = MethodDispatcher()
+        dispatcher.register_runner(JaxRunner(MethodCompiler(registry=registry)))
+        execution = execute_heterogeneous_chain(
+            restored,
+            state=state,
+            params_per_node=params,
+            registry=registry,
+            dispatcher=dispatcher,
+            executor_mode=mode,
         )
         observed_order = [node_id for node_id, _ in execution.node_results]
         result = execution.final_state

@@ -61,12 +61,18 @@
       "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
       "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
       "input_closure": "actual scanner configured denominator; no disjointness claim",
-      "outcome": "FAIL",
+      "outcome": "UNRUN",
       "exit": 2,
       "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.json",
       "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available",
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stdout.txt.gz",
-      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stderr.txt.gz"
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stderr.txt.gz",
+      "partial_completed_findings": "FAIL",
+      "whole_command_status_basis": "Complete stdout: Architecture guardrail check UNRUN: required measurements unavailable; no complete verdict.",
+      "unavailable_measurements": [
+        "runtime-api-client generator exit254: openapi-typescript missing/node_modules unavailable",
+        "runtime-dashboard-api-types generator exit254: openapi-typescript missing/node_modules unavailable"
+      ]
     },
     {
       "command": [
@@ -353,7 +359,7 @@
     "Root F common consumer must preserve candidate/limited status, null CI and assumption basis through MethodJob→RunCausalEvaluation→CAS→fresh reader on integrated SHA.",
     "G local real-data inference requires admitted source data, target/identification, independent-unit law and positivity/regularity evidence. Do not promote known synthetic DGP pilot to real-data coverage.",
     "DoWhy/EconML excluded by Python3.14 markers and absent; optional external backend execution UNRUN, not PASS or FIT numeric oracle.",
-    "Architecture gate is FAIL exit2 on exact candidate; attribution not_established without exact slice-base replay and complete disjoint denominator.",
+    "Architecture wholecommand UNRUN exit2; completed artifact findings FAIL under partialcoverage. Missing frontendgenerator measurements prevent a complete verdict. Attribution not_established without exact slice-base replay and complete disjoint denominator.",
     "Production-invocation scanner was SIGKILL exit−9, no report, cause not established; static production invocation not established.",
     "No cloud quota or thread-env cap introduced; existing model backend n_jobs settings preserved.",
     "No Trash service used; cleanup candidates are only reusable pytest _cache and pytest temporary synthetic CAS trees, preserving all source and receipts."
@@ -450,6 +456,7 @@
     "finding_decision_delta": "none; genericB54 closed andB56 limited remain exact originalscope"
   },
   "receipt_corrections": [
-    "Added mandatory output field to original three checks; exact complete committed deciding byte refs unchanged. No source, test, outcome or finding decision delta."
+    "Added mandatory output field to original three checks; exact complete committed deciding byte refs unchanged. No source, test, outcome or finding decision delta.",
+    "Reconciled wholecommand architecture UNRUN with complete stdout and separately retained completed partial findings FAIL; exit2 is not used as wholeproperty verdict. No rerun/source/test delta."
   ]
 }

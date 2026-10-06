@@ -221,7 +221,7 @@ class StressTestReport(BaseModel):
         if (
             self.total_scenarios_evaluated != evidence.finite_evaluated
             or self.robustness_score != evidence.observed_fraction
-            or self.set_adequacy_status != ("complete" if evidence.complete else "partial")
+            or self.set_adequacy_status != ("complete" if self.scenario_complete else "partial")
             or self.critical_count != evidence.critical_occurrences
             or self.high_count != evidence.high_occurrences
             or self.medium_count != evidence.medium_occurrences
@@ -230,11 +230,24 @@ class StressTestReport(BaseModel):
         return self
 
     @property
-    def is_robust(self) -> bool:
+    def scenario_complete(self) -> bool:
+        """Count completeness includes every declared component, including empty sets."""
         evidence = self.scenario_evidence
         return (
             evidence is not None
             and evidence.complete
+            and all(
+                item is not None and item.complete
+                for item in self.scenario_evidence_components.values()
+            )
+        )
+
+    @property
+    def is_robust(self) -> bool:
+        evidence = self.scenario_evidence
+        return (
+            evidence is not None
+            and self.scenario_complete
             and evidence.observed_fraction == self.robustness_score == 1.0
             and self.critical_count == 0
             and self.high_count == 0

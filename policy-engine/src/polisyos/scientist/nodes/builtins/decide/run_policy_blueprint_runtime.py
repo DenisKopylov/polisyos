@@ -1808,6 +1808,15 @@ def _recompute_stress_test_report(report: StressTestReport) -> StressTestReport:
             "population_probability": "not_established",
         }
     )
+    if evidence is not None:
+        metadata["completeness"] = report.scenario_complete
+        metadata["score_status"] = (
+            "unavailable"
+            if evidence.observed_fraction is None
+            else "observed"
+            if report.scenario_complete
+            else "conditional"
+        )
     recomputed = report.model_copy(
         update={
             "critical_count": evidence.critical_occurrences
@@ -1820,9 +1829,7 @@ def _recompute_stress_test_report(report: StressTestReport) -> StressTestReport:
             if evidence is not None
             else sum(1 for item in report.vulnerabilities if item.severity == "medium"),
             "robustness_score": evidence.observed_fraction if evidence is not None else None,
-            "set_adequacy_status": "complete"
-            if evidence is not None and evidence.complete
-            else "partial",
+            "set_adequacy_status": "complete" if report.scenario_complete else "partial",
             "metadata": metadata,
         }
     )
@@ -1994,7 +2001,10 @@ def _run_and_register_phase_d4_challenge_suites(
             PutOptions(
                 kind="scientist.stress_test_report",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.0"),
+                schema=SchemaInfo(
+                    name="polisyos.scientist.StressTestReport",
+                    version=suite_result.stress_test_report.schema_version,
+                ),
                 inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
@@ -2209,6 +2219,11 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
                 "is_promising": step.is_promising,
                 "duration_seconds": step.duration_seconds,
                 "compute_actual_usd": step.compute_actual_usd,
+                "compute_cost_source": step.compute_cost_source,
+                "provider_spend_usd": None
+                if step.provider_spend_usd is None
+                else str(step.provider_spend_usd),
+                "resource_event_ids": list(step.resource_event_ids),
                 "routing_decision": step.routing_decision,
                 "voi_action": step.voi_action,
                 "voi_priority": step.voi_priority,
@@ -2226,11 +2241,24 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
                 "failure_cards": [card.model_dump(mode="json") for card in result.failure_cards],
                 "fidelity_level": result.fidelity_level,
                 "terminal_action": result.terminal_action,
+                "compute_actual_usd": result.compute_actual_usd,
+                "compute_cost_source": result.compute_cost_source,
+                "provider_spend_usd": None
+                if result.provider_spend_usd is None
+                else str(result.provider_spend_usd),
+                "resource_event_ids": list(result.resource_event_ids),
             }
             for level, result in outcome.stage_results.items()
         },
         "final_action": outcome.final_action,
         "completed": outcome.completed,
+        "evaluation_status": outcome.evaluation_status,
+        "compute_actual_usd": outcome.compute_actual_usd,
+        "compute_cost_source": outcome.compute_cost_source,
+        "provider_spend_usd": None
+        if outcome.provider_spend_usd is None
+        else str(outcome.provider_spend_usd),
+        "resource_event_ids": list(outcome.resource_event_ids),
         "degradation_mode": outcome.degradation_mode,
         "audit_refs": [ref.model_dump(mode="json") for ref in outcome.audit_refs],
         "actionable_side_information_refs": [

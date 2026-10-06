@@ -187,6 +187,41 @@ def main() -> None:
     assert (
         adaptive_calls == [6, 12] and adaptive.total_evaluations == 18 and len(adaptive.rounds) == 2
     )
+    # The next estimated round is refused before sampling/materialization.
+    from polisyos.scientist.methods.doe import adaptive as adaptive_module
+
+    original_adaptive_sampling = adaptive_module.generate_sensitivity_samples
+    admitted_rounds = []
+    guarded_calls = []
+
+    def counted_adaptive_sampling(plan):
+        admitted_rounds.append(plan.estimated_runs)
+        return original_adaptive_sampling(plan)
+
+    def guarded_evaluate(matrix):
+        guarded_calls.append(len(matrix))
+        return 2.0 * matrix[:, 0] + 0.5 * matrix[:, 1]
+
+    adaptive_module.generate_sensitivity_samples = counted_adaptive_sampling
+    try:
+        guarded = AdaptiveSampler(
+            SensitivityPlan(
+                method=SensitivityMethod.MORRIS,
+                parameter_specs=[
+                    ParameterSpec(name=name, lower_bound=0, upper_bound=1) for name in ("p", "q")
+                ],
+                n_trajectories=2,
+                seed=7,
+                max_estimated_runs=9,
+                allow_large_run=False,
+            ),
+            ConvergenceConfig(max_rounds=2, trajectory_step=2),
+        ).run(guarded_evaluate)
+    finally:
+        adaptive_module.generate_sensitivity_samples = original_adaptive_sampling
+    assert admitted_rounds == guarded_calls == [6]
+    assert guarded.total_evaluations == 6 and len(guarded.rounds) == 1
+    assert guarded.stop_reason == "max_estimated_runs_exceeded"
     # Observe the real product iterator before materialization, with a bounded falsifier.
     original_product = sampling.itertools.product
     enumerated = []
@@ -242,6 +277,13 @@ def main() -> None:
                 "reports": reports,
                 "doe_oversize": {"sampling_calls": 0, "evaluator_calls": 0},
                 "adaptive": {"rows": adaptive_calls, "rounds": 2, "total_evaluations": 18},
+                "adaptive_oversize": {
+                    "admitted_sampling_rows": admitted_rounds,
+                    "evaluator_rows": guarded_calls,
+                    "rounds": len(guarded.rounds),
+                    "total_evaluations": guarded.total_evaluations,
+                    "stop_reason": guarded.stop_reason,
+                },
                 "grid_prefix": {
                     "dimensions": 12,
                     "enumerated": 3,

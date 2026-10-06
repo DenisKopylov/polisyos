@@ -1,0 +1,138 @@
+{
+  "files": {
+    "affected-9ce.json": {
+      "bytes": 5453,
+      "sha256": "752123855c53e6f907d2c677fd50218ddeaa0b6d697b282b31a01239fee993f8"
+    },
+    "affected-9ce.txt": {
+      "bytes": 80,
+      "sha256": "de0615cf37b5c81f3262e96c1af6d39e3e1ed022fb623f364a1d3c083a4e551f"
+    },
+    "affected-9ce.xml": {
+      "bytes": 8863,
+      "sha256": "a2c0aa1857b15e932194198ea358f550f21ca3fb83c88475be57e8dcf67e9f3e"
+    },
+    "baseline-B43-query.json": {
+      "bytes": 64468,
+      "sha256": "4e97340068d6499b09e543e0b339eb759b73742a30ba77893409cf2d93996312"
+    },
+    "baseline-binding.json": {
+      "bytes": 1012,
+      "sha256": "4c22a687966b06a76764c12e6b8cd2e1a22339a61919868a8da8f1bed72dbf78"
+    },
+    "canonical-CMP-01.source.txt": {
+      "bytes": 16623,
+      "sha256": "29a3a0775bdac83d1f1804f52673e5cc99a5602a611877b216a423f191f1472e"
+    },
+    "case-results.json": {
+      "bytes": 24354,
+      "sha256": "b4354e47c5ed894a59161c2947372e0e01ae75208a23e13244769e0b4eba97af"
+    },
+    "defining-9ce.json": {
+      "bytes": 5289,
+      "sha256": "cc211272d2ac64d1a6489802a9905fad12d2147bbcb12468c388f81c8f0b0e62"
+    },
+    "defining-9ce.txt": {
+      "bytes": 80,
+      "sha256": "0caf379acbcb845c31b98bf4efeffb865a66d527d27d5bb4f34018bea0099078"
+    },
+    "defining-9ce.xml": {
+      "bytes": 3384,
+      "sha256": "4537481ef0770079214abc0c50295abe5b13909aca914cee1e103ff6e6a6b0e5"
+    },
+    "defining-e69.json": {
+      "bytes": 5302,
+      "sha256": "dbee101b83a29d47a102fb20d576b83e09eaec2c7e4bfe015488f3b6c60865d0"
+    },
+    "defining-e69.txt": {
+      "bytes": 4379,
+      "sha256": "618cc94bac64a250ffb297f4fb859e2d8242f6296c16333bd0fe946651c28851"
+    },
+    "defining-e69.xml": {
+      "bytes": 5175,
+      "sha256": "ac926e21a9d54dd7e8552bdbe2940428931a0fa0aa08a4419094cdb86f9585d2"
+    },
+    "defining-f563.json": {
+      "bytes": 5298,
+      "sha256": "0f50e22293e1287b2d7a6356dbaea7645b244ca8ec029ef9d5fe66ceae34ba39"
+    },
+    "defining-f563.txt": {
+      "bytes": 18102,
+      "sha256": "e413aa96ab75450826a69a4ccea0c9602d4c3767532041918409170029ac6675"
+    },
+    "defining-f563.xml": {
+      "bytes": 18329,
+      "sha256": "63f38aaddd2bcc5a8085f95d6f7f211a95ccf39449f5e96b74b370daa2672614"
+    },
+    "environment.json": {
+      "bytes": 1682,
+      "sha256": "7a590e9b9a65a813d36bbb021561166ac0b15fade0ebc9fae773e56cef2931af"
+    },
+    "format-9ce.json": {
+      "bytes": 5402,
+      "sha256": "895597df2778ecf6aa0ad49a486abfd2244d808e2a9f3c26516b7c5e612232e3"
+    },
+    "format-9ce.txt": {
+      "bytes": 26,
+      "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209"
+    },
+    "generate_selected_stub.source.txt": {
+      "bytes": 327,
+      "sha256": "9d2ad4b59be7b27fbb2e06a38aba944cd569f70dc45a1fa3b022e65faa68ab50"
+    },
+    "mypy-e69.json": {
+      "bytes": 5278,
+      "sha256": "441f306ef256857b33fc2448d0dcdf714d3de1687afe42de502729a95dcd03b9"
+    },
+    "mypy-e69.txt": {
+      "bytes": 1751,
+      "sha256": "ad2531130c67344b69340cedf53c6cf1181366082f874fc2c60a5badb5c81623"
+    },
+    "mypy-imported-9ce.json": {
+      "bytes": 5284,
+      "sha256": "6acc1feeb31352e2a2adc0b638974e0f36674bb4e75581692c8929637f94e6c1"
+    },
+    "mypy-imported-9ce.txt": {
+      "bytes": 485,
+      "sha256": "7356c860b1de7c107ae3588844e8f18a5fa8fca8d5eb2e1ad35eb8a3393b24ff"
+    },
+    "package.source.txt": {
+      "bytes": 4175,
+      "sha256": "06bb4f83c078673a731ba358da22b32ea9fb36a975b044f74f6a64c3aedb07df"
+    },
+    "query-B-failures.txt": {
+      "bytes": 47140,
+      "sha256": "9620f913ce0faa3773d4e91862b06643135542725ab3fd9ed591843c69bf5624"
+    },
+    "ruff-9ce.json": {
+      "bytes": 5399,
+      "sha256": "0478c5ecc76e6f4dfc87e53b836c15015e075a68e761ce677af452e083d60207"
+    },
+    "ruff-9ce.txt": {
+      "bytes": 874,
+      "sha256": "7b24e364de042b2e8738ebf41c49d86038af24d5706adf4f9c429d0b8672ac92"
+    },
+    "run_capture.source.txt": {
+      "bytes": 2586,
+      "sha256": "c4f52d697075519de731cd9c5638d7e45edb658d66778e0b004fdfd3de9dd182"
+    },
+    "stub-corrected.json": {
+      "bytes": 5538,
+      "sha256": "2e49721b7149775e02277d375b0e020d290fcd6a7d59da8faa85a461892c422d"
+    },
+    "stub-corrected.txt": {
+      "bytes": 480,
+      "sha256": "73a399b8d9c5f28439d33f0668418094e80e73e9c054697b51c77cbd97a5c9f3"
+    },
+    "stub.json": {
+      "bytes": 6306,
+      "sha256": "fa5ab0592ba6c75e7dbea7f82a5f25b60c5b6863240da4be6de6ae6da09b2629"
+    },
+    "stub.txt": {
+      "bytes": 480,
+      "sha256": "9afeba35bb6d6938ae373a6ecc223644891dc08fc6b80b9307939500dd091b67"
+    }
+  },
+  "total_bytes": 279404,
+  "note": "Complete moderate files; self excluded. Executed scratch .py drivers archived as literal .source.txt with identical bytes; actual argv paths and hashes retained. Independent peer packets referenced separately, not copied."
+}

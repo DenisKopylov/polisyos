@@ -78,7 +78,13 @@ coordination are not established. Generators without an atomic `get_state()` /
 resume. Generic checkpoint resume supports the four built-in objectives with
 stateless function evaluation ports whose source, defaults and JSON globals bind
 the profile; arbitrary objective objects and closures refuse resume. The actual
-native autotune factory has its own configured replay profile. Original
+native autotune factory binds the actual suite/data snapshots, mutation model
+implementation/schema, evaluator configuration and supported evaluation context.
+The five built-in evaluator constructor profiles are recognized directly; a
+stateful custom evaluator must expose JSON `checkpoint_configuration()` with its
+actual settings and exact data references. Opaque configurations or callbacks
+refuse resume. Pass the same supported context to `resume` or `restore`.
+Original
 `search-service.v1` checkpoints are preserved and refused; use their original
 reader or start a new configured run rather than rewriting their version.
 Unknown schema/configuration is refused rather than migrated. These APIs

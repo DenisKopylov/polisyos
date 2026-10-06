@@ -11,8 +11,11 @@ from __future__ import annotations
 
 import hashlib
 import inspect
+import json
+import math
 from copy import deepcopy
 from datetime import UTC, datetime
+from decimal import Decimal
 from pathlib import Path
 from types import CodeType
 from typing import TYPE_CHECKING, Any
@@ -42,6 +45,59 @@ from polisyos.scientist.methods.search.run_state import (
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 
 logger = get_logger(__name__)
+
+
+def _decode_checkpoint(data: bytes) -> Any:
+    """Refuse wire underflow before JSON decoding can turn nonzero into zero."""
+
+    def number(token: str) -> float:
+        value = float(token)
+        if not math.isfinite(value):
+            raise ValueError("search_resume_numeric_out_of_range")
+        if value == 0 and Decimal(token) != 0:
+            raise ValueError("search_resume_numeric_underflow")
+        return value
+
+    def constant(token: str) -> Any:
+        raise ValueError(f"search_resume_invalid_numeric_constant:{token}")
+
+    raw = json.loads(data, parse_float=number, parse_constant=constant)
+
+    def tagged_numbers(value: Any) -> None:
+        if isinstance(value, dict):
+            if value.get("_type") == "float" and isinstance(value.get("repr"), str):
+                number(value["repr"])
+            for item in value.values():
+                tagged_numbers(item)
+        elif isinstance(value, list):
+            for item in value:
+                tagged_numbers(item)
+
+    tagged_numbers(raw)
+    return from_canonical_bytes(data)
+
+
+def _same_configuration(saved: Any, current: Any) -> bool:
+    """Compare the complete profile without boolean/integer equality aliases."""
+    if isinstance(current, dict):
+        return (
+            isinstance(saved, dict)
+            and saved.keys() == current.keys()
+            and all(_same_configuration(saved[key], value) for key, value in current.items())
+        )
+    if isinstance(current, list):
+        return (
+            isinstance(saved, list)
+            and len(saved) == len(current)
+            and all(_same_configuration(a, b) for a, b in zip(saved, current, strict=True))
+        )
+    if type(current) is float and type(saved) is int:
+        try:
+            return float(saved) == current
+        except OverflowError:
+            return False
+    return type(saved) is type(current) and saved == current
+
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
@@ -75,8 +131,9 @@ class NativeSearchService:
         self._ask_iteration = 0
         self._initial_candidate: dict[str, Any] | None = None
         self._initial_candidate_ids: set[str] = set()
+        self._checkpoint_context: dict[str, Any] = {}
 
-    def _configuration(self) -> dict[str, Any]:
+    def _configuration(self, context: dict[str, Any] | None = None) -> dict[str, Any]:
         config = self.controller._config
         stopping = config.stopping.checkpoint_state()
 
@@ -87,7 +144,7 @@ class NativeSearchService:
                 "children": [without_clock(child) for child in value["children"]],
             }
 
-        profile = self._replay_profile()
+        profile = self._replay_profile(self._checkpoint_context if context is None else context)
         return checkpoint_json(
             {
                 "basis": self._basis,
@@ -99,6 +156,10 @@ class NativeSearchService:
                 "budget_key": config.budget_key,
                 "budget_cost_key": config.budget_cost_key,
                 "budget_owner_identity": self.controller._budget_owner_identity(),
+                "initial_evaluations": config.initial_evaluations,
+                "policy_objective_stack": self._policy_configuration(),
+                "resource_arbiter_supported": config.resource_arbiter is None,
+                "pareto_registry_supported": config.pareto_registry is None,
                 "stopping": without_clock(stopping),
                 "generator": f"{type(self.controller._generator).__module__}.{type(self.controller._generator).__qualname__}",
                 "objectives": [
@@ -115,13 +176,13 @@ class NativeSearchService:
             }
         )
 
-    def _replay_profile(self) -> dict[str, Any] | None:
+    def _replay_profile(self, context: dict[str, Any]) -> dict[str, Any] | None:
         """Recognize the actual factory or built-in objectives/stateless ports.
 
         Arbitrary objects and closures are not reconstructible from a build
         digest. Such generic profiles remain persistable and refuse resume.
         """
-        from polisyos.scientist.methods.autotune.models import SearchLoopSpec
+        from polisyos.scientist.methods.autotune.models import BenchmarkSuite, SearchLoopSpec
         from polisyos.scientist.methods.autotune.runtime import (
             PydanticMutationCodec,
             SearchLoopRunner,
@@ -134,6 +195,14 @@ class NativeSearchService:
             InequalityObjective,
         )
 
+        config = self.controller._config
+        if (
+            config.resource_arbiter is not None
+            or config.pareto_registry is not None
+            or (config.policy_objective_stack is not None and self._policy_configuration() is None)
+        ):
+            return None
+
         objectives = self.controller._config.objective.objectives
         stage_b = self.controller._stage_b
         closure = inspect.getclosurevars(stage_b).nonlocals if inspect.isfunction(stage_b) else {}
@@ -144,6 +213,9 @@ class NativeSearchService:
             and isinstance(suite, ArtifactRef)
             and runner._store is self._store
             and type(spec.mutation_codec) is PydanticMutationCodec
+            and set(vars(spec.mutation_codec)) == {"_model_cls"}
+            and getattr(runner._evaluate_candidate, "__func__", None)
+            is SearchLoopRunner._evaluate_candidate
             and len(objectives) == 1
             and type(objectives[0]) is _AutotuneObjective
             and objectives[0]._policy == spec.promotion_policy
@@ -153,14 +225,39 @@ class NativeSearchService:
                 if isinstance(code, CodeType) and code.co_freevars == ("self", "spec", "suite_ref")
             )
         ):
+            try:
+                snapshot = self._read_snapshot(suite)
+                suite_data = BenchmarkSuite.model_validate(from_canonical_bytes(snapshot.data))
+                evaluator_config = self._evaluator_configuration(spec.benchmark_evaluator, runner)
+                if evaluator_config is None:
+                    return None
+                context_data = {key: self._profile_value(value) for key, value in context.items()}
+                model_path = inspect.getsourcefile(spec.mutation_codec._model_cls)
+                factory_path = inspect.getsourcefile(SearchLoopRunner)
+                if model_path is None or factory_path is None:
+                    return None
+            except (AttributeError, TypeError, ValueError, OSError, RuntimeError):
+                return None
             return {
-                "version": "native-autotune-replay.v1",
+                "version": "native-autotune-replay.v2",
                 "suite_ref": suite.model_dump(mode="json"),
+                "suite_content_sha256": hashlib.sha256(snapshot.data).hexdigest(),
+                "suite_manifest_profile_sha256": artifact_manifest_profile_sha256(
+                    snapshot.manifest
+                ),
+                "suite_configuration": suite_data.model_dump(mode="json"),
+                "data_inputs": [
+                    self._profile_value(ref)
+                    for ref in (suite_data.dataset_ref, suite_data.split_manifest_ref)
+                    if ref is not None
+                ],
                 "policy": spec.promotion_policy.model_dump(mode="json"),
                 "mutation_schema": spec.mutation_codec._model_cls.model_json_schema(),
-                "factory_build": hashlib.sha256(
-                    Path(inspect.getsourcefile(SearchLoopRunner)).read_bytes()
-                ).hexdigest(),
+                "mutation_model_build": hashlib.sha256(Path(model_path).read_bytes()).hexdigest(),
+                "mutation_model_type": f"{spec.mutation_codec._model_cls.__module__}.{spec.mutation_codec._model_cls.__qualname__}",
+                "evaluator_configuration": evaluator_config,
+                "evaluation_context": context_data,
+                "factory_build": hashlib.sha256(Path(factory_path).read_bytes()).hexdigest(),
             }
         supported = (
             BudgetDeficitObjective,
@@ -196,12 +293,100 @@ class NativeSearchService:
             ports["stage_a"] = callable_profile(self.controller._stage_a)
         if any(port is None for port in ports.values()):
             return None
+        objective_path = inspect.getsourcefile(BudgetDeficitObjective)
+        if objective_path is None:
+            return None
         return {
             "version": "builtin-objective-stateless-ports.v1",
-            "objective_build": hashlib.sha256(
-                Path(inspect.getsourcefile(BudgetDeficitObjective)).read_bytes()
-            ).hexdigest(),
+            "objective_build": hashlib.sha256(Path(objective_path).read_bytes()).hexdigest(),
             "ports": ports,
+        }
+
+    def _profile_value(self, value: Any) -> Any:
+        """Bind supported actual data/configuration values, refusing opaque ports."""
+        if isinstance(value, ArtifactRef):
+            snapshot = self._read_snapshot(value)
+            return {
+                "artifact_ref": value.model_dump(mode="json"),
+                "content_sha256": hashlib.sha256(snapshot.data).hexdigest(),
+                "manifest_profile_sha256": artifact_manifest_profile_sha256(snapshot.manifest),
+            }
+        if inspect.isfunction(value):
+            variables = inspect.getclosurevars(value)
+            if vars(value):
+                raise ValueError("stateful function replay unavailable")
+            return {
+                "function_source_sha256": hashlib.sha256(
+                    inspect.getsource(value).encode()
+                ).hexdigest(),
+                "defaults": checkpoint_json(value.__defaults__),
+                "keyword_defaults": checkpoint_json(value.__kwdefaults__),
+                "closure": checkpoint_json(variables.nonlocals),
+                "globals": checkpoint_json(variables.globals),
+            }
+        if isinstance(value, dict):
+            if any(not isinstance(key, str) for key in value):
+                raise ValueError("non-string configuration key")
+            return {key: self._profile_value(item) for key, item in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [self._profile_value(item) for item in value]
+        return checkpoint_json(value)
+
+    def _policy_configuration(self) -> dict[str, Any] | None:
+        stack = self.controller._config.policy_objective_stack
+        if stack is None:
+            return None
+        from polisyos.scientist.policy_design.objectives import ObjectiveStack
+
+        if type(stack) is not ObjectiveStack:
+            return None
+        path = inspect.getsourcefile(ObjectiveStack)
+        if path is None:
+            return None
+        return {
+            "parameters": checkpoint_json(vars(stack)),
+            "implementation_sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest(),
+        }
+
+    def _evaluator_configuration(self, evaluator: Any, runner: Any) -> dict[str, Any] | None:
+        """Use actual declared configuration or the exact built-in constructor profile."""
+        cls = type(evaluator)
+        path = inspect.getsourcefile(cls)
+        if path is None:
+            return None
+        configuration = getattr(evaluator, "checkpoint_configuration", None)
+        if callable(configuration):
+            configuration = configuration()
+        else:
+            builtin = {
+                "calibration": "CalibrationMetaEvaluator",
+                "cheap_stage": "CheapStageBenchmarkEvaluator",
+                "claim_adjudication": "ClaimGoldEvaluator",
+                "execution_plan": "ExecutionPlanBenchmarkEvaluator",
+                "reflexion": "ReflexionRoutingEvaluator",
+            }
+            from importlib import import_module
+
+            module = cls.__module__.rsplit(".", 1)[-1]
+            if (
+                cls.__module__ != f"polisyos.scientist.methods.autotune.{module}"
+                or builtin.get(module) != cls.__name__
+                or getattr(import_module(cls.__module__), cls.__name__) is not cls
+                or set(vars(evaluator)) != {"_store", "_registry"}
+                or evaluator._store not in (None, self._store)
+                or evaluator._registry not in (None, runner._registry)
+            ):
+                return None
+            configuration = {
+                "store": "native_configured_store",
+                "registry_root": str(runner._registry._root),
+            }
+        if not isinstance(configuration, dict):
+            return None
+        return {
+            "type": f"{cls.__module__}.{cls.__qualname__}",
+            "implementation_sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest(),
+            "configuration": self._profile_value(configuration),
         }
 
     def checkpoint(self) -> ArtifactRef:
@@ -239,7 +424,7 @@ class NativeSearchService:
             canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
         )
         snapshot = self._verified_snapshot(ref)
-        if SearchServiceCheckpoint.model_validate(from_canonical_bytes(snapshot.data)) != payload:
+        if SearchServiceCheckpoint.model_validate(_decode_checkpoint(snapshot.data)) != payload:
             raise ValueError("search_checkpoint_readback_mismatch")
         self.checkpoint_ref = ref.model_copy(
             update={
@@ -249,10 +434,7 @@ class NativeSearchService:
         return self.checkpoint_ref
 
     def _verified_snapshot(self, ref: ArtifactRef) -> Any:
-        read = getattr(self._store, "get_verified_snapshot", None)
-        if not callable(read):
-            raise ValueError("search_checkpoint_verified_snapshot_port_required")
-        snapshot = read(ref)
+        snapshot = self._read_snapshot(ref)
         manifest = snapshot.manifest
         if (
             manifest.kind != "scientist.search.service_checkpoint"
@@ -263,11 +445,17 @@ class NativeSearchService:
             raise ValueError("search_resume_checkpoint_manifest_mismatch")
         return snapshot
 
+    def _read_snapshot(self, ref: ArtifactRef) -> Any:
+        read = getattr(self._store, "get_verified_snapshot", None)
+        if not callable(read):
+            raise ValueError("search_checkpoint_verified_snapshot_port_required")
+        return read(ref)
+
     def _persist(self) -> None:
         if self._store is not None:
             self.checkpoint()
 
-    def restore(self, ref: ArtifactRef) -> None:
+    def restore(self, ref: ArtifactRef, *, context: dict[str, Any] | None = None) -> None:
         """Restore into a fresh service, validating the whole view before effect."""
         if self._store is None or not isinstance(ref, ArtifactRef):
             raise ValueError("search_resume_requires_store_and_exact_reference")
@@ -280,10 +468,13 @@ class NativeSearchService:
         if ref.manifest_profile_sha256 is None:
             raise ValueError("search_resume_exact_manifest_profile_required")
         snapshot = self._verified_snapshot(ref)
-        saved = SearchServiceCheckpoint.model_validate(from_canonical_bytes(snapshot.data))
+        saved = SearchServiceCheckpoint.model_validate(_decode_checkpoint(snapshot.data))
         if saved.configuration.get("replay_profile") is None:
             raise ValueError("search_resume_unsupported_objective_or_evaluator_profile")
-        if saved.configuration != self._configuration():
+        current_configuration = self._configuration(context or {})
+        if current_configuration.get("replay_profile") is None:
+            raise ValueError("search_resume_unsupported_objective_or_evaluator_profile")
+        if not _same_configuration(saved.configuration, current_configuration):
             raise ValueError("search_resume_configuration_mismatch")
         if saved.configuration["diversity_enabled"]:
             raise ValueError("search_resume_unsupported_diversity_profile")
@@ -324,11 +515,14 @@ class NativeSearchService:
         self._stopped_reason = saved.stopping_reason
         self._failure = saved.failure
         self.checkpoint_ref = ref
+        self._checkpoint_context = dict(context or {})
 
     def resume_search(self, *, context: dict[str, Any] | None = None) -> SearchResult:
         """Continue restored pending work; terminal stops remain terminal."""
         if not self.controller._run_state.search_id:
             raise ValueError("search_resume_requires_restored_run")
+        if not _same_configuration(self._configuration(context or {}), self._configuration()):
+            raise ValueError("search_resume_context_configuration_mismatch")
         lock = self.controller._run_lock
         if not lock.acquire(blocking=False):
             raise RuntimeError("SearchController.run is not reentrant")
@@ -353,6 +547,7 @@ class NativeSearchService:
     ) -> list[CandidateProposal]:
         """Generate proposals and retain candidate-ID ownership for ``tell``."""
         del goal, search_space
+        self._checkpoint_context = dict(context)
         self.controller._prepare_service_run()
         payloads = self.controller._generate_candidates(
             iteration=self._ask_iteration,
@@ -477,6 +672,7 @@ class NativeSearchService:
         if not run_lock.acquire(blocking=False):
             raise RuntimeError("SearchController.run is not reentrant")
         try:
+            self._checkpoint_context = dict(initial_context)
             self._pending_candidates.clear()
             self._completed_candidate_ids.clear()
             self._ask_iteration = 0

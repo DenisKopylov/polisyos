@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 
 import pytest
 
@@ -48,23 +49,46 @@ class _Mutation(MutationArtifact):
     value: int
 
 
+def _identity_score(value):
+    return value
+
+
+def _shifted_score(value):
+    return value + 10
+
+
 class _Evaluator:
-    def __init__(self, *, fail_value=None):
+    def __init__(self, *, fail_value=None, failure_marker=None, scale=1):
         self.calls = []
         self.fail_value = fail_value
+        self.failure_marker = failure_marker
+        self.scale = scale
+
+    def checkpoint_configuration(self):
+        return {
+            "scale": self.scale,
+            "fail_once_value": self.fail_value,
+            "failure_marker": str(self.failure_marker),
+        }
 
     def evaluate(self, candidate_ref, suite_ref, context):
         candidate = load_model_artifact(context["store"], candidate_ref, _Mutation)
         suite = load_model_artifact(context["store"], suite_ref, BenchmarkSuite)
         self.calls.append(candidate.value)
-        if candidate.value == self.fail_value:
+        if candidate.value == self.fail_value and not self.failure_marker.exists():
+            self.failure_marker.write_text("actual evaluator failure observed", encoding="utf-8")
             raise RuntimeError("actual evaluator interruption")
         current = context["benchmark_comparison_incumbent"]
         return BenchmarkEvaluation(
             loop_id=candidate.loop_id,
             suite_id=suite.suite_id,
             candidate_ref=candidate_ref,
-            holdout_metrics={"score": float(candidate.value)},
+            holdout_metrics={
+                "score": float(
+                    context.get("score_callback", _identity_score)(candidate.value) * self.scale
+                    + context.get("score_offset", 0)
+                )
+            },
             sample_counts={"holdout": 1},
             runtime_split_type=BenchmarkSplit.HOLDOUT,
             promotable=True,
@@ -79,7 +103,9 @@ def _runner(tmp_path, *, fail_value=None):
     suite = persist_benchmark_suite(
         store, BenchmarkSuite(suite_id="resume", data_basis="candidate_only")
     )
-    evaluator = _Evaluator(fail_value=fail_value)
+    evaluator = _Evaluator(
+        fail_value=fail_value, failure_marker=tmp_path / "evaluation-failure.txt"
+    )
     spec = SearchLoopSpec(
         loop_id="resume",
         mutation_codec=PydanticMutationCodec(_Mutation),
@@ -104,7 +130,7 @@ def test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated
     assert set(service._pending_candidates) == {"candidate_1_0"}
     old_bytes = store.get_bytes(old_ref)
     fresh_runner, fresh_store, fresh_registry, fresh_suite, fresh_evaluator, fresh_spec = _runner(
-        tmp_path
+        tmp_path, fail_value=2
     )
     result = fresh_runner.resume(
         fresh_spec, suite_ref=suite, checkpoint_ref=old_ref, max_iterations=3
@@ -123,7 +149,9 @@ def test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated
         )
         assert evaluation.holdout_metrics == {"score": float(row.candidate["value"])}
     final_ref = ArtifactRef.model_validate(result.telemetry["checkpoint_ref"])
-    observer = fresh_runner.create_service(_runner(tmp_path)[-1], suite_ref=suite, max_iterations=3)
+    observer = fresh_runner.create_service(
+        _runner(tmp_path, fail_value=2)[-1], suite_ref=suite, max_iterations=3
+    )
     observer.restore(final_ref)
     assert observer.controller._run_state.pareto_front == result.pareto_front
     assert [row.candidate for row in observer.controller._history] == [
@@ -261,6 +289,8 @@ def test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal(tmp_p
         "pending_order",
         "cost_huge",
         "cost_origin_claim",
+        "hard_limit_bool",
+        "stage_a_integer",
     ],
 )
 def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect(
@@ -272,6 +302,8 @@ def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_
 
     store = FileSystemCAS(tmp_path / "cas")
     source = _direct(store)
+    if mutation == "hard_limit_bool":
+        source.controller._config.max_iterations_hard_limit = 1
     source.ask(None, None, {})
     payload = from_canonical_bytes(store.get_bytes(source.checkpoint_ref))
     if mutation == "version":
@@ -292,6 +324,10 @@ def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_
             "recorded_by_provider": {},
             "unavailable_reason": None,
         }
+    elif mutation == "hard_limit_bool":
+        payload["configuration"]["hard_limit"] = True
+    elif mutation == "stage_a_integer":
+        payload["configuration"]["stage_a_enabled"] = 0
     else:
         payload["pending_candidate_ids"] = []
     bad = store.put_json(
@@ -514,6 +550,56 @@ def test_actual_stateless_evaluator_defaults_and_objective_parameters_bind_resum
     assert target.controller._generator.get_state()["index"] == 0
 
 
+@pytest.mark.parametrize("changed", ["warm_corpus", "policy_stack", "external_arbiter"])
+def test_actual_warm_and_policy_configuration_changes_refuse_resume(tmp_path, changed):
+    from polisyos.scientist.policy_design.objectives import ObjectiveStack
+
+    store = FileSystemCAS(tmp_path / "cas")
+    source = _direct(store)
+    source.controller._config.initial_evaluations = [
+        {"candidate": {"cost": 3}, "objective_value": 3.0, "is_promising": True}
+    ]
+    source.controller._config.policy_objective_stack = ObjectiveStack()
+    source.ask(None, None, {})
+    target = _direct(FileSystemCAS(tmp_path / "cas"))
+    target.controller._config.initial_evaluations = list(
+        source.controller._config.initial_evaluations
+    )
+    target.controller._config.policy_objective_stack = ObjectiveStack()
+    if changed == "warm_corpus":
+        target.controller._config.initial_evaluations = [
+            {"candidate": {"cost": 4}, "objective_value": 4.0, "is_promising": True}
+        ]
+    elif changed == "policy_stack":
+        target.controller._config.policy_objective_stack = ObjectiveStack(near_binding_ratio=0.8)
+    else:
+        target.controller._config.resource_arbiter = object()
+    with pytest.raises(
+        ValueError, match="configuration_mismatch|unsupported_objective_or_evaluator_profile"
+    ):
+        target.restore(source.checkpoint_ref)
+    assert target.controller._history == []
+    assert target.controller._generator.get_state()["index"] == 0
+
+
+def test_same_actual_warm_corpus_fresh_reader_preserves_training_and_current_history(tmp_path):
+    store = FileSystemCAS(tmp_path / "cas")
+    source = _direct(store)
+    warm = {"candidate": {"cost": 3}, "objective_value": 3.0, "is_promising": True}
+    source.controller._config.initial_evaluations = [warm]
+    result = source.run_search(initial_context={})
+    assert [row.iteration for row in result.history] == [-1, 0, 1]
+    assert [row.candidate["cost"] for row in result.history] == [3, 2, 1]
+    target = _direct(FileSystemCAS(tmp_path / "cas"))
+    target.controller._config.initial_evaluations = [dict(warm)]
+    target.restore(source.checkpoint_ref)
+    reopened = target.resume_search()
+    assert reopened.history == result.history
+    assert reopened.best_candidate == {"cost": 1}
+    assert target.controller._run_state.training_evaluations == 1
+    assert target.controller._run_state.evaluation_iterations == 2
+
+
 def test_checkpoint_requires_exact_public_snapshot_profile_on_resume(tmp_path):
     source = _direct(FileSystemCAS(tmp_path / "cas"))
     source.ask(None, None, {})
@@ -553,13 +639,17 @@ def test_actual_checkpoint_consumer_uses_one_public_verified_snapshot_without_sp
     print("public_snapshot_checkpoint", source.checkpoint_ref.model_dump(mode="json"))
 
 
-@pytest.mark.parametrize("maximum", [True, 10**400, float("nan"), float("inf"), -1, 0])
+@pytest.mark.parametrize(
+    "maximum", [True, 10**400, float("nan"), float("inf"), -1, 0, Decimal("1e-1000")]
+)
 def test_cost_budget_constructor_refuses_invalid_present_scalar(maximum):
     with pytest.raises(ValueError, match="finite positive"):
         CostBudgetStopping(maximum)
 
 
-@pytest.mark.parametrize("cost", [True, 10**400, float("nan"), float("inf"), -1, None])
+@pytest.mark.parametrize(
+    "cost", [True, 10**400, float("nan"), float("inf"), -1, None, Decimal("1e-1000")]
+)
 def test_cost_observation_and_actual_controller_context_are_unavailable_without_crash(
     tmp_path, cost
 ):
@@ -669,5 +759,121 @@ def test_original_v1_checkpoint_manifest_refuses_explicitly_before_effect(tmp_pa
     target = _direct(FileSystemCAS(tmp_path / "cas"))
     with pytest.raises(ValueError, match="checkpoint_manifest_mismatch"):
         target.restore(old)
+    assert target.controller._run_state.search_id == ""
+    assert target.controller._generator.get_state()["index"] == 0
+
+
+@pytest.mark.parametrize("change", ["evaluator", "context", "callback", "codec", "opaque"])
+def test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect(
+    tmp_path, change
+):
+    runner, store, registry, suite, evaluator, spec = _runner(tmp_path)
+    context = {"score_offset": 1, "score_callback": _identity_score}
+    result = runner.run(spec, suite_ref=suite, max_iterations=1, context=context)
+    assert registry.get("resume").metrics == {"score": 2}
+    fresh_runner, _, _, _, fresh_evaluator, fresh_spec = _runner(tmp_path)
+    active_context = dict(context)
+    if change == "evaluator":
+        fresh_evaluator.scale = 2
+    elif change == "context":
+        active_context["score_offset"] = 2
+    elif change == "callback":
+        active_context["score_callback"] = _shifted_score
+    elif change == "codec":
+        from dataclasses import replace
+
+        class DifferentMutation(_Mutation):
+            pass
+
+        fresh_spec = replace(fresh_spec, mutation_codec=PydanticMutationCodec(DifferentMutation))
+    else:
+        active_context["opaque_runtime_configuration"] = object()
+    target = fresh_runner.create_service(fresh_spec, suite_ref=suite, max_iterations=1)
+    with pytest.raises(
+        ValueError, match="configuration_mismatch|unsupported_objective_or_evaluator_profile"
+    ):
+        target.restore(
+            ArtifactRef.model_validate(result.telemetry["checkpoint_ref"]), context=active_context
+        )
+    assert target.controller._run_state.search_id == ""
+    assert target.controller._history == []
+    assert target.controller._generator.get_state()["index"] == 0
+    assert fresh_evaluator.calls == []
+
+
+def test_native_same_content_configuration_and_context_fresh_resume(tmp_path):
+    runner, _, registry, suite, evaluator, spec = _runner(tmp_path)
+    context = {"score_offset": 1, "score_callback": _identity_score}
+    result = runner.run(spec, suite_ref=suite, max_iterations=1, context=context)
+    fresh_runner, _, _, _, fresh_evaluator, fresh_spec = _runner(tmp_path)
+    reopened = fresh_runner.resume(
+        fresh_spec,
+        suite_ref=suite,
+        checkpoint_ref=ArtifactRef.model_validate(result.telemetry["checkpoint_ref"]),
+        context=context,
+        max_iterations=1,
+    )
+    assert reopened.history == result.history
+    assert fresh_evaluator.calls == []
+    assert reopened.best_candidate == result.best_candidate
+    assert registry.get("resume").metrics == {"score": 2}
+
+
+@pytest.mark.parametrize("representation", ["wire", "canonical_tag"])
+def test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses(
+    tmp_path, representation
+):
+    import json
+
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon.canon_json import from_canonical_bytes
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    store = FileSystemCAS(tmp_path / "cas")
+    service = _direct(store, stopping=CostBudgetStopping(5))
+    service.controller._config.budget_middleware = BudgetMiddleware(
+        BudgetState(spent={"run": Decimal("1e-1000")})
+    )
+    result = service.run_search(initial_context={})
+    assert result.history == []
+    assert result.telemetry["budget_spent"] is None
+    assert result.telemetry["budget_available"] is False
+    assert result.telemetry["budget_evidence"]["unavailable_reason"] == "recorded_cost_invalid"
+    source = _direct(store)
+    source.ask(None, None, {})
+    payload = from_canonical_bytes(store.get_verified_snapshot(source.checkpoint_ref).data)
+    if representation == "wire":
+        raw = (
+            json.dumps(payload, sort_keys=True)
+            .replace('"budget_spent": 0.0', '"budget_spent": 1e-1000')
+            .encode()
+        )
+        assert b'"budget_spent": 1e-1000' in raw
+    else:
+        payload["run_state"]["budget_spent"] = {"_type": "float", "repr": "1e-1000"}
+        raw = json.dumps(payload, sort_keys=True).encode()
+    bad = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind="scientist.search.service_checkpoint",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.search.SearchServiceCheckpoint", version="2.0"
+            ),
+        ),
+    )
+    bad = bad.model_copy(
+        update={
+            "manifest_profile_sha256": artifact_manifest_profile_sha256(
+                store.get_verified_snapshot(bad).manifest
+            )
+        }
+    )
+    target = _direct(FileSystemCAS(tmp_path / "cas"))
+    with pytest.raises(ValueError, match="numeric_underflow"):
+        target.restore(bad)
     assert target.controller._run_state.search_id == ""
     assert target.controller._generator.get_state()["index"] == 0

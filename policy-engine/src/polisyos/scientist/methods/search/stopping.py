@@ -399,7 +399,11 @@ def _nonnegative_cost(value: Any) -> float | None:
         numeric = float(value)
     except (OverflowError, ValueError, TypeError):
         return None
-    return numeric if isfinite(numeric) and numeric >= 0 else None
+    if not isfinite(numeric) or numeric < 0:
+        return None
+    if numeric == 0 and value != 0:
+        return None
+    return numeric
 
 
 class CompositeStoppingCriterion(StoppingCriterion):

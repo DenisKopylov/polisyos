@@ -292,7 +292,7 @@ class SearchLoopRunner:
     ) -> SearchResult:
         """Reopen an exact checkpoint using a freshly configured native service."""
         service = self.create_service(spec, suite_ref=suite_ref, max_iterations=max_iterations)
-        service.restore(checkpoint_ref)
+        service.restore(checkpoint_ref, context=context)
         return service.resume_search(context=context)
 
     def _evaluate_candidate(

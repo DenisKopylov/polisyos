@@ -1,0 +1,277 @@
+.......FF..............................                                  [100%]
+=================================== FAILURES ===================================
+_ test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False] _
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f00f9813460>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f00f9b5e520>
+point_only = False
+
+    @pytest.mark.parametrize("point_only", [False, True])
+    def test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections(
+        execution_context, minimal_state, monkeypatch, point_only
+    ):
+        """Preserve real backend/source markers while falsifying consumed quantities."""
+        worker = os.environ.get("E02_TEST_DOWHY_WORKER_PYTHON")
+        assert worker and Path(worker).is_file()
+        monkeypatch.setenv("POLISYOS_DOWHY_WORKER_PYTHON", worker)
+        if point_only:
+            from polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge
+    
+            original_popen = subprocess.Popen
+            script = str(bridge._worker_directory() / "worker.py")
+            program = """
+    import runpy,sys
+    from dowhy import CausalModel
+    original=CausalModel.estimate_effect
+    def controlled(self,*args,**kwargs):
+        actual=original(self,*args,**kwargs)
+        actual.get_confidence_intervals=lambda **kwargs:None
+        actual.get_standard_error=lambda:None
+        return actual
+    CausalModel.estimate_effect=controlled
+    runpy.run_path(sys.argv[1],run_name='__main__')
+    """
+    
+            def launch(args, **kwargs):
+                if args == [worker, "-I", script]:
+                    args = [worker, "-I", "-c", program, script]
+                return original_popen(args, **kwargs)
+    
+            monkeypatch.setattr(subprocess, "Popen", launch)
+        data = _graph_data()
+        state, _ = _admit_source(execution_context, minimal_state, data, DoWhyIdentifyEstimate)
+        spec = JobSpec(job_kind="method", method_fqn=state.causal_method_fqn, seed=13)
+        genuine = _run_primary_causal_job(
+            ctx=execution_context, state=state, spec=spec, observational_data=data
+        )
+        original = from_canonical_bytes(execution_context.store.get_bytes(genuine.method_result_ref))
+        report = CausalEffectReport.model_validate(original["report"])
+        assert report.status is (
+            EstimationStatus.NUMERICAL_FAILURE if point_only else EstimationStatus.SUCCESS
+        )
+        if point_only:
+            assert report.confidence_interval is None
+            assert not report.to_uncertainty_envelope().gate_eligible
+        mutations = {
+            "point_estimate": report.point_estimate + 0.05,
+            "standard_error": 0.25,
+            "p_value": 1e-12,
+            "identified_estimand": "different identified quantity",
+            "estimand": "different target",
+            "estimand_type": "different target type",
+            "inference_method": "different inference law",
+            "sample_size": report.sample_size + 1,
+            "n_treated": report.n_treated + 1,
+            "n_control": report.n_control + 1,
+            "pre_periods": 1,
+            "post_periods": 1,
+            "graph_ref": "different graph",
+            "assumptions": {"unknown graph law": "established"},
+            "status_reason": "different computation status",
+            "diagnostics": {"fake passed test": True},
+            "method_params": {"method_name": "different estimator"},
+        }
+        if not point_only:
+            mutations["confidence_interval"] = tuple(x + 0.01 for x in report.confidence_interval)
+            mutations["confidence_level"] = 0.9
+        for field, value in mutations.items():
+            payload = copy.deepcopy(original)
+            changed = report.model_copy(update={field: value})
+            payload["report"] = changed.model_dump(mode="json")
+            payload["envelope"] = changed.to_uncertainty_envelope().model_dump(mode="json")
+>           _offer_corrupted_job(monkeypatch, execution_context, genuine, payload)
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:303: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f00f9b5e520>
+ctx = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f00f9813460>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+genuine = JobResult(job_key=JobKey(value='job:976844008bba894f1373a13a0d1b2749ede4fc0399de2f7be0b30df04b1b3cc7'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:ca5b524b66604e58cb091c85a59dd811fca801c45595f720add4e5773ee86a7f'])
+payload = {'envelope': {'composition_provenance': None, 'confidence_interval': [1.826502319056, 2.205767540673], 'confidence_lev...563892, 2.2057675406726527], 'confidence_level': 0.95, 'diagnostics': {'fake passed test': True}, ...}, 'warnings': []}
+
+    def _offer_corrupted_job(monkeypatch, ctx, genuine, payload):
+        manifest = ctx.store.get_manifest(genuine.method_result_ref)
+        ref = ctx.store.put_json(
+            payload,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                inputs=manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        offered = genuine.model_copy(deep=True)
+        offered.method_result_ref = ref
+>       offered.final_state["report"] = CausalEffectReport.model_validate(payload["report"])
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for CausalEffectReport
+E       diagnostics
+E         Input should be a valid list [type=list_type, input_value={'fake passed test': True}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/list_type
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:342: ValidationError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 11:01:02 [info     ] method_registered              backend=numpy fqn=causal.inference.dowhy_identify_estimate@2.0.0 lazy=False namespace=causal.inference override=True tags=['causal', 'cross-section', 'dowhy', 'estimate', 'estimation', 'identification', 'identify', 'structural', 'tabular'] version=2.0.0
+2026-10-06 11:01:02 [debug    ] method_dispatch_start          backend=numpy fqn=causal.inference.dowhy_identify_estimate@2.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:01:05 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=3073.27 fqn=causal.inference.dowhy_identify_estimate@2.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True] _
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f00f983a550>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f00f9b072f0>
+point_only = True
+
+    @pytest.mark.parametrize("point_only", [False, True])
+    def test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections(
+        execution_context, minimal_state, monkeypatch, point_only
+    ):
+        """Preserve real backend/source markers while falsifying consumed quantities."""
+        worker = os.environ.get("E02_TEST_DOWHY_WORKER_PYTHON")
+        assert worker and Path(worker).is_file()
+        monkeypatch.setenv("POLISYOS_DOWHY_WORKER_PYTHON", worker)
+        if point_only:
+            from polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge
+    
+            original_popen = subprocess.Popen
+            script = str(bridge._worker_directory() / "worker.py")
+            program = """
+    import runpy,sys
+    from dowhy import CausalModel
+    original=CausalModel.estimate_effect
+    def controlled(self,*args,**kwargs):
+        actual=original(self,*args,**kwargs)
+        actual.get_confidence_intervals=lambda **kwargs:None
+        actual.get_standard_error=lambda:None
+        return actual
+    CausalModel.estimate_effect=controlled
+    runpy.run_path(sys.argv[1],run_name='__main__')
+    """
+    
+            def launch(args, **kwargs):
+                if args == [worker, "-I", script]:
+                    args = [worker, "-I", "-c", program, script]
+                return original_popen(args, **kwargs)
+    
+            monkeypatch.setattr(subprocess, "Popen", launch)
+        data = _graph_data()
+        state, _ = _admit_source(execution_context, minimal_state, data, DoWhyIdentifyEstimate)
+        spec = JobSpec(job_kind="method", method_fqn=state.causal_method_fqn, seed=13)
+        genuine = _run_primary_causal_job(
+            ctx=execution_context, state=state, spec=spec, observational_data=data
+        )
+        original = from_canonical_bytes(execution_context.store.get_bytes(genuine.method_result_ref))
+        report = CausalEffectReport.model_validate(original["report"])
+        assert report.status is (
+            EstimationStatus.NUMERICAL_FAILURE if point_only else EstimationStatus.SUCCESS
+        )
+        if point_only:
+            assert report.confidence_interval is None
+            assert not report.to_uncertainty_envelope().gate_eligible
+        mutations = {
+            "point_estimate": report.point_estimate + 0.05,
+            "standard_error": 0.25,
+            "p_value": 1e-12,
+            "identified_estimand": "different identified quantity",
+            "estimand": "different target",
+            "estimand_type": "different target type",
+            "inference_method": "different inference law",
+            "sample_size": report.sample_size + 1,
+            "n_treated": report.n_treated + 1,
+            "n_control": report.n_control + 1,
+            "pre_periods": 1,
+            "post_periods": 1,
+            "graph_ref": "different graph",
+            "assumptions": {"unknown graph law": "established"},
+            "status_reason": "different computation status",
+            "diagnostics": {"fake passed test": True},
+            "method_params": {"method_name": "different estimator"},
+        }
+        if not point_only:
+            mutations["confidence_interval"] = tuple(x + 0.01 for x in report.confidence_interval)
+            mutations["confidence_level"] = 0.9
+        for field, value in mutations.items():
+            payload = copy.deepcopy(original)
+            changed = report.model_copy(update={field: value})
+            payload["report"] = changed.model_dump(mode="json")
+            payload["envelope"] = changed.to_uncertainty_envelope().model_dump(mode="json")
+>           _offer_corrupted_job(monkeypatch, execution_context, genuine, payload)
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:303: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f00f9b072f0>
+ctx = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f00f983a550>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+genuine = JobResult(job_key=JobKey(value='job:976844008bba894f1373a13a0d1b2749ede4fc0399de2f7be0b30df04b1b3cc7'), state_delta_re...85a59dd811fca801c45595f720add4e5773ee86a7f', 'DoWhy point estimate retained without an available confidence interval'])
+payload = {'envelope': {'composition_provenance': None, 'confidence_interval': [-1000000000000.0, 1000000000000.0], 'confidence_...fake passed test': True}, ...}, 'warnings': ['DoWhy point estimate retained without an available confidence interval']}
+
+    def _offer_corrupted_job(monkeypatch, ctx, genuine, payload):
+        manifest = ctx.store.get_manifest(genuine.method_result_ref)
+        ref = ctx.store.put_json(
+            payload,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                inputs=manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        offered = genuine.model_copy(deep=True)
+        offered.method_result_ref = ref
+>       offered.final_state["report"] = CausalEffectReport.model_validate(payload["report"])
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for CausalEffectReport
+E       diagnostics
+E         Input should be a valid list [type=list_type, input_value={'fake passed test': True}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/list_type
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:342: ValidationError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 11:01:06 [info     ] method_registered              backend=numpy fqn=causal.inference.dowhy_identify_estimate@2.0.0 lazy=False namespace=causal.inference override=True tags=['causal', 'cross-section', 'dowhy', 'estimate', 'estimation', 'identification', 'identify', 'structural', 'tabular'] version=2.0.0
+2026-10-06 11:01:06 [debug    ] method_dispatch_start          backend=numpy fqn=causal.inference.dowhy_identify_estimate@2.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:01:09 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=3408.65 fqn=causal.inference.dowhy_identify_estimate@2.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=============================== warnings summary ===============================
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_selected_scalar_job_persisted_target_fresh_reader
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False]
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_selected_did_peer_and_actual_source_must_match
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False]
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True]
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False]
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True]
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False]
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True]
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False]
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True]
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [ERROR] causal_effect_report: missing_key — Declared output slot 'causal_effect_report' missing from result
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False]
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True]
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `list[DiagnosticTest]` - serialized value may not be as expected [field_name='diagnostics', input_value={'fake passed test': True}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False]
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True]
+2 failed, 37 passed, 18 warnings in 55.97s

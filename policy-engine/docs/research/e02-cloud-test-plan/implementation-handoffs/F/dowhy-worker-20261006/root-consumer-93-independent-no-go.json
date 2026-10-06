@@ -1,0 +1,32 @@
+{
+  "command": "cd /workspace/e02-F-closeout-20261006/policy-engine && PYTHONPATH=src:. E02_TEST_DOWHY_WORKER_PYTHON=/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /workspace/e02-F-20261006-receipts/dowhy/root-consumer-report-divergence.py",
+  "deciding_output": "Genuine MethodJob/DoWhy estimate followed by consistent persisted+offered report point 2.066134929864521 while untouched validated worker point is2.016134929864521. Actual primary consumer refused=false. Source/request/profile/CI/class/version markers retained.",
+  "evidence": [
+    {
+      "bytes": 3326,
+      "path": "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-report-divergence.py",
+      "sha256": "e93b7e1120b58caf6546773dcd400277786a359be79f6124ab68633e1d83211a"
+    },
+    {
+      "bytes": 2526,
+      "path": "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-report-divergence.txt",
+      "sha256": "ecd1ccf0b53a50ab64a5dbe8a1aebda0122435fa73d2b874d77ed2091cb49266"
+    }
+  ],
+  "limitations": [
+    "Read-only runtime instrumentation; author source unchanged.",
+    "Complete numerical report/envelope projection needs root canonical fix and independent rerun on frozen newSHA.",
+    "Production node positive authority remainsUNRUN; no scientific realdata closure from fixture."
+  ],
+  "new_class": "Validated worker result is not reconciled to typed persisted/offered numerical report",
+  "outcome": "FAIL",
+  "predicate_basis": "independently_reconciled",
+  "process_exit_code": 0,
+  "result": "NO-GO",
+  "reviewer": "F causal_api leaf read-only",
+  "schema": "policyos.e02.independent_review.v1",
+  "scope": "Selected numerical helper CAS source/report consumer, not production-node admission authority",
+  "slice_base_sha": "e67860362fdf9f891755d8f7b3401147039e68fa",
+  "source_sha": "93eed731088175fd244c5c66532ab6bd54e793b2",
+  "tree": "5deefe459b0b0c55d6f421258322ad5447dfc166"
+}

@@ -2,7 +2,7 @@
 
 The DoWhy dependency is optional and unavailable in the supported Python 3.14
 profile.  These tests therefore replace only the dependency loader with a
-small recorder.  The recorder still exercises the normal DoWhy adapter entry
+small legacy-inprocess recorder; these are not actual-backend witnesses.  The recorder still exercises the normal DoWhy adapter entry
 point and makes the constructor, identification, and estimation arguments
 observable.
 """
@@ -10,7 +10,7 @@ observable.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, ClassVar
 
 import numpy as np
 import pytest
@@ -64,7 +64,7 @@ class _Identified:
 
 
 class _RecorderModel:
-    instances: list[_RecorderModel] = []
+    instances: ClassVar[list[_RecorderModel]] = []
     estimate = _Estimate()
     identified_type: str | None = None
 
@@ -92,7 +92,7 @@ class _RecorderDoWhy:
 
 class _RecorderPandas:
     @staticmethod
-    def DataFrame(data: Any, columns: list[str]) -> dict[str, Any]:
+    def DataFrame(data: Any, columns: list[str]) -> dict[str, Any]:  # noqa: N802 -- legacy pandas ABI
         return {"data": data, "columns": columns}
 
 
@@ -113,7 +113,7 @@ def test_point_only_dowhy_result_preserves_point_without_epsilon_ci(monkeypatch)
 
     output = DoWhyIdentifyEstimate.pure_step(
         _data(),
-        {"method_name": "backdoor.linear_regression"},
+        {"method_name": "backdoor.linear_regression", "execution_profile": "legacy-inprocess"},
     )
     report = output["report"]
 
@@ -132,7 +132,7 @@ def test_real_interval_is_preserved_and_remains_success(monkeypatch) -> None:
 
     output = DoWhyIdentifyEstimate.pure_step(
         _data(),
-        {"method_name": "backdoor.linear_regression"},
+        {"method_name": "backdoor.linear_regression", "execution_profile": "legacy-inprocess"},
     )
     report = output["report"]
 
@@ -148,6 +148,7 @@ def test_requested_estimand_is_bound_to_model_and_identification(monkeypatch) ->
     output = DoWhyIdentifyEstimate.pure_step(
         _data(),
         {
+            "execution_profile": "legacy-inprocess",
             "estimand_type": "nonparametric-nie",
             "method_name": "backdoor.linear_regression",
         },
@@ -175,6 +176,7 @@ def test_backend_estimand_mismatch_is_not_relabelled(monkeypatch) -> None:
     output = DoWhyIdentifyEstimate.pure_step(
         _data(),
         {
+            "execution_profile": "legacy-inprocess",
             "estimand_type": "nonparametric-nie",
             "method_name": "backdoor.linear_regression",
         },
@@ -195,7 +197,7 @@ def test_unsupported_estimand_is_an_explicit_capability_result(monkeypatch) -> N
 
     output = DoWhyIdentifyEstimate.pure_step(
         _data(),
-        {"estimand_type": "unsupported-profile"},
+        {"estimand_type": "unsupported-profile", "execution_profile": "legacy-inprocess"},
     )
     report = output["report"]
 

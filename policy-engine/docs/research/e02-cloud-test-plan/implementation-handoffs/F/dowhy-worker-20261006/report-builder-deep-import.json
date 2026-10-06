@@ -1,0 +1,1223 @@
+{
+  "bounded_own_helper_outcome": "PASS",
+  "complete_deep_edges": 3452,
+  "file_type_denominator": "src/**/*.py via canonical _iter_py_files; complete paths reproducible from targetGit",
+  "inherited_attribution": "not_established",
+  "input_content_sha256": "73833ff61f72ec95e89643c64e957cc0106891ed503ab0766f570dc14153a84f",
+  "input_files": 2699,
+  "measured": "Canonical complete cross-root deep-import static scan; scoped own helper predicate only",
+  "own_helper_violations": [],
+  "runtime_or_authority_property": "not_established",
+  "source_sha": "66c46c32a2a99a4f218a5853174671139252e0db",
+  "whole_gate_new_violations": [
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.analytics.backtest",
+      "message": "New deep-import creep detected: polisyos.calibration.forecast_bridge -> polisyos.ir.analytics.backtest (src/polisyos/calibration/forecast_bridge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "subject": "polisyos.calibration.forecast_bridge",
+      "target_module": "polisyos.ir.analytics.backtest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.artifacts",
+      "message": "New deep-import creep detected: polisyos.calibration.forecast_bridge -> polisyos.ir.artifacts (src/polisyos/calibration/forecast_bridge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "subject": "polisyos.calibration.forecast_bridge",
+      "target_module": "polisyos.ir.artifacts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.model_layer.canon",
+      "message": "New deep-import creep detected: polisyos.calibration.forecast_bridge -> polisyos.ir.model_layer.canon (src/polisyos/calibration/forecast_bridge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "subject": "polisyos.calibration.forecast_bridge",
+      "target_module": "polisyos.ir.model_layer.canon"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.registry.refs",
+      "message": "New deep-import creep detected: polisyos.calibration.forecast_bridge -> polisyos.ir.registry.refs (src/polisyos/calibration/forecast_bridge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "subject": "polisyos.calibration.forecast_bridge",
+      "target_module": "polisyos.ir.registry.refs"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.common.canonical",
+      "message": "New deep-import creep detected: polisyos.core.canon.canon_json -> polisyos.common.canonical (src/polisyos/core/canon/canon_json.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.core.canon.canon_json",
+      "subject": "polisyos.core.canon.canon_json",
+      "target_module": "polisyos.common.canonical"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.common.hashing",
+      "message": "New deep-import creep detected: polisyos.core.canon.hashing -> polisyos.common.hashing (src/polisyos/core/canon/hashing.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.core.canon.hashing",
+      "subject": "polisyos.core.canon.hashing",
+      "target_module": "polisyos.common.hashing"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.academic.knowledge.skg_query -> polisyos.core.artifacts.manifest (src/polisyos/data_forge/domains/academic/knowledge/skg_query.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "subject": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.observation.contracts",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.bindings_validation -> polisyos.ir.observation.contracts (src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.bindings_validation",
+      "subject": "polisyos.data_forge.domains.ukraine.builders.bindings_validation",
+      "target_module": "polisyos.ir.observation.contracts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.model_layer",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.common -> polisyos.ir.model_layer (src/polisyos/data_forge/domains/ukraine/builders/common.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.common",
+      "subject": "polisyos.data_forge.domains.ukraine.builders.common",
+      "target_module": "polisyos.ir.model_layer"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.model_layer.types",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.demography -> polisyos.ir.model_layer.types (src/polisyos/data_forge/domains/ukraine/builders/demography.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.demography",
+      "subject": "polisyos.data_forge.domains.ukraine.builders.demography",
+      "target_module": "polisyos.ir.model_layer.types"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.io -> polisyos.core.artifacts.manifest (src/polisyos/data_forge/domains/ukraine/builders/io.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
+      "subject": "polisyos.data_forge.domains.ukraine.builders.io",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.store",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.io -> polisyos.core.artifacts.store (src/polisyos/data_forge/domains/ukraine/builders/io.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
+      "subject": "polisyos.data_forge.domains.ukraine.builders.io",
+      "target_module": "polisyos.core.artifacts.store"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.canon",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.io -> polisyos.core.canon (src/polisyos/data_forge/domains/ukraine/builders/io.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
+      "subject": "polisyos.data_forge.domains.ukraine.builders.io",
+      "target_module": "polisyos.core.canon"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.model_layer.types",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.observation -> polisyos.ir.model_layer.types (src/polisyos/data_forge/domains/ukraine/builders/observation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.observation",
+      "subject": "polisyos.data_forge.domains.ukraine.builders.observation",
+      "target_module": "polisyos.ir.model_layer.types"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.store",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.sources -> polisyos.core.artifacts.store (src/polisyos/data_forge/domains/ukraine/builders/sources.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
+      "subject": "polisyos.data_forge.domains.ukraine.builders.sources",
+      "target_module": "polisyos.core.artifacts.store"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.model_layer.types",
+      "message": "New deep-import creep detected: polisyos.data_forge.domains.ukraine.builders.sources -> polisyos.ir.model_layer.types (src/polisyos/data_forge/domains/ukraine/builders/sources.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
+      "subject": "polisyos.data_forge.domains.ukraine.builders.sources",
+      "target_module": "polisyos.ir.model_layer.types"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.fabric.connectors.cache._store_core -> polisyos.core.artifacts.protocol (src/polisyos/fabric/connectors/cache/_store_core.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.connectors.cache._store_core",
+      "subject": "polisyos.fabric.connectors.cache._store_core",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts",
+      "message": "New deep-import creep detected: polisyos.fabric.data_plane.modes -> polisyos.core.artifacts (src/polisyos/fabric/data_plane/modes.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.data_plane.modes",
+      "subject": "polisyos.fabric.data_plane.modes",
+      "target_module": "polisyos.core.artifacts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.fabric.data_plane.modes -> polisyos.core.artifacts.protocol (src/polisyos/fabric/data_plane/modes.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.data_plane.modes",
+      "subject": "polisyos.fabric.data_plane.modes",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.common.migrations.base",
+      "message": "New deep-import creep detected: polisyos.fabric.identity.migrations -> polisyos.common.migrations.base (src/polisyos/fabric/identity/migrations.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.identity.migrations",
+      "subject": "polisyos.fabric.identity.migrations",
+      "target_module": "polisyos.common.migrations.base"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.fabric.ingestion.ingestion_providers -> polisyos.core.artifacts.protocol (src/polisyos/fabric/ingestion/ingestion_providers.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.ingestion.ingestion_providers",
+      "subject": "polisyos.fabric.ingestion.ingestion_providers",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.fabric.retrieval.custody -> polisyos.core.artifacts.protocol (src/polisyos/fabric/retrieval/custody.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.retrieval.custody",
+      "subject": "polisyos.fabric.retrieval.custody",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.backends.config",
+      "message": "New deep-import creep detected: polisyos.fabric.retrieval.executor -> polisyos.core.artifacts.backends.config (src/polisyos/fabric/retrieval/executor.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.retrieval.executor",
+      "subject": "polisyos.fabric.retrieval.executor",
+      "target_module": "polisyos.core.artifacts.backends.config"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.fabric.retrieval.executor -> polisyos.core.artifacts.protocol (src/polisyos/fabric/retrieval/executor.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.retrieval.executor",
+      "subject": "polisyos.fabric.retrieval.executor",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.backends.config",
+      "message": "New deep-import creep detected: polisyos.fabric.retrieval.service -> polisyos.core.artifacts.backends.config (src/polisyos/fabric/retrieval/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.retrieval.service",
+      "subject": "polisyos.fabric.retrieval.service",
+      "target_module": "polisyos.core.artifacts.backends.config"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.fabric.retrieval.service -> polisyos.core.artifacts.protocol (src/polisyos/fabric/retrieval/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.fabric.retrieval.service",
+      "subject": "polisyos.fabric.retrieval.service",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.foundry.agent_sim.artifact -> polisyos.core.artifacts.protocol (src/polisyos/foundry/agent_sim/artifact.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.agent_sim.artifact",
+      "subject": "polisyos.foundry.agent_sim.artifact",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.foundry.calibration.report -> polisyos.core.artifacts.protocol (src/polisyos/foundry/calibration/report.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.calibration.report",
+      "subject": "polisyos.foundry.calibration.report",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.canon",
+      "message": "New deep-import creep detected: polisyos.foundry.compile.randomization -> polisyos.core.canon (src/polisyos/foundry/compile/randomization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.compile.randomization",
+      "subject": "polisyos.foundry.compile.randomization",
+      "target_module": "polisyos.core.canon"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.foundry",
+      "message": "New deep-import creep detected: polisyos.foundry.compile.randomization -> polisyos.core.contracts.foundry (src/polisyos/foundry/compile/randomization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.compile.randomization",
+      "subject": "polisyos.foundry.compile.randomization",
+      "target_module": "polisyos.core.contracts.foundry"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.kernel.slots",
+      "message": "New deep-import creep detected: polisyos.foundry.compile.trinity_compiler -> polisyos.ir.kernel.slots (src/polisyos/foundry/compile/trinity_compiler.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.compile.trinity_compiler",
+      "subject": "polisyos.foundry.compile.trinity_compiler",
+      "target_module": "polisyos.ir.kernel.slots"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.foundry.methods.catalog.causal.literature_prior -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/foundry/methods/catalog/causal/literature_prior.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.methods.catalog.causal.literature_prior",
+      "subject": "polisyos.foundry.methods.catalog.causal.literature_prior",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.analytics.mechanism_design",
+      "message": "New deep-import creep detected: polisyos.foundry.methods.catalog.mechanism.families -> polisyos.ir.analytics.mechanism_design (src/polisyos/foundry/methods/catalog/mechanism/families.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.methods.catalog.mechanism.families",
+      "subject": "polisyos.foundry.methods.catalog.mechanism.families",
+      "target_module": "polisyos.ir.analytics.mechanism_design"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.kernel.slots",
+      "message": "New deep-import creep detected: polisyos.foundry.methods.layout -> polisyos.ir.kernel.slots (src/polisyos/foundry/methods/layout.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.methods.layout",
+      "subject": "polisyos.foundry.methods.layout",
+      "target_module": "polisyos.ir.kernel.slots"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.backends.config",
+      "message": "New deep-import creep detected: polisyos.foundry.plugins.api -> polisyos.core.artifacts.backends.config (src/polisyos/foundry/plugins/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.plugins.api",
+      "subject": "polisyos.foundry.plugins.api",
+      "target_module": "polisyos.core.artifacts.backends.config"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.foundry.plugins.api -> polisyos.core.artifacts.manifest (src/polisyos/foundry/plugins/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.plugins.api",
+      "subject": "polisyos.foundry.plugins.api",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.foundry.plugins.api -> polisyos.core.artifacts.protocol (src/polisyos/foundry/plugins/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.plugins.api",
+      "subject": "polisyos.foundry.plugins.api",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.foundry.plugins.training_adapter -> polisyos.core.artifacts.manifest (src/polisyos/foundry/plugins/training_adapter.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.plugins.training_adapter",
+      "subject": "polisyos.foundry.plugins.training_adapter",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.foundry.plugins.training_adapter -> polisyos.core.artifacts.protocol (src/polisyos/foundry/plugins/training_adapter.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.foundry.plugins.training_adapter",
+      "subject": "polisyos.foundry.plugins.training_adapter",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.common.migrations._engine",
+      "message": "New deep-import creep detected: polisyos.ir.migrations.base -> polisyos.common.migrations._engine (src/polisyos/ir/migrations/base.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.ir.migrations.base",
+      "subject": "polisyos.ir.migrations.base",
+      "target_module": "polisyos.common.migrations._engine"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.common.canonical",
+      "message": "New deep-import creep detected: polisyos.ir.model_layer.canon -> polisyos.common.canonical (src/polisyos/ir/model_layer/canon.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.ir.model_layer.canon",
+      "subject": "polisyos.ir.model_layer.canon",
+      "target_module": "polisyos.common.canonical"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.common.hashing",
+      "message": "New deep-import creep detected: polisyos.ir.model_layer.canon -> polisyos.common.hashing (src/polisyos/ir/model_layer/canon.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.ir.model_layer.canon",
+      "subject": "polisyos.ir.model_layer.canon",
+      "target_module": "polisyos.common.hashing"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.artifacts.manifest (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "subject": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.store",
+      "message": "New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.artifacts.store (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "subject": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.artifacts.store"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.lex",
+      "message": "New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.contracts.lex (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "subject": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.contracts.lex"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.governance.passes.base",
+      "message": "New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.governance.passes.base (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "subject": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.governance.passes.base"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.governance.passes.legal_pass",
+      "message": "New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.governance.passes.legal_pass (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "subject": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.governance.passes.legal_pass"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.governance.passes.safety_pass",
+      "message": "New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.governance.passes.safety_pass (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "subject": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.governance.passes.safety_pass"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.governance.profiles",
+      "message": "New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.core.governance.profiles (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "subject": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.governance.profiles"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.loading.norm_pack",
+      "message": "New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.ir.loading.norm_pack (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "subject": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.ir.loading.norm_pack"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.world.ids",
+      "message": "New deep-import creep detected: polisyos.lex.legal_evaluation.impact_diff -> polisyos.ir.world.ids (src/polisyos/lex/legal_evaluation/impact_diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "subject": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.ir.world.ids"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.loading.norm_pack",
+      "message": "New deep-import creep detected: polisyos.lex.normpack.diff -> polisyos.ir.loading.norm_pack (src/polisyos/lex/normpack/diff.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.lex.normpack.diff",
+      "subject": "polisyos.lex.normpack.diff",
+      "target_module": "polisyos.ir.loading.norm_pack"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts",
+      "message": "New deep-import creep detected: polisyos.pdc._impl.world_model_record -> polisyos.core.artifacts (src/polisyos/pdc/_impl/world_model_record.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.pdc._impl.world_model_record",
+      "subject": "polisyos.pdc._impl.world_model_record",
+      "target_module": "polisyos.core.artifacts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.scientist.replay.deterministic",
+      "message": "New deep-import creep detected: polisyos.runtime -> polisyos.scientist.replay.deterministic (src/polisyos/runtime/__init__.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime",
+      "subject": "polisyos.runtime",
+      "target_module": "polisyos.scientist.replay.deterministic"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.ids",
+      "message": "New deep-import creep detected: polisyos.runtime.http.resilience -> polisyos.core.artifacts.ids (src/polisyos/runtime/http/resilience.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.resilience",
+      "subject": "polisyos.runtime.http.resilience",
+      "target_module": "polisyos.core.artifacts.ids"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.runtime.http.resilience -> polisyos.core.artifacts.protocol (src/polisyos/runtime/http/resilience.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.resilience",
+      "subject": "polisyos.runtime.http.resilience",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.signing",
+      "message": "New deep-import creep detected: polisyos.runtime.http.resilience -> polisyos.core.artifacts.signing (src/polisyos/runtime/http/resilience.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.resilience",
+      "subject": "polisyos.runtime.http.resilience",
+      "target_module": "polisyos.core.artifacts.signing"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts",
+      "message": "New deep-import creep detected: polisyos.runtime.http.services.acquisition_surface_execution -> polisyos.core.artifacts (src/polisyos/runtime/http/services/acquisition_surface_execution.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.services.acquisition_surface_execution",
+      "subject": "polisyos.runtime.http.services.acquisition_surface_execution",
+      "target_module": "polisyos.core.artifacts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.runtime.http.services.control.evaluation_safety -> polisyos.core.artifacts.manifest (src/polisyos/runtime/http/services/control/evaluation_safety.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.services.control.evaluation_safety",
+      "subject": "polisyos.runtime.http.services.control.evaluation_safety",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.runtime.http.services.control.generation_cycle -> polisyos.core.artifacts.manifest (src/polisyos/runtime/http/services/control/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.services.control.generation_cycle",
+      "subject": "polisyos.runtime.http.services.control.generation_cycle",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts",
+      "message": "New deep-import creep detected: polisyos.runtime.http.services.control.run_lifecycle -> polisyos.core.artifacts (src/polisyos/runtime/http/services/control/run_lifecycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "subject": "polisyos.runtime.http.services.control.run_lifecycle",
+      "target_module": "polisyos.core.artifacts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.fabric.ingestion.ingestion_providers",
+      "message": "New deep-import creep detected: polisyos.runtime.http.services.control.run_lifecycle -> polisyos.fabric.ingestion.ingestion_providers (src/polisyos/runtime/http/services/control/run_lifecycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "subject": "polisyos.runtime.http.services.control.run_lifecycle",
+      "target_module": "polisyos.fabric.ingestion.ingestion_providers"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.fabric.storage.tenant_cas",
+      "message": "New deep-import creep detected: polisyos.runtime.http.services.control.run_lifecycle -> polisyos.fabric.storage.tenant_cas (src/polisyos/runtime/http/services/control/run_lifecycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "subject": "polisyos.runtime.http.services.control.run_lifecycle",
+      "target_module": "polisyos.fabric.storage.tenant_cas"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.foundry",
+      "message": "New deep-import creep detected: polisyos.runtime.http.services.debug -> polisyos.core.contracts.foundry (src/polisyos/runtime/http/services/debug.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.services.debug",
+      "subject": "polisyos.runtime.http.services.debug",
+      "target_module": "polisyos.core.contracts.foundry"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.ownership",
+      "message": "New deep-import creep detected: polisyos.runtime.http.services.human_decisions -> polisyos.core.artifacts.ownership (src/polisyos/runtime/http/services/human_decisions.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.http.services.human_decisions",
+      "subject": "polisyos.runtime.http.services.human_decisions",
+      "target_module": "polisyos.core.artifacts.ownership"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.protocol",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.acquisition_planner -> polisyos.core.artifacts.protocol (src/polisyos/runtime/quality/acquisition_planner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "subject": "polisyos.runtime.quality.acquisition_planner",
+      "target_module": "polisyos.core.artifacts.protocol"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.fabric.connectors.sources.file_tabular",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.acquisition_planner -> polisyos.fabric.connectors.sources.file_tabular (src/polisyos/runtime/quality/acquisition_planner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "subject": "polisyos.runtime.quality.acquisition_planner",
+      "target_module": "polisyos.fabric.connectors.sources.file_tabular"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.fabric.retrieval.custody",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.acquisition_planner -> polisyos.fabric.retrieval.custody (src/polisyos/runtime/quality/acquisition_planner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "subject": "polisyos.runtime.quality.acquisition_planner",
+      "target_module": "polisyos.fabric.retrieval.custody"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.acquisition_route_loop -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/acquisition_route_loop.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.acquisition_route_loop",
+      "subject": "polisyos.runtime.quality.acquisition_route_loop",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.candidate_simulation -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/candidate_simulation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.candidate_simulation",
+      "subject": "polisyos.runtime.quality.candidate_simulation",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts._manifest_lifecycle",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.chronology_proof -> polisyos.core.artifacts._manifest_lifecycle (src/polisyos/runtime/quality/chronology_proof.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.chronology_proof",
+      "subject": "polisyos.runtime.quality.chronology_proof",
+      "target_module": "polisyos.core.artifacts._manifest_lifecycle"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.cycle_substrate -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/cycle_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "subject": "polisyos.runtime.quality.cycle_substrate",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.data_plane.bindings",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.cycle_substrate -> polisyos.foundry.data_plane.bindings (src/polisyos/runtime/quality/cycle_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "subject": "polisyos.runtime.quality.cycle_substrate",
+      "target_module": "polisyos.foundry.data_plane.bindings"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.execute.executor",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.cycle_substrate -> polisyos.foundry.execute.executor (src/polisyos/runtime/quality/cycle_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "subject": "polisyos.runtime.quality.cycle_substrate",
+      "target_module": "polisyos.foundry.execute.executor"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.analytics.ncm",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.cycle_substrate -> polisyos.ir.analytics.ncm (src/polisyos/runtime/quality/cycle_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "subject": "polisyos.runtime.quality.cycle_substrate",
+      "target_module": "polisyos.ir.analytics.ncm"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.fabric",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.data_forge_binding -> polisyos.core.contracts.fabric (src/polisyos/runtime/quality/data_forge_binding.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "subject": "polisyos.runtime.quality.data_forge_binding",
+      "target_module": "polisyos.core.contracts.fabric"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.foundry",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.data_state_substrate -> polisyos.core.contracts.foundry (src/polisyos/runtime/quality/data_state_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "subject": "polisyos.runtime.quality.data_state_substrate",
+      "target_module": "polisyos.core.contracts.foundry"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.catalog.knowledge.overlay",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.data_state_substrate -> polisyos.data_forge.domains.catalog.knowledge.overlay (src/polisyos/runtime/quality/data_state_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "subject": "polisyos.runtime.quality.data_state_substrate",
+      "target_module": "polisyos.data_forge.domains.catalog.knowledge.overlay"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.data_plane.bindings",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.data_state_substrate -> polisyos.foundry.data_plane.bindings (src/polisyos/runtime/quality/data_state_substrate.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "subject": "polisyos.runtime.quality.data_state_substrate",
+      "target_module": "polisyos.foundry.data_plane.bindings"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_versioning",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.design_generation -> polisyos.data_forge.domains.academic.knowledge.skg_versioning (src/polisyos/runtime/quality/design_generation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.design_generation",
+      "subject": "polisyos.runtime.quality.design_generation",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_versioning"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.scientist.agent.protocols",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.design_generation -> polisyos.scientist.agent.protocols (src/polisyos/runtime/quality/design_generation.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.design_generation",
+      "subject": "polisyos.runtime.quality.design_generation",
+      "target_module": "polisyos.scientist.agent.protocols"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.kernel.base",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.design_problem -> polisyos.ir.kernel.base (src/polisyos/runtime/quality/design_problem.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.design_problem",
+      "subject": "polisyos.runtime.quality.design_problem",
+      "target_module": "polisyos.ir.kernel.base"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.c4_persisted_profiles",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.epoch_validity_cascade -> polisyos.core.contracts.c4_persisted_profiles (src/polisyos/runtime/quality/epoch_validity_cascade.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.epoch_validity_cascade",
+      "subject": "polisyos.runtime.quality.epoch_validity_cascade",
+      "target_module": "polisyos.core.contracts.c4_persisted_profiles"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.artifacts (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.artifacts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.canon",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.canon (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.canon"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.foundry",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.contracts.foundry (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.contracts.foundry"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.registry",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.core.registry (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.registry"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.catalog.knowledge.country_codes",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.data_forge.domains.catalog.knowledge.country_codes (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.data_forge.domains.catalog.knowledge.country_codes"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.fabric.data_plane",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.fabric.data_plane (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.fabric.data_plane"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.data_plane",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.foundry.data_plane (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.foundry.data_plane"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.execute.executor",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.foundry.execute.executor (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.foundry.execute.executor"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.analytics.ncm",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.ir.analytics.ncm (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.ir.analytics.ncm"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.registry.refs",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_cycle -> polisyos.ir.registry.refs (src/polisyos/runtime/quality/generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "subject": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.ir.registry.refs"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts._manifest_lifecycle",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_source -> polisyos.core.artifacts._manifest_lifecycle (src/polisyos/runtime/quality/generation_source.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "subject": "polisyos.runtime.quality.generation_source",
+      "target_module": "polisyos.core.artifacts._manifest_lifecycle"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_source -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/generation_source.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "subject": "polisyos.runtime.quality.generation_source",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_versioning",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_source -> polisyos.data_forge.domains.academic.knowledge.skg_versioning (src/polisyos/runtime/quality/generation_source.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "subject": "polisyos.runtime.quality.generation_source",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_versioning"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.analytics.ncm",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.generation_source -> polisyos.ir.analytics.ncm (src/polisyos/runtime/quality/generation_source.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "subject": "polisyos.runtime.quality.generation_source",
+      "target_module": "polisyos.ir.analytics.ncm"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.store",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.non_data_acquisition -> polisyos.core.artifacts.store (src/polisyos/runtime/quality/non_data_acquisition.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.non_data_acquisition",
+      "subject": "polisyos.runtime.quality.non_data_acquisition",
+      "target_module": "polisyos.core.artifacts.store"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.kernel.embeddings",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.proving_ground.causal_forecast_search -> polisyos.data_forge.kernel.embeddings (src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.proving_ground.causal_forecast_search",
+      "subject": "polisyos.runtime.quality.proving_ground.causal_forecast_search",
+      "target_module": "polisyos.data_forge.kernel.embeddings"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.kernel.embeddings",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.proving_ground.substrate_grounding_search -> polisyos.data_forge.kernel.embeddings (src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.proving_ground.substrate_grounding_search",
+      "subject": "polisyos.runtime.quality.proving_ground.substrate_grounding_search",
+      "target_module": "polisyos.data_forge.kernel.embeddings"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.recursive_generation_cycle -> polisyos.core.artifacts (src/polisyos/runtime/quality/recursive_generation_cycle.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.recursive_generation_cycle",
+      "subject": "polisyos.runtime.quality.recursive_generation_cycle",
+      "target_module": "polisyos.core.artifacts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.runtime.quality.world_model_record -> polisyos.core.artifacts.manifest (src/polisyos/runtime/quality/world_model_record.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "subject": "polisyos.runtime.quality.world_model_record",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.ids",
+      "message": "New deep-import creep detected: polisyos.scholar.api -> polisyos.core.artifacts.ids (src/polisyos/scholar/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scholar.api",
+      "subject": "polisyos.scholar.api",
+      "target_module": "polisyos.core.artifacts.ids"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.canon",
+      "message": "New deep-import creep detected: polisyos.scholar.api -> polisyos.core.canon (src/polisyos/scholar/api.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scholar.api",
+      "subject": "polisyos.scholar.api",
+      "target_module": "polisyos.core.canon"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.ids",
+      "message": "New deep-import creep detected: polisyos.scholar.orchestrator.enrich -> polisyos.core.artifacts.ids (src/polisyos/scholar/orchestrator/enrich.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scholar.orchestrator.enrich",
+      "subject": "polisyos.scholar.orchestrator.enrich",
+      "target_module": "polisyos.core.artifacts.ids"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.canon",
+      "message": "New deep-import creep detected: polisyos.scholar.orchestrator.enrich -> polisyos.core.canon (src/polisyos/scholar/orchestrator/enrich.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scholar.orchestrator.enrich",
+      "subject": "polisyos.scholar.orchestrator.enrich",
+      "target_module": "polisyos.core.canon"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.execute._internal.snapshots",
+      "message": "New deep-import creep detected: polisyos.scientist.agent.feasibility -> polisyos.foundry.execute._internal.snapshots (src/polisyos/scientist/agent/feasibility.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.agent.feasibility",
+      "subject": "polisyos.scientist.agent.feasibility",
+      "target_module": "polisyos.foundry.execute._internal.snapshots"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.cross_graph.compiler -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/cross_graph/compiler.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.cross_graph.compiler",
+      "subject": "polisyos.scientist.cross_graph.compiler",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.ids",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.autotune.bayesian_generator -> polisyos.core.artifacts.ids (src/polisyos/scientist/methods/autotune/bayesian_generator.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.autotune.bayesian_generator",
+      "subject": "polisyos.scientist.methods.autotune.bayesian_generator",
+      "target_module": "polisyos.core.artifacts.ids"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.store",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.core.artifacts.store (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.core.artifacts.store"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.fabric",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.core.contracts.fabric (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.core.contracts.fabric"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.methods.artifacts",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.artifacts (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.artifacts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.methods.backends.dispatch",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.backends.dispatch (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.backends.dispatch"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.methods.base",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.base (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.base"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.methods.catalog.forecasting",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.catalog.forecasting (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.catalog.forecasting"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.methods.compiler.specialization",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.compiler.specialization (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.compiler.specialization"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.methods.selection.registry",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.foundry.methods.selection.registry (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.selection.registry"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.analytics.backtest",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.analytics.backtest (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.analytics.backtest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.analytics.calibration_diagnostics",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.analytics.calibration_diagnostics (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.analytics.calibration_diagnostics"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.analytics.forecasting_uncertainty",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.analytics.forecasting_uncertainty (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.analytics.forecasting_uncertainty"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.artifacts",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.artifacts (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.artifacts"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.model_layer.canon",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.model_layer.canon (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.model_layer.canon"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.registry.refs",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.forecast_owner -> polisyos.ir.registry.refs (src/polisyos/scientist/methods/backtesting/forecast_owner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "subject": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.registry.refs"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.fabric",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.orchestrator -> polisyos.core.contracts.fabric (src/polisyos/scientist/methods/backtesting/orchestrator.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "subject": "polisyos.scientist.methods.backtesting.orchestrator",
+      "target_module": "polisyos.core.contracts.fabric"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.analytics.uncertainty",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.orchestrator -> polisyos.ir.analytics.uncertainty (src/polisyos/scientist/methods/backtesting/orchestrator.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "subject": "polisyos.scientist.methods.backtesting.orchestrator",
+      "target_module": "polisyos.ir.analytics.uncertainty"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.model_layer.canon",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.orchestrator -> polisyos.ir.model_layer.canon (src/polisyos/scientist/methods/backtesting/orchestrator.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "subject": "polisyos.scientist.methods.backtesting.orchestrator",
+      "target_module": "polisyos.ir.model_layer.canon"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.discovery.prior_miner -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/methods/discovery/prior_miner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.discovery.prior_miner",
+      "subject": "polisyos.scientist.methods.discovery.prior_miner",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.common.logger",
+      "message": "New deep-import creep detected: polisyos.scientist.methods.search.service -> polisyos.common.logger (src/polisyos/scientist/methods/search/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.methods.search.service",
+      "subject": "polisyos.scientist.methods.search.service",
+      "target_module": "polisyos.common.logger"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.build_literature_prior -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+      "subject": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.read_api.academic",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.build_literature_prior -> polisyos.data_forge.read_api.academic (src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+      "subject": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+      "target_module": "polisyos.data_forge.read_api.academic"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.resolve_parameters -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_parameters",
+      "subject": "polisyos.scientist.nodes.builtins.causal.resolve_parameters",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.resolve_transport -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_transport",
+      "subject": "polisyos.scientist.nodes.builtins.causal.resolve_transport",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence",
+      "subject": "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+      "subject": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.read_api.academic",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime -> polisyos.data_forge.read_api.academic (src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+      "subject": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+      "target_module": "polisyos.data_forge.read_api.academic"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+      "subject": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.read_api.academic",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search -> polisyos.data_forge.read_api.academic (src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+      "subject": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+      "target_module": "polisyos.data_forge.read_api.academic"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.uncertainty.covariance",
+      "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.simulate.propagate_welfare -> polisyos.foundry.uncertainty.covariance (src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+      "subject": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+      "target_module": "polisyos.foundry.uncertainty.covariance"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.context -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/orchestration/engine/context.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.context",
+      "subject": "polisyos.scientist.orchestration.engine.context",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.write_contract",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.executor -> polisyos.core.artifacts.write_contract (src/polisyos/scientist/orchestration/engine/executor.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.executor",
+      "subject": "polisyos.scientist.orchestration.engine.executor",
+      "target_module": "polisyos.core.artifacts.write_contract"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.executor -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/orchestration/engine/executor.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.executor",
+      "subject": "polisyos.scientist.orchestration.engine.executor",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.protocol -> polisyos.data_forge.domains.academic.knowledge.skg_query (src/polisyos/scientist/orchestration/engine/protocol.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.protocol",
+      "subject": "polisyos.scientist.orchestration.engine.protocol",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.errors",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.runner.fallback_runner -> polisyos.core.errors (src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.runner.fallback_runner",
+      "subject": "polisyos.scientist.orchestration.engine.runner.fallback_runner",
+      "target_module": "polisyos.core.errors"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.ids",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.runner.serialization -> polisyos.core.artifacts.ids (src/polisyos/scientist/orchestration/engine/runner/serialization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "subject": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "target_module": "polisyos.core.artifacts.ids"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.runner.serialization -> polisyos.core.artifacts.manifest (src/polisyos/scientist/orchestration/engine/runner/serialization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "subject": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.contracts.skip_blockers",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.runner.serialization -> polisyos.core.contracts.skip_blockers (src/polisyos/scientist/orchestration/engine/runner/serialization.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "subject": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "target_module": "polisyos.core.contracts.skip_blockers"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.state_branching -> polisyos.core.artifacts.manifest (src/polisyos/scientist/orchestration/engine/state_branching.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.state_branching",
+      "subject": "polisyos.scientist.orchestration.engine.state_branching",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.ir.registry.refs",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.state_branching -> polisyos.ir.registry.refs (src/polisyos/scientist/orchestration/engine/state_branching.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.state_branching",
+      "subject": "polisyos.scientist.orchestration.engine.state_branching",
+      "target_module": "polisyos.ir.registry.refs"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.core.artifacts.manifest",
+      "message": "New deep-import creep detected: polisyos.scientist.orchestration.engine.state_merge -> polisyos.core.artifacts.manifest (src/polisyos/scientist/orchestration/engine/state_merge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.orchestration.engine.state_merge",
+      "subject": "polisyos.scientist.orchestration.engine.state_merge",
+      "target_module": "polisyos.core.artifacts.manifest"
+    },
+    {
+      "check": "deep_import",
+      "detail": "polisyos.foundry.methods.catalog.mechanism.families",
+      "message": "New deep-import creep detected: polisyos.scientist.validation.verification.ic.service -> polisyos.foundry.methods.catalog.mechanism.families (src/polisyos/scientist/validation/verification/ic/service.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+      "source_module": "polisyos.scientist.validation.verification.ic.service",
+      "subject": "polisyos.scientist.validation.verification.ic.service",
+      "target_module": "polisyos.foundry.methods.catalog.mechanism.families"
+    }
+  ],
+  "whole_gate_outcome": "FAIL"
+}

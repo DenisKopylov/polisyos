@@ -1,0 +1,147 @@
+{
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+  "candidate_tree": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+  "files": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+      "sha256": "83fe1b1ce98c096d63ba8c71f371e71a5217ed3b7a5103316a8e5cd93642d15f",
+      "bytes": 2580,
+      "git_blob": "16f15d40edd3c1b9838c2d1a125d2cf60808e419"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "sha256": "2edb42da1222cb5fbc4d43a7df1355a3990d58d66293ee035b1cf79d687b1a19",
+      "bytes": 10959,
+      "git_blob": "63c48e186a542a069a14ad96e3331dc4a3744a37"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56",
+      "bytes": 16599,
+      "git_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+      "sha256": "50e0b78c639b52444cc97abe35f8b71a5ce66c8c33cb2c920c34cbe42633c04e",
+      "bytes": 23546,
+      "git_blob": "749154a57340793c223da2b40d02bd5bcd8e7fea"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+      "sha256": "b1ab54dad1f2aef2d310a3145dee2970b1f7c703ac8b198fbc156ed7486a34b6",
+      "bytes": 7177,
+      "git_blob": "cf30a5b76ea038d3b394f5d9f79198cc61812d82"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095",
+      "bytes": 16553,
+      "git_blob": "5f41c64d6f2df411a0cf49f2d4d19f9dd672ab39"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+      "sha256": "7f75f0c230186d6219265df1ce63c94c33012d9720843335089db89c003f8ce2",
+      "bytes": 7543,
+      "git_blob": "7991bd45f484ebd01199a5ed092fd58179de6033"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/.python-version",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "bytes": 5,
+      "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/README.md",
+      "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+      "bytes": 4934,
+      "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/protocol.py",
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "bytes": 4704,
+      "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "bytes": 379,
+      "git_blob": "770a46160a0b13614507d345f729910c9e81acde"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/tests/test_worker.py",
+      "sha256": "cd0e9f0547e711c0d5763e91d9ea04e0a9424ec81f52d829b3dc5cff094aca46",
+      "bytes": 10899,
+      "git_blob": "c3c81a4f426e3e1301ad986f34925360e08063b6"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/uv.lock",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "bytes": 98340,
+      "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "bytes": 10652,
+      "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef"
+    }
+  ],
+  "unchanged_application_python_profile_and_lock": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "base_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "candidate_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "equal": true
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "base_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "candidate_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204,
+      "equal": true
+    },
+    {
+      "path": "policy-engine/.python-version",
+      "base_sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135",
+      "candidate_sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135",
+      "bytes": 5,
+      "equal": true
+    }
+  ],
+  "packaging_manifest_owner": "F API fit_tmle; own topic does not include hatch assets mapping",
+  "source_equivalence": [
+    {
+      "from_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+      "to_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "paths": [
+        "policy-engine/workers/dowhy-014/.python-version",
+        "policy-engine/workers/dowhy-014/protocol.py",
+        "policy-engine/workers/dowhy-014/pyproject.toml",
+        "policy-engine/workers/dowhy-014/tests/test_worker.py",
+        "policy-engine/workers/dowhy-014/uv.lock",
+        "policy-engine/workers/dowhy-014/worker.py"
+      ],
+      "all_equal": true,
+      "scope": "Actual25PASS worker/scientific suite and actual GCM removal witness retain identical worker/protocol/tests/lock/pyproject/Python-version input blobs. Worker README documentation changed later and is excluded from this numerical-suite equivalence; parent builder separately changed/tested."
+    },
+    {
+      "from_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+      "to_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+        "policy-engine/workers/dowhy-014/.python-version",
+        "policy-engine/workers/dowhy-014/protocol.py",
+        "policy-engine/workers/dowhy-014/pyproject.toml",
+        "policy-engine/workers/dowhy-014/tests/test_worker.py",
+        "policy-engine/workers/dowhy-014/uv.lock",
+        "policy-engine/workers/dowhy-014/worker.py"
+      ],
+      "all_equal": true,
+      "scope": "Factory/CAS numerical replay and runtime source GO carry exact unchanged runtime/profile blobs; later changes are one plaintext-pydoc test and one required compatibility metadata field."
+    }
+  ]
+}

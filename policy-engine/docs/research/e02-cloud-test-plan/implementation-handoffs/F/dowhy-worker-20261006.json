@@ -1,0 +1,1467 @@
+{
+  "authority": {
+    "CAS_method_evidence_authoritative_for": [
+      "execution_reproducibility"
+    ],
+    "may_not_use_for": [
+      "governance_admissibility",
+      "method_validity"
+    ],
+    "time_scope": "Test observations on immutable named source stages; not fresh ongoing certification",
+    "worker": "candidate_computation_only"
+  },
+  "baseline_cells": [
+    {
+      "call_failed": "0",
+      "call_pass": "2",
+      "calls": "7",
+      "collected": "7",
+      "collection_error": "0",
+      "collection_skip": "0",
+      "extra_json": "{}",
+      "id": "F02-P050",
+      "job": "F02",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+      "receipt_status": "reconciled",
+      "rss_kib": "503132",
+      "setup_error": "0",
+      "skip": "5",
+      "source_file": "received/F02.txt",
+      "source_line": "178",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "PASS",
+      "teardown_error": "0",
+      "wall_s": "19.2",
+      "xfail": "0",
+      "xpass": "0"
+    },
+    {
+      "call_failed": "0",
+      "call_pass": "5",
+      "calls": "5",
+      "collected": "5",
+      "collection_error": "0",
+      "collection_skip": "0",
+      "extra_json": "{}",
+      "id": "F04-P108",
+      "job": "F04",
+      "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+      "receipt_status": "valid_reconciled_parent",
+      "rss_kib": "483956",
+      "setup_error": "0",
+      "skip": "0",
+      "source_file": "received/F04.txt",
+      "source_line": "318",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "PASS",
+      "teardown_error": "0",
+      "wall_s": "7.193",
+      "xfail": "0",
+      "xpass": "0"
+    },
+    {
+      "call_failed": "0",
+      "call_pass": "5",
+      "calls": "5",
+      "collected": "5",
+      "collection_error": "0",
+      "collection_skip": "0",
+      "extra_json": "{}",
+      "id": "F08-P110",
+      "job": "F08",
+      "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+      "receipt_status": "valid_reconciled",
+      "rss_kib": "624076",
+      "setup_error": "0",
+      "skip": "0",
+      "source_file": "received/F08.txt",
+      "source_line": "233",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "state": "PASS",
+      "teardown_error": "0",
+      "wall_s": "35.093966245651245",
+      "xfail": "0",
+      "xpass": "0"
+    },
+    {
+      "call_failed": "0",
+      "call_pass": "5",
+      "calls": "5",
+      "collected": "5",
+      "collection_error": "0",
+      "collection_skip": "0",
+      "extra_json": "{\"reason\":\"null\"}",
+      "id": "F15-P127",
+      "job": "F15",
+      "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+      "receipt_status": "valid",
+      "rss_kib": "629180",
+      "setup_error": "0",
+      "skip": "0",
+      "source_file": "received/F15.txt",
+      "source_line": "282",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "state": "PASS",
+      "teardown_error": "0",
+      "wall_s": "8.75",
+      "xfail": "0",
+      "xpass": "0"
+    }
+  ],
+  "baseline_grade": "Source-reported compact historical cells; F02P0502PASS5SKIP and remediation recorder cases never constitute native DoWhy witness; exact source/backend/marker pins retained in cells.",
+  "branch": "codex/e02-F-dowhy-20261006",
+  "bundle_ids": [
+    "CAU-04"
+  ],
+  "candidate_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+  "candidate_tree_sha": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+  "capability_state_or_finding_state": "limited: genuine selected worker, MethodJob, CAS and fresh-reader numerical capability accepted by bounded independent review; real-data scientific authority, production-positive node admission and broader engine source projection remain UNRUN; no finding closure claimed",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+    "policy-engine/tests/unit/remediation/test_cau_04.py",
+    "policy-engine/workers/dowhy-014/.python-version",
+    "policy-engine/workers/dowhy-014/README.md",
+    "policy-engine/workers/dowhy-014/protocol.py",
+    "policy-engine/workers/dowhy-014/pyproject.toml",
+    "policy-engine/workers/dowhy-014/tests/test_worker.py",
+    "policy-engine/workers/dowhy-014/uv.lock",
+    "policy-engine/workers/dowhy-014/worker.py"
+  ],
+  "checks": [
+    {
+      "command": "cd policy-engine/workers/dowhy-014 && PYTHONPATH=. .venv/bin/python -m pytest tests/test_worker.py -o addopts= --import-mode=importlib -p no:cacheprovider -q -s --tb=short",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "error_count": 0,
+      "input_closure": "Complete standalone test file; actual DoWhy CausalModel and gcm.fit; independent Statsmodelsalpha.05; known IID homoscedastic full-rank Gaussian DGP;200 seeds1000..1199; full literal malformed/row/graph controls.",
+      "name": "real worker/scientific profile",
+      "observation_scope": "Actual25PASS at named e589 source; complete worker/protocol/profile/test files unchanged at final candidate, not a claimed fresh rerun of 25 cases.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-worker.txt",
+      "output_ref": {
+        "bytes": 4155,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-worker.txt",
+        "sha256": "1140d97b7d6f127adbc6378b7556689a67007ad6483d559a5005b719cc65b960"
+      },
+      "pass_count": 25,
+      "process_exit_code": 0,
+      "skip_count": 0,
+      "source_equivalence": {
+        "all_equal": true,
+        "from_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+        "paths": [
+          "policy-engine/workers/dowhy-014/.python-version",
+          "policy-engine/workers/dowhy-014/protocol.py",
+          "policy-engine/workers/dowhy-014/pyproject.toml",
+          "policy-engine/workers/dowhy-014/tests/test_worker.py",
+          "policy-engine/workers/dowhy-014/uv.lock",
+          "policy-engine/workers/dowhy-014/worker.py"
+        ],
+        "scope": "Actual25PASS worker/scientific suite and actual GCM removal witness retain identical worker/protocol/tests/lock/pyproject/Python-version input blobs. Worker README documentation changed later and is excluded from this numerical-suite equivalence; parent builder separately changed/tested.",
+        "to_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+      },
+      "target_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+      "wall_s": 9.54
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py tests/unit/remediation/test_cau_04.py -o addopts= --import-mode=importlib -p no:cacheprovider -q --tb=short",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "error_count": 0,
+      "input_closure": "Complete three test files. Actual selected-worker producer/CAS/fresh3.14reader and actual-estimator malformed CI controls; original in-process optional DoWhy cases remain5SKIP. Explicit legacy recorder/refusal passes are not selected backend witness.",
+      "name": "parent/source/importer and explicit legacy cases",
+      "outcome": "SKIP",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-parent.txt",
+      "output_ref": {
+        "bytes": 5932,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-parent.txt",
+        "sha256": "99e4a14c62a7f4a1a35fad80f46a7c2150b4e66c2ebe851f87961569476fa2bc"
+      },
+      "pass_count": 26,
+      "process_exit_code": 0,
+      "skip_count": 5,
+      "target_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+      "wall_s": 44.38
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numerical-witness.py <fresh-local-cas-root>",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "input_closure": "Recomputable n500 syntheticfixture seed19; actual fixedWorker launch, CASsource/content/request/row/graph/seed binding, persisted typedreport, existing job lineage/execution evidence, fresh process reader; no production authority.",
+      "name": "numerical MethodJob/CAS/fresh3.14 reader",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-witness.txt",
+      "output_ref": {
+        "bytes": 17031,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-witness.txt",
+        "sha256": "faf09d2a9039e6c10c91e24216330ec4cf0840aad3d150f5a6b733aca2cd52ba"
+      },
+      "process_exit_code": 0,
+      "replayer": {
+        "bytes": 3511,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numerical-witness.py",
+        "sha256": "1804ed1a4e38ec237dee5a78f8df3ab5f034d4747426af6209f3bf18eff0caff"
+      },
+      "source_equivalence": {
+        "all_equal": true,
+        "from_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+        "paths": [
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+          "policy-engine/workers/dowhy-014/.python-version",
+          "policy-engine/workers/dowhy-014/protocol.py",
+          "policy-engine/workers/dowhy-014/pyproject.toml",
+          "policy-engine/workers/dowhy-014/tests/test_worker.py",
+          "policy-engine/workers/dowhy-014/uv.lock",
+          "policy-engine/workers/dowhy-014/worker.py"
+        ],
+        "scope": "Factory/CAS numerical replay and runtime source GO carry exact unchanged runtime/profile blobs; later changes are one plaintext-pydoc test and one required compatibility metadata field.",
+        "to_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+      },
+      "target_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/removal-estimate.py",
+      "control_outcome": "property falsifier rejected",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "expected_exit_code": 1,
+      "input_closure": "Runtime-only isolated test-child mutation AFTER genuine CausalModel estimation; replace point/interval with0/[-.01,.01], preserve estimator/version/profile/level/source labels. Actual persisted+fresh-reader known-DGP oracle must fail.",
+      "name": "remove genuine numerical estimate keep class/version/profile",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-removal-estimate.txt",
+      "output_ref": {
+        "bytes": 4282,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-removal-estimate.txt",
+        "sha256": "26bf8872dc8c58d431460ab9c184184216dfae468c6060f73f9a65c4fa2eefd4"
+      },
+      "process_exit_code": 1,
+      "replayer": {
+        "bytes": 1018,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/removal-estimate.py",
+        "sha256": "4c99016581a6c307033591c4330d3ab37dc96505446c45ee4b11166ec7117bdd"
+      },
+      "source_equivalence": {
+        "all_equal": true,
+        "from_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+        "paths": [
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+          "policy-engine/workers/dowhy-014/.python-version",
+          "policy-engine/workers/dowhy-014/protocol.py",
+          "policy-engine/workers/dowhy-014/pyproject.toml",
+          "policy-engine/workers/dowhy-014/tests/test_worker.py",
+          "policy-engine/workers/dowhy-014/uv.lock",
+          "policy-engine/workers/dowhy-014/worker.py"
+        ],
+        "scope": "Factory/CAS numerical replay and runtime source GO carry exact unchanged runtime/profile blobs; later changes are one plaintext-pydoc test and one required compatibility metadata field.",
+        "to_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+      },
+      "target_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9"
+    },
+    {
+      "command": "cd policy-engine/workers/dowhy-014 && PYTHONPATH=. .venv/bin/python ../../docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/removal-gcm-fit.py",
+      "control_outcome": "property falsifier rejected",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "expected_exit_code": 1,
+      "input_closure": "Runtime-only replacement calls same actual mechanism fits locally; preserves fitted coefficients/residuals and DoWhy/profile/fit_function strings. Installed dowhy.gcm.fitting_sampling.fit code-object witness fails0vs4calls.",
+      "name": "remove installed gcm.fit keep full numeric fitted output",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-removal-gcm.txt",
+      "output_ref": {
+        "bytes": 954,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-removal-gcm.txt",
+        "sha256": "a35cd9208788d1815bf2b71bb94ce17f55f5983fb9f0d8e4a42918fbe87b867e"
+      },
+      "process_exit_code": 1,
+      "replayer": {
+        "bytes": 1450,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/removal-gcm-fit.py",
+        "sha256": "402acbe4953b43c72f05952bb462d3c23f498190294133e25e25e3382214b234"
+      },
+      "source_equivalence": {
+        "all_equal": true,
+        "from_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+        "paths": [
+          "policy-engine/workers/dowhy-014/.python-version",
+          "policy-engine/workers/dowhy-014/protocol.py",
+          "policy-engine/workers/dowhy-014/pyproject.toml",
+          "policy-engine/workers/dowhy-014/tests/test_worker.py",
+          "policy-engine/workers/dowhy-014/uv.lock",
+          "policy-engine/workers/dowhy-014/worker.py"
+        ],
+        "scope": "Actual25PASS worker/scientific suite and actual GCM removal witness retain identical worker/protocol/tests/lock/pyproject/Python-version input blobs. Worker README documentation changed later and is excluded from this numerical-suite equivalence; parent builder separately changed/tested.",
+        "to_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+      },
+      "target_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68"
+    },
+    {
+      "command": "cd policy-engine/workers/dowhy-014 && PYTHONPATH=. .venv/bin/python -m pytest tests/test_worker.py -k numeric_primitives -o addopts= --import-mode=importlib -p no:cacheprovider -q --tb=short",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "fail_count": 6,
+      "input_closure": "Runtime source24ed; six actual-backend string/bool controls from subsequently committed a730 test file. Actual estimate executes first; pre-fix scalar/CI coercion silently admits malformed outputs.",
+      "name": "numeric primitive coercion precursor falsifier",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-primitive-base.txt",
+      "output_ref": {
+        "bytes": 7689,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-primitive-base.txt",
+        "sha256": "6e7574eb2f32841c672c550b7f138c033f7eaeb65c011bfff3243cc989928a34"
+      },
+      "process_exit_code": 1,
+      "target_sha": "24ed1ec2063b0f2f6b937d5dab72b5fd821ee8d1",
+      "test_source_sha": "a7308b727fe61a4b4e3239964c558332b131f02f"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.cli architecture check-production-invocation --base 198076863e143dea9f89f02734b13d50dae3eed5 --json-output <local-output.json>",
+      "compression": {
+        "decompressed_bytes": 170902551,
+        "decompressed_sha256": "fb3c8c7cc4f73a8eee073e49184da373059c9be039f0af97121cf66acab7688f",
+        "encoding": "gzip"
+      },
+      "current_tree_verdict": "UNRUN",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "full_basis": {
+        "bytes": 5987375,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.json.gz",
+        "sha256": "b9461c228dab1114c5a310e8e82f3fd4003dd393b3d17cffc33f33dbe8f99a5d"
+      },
+      "input_closure": "Historical precursor full tracked src/tools/tests denominator5906current/5904base,2699source,401roots. Static indirect boundaries unresolved; runtime_invocation_established=false; no inherited/exclusion attribution.",
+      "name": "static production invocation diagnostic",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.txt",
+      "output_ref": {
+        "bytes": 1590,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.txt",
+        "sha256": "8f13ce52c70836e98dbf0e437bea8f2c5487234d70cbb5f7e6114ffa4a54cef9"
+      },
+      "process_exit_code": 1,
+      "summary": {
+        "bytes": 2832,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation-summary.json",
+        "sha256": "967daf734a328c90c6dada6698525cf402cf05adbeb3f8305deda60e709f3523"
+      },
+      "target_sha": "cbb2015e3c96e6442a965e40c779a9c525e5060f"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.cli release check-compatibility-release-gates --json-output <local-output.json> --fail-on-contract-errors",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "inherited_attribution": "not_established",
+      "input_closure": "Actual complete82fragments/108structuredchanges;2other-fragment public review contract errors. Own internal worker fragment has no diagnostic error. Exact slice-base/disjoint proof absent: inherited attribution not_established.",
+      "name": "compatibility release complete diagnostic",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/compatibility-release.json",
+      "output_ref": {
+        "bytes": 1257,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/compatibility-release.json",
+        "sha256": "68ebbf8e77d163d5f0eba5cd54378bf6fe4f9f10e503bbb67fcf846cb83917b5"
+      },
+      "process_exit_code": 1,
+      "stdout": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/compatibility-release.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "target_sha": "cbb2015e3c96e6442a965e40c779a9c525e5060f"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check <eight changed Python paths from source-identity.json>",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "input_closure": "Complete eight changed Python production/test files; no formatting/semantic inference from lint.",
+      "name": "changed-path Ruff",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-ruff.txt",
+      "output_ref": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "process_exit_code": 0,
+      "target_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68"
+    },
+    {
+      "command": "G: selected configured worker profile and actual local admitted inputs on exact candidate; run existing production RunCausalEvaluation after genuine EvalSafety admission",
+      "environment": "Production admitted real-world data and lawful independent authority not available in cloud",
+      "input_closure": "Full production source law, graph assumptions, admission/evaluator/authority not established",
+      "name": "actual grounded production Scientist node",
+      "outcome": "UNRUN",
+      "output": "No production-positive authority receipt exists. Numerical helper and synthetic MethodJob receipts do not bypass EvalSafety.",
+      "target_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+    },
+    {
+      "command": "G/graph: actual HybridSCMFit producer with content-resolved supported source projection",
+      "environment": "Selected worker implemented; broader engine sourcefamily projection not resolved",
+      "input_closure": "Actual GraphCausalData/DOT vs complete SCMFitData columns and whole aligned source rows remain unresolved; no arbitrary callbacks/no silent native fallback",
+      "name": "broader causal-engine artifacts producer projection",
+      "outcome": "UNRUN",
+      "output": "artifacts.py unchanged; exact invocation/context lease unused. Direct GCM worker operation is separate from parent fit/query finding closure.",
+      "target_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+    },
+    {
+      "command": "F API packaging owner build exact worker dependency + hatch assets mapping; actual installed MethodJob/CAS/fresh-reader numerical consumer",
+      "environment": "Own topic contains source profile and typed source/packaged resolver; hatch mapping owned separately by API",
+      "input_closure": "Await exact immutable packaging dependency and independent real installed numerical witness",
+      "name": "installed wheel/sdist composition",
+      "outcome": "UNRUN",
+      "output": "No current own-topic installed-profile PASS asserted; missing resources provide typed WorkerUnavailable.",
+      "target_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+    },
+    {
+      "classification": "harness_input_mutation; no PASS/inheritedFAILpromotion",
+      "command": "PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+      "environment": "Shared read-only app3.14; exact attempt began before numeric overflow edit",
+      "input_closure": "Implementation source changed during actual generated output probe; gate detected4out-of-scratch source paths. This run is polluted and does not establish frozen product verdict.",
+      "name": "initial architecture attempt with changing input",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/profile-layout-architecture.txt",
+      "output_ref": {
+        "bytes": 119854,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/profile-layout-architecture.txt",
+        "sha256": "b8e7940c3b3aef2abefc3881524d0ce0f882dd60201f7793b7001dceacb6a675"
+      },
+      "process_exit_code": 2,
+      "target_interpretation": "Source start only, not a frozen candidate: outside-source changes detected during this initial architecture attempt. Historical output retained as UNRUN, no gate acceptance.",
+      "target_sha": "0e5c2e0999fce2464228439908953a771ba5383c"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py tests/unit/remediation/test_cau_04.py -o addopts= --import-mode=importlib -p no:cacheprovider -q --tb=short",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "error_count": 0,
+      "fail_count": 1,
+      "input_closure": "Complete same three files plus one newly added ABI/real producer control. Single failure is pydoc overstrike rendering test setup before real producer invocation. Original5optional skips retained.",
+      "name": "complete parent suite at canonical-builder freeze",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-parent.txt",
+      "output_ref": {
+        "bytes": 7472,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-parent.txt",
+        "sha256": "df5a2ac08e8f7911a163c8f0fdcceed5267537f48250f658088a1cbcdab87c5f"
+      },
+      "pass_count": 26,
+      "process_exit_code": 1,
+      "skip_count": 5,
+      "target_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+      "wall_s": 64.17
+    },
+    {
+      "bounded_coverage_note": "26passes plus corrected one-case pass are separate observations; no full27PASS rerun/master claim.",
+      "command": "cd policy-engine && PYTHONPATH=src:. E02_TEST_DOWHY_WORKER_PYTHON=<readonly worker3.12 interpreter> /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_public_complete_report_builder_abi_and_real_producer_invocation -o addopts= --import-mode=importlib -p no:cacheprovider -q --tb=short",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "error_count": 0,
+      "input_closure": "Three existing facade class identities, static function pickle address/identity, plaintext pydoc rendering, supported override executes genuine selected producer, actual MethodJob/CAS and whole report JSON factory/default-signature equality. Core ArtifactRef facade identity.",
+      "name": "schema-corrected public class/function ABI and genuine producer",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-abi-final.txt",
+      "output_ref": {
+        "bytes": 2381,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-abi-final.txt",
+        "sha256": "b0e2e4ea10ace26363179b2a88c3da9a03ed629bfb241acf31da5a9277775764"
+      },
+      "pass_count": 1,
+      "process_exit_code": 0,
+      "skip_count": 0,
+      "source_equivalence": {
+        "all_equal": true,
+        "from_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+        "paths": [
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+          "policy-engine/workers/dowhy-014/.python-version",
+          "policy-engine/workers/dowhy-014/protocol.py",
+          "policy-engine/workers/dowhy-014/pyproject.toml",
+          "policy-engine/workers/dowhy-014/tests/test_worker.py",
+          "policy-engine/workers/dowhy-014/uv.lock",
+          "policy-engine/workers/dowhy-014/worker.py"
+        ],
+        "scope": "Factory/CAS numerical replay and runtime source GO carry exact unchanged runtime/profile blobs; later changes are one plaintext-pydoc test and one required compatibility metadata field.",
+        "to_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+      },
+      "target_sha": "66c46c32a2a99a4f218a5853174671139252e0db",
+      "wall_s": 7.97
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+      "environment": "Actual app3.14.7; actual Node24 while gate requires Node22; pnpm generated-client setup unavailable",
+      "inherited_attribution": "not_established",
+      "input_closure": "Full canonical architecture guardrails; exact complete119514byte deciding output",
+      "measured_subchecks": "Deep-import and two generated output drifts FAIL; TypeScript generated-client scanner unavailable. Own two helper deep imports fixed in later f6 source; no blanket architecture PASS.",
+      "name": "frozen full architecture gate",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-architecture.txt",
+      "output_ref": {
+        "bytes": 119514,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-architecture.txt",
+        "sha256": "4b297d7d50dd6ed7ef9bde1c6295784cee1174b59e579b5f3222de3039666549"
+      },
+      "process_exit_code": 2,
+      "target_sha": "e5895da2ebbb5f6108e398d78258b973dbdc7b68"
+    },
+    {
+      "command": "Canonical tools.guardrails _iter_py_files(src/**/*.py), _parse_public_surface, collect_deep_import_edges and _check_deep_import_creep on actual target source; output report-builder-deep-import.json",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "inherited_attribution": "not_established",
+      "input_closure": "Complete2699src/**/*.py files;3452edges; fullinputcontentSHA73833ff61f72ec95e89643c64e957cc0106891ed503ab0766f570dc14153a84f; complete151whole-gate violations in output, no sampled zero.",
+      "name": "complete canonical deep-import static denominator with bounded own-helper check",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-deep-import.json",
+      "output_ref": {
+        "bytes": 87986,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-deep-import.json",
+        "sha256": "ded49d11908e049be55dac312d2af57573c2f5f84f57749abb956ae6ac91775d"
+      },
+      "runtime_or_authority_property": "not_established",
+      "scope": "Only own _dowhy_worker.py cross-root deep-import predicate: zero violations after canonical Core facade reuse",
+      "target_sha": "66c46c32a2a99a4f218a5853174671139252e0db",
+      "whole_gate_outcome": "FAIL"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.cli release check-compatibility-release-gates --json-output <local-output.json> --fail-on-contract-errors",
+      "contract_error_count": 3,
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "inherited_attribution": "not_established",
+      "input_closure": "Complete82release fragments /109structured compatibility records; actual missing new additive record deprecation_window plus two other errors",
+      "name": "compatibility gate at factory freeze before mandatory metadata correction",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-compatibility-release.json",
+      "output_ref": {
+        "bytes": 1578,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-compatibility-release.json",
+        "sha256": "b84999c4b4ff10551a944c7857b64edf12da21d338aa4d232a9c224574996c76"
+      },
+      "process_exit_code": 1,
+      "stdout": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-compatibility-release.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "target_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.cli release check-compatibility-release-gates --json-output <local-output.json> --fail-on-contract-errors",
+      "contract_error_count": 2,
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "inherited_attribution": "not_established",
+      "input_closure": "Complete canonical release fragment denominator; missing own deprecation_window fixed in fragment-only commit; two remaining public review errors retained",
+      "name": "compatibility gate after required own record field correction",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-compatibility-release.json",
+      "output_ref": {
+        "bytes": 1257,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-compatibility-release.json",
+        "sha256": "220d54a32330c08311b11fa558b46de4525c40d0db44224f57fde77122dd2654"
+      },
+      "process_exit_code": 1,
+      "stdout": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-compatibility-release.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "target_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+    },
+    {
+      "command": "cd policy-engine && /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py tests/unit/remediation/test_cau_04.py workers/dowhy-014/protocol.py workers/dowhy-014/tests/test_worker.py workers/dowhy-014/worker.py",
+      "environment": "Linux; actual appPython3.14.7 read-only; selected standalonePython3.12.14/DoWhy0.14 locked52distributions",
+      "input_closure": "All8changedPython paths derived from exact git diff slice-base..candidate",
+      "name": "final changed Python lint",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-ruff.txt",
+      "output_ref": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "process_exit_code": 0,
+      "target_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+    }
+  ],
+  "closure_ids": [],
+  "consumer_abi": {
+    "F_M5_zero_output_slot_warning_condition": "limited: not met; do not promote actual consumer ABI PASS into zero warnings/global interface closure",
+    "class_function_pickle_and_real_override": "PASS bounded literal facade addresses+actual supported override reaches real producer; full JSON typed report projection executed",
+    "existing_public_class": "polisyos.foundry.methods.causal.DoWhyIdentifyEstimate is the exact same class as polisyos.foundry.methods.catalog.causal.DoWhyIdentifyEstimate and canonical defining module dowhy_identify_estimate.DoWhyIdentifyEstimate",
+    "installed_assets_composition": "UNRUN in own topic; API hatch writer separately composes true installed numerical CAS consumer",
+    "new_class_method": "DoWhyIdentifyEstimate.report_from_worker_result",
+    "raw_output_monitor": "Actual [ERROR] causal_effect_report missing plus unexpected report/envelope/warnings keys remain; canonical IO dematerializer resolves declared alias correctly"
+  },
+  "environment_identity": {
+    "DoWhy014_metadata": "EconML optionalextra econml, not mandatory dependency; profile does not select it",
+    "app": {
+      "bytes": 7266,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/app-environment.json",
+      "sha256": "8e50f39aa4d563202b61eb4a82b5a5698d1f270d57b3cefbf64b5679d40c43ac"
+    },
+    "app_backend_absence": "DoWhy/EconML both absent3.14; absence is not positive backend witness",
+    "application_markers_unchanged": {
+      "dowhy": "dowhy>=0.13,<0.14; python_version < '3.13'",
+      "econml": "econml>=0.16; python_version < '3.14'"
+    },
+    "whole_profile_inventory": "52actual Linux installeddistributions vs55lock entries; excludedvirtualproject+Windows-onlycolorama/tzdata",
+    "worker": {
+      "bytes": 3497,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/worker-environment.json",
+      "sha256": "4e1b8e3465097ef301b84f42de9f05c2199f13bf8727b73d200b94ff18fb9606"
+    }
+  },
+  "evidence": {
+    "app-environment.json": {
+      "bytes": 7266,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/app-environment.json",
+      "sha256": "8e50f39aa4d563202b61eb4a82b5a5698d1f270d57b3cefbf64b5679d40c43ac"
+    },
+    "baseline-B212.json": {
+      "bytes": 45457,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/baseline-B212.json",
+      "sha256": "3aec1b5ab1cb2b3a5ed74bc723725851876ea1cdce8da1184c309d1cf30a866f"
+    },
+    "baseline-B213.json": {
+      "bytes": 45457,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/baseline-B213.json",
+      "sha256": "e1f703c90d21f97346131098eb19b55980bfc38f9f5132cdefdaf70153590533"
+    },
+    "baseline-F-failures.json": {
+      "bytes": 19253,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/baseline-F-failures.json",
+      "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201"
+    },
+    "candidate-guard-parent.txt": {
+      "bytes": 2779,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/candidate-guard-parent.txt",
+      "sha256": "678033a2ee10ee11b4e97202ddf31ffb94c481e238824024f028abb428148af1"
+    },
+    "candidate-parent.txt": {
+      "bytes": 5932,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/candidate-parent.txt",
+      "sha256": "60fa8aa9494b1fb15c6cd041b7f789e452cdbdbe2d6f5ebb98ad2d3e132e472a"
+    },
+    "candidate-selected-parent.txt": {
+      "bytes": 2779,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/candidate-selected-parent.txt",
+      "sha256": "d177b62a275c179afcd1daeaa7f3ed5d5ecf724c4954f75fad4bb034e27bd276"
+    },
+    "candidate-worker.txt": {
+      "bytes": 4148,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/candidate-worker.txt",
+      "sha256": "9a531490598e1567460529fd494bea4d641bfd402c7d874c448318dc18ce47c6"
+    },
+    "compatibility-release.json": {
+      "bytes": 1257,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/compatibility-release.json",
+      "sha256": "68ebbf8e77d163d5f0eba5cd54378bf6fe4f9f10e503bbb67fcf846cb83917b5"
+    },
+    "compatibility-release.txt": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/compatibility-release.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dowhy-complete-projection-independent-review.json": {
+      "bytes": 3122,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-complete-projection-independent-review.json",
+      "sha256": "84437192efab330ba74515e48fc3a6b3fde38745ffd1fd7d2cc4cdc9a1a8e168"
+    },
+    "dowhy-frozen-final.json": {
+      "bytes": 1022,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-frozen-final.json",
+      "sha256": "b24a756a8295cc212b30d8d838a12d7d43aa3acdfaae7b6f35eaa021e2388ec6"
+    },
+    "dowhy-frozen-final.stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-frozen-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dowhy-frozen-final.stdout": {
+      "bytes": 2422,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-frozen-final.stdout",
+      "sha256": "c864abf7a85b15cfe1c93cc64e3371862af713c6f941faa5390e7a2cabacb102"
+    },
+    "dowhy-independent-review.json": {
+      "bytes": 1739,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-independent-review.json",
+      "sha256": "689466e6e45596f035fe4588e0bf81dabbba80aaccce78100f701b386ca6e36c"
+    },
+    "final-compatibility-release.json": {
+      "bytes": 1257,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-compatibility-release.json",
+      "sha256": "220d54a32330c08311b11fa558b46de4525c40d0db44224f57fde77122dd2654"
+    },
+    "final-compatibility-release.txt": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-compatibility-release.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-ruff.txt": {
+      "bytes": 19,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "finite-final-architecture.txt": {
+      "bytes": 119514,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-architecture.txt",
+      "sha256": "4b297d7d50dd6ed7ef9bde1c6295784cee1174b59e579b5f3222de3039666549"
+    },
+    "finite-final-parent.txt": {
+      "bytes": 5932,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-parent.txt",
+      "sha256": "99e4a14c62a7f4a1a35fad80f46a7c2150b4e66c2ebe851f87961569476fa2bc"
+    },
+    "finite-final-removal-estimate.txt": {
+      "bytes": 4282,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-removal-estimate.txt",
+      "sha256": "b55c48c822b001ea75450959abec92832d85fbcb222e2b73e210eb01f9942908"
+    },
+    "finite-final-removal-gcm.txt": {
+      "bytes": 954,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-removal-gcm.txt",
+      "sha256": "a35cd9208788d1815bf2b71bb94ce17f55f5983fb9f0d8e4a42918fbe87b867e"
+    },
+    "finite-final-ruff.txt": {
+      "bytes": 19,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "finite-final-witness.txt": {
+      "bytes": 17030,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-witness.txt",
+      "sha256": "2e0ac743c5e19db11242e3f16263b312ab4e0f71564038961bf1f448df79c9df"
+    },
+    "finite-final-worker.txt": {
+      "bytes": 4155,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-worker.txt",
+      "sha256": "1140d97b7d6f127adbc6378b7556689a67007ad6483d559a5005b719cc65b960"
+    },
+    "malformed-binding.txt": {
+      "bytes": 633,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/malformed-binding.txt",
+      "sha256": "74e379489b4f15d5af4f3b48b946acae5c14e322d6f2b1c84aa0a5e7f1c19ffc"
+    },
+    "numeric-final-parent.txt": {
+      "bytes": 2779,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-final-parent.txt",
+      "sha256": "f08f70869b22cfe1c2edc7762650460ce91f4d24c900189464e69a5e4e00b49a"
+    },
+    "numeric-final-removal-estimate.txt": {
+      "bytes": 4282,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-final-removal-estimate.txt",
+      "sha256": "949a4f453c34613b7d6011ed59d571f1532b1a6dcd8c571a011a66edb11d85b9"
+    },
+    "numeric-final-removal-gcm.txt": {
+      "bytes": 954,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-final-removal-gcm.txt",
+      "sha256": "4303c8f2fe4e94435a25295a75efc66004e72dded19937194e936e204ef93716"
+    },
+    "numeric-final-witness.txt": {
+      "bytes": 17030,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-final-witness.txt",
+      "sha256": "616f86946e09e22cca370fa8bf0247636392f9eafa1699ef3350617a32c15716"
+    },
+    "numeric-final-worker.txt": {
+      "bytes": 4154,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-final-worker.txt",
+      "sha256": "499c18e761b2993d86c89cd5be330150e9a2f9acf4c7e8d77fdc5618c33da738"
+    },
+    "numeric-primitive-base.txt": {
+      "bytes": 7689,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numeric-primitive-base.txt",
+      "sha256": "6e7574eb2f32841c672c550b7f138c033f7eaeb65c011bfff3243cc989928a34"
+    },
+    "numerical-witness.py": {
+      "bytes": 3511,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numerical-witness.py",
+      "sha256": "1804ed1a4e38ec237dee5a78f8df3ab5f034d4747426af6209f3bf18eff0caff"
+    },
+    "numerical-witness.txt": {
+      "bytes": 17031,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/numerical-witness.txt",
+      "sha256": "f634d227e3cfd2c53bfafb288afeef0ca50def8d7e41f6ded6031cda20ef55d6"
+    },
+    "production-invocation-summary.json": {
+      "bytes": 2832,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation-summary.json",
+      "sha256": "967daf734a328c90c6dada6698525cf402cf05adbeb3f8305deda60e709f3523"
+    },
+    "production-invocation.json.gz": {
+      "bytes": 5987375,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.json.gz",
+      "sha256": "b9461c228dab1114c5a310e8e82f3fd4003dd393b3d17cffc33f33dbe8f99a5d"
+    },
+    "production-invocation.txt": {
+      "bytes": 1590,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.txt",
+      "sha256": "8f13ce52c70836e98dbf0e437bea8f2c5487234d70cbb5f7e6114ffa4a54cef9"
+    },
+    "profile-layout-architecture.txt": {
+      "bytes": 119854,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/profile-layout-architecture.txt",
+      "sha256": "b8e7940c3b3aef2abefc3881524d0ce0f882dd60201f7793b7001dceacb6a675"
+    },
+    "profile-layout-final-parent.txt": {
+      "bytes": 5932,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/profile-layout-final-parent.txt",
+      "sha256": "12d2ef156440d38589e3406487febb73443f3ac008ccccb9c9dfd8d651f650c2"
+    },
+    "profile-layout-native-parent.txt": {
+      "bytes": 2779,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/profile-layout-native-parent.txt",
+      "sha256": "fc9ab6f452a1a532ad214fa6f447bba91781ec7d71a89a1bf78f7d49bc6079ca"
+    },
+    "removal-estimate.py": {
+      "bytes": 1018,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/removal-estimate.py",
+      "sha256": "4c99016581a6c307033591c4330d3ab37dc96505446c45ee4b11166ec7117bdd"
+    },
+    "removal-estimate.txt": {
+      "bytes": 4282,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/removal-estimate.txt",
+      "sha256": "70566ddf1575ca6e01dd7172ca8e641bdce50362a8f2edf8151fb4396fff83e3"
+    },
+    "removal-gcm-fit.py": {
+      "bytes": 1450,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/removal-gcm-fit.py",
+      "sha256": "402acbe4953b43c72f05952bb462d3c23f498190294133e25e25e3382214b234"
+    },
+    "removal-gcm-fit.txt": {
+      "bytes": 954,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/removal-gcm-fit.txt",
+      "sha256": "d4f694f28e7aad6c3cf0844962cf5e330f602ce1f3d999aff28fd7621722cc20"
+    },
+    "report-builder-abi-final.txt": {
+      "bytes": 2381,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-abi-final.txt",
+      "sha256": "b0e2e4ea10ace26363179b2a88c3da9a03ed629bfb241acf31da5a9277775764"
+    },
+    "report-builder-compatibility-release.json": {
+      "bytes": 1578,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-compatibility-release.json",
+      "sha256": "b84999c4b4ff10551a944c7857b64edf12da21d338aa4d232a9c224574996c76"
+    },
+    "report-builder-compatibility-release.txt": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-compatibility-release.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "report-builder-deep-import.json": {
+      "bytes": 87986,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-deep-import.json",
+      "sha256": "ded49d11908e049be55dac312d2af57573c2f5f84f57749abb956ae6ac91775d"
+    },
+    "report-builder-final-parent.txt": {
+      "bytes": 7472,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-parent.txt",
+      "sha256": "df5a2ac08e8f7911a163c8f0fdcceed5267537f48250f658088a1cbcdab87c5f"
+    },
+    "report-builder-final-removal-estimate.txt": {
+      "bytes": 4282,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-removal-estimate.txt",
+      "sha256": "26bf8872dc8c58d431460ab9c184184216dfae468c6060f73f9a65c4fa2eefd4"
+    },
+    "report-builder-final-ruff.txt": {
+      "bytes": 19,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "report-builder-final-witness.txt": {
+      "bytes": 17031,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-witness.txt",
+      "sha256": "faf09d2a9039e6c10c91e24216330ec4cf0840aad3d150f5a6b733aca2cd52ba"
+    },
+    "root-complete-projection-corrected-falsifiers.json": {
+      "bytes": 1267,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-corrected-falsifiers.json",
+      "sha256": "1dd07264c280a50495599add2be03389b55414ae0b79efaa3ad1d4a9d73e9269"
+    },
+    "root-complete-projection-corrected-falsifiers.stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-corrected-falsifiers.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "root-complete-projection-corrected-falsifiers.stdout": {
+      "bytes": 3624,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-corrected-falsifiers.stdout",
+      "sha256": "37c53f38295fa2fbb0ce5be24f30fae635d807b0706815d67ac49572bf0b9159"
+    },
+    "root-complete-projection-frozen-native.json": {
+      "bytes": 1343,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-frozen-native.json",
+      "sha256": "4be6e2f5da2adced35b8d9f811b14b3cd82f2e53be92f47535ac7090e16332db"
+    },
+    "root-complete-projection-frozen-native.stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-frozen-native.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "root-complete-projection-frozen-native.stdout": {
+      "bytes": 19816,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-frozen-native.stdout",
+      "sha256": "1df32f4da2a0506e0f916956308bdef4959750a9abfcdaddc20fe0ab0e8abee1"
+    },
+    "root-consumer-2c-native.txt": {
+      "bytes": 4113,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-2c-native.txt",
+      "sha256": "d35d2892b9575c9277fb924836263ec96b486adfec6f0a90d885e925f0684656"
+    },
+    "root-consumer-2c-pvalue-divergence.py": {
+      "bytes": 3413,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-2c-pvalue-divergence.py",
+      "sha256": "ac41b859862dd481a7581e7df760709099378c716378eeee57001b1818a3bc23"
+    },
+    "root-consumer-2c-pvalue-divergence.txt": {
+      "bytes": 2585,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-2c-pvalue-divergence.txt",
+      "sha256": "7c51e78f980677a7be015d4711760b5ca1b9ec56f3864e6dda891574310f2997"
+    },
+    "root-consumer-2c-report-refusal.txt": {
+      "bytes": 2898,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-2c-report-refusal.txt",
+      "sha256": "4c94edf90cb4014ba5444956325ee57b4feff9e298369080a4574bf0cdd3e5a0"
+    },
+    "root-consumer-74-corrected-independent.json": {
+      "bytes": 2732,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-74-corrected-independent.json",
+      "sha256": "8e321eb4e21fa7974be7bbebd30dc31c2814b6b63726d0eb5ef7b3bb15c32bf3"
+    },
+    "root-consumer-74-corrected-independent.stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-74-corrected-independent.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "root-consumer-74-corrected-independent.stdout": {
+      "bytes": 3936,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-74-corrected-independent.stdout",
+      "sha256": "6a2d7c9c26d0fc29642ed57c869736a189536dc5216d453b85ba9b9a290a7390"
+    },
+    "root-consumer-93-independent-no-go.json": {
+      "bytes": 1981,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-93-independent-no-go.json",
+      "sha256": "a8920d2cb08eb4e75bccbd114f8d7d18396f8daac37da981e1b25041240224b3"
+    },
+    "root-consumer-complete-projection-independent-go.json": {
+      "bytes": 7803,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-complete-projection-independent-go.json",
+      "sha256": "3ba7eb224ca298f29932ea1fe7ab3581706c488699218e67cb6db01407736a8e"
+    },
+    "root-consumer-d550-native.txt": {
+      "bytes": 8873,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-d550-native.txt",
+      "sha256": "b9b8d82603eb5458da3a408522bd3470abc5753f7af2fcdb2c8b680b37851054"
+    },
+    "root-consumer-d550-point-refusal.txt": {
+      "bytes": 2874,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-d550-point-refusal.txt",
+      "sha256": "528b677da48bb2d22284f90727de1b3adadba730408529c19b86f4503531df66"
+    },
+    "root-consumer-d550-pvalue-refusal.txt": {
+      "bytes": 2877,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-d550-pvalue-refusal.txt",
+      "sha256": "4ef6cf3fb8edada87bd9ea320ac92f1520ce055de8a4a9262540106f16e80aff"
+    },
+    "root-consumer-report-divergence.py": {
+      "bytes": 3326,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-report-divergence.py",
+      "sha256": "e93b7e1120b58caf6546773dcd400277786a359be79f6124ab68633e1d83211a"
+    },
+    "root-consumer-report-divergence.txt": {
+      "bytes": 2526,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-report-divergence.txt",
+      "sha256": "ecd1ccf0b53a50ab64a5dbe8a1aebda0122435fa73d2b874d77ed2091cb49266"
+    },
+    "root-final-worker-native.json": {
+      "bytes": 1145,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-final-worker-native.json",
+      "sha256": "ed55c0e1ef3e405411a778c67fd9f3c4f19617a11819c4fca703f9eb5cb280d9"
+    },
+    "root-final-worker-native.stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-final-worker-native.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "root-final-worker-native.stdout": {
+      "bytes": 2405,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-final-worker-native.stdout",
+      "sha256": "f1919d03c87a441a6a84945d8b7a318c7ebc9827dc18e3e8553e2e45569e0a94"
+    },
+    "ruff.txt": {
+      "bytes": 19,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "source-identity.json": {
+      "bytes": 6562,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/source-identity.json",
+      "sha256": "949fd6f3912bd09ec1897f43f4d0e2e5778fc068c8df18608154a22312775816"
+    },
+    "worker-environment.json": {
+      "bytes": 3497,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/worker-environment.json",
+      "sha256": "4e1b8e3465097ef301b84f42de9f05c2199f13bf8727b73d200b94ff18fb9606"
+    },
+    "worker-frozen-install.txt": {
+      "bytes": 30,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/worker-frozen-install.txt",
+      "sha256": "1f50915670232ca6eac5a45064a6baedd047edf81a15a6e050433ff4d9a16c41"
+    }
+  },
+  "finding_ids": [
+    "B212",
+    "B213"
+  ],
+  "historical_independent_review": {
+    "receipt": {
+      "bytes": 1739,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-independent-review.json",
+      "sha256": "689466e6e45596f035fe4588e0bf81dabbba80aaccce78100f701b386ca6e36c"
+    },
+    "result": "GO",
+    "scope": "Exact historical15nativePASS; cbbonlyTOML source-equivalent; final shared guard/primitive/resource changes need own independent delta acceptance",
+    "source_sha": "d86a085f07a2d49855f465fe762ef20259b67dc3",
+    "transfer_map": {
+      "/workspace/e02-F-20261006-receipts/root-review/dowhy-frozen-final.json": {
+        "bytes": 1022,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-frozen-final.json",
+        "sha256": "b24a756a8295cc212b30d8d838a12d7d43aa3acdfaae7b6f35eaa021e2388ec6"
+      },
+      "/workspace/e02-F-20261006-receipts/root-review/dowhy-frozen-final.stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-frozen-final.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "/workspace/e02-F-20261006-receipts/root-review/dowhy-frozen-final.stdout": {
+        "bytes": 2422,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-frozen-final.stdout",
+        "sha256": "c864abf7a85b15cfe1c93cc64e3371862af713c6f941faa5390e7a2cabacb102"
+      }
+    }
+  },
+  "implementation_commits": [
+    "70f160c943fd878190479cb81fe80bf710cecb07",
+    "85cba8f4f40360cd213c66c344300d5e826aff00",
+    "d86a085f07a2d49855f465fe762ef20259b67dc3",
+    "cbb2015e3c96e6442a965e40c779a9c525e5060f",
+    "24ed1ec2063b0f2f6b937d5dab72b5fd821ee8d1",
+    "a7308b727fe61a4b4e3239964c558332b131f02f",
+    "0e5c2e0999fce2464228439908953a771ba5383c",
+    "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+    "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+    "66c46c32a2a99a4f218a5853174671139252e0db",
+    "423165322e508a293ffd23918c039c99fb37e7a7"
+  ],
+  "independent_latest_review": {
+    "final_candidate_source_equivalence": {
+      "all_equal": true,
+      "from_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+        "policy-engine/workers/dowhy-014/.python-version",
+        "policy-engine/workers/dowhy-014/protocol.py",
+        "policy-engine/workers/dowhy-014/pyproject.toml",
+        "policy-engine/workers/dowhy-014/tests/test_worker.py",
+        "policy-engine/workers/dowhy-014/uv.lock",
+        "policy-engine/workers/dowhy-014/worker.py"
+      ],
+      "scope": "Factory/CAS numerical replay and runtime source GO carry exact unchanged runtime/profile blobs; later changes are one plaintext-pydoc test and one required compatibility metadata field.",
+      "to_sha": "423165322e508a293ffd23918c039c99fb37e7a7"
+    },
+    "interpretation": "Actual independent19native parent tests at root2c composition carrying worker e589; not an own-topic HEAD rerun. Canonical-builder source GO is separately pinned f6.",
+    "native_actual_composed_sha": "2c46736112c6cbf552490748dc086fea85c6363a",
+    "native_count": 19,
+    "native_delta_replay": {
+      "bytes": 1145,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-final-worker-native.json",
+      "sha256": "ed55c0e1ef3e405411a778c67fd9f3c4f19617a11819c4fca703f9eb5cb280d9"
+    },
+    "native_skip_count": 0,
+    "receipt": {
+      "bytes": 3122,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-complete-projection-independent-review.json",
+      "sha256": "84437192efab330ba74515e48fc3a6b3fde38745ffd1fd7d2cc4cdc9a1a8e168"
+    },
+    "result": "GO",
+    "scope": "Complete primitive-to-report canonical projection and total strict numeric/installed-resource validation. Production evaluation authority remains UNRUN.",
+    "source_bindings": [
+      {
+        "bytes": 16599,
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+        "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56"
+      },
+      {
+        "bytes": 23546,
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+        "sha256": "50e0b78c639b52444cc97abe35f8b71a5ce66c8c33cb2c920c34cbe42633c04e"
+      },
+      {
+        "bytes": 10652,
+        "path": "policy-engine/workers/dowhy-014/worker.py",
+        "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253"
+      },
+      {
+        "bytes": 4704,
+        "path": "policy-engine/workers/dowhy-014/protocol.py",
+        "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239"
+      },
+      {
+        "bytes": 98340,
+        "path": "policy-engine/workers/dowhy-014/uv.lock",
+        "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+      }
+    ],
+    "source_sha": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+    "source_tree": "0283ef9c7e25ed14fc4edbc8cdfe54de9e1868ef",
+    "transfer_map": {
+      "/workspace/e02-F-20261006-receipts/consumer/complete-projection-corrected-falsifiers.json": {
+        "bytes": 1267,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-corrected-falsifiers.json",
+        "sha256": "1dd07264c280a50495599add2be03389b55414ae0b79efaa3ad1d4a9d73e9269"
+      },
+      "/workspace/e02-F-20261006-receipts/consumer/complete-projection-corrected-falsifiers.stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-corrected-falsifiers.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "/workspace/e02-F-20261006-receipts/consumer/complete-projection-corrected-falsifiers.stdout": {
+        "bytes": 3624,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-corrected-falsifiers.stdout",
+        "sha256": "37c53f38295fa2fbb0ce5be24f30fae635d807b0706815d67ac49572bf0b9159"
+      },
+      "/workspace/e02-F-20261006-receipts/consumer/complete-projection-frozen-native.json": {
+        "bytes": 1343,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-frozen-native.json",
+        "sha256": "4be6e2f5da2adced35b8d9f811b14b3cd82f2e53be92f47535ac7090e16332db"
+      },
+      "/workspace/e02-F-20261006-receipts/consumer/complete-projection-frozen-native.stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-frozen-native.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "/workspace/e02-F-20261006-receipts/consumer/complete-projection-frozen-native.stdout": {
+        "bytes": 19816,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-complete-projection-frozen-native.stdout",
+        "sha256": "1df32f4da2a0506e0f916956308bdef4959750a9abfcdaddc20fe0ab0e8abee1"
+      },
+      "/workspace/e02-F-20261006-receipts/consumer/final-worker-native.json": {
+        "bytes": 1145,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-final-worker-native.json",
+        "sha256": "ed55c0e1ef3e405411a778c67fd9f3c4f19617a11819c4fca703f9eb5cb280d9"
+      },
+      "/workspace/e02-F-20261006-receipts/consumer/final-worker-native.stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-final-worker-native.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "/workspace/e02-F-20261006-receipts/consumer/final-worker-native.stdout": {
+        "bytes": 2405,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-final-worker-native.stdout",
+        "sha256": "f1919d03c87a441a6a84945d8b7a318c7ebc9827dc18e3e8553e2e45569e0a94"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/final-compatibility-release.json": {
+        "bytes": 1257,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-compatibility-release.json",
+        "sha256": "220d54a32330c08311b11fa558b46de4525c40d0db44224f57fde77122dd2654"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/final-compatibility-release.txt": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-compatibility-release.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/final-ruff.txt": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/final-ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/finite-final-architecture.txt": {
+        "bytes": 119514,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/finite-final-architecture.txt",
+        "sha256": "4b297d7d50dd6ed7ef9bde1c6295784cee1174b59e579b5f3222de3039666549"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/report-builder-abi-final.txt": {
+        "bytes": 2381,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-abi-final.txt",
+        "sha256": "b0e2e4ea10ace26363179b2a88c3da9a03ed629bfb241acf31da5a9277775764"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/report-builder-compatibility-release.json": {
+        "bytes": 1578,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-compatibility-release.json",
+        "sha256": "b84999c4b4ff10551a944c7857b64edf12da21d338aa4d232a9c224574996c76"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/report-builder-compatibility-release.txt": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-compatibility-release.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/report-builder-deep-import.json": {
+        "bytes": 87986,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-deep-import.json",
+        "sha256": "ded49d11908e049be55dac312d2af57573c2f5f84f57749abb956ae6ac91775d"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/report-builder-final-parent.txt": {
+        "bytes": 7472,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-parent.txt",
+        "sha256": "df5a2ac08e8f7911a163c8f0fdcceed5267537f48250f658088a1cbcdab87c5f"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/report-builder-final-removal-estimate.txt": {
+        "bytes": 4282,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-removal-estimate.txt",
+        "sha256": "26bf8872dc8c58d431460ab9c184184216dfae468c6060f73f9a65c4fa2eefd4"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/report-builder-final-ruff.txt": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/report-builder-final-witness.txt": {
+        "bytes": 17031,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/report-builder-final-witness.txt",
+        "sha256": "faf09d2a9039e6c10c91e24216330ec4cf0840aad3d150f5a6b733aca2cd52ba"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-2c-native.txt": {
+        "bytes": 4113,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-2c-native.txt",
+        "sha256": "d35d2892b9575c9277fb924836263ec96b486adfec6f0a90d885e925f0684656"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-2c-pvalue-divergence.py": {
+        "bytes": 3413,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-2c-pvalue-divergence.py",
+        "sha256": "ac41b859862dd481a7581e7df760709099378c716378eeee57001b1818a3bc23"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-2c-pvalue-divergence.txt": {
+        "bytes": 2585,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-2c-pvalue-divergence.txt",
+        "sha256": "7c51e78f980677a7be015d4711760b5ca1b9ec56f3864e6dda891574310f2997"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-2c-report-refusal.txt": {
+        "bytes": 2898,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-2c-report-refusal.txt",
+        "sha256": "4c94edf90cb4014ba5444956325ee57b4feff9e298369080a4574bf0cdd3e5a0"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-74-corrected-independent.json": {
+        "bytes": 2732,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-74-corrected-independent.json",
+        "sha256": "8e321eb4e21fa7974be7bbebd30dc31c2814b6b63726d0eb5ef7b3bb15c32bf3"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-74-corrected-independent.stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-74-corrected-independent.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-74-corrected-independent.stdout": {
+        "bytes": 3936,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-74-corrected-independent.stdout",
+        "sha256": "6a2d7c9c26d0fc29642ed57c869736a189536dc5216d453b85ba9b9a290a7390"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-93-independent-no-go.json": {
+        "bytes": 1981,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-93-independent-no-go.json",
+        "sha256": "a8920d2cb08eb4e75bccbd114f8d7d18396f8daac37da981e1b25041240224b3"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-complete-projection-independent-go.json": {
+        "bytes": 7803,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-complete-projection-independent-go.json",
+        "sha256": "3ba7eb224ca298f29932ea1fe7ab3581706c488699218e67cb6db01407736a8e"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-d550-native.txt": {
+        "bytes": 8873,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-d550-native.txt",
+        "sha256": "b9b8d82603eb5458da3a408522bd3470abc5753f7af2fcdb2c8b680b37851054"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-d550-point-refusal.txt": {
+        "bytes": 2874,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-d550-point-refusal.txt",
+        "sha256": "528b677da48bb2d22284f90727de1b3adadba730408529c19b86f4503531df66"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-d550-pvalue-refusal.txt": {
+        "bytes": 2877,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-d550-pvalue-refusal.txt",
+        "sha256": "4ef6cf3fb8edada87bd9ea320ac92f1520ce055de8a4a9262540106f16e80aff"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-report-divergence.py": {
+        "bytes": 3326,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-report-divergence.py",
+        "sha256": "e93b7e1120b58caf6546773dcd400277786a359be79f6124ab68633e1d83211a"
+      },
+      "/workspace/e02-F-20261006-receipts/dowhy/root-consumer-report-divergence.txt": {
+        "bytes": 2526,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-report-divergence.txt",
+        "sha256": "ecd1ccf0b53a50ab64a5dbe8a1aebda0122435fa73d2b874d77ed2091cb49266"
+      },
+      "/workspace/e02-F-20261006-receipts/root-review/dowhy-complete-projection-independent-review.json": {
+        "bytes": 3122,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/dowhy-complete-projection-independent-review.json",
+        "sha256": "84437192efab330ba74515e48fc3a6b3fde38745ffd1fd7d2cc4cdc9a1a8e168"
+      }
+    }
+  },
+  "limitations_and_next_owner": [
+    "G fetches exact topic and committed receipt/complete evidence; integrate separately reviewed API hatch and root consumer dependencies. Code acceptance and finding closure remain distinct.",
+    "Full production data remains local read-only. Existing EvalSafety production-positive authority admission is UNRUN; synthetic MethodJob numerical receipt cannot bypass it.",
+    "SCM parent fitting/query/persisted model/inference semantics are graph_scm ownership; actual GCM worker base/refits here do not close B221/B222.",
+    "Selected LinuxPython3.12.14/DoWhy0.14 only; appPython3.14.7 markers/uvlock unchanged. NativeMac/Windows/alternate profile, realworld assumption authority and EconML capability not established.",
+    "Resolver supports complete fixed source/unpacked-wheel assets; own topic has no hatch mapping. Installed wheel/sdist numerical consumer and package assets retirement controls belong to API packaging dependency; no installed PASS asserted here.",
+    "5original in-process optional DoWhy skips retained. Recorder/refusal passes are not backend witnesses. f6 fullsuite26PASS5SKIP1pydoc-harnessFAIL and66 correctedonePASS remain separate, no masterPASS.",
+    "Actual raw DoWhy output monitor ERROR missing declared causal_effect_report and unexpected legacy companions persists; canonical dematerializer ABI works. F-M5 zero-warning condition stays limited.",
+    "Historicalroot93 numerical projection NO-GO and2c second same-class p_value escape retained; whole canonical builder fixes quantity, independentroot74f genuine falsifier family GO. Actual production node remains UNRUN.",
+    "Full architecture UNRUNexit2 with measured FAILsubchecks; complete static invocation partialFAIL and compatibility2othererrorsFAIL retained. Exact slice-base plus disjoint denominator proof unavailable, P41 attribution not_established.",
+    "Complete170902551byte static Git-only source diagnostic transferred losslessly as gzip with compressed/decompressed identities. Static boundaries still unresolved; receipt transfer does not establish runtime invocation or authority.",
+    "No global installed/external-plugin ABI, global scientific readiness, or all35Ffinding closure claim."
+  ],
+  "per_finding": [
+    {
+      "bundle_id": "CAU-04",
+      "check_refs": [
+        "real worker/scientific profile",
+        "numerical MethodJob/CAS/fresh3.14 reader",
+        "complete parent suite at canonical-builder freeze"
+      ],
+      "criterion_refs": [
+        {
+          "card": "CAU-04",
+          "criterion_id": "B212",
+          "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            5194,
+            5205
+          ],
+          "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+          "source_is_original_card": true
+        }
+      ],
+      "finding_id": "B212",
+      "mechanism": "Exact ordered finite numericCI shapes95level; no flatten/swap/string/bool/overflow coercion; actual producer point-only persistence noneligible; generic fresh-reader malformedbinding typedrefusal",
+      "next_owner": "G for scientific source/admission judgment; F root latest delta review",
+      "residuals": [
+        "Known correct IID homoscedastic Gaussian200replicate property is not real-data95coverage claim",
+        "Legacy explicit in-process profile remains optional and unselected in app3.14",
+        "Production-positive scientific source/authority and nonselected profiles remain UNRUN; bounded independent code GO is not finding closure"
+      ],
+      "state": "limited",
+      "test_selectors": [
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_estimate_point_only_survives_parent_cas_and_reader",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_actual_estimator_malformed_ci_refused_in_parent"
+      ]
+    },
+    {
+      "bundle_id": "CAU-04",
+      "check_refs": [
+        "real worker/scientific profile",
+        "numerical MethodJob/CAS/fresh3.14 reader",
+        "complete parent suite at canonical-builder freeze"
+      ],
+      "criterion_refs": [
+        {
+          "card": "CAU-04",
+          "criterion_id": "B213",
+          "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            5206,
+            5217
+          ],
+          "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+          "source_is_original_card": true
+        }
+      ],
+      "finding_id": "B213",
+      "mechanism": "Default selected actual identifiedATE adjustment+method+contrast+target binding; independent OLS and knownDGP coverage validated",
+      "next_owner": "G for exact candidate with admitted local inputs; F root numerical consumer; F API packaging",
+      "residuals": [
+        "Real-world source/graph identification and lawful production admission not established",
+        "Installed composed-profile consumer is separate API packaging dependency; own topic has no hatch asset mapping",
+        "Root source/CAS full report projection is separate accepted bounded dependency, not production-positive authority",
+        "Raw output-slot ERROR monitoring persists; F-M5 zero-warning criterion not met"
+      ],
+      "state": "limited",
+      "test_selectors": [
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_selected_profile_does_not_relabel_unsupported_requests"
+      ]
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_scope": {
+    "P41_global_red_inherited_attribution": "not_established",
+    "external_backend_actual_call": "recomputed",
+    "independent_root_review": "independently_reconciled: durable f6 source GO + actual19native parent replay root2c/e589 + actual complete root74f projection falsifiers",
+    "numerical_known_synthetic_DGP": "recomputed",
+    "production_node_admission": "not_established",
+    "realdata_causal_assumptions_and_authority": "not_established",
+    "whole_worker_env_lock": "recomputed"
+  },
+  "property": {
+    "negative_controls": [
+      "Actual installed estimator returns strings/bools/oversized numeric output -> typed refusal before conversion",
+      "Extra CI contrasts, wrongshape, reversed endpoints, NaN/Inf and confidencelevel mismatch refused; point-only hasnoCI/level",
+      "Actual sourceYrow permutation and input/content/graph/rowhash mismatch refused",
+      "Actual unblocked latent backdoor and false declared adjustment set refused",
+      "Remove estimate keep backend/profile labels -> fresh numerical oracleFAIL1",
+      "Remove installedGCMfit retain equivalent numbers -> actual-code-object oracleFAIL1",
+      "Generic required persisted fields deleted/nonobjects -> WorkerBindingError; unavailable installedassets -> WorkerUnavailable",
+      "Consistent persisted/offered/envelope numerical and default-field corruptions retain valid original worker/source markers; whole canonical typed producer projection rejects genuine realCI and point-only families at root dependency"
+    ],
+    "proxy_divergence": "Backend/profile labels survive replaced estimate or NumPy-equivalent bypass of installed GCM.fit; real numerical/code-object controls fail. Root93 point and2c p_value matched persisted/offered/envelope markers but violated unchanged worker result: whole single canonical producer projection now decides the complete typed consumed report, not an enumerated field proxy.",
+    "runtime_path": [
+      "Existing Scientist MethodJob job_spec/runner -> registered canonical DoWhyIdentifyEstimate numpy parent route",
+      "Parent _dowhy_worker.worker_execution_context resolves typed CASsource bytes and common rows/graph",
+      "One fixed bounded -I subprocess workers/dowhy-014/worker.py actual CausalModel identify(False)/estimate(.95)",
+      "Strict reply source/request/row/data/graph/adjustment/contrast/target/version binding -> CausalEffectReport/UncertaintyEnvelope",
+      "Existing MethodBackend parent-only CAS result+lineage+method execution reproducibility receipt",
+      "Fresh actual Python3.14reader reopens source and validates persisted worker response; installed composition and production-node authority remain independently classified"
+    ],
+    "statement": "Selected default causal method uses actual locked Python3.12/DoWhy0.14 for one bound binary0/1 ATE linear profile; parent validates reopened actual source/content and complete finite numeric reply; ordered95CI exactshape2/1,2 without primitive/shape repair; legitimate point-only preserved noneligible; persisted numerical candidate revalidated in freshPython3.14reader. Existing exported class now owns one pure full worker-response→typed-report builder shared by producer and actual root numerical consumer, with actual signature defaults and stable class/function pickle ABI."
+  },
+  "pull_request": null,
+  "receipt_corrections": [
+    {
+      "class": "metadata_only_original_criterion_binding",
+      "correction": "Per-ID property/check/limitation mapping now follows original B212 point-only/no manufactured CI and B213 actual estimand/contrast/target binding. Previous two mechanism labels were reversed. F-M7 shared profile is unchanged.",
+      "prior_head": "369b9d8d9105de2ae7198ba9ab08ac4065c20fb2",
+      "unchanged": "Both limited; closure_ids empty; source423 and all implementation/evidence/check bytes and outcomes retained. No test rerun or new backend/scientific/authority witness."
+    }
+  ],
+  "related_finding_ids": [
+    "B221",
+    "B222"
+  ],
+  "related_owner": "F graph_scm owns parentGCM fit/query/schema; worker/protocol is single shared canonical owner here",
+  "root_numerical_consumer_dependency": {
+    "branch": "codex/e02-F-closeout-20261006",
+    "candidate_sha": "74f754bd6a3388aef83188dac00e24b12ab3feb6",
+    "candidate_tree": "ae08d98787075b7ea3e0ae7d276a2b19cbfe5a65",
+    "current_independent_counts": "2PASS8deselected0SKIP/ERROR realCI+point-only generic mutation families at actual74f immutable source",
+    "historical_93_no_go": {
+      "bytes": 1981,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-93-independent-no-go.json",
+      "sha256": "a8920d2cb08eb4e75bccbd114f8d7d18396f8daac37da981e1b25041240224b3"
+    },
+    "historical_second_same_class": "2c p_value escape; widened to whole typed canonical builder instead of manual per-field patch ladder",
+    "original_d550_counts": "8PASS2diagnostics harnessFAIL independently; root mixed broader run separately preserved as full output; not masterPASS",
+    "receipt": {
+      "bytes": 7803,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/root-consumer-complete-projection-independent-go.json",
+      "sha256": "3ba7eb224ca298f29932ea1fe7ab3581706c488699218e67cb6db01407736a8e"
+    },
+    "result": "GO",
+    "scope": "Complete canonical report projection on actual source/CAS selected numerical helper; no production authority"
+  },
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "dowhy-worker-20261006",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_identity": {
+    "bytes": 6562,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/source-identity.json",
+    "sha256": "949fd6f3912bd09ec1897f43f4d0e2e5778fc068c8df18608154a22312775816"
+  },
+  "static_complete_transfer": {
+    "compressed": {
+      "bytes": 5987375,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.json.gz",
+      "sha256": "b9461c228dab1114c5a310e8e82f3fd4003dd393b3d17cffc33f33dbe8f99a5d"
+    },
+    "decompressed_bytes": 170902551,
+    "decompressed_sha256": "fb3c8c7cc4f73a8eee073e49184da373059c9be039f0af97121cf66acab7688f",
+    "encoding": "gzip",
+    "reason": "Root explicitly requested complete remote-fetchable static denominator; lossless compressed companion avoids leaving deciding raw basis unavailable to G.",
+    "scope": "Exact historical cbb Git-only production invocation diagnostic; exit1FAIL/partial; runtime invocation not_established"
+  },
+  "unit": "F",
+  "untransferred_raw_basis": {
+    "local_fixture_CAS_dirs": "Synthetic CAS scratch roots contain replayable artifacts/lockfiles; full deciding output and replay scripts transferred, generated directory trees stay local. No production data received/used.",
+    "static_census": "Complete raw static diagnostic losslessly transferred as gzip; original decompressed raw file also stays ignored locally. No claimed untransferred static denominator."
+  }
+}

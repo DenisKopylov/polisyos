@@ -1,0 +1,12 @@
+{"control": "local mechanism fits retain source/profile markers and full fitted output; actual installed gcm.fit does not execute", "point_slope": 2.076679391013231, "replicates": 3}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_genuine_gcm_assignment_fit_residual_rows_and_every_bootstrap_refit ____
+tests/test_worker.py:264: in test_genuine_gcm_assignment_fit_residual_rows_and_every_bootstrap_refit
+    assert len(calls) == 4, "Actual installed gcm.fit must execute for base and every bootstrap"
+E   AssertionError: Actual installed gcm.fit must execute for base and every bootstrap
+E   assert 0 == 4
+E    +  where 0 = len([])
+=========================== short test summary info ============================
+FAILED tests/test_worker.py::test_genuine_gcm_assignment_fit_residual_rows_and_every_bootstrap_refit
+1 failed in 0.26s

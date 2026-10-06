@@ -1,0 +1,51 @@
+{
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "coverage": "partial",
+  "denominator": {
+    "base_files": 5904,
+    "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5",
+    "current_files": 5906,
+    "current_sha256": "b245c8f910438c3741565161ca8c8c053c690fd7c7c5607a80418a069794c10b",
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "source_files": 2699
+  },
+  "limitations": [
+    "Static paths do not prove execution, persisted receipts, or gate substance.",
+    "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+    "Concrete public source callables are candidates; helpers are traversed.",
+    "No HTTP route is assumed runnable merely because it has a decorator."
+  ],
+  "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+  "new_unresolved_by_construction": [
+    "polisyos.foundry.methods.catalog.causal._dowhy_worker.run_worker",
+    "polisyos.foundry.methods.catalog.causal._dowhy_worker.worker_execution_context"
+  ],
+  "predicate_provenance": "recomputed",
+  "raw_basis": {
+    "bytes": 5987375,
+    "decompressed_bytes": 170902551,
+    "decompressed_sha256": "fb3c8c7cc4f73a8eee073e49184da373059c9be039f0af97121cf66acab7688f",
+    "encoding": "gzip",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006/production-invocation.json.gz",
+    "runtime_or_inherited_attribution": "not_established",
+    "sha256": "b9461c228dab1114c5a310e8e82f3fd4003dd393b3d17cffc33f33dbe8f99a5d",
+    "transferred": true
+  },
+  "regressions": [
+    "polisyos.foundry.methods.catalog.causal._dowhy_worker.validate_persisted_worker_response"
+  ],
+  "root_count": 401,
+  "runtime_invocation_established": false,
+  "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+  "target_scope": "Historical precursor before structural/numeric/resource fixes; no current-tree static promotion.",
+  "target_sha": "cbb2015e3c96e6442a965e40c779a9c525e5060f",
+  "unmeasured": [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance"
+  ]
+}

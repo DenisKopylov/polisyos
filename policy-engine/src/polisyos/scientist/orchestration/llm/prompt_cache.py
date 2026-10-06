@@ -21,6 +21,7 @@ from polisyos.core.llm.settlement import (
     _CacheReuseOwner,
     _CacheReuseProvenance,
     _current_producer_completion,
+    _request_digest,
     producer_settlement,
 )
 from polisyos.core.security.tenant_context import get_current_access_scope_or_none
@@ -411,7 +412,7 @@ class CachingLLMClient:
         self._inflight_timeout_s = _coerce_timeout(configured_timeout)
         self._inflight: dict[str, _ProducerFlight] = {}
         self._reuse_authorizer = reuse_authorizer
-        self._cache_reuse_owner = _CacheReuseOwner()
+        self._cache_reuse_owner = _CacheReuseOwner(self)
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
@@ -502,6 +503,11 @@ class CachingLLMClient:
                 ) from error
 
         completion = _current_producer_completion()
+        request_digest = (
+            completion.request_digest
+            if completion is not None
+            else _request_digest({"args": args, "kwargs": kwargs})
+        )
         principal = get_current_access_scope_or_none()
         runtime_scope = principal.to_dict() if principal is not None else None
         cache_key = compute_cache_key(
@@ -550,7 +556,9 @@ class CachingLLMClient:
             if isinstance(cached, GatewayLLMResponse):
                 _mark_cache_response(cached, status="hit", cache_key=cache_key)
                 return _CacheReuseGatewayResponse(
-                    cached, cache_key=cache_key, provenance=self._cache_reuse_owner.issue(cache_key)
+                    cached,
+                    cache_key=cache_key,
+                    provenance=self._cache_reuse_owner.issue(cache_key, request_digest),
                 )
             return cached
 
@@ -587,13 +595,17 @@ class CachingLLMClient:
             if isinstance(cached, GatewayLLMResponse):
                 _mark_cache_response(cached, status="hit", cache_key=cache_key)
                 return _CacheReuseGatewayResponse(
-                    cached, cache_key=cache_key, provenance=self._cache_reuse_owner.issue(cache_key)
+                    cached,
+                    cache_key=cache_key,
+                    provenance=self._cache_reuse_owner.issue(cache_key, request_digest),
                 )
             return cached
         if isinstance(response, GatewayLLMResponse):
             detached = _thaw_response(_freeze_response(response))
             return _CacheReuseGatewayResponse(
-                detached, cache_key=cache_key, provenance=self._cache_reuse_owner.issue(cache_key)
+                detached,
+                cache_key=cache_key,
+                provenance=self._cache_reuse_owner.issue(cache_key, request_digest),
             )
         return response
 

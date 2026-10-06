@@ -227,6 +227,7 @@ def create_traced_gateway_client(
             preset=cfg.default_preset,
             default_plugins=[dict(plugin) for plugin in default_plugins],
         )
+    cache_reuse_owner = None
     if cfg.cache_maxsize > 0 and cfg.cache_ttl_s > 0:
         raw_client = CachingLLMClient(
             raw_client,
@@ -239,6 +240,7 @@ def create_traced_gateway_client(
             inflight_timeout_s=cfg.timeout_s,
             reuse_authorizer=cache_reuse_authorizer,
         )
+        cache_reuse_owner = raw_client._cache_reuse_owner
     prompt_sanitizer = PromptSanitizer() if cfg.enable_prompt_sanitizer else None
     return TracedLLMClient(
         raw_client,
@@ -250,6 +252,7 @@ def create_traced_gateway_client(
         call_observer=call_observer,
         required_accounting=required_accounting,
         prompt_mode="user",
+        cache_reuse_owner=cache_reuse_owner,
         provider_name=resolved_provider or "gateway",
         prompt_sanitizer=prompt_sanitizer,
         tracer=tracer,

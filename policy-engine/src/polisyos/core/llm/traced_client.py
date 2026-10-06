@@ -34,6 +34,8 @@ from .settlement import (
     LLMProducerSettlement,
     LLMSettledResponse,
     LLMSettlementAck,
+    _cache_reuse_consumer_context,
+    _CacheReuseOwner,
     _current_settlement_owner,
     _new_producer_id,
     _producer_completion_context,
@@ -152,10 +154,17 @@ class TracedLLMClient:
         metrics: MetricsRegistry | Any | None = None,
         required_accounting: Callable[[dict[str, Any]], None] | None = None,
         prompt_mode: str = "auto",
+        cache_reuse_owner: _CacheReuseOwner | None = None,
     ) -> None:
         if prompt_mode not in {"auto", "native", "user"}:
             raise ValueError("prompt_mode must be 'auto', 'native', or 'user'")
         self._client = client
+        if cache_reuse_owner is not None and (
+            not isinstance(cache_reuse_owner, _CacheReuseOwner)
+            or not cache_reuse_owner.owns(client)
+        ):
+            raise ValueError("cache reuse issuer must belong to the configured cache client")
+        self._cache_reuse_owner = cache_reuse_owner
         self._model_name = model_name or self._detect_model_name()
         self._capture_prompt = capture_prompt
         self._max_prompt_length = max_prompt_length
@@ -765,14 +774,17 @@ class TracedLLMClient:
 
             try:
                 sanitized_args, sanitized_kwargs = self._sanitize_call_args(call_args, call_kwargs)
-                with _producer_completion_context(scope, complete):
+                with (
+                    _cache_reuse_consumer_context(self._cache_reuse_owner, request_digest),
+                    _producer_completion_context(scope, request_digest, complete),
+                ):
                     response = self._client.generate(*sanitized_args, **sanitized_kwargs)
                     if inspect.isawaitable(response):
                         response = await response
-                if not completion_recorded:
-                    completed = complete(response)
-                    # Keep the legacy response API unless a durable owner was supplied.
-                    response = completed if accounting_owner is not None else response
+                    if not completion_recorded:
+                        completed = complete(response)
+                        # Keep the legacy response API unless a durable owner was supplied.
+                        response = completed if accounting_owner is not None else response
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                 return self._restore_response(response)
             except LLMAccountingError as exc:

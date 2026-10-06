@@ -7,6 +7,7 @@ import hashlib
 import pickle
 import threading
 from contextlib import contextmanager, nullcontext
+from dataclasses import replace
 from decimal import Decimal
 from types import SimpleNamespace
 
@@ -15,8 +16,10 @@ import pytest
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.core.llm.response import extract_llm_response_data
 from polisyos.core.llm.settlement import (
+    _cache_reuse_consumer_context,
     _CacheReuseOwner,
     _CacheReuseProvenance,
+    _request_digest,
     producer_settlement,
 )
 from polisyos.core.llm.traced_client import LLMAccountingError, TracedLLMClient
@@ -87,6 +90,7 @@ def _stack(gateway: _Gateway, events: list, *, tracer=None):
         tracer=tracer or _Tracer(),
         metrics=SimpleNamespace(record_llm_call=lambda **kwargs: None),
         required_accounting=events.append,
+        cache_reuse_owner=cache._cache_reuse_owner,
     )
     return cache, traced
 
@@ -900,7 +904,13 @@ async def test_actual_physical_completion_cannot_borrow_authentic_reuse_capabili
     _, cache, enforcer, middleware, events = _durable_stack(tmp_path, gateway=gateway)
     first = await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
     reused = await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
-    assert extract_llm_response_data(reused).cache_hit
+    # A bare parser has no receiver configuration and cannot assert reuse billing.
+    assert not extract_llm_response_data(reused).cache_hit
+    with _cache_reuse_consumer_context(
+        cache._cache_reuse_owner,
+        _request_digest({"args": (), "kwargs": {"user": "original", "temperature": 0.0}}),
+    ):
+        assert extract_llm_response_data(reused).cache_hit
     with pytest.raises(TypeError, match="cannot be serialized"):
         pickle.dumps(reused._polisyos_cache_reuse_provenance)
     gateway.borrowed = reused.response
@@ -914,3 +924,97 @@ async def test_actual_physical_completion_cannot_borrow_authentic_reuse_capabili
     assert middleware.budget_state.spent["run"] == Decimal("0.04")
     assert gateway.calls == 2 and cache._cache.size == 2
     assert len([event for event in events if event["provider_call"]]) == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "claim", ["new-issuer", "other-cache-issuer", "wrong-request", "wrong-key", "caller-kwargs"]
+)
+async def test_receiver_binds_cache_issuer_and_exact_consumption(tmp_path, monkeypatch, claim):
+    gateway, cache, enforcer, middleware, events = _durable_stack(tmp_path)
+    gateway.release.set()
+    await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
+    reused = await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
+    assert gateway.calls == 1 and middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert producer_settlement(reused).event.kind == "reuse"
+    prior = reused._polisyos_cache_reuse_provenance
+    other_cache = CachingLLMClient(_Gateway(), cache=InMemoryPromptCache(), model="e02")
+
+    class PaidResponse(GatewayLLMResponse):
+        pass
+
+    kwargs = {"user": "original", "temperature": 0.0}
+    if claim == "wrong-request":
+        kwargs["user"] = "different exact request"
+    elif claim == "caller-kwargs":
+        kwargs["cache_reuse_owner"] = {"issuer": "caller-asserted", "scope": "run"}
+    digest = _request_digest({"args": (), "kwargs": kwargs})
+
+    async def actual_paid_completion(**provider_kwargs):
+        observed = await gateway.generate(**provider_kwargs)
+        response = PaidResponse(
+            content=observed.content,
+            model=observed.model,
+            provider=observed.provider,
+            usage=observed.usage,
+            request_id=observed.request_id,
+        )
+        if claim in {"new-issuer", "caller-kwargs"}:
+            provenance = _CacheReuseOwner().issue(prior.cache_key, digest)
+        elif claim == "other-cache-issuer":
+            provenance = other_cache._cache_reuse_owner.issue(prior.cache_key, digest)
+        elif claim == "wrong-key":
+            provenance = replace(prior, cache_key="different authenticated cache key")
+        else:
+            provenance = prior
+        response._polisyos_cache_reuse_provenance = provenance
+        return response
+
+    # Exercise the receiver of the genuine configured cache emitter with a real
+    # paid response carrying borrowed/foreign data, rather than a parser-only flag.
+    monkeypatch.setattr(cache, "generate", actual_paid_completion)
+    result = await enforcer.generate(**kwargs, _prompt_tokens_estimate=1)
+    settled = producer_settlement(result)
+    assert settled.event.kind == "provider" and settled.event.amount == Decimal("0.02")
+    assert len(settled.ack.receipts) == 1
+    assert gateway.calls == 2 and middleware.budget_state.spent["run"] == Decimal("0.04")
+    reopened = FileBudgetLedger(tmp_path / "budget.json", ledger_id="ledger:budget")
+    assert reopened.load().spent["run"] == Decimal("0.04")
+    assert len([event for event in events if event["provider_call"]]) == 2
+
+
+@pytest.mark.asyncio
+async def test_unconfigured_receiver_bills_self_appointed_actual_provider(tmp_path):
+    class PaidResponse(GatewayLLMResponse):
+        pass
+
+    class RawProvider(_Gateway):
+        async def generate(self, **kwargs):
+            self.calls += 1
+            response = PaidResponse(
+                content="actual raw provider",
+                model="e02",
+                provider="synthetic",
+                usage=GatewayUsage(prompt_tokens=7, completion_tokens=3, cost_usd=0.02),
+            )
+            response._polisyos_cache_reuse_provenance = _CacheReuseOwner().issue("self-appointed")
+            return response
+
+    raw = RawProvider()
+    receiver = TracedLLMClient(
+        raw, tracer=_Tracer(), metrics=SimpleNamespace(record_llm_call=lambda **_: None)
+    )
+    _, _, enforcer, middleware, _ = _durable_stack(tmp_path, gateway=raw, client=receiver)
+    result = await enforcer.generate(user="raw provider", _prompt_tokens_estimate=1)
+    settled = producer_settlement(result)
+    assert raw.calls == 1 and settled.event.kind == "provider"
+    assert len(settled.ack.receipts) == 1 and middleware.budget_state.spent["run"] == Decimal(
+        "0.02"
+    )
+
+
+def test_receiver_configuration_refuses_another_clients_issuer():
+    first = CachingLLMClient(_Gateway(), cache=InMemoryPromptCache(), model="e02")
+    second = CachingLLMClient(_Gateway(), cache=InMemoryPromptCache(), model="e02")
+    with pytest.raises(ValueError, match="configured cache client"):
+        TracedLLMClient(first, cache_reuse_owner=second._cache_reuse_owner)

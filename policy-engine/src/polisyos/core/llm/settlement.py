@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import contextvars
 import hashlib
+import hmac
 import json
+import secrets
 import uuid
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
@@ -125,15 +127,30 @@ class LLMSettledResponse:
 
 
 class _CacheReuseOwner:
-    """Trusted in-process cache emitter; its opaque seal never crosses a wire."""
+    """An emitter admitted by its receiver, never by a response's type claim."""
 
-    __slots__ = ("_seal",)
+    __slots__ = ("_client", "_seal")
 
-    def __init__(self) -> None:
-        self._seal = object()
+    def __init__(self, client: Any = None) -> None:
+        self._client = client
+        self._seal = secrets.token_bytes(32)
 
-    def issue(self, cache_key: str) -> _CacheReuseProvenance:
-        return _CacheReuseProvenance(self, self._seal, cache_key, f"cache-reuse:{uuid.uuid4().hex}")
+    def owns(self, client: Any) -> bool:
+        return self._client is client
+
+    def _signature(self, cache_key: str, request_digest: str, reuse_event_id: str) -> bytes:
+        payload = stable_json_dumps([cache_key, request_digest, reuse_event_id]).encode()
+        return hmac.digest(self._seal, payload, "sha256")
+
+    def issue(self, cache_key: str, request_digest: str = "") -> _CacheReuseProvenance:
+        reuse_event_id = f"cache-reuse:{uuid.uuid4().hex}"
+        return _CacheReuseProvenance(
+            self,
+            self._signature(cache_key, request_digest, reuse_event_id),
+            cache_key,
+            reuse_event_id,
+            request_digest,
+        )
 
     def __reduce_ex__(self, protocol: int) -> Any:
         raise TypeError("cache reuse authority is an in-process capability")
@@ -145,17 +162,27 @@ class _CacheReuseProvenance:
     seal: object
     cache_key: str
     reuse_event_id: str
+    request_digest: str = ""
 
     def __reduce_ex__(self, protocol: int) -> Any:
         raise TypeError("cache reuse provenance cannot be serialized as authority")
 
 
 def _cache_reuse_provenance(response: Any) -> _CacheReuseProvenance | None:
+    consumer = _CACHE_REUSE_CONSUMER.get()
     value = getattr(response, "_polisyos_cache_reuse_provenance", None)
     if (
-        isinstance(value, _CacheReuseProvenance)
-        and isinstance(value.owner, _CacheReuseOwner)
-        and value.seal is value.owner._seal
+        consumer is not None
+        and isinstance(value, _CacheReuseProvenance)
+        and value.owner is consumer.owner
+        and value.request_digest == consumer.request_digest
+        and isinstance(value.cache_key, str)
+        and isinstance(value.reuse_event_id, str)
+        and isinstance(value.seal, bytes)
+        and hmac.compare_digest(
+            value.seal,
+            consumer.owner._signature(value.cache_key, value.request_digest, value.reuse_event_id),
+        )
     ):
         return value
     return None
@@ -170,7 +197,14 @@ class _SettlementOwner:
 @dataclass(frozen=True, slots=True)
 class _ProducerCompletion:
     scope_key: tuple[str, ...]
+    request_digest: str
     complete: Callable[[Any, bool], LLMSettledResponse]
+
+
+@dataclass(frozen=True, slots=True)
+class _CacheReuseConsumer:
+    owner: _CacheReuseOwner
+    request_digest: str
 
 
 _SETTLEMENT_OWNER: contextvars.ContextVar[_SettlementOwner | None] = contextvars.ContextVar(
@@ -178,6 +212,9 @@ _SETTLEMENT_OWNER: contextvars.ContextVar[_SettlementOwner | None] = contextvars
 )
 _PRODUCER_COMPLETION: contextvars.ContextVar[_ProducerCompletion | None] = contextvars.ContextVar(
     "polisyos_llm_producer_completion", default=None
+)
+_CACHE_REUSE_CONSUMER: contextvars.ContextVar[_CacheReuseConsumer | None] = contextvars.ContextVar(
+    "polisyos_llm_cache_reuse_consumer", default=None
 )
 
 
@@ -206,13 +243,27 @@ def _settlement_owner_context(
 
 @contextmanager
 def _producer_completion_context(
-    scope_key: tuple[str, ...], complete: Callable[[Any, bool], LLMSettledResponse]
+    scope_key: tuple[str, ...],
+    request_digest: str,
+    complete: Callable[[Any, bool], LLMSettledResponse],
 ) -> Iterator[None]:
-    token = _PRODUCER_COMPLETION.set(_ProducerCompletion(scope_key, complete))
+    token = _PRODUCER_COMPLETION.set(_ProducerCompletion(scope_key, request_digest, complete))
     try:
         yield
     finally:
         _PRODUCER_COMPLETION.reset(token)
+
+
+@contextmanager
+def _cache_reuse_consumer_context(
+    owner: _CacheReuseOwner | None, request_digest: str
+) -> Iterator[None]:
+    consumer = _CacheReuseConsumer(owner, request_digest) if owner is not None else None
+    token = _CACHE_REUSE_CONSUMER.set(consumer)
+    try:
+        yield
+    finally:
+        _CACHE_REUSE_CONSUMER.reset(token)
 
 
 def producer_settlement(response: Any) -> LLMProducerSettlement | None:

@@ -30,6 +30,13 @@ claim. Cancelled consumers do not cancel owned producer settlement. Failed or mi
 ACK blocks reuse and remains unknown until exact event receipts reconcile; process death before
 a provider completion/event is observed requires external provider evidence.
 
+The factory explicitly binds the actual `CachingLLMClient` emitter to its traced receiver.
+Manual trusted compositions pass that client's `cache_reuse_owner`; an unconfigured receiver
+and bare response parser bill provider usage. The runtime issuer record authenticates the exact
+request, cache key and reuse event. Another cache's issuer or copied/edited prior record cannot
+grant reuse; provider/request kwargs do not install receiver authority. This operational issuer
+binding is separate from the deployment owner's permission decision above and cannot be serialized.
+
 Each eligible cache flight owns one absolute monotonic deadline through provider I/O,
 mandatory completion, serialization and publication. An observed late response is still
 settled; expiry refuses result/cache admission after settlement. Physical completion can

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from polisyos.ir.model_layer.canon import CanonSpec, from_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 
 from .contracts import (
     ArtifactID,
@@ -32,7 +32,30 @@ def put_json_artifact(
     inputs: Sequence[Any] | None = None,
     canon_spec: CanonSpec | None = None,
 ) -> dict[str, str]:
-    """Persist JSON plus schema/canonical metadata and return a normalized artifact reference."""
+    """Persist IR-canonical JSON and return a normalized artifact reference."""
+    ref = _put_json_artifact_ref(
+        store,
+        payload,
+        kind=kind,
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=canon_spec,
+    )
+    return normalize_artifact_ref(ref)
+
+
+def _put_json_artifact_ref(
+    store: ArtifactStore,
+    payload: Any,
+    *,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    inputs: Sequence[Any] | None = None,
+    canon_spec: CanonSpec | None = None,
+) -> Any:
+    """Persist IR-profile JSON and retain the backend's exact artifact reference."""
     canon_spec = canon_spec or CanonSpec()
     options = PutOptions(
         kind=kind,
@@ -41,12 +64,26 @@ def put_json_artifact(
         inputs=normalize_input_refs(inputs),
         canon=CanonInfo.from_spec(canon_spec),
     )
-    ref = store.put_json(
+    return _put_canonical_json_bytes(
+        store,
         payload,
-        opts=to_store_put_options(options),
-        canon_spec=canon_spec,
+        to_store_put_options(options),
+        canon_spec,
     )
-    return normalize_artifact_ref(ref)
+
+
+def _put_canonical_json_bytes(
+    store: Any,
+    payload: Any,
+    options: Any,
+    canon_spec: CanonSpec,
+) -> Any:
+    """Serialize once with IR's typed profile, then persist those exact bytes."""
+    canonical_bytes = to_canonical_bytes(payload, canon_spec)
+    put_bytes = getattr(store, "put_bytes", None)
+    if not callable(put_bytes):
+        raise TypeError("IR artifact store must implement put_bytes for profile-bound writes")
+    return put_bytes(canonical_bytes, opts=options)
 
 
 def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> Any:

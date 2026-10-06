@@ -114,7 +114,7 @@ class PutOptions:
 
 @dataclass(frozen=True)
 class StorePutOptions:
-    """Duck-typed options compatible with core FileSystemCAS.put_json."""
+    """Duck-typed options compatible with core CAS byte writes."""
 
     kind: str
     media_type: str
@@ -124,11 +124,19 @@ class StorePutOptions:
     inputs: list[dict[str, Any]] | None = None
     canon: dict[str, Any] | None = None
     governance: dict[str, Any] | None = None
+    tenant_context: Any = None
+    same_input_closure: Any = None
+    authority: Any = None
+    warnings: list[Any] | None = None
 
 
 @runtime_checkable
 class ArtifactStore(Protocol):
-    """Minimal CAS protocol required by IR helpers for writing JSON and reading raw bytes."""
+    """Minimal CAS protocol required by IR helpers for writing and reading artifacts."""
+
+    def put_bytes(self, data: bytes, opts: Any) -> Any:
+        """Persist bytes already serialized by the owning canonical profile."""
+        ...
 
     def put_json(
         self,

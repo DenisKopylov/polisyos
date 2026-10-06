@@ -364,14 +364,15 @@ def persist_ncm_spec_selected_view(
     full selected ``InputRef`` values. This IR owner serializes the NCM and
     returns the exact ref from the store without normalizing it to an ID.
     """
-    from polisyos.ir.model_layer.canon import to_canonical_bytes
+    from polisyos.ir.artifacts.io import _put_canonical_json_bytes
 
     checked = NCMSpec.model_validate(ncm_spec.model_dump(mode="python"))
-    body = to_canonical_bytes(
+    ref = _put_canonical_json_bytes(
+        store,
         checked.model_dump(mode="json"),
+        write_options,
         CanonSpec(forbid_floats=False, exclude_none=False),
     )
-    ref = store.put_bytes(body, write_options)
     if (
         ref.kind != "ir.ncm_spec"
         or ref.media_type != "application/json"
@@ -419,8 +420,7 @@ def load_ncm_spec_selected_view(
         raise ValueError("ncm_selected_view_manifest_mismatch")
     lineage = manifest_inputs[0]
     if (
-        str(getattr(lineage, "artifact_id", ""))
-        != str(expected_declaration_ref.artifact_id)
+        str(getattr(lineage, "artifact_id", "")) != str(expected_declaration_ref.artifact_id)
         or getattr(lineage, "role", None) != "candidate_model_declaration"
         or getattr(lineage, "manifest_profile_sha256", None)
         != expected_declaration_ref.manifest_profile_sha256

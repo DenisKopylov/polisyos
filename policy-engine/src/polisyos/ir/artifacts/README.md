@@ -24,7 +24,7 @@ store contract, schema metadata и helpers, через которые `analytics
 | Type/Function                                        | Description                                                             |
 | ---------------------------------------------------- | ----------------------------------------------------------------------- |
 | `ArtifactID`                                         | Валидируемый canonical artifact identifier                              |
-| `ArtifactStore`                                      | Protocol для CAS backends                                               |
+| `ArtifactStore`                                      | CAS protocol; IR JSON writes canonical bytes through `put_bytes`            |
 | `PutOptions`, `StorePutOptions`                      | Метаданные записи, schema info и lineage inputs                         |
 | `normalize_artifact_ref()`, `normalize_input_refs()` | Нормализуют typed refs перед persistence                                |
 | `put_json_artifact()`                                | Сохраняет canonical JSON artifact и возвращает standardized ref payload |

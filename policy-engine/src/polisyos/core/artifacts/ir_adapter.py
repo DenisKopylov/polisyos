@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, overload
 
 from .backends.config import ArtifactStoreConfig, build_artifact_store
 from .ids import ArtifactID
-from .manifest import ArtifactGovernanceInfo, CanonInfo, InputRef, SchemaInfo
+from .manifest import ArtifactGovernanceInfo, ArtifactRef, CanonInfo, InputRef, SchemaInfo
 from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
@@ -85,6 +85,14 @@ class CoreToIRArtifactStoreAdapter:
 
     store: CoreArtifactStore
 
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: StorePutOptions | ArtifactWriteOptions,
+    ) -> ArtifactRef:
+        """Persist bytes with Core's typed manifest contract."""
+        return self.store.put_bytes(data, _coerce_write_options(opts))
+
     def put_json(
         self,
         obj: Any,
@@ -92,16 +100,16 @@ class CoreToIRArtifactStoreAdapter:
         canon_spec: IRCanonSpec | None = None,
     ) -> Any:
         import polisyos.ir.model_layer.canon as ir_canon
+        from polisyos.ir.artifacts.io import _put_canonical_json_bytes
 
         spec = canon_spec or ir_canon.CanonSpec()
-        data = ir_canon.to_canonical_bytes(obj, spec)
         write_options = _coerce_write_options(opts)
         write_options = replace(
             write_options,
             media_type="application/json",
             canon=write_options.canon or CanonInfo.from_spec(spec),
         )
-        return self.store.put_bytes(data, write_options)
+        return _put_canonical_json_bytes(self, obj, write_options, spec)
 
     def get_bytes(self, artifact_id: Any) -> bytes:
         return self.store.get_bytes(ArtifactID.model_validate(str(artifact_id)))

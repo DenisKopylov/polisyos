@@ -7,11 +7,11 @@ import uuid
 from pathlib import Path
 from typing import Literal
 
-from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.io.atomic import append_text_locked, file_lock
-from polisyos.ir.artifacts.io import get_json_artifact
+from polisyos.ir.artifacts.io import _put_json_artifact_ref, get_json_artifact
+from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 
 from .models import (
     EntityMatchBatch,
@@ -40,20 +40,19 @@ class EntityMatchStore:
         *,
         method: str,
         metadata: dict[str, str] | None = None,
-    ):
+    ) -> ArtifactRef:
         batch = EntityMatchBatch(
             candidates=candidates,
             method=method,
             metadata=metadata or {},
         )
-        return self._store.put_json(
+        return _put_json_artifact_ref(
+            self._store,
             batch.model_dump(mode="json"),
-            opts=PutOptions(
-                kind=_MATCH_BATCH_KIND,
-                media_type="application/json",
-                schema=_MATCH_BATCH_SCHEMA,
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
+            kind=_MATCH_BATCH_KIND,
+            schema_name=_MATCH_BATCH_SCHEMA.name,
+            schema_version=_MATCH_BATCH_SCHEMA.version,
+            canon_spec=IRCanonSpec(forbid_floats=False),
         )
 
     def load_candidates(self, artifact_id) -> EntityMatchBatch:
@@ -70,7 +69,7 @@ class EntityMatchStore:
         provenance_ref: str | None = None,
         merge_governance_ref: str | None = None,
         canonical_write: bool = False,
-    ):
+    ) -> ArtifactRef:
         """Persist an override without mutating canonical facts.
 
         Accepted overrides require merge-governance evidence before they can be
@@ -106,14 +105,13 @@ class EntityMatchStore:
             previous_status=candidate.override_status,
         )
         envelope = EntityOverrideEnvelope(candidate=updated, audit=audit)
-        ref = self._store.put_json(
+        ref = _put_json_artifact_ref(
+            self._store,
             envelope.model_dump(mode="json"),
-            opts=PutOptions(
-                kind=_MATCH_OVERRIDE_KIND,
-                media_type="application/json",
-                schema=_MATCH_OVERRIDE_SCHEMA,
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
+            kind=_MATCH_OVERRIDE_KIND,
+            schema_name=_MATCH_OVERRIDE_SCHEMA.name,
+            schema_version=_MATCH_OVERRIDE_SCHEMA.version,
+            canon_spec=IRCanonSpec(forbid_floats=False),
         )
         append_text_locked(
             _override_index_path(self._store),
@@ -142,10 +140,13 @@ class EntityMatchStore:
         if not index_path.exists():
             return []
         rows: list[tuple[str, EntityOverrideAuditRecord]] = []
-        with file_lock(_override_lock_path(self._store)), index_path.open(
-            "r",
-            encoding="utf-8",
-        ) as handle:
+        with (
+            file_lock(_override_lock_path(self._store)),
+            index_path.open(
+                "r",
+                encoding="utf-8",
+            ) as handle,
+        ):
             for line in handle:
                 raw = line.strip()
                 if not raw:

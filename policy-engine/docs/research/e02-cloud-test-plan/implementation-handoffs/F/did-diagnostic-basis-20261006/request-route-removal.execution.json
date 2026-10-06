@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/request-route-removal.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_sha": "856caddfa71423a439b1257d947d9657b6a29ff3",
+  "source_tree": "e729db0ac4214eefca4eb487ffb5bb4e08d0e784",
+  "utc": "2026-10-06T15:11:21.166817+00:00",
+  "elapsed_s": 29.40949527200428,
+  "exit_code": 1,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/request-route-removal.stdout",
+    "bytes": 54647,
+    "sha256": "070dd56fb68bac713018f113477f956cf1b3273d19fac5aeed817f643780942b"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/request-route-removal.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

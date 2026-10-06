@@ -1,0 +1,86 @@
+FF...................................................................... [ 91%]
+.......                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_native_report_and_actual_canonical_slots_preserve_complete_diagnostics[StandardDifferenceInDifferences] _
+
+method = <class 'polisyos.foundry.methods.catalog.causal.did.StandardDifferenceInDifferences'>
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-168/test_native_report_and_actual_0')
+
+    @pytest.mark.parametrize("method", [StandardDifferenceInDifferences, StaggeredDifferenceInDifferences])
+    def test_native_report_and_actual_canonical_slots_preserve_complete_diagnostics(method, tmp_path):
+        data = _panel()
+        output = _run(method, data)
+        report = output["report"]
+        assert report.status is EstimationStatus.SUCCESS
+        expected = method._diagnostic_contract(data)
+        assert all(report.method_params[key] == value for key, value in expected.items())
+        contract = expected["diagnostic_contract"]
+        diagnostics = [diagnostic.model_dump(mode="json") for diagnostic in report.diagnostics]
+        assert diagnostics == contract["diagnostics"]
+        assert contract["result_sha256"] == _sha(diagnostics)
+        assert expected["diagnostic_binding"] == _sha(contract)
+        assert contract["identification_authority"] is False
+        # Execute the real native output-slot projection rather than inspect raw alias names.
+>       slots = dematerialize_method_output(method, method.signature, output)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: dematerialize_method_output() takes 0 positional arguments but 3 were given
+
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py:70: TypeError
+_ test_native_report_and_actual_canonical_slots_preserve_complete_diagnostics[StaggeredDifferenceInDifferences] _
+
+method = <class 'polisyos.foundry.methods.catalog.causal.did.StaggeredDifferenceInDifferences'>
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-168/test_native_report_and_actual_1')
+
+    @pytest.mark.parametrize("method", [StandardDifferenceInDifferences, StaggeredDifferenceInDifferences])
+    def test_native_report_and_actual_canonical_slots_preserve_complete_diagnostics(method, tmp_path):
+        data = _panel()
+        output = _run(method, data)
+        report = output["report"]
+        assert report.status is EstimationStatus.SUCCESS
+        expected = method._diagnostic_contract(data)
+        assert all(report.method_params[key] == value for key, value in expected.items())
+        contract = expected["diagnostic_contract"]
+        diagnostics = [diagnostic.model_dump(mode="json") for diagnostic in report.diagnostics]
+        assert diagnostics == contract["diagnostics"]
+        assert contract["result_sha256"] == _sha(diagnostics)
+        assert expected["diagnostic_binding"] == _sha(contract)
+        assert contract["identification_authority"] is False
+        # Execute the real native output-slot projection rather than inspect raw alias names.
+>       slots = dematerialize_method_output(method, method.signature, output)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: dematerialize_method_output() takes 0 positional arguments but 3 were given
+
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py:70: TypeError
+=============================== warnings summary ===============================
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py::test_actual_registry_retirement_old_slots_dispatch_and_fresh_cas
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = testfunction(**testargs)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_bootstrap_resamples_panel_units_not_att_cells
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:75: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(_single_cell_panel())
+
+tests/unit/remediation/test_cau_02.py::test_staggered_p_value_uses_centered_scalar_null_distribution
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:88: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(_single_cell_panel(), seed=19)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_excludes_already_affected_not_yet_controls
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:109: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_anticipation_preserves_not_yet_treated_characterization
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:133: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[0]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[anticipation2]
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:253: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=40)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py::test_native_report_and_actual_canonical_slots_preserve_complete_diagnostics[StandardDifferenceInDifferences]
+FAILED tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py::test_native_report_and_actual_canonical_slots_preserve_complete_diagnostics[StaggeredDifferenceInDifferences]
+2 failed, 77 passed, 9 warnings in 61.48s (0:01:01)

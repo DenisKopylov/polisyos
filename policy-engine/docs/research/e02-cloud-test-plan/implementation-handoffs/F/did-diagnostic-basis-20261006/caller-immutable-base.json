@@ -1,0 +1,1235 @@
+{
+  "source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+  "source_tree": "209c9f0a6a9127286884c5faff3e813de465c6f6",
+  "input_custody": "all source bytes read directly from immutable Git via cat-file batch; no mutable worktree bytes",
+  "explicit_roots": [
+    "policy-engine/src/",
+    "policy-engine/tests/",
+    "policy-engine/tools/",
+    "policy-engine/benchmarks/",
+    "policy-engine/scripts/",
+    "scripts/",
+    "src/",
+    "apps/",
+    "packages/"
+  ],
+  "all_tracked_paths": 13840,
+  "source_or_test_config_denominator": 6507,
+  "extension_denominator": {
+    ".py": 6053,
+    ".json": 416,
+    ".yml": 1,
+    ".yaml": 22,
+    ".toml": 3,
+    ".ts": 12
+  },
+  "denominator_paths_sha256": "804e54d28467926394263e90fa4ff36c3c335e4b4cbd8c28d67689c897e22c1b",
+  "denominator_reconstruction": "git ls-tree -r --name-only REF, roots/extensions above; canonical tracked bytes retained in Git",
+  "rows": [
+    {
+      "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+      "bytes": 13365,
+      "sha256": "e58553495f2f83554196125999bfad0eabc7e70d6a8d5760e5b677616ae9d007",
+      "hits": [
+        {
+          "line": 137,
+          "text": "                \"method\": \"difference_in_differences\","
+        },
+        {
+          "line": 182,
+          "text": "                \"method\": \"difference_in_differences\","
+        },
+        {
+          "line": 226,
+          "text": "                \"method\": \"staggered_difference_in_differences\","
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/article_extractor.py",
+      "bytes": 87955,
+      "sha256": "55f5305cabc313ac668e2e06772f0c272b6e65626e83d2d60dedaf3464edb76f",
+      "hits": [
+        {
+          "line": 240,
+          "text": "    \"difference_in_differences\": DesignFamily.DID.value,"
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "bytes": 74245,
+      "sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8",
+      "hits": [
+        {
+          "line": 102,
+          "text": "    if \"panel\" in ns or {\"panel_data\", \"outcome_panel\", \"entity_ids\", \"time_ids\"} & slot_names:"
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "bytes": 50088,
+      "sha256": "5b35566ab38d121c43146edf809b9f3194030db950e953b660e0715450538f20",
+      "hits": [
+        {
+          "line": 468,
+          "text": "            \"staggered\": False,"
+        },
+        {
+          "line": 826,
+          "text": "                \"staggered\": True,"
+        },
+        {
+          "line": 847,
+          "text": "                \"staggered\": True,"
+        },
+        {
+          "line": 874,
+          "text": "        \"staggered\": True,"
+        },
+        {
+          "line": 973,
+          "text": "class DifferenceInDifferences:"
+        },
+        {
+          "line": 980,
+          "text": "        name=\"difference_in_differences\","
+        },
+        {
+          "line": 986,
+          "text": "                    name=\"outcome_panel\","
+        },
+        {
+          "line": 992,
+          "text": "                    name=\"treatment_indicator\","
+        },
+        {
+          "line": 1058,
+          "text": "            (\"outcome_panel\", \"outcome\"),"
+        },
+        {
+          "line": 1059,
+          "text": "            (\"treatment_indicator\", \"treatment\"),"
+        },
+        {
+          "line": 1064,
+          "text": "        if \"outcome_panel\" in bound_inputs and \"outcome\" not in bound_inputs:"
+        },
+        {
+          "line": 1065,
+          "text": "            payload[\"outcome\"] = bound_inputs[\"outcome_panel\"]"
+        },
+        {
+          "line": 1066,
+          "text": "        if \"treatment_indicator\" in bound_inputs and \"treatment\" not in bound_inputs:"
+        },
+        {
+          "line": 1067,
+          "text": "            payload[\"treatment\"] = bound_inputs[\"treatment_indicator\"]"
+        },
+        {
+          "line": 1072,
+          "text": "                if key not in {\"outcome_panel\", \"treatment_indicator\"}"
+        },
+        {
+          "line": 1218,
+          "text": "    \"DifferenceInDifferences\","
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/eif_bounds.py",
+      "bytes": 52171,
+      "sha256": "8cbf328e024827bc426cf684609ecedc52bf6201c4da180f2d6ee03d70fa79be",
+      "hits": [
+        {
+          "line": 527,
+          "text": "        treatment_indicator = T"
+        },
+        {
+          "line": 531,
+          "text": "        treatment_indicator = 1.0 - T"
+        },
+        {
+          "line": 540,
+          "text": "        * (treatment_indicator * (Y - outcome_model) / treatment_probability + outcome_model)"
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/structural_time_series.py",
+      "bytes": 48587,
+      "sha256": "58a43a2247fc70d1fd0dbe259940a4ff438ffcff8782441ec9b3a893db169e66",
+      "hits": [
+        {
+          "line": 928,
+          "text": "                    name=\"outcome_panel\","
+        },
+        {
+          "line": 934,
+          "text": "                    name=\"treatment_indicator\","
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+      "bytes": 29244,
+      "sha256": "c3d87cd9d37e9e2d43fe24df9397a5cddbdb6216f650069cda69c9cd95936ccd",
+      "hits": [
+        {
+          "line": 333,
+          "text": "                    name=\"outcome_panel\","
+        },
+        {
+          "line": 339,
+          "text": "                    name=\"treatment_indicator\","
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/survey/weighting.py",
+      "bytes": 18229,
+      "sha256": "463666d4ea0e0e64ca7966b5f3156d0aeed511e3d18cb1bb1d6491b2cc660e1b",
+      "hits": [
+        {
+          "line": 374,
+          "text": "                    \"treatment_indicator\", SlotType.VECTOR, Unit(\"binary\", \"flag\"), shape=(\"n_obs\",)"
+        },
+        {
+          "line": 406,
+          "text": "        treatment = _vector(state, \"treatment_indicator\")"
+        },
+        {
+          "line": 408,
+          "text": "            raise ValueError(\"propensity_scores and treatment_indicator must align\")"
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "bytes": 161642,
+      "sha256": "939dc81300e48b8815e46c903375add8d48b34b58b6a9af1e55cb30e2381d1eb",
+      "hits": [
+        {
+          "line": 3495,
+          "text": "    _panel_tags = {\"panel\", \"did\", \"difference_in_differences\", \"fixed_effects\"}"
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/validation/causal_validity.py",
+      "bytes": 28374,
+      "sha256": "d2a7f293c1261b3f925ef5bacce46f36dddea7469b01c44f74808ade714db684",
+      "hits": [
+        {
+          "line": 28,
+          "text": "    \"difference_in_differences\": {"
+        },
+        {
+          "line": 29,
+          "text": "        \"method_family\": \"difference_in_differences\","
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "bytes": 75816,
+      "sha256": "494115ebd281156c564252b2f9e14d196553aafbccebe43fc05f0258243de8d7",
+      "hits": [
+        {
+          "line": 74,
+          "text": "    DIFFERENCE_IN_DIFFERENCES = \"difference_in_differences\""
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/metamorphic_controls.py",
+      "bytes": 43984,
+      "sha256": "35c03ac3f6de6caf67d3be4bb81a671d021351f75cf13fa50affe3f9b029bfa4",
+      "hits": [
+        {
+          "line": 1078,
+          "text": "        return \"causal.difference_in_differences\""
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+      "bytes": 271133,
+      "sha256": "8b9444f5c4662bb2b518c2bf9491c68bef786d555ed1634c2bf2bea374f02602",
+      "hits": [
+        {
+          "line": 5853,
+          "text": "        \"method_fqn\": \"causal.did.difference_in_differences@1.0.0\","
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/tests/_golden/foundry/causal_validity/cases.json",
+      "bytes": 9221,
+      "sha256": "1bc2e4c9bfcd7e7cd6e953d81a5d189c53c4f3e557081b397ae96b3bef3bc0fc",
+      "hits": [
+        {
+          "line": 7,
+          "text": "      \"method_family\": \"difference_in_differences\","
+        },
+        {
+          "line": 160,
+          "text": "      \"method_family\": \"difference_in_differences\","
+        },
+        {
+          "line": 248,
+          "text": "      \"method_family\": \"difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/hds_quality.py",
+      "bytes": 139138,
+      "sha256": "389e71836146218e2b09a9d1eca0aee524baa1011586d2c442db221bc932a01b",
+      "hits": [
+        {
+          "line": 728,
+          "text": "                \"selected_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 742,
+          "text": "                            \"causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 750,
+          "text": "                    \"causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 753,
+          "text": "                \"sample_power_adequacy\": [{\"method_ref\": \"causal.difference_in_differences\"}],"
+        },
+        {
+          "line": 756,
+          "text": "                \"method_output_refs\": [\"method-output:causal.difference_in_differences\"],"
+        },
+        {
+          "line": 778,
+          "text": "                \"required_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 799,
+          "text": "                \"required_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 822,
+          "text": "        \"selected_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 823,
+          "text": "        \"method_output_refs\": [\"method-output:causal.difference_in_differences\"],"
+        },
+        {
+          "line": 860,
+          "text": "            \"selected_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 861,
+          "text": "            \"method_output_refs\": [\"method-output:causal.difference_in_differences\"],"
+        },
+        {
+          "line": 864,
+          "text": "                \"causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 1366,
+          "text": "                \"design_type\": \"difference_in_differences_reassessment\","
+        },
+        {
+          "line": 2359,
+          "text": "                    \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 2570,
+          "text": "                    \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 2581,
+          "text": "                                \"causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 2589,
+          "text": "                        \"causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 2612,
+          "text": "                    \"method_output_refs\": [\"method-output:causal.difference_in_differences\"],"
+        },
+        {
+          "line": 2684,
+          "text": "                    \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 3139,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 3155,
+          "text": "                        \"causal.difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/fixtures/policy_design_case/portfolio_synthesis_contract/portfolio_synthesis_contract_pass.json",
+      "bytes": 3396,
+      "sha256": "321882ad5c4196ef16f10466d60abf5160f4afce71a62f9ed8f3ce8c9e8896fa",
+      "hits": [
+        {
+          "line": 51,
+          "text": "        \"method_family\": \"difference_in_differences\""
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_honest_diagnostics_substrate_red_controls.py",
+      "bytes": 8164,
+      "sha256": "1430ae6d30404f38cfcba59ca8c8a31b8f993e5433228bcd2e7774ea49173af6",
+      "hits": [
+        {
+          "line": 85,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_pdc_graph_consumer_contract.py",
+      "bytes": 15468,
+      "sha256": "94fdc5c1fdbc8608253206e413fb5607cf9277354c0ffc91bc54bc7fc8d18fc4",
+      "hits": [
+        {
+          "line": 339,
+          "text": "        \"method_family\": \"difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policyos_production_quality_best_in_class.py",
+      "bytes": 51089,
+      "sha256": "5bd3e0411bce1fc6b68db73ae2b8312aac344d698bbeb1ffb3cb048dd3f35f62",
+      "hits": [
+        {
+          "line": 1255,
+          "text": "                \"selected_candidate_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 1331,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 1347,
+          "text": "                    \"foundry\": [\"causal.difference_in_differences\"],"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/evidence/portfolio/test_effective_independence_graph.py",
+      "bytes": 14725,
+      "sha256": "822a17b873142c099ee7927abc5052645605fd652276a57f44c48acf3f93756a",
+      "hits": [
+        {
+          "line": 72,
+          "text": "    method_family: str = \"difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+      "bytes": 8901,
+      "sha256": "0d64f24b0812795de0400b5353c65a84d976b2b96e67945fcfa33d7bab01d0af",
+      "hits": [
+        {
+          "line": 20,
+          "text": "    DifferenceInDifferences,"
+        },
+        {
+          "line": 107,
+          "text": "        registry.get(\"causal.inference.difference_in_differences@1.0.0\")"
+        },
+        {
+          "line": 110,
+          "text": "    old_data = DifferenceInDifferences.materialize_input("
+        },
+        {
+          "line": 112,
+          "text": "            \"outcome_panel\": data.outcome,"
+        },
+        {
+          "line": 113,
+          "text": "            \"treatment_indicator\": data.treatment,"
+        },
+        {
+          "line": 121,
+          "text": "        method_class=DifferenceInDifferences,"
+        },
+        {
+          "line": 122,
+          "text": "        signature=DifferenceInDifferences.signature,"
+        },
+        {
+          "line": 124,
+          "text": "        params={\"staggered\": False, \"confidence_level\": 0.8},"
+        },
+        {
+          "line": 147,
+          "text": "        registry.get(DifferenceInDifferences.signature.fqn)"
+        },
+        {
+          "line": 153,
+          "text": "        DifferenceInDifferences,"
+        },
+        {
+          "line": 156,
+          "text": "            DifferenceInDifferences.metadata,"
+        },
+        {
+          "line": 189,
+          "text": "from polisyos.foundry.methods.catalog.causal.did import DifferenceInDifferences"
+        },
+        {
+          "line": 193,
+          "text": "DifferenceInDifferences.pure_step = retired_adapter"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_foundry_v2_domains.py",
+      "bytes": 11300,
+      "sha256": "756ffdde7ff1af729b93d586ece541d90ee33fc1cb99657c112308d6c1cb2bb6",
+      "hits": [
+        {
+          "line": 271,
+          "text": "        \"causal.inference.difference_in_differences@1.0.0\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/testing/strategies.py",
+      "bytes": 19988,
+      "sha256": "db42580335c2821c952772f8192c1a325b6f2f69018e0666f35035c1c662941c",
+      "hits": [
+        {
+          "line": 223,
+          "text": "    treatment_indicator = (running_variable >= cutoff).astype(float)"
+        },
+        {
+          "line": 224,
+          "text": "    outcome = running_variable * 0.5 + treatment_indicator * effect_true + noise"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/validation/test_causal_validity.py",
+      "bytes": 5576,
+      "sha256": "327c1d6570eca95f15a443cafb8c678497d6772f880a079fc72f36819e802b3f",
+      "hits": [
+        {
+          "line": 54,
+          "text": "        \"difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/validation/test_method_quality.py",
+      "bytes": 32092,
+      "sha256": "bf70e52d428b2fa7ddaf8d7fae621ecdc39f5d7e2fef63189c2d1f5d455dc739",
+      "hits": [
+        {
+          "line": 16,
+          "text": "        \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 85,
+          "text": "    assert report[\"selected_methods\"][0][\"method_id\"] == \"causal.difference_in_differences\""
+        },
+        {
+          "line": 106,
+          "text": "            \"foundry-assumption-gate:causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 109,
+          "text": "            \"foundry-assumption-gate:causal.difference_in_differences:stable_composition\""
+        },
+        {
+          "line": 115,
+          "text": "                \"foundry-assumption-gate:causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 122,
+          "text": "                \"foundry-assumption-gate:causal.difference_in_differences:stable_composition\""
+        },
+        {
+          "line": 271,
+          "text": "                        \"method\": \"difference_in_differences\","
+        },
+        {
+          "line": 301,
+          "text": "                        \"method_fqn\": \"causal.inference.difference_in_differences@1.0.0\","
+        },
+        {
+          "line": 328,
+          "text": "    assert selected[\"method_id\"] == \"causal.inference.difference_in_differences@1.0.0\""
+        },
+        {
+          "line": 370,
+          "text": "                        \"method\": \"difference_in_differences\","
+        },
+        {
+          "line": 409,
+          "text": "                    \"method_fqn\": \"causal.inference.difference_in_differences@1.0.0\","
+        },
+        {
+          "line": 428,
+          "text": "        \"causal.inference.difference_in_differences@1.0.0\""
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cau_01.py",
+      "bytes": 14505,
+      "sha256": "9cdcfcfedcc854ebb087dbe731e34a34080467238e2b59dc1700551c17c0a6f0",
+      "hits": [
+        {
+          "line": 14,
+          "text": "    DifferenceInDifferences,"
+        },
+        {
+          "line": 316,
+          "text": "    legacy_data = DifferenceInDifferences.materialize_input("
+        },
+        {
+          "line": 318,
+          "text": "            \"outcome_panel\": data.outcome,"
+        },
+        {
+          "line": 319,
+          "text": "            \"treatment_indicator\": data.treatment,"
+        },
+        {
+          "line": 325,
+          "text": "    legacy_output = DifferenceInDifferences.pure_step(legacy_data, {\"confidence_level\": 0.95})"
+        },
+        {
+          "line": 344,
+          "text": "        == DifferenceInDifferences.metadata.assumptions"
+        },
+        {
+          "line": 348,
+          "text": "        is not DifferenceInDifferences.metadata.assumptions"
+        },
+        {
+          "line": 352,
+          "text": "        is not DifferenceInDifferences.metadata.equations"
+        },
+        {
+          "line": 363,
+          "text": "        DifferenceInDifferences.metadata,"
+        },
+        {
+          "line": 367,
+          "text": "        DifferenceInDifferences,"
+        },
+        {
+          "line": 373,
+          "text": "    assert dict(DifferenceInDifferences.metadata.assumptions) != dedicated_assumptions"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cau_05.py",
+      "bytes": 4316,
+      "sha256": "0520e32c0b6484e8b84d3caa8f1a7ebc10227a3483f06e1dba83b1d677cac55b",
+      "hits": [
+        {
+          "line": 9,
+          "text": "    DifferenceInDifferences,"
+        },
+        {
+          "line": 54,
+          "text": "    legacy_data = DifferenceInDifferences.materialize_input("
+        },
+        {
+          "line": 56,
+          "text": "            \"outcome_panel\": data.outcome,"
+        },
+        {
+          "line": 57,
+          "text": "            \"treatment_indicator\": data.treatment,"
+        },
+        {
+          "line": 65,
+          "text": "        \"staggered\": True,"
+        },
+        {
+          "line": 69,
+          "text": "    legacy = DifferenceInDifferences.pure_step("
+        },
+        {
+          "line": 89,
+          "text": "    report = _report(DifferenceInDifferences.pure_step(_panel(), {\"staggered\": \"not-a-bool\"}))"
+        },
+        {
+          "line": 121,
+          "text": "        match=\"outcome_panel and outcome cannot both be supplied\","
+        },
+        {
+          "line": 123,
+          "text": "        DifferenceInDifferences.materialize_input("
+        },
+        {
+          "line": 125,
+          "text": "                \"outcome_panel\": data.outcome,"
+        },
+        {
+          "line": 127,
+          "text": "                \"treatment_indicator\": data.treatment,"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+      "bytes": 38043,
+      "sha256": "92786c1647701e780b46c49e73cba6126f57b420f1afa6334f613df467406e10",
+      "hits": [
+        {
+          "line": 1068,
+          "text": "        selected_method_fqn=\"causal.inference.difference_in_differences@1.0.0\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "bytes": 171460,
+      "sha256": "99d6b21eab61bed66d23d58326b07df6b800aacff2d4ea916ab5e056864a85e7",
+      "hits": [
+        {
+          "line": 2779,
+          "text": "                    \"method\": \"difference_in_differences\","
+        },
+        {
+          "line": 2858,
+          "text": "                \"method_fqn\": \"causal.inference.difference_in_differences@1.0.0\","
+        },
+        {
+          "line": 2981,
+          "text": "    assert selected[\"method_id\"] == \"causal.inference.difference_in_differences@1.0.0\""
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/fixtures/n9_independence_source_v1.json",
+      "bytes": 9781,
+      "sha256": "3246d1ac3cadef0edabea2ed7cf1a21b5dcb4aa16ca61458b0b1952ded1d2c9b",
+      "hits": [
+        {
+          "line": 1,
+          "text": "{\"body_sha256\": \"854ac6dc8a8076216611c93ad26fff94be55f3e646860bd48c636062d41995a1\", \"body_utf8\": \"{\\\"evidence_lines\\\":[{\\\"author_ids\\\":[\\\"author:n9\\\"],\\\"claim_id\\\":\\\"claim-n9\\\",\\\"concept_spine_refs\\\":[\\\"concept-spine:msme-credit\\\"],\\\"corpus_ancestry\\\":[\\\"dataset-n9\\\"],\\\"dataset_id\\\":\\\"dataset-n9\\\",\\\"evidence_ref\\\":\\\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\\\",\\\"evidence_strand\\\":\\\"literature\\\",\\\"execution_context\\\":{\\\"job_id\\\":\\\"job:corr-synthetic-paper\\\",\\\"run_id\\\":\\\"run-n9\\\",\\\"tenant_id\\\":\\\"tenant-prod\\\",\\\"trace_id\\\":\\\"trace:corr-synthetic-paper\\\"},\\\"identification_strategy_id\\\":\\\"did-identification\\\",\\\"institution_ids\\\":[\\\"institution:n9\\\"],\\\"jurisdiction\\\":\\\"UA\\\",\\\"legal_authority\\\":[\\\"research-use-permit-2026\\\"],\\\"line_id\\\":\\\"corr-synthetic-paper\\\",\\\"llm_generation_path\\\":{\\\"model\\\":\\\"none\\\",\\\"prompt_ref\\\":\\\"deterministic-producer\\\",\\\"retrieval_ref\\\":\\\"scholar-search:corr-synthetic-paper\\\"},\\\"method_assumptions\\\":[\\\"parallel-trends\\\",\\\"no-anticipation\\\"],\\\"method_family\\\":\\\"difference_in_differences\\\",\\\"method_id\\\":\\\"foundry.did.corr-synthetic-paper\\\",\\\"participation_sample_frame\\\":\\\"not_participation_evidence\\\",\\\"polarity\\\":\\\"support\\\",\\\"portfolio_id\\\":\\\"portfolio-n9-dependent\\\",\\\"portfolio_strand_id\\\":\\\"literature-strand\\\",\\\"preprocessing_pipeline_id\\\":\\\"prep-n9\\\",\\\"primary_source\\\":\\\"journal\\\",\\\"producer_identity\\\":{\\\"component\\\":\\\"polisyos.scholar.evidence\\\",\\\"owner\\\":\\\"team-science-quality\\\",\\\"version\\\":\\\"2026.08.30\\\"},\\\"proof_reuse_status\\\":\\\"fresh_proof\\\",\\\"quality_score\\\":{\\\"_type\\\":\\\"float\\\",\\\"repr\\\":\\\"1\\\"},\\\"retrieval_path\\\":\\\"scholar-search:corr-synthetic-paper\\\",\\\"runtime_event_ref\\\":\\\"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\\\",\\\"schema_version\\\":\\\"policyos.runtime.policy_design_case.evidence_line.v1\\\",\\\"shared_failure_modes\\\":[\\\"selection-on-unobservables\\\"],\\\"simulation_dgp\\\":{\\\"assumption_family\\\":\\\"not_applicable\\\",\\\"calibration_ref\\\":\\\"not_applicable\\\",\\\"dgp_ref\\\":\\\"not_simulated\\\"},\\\"snapshot_id\\\":\\\"snapshot-n9\\\",\\\"source_lineage\\\":{\\\"corpus_ancestry\\\":[\\\"dataset-n9\\\"],\\\"corpus_id\\\":\\\"dataset-n9\\\",\\\"lineage_refs\\\":[\\\"lineage:corr-synthetic-paper\\\"],\\\"preprocessing\\\":\\\"prep-n9\\\",\\\"retrieval_path\\\":\\\"scholar-search:corr-synthetic-paper\\\",\\\"snapshot_id\\\":\\\"snapshot-n9\\\",\\\"source_id\\\":\\\"journal\\\",\\\"source_ref\\\":\\\"source:corr-synthetic-paper\\\",\\\"transformation_lineage\\\":[\\\"transform:dataset-n9:prep-n9\\\"]},\\\"source_refs\\\":[\\\"source:corr-synthetic-paper\\\"],\\\"specification_id\\\":\\\"spec:corr-synthetic-paper\\\",\\\"sponsor_ids\\\":[\\\"sponsor:n9\\\"],\\\"subject_pool\\\":\\\"msme-credit-applicants\\\",\\\"synthetic\\\":true,\\\"time_roles\\\":{\\\"legal_valid_time\\\":\\\"2026-01-01/2026-12-31\\\",\\\"publication_time\\\":\\\"2025-01-01\\\",\\\"retrieval_time\\\":\\\"2026-08-30T09:00:00+00:00\\\"},\\\"transformation_lineage\\\":[\\\"transform:dataset-n9:prep-n9\\\"],\\\"underlying_study_id\\\":\\\"study-shared-n9\\\"}],\\\"feature_flags\\\":{},\\\"graph\\\":{\\\"claim_ids\\\":[\\\"claim-n9\\\"],\\\"contract_id\\\":\\\"policy_design_case.effective_independence_graph.v1\\\",\\\"counterevidence_policy\\\":{\\\"collapse_across_support\\\":\\\"forbidden\\\",\\\"counterevidence_mass_field\\\":\\\"mass_report.graded_effective_counterevidence_mass\\\",\\\"support_mass_field\\\":\\\"mass_report.graded_effective_support_mass\\\"},\\\"evidence_line_identities\\\":[{\\\"claim_ids\\\":[\\\"claim-n9\\\"],\\\"evidence_ref\\\":\\\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\\\",\\\"identity_dimensions\\\":{\\\"assumptions\\\":[\\\"parallel-trends\\\",\\\"no-anticipation\\\",\\\"not_applicable\\\"],\\\"author_institution_sponsor\\\":[\\\"author:n9\\\",\\\"institution:n9\\\",\\\"sponsor:n9\\\"],\\\"claim_ids\\\":[\\\"claim-n9\\\"],\\\"concept_spine\\\":[\\\"concept-spine:msme-credit\\\"],\\\"controlling_legal_instrument\\\":[],\\\"dataset_corpus_snapshot_subject_pool\\\":[\\\"dataset-n9\\\",\\\"snapshot-n9\\\",\\\"msme-credit-applicants\\\"],\\\"identification_strategy\\\":[\\\"did-identification\\\"],\\\"jurisdiction\\\":[\\\"UA\\\"],\\\"legal_authority\\\":[\\\"research-use-permit-2026\\\"],\\\"llm_generation_path\\\":[\\\"none\\\",\\\"deterministic-producer\\\",\\\"scholar-search:corr-synthetic-paper\\\"],\\\"method_family\\\":[\\\"difference_in_differences\\\"],\\\"participation_sample_frame\\\":[\\\"not_participation_evidence\\\"],\\\"polarity\\\":\\\"support\\\",\\\"preprocessing\\\":[\\\"prep-n9\\\"],\\\"primary_source\\\":\\\"journal\\\",\\\"proof_reuse_status\\\":[\\\"fresh_proof\\\"],\\\"retrieval_path\\\":[\\\"scholar-search:corr-synthetic-paper\\\"],\\\"simulation_dgp\\\":[\\\"not_applicable\\\",\\\"not_simulated\\\"],\\\"snapshot\\\":[\\\"snapshot-n9\\\"],\\\"source_refs\\\":[\\\"source:corr-synthetic-paper\\\",\\\"journal\\\",\\\"lineage:corr-synthetic-paper\\\"],\\\"strand\\\":\\\"literature\\\",\\\"time_roles\\\":[\\\"2026-01-01/2026-12-31\\\",\\\"2025-01-01\\\",\\\"2026-08-30T09:00:00+00:00\\\"],\\\"transformation_lineage\\\":[\\\"transform:dataset-n9:prep-n9\\\"],\\\"underlying_study\\\":[\\\"study-shared-n9\\\"]},\\\"line_id\\\":\\\"corr-synthetic-paper\\\",\\\"ordinal\\\":0,\\\"polarity\\\":\\\"support\\\",\\\"quality\\\":{\\\"_type\\\":\\\"float\\\",\\\"repr\\\":\\\"1\\\"},\\\"runtime_event_ref\\\":\\\"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\\\",\\\"strand\\\":\\\"literature\\\"}],\\\"graded_calculus\\\":{\\\"authority_posture\\\":\\\"strict_hard_collapse_only\\\",\\\"enabled\\\":false,\\\"feature_flag\\\":\\\"policy_design_case.graded_independence_weights\\\",\\\"feature_flag_enabled\\\":false,\\\"governed_config\\\":{\\\"status\\\":\\\"not_configured\\\"},\\\"may_not_use_for\\\":[\\\"support_inflation\\\",\\\"claim_authority_without_closeout\\\"],\\\"pairwise_dependencies\\\":[],\\\"pairwise_model\\\":\\\"D(a,b)=min(0.95,sum(weight_c*overlap_c));I(a,b)=1-D(a,b)\\\"},\\\"graph_id\\\":\\\"synthetic-corr-independence\\\",\\\"hard_collapse_clusters\\\":[{\\\"claim_ids\\\":[\\\"claim-n9\\\"],\\\"cluster_id\\\":\\\"effective-hard-cluster-1\\\",\\\"collapse_reasons\\\":[],\\\"effective_line_count\\\":1,\\\"line_ids\\\":[\\\"corr-synthetic-paper\\\"],\\\"polarity\\\":\\\"support\\\",\\\"raw_line_count\\\":1,\\\"representative_line_id\\\":\\\"corr-synthetic-paper\\\",\\\"strand\\\":\\\"literature\\\"}],\\\"hard_effective_line_count\\\":1,\\\"identity_dimensions\\\":[\\\"claim_ids\\\",\\\"strand\\\",\\\"polarity\\\",\\\"source_refs\\\",\\\"primary_source\\\",\\\"retrieval_path\\\",\\\"legal_authority\\\",\\\"author_institution_sponsor\\\",\\\"dataset_corpus_snapshot_subject_pool\\\",\\\"preprocessing\\\",\\\"transformation_lineage\\\",\\\"method_family\\\",\\\"identification_strategy\\\",\\\"assumptions\\\",\\\"proof_reuse_status\\\",\\\"llm_generation_path\\\",\\\"simulation_dgp\\\",\\\"participation_sample_frame\\\",\\\"concept_spine\\\",\\\"jurisdiction\\\",\\\"time_roles\\\"],\\\"mass_report\\\":{\\\"aggregation_formula\\\":\\\"sum_a quality(a) * novelty(a | S)\\\",\\\"context_line_ids\\\":[],\\\"counterevidence_line_ids\\\":[],\\\"graded_effective_context_mass\\\":{\\\"_type\\\":\\\"float\\\",\\\"repr\\\":\\\"0\\\"},\\\"graded_effective_counterevidence_mass\\\":{\\\"_type\\\":\\\"float\\\",\\\"repr\\\":\\\"0\\\"},\\\"graded_effective_support_mass\\\":{\\\"_type\\\":\\\"float\\\",\\\"repr\\\":\\\"1\\\"},\\\"hard_effective_context_count\\\":0,\\\"hard_effective_counterevidence_count\\\":0,\\\"hard_effective_support_count\\\":1,\\\"limiting_deficits\\\":[],\\\"line_contributions\\\":[{\\\"formula\\\":\\\"quality(a) * novelty(a | S)\\\",\\\"line_id\\\":\\\"corr-synthetic-paper\\\",\\\"mass\\\":{\\\"_type\\\":\\\"float\\\",\\\"repr\\\":\\\"1\\\"},\\\"novelty\\\":{\\\"_type\\\":\\\"float\\\",\\\"repr\\\":\\\"1\\\"},\\\"polarity\\\":\\\"support\\\",\\\"quality\\\":{\\\"_type\\\":\\\"float\\\",\\\"repr\\\":\\\"1\\\"}}],\\\"raw_context_line_count\\\":0,\\\"raw_count_authority\\\":\\\"diagnostic_only\\\",\\\"raw_counterevidence_line_count\\\":0,\\\"raw_evidence_line_count\\\":1,\\\"raw_support_line_count\\\":1,\\\"support_line_ids\\\":[\\\"corr-synthetic-paper\\\"]},\\\"portfolio_ids\\\":[\\\"portfolio-n9-dependent\\\"],\\\"raw_count_display_policy\\\":{\\\"must_display_with\\\":[\\\"hard_effective_line_count\\\",\\\"graded_effective_support_mass\\\",\\\"hard_collapse_clusters\\\",\\\"scarcity_path\\\"],\\\"raw_count_authority\\\":\\\"diagnostic_only\\\"},\\\"raw_evidence_line_count\\\":1,\\\"scarcity_path\\\":{\\\"authority_effect\\\":\\\"none\\\",\\\"closeout_path\\\":\\\"none\\\",\\\"effective_support_mass_after_scarcity\\\":{\\\"_type\\\":\\\"float\\\",\\\"repr\\\":\\\"1\\\"},\\\"status\\\":\\\"not_rare_domain\\\",\\\"support_inflation_allowed\\\":false},\\\"schema_version\\\":\\\"policyos.evidence.portfolio.effective_independence_graph.v1\\\"},\\\"graph_id\\\":\\\"synthetic-corr-independence\\\",\\\"portfolio_designs\\\":[{\\\"authority_level\\\":\\\"production\\\",\\\"candidate_data_source_families\\\":[\\\"academic_evidence\\\"],\\\"candidate_method_families\\\":[\\\"quasi_experimental_panel\\\"],\\\"cas_ref\\\":\\\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"claim_ids\\\":[\\\"claim-n9\\\"],\\\"cost_proportionality\\\":{\\\"budget_tier\\\":\\\"standard\\\"},\\\"declared_at\\\":\\\"2026-08-30T08:00:00+00:00\\\",\\\"declared_before_producer_execution\\\":true,\\\"disconfirming_lines\\\":[\\\"counter-required\\\"],\\\"exclusion_rules\\\":[\\\"Reject raw-count inflation.\\\"],\\\"inclusion_rules\\\":[\\\"Prefer production evidence.\\\"],\\\"portfolio_id\\\":\\\"portfolio-n9-dependent\\\",\\\"predeclared\\\":true,\\\"runtime_event_ref\\\":\\\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\\\",\\\"schema_version\\\":\\\"policyos.runtime.policy_design_case.evidence_portfolio_design.v1\\\",\\\"stopping_rules\\\":{\\\"minimum_effective_independent_evidence_count\\\":2},\\\"strands\\\":[{\\\"authority_level\\\":\\\"production\\\",\\\"candidate_data_source_families\\\":[\\\"academic_evidence\\\"],\\\"candidate_method_families\\\":[\\\"quasi_experimental_panel\\\"],\\\"claim_id\\\":\\\"claim-n9\\\",\\\"cost_proportionality\\\":{\\\"budget_tier\\\":\\\"standard\\\"},\\\"defensible_specification_space\\\":{\\\"primary_estimand\\\":\\\"ATT\\\"},\\\"disconfirming_lines\\\":[{\\\"line_id\\\":\\\"counter-required\\\",\\\"required\\\":true}],\\\"exclusion_rules\\\":[\\\"Exclude duplicate reports of one study.\\\"],\\\"inclusion_rules\\\":[\\\"Include independently produced studies.\\\"],\\\"stopping_rules\\\":{\\\"minimum_effective_independent_evidence_count\\\":2},\\\"strand_id\\\":\\\"literature-strand\\\",\\\"synthesis_rules\\\":{\\\"strategy\\\":\\\"effective_independence\\\"}}],\\\"synthesis_rules\\\":{\\\"strategy\\\":\\\"effective_independence\\\"},\\\"synthetic\\\":true}],\\\"schema_version\\\":\\\"policyos.policy_design_case.layer3_gy.n9_effective_independence_source.v1\\\"}\", \"purpose\": \"exact historical owner emission compatibility\", \"synthetic\": true}"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_cost_degradation.py",
+      "bytes": 6976,
+      "sha256": "20e0495cbc3b9c709f7c264ef55599db6af869c8fe26022fa8917ad9ce0d3e5d",
+      "hits": [
+        {
+          "line": 36,
+          "text": "                    \"method_id\": \"causal.difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_cost_gate.py",
+      "bytes": 10699,
+      "sha256": "cd51f1abdf315c2dd25639b3c04634bf2f6dbed55dc8e424441d9fa4e7fe84be",
+      "hits": [
+        {
+          "line": 48,
+          "text": "                    \"method_id\": \"causal.difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_evidence_line_model.py",
+      "bytes": 8579,
+      "sha256": "f54a32deffb031e108bb956bdde2d2a0e8717cc2ec5bc3aba3a32d6b594a4f6c",
+      "hits": [
+        {
+          "line": 106,
+          "text": "        \"method_id\": \"causal.difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_legacy_payload_migration_audit.py",
+      "bytes": 7414,
+      "sha256": "57a0944b3700bd6a293b4ea367aa67861dca2cfd95a0b6ac77540f9d100a1e6a",
+      "hits": [
+        {
+          "line": 43,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_policy_design_case_false_passes.py",
+      "bytes": 125162,
+      "sha256": "9b9d494340a5f3bc8459ed0f0d042a216023a338201599e84d2d10c127194679",
+      "hits": [
+        {
+          "line": 763,
+          "text": "    claim[\"method_refs\"] = [\"causal.difference_in_differences\"]"
+        },
+        {
+          "line": 1645,
+          "text": "        \"foundry\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 1675,
+          "text": "        \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 2401,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 2434,
+          "text": "                        \"causal.difference_in_differences\","
+        },
+        {
+          "line": 2592,
+          "text": "                \"design_type\": \"difference_in_differences_reassessment\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_policy_design_case_lifecycle.py",
+      "bytes": 18013,
+      "sha256": "331cb070b99e4de911b789ac1b54e57ed62fdca0152a8ac76c60d2e3b5e3a604",
+      "hits": [
+        {
+          "line": 306,
+          "text": "        \"design_type\": \"difference_in_differences_reassessment\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+      "bytes": 273069,
+      "sha256": "e03c563ac9654f4bfb61c0d3b3682f2f04286a0ac3c3166bae0feba009ac81a2",
+      "hits": [
+        {
+          "line": 2522,
+          "text": "        \"method_family\": \"difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
+      "bytes": 135227,
+      "sha256": "4587047c7159ec3f4634b96c9e7deff26bdfc242c0cdc2c7b9ff1de125903542",
+      "hits": [
+        {
+          "line": 566,
+          "text": "        \"method_fqn\": \"causal.did.difference_in_differences@1.0.0\","
+        },
+        {
+          "line": 2402,
+          "text": "            hardcoded_method_fqns=(\"causal.did.difference_in_differences@1.0.0\",),"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_public_export.py",
+      "bytes": 68218,
+      "sha256": "beeb2224a268e1d387eb859ad34800d120945663d615250a61c5c4fedee50a0d",
+      "hits": [
+        {
+          "line": 629,
+          "text": "                    \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 645,
+          "text": "    assert \"causal.difference_in_differences\" in rendered"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_run_cost_proportionality.py",
+      "bytes": 11108,
+      "sha256": "236e539bd7dc7916f3307d0f0a03ae2bfa213ea27fbfe3bd4ea95f0f1cf5bb52",
+      "hits": [
+        {
+          "line": 184,
+          "text": "                    \"method_id\": \"causal.difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_scorecard.py",
+      "bytes": 95955,
+      "sha256": "02c5f55571259c91f3a0c840d2897dfefc62c4975b6d64c0d95f8929fdeaa6a1",
+      "hits": [
+        {
+          "line": 619,
+          "text": "                    \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 666,
+          "text": "                    \"method_refs\": [\"causal.difference_in_differences\"],"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_binding.py",
+      "bytes": 45325,
+      "sha256": "abe26b4644345e836a6d0232f01a8d8fa7066d050bf2af65266d41ea34681b43",
+      "hits": [
+        {
+          "line": 151,
+          "text": "                \"selected_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 156,
+          "text": "                    \"foundry-assumption-gate:causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 162,
+          "text": "                            \"causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 169,
+          "text": "                \"sample_power_adequacy\": [{\"method_ref\": \"causal.difference_in_differences\"}],"
+        },
+        {
+          "line": 193,
+          "text": "                \"required_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 214,
+          "text": "                \"required_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 355,
+          "text": "            \"selected_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 356,
+          "text": "            \"method_output_refs\": [\"method-output:causal.difference_in_differences\"],"
+        },
+        {
+          "line": 358,
+          "text": "                \"foundry-assumption-gate:causal.difference_in_differences:parallel_trends\""
+        },
+        {
+          "line": 498,
+          "text": "                \"selected_method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 499,
+          "text": "                \"method_output_refs\": [\"method-output:causal.difference_in_differences\"],"
+        },
+        {
+          "line": 538,
+          "text": "    assert path.method_output_refs == (\"method-output:causal.difference_in_differences\",)"
+        },
+        {
+          "line": 540,
+          "text": "        \"foundry-assumption-gate:causal.difference_in_differences:parallel_trends\","
+        },
+        {
+          "line": 643,
+          "text": "    assert validated.foundry[0].selected_method_refs == (\"causal.difference_in_differences\",)"
+        },
+        {
+          "line": 673,
+          "text": "                    \"method_refs\": [\"causal.difference_in_differences\"],"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "bytes": 211086,
+      "sha256": "ae04975279094380165d2c1801194d5f21c3af940ca045d4f4236295cff4e8c4",
+      "hits": [
+        {
+          "line": 2339,
+          "text": "        coordinates=(\"difference_in_differences\",),"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_wave10_producer_spine_interfaces.py",
+      "bytes": 8511,
+      "sha256": "7ee1bb126b4db24a30cc309b510a1b002fe3ae06090457af777b9cde84d91a2f",
+      "hits": [
+        {
+          "line": 47,
+          "text": "        \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 100,
+          "text": "                \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 206,
+          "text": "        \"foundry-assumption-gate:causal.difference_in_differences:parallel_trends\","
+        },
+        {
+          "line": 207,
+          "text": "        \"foundry-assumption-gate:causal.difference_in_differences:stable_composition\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_response_healing.py",
+      "bytes": 22755,
+      "sha256": "d0d34fc4bb86a1c4c928e305cf27026e6a19f39784c6b37b30554b683b799ea1",
+      "hits": [
+        {
+          "line": 179,
+          "text": "            \"method_refs\": [\"causal.difference_in_differences\"],"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/validation/test_claim_support.py",
+      "bytes": 8117,
+      "sha256": "8669a1a560e7217436b70c294f5ffe47e49fd3811ebf1b071d4864a7d67b7281",
+      "hits": [
+        {
+          "line": 32,
+          "text": "        \"identification_strategy\": \"difference_in_differences\","
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/validation/test_policy_grounding_matrix.py",
+      "bytes": 34771,
+      "sha256": "57e961dc5e967db77d40f87f079204c086d55304295551de04271881eb19ba60",
+      "hits": [
+        {
+          "line": 40,
+          "text": "                    \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 72,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 84,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 142,
+          "text": "                \"method_output_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 172,
+          "text": "        \"causal.difference_in_differences\""
+        },
+        {
+          "line": 306,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 337,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 384,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 449,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 477,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 599,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 677,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 755,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 782,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 826,
+          "text": "        \"method_family\": \"difference_in_differences\","
+        },
+        {
+          "line": 870,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 893,
+          "text": "        \"method_family\": \"difference_in_differences\","
+        },
+        {
+          "line": 939,
+          "text": "                \"method_refs\": [\"causal.difference_in_differences\"],"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/security/test_policyos_runtime_abuse_gates.py",
+      "bytes": 9526,
+      "sha256": "88a2c7ad5e5505cdb95da812c767b7bf7a0eddeda8f706eed4b093e357798c53",
+      "hits": [
+        {
+          "line": 123,
+          "text": "                    \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 146,
+          "text": "                    \"method_refs\": [\"causal.difference_in_differences\"],"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tests/unit/tools/test_canary_evidence.py",
+      "bytes": 141098,
+      "sha256": "6fda9e4ace18306c113073994a9a3f8b70a8350711309a1d592a026061a9d85b",
+      "hits": [
+        {
+          "line": 356,
+          "text": "                    \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 380,
+          "text": "                    \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 1001,
+          "text": "        \"causal.difference_in_differences\""
+        },
+        {
+          "line": 1805,
+          "text": "                            \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 1833,
+          "text": "                            \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 2661,
+          "text": "                            \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 2779,
+          "text": "                            \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 2885,
+          "text": "                            \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 2908,
+          "text": "                            \"method_refs\": [\"causal.difference_in_differences\"],"
+        },
+        {
+          "line": 3079,
+          "text": "                            \"method_id\": \"causal.difference_in_differences\","
+        },
+        {
+          "line": 3094,
+          "text": "                            \"method_refs\": [\"causal.difference_in_differences\"],"
+        }
+      ],
+      "scope": "test/replay"
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/experiments/run_msme_deadline_suite.py",
+      "bytes": 73213,
+      "sha256": "40faafa5052fc8059ab35c625ce57c72b9547c72479dcaa29d8c9b13902f304d",
+      "hits": [
+        {
+          "line": 586,
+          "text": "            \"real_effect_identification\": \"blocked_missing_applicant_level_treatment_outcome_panel\","
+        }
+      ],
+      "scope": "maintained-source"
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/local_production_canary.py",
+      "bytes": 111135,
+      "sha256": "8e930dad1c6789a146cf4f8ed1916d9c1dafe21a2a70e0047142c368dbf03a09",
+      "hits": [
+        {
+          "line": 1418,
+          "text": "        \"causal.difference_in_differences\","
+        },
+        {
+          "line": 1661,
+          "text": "            \"method_id\": \"causal.difference_in_differences\""
+        }
+      ],
+      "scope": "maintained-source"
+    }
+  ],
+  "limitations": "Arbitrary external/dynamic callers and historical docs/receipt replayers outside named roots are not universal supported caller claims."
+}

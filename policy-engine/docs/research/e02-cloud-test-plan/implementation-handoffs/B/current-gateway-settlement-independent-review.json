@@ -1,0 +1,237 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-gateway-settlement-independent",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "author_role": "Foreign source reviewer; independent drafter normalization oracle author. ADAPTER sole upper LLM/agent production author; DUR sole lower ledger/middleware author.",
+  "finding_ids": [
+    "B65",
+    "B66"
+  ],
+  "bundle_ids": [
+    "LLM-01",
+    "LLM-02"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "21cf3f92a8bf3f09e6a02a9d22835bacc3983dbd",
+  "implementation_commits": [
+    "48bfe21b744953dc667653b06d60b69477f24de2",
+    "130115146461298c32a4aa0aaedb0c63c40e6b50",
+    "f72a3eab73b9562ed0cca861125cf39032837b47"
+  ],
+  "candidate_tree_sha": "c03232f022c4cdeb7418efd9db50c0df797deece",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/physical-inputs/test_normalization_cannot_esca0/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/physical-inputs/test_normalization_cannot_esca1/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/physical-inputs/test_unmanaged_critique_retarg0/unmanaged-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/physical-inputs/test_normalization_cannot_esca0/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/physical-inputs/test_normalization_cannot_esca1/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/physical-inputs/test_unmanaged_critique_retarg0/unmanaged-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/census-DD.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/census-a391.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/census.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/criterion-refs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/run-drafter-oracle.source.txt",
+    "policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py"
+  ],
+  "identity_roles": "Own implementation tree is independent test/evidence custody only. Actual runtime product is external frozen a391; baseline module projection is DD with actual clean3199 HEAD captured. No own old production consumer or whole3199 replay substituted for external target.",
+  "reviewed_source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+  "reviewed_source_tree_sha": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+  "lower_dependency_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "lower_dependency_tree_sha": "038b0012692a7fc12ca58aea91724f3a85c83b6e",
+  "original_upper_source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+  "baseline_cells": [],
+  "baseline_role": "No archived baseline summary/cell is used as evidence of this change. Complete new independent actual oracle observations and exact source/canonical criteria decide this bounded review.",
+  "checks": [
+    {
+      "kind": "complete three-case actual canonical constructor/required callback/filesystem-provider oracle",
+      "outcome": "FAIL",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "actual_process_target": {
+        "actual_target_head": "3199fbbedcc29df9f37269a8586ab520a9ad0689",
+        "actual_target_tree": "771fb46a1e2b13dc002fd75d00bdc7798ed25ea5",
+        "target_status": "",
+        "own_test_sha": "48bfe21b744953dc667653b06d60b69477f24de2",
+        "test_sha256": "42c50c12a4cbc63e92b18b5ac5fe00f62548380714a5a595f158220eeb3012e8",
+        "test_bytes": 6753
+      },
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-c",
+        "/dev/null",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/cache",
+        "--basetemp=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/tmp",
+        "--junitxml=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/native.xml",
+        "-vv",
+        "-s",
+        "/workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine/product",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "E02_DRAFTER_ORACLE_SOURCE_ROOT": "/workspace/e02-B-current-coordination",
+        "E02_DRAFTER_ORACLE_SOURCE_SHA": "dd9584728bd96f204983615216efdbc58117e713"
+      },
+      "wall_seconds": 9.379173250999884,
+      "wait4_resource": {
+        "utime": 9.263092,
+        "stime": 0.792972,
+        "maxrss_kib_linux": 504704
+      },
+      "actual_exit": 1,
+      "junit_complete_case_counts": {
+        "passed": 1,
+        "failed": 2,
+        "errors": 0
+      },
+      "source_after": {
+        "actual_target_head": "3199fbbedcc29df9f37269a8586ab520a9ad0689",
+        "actual_target_tree": "771fb46a1e2b13dc002fd75d00bdc7798ed25ea5",
+        "target_status": ""
+      },
+      "full_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/native.txt",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/native.xml",
+      "wrapper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/wrapper.json",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "kind": "complete three-case actual canonical constructor/required callback/filesystem-provider oracle",
+      "outcome": "PASS",
+      "target_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "actual_process_target": {
+        "actual_target_head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+        "actual_target_tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+        "target_status": "",
+        "own_test_sha": "48bfe21b744953dc667653b06d60b69477f24de2",
+        "test_sha256": "42c50c12a4cbc63e92b18b5ac5fe00f62548380714a5a595f158220eeb3012e8",
+        "test_bytes": 6753
+      },
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-c",
+        "/dev/null",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/candidate-a391/cache",
+        "--basetemp=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/candidate-a391/tmp",
+        "--junitxml=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/candidate-a391/native.xml",
+        "-vv",
+        "-s",
+        "/workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py"
+      ],
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine/product",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "E02_DRAFTER_ORACLE_SOURCE_ROOT": "/workspace/e02-B-current-adapters",
+        "E02_DRAFTER_ORACLE_SOURCE_SHA": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d"
+      },
+      "wall_seconds": 9.653604563005501,
+      "wait4_resource": {
+        "utime": 9.183705,
+        "stime": 0.851715,
+        "maxrss_kib_linux": 506088
+      },
+      "actual_exit": 0,
+      "junit_complete_case_counts": {
+        "passed": 3,
+        "failed": 0,
+        "errors": 0
+      },
+      "source_after": {
+        "actual_target_head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+        "actual_target_tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+        "target_status": ""
+      },
+      "full_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/native.txt",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/native.xml",
+      "wrapper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/wrapper.json",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "kind": "full declared literal production source census and finite manual consumer/ABI/source delta review",
+      "command": "Read Git DD/d56/c0→a391 code; execute committed literal census.source.txt over tracked src/product blobs; no product imports by census",
+      "target_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "outcome": "PASS",
+      "environment": "Read-only Git/statics stdlib census; no native execution except the separately listed3case oracle",
+      "input_closure": "2914 tracked allfiles/2701Python;27 literal symbol-matched paths,3 finite manually traced transitive roots,9 changed production module identities; external dynamic/invoice/resource universe excluded explicitly",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/review.json@f72a3eab73b9562ed0cca861125cf39032837b47",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "kind": "initial new oracle repository Ruff check",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py",
+      "target_sha": "48bfe21b744953dc667653b06d60b69477f24de2",
+      "outcome": "PASS",
+      "output": "All checks passed!",
+      "identity": "Ran on final formatted6753B oracle before its commit; exact committed SHA25642c50c12a4cbc63e92b18b5ac5fe00f62548380714a5a595f158220eeb3012e8 subsequently used unchanged in both native runs. No full quality gate claim.",
+      "predicate_basis": "recomputed"
+    }
+  ],
+  "property": {
+    "statement": "Ordinary critique normalization cannot discard a retained constructor-required accounting fence and admit a second physical provider operation; known/unknown provider knowledge remains distinct from numeric telemetry and exact local charge/audit acknowledgement in the reviewed composed profile.",
+    "runtime_path": [
+      "Real configured Traced.generate and synthetic provider filesystem write",
+      "Obtained response + exact retained LLMAccountingError/required callback record",
+      "Canonical MultiPassLLMDrafter constructor→_resolve_llm→_normalize_critique_llm",
+      "Candidate typed Traced.with_model owner boundary→same original pending refusal before provider"
+    ],
+    "proxy_divergence": "Original DD same/different model normalization opened second real file effect although original Traced guard already rejected further work; candidate same unchanged test retains one operation and same original error. Native3-case result is not general monetary/audit authority or allSDK verification.",
+    "negative_controls": [
+      "Original DD2actualFAIL vs unmanaged1PASS with full outputs",
+      "Candidate SAME3immutable cases3PASS and exact six module Git origins before/after",
+      "Same-model and changed-model pending owner quantities independently measured before assertion",
+      "Unmanaged real value7/current-provider1 positive retained"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Finite source review nonblocking and independent normalization consumer3PASS; B65/B66 full formal closure NOT ESTABLISHED. Served optional run-budget projection remains typed A/G integration boundary; broader affected tests UNRUN by this reviewer.",
+  "independent_source_verdict": {
+    "status": "NONBLOCKING_WITH_EXPLICIT_FINITE_BOUNDARIES",
+    "statement": "No blocking source issue identified in the reviewed initialized ledger/constructor-owned completion profile after a391. This is not an all-deployed-consumer, external billing, audit authority or broad runtime verdict. The served optional telemetry cost aggregation boundary remains assigned A/G.",
+    "closure_ids": [],
+    "P41": "not_established"
+  },
+  "all_product_oracles_not_run_here": "Upper SDK/cost0/getter/directcache/threeport, protected real audit/recovery and lower freshprocess/fault/control waves are separate owner/oracle outputs, not imported as own acceptance.",
+  "limitations_and_next_owner": [
+    "A/G: exact source a391, existing DD-byte-identical served nl_pipeline factory/response_shapes aggregation. Minimal unexecuted input has valid obtained content and absent monetary evidence; traced observer emits cost_usd=None/cost_origin=unknown, aggregate currently coerces to0. Run actual served variant through run_budget_usd before attesting monetary certainty. No A-owned/runtime-quality source writes here.",
+    "ADAPTER/DUR/RUN/root: execute and preserve defining unknown SDK/getter/underflow/zero/three-port/direct-cache and real protected audit/fresh-owner/process/fault controls on exact composed candidate; only our unchanged normalization3 cases independently ran.",
+    "Deployment owner: external audit reconciler must verify the original exact act, and cache issuer/reuse permission remains a supplied operational/institutional premise. Local typed DTO/cost estimate/receipt is not an invoice or permission grant.",
+    "Unmanaged client/model/stream configuration is not mandatory accounting. Dynamic aliases, arbitrary SDK schemas, provider retries/invoice reconciliation, network/resource/child inputs and complete deployed financial graph are not established by this literal source census.",
+    "Public source/README/release/generated surfaces require root normal integration/public-surface generation after all source freezes; no generator/gate or full cohort run by this reviewer."
+  ],
+  "P41": "not_established",
+  "review_artifact": {
+    "commit": "f72a3eab73b9562ed0cca861125cf39032837b47",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/review.json",
+    "bytes": 42616,
+    "sha256": "2ee1d1205a6755177dd27ad208ec3a16327c3d9410ae8a2d9788983f1439943b"
+  },
+  "evidence_index": {
+    "commit": "f72a3eab73b9562ed0cca861125cf39032837b47",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/evidence-index.json",
+    "bytes": 5470,
+    "sha256": "eb24a5db8b7e515692c44df23de134eedce373c3e798caf808538bf5ab5952b1"
+  },
+  "custody_append": "Initial evidence commit130 retained13 files; repository generic JSONL ignore omitted six tiny physical inputfiles. Normal forward f72 commit adds exact same already-hashed fixture bytes. No original outputs/fixture/test/source changed; complete index19 paths now reconciles Git.",
+  "receipt_footprint_rule": "changed_paths is exact union diff-tree of declared3 implementation commits, excludes this separate receipt.",
+  "publication": "Normal topic push and fresh fetch/readback performed after this separate receipt commit; no future commit SHA or unexecuted result encoded."
+}

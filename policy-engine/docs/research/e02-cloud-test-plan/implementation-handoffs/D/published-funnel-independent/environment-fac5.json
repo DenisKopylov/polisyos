@@ -1,0 +1,22 @@
+{
+  "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+  "cwd": "/dev/shm/e02-D-funnel-independent-fac5c77a/policy-engine",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-c",
+    "import json,sys,importlib.metadata,hashlib; from pathlib import Path; from polisyos.scientist.methods.search import adversarial; from polisyos.scientist.methods.search.funnel import orchestrator,level5_refutation_governance,level6_promotion; from polisyos.scientist.orchestration.llm import budget_enforcer; modules=[adversarial,orchestrator,level5_refutation_governance,level6_promotion,budget_enforcer]; print(json.dumps({\"python\":sys.version,\"executable\":sys.executable,\"origins\":{m.__name__:m.__file__ for m in modules},\"source_hashes\":{m.__name__:hashlib.sha256(Path(m.__file__).read_bytes()).hexdigest() for m in modules},\"packages\":{name:importlib.metadata.version(name) for name in [\"numpy\",\"scipy\",\"pydantic\",\"tiktoken\",\"pytest\",\"torch\"]}},sort_keys=True))"
+  ],
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "basetemp": null,
+  "basetemp_scope": "not a pytest invocation",
+  "exit_code": 0,
+  "wall_seconds": 11.310724904004019,
+  "max_rss_kib": 1150976,
+  "rss_scope": "cumulative high-water of completed children in this capture process",
+  "log_sha256": "29b17477683fedb72f2eaaa2e0795dc5ebd2a1be3d94683a6d95f40cef525a41"
+}

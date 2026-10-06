@@ -1,0 +1,41 @@
+{
+  "source_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+  "tree": "caf2d7a0a6317e54faa140be3cf54c5be3fc310c",
+  "archive_git_pathspecs": [
+    "policy-engine/src",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/tests/_helpers",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/quarantine.toml",
+    "policy-engine/tests/unit/scientist/conftest.py",
+    "policy-engine/tests/unit/scientist/search/conftest.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_level6_promotion.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/producer_bridge_probe.py"
+  ],
+  "archive_sha256": "2fd327011c5901b622087f9850ad65e80e31ba7dcf69ce74015531f3e69748a4",
+  "archive_path": "/dev/shm/e02-D-funnel-independent-a23da7a9.tar",
+  "export_path": "/dev/shm/e02-D-funnel-independent-a23da7a9",
+  "proofs": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py",
+      "sha256": "e51b9918ca85495d99e1a0a705267cdeafcb73ac265f24268556ceeaf2fdcf60",
+      "role": "uncommitted_independent_proof_exact_bytes"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py",
+      "sha256": "c56913e241cdff4023774aad03039d33f69e5c35604342b4781dd172020f2fc2",
+      "role": "uncommitted_independent_proof_exact_bytes"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py",
+      "sha256": "6c86e687dde61facb6cfd6a57146fa9d8352cb5d1ca5a5f80f652839d899fe89",
+      "role": "uncommitted_independent_proof_exact_bytes"
+    }
+  ],
+  "cleanup": "none; archive and tar retained"
+}

@@ -1,0 +1,207 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/child.source.txt",
+      "bytes": 2568,
+      "sha256": "9e1382d25720eef7017547ef51a7571a18126d6bd2aebcb3d7ff192ca59bdb15"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/native.txt",
+      "bytes": 34767,
+      "sha256": "7014831eb7a15287efb6c318414fc55eb3f24eaafd2bdfae2afa33cdf79ca62e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/native.xml",
+      "bytes": 1066,
+      "sha256": "34e1644395f46e5f292be2115acca98e28021202f3a8a359f5c1a14a395f0c6f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_known_physical_completion0/ledger.json",
+      "bytes": 6164,
+      "sha256": "58634d04b7d02803a35310ee003790ecba07ef1fbc2cc7fae1cffc690a3c62fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_known_physical_completion0/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_known_physical_completion0/provider-completions.jsonl",
+      "bytes": 146,
+      "sha256": "6b68cf9dc31789f664abdbf6cc5684ec2537ed1e668de944c8bb015f6fdb2555"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_known_physical_completion0/provider-requests.jsonl",
+      "bytes": 137,
+      "sha256": "747b591f2cf1e350093ee34883d468604dde24d591d189588b976286e9755c99"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_known_physical_completion1/ledger.json",
+      "bytes": 6164,
+      "sha256": "106075e47303620421d673a28e295bbc13a64563f45ae1b65b2e2180c42719f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_known_physical_completion1/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_known_physical_completion1/provider-completions.jsonl",
+      "bytes": 146,
+      "sha256": "6b68cf9dc31789f664abdbf6cc5684ec2537ed1e668de944c8bb015f6fdb2555"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_known_physical_completion1/provider-requests.jsonl",
+      "bytes": 137,
+      "sha256": "747b591f2cf1e350093ee34883d468604dde24d591d189588b976286e9755c99"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_shared_unknown_keeps_only0/ledger.json",
+      "bytes": 2979,
+      "sha256": "2be2f2dbc22d3ec27c6dc6634c90d3bf3a1cf86b73ccf7939267fa1e396af18e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_shared_unknown_keeps_only0/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_shared_unknown_keeps_only0/provider-completions.jsonl",
+      "bytes": 72,
+      "sha256": "3269d5b853b07416f554812c234f19ea34a68336d69c8ca37f6851f92b48b244"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_shared_unknown_keeps_only0/provider-requests.jsonl",
+      "bytes": 81,
+      "sha256": "f10a6499e1f5a85842b461b6bf0420b62d7e320b11706b3e799548826459b33c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_0/ledger.json",
+      "bytes": 6224,
+      "sha256": "a00605d0fa8fd2cb4564928537997d723987495ab220316c12037b48eb9a2a58"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_0/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_0/mandatory-events.jsonl",
+      "bytes": 1722,
+      "sha256": "2d3d8defc1fe95d10efd46f2a3c6c8d3d5576509d797838703b595991da2f2e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_0/provider-completions.jsonl",
+      "bytes": 146,
+      "sha256": "6b68cf9dc31789f664abdbf6cc5684ec2537ed1e668de944c8bb015f6fdb2555"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_0/provider-requests.jsonl",
+      "bytes": 142,
+      "sha256": "6059ba7b41f40d882e70fd1a55b093ddfc8144e21ff5db1fc19de881b1c04b0f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_1/ledger.json",
+      "bytes": 6224,
+      "sha256": "3c2c16435a1ba7de774736c47b6f800e4f6067961b93185cc5555976b2cf73a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_1/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_1/mandatory-events.jsonl",
+      "bytes": 1722,
+      "sha256": "48f589ecf958f74b51c104692039e8f045a10dab36e6f3c7c930d5bebcd5c74c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_1/provider-completions.jsonl",
+      "bytes": 146,
+      "sha256": "6b68cf9dc31789f664abdbf6cc5684ec2537ed1e668de944c8bb015f6fdb2555"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_1/provider-requests.jsonl",
+      "bytes": 146,
+      "sha256": "18833f652eea128c275dd2734f21ef481c1af94c59174eea00ab54287e1b3697"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_2/ledger.json",
+      "bytes": 6224,
+      "sha256": "0391d1d27d54d09e3752d58e87732df6430d74f2d046b0bc5b214cab1056c275"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_2/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_2/mandatory-events.jsonl",
+      "bytes": 1722,
+      "sha256": "02ae1c436485318a82a96ce24f2308e4b035a7d3e5a2b24eeb076dc10897812d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_2/provider-completions.jsonl",
+      "bytes": 146,
+      "sha256": "6b68cf9dc31789f664abdbf6cc5684ec2537ed1e668de944c8bb015f6fdb2555"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_traced_preflight_refusal_2/provider-requests.jsonl",
+      "bytes": 146,
+      "sha256": "18833f652eea128c275dd2734f21ef481c1af94c59174eea00ab54287e1b3697"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_wrong_genuine_join_proof_0/ledger.json",
+      "bytes": 3838,
+      "sha256": "b3b85377f7941a1467281d88aea61a19a1e0841dd986217433878d28464ceba0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_wrong_genuine_join_proof_0/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_wrong_genuine_join_proof_0/provider-completions.jsonl",
+      "bytes": 73,
+      "sha256": "abee0c4168e0de828703bf57f288bb7a96eed64c35e25bc3682458a1c54e69c6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/pytest-tmp/test_wrong_genuine_join_proof_0/provider-requests.jsonl",
+      "bytes": 81,
+      "sha256": "f10a6499e1f5a85842b461b6bf0420b62d7e320b11706b3e799548826459b33c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/source-context.json",
+      "bytes": 52875,
+      "sha256": "9feaa1937e0455a78097ab149f778205972dfbf334056911bce8a960e8b99244"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/wrapper.json",
+      "bytes": 5008,
+      "sha256": "0ae38ce2b70a0b4560e729521ce5acd37b417c8ab74eeca4f3874c2efc76d4b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/review-data-only.source.txt",
+      "bytes": 4525,
+      "sha256": "05a34cd04f58c83d046f92400abbc15097acffcf4591b8fcc3822cad43ed31dd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/review-data-only.txt",
+      "bytes": 2557,
+      "sha256": "10ba7d4cbcda396dd267f91d0bf2a12cc3552e379cfa132af7a1d1338e886dc3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/run-native.source.txt",
+      "bytes": 6036,
+      "sha256": "25f79acb1005e0ec916a0f684215e60f473c4edd3fc169e28d7a3cfbee640521"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/source-review.json",
+      "bytes": 4251,
+      "sha256": "59e32c9ea1e9989387e85ad207b7969069f5a0b49e51c73d712fe35594302540"
+    }
+  ],
+  "complete_regular_file_denominator": 40,
+  "complete_bytes_excluding_index": 158381,
+  "scope": "All 36 actual regular runtime files, full runner/child, complete data-only recomputation stdout/driver and bounded full-delta source review; symlinks excluded as aliases, no raw deciding file omitted."
+}

@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:3cb73d27850fedef",
+  "revision": 4,
+  "updated_at": "2026-10-06T21:28:46.770379Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:527731:ledger.json",
+    "pid": 527731
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.755807Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.757419Z"
+    },
+    {
+      "revision": 2,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.760125Z"
+    },
+    {
+      "revision": 3,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.763249Z"
+    },
+    {
+      "revision": 4,
+      "operation": "abort_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.770375Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "10"
+      }
+    },
+    "spent": {},
+    "provider_spent": {},
+    "reserved": {
+      "run": "0.12291"
+    }
+  },
+  "spend_receipts": {},
+  "completion_obligations": {
+    "llm-producer:08cf27b17a32430f942bf91c887ba725": {
+      "obligation_id": "llm-producer:08cf27b17a32430f942bf91c887ba725",
+      "event_payload": {
+        "event_id": "llm-producer:08cf27b17a32430f942bf91c887ba725",
+        "request_digest": "sha256:4d9edab26ccb6e3bcf5d60f6fbd3f50d4654606fc510171d28308e17d1d66073",
+        "response_digest": "sha256:b1146d66fbe364875f2df5b9aa8ac5b2ea1973c18683431f29543afb2ffabe9e",
+        "model": "e02",
+        "provider": "unknown",
+        "amount": null,
+        "cost_origin": "unknown",
+        "kind": "provider",
+        "origin_event_id": null
+      },
+      "event_digest": "sha256:44af98aa5a46cac25afcba5aefaed94cad353eda9da422eb9da76f77ada88433",
+      "run_id": "independent-flight",
+      "owner_epoch": "527731:6db859e2bf744eb196b7fe076ff700b4",
+      "budget_keys": [
+        "run"
+      ],
+      "reserved_amounts": {
+        "run": "0.12291"
+      },
+      "phase": "cost_unknown",
+      "known_receipt_ids": []
+    }
+  }
+}

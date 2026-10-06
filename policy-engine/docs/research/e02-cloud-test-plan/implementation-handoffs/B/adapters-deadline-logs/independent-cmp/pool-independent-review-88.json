@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.B_pool_independent_review.v1",
+  "reviewer": "B CMP/RES leaf (independent of adapter author)",
+  "slice_base_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+  "candidate_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+  "candidate_tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+  "candidate_pool_sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2",
+  "reviewed_paths": [
+    "policy-engine/src/polisyos/fabric/connectors/pool.py",
+    "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+    "policy-engine/src/polisyos/fabric/connectors/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-net01-pool-acquisition.toml"
+  ],
+  "classification": "SAME NET-01 deadline admission/physical owner class at final publication/registration boundary; one batch widens the invariant",
+  "finding_ids": [
+    "B87"
+  ],
+  "decision": "ACCEPT bounded expiry/publication/registration change; no blocker in reviewed delta",
+  "property": "One absolute monotonic acquire budget admits physical work/retries and final handle publication only while remaining. Final publication and successful active-acquire retirement are one metadata-lock commit, with no subsequent awaited successful bookkeeping.",
+  "trace": [
+    "All acquire entrypoints share _acquire_owned, which passes its monotonic deadline to the real owned helper.",
+    "Expiry is recomputed before physical work, loop retries and final metadata publication.",
+    "Final _in_use publication, physical permit ownership transfer and successful active-acquire retirement commit under the same real metadata lock.",
+    "Expired late returned handles remain pending physical owners until real disconnect succeeds; failed disconnect keeps the permit.",
+    "Successful publication disables awaited finally bookkeeping; the unchanged real-lock oracle now returns a usable handle before the next lock owner can stall bookkeeping, and actual close_all drains once."
+  ],
+  "deciding_packet": {
+    "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-receipt.json",
+    "sha256": "8725b742a50b4fc634ef0cd2a5a08b96e50fdff528ea1646083f4d8320448e70"
+  },
+  "actual_checks": [
+    {
+      "name": "negative",
+      "exit_code": 0,
+      "wall_seconds": 1.535522950000086,
+      "max_rss_kib": 137584,
+      "log": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-negative.txt",
+        "bytes": 1764,
+        "sha256": "3fc246bf2fe51b3211a5567f2f812ea5f2301740dd06fd9e3ce0cf0209ad2dbe"
+      }
+    },
+    {
+      "name": "control",
+      "exit_code": 0,
+      "wall_seconds": 1.4944258439991245,
+      "max_rss_kib": 137600,
+      "log": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-control.txt",
+        "bytes": 1763,
+        "sha256": "d799294acd49f1db38a155d6f47f5d2a43f815a39039cec0c0cc93d27ab56c15"
+      }
+    },
+    {
+      "name": "native",
+      "exit_code": 0,
+      "wall_seconds": 3.055120576000263,
+      "max_rss_kib": 172676,
+      "log": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-native.txt",
+        "bytes": 99,
+        "sha256": "6e2ff8346f32031453bf74d7b33efb5d6944a328f23006e950459699bead23b7"
+      }
+    }
+  ],
+  "native_result": "Whole test_pool_e02.py17 PASS, JUnit17 tests/0 failures/0 errors/0 skips; no selective assertion or collection-only acceptance",
+  "base_witness": "Same unchanged9fb23 driver actual FAIL atd0 with cooperative connector and late final bookkeeping; independent holder released but actual close_all blocked on retained active registration. Property-preserving early-holder-release control PASS. Deciding output precedes explicit test-only rescue.",
+  "input_closure": "Complete tracked Git88 source archive; actual shared interpreter and actual package/module origins/version snapshots in deciding packet; real asyncio.Lock and actual ConnectionPool/close_all, typed event-gated connector fixture; no network/data/ports and no author source checkout mutations. Archive is derivable from exactGitSHA, removed after probe; no duplicate raw source dump.",
+  "limits": [
+    "No claim that every externally requested cancellation suppressed before deadline will force a refusal. The checked suppression witness is expiry/cancellation at the acquire deadline.",
+    "No hard physical I/O or disconnect/drain wall-time bound; an already entered uncooperative operation may delay settlement.",
+    "No C StreamingSourceSession startup pending-owner transfer or full served-stream closure attested.",
+    "No formal finding closure, production-data availability, repository-wide architecture PASS, or inherited-red attribution from this bounded review."
+  ],
+  "source_edits": "none"
+}

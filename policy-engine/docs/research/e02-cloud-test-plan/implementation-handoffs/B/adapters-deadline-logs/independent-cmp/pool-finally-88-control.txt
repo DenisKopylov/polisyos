@@ -1,0 +1,48 @@
+2026-10-05 16:10:37.808 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-05 16:10:37.808 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-05 16:10:37.808 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-05 16:10:37.808 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+{
+  "probe": "real pool lock: publication queued before independent holder; expiry while final bookkeeping awaits",
+  "control_release_before_expiry": true,
+  "module_path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/source/policy-engine/src/polisyos/fabric/connectors/pool.py",
+  "module_sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2",
+  "budget_seconds": 0.08,
+  "cancel_suppression_in_connector": false,
+  "start_monotonic": 9284.423108114,
+  "at_witness_entered": {
+    "in_use": [
+      "13fe7242-c04e-40ec-b62b-c102a26459a3"
+    ],
+    "pending": [],
+    "active_acquires": 0,
+    "active_acquires_done": true,
+    "semaphore_value": 0,
+    "disconnects": []
+  },
+  "acquire_outcome": "returned_handle",
+  "returned_session_id": "13fe7242-c04e-40ec-b62b-c102a26459a3",
+  "after_acquire": {
+    "in_use": [
+      "13fe7242-c04e-40ec-b62b-c102a26459a3"
+    ],
+    "pending": [],
+    "active_acquires": 0,
+    "active_acquires_done": true,
+    "semaphore_value": 0,
+    "disconnects": []
+  },
+  "close_outcome": "completed",
+  "after_close_observation": {
+    "in_use": [],
+    "pending": [],
+    "active_acquires": 0,
+    "active_acquires_done": true,
+    "semaphore_value": 1,
+    "disconnects": [
+      "13fe7242-c04e-40ec-b62b-c102a26459a3"
+    ]
+  },
+  "source_unchanged": true,
+  "failures": []
+}

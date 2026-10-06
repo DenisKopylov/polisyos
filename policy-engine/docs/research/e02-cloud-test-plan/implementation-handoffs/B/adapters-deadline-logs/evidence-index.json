@@ -1,0 +1,171 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "candidate_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+  "files": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/admission-resume.json": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/admission-resume.json",
+      "sha256": "962b2a950d2cf7e0703daada1bd86f97e41345042b6b777bd4da11b445ddcff4",
+      "bytes": 92953
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/slice-base.json": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/slice-base.json",
+      "sha256": "032297e766422d8201cf11d410a1c906dd7a05f87e9a82131011044fd68277d8",
+      "bytes": 734
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/test-only-242.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/test-only-242.log",
+      "sha256": "769f5d5c14287fa2d29c73df63261d6db63ba3c4074c83b8f44baca425233e95",
+      "bytes": 2231
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/test-only-242.xml": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/test-only-242.xml",
+      "sha256": "d9fae188c3cde880145f7743966d47cc1a8831efc62b54d2e19da181efc97dc9",
+      "bytes": 4572
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/cohort.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/cohort.log",
+      "sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548",
+      "bytes": 60
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/ruff.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/ruff-format.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/ruff-format.log",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "bytes": 26
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/diff-check.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.json": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/native-full15.json",
+      "sha256": "ce0ecb6a27c44884ffc3ea3385c57907661ce3ca1f81507237f2ffd08d8cfd38",
+      "bytes": 4846
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/native-full15.log",
+      "sha256": "941f4945c3cc1832b30f50f2bd36f71bfd64de4521d3143fb18da2241d9e328b",
+      "bytes": 811
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-final.json": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/late-handle-final.json",
+      "sha256": "d9fa26365325bbd874975dd73a5597d833658acefe728b2c38fd55e2b1d436ed",
+      "bytes": 3690
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-final.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/late-handle-final.log",
+      "sha256": "c1b9fd9338e81b9ee76706c15bb110239658208af1f261151c85eb351f3e1cb6",
+      "bytes": 4613
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-deadline.json": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/removal-deadline.json",
+      "sha256": "0f1aabd67fceac1a3565dfb4df5e71bd1b91a4f6424ed3630371cc3db7f2482f",
+      "bytes": 3701
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-deadline.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/removal-deadline.log",
+      "sha256": "9a03b50d5c11374ac71adcf1e0121162e360a8b56b6bc6d2c0671b46806527f4",
+      "bytes": 6798
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-successful-registration.json": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/removal-successful-registration.json",
+      "sha256": "0c3572abd851e8eac65dfd1d0ebd8a21e2ed28b5dcfcbefce161319cd7313324",
+      "bytes": 3731
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/removal-successful-registration.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/removal-successful-registration.log",
+      "sha256": "5a7ef875e5f68c6b9b1bd09ce9f0168e85cb083f7ba4b78e7a0a28847cbf2a38",
+      "bytes": 1580
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/llm-residual.json": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/llm-residual.json",
+      "sha256": "b51f39618d02d40582606d29b3c02782bcafbde8752b28061399e86754f3e2f0",
+      "bytes": 3866
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/llm-residual.log": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/llm-residual.log",
+      "sha256": "799156d5cf73f3704a6e48ecc40425b98d399a9d59a6e66f1812605290a54f89",
+      "bytes": 816
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/native-full15.xml": {
+      "origin": "/workspace/e02-B-adapters/policy-engine/_build/e02-B-adapters-deadline/native-full15.xml",
+      "sha256": "48363ff074624db2f2ad05d82505f3cc1f3eb1e76413c90e3bdad513d2987f51",
+      "bytes": 59710
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/e02-pool-late-admission-probe.py": {
+      "origin": "/tmp/e02-pool-late-admission-probe.py",
+      "sha256": "668e350ea85c130467f9c4c31ed95cd33eed1a1ccc688dc10be2619bad3650fc",
+      "bytes": 4638
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/e02-adapters-deadline-check.py": {
+      "origin": "/tmp/e02-adapters-deadline-check.py",
+      "sha256": "78041e1de3c7b322d702c62005c8b8bc03c1b39a938dfba02846e9bea9ecf2b3",
+      "bytes": 3398
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/e02-pool-deadline-removal.py": {
+      "origin": "/tmp/e02-pool-deadline-removal.py",
+      "sha256": "3068af15d56d6eb43e247c456ae9b3a1f0ecbb7d7fed5dabc1b730893efea738",
+      "bytes": 1628
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/late-handle-base.log": {
+      "origin": "/tmp/e02-pool-late-admission-base.log",
+      "sha256": "72ab16407c95e6655c39f55f243d96bf0dcfbe45e1ed5d5f39f30c95754a58bb",
+      "bytes": 6008
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-publication-finally-probe.py": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-publication-finally-probe.py",
+      "sha256": "9fb23b7110bc6647b2933f53850ac49d8e2fc9ce5fc8a739c316ed0874a54051",
+      "bytes": 5993
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-d0-archive-receipt.json": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-d0-archive-receipt.json",
+      "sha256": "0da426bbd0fc60c61d00b97b505548dfb9f0c17656951096a31d154ff0594282",
+      "bytes": 3151
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-d0-archive-negative.txt": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-d0-archive-negative.txt",
+      "sha256": "3561d769c90401ce00c798d86cf236f757dc1beafd9e1a43053cea33f7653d3a",
+      "bytes": 1895
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-d0-archive-control.txt": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-d0-archive-control.txt",
+      "sha256": "9d83fa1dd92e5dc8ce035ea6e903ba0f36d66770676f326ddcb48b0c74f1c2c9",
+      "bytes": 1764
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-receipt.json": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-receipt.json",
+      "sha256": "8725b742a50b4fc634ef0cd2a5a08b96e50fdff528ea1646083f4d8320448e70",
+      "bytes": 5818
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-negative.txt": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-negative.txt",
+      "sha256": "3fc246bf2fe51b3211a5567f2f812ea5f2301740dd06fd9e3ce0cf0209ad2dbe",
+      "bytes": 1764
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-control.txt": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-control.txt",
+      "sha256": "d799294acd49f1db38a155d6f47f5d2a43f815a39039cec0c0cc93d27ab56c15",
+      "bytes": 1763
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-finally-88-native.txt": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-native.txt",
+      "sha256": "6e2ff8346f32031453bf74d7b33efb5d6944a328f23006e950459699bead23b7",
+      "bytes": 99
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/native-pool-88.xml": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/native-pool-88.xml",
+      "sha256": "a38e861c136a001ed49136dab8ae42133c4738f6fba6eedcfefbbcce566fd530",
+      "bytes": 2888
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-deadline-logs/independent-cmp/pool-independent-review-88.json": {
+      "origin": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-independent-review-88.json",
+      "sha256": "8039d3fc00d913819269322d8f653a849260c9bd01dd227a103bc20136e53453",
+      "bytes": 4855
+    }
+  }
+}

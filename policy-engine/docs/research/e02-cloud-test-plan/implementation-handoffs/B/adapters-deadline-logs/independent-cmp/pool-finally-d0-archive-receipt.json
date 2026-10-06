@@ -1,0 +1,69 @@
+{
+  "schema": "policyos.e02.B_pool_finally_probe.v1",
+  "archive": {
+    "sha256": "f59a6e49e6406e5ee875db6d53e7dbe03c8d8428d85d3a934fd6f222bb97b1a7",
+    "bytes": 456714240,
+    "git_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+    "git_tree": "10300d99093d49b0168d22a98bbe8a29caa41df6",
+    "selection": "complete tracked Git tree",
+    "archive_command": [
+      "git",
+      "archive",
+      "--format=tar",
+      "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83"
+    ]
+  },
+  "source_root": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/d0-pool-source-qr3qc6m1/source",
+  "pool_before_sha256": "4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7",
+  "pool_after_sha256": "4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7",
+  "source_identity_unchanged": true,
+  "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/d0-pool-source-qr3qc6m1/source/policy-engine/src:/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/d0-pool-source-qr3qc6m1/source/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "driver": {
+    "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-publication-finally-probe.py",
+    "sha256": "9fb23b7110bc6647b2933f53850ac49d8e2fc9ce5fc8a739c316ed0874a54051"
+  },
+  "checks": [
+    {
+      "name": "negative",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-publication-finally-probe.py"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 1.644961826999861,
+      "max_rss_kib": 137596,
+      "user_seconds": 1.7639179999999999,
+      "system_seconds": 0.14695999999999998,
+      "log": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-d0-archive-negative.txt",
+        "bytes": 1895,
+        "sha256": "3561d769c90401ce00c798d86cf236f757dc1beafd9e1a43053cea33f7653d3a"
+      }
+    },
+    {
+      "name": "control",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-publication-finally-probe.py",
+        "--release-before-expiry"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 1.5058571310000843,
+      "max_rss_kib": 137604,
+      "user_seconds": 1.806271,
+      "system_seconds": 0.133992,
+      "log": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-d0-archive-control.txt",
+        "bytes": 1764,
+        "sha256": "9d83fa1dd92e5dc8ce035ea6e903ba0f36d66770676f326ddcb48b0c74f1c2c9"
+      }
+    }
+  ],
+  "source_edit": "none; complete immutable Git archive avoids author checkout",
+  "scope": "actual ConnectionPool and actual close_all consumer, health/metadata locks; in-memory fixture, no data/ports/network; oracle read before test-only rescue teardown",
+  "resource_method": "OS wait4 rusage, Linux maxrss KiB; /usr/bin/time missing initial harness attempt UNRUN before product execution"
+}

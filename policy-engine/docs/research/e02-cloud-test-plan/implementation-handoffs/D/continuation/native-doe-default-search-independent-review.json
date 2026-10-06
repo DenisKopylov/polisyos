@@ -1,0 +1,136 @@
+{
+  "schema": "policyos.e02.D.independent_native_doe_default_review.v1",
+  "reviewer": "search_owner, independent of runtime/service/models writer",
+  "predicate_basis": "recomputed",
+  "closure_ids": [],
+  "verdict": "ACCEPT bounded default typed codec, configured exploratory ordering, stable native subject identity, fresh resume and resumed-evaluation mechanism; no overall acceptance or scientific law claim",
+  "reviewed_handoff": {
+    "source_sha": "0f8802c2bb90fe05676c2273703364c0c491ea35",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+    "git_blob": "098eae4d17eed312b0a77e173e3688dd760848bf",
+    "bytes": 285895,
+    "sha256": "9d24b294462fbd10cd7835d4b3c72de4b91fe15691ed8cf1839ed58c50402bbd"
+  },
+  "runtime_source": {
+    "sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+    "tree": "ae90a66a882ee9b434cd21554043d887056d75b2"
+  },
+  "documentation_companion": "b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1",
+  "late_inventory_companion": "29836061dc86b95d574bb71b3adf15ac10a194ce",
+  "late_optional_test_only": "9de48387c01e7437f31093829610bb461fa3defe",
+  "source_review": "Full models/runtime/service and unique DOE test delta reviewed. Public persisted subject <search_id>:<candidate_id> binds native pending/history/best/frontier before generator restoration. BGC existing history identity semantics preserve original transferred warm identity and current row content. Default typed codec projects only configured canonical technical envelopes and exact empty semantic; meaningful/unknown fields refuse.",
+  "actual_evidence": {
+    "0188": "11PASS unchanged full nextProposal equality and tamper controls;18 product origins exact0188 verified.",
+    "6fe": "15PASS/0skip/1warning5.18s:11 newDOE +4 existingSequence fresh factory/failure/pending/order/stopped. Native public identity config is supplied only for exact canonical generator.",
+    "9de": "1PASS3.45s actual ordinary proposal/evaluate/CAS lineage/terminal resume;18 product origins independently Git9de matched. Optional guards leave every test function AST equal6fe; no new full15 replay claimed.",
+    "missing_optional": "Controlled BoTorch ImportError gives1SKIP/0cases exit5 UNRUN; not numerical PASS.",
+    "removal_port": "0188 exact1FAIL_AS_REQUIRED, physical proposal diverges with reader/ref/profile/metadata retained.",
+    "removal_identity": "0188 exact1FAIL_AS_REQUIRED at restore admission before full proposal equality, not separately demonstrated full-proposal divergence."
+  },
+  "preserved_historical_failures": [
+    "0495PASS2FAIL",
+    "ccc1PASS1FAIL full UUID-only payload difference",
+    "f3204FAIL restored subject tamper accepted before correction"
+  ],
+  "independent_binding_recomputations": {
+    "main_payload_pair_hashes": 16,
+    "main_actual_fixture_rows": 1217,
+    "main_all_errors": [],
+    "main_removal_method_AST": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "matches": true
+      }
+    ],
+    "latest_payload_git_blob_hash_checks": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/applied.json.gz",
+        "bytes": 645,
+        "sha256": "2a77891f2bce67a73813907f1620cc20e5880cf17f40092e57e5b1a8bde83e43",
+        "raw_bytes": 1158,
+        "raw_sha256": "56a726a8e7f352ec22fa5e9044972830d59bf8f565c21166846250597eedee83"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-missing-profile-complete.txt.gz",
+        "bytes": 555,
+        "sha256": "555761fa995a19ac8c425ee2b8fa6c0c0f87f33aa16e09250a69a4fe9679bd45",
+        "raw_bytes": 934,
+        "raw_sha256": "e59cfca88b56ccd58dd443cf26d6a3697bb7f360621bebb6e3fd206eeaf53063"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-missing-profile-junit.xml.gz",
+        "bytes": 359,
+        "sha256": "20a8ecb06fd3f41f1b83f5066fb22f21afa9ef2a735cc634c02bcd18d4fe4882",
+        "raw_bytes": 577,
+        "raw_sha256": "a39ffa28763ecd31248c1b4893a8b19ab981bb44b17c6ab1a37c3a30a603d1c8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-missing-profile.py.gz",
+        "bytes": 727,
+        "sha256": "4e19e688d32e3a2a73d563496fe3de0a7a7080e2b9b09afab7766b6ae127103a",
+        "raw_bytes": 1276,
+        "raw_sha256": "0c6d870457baa02e459c352d0ee42d68260db6008cd04228216b7cfb6e475b87"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-positive-complete.txt.gz",
+        "bytes": 2458,
+        "sha256": "7724f90eddd7dcc154b8de66fdf7f824cb7024cbf8acbaecd58b73cf9e173a22",
+        "raw_bytes": 7360,
+        "raw_sha256": "bf61b3778518fc4cf3238a9656b613f23846caf3d791094d0472da6e65c3883f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-positive-junit.xml.gz",
+        "bytes": 289,
+        "sha256": "61ccd437c2272d234b265286297284fe80d5299abfdfe4e3c49baa2eb7888ab8",
+        "raw_bytes": 435,
+        "raw_sha256": "e5d3b19902d1417e47f61c1ad714e27b856d6ebf9c9cb6f3a01b7952b15d5646"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-profile-actual-inputs.json.gz",
+        "bytes": 57795,
+        "sha256": "107ce130d1367970bd50e692c55224d127a75a02babb10a0e3c351369e190dd8",
+        "raw_bytes": 184599,
+        "raw_sha256": "7ddb1e46a776d1223ab243be22fd51f1d99afa97d0a768ec0288e8bac89e5d7a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-release-review.json.gz",
+        "bytes": 751,
+        "sha256": "c6aa6f054246ec46732945730fb3fffa69994febddbe9a43982297925f01931b",
+        "raw_bytes": 1762,
+        "raw_sha256": "e97dc9f6ac831a7ad0ac57beb7de6ef6b042043ce705036c9b8c6474d9750c80"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-verify.py.gz",
+        "bytes": 1010,
+        "sha256": "74f234b9853b6884200c9c5811a8a931c93bec53223ed09543107bc9a46907c5",
+        "raw_bytes": 2562,
+        "raw_sha256": "ef1c57526dbedbf615ea7ec0e360a5b816627a4d65683b1a707fa51b71bb23e6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/profile-validation.json",
+        "bytes": 16392,
+        "sha256": "8e9e7e668fab6c10ac649c3d720feb3cb29774256f381c9514792957d6b32404",
+        "raw_bytes": 16392,
+        "raw_sha256": "8e9e7e668fab6c10ac649c3d720feb3cb29774256f381c9514792957d6b32404"
+      }
+    ],
+    "latest_actual_fixture_rows": 31,
+    "latest_fixture_raw_bytes": 126058,
+    "latest_retained_original_hash_checks": "31/31 MATCH",
+    "latest_product_origin_hash_checks": "18/18 Git9de MATCH",
+    "latest_test_function_AST_equal_6fe": true
+  },
+  "compatibility": "Five exact records use recognized breaking enums; both runtime state changes link actual migration/recovery runbooks. Inventory reviewed flag is scoped to five records and exact root-approved42-export inventory, not full public authority/readiness.",
+  "limits": [
+    "No backend/test replay performed by this reviewer; actual author outputs and Git origins independently checked.",
+    "Cold native Sobol+actual SALib/default typed codec/CAS lineage only; no MLL/GP numerical quality assertion.",
+    "Caller purpose is exploratory_coordinate_order.v1; no optimizer quality or causal/statistical law inferred.",
+    "Terminal/pending/error handling bounded by defining cases; no arbitrary caller/API/institutional authorization claim.",
+    "Handoff transport.retry text preserves a historical pending state. Separate ordinary remote0f publication/readback is now confirmed by sole writer/root; original receipt bytes are unchanged."
+  ],
+  "next_owner": "Root composed source replay and G original finding-level criteria acceptance."
+}

@@ -207,6 +207,7 @@ def test_integrity_valid_forged_receipt_refuses_before_native_change(tmp_path, m
 class ExperimentMutation(MutationArtifact):
     x: float
     z: float
+    metadata: dict[str, object]
 
 
 class ExperimentCodec:

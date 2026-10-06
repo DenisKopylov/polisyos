@@ -153,14 +153,16 @@ async def test_native_raw_finite_zero_and_paid_receipt_settle_exact_amount(tmp_p
 
 
 @pytest.mark.asyncio
-async def test_native_raw_zero_priority_survives_falsy_normalization(tmp_path):
+async def test_native_raw_conflicting_zero_and_paid_alias_refused_after_falsy_normalization(
+    tmp_path,
+):
     gateway = RawGateway(raw_payload({"total_cost_usd": 0, "cost_usd": 4}))
     path, enforcer = build(tmp_path, gateway)
-    await invoke(enforcer)
+    with pytest.raises(ValueError, match="conflicting provider cost"):
+        await invoke(enforcer)
     assert gateway.normalized_response.usage.cost_usd == 4
     snapshot = FileBudgetLedger(path).snapshot()
-    assert snapshot.state.spent["run"] == 0
-    assert next(iter(snapshot.spend_receipts.values())).amount == 0
+    assert snapshot.state.spent == {} and snapshot.spend_receipts == {}
 
 
 @pytest.mark.parametrize("normalized_amount", [None, 1])

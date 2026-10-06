@@ -171,24 +171,42 @@ def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
 
     sources: tuple[Any, ...] = (usage, payload)
     raw = field(payload, "raw")
+    raw_sources: tuple[Any, ...] = ()
     if isinstance(raw, dict):
         # The native Gateway retains its original report here. Its normalized
         # envelope can erase a negative amount or a finite, falsy zero. Preserve
         # the original fields' first-present order, while validating both forms.
-        sources = (field(raw, "usage"), raw, *sources)
+        raw_sources = (field(raw, "usage"), raw)
 
-    candidates: list[float | None] = []
-    for source in sources:
-        # Validate every declared cost before choosing one, for mapping and
-        # SDK-object responses alike. Bad alternate fields cannot become absent.
-        candidates.extend(
-            _as_float(field(source, name)) for name in ("total_cost_usd", "cost_usd", "cost")
-        )
-        base_cost = _as_float(field(source, "base_cost_usd"))
-        platform_fee = _as_float(field(source, "platform_fee_usd"))
-        if base_cost is not None or platform_fee is not None:
-            candidates.append(_as_float((base_cost or 0.0) + (platform_fee or 0.0)))
-    return next((value for value in candidates if value is not None), None)
+    def declared_totals(group: tuple[Any, ...]) -> list[Decimal]:
+        totals = []
+        for source in group:
+            # Validate all declarations before selecting a basis. Each alias is
+            # a USD total; base + platform fee is the existing component total.
+            for name in ("total_cost_usd", "cost_usd", "cost"):
+                value = field(source, name)
+                if _as_float(value) is not None:
+                    totals.append(Decimal(str(value)))
+            components = [field(source, name) for name in ("base_cost_usd", "platform_fee_usd")]
+            admitted = [_as_float(value) for value in components]
+            if any(value is not None for value in admitted):
+                total = sum(
+                    (Decimal(str(value)) for value in components if value is not None), Decimal(0)
+                )
+                _as_float(total)
+                totals.append(total)
+        return totals
+
+    original_totals = declared_totals(raw_sources)
+    normalized_totals = declared_totals(sources)
+    # The Gateway's retained original declaration governs its lossy normalized
+    # envelope. SDK responses without a raw cost basis use their actual fields.
+    totals = original_totals or normalized_totals
+    if not totals:
+        return None
+    if any(total != totals[0] for total in totals[1:]):
+        raise _InvalidLLMCostError("conflicting provider cost declarations in USD")
+    return _as_float(totals[0])
 
 
 def _as_str(value: Any) -> str | None:

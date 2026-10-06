@@ -195,8 +195,35 @@ def test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analy
     assert configured["analysis_ref"] == answer["analysis_ref"].model_dump(mode="json")
     assert configured["order_profile"] == "exploratory_coordinate_order.v1"
     assert configured["purpose"] == "exploratory"
+    native_id = f"{fresh.controller._run_state.search_id}:{actual.candidate_id}"
+    assert actual.payload["_strategy_metadata"]["candidate_id"] == native_id
+    assert saved["configuration"]["candidate_identity_profile"] == "native_service_run_candidate.v1"
+    resumed_evaluation = fresh.controller._evaluate_for_tell(
+        actual.payload, iteration=1, context={}
+    )
+    fresh.tell(actual.candidate_id, resumed_evaluation)
+    consumed = fresh.controller._generator._base._history_to_evaluations(fresh.controller._history)
+    assert len(consumed) == 2 and consumed[-1].candidate_id == native_id
+    reopened_store = FileSystemCAS(tmp_path / "cas")
+    reopened = SearchLoopRunner(
+        store=reopened_store,
+        registry=ChampionRegistry(tmp_path / "registry", store=reopened_store),
+    ).create_service(_spec(answer), suite_ref=suite, max_iterations=3)
+    reopened.restore(fresh.checkpoint_ref)
+    assert reopened.controller._history == fresh.controller._history
+    reopened_consumed = reopened.controller._generator._base._history_to_evaluations(
+        reopened.controller._history
+    )
+    assert [item.candidate_id for item in reopened_consumed] == [
+        item.candidate_id for item in consumed
+    ]
     assert fresh.controller._generator._base._optimizer._model is None
-    print("actual_doe_checkpoint", fresh.checkpoint_ref.model_dump(mode="json"), configured)
+    print(
+        "actual_doe_checkpoint",
+        fresh.checkpoint_ref.model_dump(mode="json"),
+        configured,
+        [item.candidate_id for item in reopened_consumed],
+    )
 
 
 @pytest.mark.parametrize(

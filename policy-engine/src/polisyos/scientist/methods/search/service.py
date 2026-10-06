@@ -154,6 +154,11 @@ class NativeSearchService:
                 "max_empty_generation_attempts": config.max_empty_generation_attempts,
                 "stage_a_enabled": config.enable_stage_a,
                 "batch_size": config.batch_size,
+                "candidate_identity_profile": (
+                    "native_service_run_candidate.v1"
+                    if self._canonical_native_generator() is not None
+                    else None
+                ),
                 "budget_key": config.budget_key,
                 "budget_cost_key": config.budget_cost_key,
                 "budget_owner_identity": self.controller._budget_owner_identity(),
@@ -590,6 +595,36 @@ class NativeSearchService:
         if self._publication_blocked:
             raise ValueError("search_publication_rollback_unavailable_reopen_last_acknowledged_ref")
 
+    def _canonical_native_generator(self) -> Any | None:
+        generator = self.controller._generator
+        if type(generator).__module__ not in {
+            "polisyos.scientist.methods.autotune.bayesian_generator",
+            "polisyos.scientist.methods.search.sensitivity_adapter",
+        }:
+            return None
+        from polisyos.scientist.methods.autotune.bayesian_generator import (
+            BayesianCandidateGenerator,
+        )
+        from polisyos.scientist.methods.search.sensitivity_adapter import (
+            SensitivityAwareCandidateGenerator,
+        )
+
+        base = generator._base if type(generator) is SensitivityAwareCandidateGenerator else generator
+        return base if type(base) is BayesianCandidateGenerator else None
+
+    def _bind_native_candidate_identity(
+        self, candidate: dict[str, Any], candidate_id: str
+    ) -> None:
+        """Assign the admitted subject before its native history consumer sees it."""
+        if self._canonical_native_generator() is None:
+            return
+        metadata = candidate.get("_strategy_metadata")
+        if not isinstance(metadata, dict) or "candidate_id" not in metadata:
+            return
+        if "candidate_id" in candidate:
+            raise ValueError("native_service_conflicting_candidate_identity")
+        metadata["candidate_id"] = f"{self.controller._run_state.search_id}:{candidate_id}"
+
     def _ask_proposals(
         self,
         goal: dict[str, Any] | None,
@@ -624,6 +659,7 @@ class NativeSearchService:
             ):
                 raise ValueError(f"duplicate search candidate id: {candidate_id}")
             candidate = deepcopy(payload)
+            self._bind_native_candidate_identity(candidate, candidate_id)
             pending[candidate_id] = candidate
             proposals.append(
                 CandidateProposal(

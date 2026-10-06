@@ -13,6 +13,7 @@ import importlib.util
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path("/workspace/e02-B-current-coordination")
@@ -141,33 +142,29 @@ def changed_python(sha: str) -> dict[str, object]:
     }
 
 
-def retained_architecture_inputs(sha: str, uv: Path, env: dict[str, str]) -> dict[str, object]:
+def retained_architecture_inputs(sha: str, cache: Path) -> dict[str, object]:
     """Bind the actual existing UV cache and an unused retained generator workspace."""
     # This prescribed retained root is never reused or deleted; the canonical
     # generator owner performs exclusive workspace creation, not this launcher.
     workspace = Path("/dev/shm/e02-B-completed-architecture-" + sha[:12])  # noqa: S108
     if workspace.exists() or workspace.is_symlink():
         raise FileExistsError("Refuse existing generated-freshness workspace: " + str(workspace))
-    query = [str(uv), "cache", "dir"]
-    raw = subprocess.check_output(query, cwd=PRODUCT, env=env)  # noqa: S603 - read-only cache query
-    text = raw.decode().strip()
-    if not text or "\n" in text:
-        raise RuntimeError("UV cache query did not return one actual directory")
-    cache = Path(text)
     if not cache.is_absolute() or not cache.is_dir():
-        raise RuntimeError("Actual UV cache input is unavailable; do not guess a fallback")
+        raise RuntimeError("Explicit existing absolute architecture UV cache is required")
+    resolved = cache.resolve(strict=True)
+    if resolved == ROOT or ROOT in resolved.parents:
+        raise RuntimeError("Architecture cache must be outside the frozen repository")
+    production_data = PRODUCT / "production_data"
+    if production_data.exists() and resolved.is_relative_to(production_data.resolve(strict=True)):
+        raise RuntimeError("Architecture cache must be outside actual production data")
     stat = cache.stat()
     marker = cache / "CACHEDIR.TAG"
     return {
         "retained_workspace_root": str(workspace),
         "uv_cache_dir": str(cache),
-        "cache_query_argv": query,
-        "cache_query_cwd": str(PRODUCT),
-        "cache_query_stdout": raw.decode(),
-        "cache_query_output_bytes": len(raw),
-        "cache_query_output_sha256": hashlib.sha256(raw).hexdigest(),
+        "cache_selection": "Explicit --architecture-uv-cache-dir caller input; no query or fallback",
         "cache_directory_identity": {
-            "resolved_path": str(cache.resolve(strict=True)),
+            "resolved_path": str(resolved),
             "device": stat.st_dev,
             "inode": stat.st_ino,
             "mode": oct(stat.st_mode & 0o777),
@@ -318,8 +315,13 @@ def main() -> None:
     parser.add_argument("--sha", required=True)
     parser.add_argument("--gate", choices=GATES, required=True)
     parser.add_argument("--scratch", type=Path, required=True)
+    parser.add_argument("--architecture-uv-cache-dir", type=Path)
     args = parser.parse_args()
     tree = require_source(args.sha)
+    if args.gate == "architecture" and args.architecture_uv_cache_dir is None:
+        raise RuntimeError("Architecture requires explicit --architecture-uv-cache-dir")
+    if args.gate != "architecture" and args.architecture_uv_cache_dir is not None:
+        raise RuntimeError("Architecture cache input applies only to the architecture gate")
     if not args.scratch.is_absolute() or args.scratch.exists() or args.scratch.is_symlink():
         raise RuntimeError("Supply an unused absolute scratch directory")
     if args.scratch == ROOT or ROOT in args.scratch.parents:
@@ -379,7 +381,9 @@ def main() -> None:
         else None
     )
     architecture_inputs = (
-        retained_architecture_inputs(args.sha, uv, env) if args.gate == "architecture" else None
+        retained_architecture_inputs(args.sha, args.architecture_uv_cache_dir)
+        if args.gate == "architecture"
+        else None
     )
     argv, inputs = make_command(args.gate, args.sha, args.scratch, python, uv, architecture_inputs)
     raw = HARNESS / "raw/review"
@@ -404,6 +408,7 @@ def main() -> None:
         "gate": args.gate,
         "tag": tag,
         "argv": argv,
+        "launcher_argv": list(sys.argv),
         "capture_argv": capture,
         "cwd": str(PRODUCT),
         "inputs": inputs,

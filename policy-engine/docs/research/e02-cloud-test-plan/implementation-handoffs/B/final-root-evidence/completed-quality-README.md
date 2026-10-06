@@ -38,8 +38,14 @@ Runtime API and production-invocation keep stock gate argv. Architecture adds
 the canonical pair `--generated-freshness-workspace-root` and
 `--generated-freshness-uv-cache-dir`. Its fresh retained generator workspace is
 `/dev/shm/e02-B-completed-architecture-SHA12`; an existing path is refused and
-never removed. The actual pinned `uv cache dir` result is obtained with the
-same child environment and bound by query output and directory/marker identity.
+never removed. This gate requires an explicit existing absolute
+`--architecture-uv-cache-dir`; other gates do not accept this input. For this
+cloud task, the root's read-only pinned `uv cache dir` query at repository root
+returned the existing shared `/home/agent/.cache/uv`. Pass that actual accepted
+path explicitly. The product-scoped query returned relative `_cache/uv`; this
+historical metadata failure is preserved and supplies no availability verdict.
+The launcher binds directory/marker identity and refuses repository or actual
+production-data caches. It performs no query, implicit selection or fallback.
 This existing shared read-only cache is not task-exclusive ownership or proof
 that offline packages are complete. Canonical offline admission may honestly
 return missing-input/UNRUN. No cache sync, purge, fallback or skip option is added.

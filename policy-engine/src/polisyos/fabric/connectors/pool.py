@@ -36,6 +36,7 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 ConnectorT = TypeVar("ConnectorT", bound="SourceConnector")
+SettlementT = TypeVar("SettlementT")
 
 
 class PoolExhaustedError(Exception):
@@ -343,9 +344,38 @@ class ConnectionPool(Generic[ConnectorT]):
             self._circuit_breaker.config.timeout_seconds,
         )
 
+    def _require_acquire_budget(self, deadline: float) -> None:
+        if asyncio.get_running_loop().time() >= deadline:
+            raise PoolExhaustedError(self._pool_id, self._config.acquire_timeout_seconds)
+
     async def _acquire_owned(
         self,
         *,
+        live_acquire_permit: object | None = None,
+        live_connector_id: str | None = None,
+        live_dataset_id: str | None = None,
+    ) -> tuple[SourceConnector, ConnectionHandle]:
+        """Use one monotonic budget through final handle publication."""
+        deadline = asyncio.get_running_loop().time() + self._config.acquire_timeout_seconds
+        async with asyncio.timeout_at(deadline) as acquisition_timer:
+            try:
+                return await self._acquire_owned_before_deadline(
+                    deadline=deadline,
+                    live_acquire_permit=live_acquire_permit,
+                    live_connector_id=live_connector_id,
+                    live_dataset_id=live_dataset_id,
+                )
+            except asyncio.CancelledError as exc:
+                if acquisition_timer.expired():
+                    raise PoolExhaustedError(
+                        self._pool_id, self._config.acquire_timeout_seconds
+                    ) from exc
+                raise
+
+    async def _acquire_owned_before_deadline(
+        self,
+        *,
+        deadline: float,
         live_acquire_permit: object | None = None,
         live_connector_id: str | None = None,
         live_dataset_id: str | None = None,
@@ -368,6 +398,7 @@ class ConnectionPool(Generic[ConnectorT]):
             raise ValueError("live connector and dataset identity require a journal permit")
         start_time = datetime.now(UTC)
         permit_acquired = False
+        registered = False
         permit_release = False
         published = False
         cleanup_attempted = False
@@ -378,10 +409,8 @@ class ConnectionPool(Generic[ConnectorT]):
                 if self._closed:
                     raise PoolClosedError(self._pool_id)
             try:
-                acquired = await asyncio.wait_for(
-                    self._semaphore.acquire(),
-                    timeout=self._config.acquire_timeout_seconds,
-                )
+                self._require_acquire_budget(deadline)
+                acquired = await self._semaphore.acquire()
             except TimeoutError as exc:
                 raise PoolExhaustedError(
                     self._pool_id,
@@ -395,11 +424,14 @@ class ConnectionPool(Generic[ConnectorT]):
                 if self._closed:
                     permit_release = True
                     raise PoolClosedError(self._pool_id)
+                self._require_acquire_budget(deadline)
                 self._active_acquires += 1
+                registered = True
                 self._active_acquires_done.clear()
 
             while True:
                 async with self._lock:
+                    self._require_acquire_budget(deadline)
                     if self._closed:
                         permit_release = True
                         raise PoolClosedError(self._pool_id)
@@ -411,9 +443,19 @@ class ConnectionPool(Generic[ConnectorT]):
                 if pooled is None:
                     # Connector I/O happens outside the metadata lock. The semaphore remains
                     # the physical-capacity reservation while this connection is being made.
-                    pooled = await self._create_connection()
+                    connection_deadline = min(
+                        deadline,
+                        asyncio.get_running_loop().time() + self._config.connection_timeout_seconds,
+                    )
+                    async with asyncio.timeout_at(connection_deadline) as connection_timer:
+                        pooled = await self._create_connection()
                     async with self._lock:
                         self._register_pending_cleanup(pooled, pending_permit=True)
+                        self._require_acquire_budget(deadline)
+                        if connection_timer.expired():
+                            raise TimeoutError(
+                                "Connection creation exceeded its configured deadline"
+                            )
 
                 if self._should_retire(pooled):
                     cleanup_attempted = True
@@ -438,9 +480,8 @@ class ConnectionPool(Generic[ConnectorT]):
                         continue
 
                 async with self._lock:
-                    if self._closed or generation != self._generation:
-                        publish_allowed = False
-                    else:
+                    self._require_acquire_budget(deadline)
+                    if not self._closed and generation == self._generation:
                         pooled.mark_used()
                         self._in_use[pooled.handle.session_id] = pooled
                         self._pending_cleanup.pop(pooled.handle.session_id, None)
@@ -459,11 +500,14 @@ class ConnectionPool(Generic[ConnectorT]):
                             idle_count=len(self._idle),
                             in_use_count=len(self._in_use),
                         )
-                        publish_allowed = True
-
-                if publish_allowed:
-                    published = True
-                    return pooled.connector, pooled.handle
+                        # Publication and registration retirement are one commit.
+                        # There is no suspension point after a successful commit.
+                        self._active_acquires -= 1
+                        registered = False
+                        if self._active_acquires == 0:
+                            self._active_acquires_done.set()
+                        published = True
+                        return pooled.connector, pooled.handle
 
                 # close_all won the generation race. The handle remains owned by this
                 # transition until its physical disconnect succeeds.
@@ -475,32 +519,58 @@ class ConnectionPool(Generic[ConnectorT]):
                 raise PoolClosedError(self._pool_id)
         except BaseException as exc:
             if pooled is not None and not published:
-                async with self._lock:
-                    self._register_pending_cleanup(pooled, pending_permit=True)
-                if pooled.closed:
-                    permit_release = True
-                elif not cleanup_attempted:
-                    try:
-                        cleaned = await self._cleanup_pooled(pooled)
-                    except BaseException as cleanup_exc:
-                        if pooled.closed:
-                            permit_release = True
-                        else:
-                            exc.add_note(f"cleanup during acquire failed: {cleanup_exc!r}")
-                    else:
-                        if cleaned:
-                            permit_release = True
+                cleanup = asyncio.create_task(
+                    self._settle_failed_acquire(pooled, cleanup_attempted, exc)
+                )
+                permit_release = await self._wait_owned_settlement(cleanup)
             elif not published:
                 permit_release = True
             raise
         finally:
-            if permit_acquired and not published and permit_release:
+            if registered or (permit_acquired and not published and permit_release):
+                retirement = asyncio.create_task(
+                    self._retire_failed_acquire(
+                        registered=registered,
+                        release_permit=permit_acquired and not published and permit_release,
+                    )
+                )
+                await self._wait_owned_settlement(retirement)
+
+    async def _settle_failed_acquire(
+        self, pooled: PooledConnection, cleanup_attempted: bool, primary: BaseException
+    ) -> bool:
+        async with self._lock:
+            self._register_pending_cleanup(pooled, pending_permit=True)
+        if pooled.closed:
+            return await self._claim_permit(pooled, True)
+        if cleanup_attempted:
+            return False
+        try:
+            cleaned = await self._cleanup_pooled(pooled)
+        except BaseException as cleanup_error:
+            primary.add_note(f"cleanup during acquire failed: {cleanup_error!r}")
+            cleaned = pooled.closed
+        return await self._claim_permit(pooled, True) if cleaned else False
+
+    async def _retire_failed_acquire(self, *, registered: bool, release_permit: bool) -> None:
+        async with self._lock:
+            if registered:
+                self._active_acquires -= 1
+                if self._active_acquires == 0:
+                    self._active_acquires_done.set()
+            if release_permit:
                 self._semaphore.release()
-            async with self._lock:
-                if self._active_acquires:
-                    self._active_acquires -= 1
-                    if self._active_acquires == 0:
-                        self._active_acquires_done.set()
+
+    @staticmethod
+    async def _wait_owned_settlement(task: asyncio.Task[SettlementT]) -> SettlementT:
+        # The primary exception remains owned by the caller. Repeated cancellation
+        # cannot abandon cleanup or free a physical permit before it settles.
+        while not task.done():
+            try:
+                await asyncio.shield(task)
+            except asyncio.CancelledError:
+                continue
+        return task.result()
 
     async def release(self, handle: ConnectionHandle) -> None:
         """
@@ -708,15 +778,9 @@ class ConnectionPool(Generic[ConnectorT]):
         """Create a new connection via the connector factory."""
         connector = self._connector_factory()
 
-        try:
-            handle = await asyncio.wait_for(
-                connector.connect(self._connection_config),
-                timeout=self._config.connection_timeout_seconds,
-            )
-        except TimeoutError as exc:
-            raise TimeoutError(
-                f"Connection creation timed out after {self._config.connection_timeout_seconds}s"
-            ) from exc
+        # The acquiring task owns the actual operation. A child wait_for can
+        # hide a cancellation-suppressing connector's late physical handle.
+        handle = await connector.connect(self._connection_config)
 
         pooled = PooledConnection(
             connector=connector,
@@ -752,10 +816,8 @@ class ConnectionPool(Generic[ConnectorT]):
             with self._stats_lock:
                 self._total_health_checks += 1
 
-            health: HealthStatus = await asyncio.wait_for(
-                pooled.connector.health_check(pooled.handle),
-                timeout=10.0,  # Quick health check timeout
-            )
+            async with asyncio.timeout(10.0):
+                health: HealthStatus = await pooled.connector.health_check(pooled.handle)
 
             if health.healthy:
                 pooled.mark_healthy()
@@ -997,9 +1059,7 @@ class ConnectionPool(Generic[ConnectorT]):
         occupied_slots = len(self._in_use) + pending_permits
         available_slots = max(0, self._config.max_size - occupied_slots)
         utilization = (
-            min(1.0, occupied_slots / self._config.max_size)
-            if self._config.max_size > 0
-            else 0.0
+            min(1.0, occupied_slots / self._config.max_size) if self._config.max_size > 0 else 0.0
         )
         level = BackpressureLevel.NORMAL
         suggested_delay = 0.0

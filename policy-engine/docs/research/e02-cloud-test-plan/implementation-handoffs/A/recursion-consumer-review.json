@@ -59,7 +59,8 @@
     "B_current_runtime_qualification_scope": "premise-qualification.json@2c581 blob 9331a2d11f71f6b59ef5ed6c0665dd38094a068a; slice current-sta-ownership-premise-qualification, closure_ids=[]; it qualifies STA alias/producer authority, not B30 deployment identity",
     "G_checkpoint09_currentness_admission": "checkpoint-09.json@8ed2c08a96173a1235b4fc363fcbe07378a47750 tree 9c60489389143f489846083b39b1e42f021de06b; integration source 312e6d7c12e1d623f1ac9502c187e7cb92e48045 tree 11ffd482cf4324a25ca16e77d8b113c8bc9eebad; accepted slices exclude B current-runtime/N6 identity; finding_closures=[]",
     "G_checkpoint09_consumer_scope": "checkpoint09-consumers.json@8ed2 blob c07948796f6637b05dbf9bf3f4b54d6c7a96df69; 58 PASS is four bounded consumers, finding_closure=false, broad_replay=false, and its source/test manifest excludes N6 identity/currentness",
-    "A_recursive_graph_provider_gap": "coupling_composition.py@33df:228-242, 404-435 (typed graph/builder only bind supplied refs/edges; decomposition validity requires coupling evidence); services/control/generation_cycle.py@33df:1137-1153 (only production caller supplies empty module_refs/edges and root-only problem); CYC-05@75c0987adc3c1599cda5e465f3a4b82056d9aec2:11-19,21-30,55-60 assigns two meaningful children/relations to A runtime/compiler candidate paths. A producer/bridge implementation missing, not an external scientific-owner contract blocker."
+    "A_recursive_graph_provider_gap": "coupling_composition.py@33df:228-242, 404-435 (typed graph/builder only bind supplied refs/edges; decomposition validity requires coupling evidence); services/control/generation_cycle.py@33df:1137-1153 (only production caller supplies empty module_refs/edges and root-only problem); CYC-05@75c0987adc3c1599cda5e465f3a4b82056d9aec2:11-19,21-30,55-60 assigns two meaningful children/relations to A runtime/compiler candidate paths. A producer/bridge implementation missing, not an external scientific-owner contract blocker.",
+    "A_candidate_partition_feasibility_followup": "HEAD 340279d8a895380492b7f4e2bb7f52e7f02301be tree dd1c79f2f6f4147998b3495a8f91bb404d0ad57f; docs A6/coverage/cross-unit/CYC-05 equal 75c snapshot; DesignProblem and CycleSubstrateContext equal slice-base blobs 1fe47046 and 932fd33f. A candidate-only search partition is feasible only after an A producer proves a one-to-one join from child DesignProblem levers to admitted candidate evidence and L6-resolved target slots; the current context validator does not establish that join or any inter-lever/composition relation. The ordinary configured-profile test helper has no candidate-lever evidence (controlled_candidate_profile.py@base blob c987b343, lines 215-222), so it is not a two-child positive fixture. The branching controller still needs exact child contexts, SubDesignContracts, and a parent JointSimulationRequest/coupling graph; current leaf builders do not build this parent bridge. A owns the candidate-only grammar and projection; no external scientific-owner contract blocks defining it. Candidate CouplingGraph currently reaches observed classification when it has edges and a discovery ref, so it must not serve as candidate-only evidence without a fail-closed discriminator. Source-only follow-up; no tests rerun."
   },
   "checks": [
     {
@@ -167,6 +168,6 @@
       "recursion-consumer-review/report.md"
     ]
   },
-  "current_checkout_head": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
-  "current_checkout_tree_sha": "a5c268e023720c5afc97af75a285b63e7f943528"
+  "current_checkout_head": "340279d8a895380492b7f4e2bb7f52e7f02301be",
+  "current_checkout_tree_sha": "dd1c79f2f6f4147998b3495a8f91bb404d0ad57f"
 }

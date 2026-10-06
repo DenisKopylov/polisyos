@@ -2,7 +2,8 @@
   "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "A",
   "slice": "full-queue-start",
-  "closure_ids": [
+  "closure_ids": [],
+  "primary_finding_ids": [
     "B01",
     "B02",
     "B03",

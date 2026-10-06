@@ -1,0 +1,1840 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 48 items
+
+tests/unit/runtime/http/test_core_only_runs_api.py::test_runs_api_emits_only_core_run_source_kind PASSED [  2%]
+tests/unit/runtime/http/test_core_only_runs_api.py::test_run_details_payload_has_no_legacy_artifact_paths PASSED [  4%]
+tests/unit/runtime/http/test_runs_api.py::test_run_index_generation_invalidates_cached_active_status FAILED [  6%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current FAILED [  8%]
+tests/unit/runtime/http/test_runs_api.py::test_hidden_runs_sse_channels_emit_versioned_contracts PASSED [ 10%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_emission_rejects_marker_complete_malformed_payload PASSED [ 12%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_timeout_emits_a_versioned_strict_contract PASSED [ 14%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_exit_consumes_producer_terminality_not_status_text PASSED [ 16%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_does_not_exit_on_completed_looking_status_without_terminal_fact[non_terminal] PASSED [ 18%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_does_not_exit_on_completed_looking_status_without_terminal_fact[not_established] PASSED [ 20%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_final_encoder_rejects_malformed_timeout_data PASSED [ 22%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_snapshot_and_timeout_share_final_data_encoder PASSED [ 25%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_keepalive_comment_bypasses_data_encoder PASSED [ 27%]
+tests/unit/runtime/http/test_runs_api.py::test_list_runs_returns_only_core_sources PASSED [ 29%]
+tests/unit/runtime/http/test_runs_api.py::test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque FAILED [ 31%]
+tests/unit/runtime/http/test_runs_api.py::test_unknown_run_terminality_cannot_be_read_as_non_terminal PASSED [ 33%]
+tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record0-core_run_trace_record_invalid] PASSED [ 35%]
+tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record1-core_run_terminality_fact_conflict] PASSED [ 37%]
+tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record2-core_run_terminality_fact_conflict] PASSED [ 39%]
+tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record3-core_run_finalized_without_terminality] PASSED [ 41%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_ref] PASSED [ 43%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[unresolvable_ref] PASSED [ 45%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[wrong_media_ref] FAILED [ 47%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_schema_provenance] FAILED [ 50%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[producer_mismatch] FAILED [ 52%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch] FAILED [ 54%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[registry_lineage_mismatch] PASSED [ 56%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[duplicate_manifest_refs] FAILED [ 58%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_manifest_scope_must_match_started_owner FAILED [ 60%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact FAILED [ 62%]
+tests/unit/runtime/http/test_runs_api.py::test_foreign_finalize_journal_cannot_sign_or_clear_another_run PASSED [ 64%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_journal_without_owner_start PASSED [ 66%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_same_run_with_substituted_scope PASSED [ 68%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_ambiguous_started_owner PASSED [ 70%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[non_mapping] PASSED [ 72%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[missing_version] PASSED [ 75%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[future_version] PASSED [ 77%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_requires_exact_manifest_ref_metadata FAILED [ 79%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs FAILED [ 81%]
+tests/unit/runtime/http/test_runs_api.py::test_cached_active_run_observes_journal_only_finalize_recovery PASSED [ 83%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_keeps_journal_when_required_local_trace_write_fails FAILED [ 85%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_isolates_optional_audit_emit_and_close_failures FAILED [ 87%]
+tests/unit/runtime/http/test_runs_api.py::test_recovery_rebinds_unlinked_terminal_event_to_its_manifest PASSED [ 89%]
+tests/unit/runtime/http/test_runs_api.py::test_get_run_details_returns_normalized_payload PASSED [ 91%]
+tests/unit/runtime/http/test_runs_api.py::test_list_runs_cursor_pagination PASSED [ 93%]
+tests/unit/runtime/http/test_runs_api.py::test_list_runs_applies_server_side_query_filter_before_pagination PASSED [ 95%]
+tests/unit/runtime/http/test_runs_api.py::test_evaluate_feedback_endpoint_persists_monitoring_report PASSED [ 97%]
+tests/unit/runtime/http/test_runs_api.py::test_reissue_endpoint_fails_closed_without_durable_control_plane PASSED [100%]
+
+=================================== FAILURES ===================================
+__________ test_run_index_generation_invalidates_cached_active_status __________
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x13bd1aa50>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_run_index_generation_inva0/.polisyos'), ...}
+
+    def test_run_index_generation_invalidates_cached_active_status(runtime_api_env) -> None:
+        """A pending DV owner phase invalidates ACTIVE without touching the run dir."""
+    
+        context = runtime_api_env["client"].app.state.runtime_api_ctx
+        run_index = context.run_index
+        run_id = runtime_api_env["core_run_id"]
+        indexed = run_index.get_run(run_id)
+        assert indexed.decision_packet_ref is not None
+        packet_ref = str(indexed.decision_packet_ref.artifact_id)
+        service = DecisionValidityService(context.store)
+        envelope = DecisionValidityEnvelope(
+            decision_lineage_key="run-index-epoch-lineage",
+            policy_fingerprint="run-index-epoch-policy",
+            knowledge_basis=DecisionBasisSection(
+                dependencies=[
+                    DecisionDependencyRef(
+                        kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+                        key="epoch::run-index-owner",
+                        artifact_id="epoch-run-index-owner",
+                    )
+                ]
+            ),
+        )
+>       service.register_decision_packet(
+            packet_ref=packet_ref,
+            envelope=envelope,
+            baseline=DecisionValidityEvaluation(
+                decision_lineage_key=envelope.decision_lineage_key,
+                status=DecisionValidityStatus.ACTIVE,
+                dependency_keys=envelope.dependency_keys(),
+            ),
+        )
+
+tests/unit/runtime/http/test_runs_api.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/validation/decision_validity.py:547: in wrapped
+    return method(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/validation/decision_validity.py:1485: in register_decision_packet
+    persisted = self._persist_evaluation(
+src/polisyos/scientist/validation/decision_validity.py:1878: in _persist_evaluation
+    evaluation_ref = self._store.put_json(
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x13f032950>
+artifact_id = ArtifactID(root='sha256:9836fd27dedc46ca60fa8a3939d39d8d4e5c99280149a8e16ada1791a7a2bc62')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:9836fd27dedc46ca60fa8a3939d39d8d4e5c99280149a8e16ada1791a7a2bc62 has tenant ownership claims; an active owner is required for write input:decision_packet
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+__ test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current __
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x1401246e0>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_runs_api_crash_restart_ke0/.polisyos'), ...}
+
+    def test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current(
+        runtime_api_env,
+    ) -> None:
+        """A new process re-enumerates the persisted phase-one freeze."""
+    
+        context = runtime_api_env["client"].app.state.runtime_api_ctx
+        run_index = context.run_index
+        run_id = runtime_api_env["core_run_id"]
+        indexed = run_index.get_run(run_id)
+        assert indexed.decision_packet_ref is not None
+        packet_ref = str(indexed.decision_packet_ref.artifact_id)
+        service = DecisionValidityService(context.store)
+        envelope = DecisionValidityEnvelope(
+            decision_lineage_key="run-index-restart-epoch-lineage",
+            policy_fingerprint="run-index-restart-epoch-policy",
+            knowledge_basis=DecisionBasisSection(
+                dependencies=[
+                    DecisionDependencyRef(
+                        kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+                        key="epoch::run-index-restart-owner",
+                        artifact_id="epoch-run-index-restart-owner",
+                    )
+                ]
+            ),
+        )
+>       service.register_decision_packet(
+            packet_ref=packet_ref,
+            envelope=envelope,
+            baseline=DecisionValidityEvaluation(
+                decision_lineage_key=envelope.decision_lineage_key,
+                status=DecisionValidityStatus.ACTIVE,
+                dependency_keys=envelope.dependency_keys(),
+            ),
+        )
+
+tests/unit/runtime/http/test_runs_api.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/validation/decision_validity.py:547: in wrapped
+    return method(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/validation/decision_validity.py:1485: in register_decision_packet
+    persisted = self._persist_evaluation(
+src/polisyos/scientist/validation/decision_validity.py:1878: in _persist_evaluation
+    evaluation_ref = self._store.put_json(
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x13f58d250>
+artifact_id = ArtifactID(root='sha256:9836fd27dedc46ca60fa8a3939d39d8d4e5c99280149a8e16ada1791a7a2bc62')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:9836fd27dedc46ca60fa8a3939d39d8d4e5c99280149a8e16ada1791a7a2bc62 has tenant ownership claims; an active owner is required for write input:decision_packet
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+__ test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque __
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x1404f74d0>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_run_terminality_is_produc0/.polisyos'), ...}
+
+    def test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque(
+        runtime_api_env,
+    ) -> None:
+        app = runtime_api_env["app"]
+        ctx = app.state.runtime_api_ctx
+        store = ctx.store
+        run_id = "R_terminality_novel_status"
+        registry_ref = store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run = RunContext.start(
+            store=store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=runtime_api_env["cas_root"] / "runs" / run_id,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+    
+        ctx.run_index.refresh(force=True)
+        active = runtime_api_env["client"].get(f"/api/v1/runs?q={run_id}").json()["runs"][0]
+        assert active["run_terminality"] == RunTerminality.NON_TERMINAL
+    
+        novel_status = "still_running_but_owner_finalized_v47"
+>       run.finalize(status=novel_status)
+
+tests/unit/runtime/http/test_runs_api.py:604: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/run/context.py:445: in finalize
+    run_ref = self.store.put_json(
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x140611b50>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+__ test_terminal_fact_requires_a_resolved_owner_manifest_ref[wrong_media_ref] __
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x1418e2120>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_terminal_fact_requires_a_2/.polisyos'), ...}
+failure_kind = 'wrong_media_ref'
+
+    @pytest.mark.parametrize(
+        "failure_kind",
+        [
+            "missing_ref",
+            "unresolvable_ref",
+            "wrong_media_ref",
+            "missing_schema_provenance",
+            "producer_mismatch",
+            "environment_mismatch",
+            "registry_lineage_mismatch",
+            "duplicate_manifest_refs",
+        ],
+    )
+    def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
+        runtime_api_env,
+        failure_kind: str,
+    ) -> None:
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = f"R_terminal_fact_{failure_kind}"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        outputs = []
+        if failure_kind == "unresolvable_ref":
+            outputs = [
+                ArtifactRef(
+                    artifact_id=ArtifactID("sha256:" + "f" * 64),
+                    kind="core.run_manifest",
+                    media_type="application/json",
+                )
+            ]
+        elif failure_kind != "missing_ref":
+            producer = ProducerInfo(component="tests.run-owner", version="1.0")
+            env = EnvInfo(python="test", platform="test", deps_lock_hash="sha256:test")
+            manifest = RunManifest(
+                run_id=run_id,
+                registry_bundle=registry_ref,
+                status="completed",
+                started_at=datetime.now(UTC).replace(microsecond=0),
+                finished_at=datetime.now(UTC).replace(microsecond=0),
+                producer=producer,
+                env=env,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+            )
+            options = run_context_module._run_manifest_write_options(manifest)
+            if failure_kind == "missing_schema_provenance":
+                options = replace(options, schema=None)
+            else:
+                if failure_kind == "producer_mismatch":
+                    options = replace(
+                        options,
+                        producer=ProducerInfo(component="tests.substituted-owner", version="9.9"),
+                    )
+                elif failure_kind == "environment_mismatch":
+                    options = replace(
+                        options,
+                        env=EnvInfo(
+                            python="substituted",
+                            platform="substituted",
+                            deps_lock_hash="sha256:substituted",
+                        ),
+                    )
+                elif failure_kind == "registry_lineage_mismatch":
+                    substituted_registry = ctx.store.put_json(
+                        {"registry": {"substituted": True}},
+                        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+                    )
+                    options = replace(
+                        options,
+                        inputs=[
+                            InputRef(
+                                artifact_id=substituted_registry.artifact_id,
+                                role="registry_bundle",
+                            )
+                        ],
+                    )
+>           ref = ctx.store.put_json(manifest, options)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/http/test_runs_api.py:823: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x1416b5950>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+_ test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_schema_provenance] _
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x141b8b0e0>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_terminal_fact_requires_a_3/.polisyos'), ...}
+failure_kind = 'missing_schema_provenance'
+
+    @pytest.mark.parametrize(
+        "failure_kind",
+        [
+            "missing_ref",
+            "unresolvable_ref",
+            "wrong_media_ref",
+            "missing_schema_provenance",
+            "producer_mismatch",
+            "environment_mismatch",
+            "registry_lineage_mismatch",
+            "duplicate_manifest_refs",
+        ],
+    )
+    def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
+        runtime_api_env,
+        failure_kind: str,
+    ) -> None:
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = f"R_terminal_fact_{failure_kind}"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        outputs = []
+        if failure_kind == "unresolvable_ref":
+            outputs = [
+                ArtifactRef(
+                    artifact_id=ArtifactID("sha256:" + "f" * 64),
+                    kind="core.run_manifest",
+                    media_type="application/json",
+                )
+            ]
+        elif failure_kind != "missing_ref":
+            producer = ProducerInfo(component="tests.run-owner", version="1.0")
+            env = EnvInfo(python="test", platform="test", deps_lock_hash="sha256:test")
+            manifest = RunManifest(
+                run_id=run_id,
+                registry_bundle=registry_ref,
+                status="completed",
+                started_at=datetime.now(UTC).replace(microsecond=0),
+                finished_at=datetime.now(UTC).replace(microsecond=0),
+                producer=producer,
+                env=env,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+            )
+            options = run_context_module._run_manifest_write_options(manifest)
+            if failure_kind == "missing_schema_provenance":
+                options = replace(options, schema=None)
+            else:
+                if failure_kind == "producer_mismatch":
+                    options = replace(
+                        options,
+                        producer=ProducerInfo(component="tests.substituted-owner", version="9.9"),
+                    )
+                elif failure_kind == "environment_mismatch":
+                    options = replace(
+                        options,
+                        env=EnvInfo(
+                            python="substituted",
+                            platform="substituted",
+                            deps_lock_hash="sha256:substituted",
+                        ),
+                    )
+                elif failure_kind == "registry_lineage_mismatch":
+                    substituted_registry = ctx.store.put_json(
+                        {"registry": {"substituted": True}},
+                        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+                    )
+                    options = replace(
+                        options,
+                        inputs=[
+                            InputRef(
+                                artifact_id=substituted_registry.artifact_id,
+                                role="registry_bundle",
+                            )
+                        ],
+                    )
+>           ref = ctx.store.put_json(manifest, options)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/http/test_runs_api.py:823: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x14198cc50>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+_ test_terminal_fact_requires_a_resolved_owner_manifest_ref[producer_mismatch] _
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x141ea3b60>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_terminal_fact_requires_a_4/.polisyos'), ...}
+failure_kind = 'producer_mismatch'
+
+    @pytest.mark.parametrize(
+        "failure_kind",
+        [
+            "missing_ref",
+            "unresolvable_ref",
+            "wrong_media_ref",
+            "missing_schema_provenance",
+            "producer_mismatch",
+            "environment_mismatch",
+            "registry_lineage_mismatch",
+            "duplicate_manifest_refs",
+        ],
+    )
+    def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
+        runtime_api_env,
+        failure_kind: str,
+    ) -> None:
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = f"R_terminal_fact_{failure_kind}"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        outputs = []
+        if failure_kind == "unresolvable_ref":
+            outputs = [
+                ArtifactRef(
+                    artifact_id=ArtifactID("sha256:" + "f" * 64),
+                    kind="core.run_manifest",
+                    media_type="application/json",
+                )
+            ]
+        elif failure_kind != "missing_ref":
+            producer = ProducerInfo(component="tests.run-owner", version="1.0")
+            env = EnvInfo(python="test", platform="test", deps_lock_hash="sha256:test")
+            manifest = RunManifest(
+                run_id=run_id,
+                registry_bundle=registry_ref,
+                status="completed",
+                started_at=datetime.now(UTC).replace(microsecond=0),
+                finished_at=datetime.now(UTC).replace(microsecond=0),
+                producer=producer,
+                env=env,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+            )
+            options = run_context_module._run_manifest_write_options(manifest)
+            if failure_kind == "missing_schema_provenance":
+                options = replace(options, schema=None)
+            else:
+                if failure_kind == "producer_mismatch":
+                    options = replace(
+                        options,
+                        producer=ProducerInfo(component="tests.substituted-owner", version="9.9"),
+                    )
+                elif failure_kind == "environment_mismatch":
+                    options = replace(
+                        options,
+                        env=EnvInfo(
+                            python="substituted",
+                            platform="substituted",
+                            deps_lock_hash="sha256:substituted",
+                        ),
+                    )
+                elif failure_kind == "registry_lineage_mismatch":
+                    substituted_registry = ctx.store.put_json(
+                        {"registry": {"substituted": True}},
+                        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+                    )
+                    options = replace(
+                        options,
+                        inputs=[
+                            InputRef(
+                                artifact_id=substituted_registry.artifact_id,
+                                role="registry_bundle",
+                            )
+                        ],
+                    )
+>           ref = ctx.store.put_json(manifest, options)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/http/test_runs_api.py:823: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x141f9c250>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+_ test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch] _
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x142540c20>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_terminal_fact_requires_a_5/.polisyos'), ...}
+failure_kind = 'environment_mismatch'
+
+    @pytest.mark.parametrize(
+        "failure_kind",
+        [
+            "missing_ref",
+            "unresolvable_ref",
+            "wrong_media_ref",
+            "missing_schema_provenance",
+            "producer_mismatch",
+            "environment_mismatch",
+            "registry_lineage_mismatch",
+            "duplicate_manifest_refs",
+        ],
+    )
+    def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
+        runtime_api_env,
+        failure_kind: str,
+    ) -> None:
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = f"R_terminal_fact_{failure_kind}"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        outputs = []
+        if failure_kind == "unresolvable_ref":
+            outputs = [
+                ArtifactRef(
+                    artifact_id=ArtifactID("sha256:" + "f" * 64),
+                    kind="core.run_manifest",
+                    media_type="application/json",
+                )
+            ]
+        elif failure_kind != "missing_ref":
+            producer = ProducerInfo(component="tests.run-owner", version="1.0")
+            env = EnvInfo(python="test", platform="test", deps_lock_hash="sha256:test")
+            manifest = RunManifest(
+                run_id=run_id,
+                registry_bundle=registry_ref,
+                status="completed",
+                started_at=datetime.now(UTC).replace(microsecond=0),
+                finished_at=datetime.now(UTC).replace(microsecond=0),
+                producer=producer,
+                env=env,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+            )
+            options = run_context_module._run_manifest_write_options(manifest)
+            if failure_kind == "missing_schema_provenance":
+                options = replace(options, schema=None)
+            else:
+                if failure_kind == "producer_mismatch":
+                    options = replace(
+                        options,
+                        producer=ProducerInfo(component="tests.substituted-owner", version="9.9"),
+                    )
+                elif failure_kind == "environment_mismatch":
+                    options = replace(
+                        options,
+                        env=EnvInfo(
+                            python="substituted",
+                            platform="substituted",
+                            deps_lock_hash="sha256:substituted",
+                        ),
+                    )
+                elif failure_kind == "registry_lineage_mismatch":
+                    substituted_registry = ctx.store.put_json(
+                        {"registry": {"substituted": True}},
+                        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+                    )
+                    options = replace(
+                        options,
+                        inputs=[
+                            InputRef(
+                                artifact_id=substituted_registry.artifact_id,
+                                role="registry_bundle",
+                            )
+                        ],
+                    )
+>           ref = ctx.store.put_json(manifest, options)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/http/test_runs_api.py:823: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x141f9f450>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+_ test_terminal_fact_requires_a_resolved_owner_manifest_ref[duplicate_manifest_refs] _
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x1429c6900>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_terminal_fact_requires_a_7/.polisyos'), ...}
+failure_kind = 'duplicate_manifest_refs'
+
+    @pytest.mark.parametrize(
+        "failure_kind",
+        [
+            "missing_ref",
+            "unresolvable_ref",
+            "wrong_media_ref",
+            "missing_schema_provenance",
+            "producer_mismatch",
+            "environment_mismatch",
+            "registry_lineage_mismatch",
+            "duplicate_manifest_refs",
+        ],
+    )
+    def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
+        runtime_api_env,
+        failure_kind: str,
+    ) -> None:
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = f"R_terminal_fact_{failure_kind}"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        outputs = []
+        if failure_kind == "unresolvable_ref":
+            outputs = [
+                ArtifactRef(
+                    artifact_id=ArtifactID("sha256:" + "f" * 64),
+                    kind="core.run_manifest",
+                    media_type="application/json",
+                )
+            ]
+        elif failure_kind != "missing_ref":
+            producer = ProducerInfo(component="tests.run-owner", version="1.0")
+            env = EnvInfo(python="test", platform="test", deps_lock_hash="sha256:test")
+            manifest = RunManifest(
+                run_id=run_id,
+                registry_bundle=registry_ref,
+                status="completed",
+                started_at=datetime.now(UTC).replace(microsecond=0),
+                finished_at=datetime.now(UTC).replace(microsecond=0),
+                producer=producer,
+                env=env,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+            )
+            options = run_context_module._run_manifest_write_options(manifest)
+            if failure_kind == "missing_schema_provenance":
+                options = replace(options, schema=None)
+            else:
+                if failure_kind == "producer_mismatch":
+                    options = replace(
+                        options,
+                        producer=ProducerInfo(component="tests.substituted-owner", version="9.9"),
+                    )
+                elif failure_kind == "environment_mismatch":
+                    options = replace(
+                        options,
+                        env=EnvInfo(
+                            python="substituted",
+                            platform="substituted",
+                            deps_lock_hash="sha256:substituted",
+                        ),
+                    )
+                elif failure_kind == "registry_lineage_mismatch":
+                    substituted_registry = ctx.store.put_json(
+                        {"registry": {"substituted": True}},
+                        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+                    )
+                    options = replace(
+                        options,
+                        inputs=[
+                            InputRef(
+                                artifact_id=substituted_registry.artifact_id,
+                                role="registry_bundle",
+                            )
+                        ],
+                    )
+>           ref = ctx.store.put_json(manifest, options)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/http/test_runs_api.py:823: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x1423a9150>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+__________ test_terminal_fact_manifest_scope_must_match_started_owner __________
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x14279f230>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_terminal_fact_manifest_sc0/.polisyos'), ...}
+
+    def test_terminal_fact_manifest_scope_must_match_started_owner(runtime_api_env) -> None:
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = "R_terminal_manifest_scope_mismatch"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        substituted_manifest = RunManifest(
+            run_id=run_id,
+            registry_bundle=registry_ref,
+            status="completed",
+            started_at=datetime.now(UTC).replace(microsecond=0),
+            finished_at=datetime.now(UTC).replace(microsecond=0),
+            tenant_id="tenant_substituted",
+            cell_id="cell_substituted",
+        )
+>       manifest_ref = ctx.store.put_json(
+            substituted_manifest,
+            run_context_module._run_manifest_write_options(substituted_manifest),
+        )
+
+tests/unit/runtime/http/test_runs_api.py:880: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x142924750>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+______ test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact _______
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x143370440>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_terminal_fact_is_absorbin0/.polisyos'), ...}
+
+    def test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact(runtime_api_env) -> None:
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = "R_terminality_regression"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        run = RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+>       run.finalize(status="completed")
+
+tests/unit/runtime/http/test_runs_api.py:922: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/run/context.py:445: in finalize
+    run_ref = self.store.put_json(
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x142927a50>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+_________ test_finalize_recovery_requires_exact_manifest_ref_metadata __________
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x1439cf230>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_finalize_recovery_require0/.polisyos'), ...}
+
+    def test_finalize_recovery_requires_exact_manifest_ref_metadata(runtime_api_env) -> None:
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = "R_terminality_recovery_exact_ref"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        run = RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        pending_manifest = run.run_manifest.model_copy(deep=True)
+        pending_manifest.status = "completed"
+        pending_manifest.finished_at = datetime.now(UTC).replace(microsecond=0)
+>       manifest_ref = ctx.store.put_json(
+            pending_manifest,
+            run_context_module._run_manifest_write_options(pending_manifest),
+        )
+
+tests/unit/runtime/http/test_runs_api.py:1180: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x142bc7e50>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+______ test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs _______
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x1439cef90>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_finalize_recovery_does_no0/.polisyos'), ...}
+
+    def test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs(runtime_api_env) -> None:
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = "R_terminality_recovery_ambiguous_outputs"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        run = RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        pending_manifest = run.run_manifest.model_copy(deep=True)
+        pending_manifest.status = "completed"
+        pending_manifest.finished_at = datetime.now(UTC).replace(microsecond=0)
+>       manifest_ref = ctx.store.put_json(
+            pending_manifest,
+            run_context_module._run_manifest_write_options(pending_manifest),
+        )
+
+tests/unit/runtime/http/test_runs_api.py:1245: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x142924350>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+______ test_finalize_keeps_journal_when_required_local_trace_write_fails _______
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x1439cc2f0>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_finalize_keeps_journal_wh0/.polisyos'), ...}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x14357da20>
+
+    def test_finalize_keeps_journal_when_required_local_trace_write_fails(
+        runtime_api_env,
+        monkeypatch,
+    ) -> None:
+        monkeypatch.setenv("POLISYOS_AUDIT_CHAIN_ENABLED", "1")
+        monkeypatch.delenv("POLISYOS_AUDIT_HOT_TIER_URL", raising=False)
+        monkeypatch.delenv("POLISYOS_AUDIT_COLD_TIER_BUCKET", raising=False)
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = "R_terminality_required_trace_failure"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        run = RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        original_emit = JsonlTraceSink.emit
+    
+        def _fail_terminal_write(self, record: TraceRecord) -> None:
+            if record.event == "RUN_FINALIZED":
+                raise OSError("simulated required trace failure")
+            original_emit(self, record)
+    
+        monkeypatch.setattr(JsonlTraceSink, "emit", _fail_terminal_write)
+    
+        with pytest.raises(OSError, match="required trace failure"):
+>           run.finalize(status="completed")
+
+tests/unit/runtime/http/test_runs_api.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/run/context.py:445: in finalize
+    run_ref = self.store.put_json(
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x14350ac50>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+
+During handling of the above exception, another exception occurred:
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x1439cc2f0>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_finalize_keeps_journal_wh0/.polisyos'), ...}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x14357da20>
+
+    def test_finalize_keeps_journal_when_required_local_trace_write_fails(
+        runtime_api_env,
+        monkeypatch,
+    ) -> None:
+        monkeypatch.setenv("POLISYOS_AUDIT_CHAIN_ENABLED", "1")
+        monkeypatch.delenv("POLISYOS_AUDIT_HOT_TIER_URL", raising=False)
+        monkeypatch.delenv("POLISYOS_AUDIT_COLD_TIER_BUCKET", raising=False)
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = "R_terminality_required_trace_failure"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        run = RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        original_emit = JsonlTraceSink.emit
+    
+        def _fail_terminal_write(self, record: TraceRecord) -> None:
+            if record.event == "RUN_FINALIZED":
+                raise OSError("simulated required trace failure")
+            original_emit(self, record)
+    
+        monkeypatch.setattr(JsonlTraceSink, "emit", _fail_terminal_write)
+    
+>       with pytest.raises(OSError, match="required trace failure"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'required trace failure'
+E         Actual message: 'Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle'
+
+tests/unit/runtime/http/test_runs_api.py:1361: AssertionError
+________ test_finalize_isolates_optional_audit_emit_and_close_failures _________
+
+runtime_api_env = {'app': <fastapi.applications.FastAPI object at 0x13f7a7230>, 'binary_artifact_id': 'sha256:c59d3c0480cc2d71d8f646e735...y-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp/test_finalize_isolates_optiona0/.polisyos'), ...}
+
+    def test_finalize_isolates_optional_audit_emit_and_close_failures(runtime_api_env) -> None:
+        class _FailingOptionalAuditSink:
+            def emit(self, _record: TraceRecord) -> None:
+                raise AttributeError("simulated optional audit emit failure")
+    
+            def close(self) -> None:
+                raise KeyError("simulated optional audit close failure")
+    
+        ctx = runtime_api_env["app"].state.runtime_api_ctx
+        run_id = "R_terminality_optional_audit_failure"
+        registry_ref = ctx.store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+        run = RunContext.start(
+            store=ctx.store,
+            registry_bundle=registry_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        run._audit_sink = _FailingOptionalAuditSink()
+    
+>       manifest_ref = run.finalize(status="completed")
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/http/test_runs_api.py:1395: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/run/context.py:445: in finalize
+    run_ref = self.store.put_json(
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2476: in put_json
+    return self.put_bytes(data, opts2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:964: in _require_blob_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x13f39fb50>
+artifact_id = ArtifactID(root='sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+>           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:0209da371ec5d847da25e5fa406c09177d605b5886d98f6c0d8b235f9841c959 has tenant ownership claims; an active owner is required for write input:registry_bundle
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/junit.xml -
+============================== slowest durations ===============================
+1.13s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[non_mapping]
+0.97s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_requires_exact_manifest_ref_metadata
+0.96s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_schema_provenance]
+0.91s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs
+0.88s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[missing_version]
+0.88s setup    tests/unit/runtime/http/test_runs_api.py::test_foreign_finalize_journal_cannot_sign_or_clear_another_run
+0.88s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_keeps_journal_when_required_local_trace_write_fails
+0.87s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_ambiguous_started_owner
+0.86s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_isolates_optional_audit_emit_and_close_failures
+0.86s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact
+0.85s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[producer_mismatch]
+0.83s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_journal_without_owner_start
+0.83s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[future_version]
+0.82s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch]
+0.82s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[duplicate_manifest_refs]
+0.81s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_same_run_with_substituted_scope
+0.80s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_manifest_scope_must_match_started_owner
+0.80s setup    tests/unit/runtime/http/test_core_only_runs_api.py::test_runs_api_emits_only_core_run_source_kind
+0.78s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[registry_lineage_mismatch]
+0.75s setup    tests/unit/runtime/http/test_runs_api.py::test_hidden_runs_sse_channels_emit_versioned_contracts
+0.75s setup    tests/unit/runtime/http/test_runs_api.py::test_cached_active_run_observes_journal_only_finalize_recovery
+0.68s setup    tests/unit/runtime/http/test_core_only_runs_api.py::test_run_details_payload_has_no_legacy_artifact_paths
+0.64s setup    tests/unit/runtime/http/test_runs_api.py::test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque
+0.63s setup    tests/unit/runtime/http/test_runs_api.py::test_evaluate_feedback_endpoint_persists_monitoring_report
+0.63s setup    tests/unit/runtime/http/test_runs_api.py::test_get_run_details_returns_normalized_payload
+0.63s setup    tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record2-core_run_terminality_fact_conflict]
+0.62s setup    tests/unit/runtime/http/test_runs_api.py::test_reissue_endpoint_fails_closed_without_durable_control_plane
+0.61s setup    tests/unit/runtime/http/test_runs_api.py::test_run_index_generation_invalidates_cached_active_status
+0.60s setup    tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record0-core_run_trace_record_invalid]
+0.60s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[wrong_media_ref]
+0.60s setup    tests/unit/runtime/http/test_runs_api.py::test_list_runs_applies_server_side_query_filter_before_pagination
+0.60s setup    tests/unit/runtime/http/test_runs_api.py::test_list_runs_cursor_pagination
+0.59s setup    tests/unit/runtime/http/test_runs_api.py::test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current
+0.59s setup    tests/unit/runtime/http/test_runs_api.py::test_list_runs_returns_only_core_sources
+0.59s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[unresolvable_ref]
+0.58s setup    tests/unit/runtime/http/test_runs_api.py::test_unknown_run_terminality_cannot_be_read_as_non_terminal
+0.58s setup    tests/unit/runtime/http/test_runs_api.py::test_recovery_rebinds_unlinked_terminal_event_to_its_manifest
+0.58s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_ref]
+0.58s setup    tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record3-core_run_finalized_without_terminality]
+0.57s setup    tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record1-core_run_terminality_fact_conflict]
+0.33s call     tests/unit/runtime/http/test_runs_api.py::test_reissue_endpoint_fails_closed_without_durable_control_plane
+0.17s call     tests/unit/runtime/http/test_runs_api.py::test_evaluate_feedback_endpoint_persists_monitoring_report
+0.08s call     tests/unit/runtime/http/test_runs_api.py::test_hidden_runs_sse_channels_emit_versioned_contracts
+0.08s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[registry_lineage_mismatch]
+0.07s call     tests/unit/runtime/http/test_runs_api.py::test_cached_active_run_observes_journal_only_finalize_recovery
+0.06s call     tests/unit/runtime/http/test_runs_api.py::test_foreign_finalize_journal_cannot_sign_or_clear_another_run
+0.06s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_keeps_journal_when_required_local_trace_write_fails
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_unknown_run_terminality_cannot_be_read_as_non_terminal
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_same_run_with_substituted_scope
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_journal_without_owner_start
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_recovery_rebinds_unlinked_terminal_event_to_its_manifest
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record2-core_run_terminality_fact_conflict]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[unresolvable_ref]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record0-core_run_trace_record_invalid]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record1-core_run_terminality_fact_conflict]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_ref]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record3-core_run_finalized_without_terminality]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_get_run_details_returns_normalized_payload
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_list_runs_cursor_pagination
+0.03s call     tests/unit/runtime/http/test_core_only_runs_api.py::test_run_details_payload_has_no_legacy_artifact_paths
+0.03s call     tests/unit/runtime/http/test_core_only_runs_api.py::test_runs_api_emits_only_core_run_source_kind
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_list_runs_returns_only_core_sources
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_list_runs_applies_server_side_query_filter_before_pagination
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[wrong_media_ref]
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[missing_version]
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_run_index_generation_invalidates_cached_active_status
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_requires_exact_manifest_ref_metadata
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current
+0.02s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[future_version]
+0.02s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_isolates_optional_audit_emit_and_close_failures
+0.02s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[non_mapping]
+0.02s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[producer_mismatch]
+0.02s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs
+0.02s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_ambiguous_started_owner
+0.02s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_schema_provenance]
+0.02s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[duplicate_manifest_refs]
+0.02s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_manifest_scope_must_match_started_owner
+0.01s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch]
+0.01s teardown tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_same_run_with_substituted_scope
+0.01s teardown tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[future_version]
+0.01s teardown tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_requires_exact_manifest_ref_metadata
+0.01s teardown tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs
+0.01s teardown tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_ambiguous_started_owner
+0.01s teardown tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_journal_without_owner_start
+0.01s teardown tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch]
+
+(57 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_runs_api.py::test_run_index_generation_invalidates_cached_active_status
+FAILED tests/unit/runtime/http/test_runs_api.py::test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current
+FAILED tests/unit/runtime/http/test_runs_api.py::test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque
+FAILED tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[wrong_media_ref]
+FAILED tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_schema_provenance]
+FAILED tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[producer_mismatch]
+FAILED tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch]
+FAILED tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[duplicate_manifest_refs]
+FAILED tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_manifest_scope_must_match_started_owner
+FAILED tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact
+FAILED tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_requires_exact_manifest_ref_metadata
+FAILED tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs
+FAILED tests/unit/runtime/http/test_runs_api.py::test_finalize_keeps_journal_when_required_local_trace_write_fails
+FAILED tests/unit/runtime/http/test_runs_api.py::test_finalize_isolates_optional_audit_emit_and_close_failures
+======================== 14 failed, 34 passed in 33.75s ========================

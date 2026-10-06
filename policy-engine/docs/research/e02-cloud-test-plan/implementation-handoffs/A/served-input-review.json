@@ -241,7 +241,8 @@
     ],
     "runtime_requirement": "generation_cycle.py@3bd5dc0d9f0385fe2662024e173c7f75e25798db#L8608-L8616 refuses candidate_simulation_l6_bundle_missing before N5."
   },
-  "predicate_basis": "not_established for accepted L6 source authority and the served property. This review recomputed actual SHA/size against the declared manifest entries, but the manifest itself does not authenticate who issued its expectations.",
+  "predicate_basis": "not_established",
+  "predicate_basis_detail": "Accepted L6 source authority and the served property remain not_established. Actual SHA/size was recomputed against declared manifest entries; the manifest does not authenticate who issued its expectations.",
   "capability_state_or_finding_state": "fixture_input_unverified; served semantic test missing; CYC-01/B01-B03/B27 and served CYC-02/B04-B05/B08 are not adjudicated.",
   "finding_assessment": [
     {

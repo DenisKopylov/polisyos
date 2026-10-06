@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.source_review.v1",
+  "unit": "A",
+  "slice": "http-fixture-review",
+  "branch": "codex/e02-A-full-queue",
+  "review_mode": "read_only_committed_helper_delta",
+  "verdict": "GO_SCOPED",
+  "disposition": "prior_fixture_source_candidate_blocker_closed_for_bounded_http_catalog",
+  "baseline_finding": {
+    "id": "bounded-http-bootstrap-executable-source-row",
+    "introduced_commit": "09ebd740e57c52a8f0801b04d3e81634b67307b8",
+    "introduced_helper_blob": "68f26f27bcc3f51b64faaea6d16758534c3a173a",
+    "introduced_helper_sha256": "c0777a801390bcb6ee046508ee08f114b0a5b17f754155f524286b339ba023f1",
+    "prior_verdict": "BLOCKER",
+    "finding": "The bootstrap catalog contained a synthetic metric binding with trust 0.0 and connector fixture.unavailable. The catalog builder made it fetchable, and retrieval could emit a candidate and FetchPlan without checking the trust field or connector registration."
+  },
+  "final_review": {
+    "reviewed_commit": "340279d8a895380492b7f4e2bb7f52e7f02301be",
+    "reviewed_tree": "dd1c79f2f6f4147998b3495a8f91bb404d0ad57f",
+    "helper_path": "policy-engine/tests/_helpers/bounded_run_catalog.py",
+    "helper_blob": "c8b2b5146dcfe94f8e8a7d41ae4db7c63264bcdb",
+    "helper_sha256": "fd4a0e4e9bbfbb0a15279db794bb87392cdda43dc963500975613caaab437140",
+    "finding_status": "CLOSED"
+  },
+  "property_review": {
+    "previous_property": "A synthetic source row could enter catalog resolution as fetchable despite its zero trust value and unavailable connector.",
+    "current_property": "The helper creates a fresh DuckDB graph from iter(()) and rejects any nonzero graph-load count before wiring the graph into the runtime catalog path.",
+    "guarded_counts": [
+      "datasets",
+      "distributions",
+      "metric_bindings",
+      "schema_profiles",
+      "entity_mappings",
+      "alignment_hints"
+    ],
+    "source_basis": "graph_builder.build_graph delegates to load_graph; load_graph initializes/truncates the graph, iterates the supplied records, and updates each listed count as table rows are flushed. The fixture passes an empty iterator and uses a new tmp_path graph directory.",
+    "isolation": "The fixture also redirects the acquisition overlay to an absent path and POLISYOS_CURATED_DIR to an empty directory.",
+    "scope_limit": "This closes the helper-created catalog candidate path. It does not claim the runtime service as a whole has no other configured catalog or live connector sources."
+  },
+  "scope": {
+    "reviewed": [
+      "policy-engine/tests/_helpers/bounded_run_catalog.py at 340279d8a895380492b7f4e2bb7f52e7f02301be",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py build_graph/load_graph behavior used by the helper"
+    ],
+    "excluded": [
+      "HTTP runtime behavior and test outcomes",
+      "the separate V4/V5 context-lever fixture in commit c60572609",
+      "other worktree changes"
+    ]
+  },
+  "checks": [
+    {
+      "kind": "committed_source_readback",
+      "outcome": "PASS",
+      "evidence": "HEAD, tree, helper Git blob, and helper SHA256 were read from the committed worktree"
+    },
+    {
+      "kind": "static_source_review",
+      "outcome": "PASS",
+      "evidence": "Confirmed empty input, all six load-stat guards, absent overlay, and empty curated hints"
+    }
+  ],
+  "tests_run": false,
+  "test_pass_claim": "none; this reviewer ran no tests and makes no pass claim",
+  "numerical_execution": false,
+  "implementation_commits": [
+    "340279d8a895380492b7f4e2bb7f52e7f02301be"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/http-fixture-review.json"
+  ],
+  "reviewer_changes": "Only this review JSON was written. No production or test source was edited; no commit was created."
+}

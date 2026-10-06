@@ -1,0 +1,98 @@
+{
+  "schema": "policyos.e02.facade_consumer_review.v1",
+  "unit": "A",
+  "slice": "facade-consumer-review",
+  "review_date": "2026-10-06",
+  "branch": "codex/e02-A-full-queue",
+  "reviewed_head": "4e47c81aaf7f785e614282fdd872ed610d149490",
+  "reviewed_tree": "c8aa57407710faf0b159edc426172e0aff1f141e",
+  "scope": "The five source paths listed below only; no tests, numerical runs, or source edits.",
+  "verdict": "GO-scoped",
+  "candidate_diff_sha256": "dd076b1bd73fc56c7aba83c4c337da897bfe5b5a080fe5fc9b195057106baab5",
+  "changed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "working_blob": "40ef8706c2a3159b51bc4cc3a670f2be15756d3b",
+      "change": "Adds three existing runtime DTOs to lazy export map, TYPE_CHECKING imports, and __all__."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "working_blob": "9d152183179bf98e5d0f70aa3669cf7ca4f6e191",
+      "change": "Imports ConditionalSimulationInteractionEvidence from core.contracts facade."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "working_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e",
+      "change": "Imports ConditionalSimulationObservation and ConditionalSimulationValueProjection from core.contracts facade."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+      "working_blob": "49860221dd050487c845d293d255ffeaf9cfe344",
+      "change": "Imports ArtifactRef and artifact_ref_identity_key from core.artifacts facade."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "working_blob": "db398c4c857680c7c78464abc0828488543e5c2b",
+      "change": "Imports StockFlowSystemDynamicsEstimator from simulation facade."
+    }
+  ],
+  "source_identity": [
+    {
+      "symbols": [
+        "ConditionalSimulationInteractionEvidence",
+        "ConditionalSimulationObservation",
+        "ConditionalSimulationValueProjection"
+      ],
+      "defining_module": "polisyos.core.contracts.runtime",
+      "evidence": "Definitions remain in runtime.py (lines 1898, 1923, 1950); the facade runtime symbol map, TYPE_CHECKING import list, and __all__ include the exact names (contracts/__init__.py lines 444-446, 1160-1162, 1484-1486). __getattr__ imports the mapped module and returns getattr(module, name), preserving the defining object (lines 1359-1376).",
+      "consumer_paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"
+      ]
+    },
+    {
+      "symbols": [
+        "ArtifactRef",
+        "artifact_ref_identity_key"
+      ],
+      "defining_module": "polisyos.core.artifacts.manifest",
+      "evidence": "The package facade imports the names directly from .manifest and lists them in __all__ (core/artifacts/__init__.py lines 26-39, 71, 111); definitions remain the existing manifest class and function (manifest.py lines 246, 290).",
+      "consumer_paths": [
+        "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py"
+      ]
+    },
+    {
+      "symbols": [
+        "StockFlowSystemDynamicsEstimator"
+      ],
+      "defining_module": "polisyos.foundry.methods.catalog.simulation.dynamics",
+      "evidence": "The simulation facade imports the exact class from .dynamics and includes it in __all__ (simulation/__init__.py lines 20-26, 53); the class definition remains at dynamics.py:336. Its identity comparison in joint_simulation_horizon.py:2034 therefore still uses the defining class object.",
+      "consumer_paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ]
+    }
+  ],
+  "semantic_review": {
+    "finding": "No behavior or authority semantics changed in the five-file diff; it only adds existing DTO exports and rewrites consumer imports to existing facades.",
+    "new_methods_or_contracts": false,
+    "new_capability_claim": false,
+    "tests_or_numerical_checks_run": false,
+    "pattern_pass": {
+      "relevant_ids": [
+        "P06"
+      ],
+      "result": "Uses existing canonical package facades; no shim or duplicate contract introduced."
+    }
+  },
+  "bounded_residuals_out_of_scope": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:20",
+      "issue": "_flatten_state remains imported from foundry.execute._internal.snapshots; it is a private helper and is not exported by foundry.execute.__all__."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:50",
+      "issue": "VariableAssignment remains a TYPE_CHECKING import from ir.analytics.interventions. The defining module exports it, but the curated ir.analytics facade does not list this symbol in ANALYTICS_FACADE_EXPORTS. This import is unchanged and does not justify minting a facade as part of the five-import cleanup."
+    }
+  ],
+  "limitations": "Read-only source review; no import-time or behavioral execution. Root HEAD may advance after the recorded reviewed_head; verdict applies to the captured five-file diff hash."
+}

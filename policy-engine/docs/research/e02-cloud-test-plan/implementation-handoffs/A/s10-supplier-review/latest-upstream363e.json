@@ -1,0 +1,299 @@
+{
+  "schema": "policyos.e02.s10_supplier_upstream_review.v1",
+  "captured_at": "2026-10-06",
+  "scope": "Read-only upstream check of G integration 363e7ae and E, B66, and C source objects relevant to the A S10 forecast consumer.",
+  "capture": {
+    "integration_ref": "origin/codex/e02-integration",
+    "integration_commit": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+    "integration_tree": "9e44e9e534cbf77bc59126e08a16d50b1eb0f12e",
+    "integration_parent": "6f869f39d04deaff7eda9b9047848912605beca5",
+    "main_ref": "origin/main",
+    "main_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "main_is_ancestor_of_integration": true
+  },
+  "g_handoffs": {
+    "e_continuation_prompt": {
+      "commit": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/E-resume-after-pr38.md",
+      "blob": "93f8a2045f36fc25c0155785d009a2e61c800bd8",
+      "commit_is_ancestor_of_integration": true,
+      "meaning": "G carries the E continuation handoff after the PR38 audit. This prompt is not the configured E source/consumer implementation."
+    },
+    "cross_unit_contract": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "blob": "b242397fb26eaf0bee86a867aed6e21768d094e2",
+      "key_section": "EMP-01 (A) to FRC-02 (E), lines 39-51",
+      "meaning": "Specifies the existing default RealValueOwnerGateway route, required ForecastOwnerRequest fields, same-CAS handoff, proposed served test, and the still-missing A bridge/surface. This is a contract/handoff, not proof that the default route is wired."
+    },
+    "a_source_profile_rule_proposal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md",
+      "blob": "68fcdf9337eb4b0f268d5c2c786e2900edf28a2b",
+      "section": "B09, lines 12 and 64",
+      "meaning": "Calls for narrow C/F owner ratification of an owner-issued ObservationToWMRRule; this is a proposal and not an admitted C artifact."
+    }
+  },
+  "e_owner": {
+    "latest_remote_ref": "origin/codex/e02-E-continuation-20261006",
+    "latest_commit": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+    "latest_tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+    "integration_363_is_ancestor_of_e_head": true,
+    "configured_producer_commit": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+    "source_measurement_successor_commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "ancestry": {
+      "configured_producer_5bd_is_ancestor_of_e_head": true,
+      "source_measurement_8486_is_ancestor_of_e_head": true,
+      "configured_producer_5bd_is_ancestor_of_g_363": false,
+      "source_measurement_8486_is_ancestor_of_g_363": false,
+      "interpretation": "The latest E branch descends from G 363, but its configured producer and source-measurement source changes are E-only successors, not objects admitted into G 363."
+    },
+    "source_blobs": {
+      "forecast_owner_py": {
+        "integration_363_blob": "e9302eb353ab7be6b03f4812ab9b473fb9555f64",
+        "e_7bc_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c"
+      },
+      "forecast_bridge_py": {
+        "integration_363_blob": "db07beb895ca7c2262bcd945d3940bc46e008590",
+        "e_7bc_blob": "b3bce8ce42df233d434196fafdca31225e949c18"
+      }
+    },
+    "tracked_handoffs": {
+      "configured_producer": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer.json",
+        "blob_at_e_7bc": "10afb23545c386cc2df73fb91f0683eb1bae91ea",
+        "implementation_commit_recorded": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+        "candidate_tree_recorded": "1bd337e3a8dae85a9db6af514fcd15417212527c",
+        "bounded_result": "E producer/artifact/replay implemented on its topic; A default bridge_missing, verifier consumer_missing, and served surface_missing. Synthetic fixtures do not establish factual source/profile admission."
+      },
+      "source_measurement_successor": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2.json",
+        "blob_at_e_7bc": "bc0154972567f3fd9d453d5d384ae72e0780a0df",
+        "candidate_commit": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+        "candidate_tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+        "recorded_checks": [
+          {
+            "command": "tests/unit/calibration/test_evidence_facades.py tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+            "outcome": "PASS",
+            "tests": 19,
+            "source": "E handoff receipt at candidate 8486baad6"
+          },
+          {
+            "command": "E source-measurement CAS contract",
+            "outcome": "PASS",
+            "tests": 5,
+            "source": "E handoff receipt at candidate 8486baad6"
+          }
+        ],
+        "unrun_or_limited": "Production source/history admission and A's served POST-to-GET consumer remain unestablished/unrun in the E handoff."
+      }
+    },
+    "actual_owner_contract_at_e_7bc": {
+      "call": "ForecastOwner(runtime_store, empirical_profile_ref=profile_ref).run(ForecastOwnerRequest)",
+      "request_kind": "ir.forecast_owner_request",
+      "request_schema": "polisyos.calibration.forecast_owner_request; versions 1.0 or 2.0 are read, current configured request defaults to 2.0",
+      "request_fields": [
+        "observed_source_ref: DataSnapshotRef",
+        "split: TrainHoldoutSplit with explicit train_start/train_end/holdout_start/holdout_end/horizon",
+        "target_metric",
+        "target_unit and target_scale='source_native' for the configured empirical profile",
+        "method_fqn",
+        "method_params",
+        "report_id",
+        "estimand='predictive_interval_coverage'",
+        "calibration_rule",
+        "temporal_roles",
+        "paired model_spec_ref/policy_spec_ref when supplied",
+        "manifest_inputs with exact artifact roles",
+        "seed"
+      ],
+      "supported_method": {
+        "method_fqn": "forecasting.univariate.exponential_smoothing@1.0.0",
+        "method_params": {
+          "horizon": "integer >= 1 and exactly equal to split.horizon",
+          "alpha": "finite float in [1e-6, 1.0], default 0.3",
+          "beta": "finite float in [1e-6, 1.0], default 0.1",
+          "extra_fields": "forbidden"
+        },
+        "backend": "registered NumPy execution through MethodDispatcher; E handoff identifies built-in ETS and no statsmodels substitution"
+      },
+      "split_and_rule": {
+        "split_law": "train and holdout are contiguous source positions; holdout_start equals train_end; horizon equals holdout_end minus holdout_start",
+        "rule_id": "rolling-origin-residual-conformal.v1",
+        "rule_artifact_kind": "ir.forecast_calibration_rule",
+        "rule_estimand": "predictive_interval_coverage"
+      },
+      "six_temporal_roles": {
+        "fields": [
+          "data_valid_time",
+          "calibration_window_start",
+          "calibration_window_end",
+          "policy_effective_time",
+          "prediction_time",
+          "observation_time"
+        ],
+        "checks": "timezone-aware, distinct, ordered data_valid_time < calibration_window_start < calibration_window_end <= prediction_time < observation_time; policy_effective_time <= prediction_time"
+      },
+      "measurement_binding": {
+        "type": "ForecastMeasurementBinding",
+        "source": "DataSnapshot.data_schema_ref",
+        "checks": "one resolved numeric target field, explicit unit matching the schema, source_native scale; the binder explicitly does not infer units from metric names or establish institutional/profile admission",
+        "configured_profile_requires_unit_and_scale": true
+      },
+      "candidate_configuration_and_outputs": {
+        "profile_kind": "ir.forecast_calibration_profile",
+        "profile_schema": "polisyos.calibration.forecast_calibration_profile@1.0",
+        "profile_fields": [
+          "profile_id",
+          "profile_version",
+          "request_ref",
+          "calibration_threshold",
+          "purpose='predictive_calibration'"
+        ],
+        "report_kind": "ir.backtest_report",
+        "empirical_evidence_kind": "ir.empirical_calibration_evidence",
+        "candidate_receipt_kind": "ir.forecast_candidate_receipt",
+        "candidate_receipt_schema": "polisyos.calibration.forecast_candidate_receipt@1.0",
+        "candidate_receipt_fields": [
+          "profile_ref",
+          "request_ref",
+          "empirical_evidence_ref",
+          "authority_scope='predictive_only'",
+          "purpose='predictive_calibration'",
+          "verifier_provenance='not_established'"
+        ],
+        "replay": "E resolves and replays source, ordered outcomes/predictions, split, report, rule, measurement binding and configured threshold on load; this is producer/content integrity, not an A trusted verifier."
+      },
+      "epistemic_boundary": "This producer estimates statistical predictive interval calibration on explicit observed holdout rows. It carries predictive-only scope and does not establish causal effects, treatment assignment, policy authority, source issuer identity, or an admitted source profile."
+    }
+  },
+  "b66_budget_settlement": {
+    "g_checkpoint09": {
+      "commit": "8ed2c08a96173a1235b4fc363fcbe07378a47750",
+      "blob": "7b5fe3a434db2eb62c35a86549bbc18a62f5c4cd",
+      "accepted_candidate": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "g_merge": "1e2f604b0dd7f88cb6a71b4f46a21aec5974e153",
+      "candidate_and_merge_are_ancestors_of_g_363": true,
+      "code_decision": "GO_bounded_local_ledger",
+      "finding_closure": false,
+      "checkpoint_limit": "Caller supplies event payload digest; production assembly, external billing and source authority are not established."
+    },
+    "tracked_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-settlement.json",
+      "blob_at_g_363": "84193b699b74713e0099ffe2d3a4423f44668256",
+      "blob_at_b_owner_input_71b1ce0c": "84193b699b74713e0099ffe2d3a4423f44668256",
+      "state": "B66 ledger interface ready for owner producer integration; no formal closure"
+    },
+    "source_blobs_at_g_363": {
+      "budget_ledger_py": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+      "budget_middleware_py": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+      "test_budget_ledger_settlement_py": "912c27087d105b9c23f0d589c2ce9996815e2969"
+    },
+    "actual_interface": {
+      "api": "BudgetMiddleware.settle_spend_safe(event_id, key, Decimal amount, payload_digest=sha256, provider=None) -> BudgetLedgerSpendReceipt; resolve_spend_safe(event_id) reopens it",
+      "receipt_fields": [
+        "event_id",
+        "payload_digest",
+        "key",
+        "amount",
+        "provider",
+        "revision",
+        "committed_at"
+      ],
+      "property": "A configured durable ledger records one exact event idempotently; a reused event ID with different payload/charge conflicts, and uncertain publication remains resolvable/unknown.",
+      "boundary": "The ledger persists the producer-supplied event and digest. It does not generate the producer-owned cost event or certify external billing."
+    },
+    "s10_dependency": "No E ForecastOwner-to-B66 charge-event call was found in the inspected upstream runtime/source path. B66 is not a demonstrated forecast input or cost producer. If S10 emits an actual-cost claim, it needs an owner-issued event and bridge; ledger availability alone is insufficient."
+  },
+  "c_forecast_source_profile": {
+    "source_ref": "origin/codex/e02-integration",
+    "latest_c_streaming_ref": "origin/codex/e02-C-continuation-20261006",
+    "latest_c_streaming_commit": "9f35e19ff8f39895d66cbce78644470e52f8ec09",
+    "overlay_blob_on_g_and_c_refs": "08d77fa061e22f3a4f4c1a10a0096dcf3255221b",
+    "projection_type": "ActivatedAcquisitionObservationProjection v1",
+    "projection_path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+    "projection_fields_relevant_to_admission": [
+      "receipt_ref and receipt_content_sha256",
+      "passport_ref and passport_content_sha256",
+      "variable_id",
+      "epoch_id",
+      "passport_id",
+      "admission_content_sha256",
+      "activation_state='active'",
+      "predicate_provenance='recomputed'",
+      "source_time_status='not_established'",
+      "content-bound observation rows"
+    ],
+    "row_fields": [
+      "observation_id",
+      "dataset_id",
+      "raw_variable",
+      "canonical_var",
+      "country_code",
+      "year and/or survey_year and/or wave",
+      "value",
+      "condition_json",
+      "acquisition_method",
+      "source_watermark",
+      "dataset_version",
+      "observation_class"
+    ],
+    "missing_for_forecast_profile": [
+      "a DataSnapshotRef and resolved DataSnapshot/data schema",
+      "owner-admitted target unit and measurement scale",
+      "population/denominator and source coverage/completeness semantics",
+      "forecast valid-time and all six ForecastTemporalRoles",
+      "owner-issued source/profile admission and an ObservationToWMRRule"
+    ],
+    "rule_status": "ObservationToWMRRule appears as a proposed B09 owner-ratification mechanism in A closure text only; no such typed C source class or rule appears in the inspected G or latest C source/handoff trees.",
+    "consequence": "The projection is reusable content-bound candidate/source material for its declared active epoch. Its year/survey_year/wave fields cannot be promoted to forecast valid-time or six forecast time roles; do not cast it directly into the E DataSnapshot/profile request.",
+    "latest_c_streaming_tree": "b2077d626f84b58e6839eea357d72f60e6265ccc",
+    "search_boundary": "Exact typed-rule/profile search over G 363 source plus C implementation handoffs and the fetched latest C-continuation source/handoffs found no ObservationToWMRRule or C-owned forecast-profile artifact. ForecastTemporalRoles occurs as the E-owned ForecastOwner DTO, not as a C admission."
+  },
+  "a_consumer_and_reruns": {
+    "current_g_363_state": {
+      "default_forecastowner_call_in_runtime": "not found in the inspected G runtime caller paths",
+      "served_test_selector": "tests/unit/runtime/http/test_control_api.py::test_recursive_run_roundtrips_content_verified_frc_evidence_and_rejects_fake",
+      "selector_in_g_363_tests": false,
+      "capability_labels": [
+        "bridge_missing",
+        "consumer_missing",
+        "verification_missing",
+        "surface_missing"
+      ],
+      "source_profile_state": "producer_missing/not_established"
+    },
+    "required_a_route": "Use the existing default RealValueOwnerGateway with the same runtime CAS/store; build a strict request only from a C-owner-admitted source/profile and explicit split/rule/times; run E and load its evidence/receipt; independently recompute and persist A-owned verification/provenance; repeat on fresh default GET/readback; retain causal/treatment refusal.",
+    "reruns": {
+      "caused_by_g_363_head_itself": "None for the forecast source files: commit 363 is a D/F continuation documentation commit and the configured E source blobs are not ancestors of it.",
+      "after_merging_e_source": [
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/remediation/test_frc_02_owner.py",
+        "tests/unit/remediation/test_frc_02_bridge.py",
+        "tests/unit/remediation/test_frc_02_s10.py"
+      ],
+      "before_s10_acceptance": "Implement and run the specified absent ordinary default POST/persist/GET test at tests/unit/runtime/http/test_control_api.py::test_recursive_run_roundtrips_content_verified_frc_evidence_and_rejects_fake. It must reject forged content-valid counts/source/split, recompute the six roles/threshold/purpose, and preserve the terminal causal refusal.",
+      "if_actual_cost_is_added": [
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+        "the A default forecast consumer integration test"
+      ],
+      "c_owner_trigger": "No S10 admission rerun can substitute for a missing C-owned source-profile and ObservationToWMRRule decision; once those artifacts exist, bind them into the E request and run the same default consumer witness."
+    }
+  },
+  "finding_and_authority_boundary": {
+    "evidence_outcome": "limited",
+    "reason": "E's configured producer and replay are owner-implemented on the current E successor but not integrated at G 363; C has no admitted forecast-profile/rule semantics; A has no default bridge/verifier/served consumer witness.",
+    "authority": "statistical predictive calibration only; not causal, treatment-assignment, or policy authority",
+    "finding_closure": false,
+    "a_b21_disposition_changed": false
+  },
+  "review_actions": {
+    "tests_run": [],
+    "numerical_runs": [],
+    "source_or_cas_changes": [],
+    "git_mutations": [],
+    "only_output_written": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/s10-supplier-review/latest-upstream363e.json"
+  }
+}

@@ -1,0 +1,1897 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "runtime-fixture-validation",
+  "slice_base_sha": "b5e1f973ed9bce3e8dbb53321fb386156ef5d01c",
+  "slice_base_tree_sha": "90691a963409c3417f15ba13dca10f774316125f",
+  "implementation_commits": [
+    "09ebd740e57c52a8f0801b04d3e81634b67307b8",
+    "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+    "340279d8a895380492b7f4e2bb7f52e7f02301be",
+    "4e47c81aaf7f785e614282fdd872ed610d149490",
+    "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c"
+  ],
+  "implementation_commit_details": [
+    {
+      "sha": "09ebd740e57c52a8f0801b04d3e81634b67307b8",
+      "tree_sha": "f9fe0ad5250228d39d7938d0de01c754d382b286",
+      "parent_shas": [
+        "b5e1f973ed9bce3e8dbb53321fb386156ef5d01c"
+      ],
+      "subject": "test(runtime): isolate run API catalog construction from production inputs",
+      "changed_paths": [
+        {
+          "status": "A",
+          "path": "policy-engine/tests/_helpers/bounded_run_catalog.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+        }
+      ]
+    },
+    {
+      "sha": "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+      "tree_sha": "c09c642f7e45049698bfe9d2bb9ee365aaa07ba2",
+      "parent_shas": [
+        "09ebd740e57c52a8f0801b04d3e81634b67307b8"
+      ],
+      "subject": "test(runtime): bind selected-view replay fixtures to persisted context owners",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+        }
+      ]
+    },
+    {
+      "sha": "340279d8a895380492b7f4e2bb7f52e7f02301be",
+      "tree_sha": "dd1c79f2f6f4147998b3495a8f91bb404d0ad57f",
+      "parent_shas": [
+        "c605726092f7df9b5ef3c4f016f51cfd77c06d8b"
+      ],
+      "subject": "test(runtime): keep bootstrap catalog empty and non-fetchable",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/_helpers/bounded_run_catalog.py"
+        }
+      ]
+    },
+    {
+      "sha": "4e47c81aaf7f785e614282fdd872ed610d149490",
+      "tree_sha": "c8aa57407710faf0b159edc426172e0aff1f141e",
+      "parent_shas": [
+        "340279d8a895380492b7f4e2bb7f52e7f02301be"
+      ],
+      "subject": "test(runtime): keep context slots and CG2 fixture decisions coherent",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+        }
+      ]
+    },
+    {
+      "sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+      "tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+      "parent_shas": [
+        "b422361e3425e6b21a40e889dbaceea3c8354bc8"
+      ],
+      "subject": "test(runtime): scope run lifecycle CAS fixtures to their served owner",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+        }
+      ]
+    }
+  ],
+  "candidate_sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+  "candidate_tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+  "tested_source_commit": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "closure_ids": [],
+  "finding_ids": [
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B08",
+    "B15",
+    "B19",
+    "B21",
+    "B23",
+    "B25",
+    "B26",
+    "B29",
+    "B30"
+  ],
+  "finding_outcomes": {
+    "B01": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B02": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B03": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B04": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B05": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B08": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B15": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B19": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B21": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B23": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B25": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B26": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B29": "not_adjudicated_by_this_fixture-validation_handoff",
+    "B30": "not_adjudicated_by_this_fixture-validation_handoff"
+  },
+  "disposition": "Five retained scoped unit waves are recorded, including latest 781 owner-CAS follow-up (47/48 passed, one owner fixture failure). Global HTTP/N5 route remains UNRUN; no finding closure is claimed.",
+  "source_changed_paths": [
+    "policy-engine/tests/_helpers/bounded_run_catalog.py",
+    "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+    "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/source-hashes.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stdout.txt"
+  ],
+  "source_footprint": {
+    "scope": "A runtime fixture implementation slice only; b422 product source dependency is recorded separately.",
+    "method": "Union of complete changed-path lists for each pinned fixture implementation commit; b422 excluded by owner boundary.",
+    "base_sha": "b5e1f973ed9bce3e8dbb53321fb386156ef5d01c",
+    "implementation_commits": [
+      "09ebd740e57c52a8f0801b04d3e81634b67307b8",
+      "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+      "340279d8a895380492b7f4e2bb7f52e7f02301be",
+      "4e47c81aaf7f785e614282fdd872ed610d149490",
+      "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c"
+    ],
+    "candidate_sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+    "candidate_tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+    "path_denominator": 4,
+    "file_type_denominator": {
+      "py": 4
+    },
+    "paths": [
+      "policy-engine/tests/_helpers/bounded_run_catalog.py",
+      "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+      "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+    ],
+    "all_paths_are_tests_or_test_support": true,
+    "fixture_implementation_production_source_changes": false,
+    "source_hash_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/source-hashes.json"
+  },
+  "historical_waves": [
+    {
+      "candidate_sha": "542da1927384dfe6345af5dd72def1c001471c9c",
+      "candidate_tree_sha": "54c56d417021dd6681383414f4d79863c369de43",
+      "exit_code": 1,
+      "branch_status_before": "## codex/e02-A-n5-verify-current",
+      "branch_status_after": "## codex/e02-A-n5-verify-current",
+      "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "packages": {
+        "pytest": "9.0.2",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "jax": "0.8.2",
+        "jaxlib": "0.8.2",
+        "pydantic": "2.12.5"
+      },
+      "wall_seconds": 51.03230591700412,
+      "timeout_seconds": 300,
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-source-wave-542d/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-source-wave-542d/junit.xml",
+        "tests/unit/runtime/quality/test_generation_source.py",
+        "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "tests/unit/runtime/http/test_runs_api.py",
+        "tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+        "tests/unit/runtime/quality/test_cycle_substrate.py",
+        "tests/unit/runtime/mirror_contracts/test_runs.py"
+      ],
+      "input_paths_recorded_in_environment_artifact": [
+        "src/polisyos/core/contracts/runtime.py",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "src/polisyos/runtime/quality/generation_cycle.py",
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+        "tests/unit/runtime/http/test_runs_api.py",
+        "tests/unit/runtime/mirror_contracts/test_runs.py",
+        "tests/unit/runtime/quality/test_cycle_substrate.py",
+        "tests/unit/runtime/quality/test_generation_source.py"
+      ],
+      "junit_case_count": 131,
+      "junit_outcome_counts": {
+        "passed": 75,
+        "failed": 5,
+        "error": 51
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+          "cases": 2,
+          "outcomes": {
+            "error": 2
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+          "cases": 5,
+          "outcomes": {
+            "passed": 5
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+          "cases": 46,
+          "outcomes": {
+            "error": 38,
+            "passed": 8
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/mirror_contracts/test_runs.py",
+          "cases": 1,
+          "outcomes": {
+            "passed": 1
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+          "cases": 41,
+          "outcomes": {
+            "passed": 41
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "cases": 36,
+          "outcomes": {
+            "passed": 20,
+            "failed": 5,
+            "error": 11
+          }
+        }
+      ],
+      "interpretation": "Broad pre-fixture-fix unit selection: 75 passed, 5 failed, 51 setup errors. The 51 setup errors divide into 11 production_data/L6-path-missing errors and 40 catalog_fetch_source_unreadable errors. The five ordinary failures are one CG2 expectation assertion and four selected-view v4/v5 cases raising AttributeError because the fixture object lacks problem.",
+      "error_groups": [
+        {
+          "count": 11,
+          "kind": "fixture_setup_error",
+          "cause": "production_data_path_missing (L6/production_data inputs unavailable in that test worktree)"
+        },
+        {
+          "count": 40,
+          "kind": "fixture_setup_error",
+          "cause": "catalog_fetch_source_unreadable"
+        }
+      ],
+      "failure_groups": [
+        {
+          "count": 4,
+          "cause": "selected-view v4/v5 cases raised AttributeError: SimpleNamespace has no attribute problem"
+        },
+        {
+          "count": 1,
+          "cause": "synthetic CG2 non-promotable assertion expected false but observed true"
+        }
+      ],
+      "attribution_at_slice_base": "not_established; the same command was not replayed at slice base b5e1f97.",
+      "artifacts": {
+        "environment-and-inputs.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json",
+          "sha256": "a4256b7d932d1212063c3483c5ff839a33f47bc5da239a42d3903798873d257d",
+          "bytes": 4576,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-source-wave-542d/environment-and-inputs.json"
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stdout.txt",
+          "sha256": "ed8f7ea1bab43844898cfadef923b0bfe3e7bac9a2075ee78c7b913004d7ec06",
+          "bytes": 289895,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-source-wave-542d/stdout.txt"
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-source-wave-542d/stderr.txt"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/junit.xml",
+          "sha256": "eb9b0919e9ebb4d8d21b8eb6963bf4a2472e438d471cc6228f73a4f17d4fe850",
+          "bytes": 260065,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-source-wave-542d/junit.xml"
+        }
+      },
+      "junit_reported_totals": {},
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "51",
+          "failures": "5",
+          "skipped": "0",
+          "tests": "131",
+          "time": "30.244",
+          "timestamp": "2026-10-06T18:07:45.730100+03:00",
+          "hostname": "MacBook-Air-Denis.local"
+        }
+      ],
+      "junit_time_seconds": 30.244
+    },
+    {
+      "candidate_sha": "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+      "candidate_tree_sha": "c09c642f7e45049698bfe9d2bb9ee365aaa07ba2",
+      "exit_code": 1,
+      "branch_status_before": "## codex/e02-A-n5-verify-current",
+      "branch_status_after": "## codex/e02-A-n5-verify-current",
+      "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "packages": {
+        "pytest": "9.0.2",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "jax": "0.8.2",
+        "jaxlib": "0.8.2",
+        "pydantic": "2.12.5"
+      },
+      "wall_seconds": 18.61835375003284,
+      "timeout_seconds": 300,
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/junit.xml",
+        "tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views"
+      ],
+      "input_paths_recorded_in_environment_artifact": [
+        "src/polisyos/core/contracts/runtime.py",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "src/polisyos/runtime/quality/generation_cycle.py",
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "tests/unit/runtime/quality/test_generation_source.py"
+      ],
+      "junit_case_count": 6,
+      "junit_outcome_counts": {
+        "passed": 2,
+        "failed": 4
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "cases": 6,
+          "outcomes": {
+            "passed": 2,
+            "failed": 4
+          }
+        }
+      ],
+      "interpretation": "Selected-view regression slice: 2 passed (v3 controls), 4 failed (v4/v5 for two prefixes) with CycleSubstrateContextOwnerError: government_balance policy slot unresolved.",
+      "error_groups": [],
+      "failure_groups": [
+        {
+          "count": 4,
+          "cause": "selected-view v4/v5 cases raised CycleSubstrateContextOwnerError: cycle_substrate_context_job_policy_slot_unresolved: government_balance"
+        }
+      ],
+      "attribution_at_slice_base": "not_established; no exact replay at slice base b5e1f97.",
+      "artifacts": {
+        "environment-and-inputs.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json",
+          "sha256": "9efdf040331dd7d7d066ece7dbfaf5bb5523572a57b7e06ab09fc51b3c6557f5",
+          "bytes": 3287,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/environment-and-inputs.json"
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stdout.txt",
+          "sha256": "8b2ed27f08f7325e5e7b149b8fb26b61ac2034505d7b1af64d6a604c02abeff8",
+          "bytes": 63355,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/stdout.txt"
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/stderr.txt"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/junit.xml",
+          "sha256": "c39ce0e06a36963ebc10173902a3a79688989849b4b6ff64dd012d79567312f0",
+          "bytes": 61192,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/junit.xml"
+        }
+      },
+      "junit_reported_totals": {},
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "4",
+          "skipped": "0",
+          "tests": "6",
+          "time": "14.922",
+          "timestamp": "2026-10-06T18:39:00.923330+03:00",
+          "hostname": "MacBook-Air-Denis.local"
+        }
+      ],
+      "junit_time_seconds": 14.922
+    },
+    {
+      "candidate_sha": "340279d8a895380492b7f4e2bb7f52e7f02301be",
+      "candidate_tree_sha": "dd1c79f2f6f4147998b3495a8f91bb404d0ad57f",
+      "exit_code": 1,
+      "branch_status_before": "## codex/e02-A-full-queue...origin/codex/e02-A-full-queue [ahead 3]\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/http-fixture-review.json",
+      "branch_status_after": "## codex/e02-A-full-queue...origin/codex/e02-A-full-queue [ahead 3]\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/http-fixture-review.json",
+      "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "packages": {
+        "pytest": "9.0.2",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "jax": "0.8.2",
+        "jaxlib": "0.8.2",
+        "pydantic": "2.12.5"
+      },
+      "wall_seconds": 55.841913416050375,
+      "timeout_seconds": 300,
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/junit.xml",
+        "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "input_paths_recorded_in_environment_artifact": [
+        "src/polisyos/core/contracts/runtime.py",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "src/polisyos/runtime/quality/generation_cycle.py",
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "junit_case_count": 48,
+      "junit_outcome_counts": {
+        "passed": 34,
+        "failed": 14
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+          "cases": 2,
+          "outcomes": {
+            "passed": 2
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+          "cases": 46,
+          "outcomes": {
+            "failed": 14,
+            "passed": 32
+          }
+        }
+      ],
+      "interpretation": "HTTP catalog fixture suite: 34 passed, 14 failed. Three fixture failure classes: 2 decision_packet writes lack an active owner, 11 registry_bundle writes lack an active owner, and 1 required-trace assertion was masked by the same registry_bundle ownership error.",
+      "error_groups": [],
+      "failure_groups": [
+        {
+          "count": 2,
+          "cause": "fixture ownership error on decision_packet; active owner required"
+        },
+        {
+          "count": 11,
+          "cause": "fixture ownership error on registry_bundle; active owner required"
+        },
+        {
+          "count": 1,
+          "cause": "required-trace assertion mismatch because registry_bundle ownership error occurred first"
+        }
+      ],
+      "attribution_at_slice_base": "not_established; the same command was not replayed at slice base b5e1f97, so these are not labeled inherited or introduced.",
+      "artifacts": {
+        "environment-and-inputs.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json",
+          "sha256": "955eebd5e8593c38f46c843c5bb6b714f9e5fdf008c18718f57e2f317d249bc8",
+          "bytes": 3726,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/environment-and-inputs.json"
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stdout.txt",
+          "sha256": "2d74dd986f0bb388159b2d2b9a7d0985135a7d1aa2a8a821ff461bc043ae9407",
+          "bytes": 101263,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/stdout.txt"
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/stderr.txt"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/junit.xml",
+          "sha256": "f0d47a7486775f3f744c2f9ea07b552055394232691d32a375a420af95836c69",
+          "bytes": 91310,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/junit.xml"
+        }
+      },
+      "junit_reported_totals": {},
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "14",
+          "skipped": "0",
+          "tests": "48",
+          "time": "33.735",
+          "timestamp": "2026-10-06T18:46:48.479993+03:00",
+          "hostname": "MacBook-Air-Denis.local"
+        }
+      ],
+      "junit_time_seconds": 33.735
+    },
+    {
+      "candidate_sha": "4e47c81aaf7f785e614282fdd872ed610d149490",
+      "candidate_tree_sha": "c8aa57407710faf0b159edc426172e0aff1f141e",
+      "exit_code": 1,
+      "branch_status_before": "## codex/e02-A-n5-verify-current",
+      "branch_status_after": "## codex/e02-A-n5-verify-current",
+      "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "packages": {
+        "pytest": "9.0.2",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "jax": "0.8.2",
+        "jaxlib": "0.8.2",
+        "pydantic": "2.12.5"
+      },
+      "wall_seconds": 14.985694000031799,
+      "timeout_seconds": 300,
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/junit.xml",
+        "tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views",
+        "tests/unit/runtime/quality/test_generation_source.py::test_synthetic_cg2_contract_mechanism_remains_non_promotable"
+      ],
+      "input_paths_recorded_in_environment_artifact": [
+        "src/polisyos/core/contracts/runtime.py",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "src/polisyos/runtime/quality/generation_cycle.py",
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "tests/unit/runtime/quality/test_generation_source.py"
+      ],
+      "junit_case_count": 7,
+      "junit_outcome_counts": {
+        "passed": 2,
+        "failed": 5
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "cases": 7,
+          "outcomes": {
+            "passed": 2,
+            "failed": 5
+          }
+        }
+      ],
+      "interpretation": "Selected-view plus CG2 regression slice: 2 passed (v3 controls), 5 failed; four v4/v5 cases failed artifact validation (design_problem_v1_target_slot_invalid), and the CG2 assertion observed abstain where it expected bind.",
+      "error_groups": [],
+      "failure_groups": [
+        {
+          "count": 4,
+          "cause": "selected-view v4/v5 CycleSubstrateContextJobArtifact validation: design_problem_v1_target_slot_invalid"
+        },
+        {
+          "count": 1,
+          "cause": "synthetic CG2 expectation mismatch: expected bind, observed abstain"
+        }
+      ],
+      "attribution_at_slice_base": "not_established; no exact replay at slice base b5e1f97.",
+      "artifacts": {
+        "environment-and-inputs.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json",
+          "sha256": "d1aecb9b1d92b47f765880190f144209a542dff7758d1d88ace22107ddae38a4",
+          "bytes": 3410,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/environment-and-inputs.json"
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stdout.txt",
+          "sha256": "a075c3615ea11d25bcbb6aca93be7abace3737f4297c70fee4603e3d6a631c51",
+          "bytes": 80767,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/stdout.txt"
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/stderr.txt"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/junit.xml",
+          "sha256": "2cc905b02c352914c126133f67c1c3cf854135ff4503426f4d544d7ee93ca612",
+          "bytes": 79299,
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/junit.xml"
+        }
+      },
+      "junit_reported_totals": {},
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "5",
+          "skipped": "0",
+          "tests": "7",
+          "time": "11.758",
+          "timestamp": "2026-10-06T18:55:12.847442+03:00",
+          "hostname": "MacBook-Air-Denis.local"
+        }
+      ],
+      "junit_time_seconds": 11.758
+    },
+    {
+      "candidate_sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+      "candidate_tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+      "exit_code": 1,
+      "branch_status_before": "## codex/e02-A-n5-verify-current",
+      "branch_status_after": "## codex/e02-A-n5-verify-current",
+      "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "packages": {
+        "pytest": "9.0.2",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "jax": "0.8.2",
+        "jaxlib": "0.8.2",
+        "pydantic": "2.12.5"
+      },
+      "wall_seconds": 46.34354650002206,
+      "timeout_seconds": 300,
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/junit.xml",
+        "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "input_paths_recorded_in_environment_artifact": [
+        "src/polisyos/core/contracts/runtime.py",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "src/polisyos/runtime/quality/generation_cycle.py",
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "junit_case_count": 48,
+      "junit_outcome_counts": {
+        "passed": 47,
+        "failed": 1
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+          "cases": 2,
+          "outcomes": {
+            "passed": 2
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+          "cases": 46,
+          "outcomes": {
+            "passed": 45,
+            "failed": 1
+          }
+        }
+      ],
+      "junit_reported_totals": {
+        "tests": "48",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "0",
+        "time": "26.065"
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "48",
+          "time": "26.065",
+          "timestamp": "2026-10-06T19:05:10.397435+03:00",
+          "hostname": "MacBook-Air-Denis.local"
+        }
+      ],
+      "junit_time_seconds": 26.065,
+      "interpretation": "Latest retained owner-CAS HTTP unit wave: 47 passed, 1 failed. The remaining assertion expected stale decision validity but got None after RunIndexService readback emitted core_run_manifest_load_failed:ArtifactOwnershipError. This remains an owner-scoped fixture/consumer failure; a general constructor-path repair is in progress and no final PASS is claimed.",
+      "error_groups": [],
+      "failure_groups": [
+        {
+          "count": 1,
+          "cause": "RunIndexService restart readback of decision_packet through the manual unscoped service constructor fails ArtifactOwnershipError; readback warning is core_run_manifest_load_failed:ArtifactOwnershipError, status remains None instead of expected stale."
+        }
+      ],
+      "attribution_at_slice_base": "not_established; no exact replay at slice base b5e1f97.",
+      "latest_recorded_wave": true,
+      "artifacts": {
+        "environment-and-inputs.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json",
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/environment-and-inputs.json",
+          "sha256": "7903b8dd57cb8d09fff4e84ee1c3c86b762fcec0bc3907714ffabb35a562fced",
+          "bytes": 3464
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stdout.txt",
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/stdout.txt",
+          "sha256": "6e06f716c36d9eea9277a684af196f91a41b70025b63a9770d4eb3bca90c6340",
+          "bytes": 26150
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stderr.txt",
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/junit.xml",
+          "source_build_path": "policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/junit.xml",
+          "sha256": "92bdd0437f7278da38dae8abecc2d6720ea2e0275adc1bade39412571382e5b6",
+          "bytes": 19887
+        }
+      }
+    }
+  ],
+  "generic_fixture_vs_global_runtime": {
+    "generic_fixture_checks": "Historical helper/catalog, selected-view/context-owner, terminal-helper, and run-lifecycle unit cases are bounded fixture/owner checks; they are not source authority, N5 admission, or complete API behavior.",
+    "global_runtime_goal": "UNRUN: no retained command exercises the complete ordinary HTTP POST → source-backed profile → actual N5 → CAS → fresh GET/N8 route.",
+    "latest_wave_included": true,
+    "latest_wave_status": "FAIL: candidate 781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c reports 47 passed / 1 failed; owner repair is ongoing and no final PASS is included."
+  },
+  "attribution": {
+    "slice_base": "b5e1f973ed9bce3e8dbb53321fb386156ef5d01c",
+    "predicate_basis": "not_established",
+    "reason": "No exact retained runtime command was replayed at the slice base. JUnit/stdout agreement establishes recorded outcomes only, not inherited/introduced attribution."
+  },
+  "checks": [
+    {
+      "kind": "historical_runtime_unit_wave",
+      "outcome": "FAIL",
+      "target_sha": "542da1927384dfe6345af5dd72def1c001471c9c",
+      "target_tree_sha": "54c56d417021dd6681383414f4d79863c369de43",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-source-wave-542d/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-source-wave-542d/junit.xml",
+        "tests/unit/runtime/quality/test_generation_source.py",
+        "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "tests/unit/runtime/http/test_runs_api.py",
+        "tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+        "tests/unit/runtime/quality/test_cycle_substrate.py",
+        "tests/unit/runtime/mirror_contracts/test_runs.py"
+      ],
+      "environment_input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json",
+        "sha256": "a4256b7d932d1212063c3483c5ff839a33f47bc5da239a42d3903798873d257d",
+        "input_paths": [
+          {
+            "path": "src/polisyos/core/contracts/runtime.py",
+            "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+            "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+          },
+          {
+            "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+            "git_blob": "4f679f12b434d3ddc6448c5b9ad8a930b8868545"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+            "git_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+            "git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a"
+          },
+          {
+            "path": "tests/unit/runtime/http/test_core_only_runs_api.py",
+            "sha256": "c0fb4a4c1b88a86234f21ab283543412177aedebd0807bf476e0adc776966b81",
+            "git_blob": "d2858a86632cbb1e080aae9c544ae26a7e6b214c"
+          },
+          {
+            "path": "tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+            "sha256": "797b8e4a5bbec0af46a04b1346376c2e62f42b3ada0b00daea467fb1bc536a3a",
+            "git_blob": "4a7ef948a768332732a55b36f1d864af9d9269f0"
+          },
+          {
+            "path": "tests/unit/runtime/http/test_runs_api.py",
+            "sha256": "1bfcc732edbe96fd632a4c3e3bb1a359bca409c86c94fa3d9da2a0be9fb314cb",
+            "git_blob": "508bbb1493a6c1d0b7eb3487202e7d4bfd33fd9e"
+          },
+          {
+            "path": "tests/unit/runtime/mirror_contracts/test_runs.py",
+            "sha256": "1b8b3bb97a09191ef30e1b7b3d68183d24662b1b2b65c88912dcb03e4dc2d31a",
+            "git_blob": "1ea12f16269d42c8c4ebcf07b4801e117c6a9e0e"
+          },
+          {
+            "path": "tests/unit/runtime/quality/test_cycle_substrate.py",
+            "sha256": "297d0a3f3b0ef40ffe2733cc9f362142d2272474814d19158906254983432621",
+            "git_blob": "60d3096535c0812b66acee373c34eec1a6a83401"
+          },
+          {
+            "path": "tests/unit/runtime/quality/test_generation_source.py",
+            "sha256": "39aea5c42d6e61826d00496aa895a181c77bb43ad2fcd81298d07c75b4e66836",
+            "git_blob": "479e8471e20a213600e41aa76441109858123674"
+          }
+        ]
+      },
+      "output_refs": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stdout.txt",
+          "sha256": "ed8f7ea1bab43844898cfadef923b0bfe3e7bac9a2075ee78c7b913004d7ec06",
+          "bytes": 289895
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/junit.xml",
+          "sha256": "eb9b0919e9ebb4d8d21b8eb6963bf4a2472e438d471cc6228f73a4f17d4fe850",
+          "bytes": 260065
+        }
+      },
+      "junit_case_count": 131,
+      "junit_outcome_counts": {
+        "passed": 75,
+        "failed": 5,
+        "error": 51
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+          "cases": 2,
+          "outcomes": {
+            "error": 2
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+          "cases": 5,
+          "outcomes": {
+            "passed": 5
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+          "cases": 46,
+          "outcomes": {
+            "error": 38,
+            "passed": 8
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/mirror_contracts/test_runs.py",
+          "cases": 1,
+          "outcomes": {
+            "passed": 1
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+          "cases": 41,
+          "outcomes": {
+            "passed": 41
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "cases": 36,
+          "outcomes": {
+            "passed": 20,
+            "failed": 5,
+            "error": 11
+          }
+        }
+      ],
+      "failure_summary": "Broad pre-fixture-fix unit selection: 75 passed, 5 failed, 51 setup errors. The 51 setup errors divide into 11 production_data/L6-path-missing errors and 40 catalog_fetch_source_unreadable errors. The five ordinary failures are one CG2 expectation assertion and four selected-view v4/v5 cases raising AttributeError because the fixture object lacks problem.",
+      "tests_run_in_retained_historical_wave": true,
+      "latest_recorded_wave": false
+    },
+    {
+      "kind": "historical_runtime_unit_wave",
+      "outcome": "FAIL",
+      "target_sha": "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+      "target_tree_sha": "c09c642f7e45049698bfe9d2bb9ee365aaa07ba2",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-c605/junit.xml",
+        "tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views"
+      ],
+      "environment_input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json",
+        "sha256": "9efdf040331dd7d7d066ece7dbfaf5bb5523572a57b7e06ab09fc51b3c6557f5",
+        "input_paths": [
+          {
+            "path": "src/polisyos/core/contracts/runtime.py",
+            "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+            "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+          },
+          {
+            "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+            "git_blob": "4f679f12b434d3ddc6448c5b9ad8a930b8868545"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+            "git_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+            "git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a"
+          },
+          {
+            "path": "tests/unit/runtime/quality/test_generation_source.py",
+            "sha256": "ec813bc5ab6ef43ce15953bad5d911d3ab04971b75e74ad30fff53b3b67b16eb",
+            "git_blob": "f14079b2e33c468be62ac631828750850c29c7d5"
+          }
+        ]
+      },
+      "output_refs": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stdout.txt",
+          "sha256": "8b2ed27f08f7325e5e7b149b8fb26b61ac2034505d7b1af64d6a604c02abeff8",
+          "bytes": 63355
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/junit.xml",
+          "sha256": "c39ce0e06a36963ebc10173902a3a79688989849b4b6ff64dd012d79567312f0",
+          "bytes": 61192
+        }
+      },
+      "junit_case_count": 6,
+      "junit_outcome_counts": {
+        "passed": 2,
+        "failed": 4
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "cases": 6,
+          "outcomes": {
+            "passed": 2,
+            "failed": 4
+          }
+        }
+      ],
+      "failure_summary": "Selected-view regression slice: 2 passed (v3 controls), 4 failed (v4/v5 for two prefixes) with CycleSubstrateContextOwnerError: government_balance policy slot unresolved.",
+      "tests_run_in_retained_historical_wave": true,
+      "latest_recorded_wave": false
+    },
+    {
+      "kind": "historical_runtime_unit_wave",
+      "outcome": "FAIL",
+      "target_sha": "340279d8a895380492b7f4e2bb7f52e7f02301be",
+      "target_tree_sha": "dd1c79f2f6f4147998b3495a8f91bb404d0ad57f",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-empty-catalog-wave-340/junit.xml",
+        "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "environment_input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json",
+        "sha256": "955eebd5e8593c38f46c843c5bb6b714f9e5fdf008c18718f57e2f317d249bc8",
+        "input_paths": [
+          {
+            "path": "src/polisyos/core/contracts/runtime.py",
+            "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+            "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+          },
+          {
+            "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+            "git_blob": "4f679f12b434d3ddc6448c5b9ad8a930b8868545"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+            "git_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+            "git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a"
+          },
+          {
+            "path": "tests/unit/runtime/http/test_core_only_runs_api.py",
+            "sha256": "e5fcedaf44f62b30fccf068767ee864d309217bb41f7b4b35f9766ee1ed95523",
+            "git_blob": "40a2fcee29728ae9a8c600c98b20d2a403e99a76"
+          },
+          {
+            "path": "tests/unit/runtime/http/test_runs_api.py",
+            "sha256": "38faf00362f5396b5704ca5603d5ff9b8d9aaa5eab1501869d2b9c4e8848feb7",
+            "git_blob": "a6c4ae32b1418ca055e05a127da30b12fe8a0a83"
+          }
+        ]
+      },
+      "output_refs": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stdout.txt",
+          "sha256": "2d74dd986f0bb388159b2d2b9a7d0985135a7d1aa2a8a821ff461bc043ae9407",
+          "bytes": 101263
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/junit.xml",
+          "sha256": "f0d47a7486775f3f744c2f9ea07b552055394232691d32a375a420af95836c69",
+          "bytes": 91310
+        }
+      },
+      "junit_case_count": 48,
+      "junit_outcome_counts": {
+        "passed": 34,
+        "failed": 14
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+          "cases": 2,
+          "outcomes": {
+            "passed": 2
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+          "cases": 46,
+          "outcomes": {
+            "failed": 14,
+            "passed": 32
+          }
+        }
+      ],
+      "failure_summary": "HTTP catalog fixture suite: 34 passed, 14 failed. Three fixture failure classes: 2 decision_packet writes lack an active owner, 11 registry_bundle writes lack an active owner, and 1 required-trace assertion was masked by the same registry_bundle ownership error.",
+      "tests_run_in_retained_historical_wave": true,
+      "latest_recorded_wave": false
+    },
+    {
+      "kind": "historical_runtime_unit_wave",
+      "outcome": "FAIL",
+      "target_sha": "4e47c81aaf7f785e614282fdd872ed610d149490",
+      "target_tree_sha": "c8aa57407710faf0b159edc426172e0aff1f141e",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-4e47/junit.xml",
+        "tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views",
+        "tests/unit/runtime/quality/test_generation_source.py::test_synthetic_cg2_contract_mechanism_remains_non_promotable"
+      ],
+      "environment_input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json",
+        "sha256": "d1aecb9b1d92b47f765880190f144209a542dff7758d1d88ace22107ddae38a4",
+        "input_paths": [
+          {
+            "path": "src/polisyos/core/contracts/runtime.py",
+            "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+            "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+          },
+          {
+            "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+            "git_blob": "4f679f12b434d3ddc6448c5b9ad8a930b8868545"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+            "git_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+            "git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a"
+          },
+          {
+            "path": "tests/unit/runtime/quality/test_generation_source.py",
+            "sha256": "06b1d4bf059359f627a394725f66aef2a8d741aa8edd95148d3c975184e74562",
+            "git_blob": "806792e05fb0c67f7d2ae437380b7792833b6d85"
+          }
+        ]
+      },
+      "output_refs": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stdout.txt",
+          "sha256": "a075c3615ea11d25bcbb6aca93be7abace3737f4297c70fee4603e3d6a631c51",
+          "bytes": 80767
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/junit.xml",
+          "sha256": "2cc905b02c352914c126133f67c1c3cf854135ff4503426f4d544d7ee93ca612",
+          "bytes": 79299
+        }
+      },
+      "junit_case_count": 7,
+      "junit_outcome_counts": {
+        "passed": 2,
+        "failed": 5
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "cases": 7,
+          "outcomes": {
+            "passed": 2,
+            "failed": 5
+          }
+        }
+      ],
+      "failure_summary": "Selected-view plus CG2 regression slice: 2 passed (v3 controls), 5 failed; four v4/v5 cases failed artifact validation (design_problem_v1_target_slot_invalid), and the CG2 assertion observed abstain where it expected bind.",
+      "tests_run_in_retained_historical_wave": true,
+      "latest_recorded_wave": false
+    },
+    {
+      "kind": "historical_runtime_unit_wave",
+      "outcome": "FAIL",
+      "target_sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+      "target_tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-owner-cas-wave-781f/junit.xml",
+        "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "environment_input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json",
+        "sha256": "7903b8dd57cb8d09fff4e84ee1c3c86b762fcec0bc3907714ffabb35a562fced",
+        "input_paths": [
+          {
+            "path": "src/polisyos/core/contracts/runtime.py",
+            "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+            "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+          },
+          {
+            "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+            "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "sha256": "60e869db7967a8a66a46b1abb92f0fbdeb786e37f72427d854c6c0b9ab3db46f",
+            "git_blob": "9d152183179bf98e5d0f70aa3669cf7ca4f6e191"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "sha256": "f45db503361176a1bd8313b4835f93172e904d739e0430341f5cde88fa8ac9a9",
+            "git_blob": "db398c4c857680c7c78464abc0828488543e5c2b"
+          },
+          {
+            "path": "tests/unit/runtime/http/test_core_only_runs_api.py",
+            "sha256": "e5fcedaf44f62b30fccf068767ee864d309217bb41f7b4b35f9766ee1ed95523",
+            "git_blob": "40a2fcee29728ae9a8c600c98b20d2a403e99a76"
+          },
+          {
+            "path": "tests/unit/runtime/http/test_runs_api.py",
+            "sha256": "611b596479a3e7deb0c82c6417cb10484f75dd3fa9d8551d041a7ea7609ba7ad",
+            "git_blob": "0f2b01018aef68a65bba2ff36bf60c294862ddb7"
+          }
+        ]
+      },
+      "output_refs": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stdout.txt",
+          "sha256": "6e06f716c36d9eea9277a684af196f91a41b70025b63a9770d4eb3bca90c6340",
+          "bytes": 26150
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/junit.xml",
+          "sha256": "92bdd0437f7278da38dae8abecc2d6720ea2e0275adc1bade39412571382e5b6",
+          "bytes": 19887
+        }
+      },
+      "junit_case_count": 48,
+      "junit_outcome_counts": {
+        "passed": 47,
+        "failed": 1
+      },
+      "junit_file_denominator": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+          "cases": 2,
+          "outcomes": {
+            "passed": 2
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+          "cases": 46,
+          "outcomes": {
+            "passed": 45,
+            "failed": 1
+          }
+        }
+      ],
+      "failure_summary": "Latest retained owner-CAS HTTP unit wave: 47 passed, 1 failed. The remaining assertion expected stale decision validity but got None after RunIndexService readback emitted core_run_manifest_load_failed:ArtifactOwnershipError. This remains an owner-scoped fixture/consumer failure; a general constructor-path repair is in progress and no final PASS is claimed.",
+      "tests_run_in_retained_historical_wave": true,
+      "latest_recorded_wave": true
+    },
+    {
+      "kind": "read_only_receipt_readback_and_git_census",
+      "outcome": "PASS",
+      "target_sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+      "target_tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py"
+      ],
+      "script_identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py",
+        "sha256": "5ce48157e0d07c929d1d91df478ddcee5f1cac78c4fea4944ace62e45c44c707",
+        "bytes": 7192
+      },
+      "environment_input_closure": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json",
+          "sha256": "a4256b7d932d1212063c3483c5ff839a33f47bc5da239a42d3903798873d257d",
+          "candidate_sha": "542da1927384dfe6345af5dd72def1c001471c9c",
+          "input_paths": [
+            {
+              "path": "src/polisyos/core/contracts/runtime.py",
+              "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+              "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+            },
+            {
+              "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+              "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+              "git_blob": "4f679f12b434d3ddc6448c5b9ad8a930b8868545"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/generation_cycle.py",
+              "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+              "git_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+              "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+              "git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a"
+            },
+            {
+              "path": "tests/unit/runtime/http/test_core_only_runs_api.py",
+              "sha256": "c0fb4a4c1b88a86234f21ab283543412177aedebd0807bf476e0adc776966b81",
+              "git_blob": "d2858a86632cbb1e080aae9c544ae26a7e6b214c"
+            },
+            {
+              "path": "tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+              "sha256": "797b8e4a5bbec0af46a04b1346376c2e62f42b3ada0b00daea467fb1bc536a3a",
+              "git_blob": "4a7ef948a768332732a55b36f1d864af9d9269f0"
+            },
+            {
+              "path": "tests/unit/runtime/http/test_runs_api.py",
+              "sha256": "1bfcc732edbe96fd632a4c3e3bb1a359bca409c86c94fa3d9da2a0be9fb314cb",
+              "git_blob": "508bbb1493a6c1d0b7eb3487202e7d4bfd33fd9e"
+            },
+            {
+              "path": "tests/unit/runtime/mirror_contracts/test_runs.py",
+              "sha256": "1b8b3bb97a09191ef30e1b7b3d68183d24662b1b2b65c88912dcb03e4dc2d31a",
+              "git_blob": "1ea12f16269d42c8c4ebcf07b4801e117c6a9e0e"
+            },
+            {
+              "path": "tests/unit/runtime/quality/test_cycle_substrate.py",
+              "sha256": "297d0a3f3b0ef40ffe2733cc9f362142d2272474814d19158906254983432621",
+              "git_blob": "60d3096535c0812b66acee373c34eec1a6a83401"
+            },
+            {
+              "path": "tests/unit/runtime/quality/test_generation_source.py",
+              "sha256": "39aea5c42d6e61826d00496aa895a181c77bb43ad2fcd81298d07c75b4e66836",
+              "git_blob": "479e8471e20a213600e41aa76441109858123674"
+            }
+          ]
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json",
+          "sha256": "9efdf040331dd7d7d066ece7dbfaf5bb5523572a57b7e06ab09fc51b3c6557f5",
+          "candidate_sha": "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+          "input_paths": [
+            {
+              "path": "src/polisyos/core/contracts/runtime.py",
+              "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+              "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+            },
+            {
+              "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+              "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+              "git_blob": "4f679f12b434d3ddc6448c5b9ad8a930b8868545"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/generation_cycle.py",
+              "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+              "git_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+              "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+              "git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a"
+            },
+            {
+              "path": "tests/unit/runtime/quality/test_generation_source.py",
+              "sha256": "ec813bc5ab6ef43ce15953bad5d911d3ab04971b75e74ad30fff53b3b67b16eb",
+              "git_blob": "f14079b2e33c468be62ac631828750850c29c7d5"
+            }
+          ]
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json",
+          "sha256": "955eebd5e8593c38f46c843c5bb6b714f9e5fdf008c18718f57e2f317d249bc8",
+          "candidate_sha": "340279d8a895380492b7f4e2bb7f52e7f02301be",
+          "input_paths": [
+            {
+              "path": "src/polisyos/core/contracts/runtime.py",
+              "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+              "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+            },
+            {
+              "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+              "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+              "git_blob": "4f679f12b434d3ddc6448c5b9ad8a930b8868545"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/generation_cycle.py",
+              "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+              "git_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+              "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+              "git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a"
+            },
+            {
+              "path": "tests/unit/runtime/http/test_core_only_runs_api.py",
+              "sha256": "e5fcedaf44f62b30fccf068767ee864d309217bb41f7b4b35f9766ee1ed95523",
+              "git_blob": "40a2fcee29728ae9a8c600c98b20d2a403e99a76"
+            },
+            {
+              "path": "tests/unit/runtime/http/test_runs_api.py",
+              "sha256": "38faf00362f5396b5704ca5603d5ff9b8d9aaa5eab1501869d2b9c4e8848feb7",
+              "git_blob": "a6c4ae32b1418ca055e05a127da30b12fe8a0a83"
+            }
+          ]
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json",
+          "sha256": "d1aecb9b1d92b47f765880190f144209a542dff7758d1d88ace22107ddae38a4",
+          "candidate_sha": "4e47c81aaf7f785e614282fdd872ed610d149490",
+          "input_paths": [
+            {
+              "path": "src/polisyos/core/contracts/runtime.py",
+              "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+              "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+            },
+            {
+              "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+              "sha256": "e09dbdafd5367bfa28e63da7936e6e1ab3b9336cfd45b0f119e59f740151bef2",
+              "git_blob": "4f679f12b434d3ddc6448c5b9ad8a930b8868545"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/generation_cycle.py",
+              "sha256": "c5fc4b7ae61cebe82ebf7ecf7054a9d0e20e7d27404b8c86ac8742986151bde6",
+              "git_blob": "ac6422f927ffcc942d4c0d840a47e49ef0f41e28"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+              "sha256": "069b4c109f0e247ab75432a61863e12492ca6a4dffa86b00759180b53f8e4b92",
+              "git_blob": "1b68f33f3de77b551ea4667996ca329ae395514a"
+            },
+            {
+              "path": "tests/unit/runtime/quality/test_generation_source.py",
+              "sha256": "06b1d4bf059359f627a394725f66aef2a8d741aa8edd95148d3c975184e74562",
+              "git_blob": "806792e05fb0c67f7d2ae437380b7792833b6d85"
+            }
+          ]
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json",
+          "sha256": "7903b8dd57cb8d09fff4e84ee1c3c86b762fcec0bc3907714ffabb35a562fced",
+          "candidate_sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+          "input_paths": [
+            {
+              "path": "src/polisyos/core/contracts/runtime.py",
+              "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+              "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+            },
+            {
+              "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+              "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+              "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/generation_cycle.py",
+              "sha256": "60e869db7967a8a66a46b1abb92f0fbdeb786e37f72427d854c6c0b9ab3db46f",
+              "git_blob": "9d152183179bf98e5d0f70aa3669cf7ca4f6e191"
+            },
+            {
+              "path": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+              "sha256": "f45db503361176a1bd8313b4835f93172e904d739e0430341f5cde88fa8ac9a9",
+              "git_blob": "db398c4c857680c7c78464abc0828488543e5c2b"
+            },
+            {
+              "path": "tests/unit/runtime/http/test_core_only_runs_api.py",
+              "sha256": "e5fcedaf44f62b30fccf068767ee864d309217bb41f7b4b35f9766ee1ed95523",
+              "git_blob": "40a2fcee29728ae9a8c600c98b20d2a403e99a76"
+            },
+            {
+              "path": "tests/unit/runtime/http/test_runs_api.py",
+              "sha256": "611b596479a3e7deb0c82c6417cb10484f75dd3fa9d8551d041a7ea7609ba7ad",
+              "git_blob": "0f2b01018aef68a65bba2ff36bf60c294862ddb7"
+            }
+          ]
+        }
+      ],
+      "output": [
+        "PASS git fixture path census: 4 paths / {'py': 4}",
+        "PASS source dependency path census: 5 paths / {'py': 5}",
+        "PASS Git blob/content hashes for fixture and dependency source inputs",
+        "PASS 542da1927384 stdout/JUnit {'passed': 75, 'failed': 5, 'error': 51} over 131 cases",
+        "PASS c605726092f7 stdout/JUnit {'passed': 2, 'failed': 4, 'error': 0} over 6 cases",
+        "PASS 340279d8a895 stdout/JUnit {'passed': 34, 'failed': 14, 'error': 0} over 48 cases",
+        "PASS 4e47c81aaf7f stdout/JUnit {'passed': 2, 'failed': 5, 'error': 0} over 7 cases",
+        "PASS 781f9baa3b64 stdout/JUnit {'passed': 47, 'failed': 1, 'error': 0} over 48 cases",
+        "PASS byte-for-byte source-to-companion copies for all retained environment/stdout/stderr/JUnit files"
+      ],
+      "tests_run": false,
+      "product_runtime_or_numerical_run": false
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P29",
+      "P35",
+      "P38",
+      "P41"
+    ],
+    "found": [
+      "P29: runtime wave claims are backed by exact JUnit/stdout bytes; the receipt validator checks these retained records, not runtime marker strings.",
+      "P35: four unique fixture implementation Python paths are enumerated over all five fixture commits; the five-file b422 source dependency is separately enumerated; each test denominator is parsed from complete JUnit.",
+      "P38: tested property is unit-harness behavior; ordinary HTTP POST→N5→CAS→fresh GET remains unrun. A green unit case can diverge from that full property.",
+      "P41: no exact test command replay exists at slice base, so failures remain not_established for inheritance/ownership."
+    ],
+    "target_pattern": "Keep fixture and runtime evidence separate; bind each retained wave to candidate/tree/environment and compare full JUnit counts to independent pytest stdout.",
+    "acceptance_signal": "Only a later frozen-source end-to-end route wave can adjudicate the global HTTP/N5 property; this receipt does not claim that result."
+  },
+  "cloud_copy_status": {
+    "status": "pending_tracked_commit",
+    "git_commit_sha": null,
+    "git_receipt": null,
+    "cloud_availability": "not_established",
+    "git_state_note": "These exact files exist once under the leased companion and are pending addition to the root-owned receipt commit; they are not currently tracked/staged. No commit SHA or Git blob receipt is asserted before the commit exists.",
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stdout.txt"
+    ],
+    "artifact_file_count": 20,
+    "artifact_total_bytes": 1091646,
+    "script_and_report_pending_git": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/validate_receipts.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/source-hashes.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation.json"
+    ],
+    "working_tree_state": "untracked_pending_git_add"
+  },
+  "historical_wave_order": "Chronological by JUnit suite timestamp; each run retains its exact candidate commit/tree.",
+  "tested_source_commit_detail": "Latest retained candidate 781f was tested only by the selected HTTP run-lifecycle unit suites. No wave establishes ordinary HTTP POST → configured source-backed profile → actual N5 → CAS → fresh GET/N8 global behavior.",
+  "source_dependency_commits": [
+    "b422361e3425e6b21a40e889dbaceea3c8354bc8"
+  ],
+  "review_snapshot": {
+    "sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+    "tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+    "branch": "codex/e02-A-full-queue",
+    "note": "Latest retained test candidate only; subsequent author changes and any later wave are excluded."
+  },
+  "source_facade_dependency": {
+    "commit": "b422361e3425e6b21a40e889dbaceea3c8354bc8",
+    "tree_sha": "24ee0a9aa49b027ae52c1184f2a2ace8f011283a",
+    "parent_shas": [
+      "4e47c81aaf7f785e614282fdd872ed610d149490"
+    ],
+    "subject": "refactor(runtime): consume existing DTO and artifact facades",
+    "production_source_changes": true,
+    "path_denominator": 5,
+    "file_type_denominator": {
+      "py": 5
+    },
+    "paths": [
+      "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+    ],
+    "role": "Separate tracked product-source dependency of latest test candidate 781f; not part of the fixture-source path count.",
+    "tested_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json"
+  },
+  "bundle_ids": [
+    "CYC-01",
+    "CYC-02",
+    "SIM-03",
+    "CYC-05"
+  ],
+  "mapping_sources": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md@4e47c81aaf7f785e614282fdd872ed610d149490#L39-L57",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md@4e47c81aaf7f785e614282fdd872ed610d149490#L94-L149",
+    "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md@4e47c81aaf7f785e614282fdd872ed610d149490#L837-L887",
+    "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md@4e47c81aaf7f785e614282fdd872ed610d149490#L956-L961",
+    "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md@4e47c81aaf7f785e614282fdd872ed610d149490#L3139-L3156"
+  ],
+  "bundle_fixture_mapping": [
+    {
+      "bundle_id": "CYC-01",
+      "finding_ids": [
+        "B01",
+        "B02",
+        "B03"
+      ],
+      "owner_mapping": "A1 / CYC-01.",
+      "affected_unit_fixtures": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+          "nodeids": [
+            "test_cycle_substrate_context_owner_uses_guarded_current_job_execution",
+            "test_cycle_substrate_context_owner_uses_persisted_worker_admission_without_access_scope",
+            "test_cycle_substrate_context_owner_rejects_unknown_worker_scope_and_generic_nl_admission",
+            "test_cycle_substrate_context_owner_rejects_matching_marker_scope_without_issuance",
+            "test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_membership"
+          ],
+          "wave_candidate": "542da1927384dfe6345af5dd72def1c001471c9c",
+          "scope": "Bounded owner/context unit controls; no ordinary HTTP POST or actual N5."
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+          "nodeids": [
+            "test_cycle_substrate_context_owner_persists_exact_job_scope_and_reads_direct_ref",
+            "test_cycle_substrate_context_owner_refuses_wrong_problem_or_job",
+            "test_cycle_substrate_context_owner_refuses_foreign_tenant_and_cell",
+            "test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views"
+          ],
+          "wave_candidate": "542da1927384dfe6345af5dd72def1c001471c9c",
+          "scope": "Bounded persisted context owner checks, not route-to-N5."
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "nodeids": [
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v3]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v4]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v5]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v3]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v4]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v5]"
+          ],
+          "wave_candidates": [
+            "542da1927384dfe6345af5dd72def1c001471c9c",
+            "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+            "4e47c81aaf7f785e614282fdd872ed610d149490"
+          ],
+          "scope": "Selected profile/context replay only; exact test docstring says N5 input/source/result loaders are unit-controlled stubs."
+        }
+      ],
+      "not_proved": [
+        "B01 ordinary request route",
+        "source-backed configured profile producer",
+        "B02 full HTTP lifecycle binding",
+        "B03 absent horizon/resource fields stay unavailable through actual N5"
+      ]
+    },
+    {
+      "bundle_id": "CYC-02",
+      "finding_ids": [
+        "B04",
+        "B05",
+        "B08"
+      ],
+      "cross_bundle_finding_ids": [
+        "B26"
+      ],
+      "owner_mapping": "A2 / CYC-02; B26 is also under SIM-03.",
+      "affected_unit_fixtures": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "nodeids": [
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v3]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v4]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v5]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v3]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v4]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v5]"
+          ],
+          "wave_candidates": [
+            "542da1927384dfe6345af5dd72def1c001471c9c",
+            "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+            "4e47c81aaf7f785e614282fdd872ed610d149490"
+          ],
+          "scope": "Adjacent selected-view fixture only; no numeric N5 producer, CAS readback, or N8 consumer. Not a positive for B04/B05/B08."
+        }
+      ],
+      "not_selected_owner_tests": [
+        "policy-engine/tests/unit/remediation/test_cyc_02.py",
+        "policy-engine/tests/unit/remediation/test_sim_03.py"
+      ],
+      "not_proved": [
+        "B04 real numerical CAS positive",
+        "B05 runtime-backed N9 admission",
+        "B08 ordinary N5→N8 conditional result",
+        "fresh-process numerical readback"
+      ]
+    },
+    {
+      "bundle_id": "SIM-03",
+      "finding_ids": [
+        "B19",
+        "B21",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "owner_mapping": "A2/A8 / SIM-03.",
+      "affected_unit_fixtures": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "nodeids": [
+            "test_synthetic_cg2_contract_mechanism_remains_non_promotable",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v3]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v4]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v5]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v3]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v4]",
+            "test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v5]"
+          ],
+          "wave_candidates": [
+            "542da1927384dfe6345af5dd72def1c001471c9c",
+            "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+            "4e47c81aaf7f785e614282fdd872ed610d149490"
+          ],
+          "scope": "Synthetic/context fixture variants only; no SIM-03 uncertainty, SMM, replication, or true higher-order CAS criterion."
+        }
+      ],
+      "not_selected_owner_tests": [
+        "policy-engine/tests/unit/remediation/test_sim_03.py"
+      ],
+      "not_proved": [
+        "empirical baseline/evidence state",
+        "sampling/model uncertainty",
+        "SMM mandatory moments",
+        "independent selected-row/scoped numeric oracle"
+      ]
+    },
+    {
+      "bundle_id": "CYC-05",
+      "finding_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "owner_mapping": "A6 / CYC-05.",
+      "affected_unit_fixtures": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "nodeids": [
+            "test_n6_stop_projection_covers_canonical_terminal_denominator"
+          ],
+          "wave_candidate": "09ebd740e57c52a8f0801b04d3e81634b67307b8",
+          "scope": "Local terminal-to-stop projection helper only, not the exact CYC-05 acceptance node or a served graph/readback."
+        }
+      ],
+      "not_selected_owner_tests": [
+        "policy-engine/tests/unit/remediation/test_cyc_05.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py::test_terminal_projection_preserves_stop_budget_and_abstention"
+      ],
+      "not_proved": [
+        "B15 served graph two-child/budget-stop property",
+        "B29 same-run terminal status distinctions",
+        "B30 immutable replay/build identity"
+      ]
+    }
+  ],
+  "property_scope": {
+    "tested_property": "Scoped runtime unit-fixture behavior at selected owner/service boundaries: catalog construction, profile/context replay, a terminal helper, and HTTP RunIndexService lifecycle/CAS readback.",
+    "scope": "unit_harness_only",
+    "actual_runtime_path_claimed": false,
+    "global_http_n5_property": "UNRUN: ordinary POST /api/v1/control/runs/nl → source-backed configured profile → actual N5 engine → CAS result → fresh-app/process GET/N8 recomputation.",
+    "proxy_divergence": "A selected-view/context unit or HTTP lifecycle unit can pass while ordinary profile admission, N5 execution, CAS handoff, or fresh GET is untested or broken; candidate 781 is also unit-scoped."
+  },
+  "capability_state": [
+    "verification_missing",
+    "fixture_input_unverified",
+    "owner_scoped_http_unit_fixture_remaining_failure"
+  ],
+  "limitations_and_next_owner": [
+    "The 542 broad wave had 11 setup errors because the L6 production_data path was unavailable and 40 catalog_fetch_source_unreadable setup errors.",
+    "The 340 empty-catalog HTTP fixture wave had 14 failures in three ownership/error classes. The later 781 owner-CAS unit wave has 47 pass / 1 fail: a manual unscoped RunIndexService constructor causes ArtifactOwnershipError loading the core run manifest, warning core_run_manifest_load_failed:ArtifactOwnershipError, and decision_validity_status=None rather than stale. Root owner is widening the constructor fix; no subsequent result is included.",
+    "No exact historical command was replayed at slice base b5e1f97; P41 failure attribution is not_established.",
+    "These unit fixture results do not establish ordinary HTTP N5 route or close any listed finding. Global runtime goal remains UNRUN."
+  ],
+  "predicate_basis": {
+    "historical_case_outcomes": "independently_reconciled",
+    "historical_case_outcomes_method": "Readback script compares complete JUnit case/outcome/per-file counts with pytest final stdout summary.",
+    "fixture_source_path_denominator": "recomputed from complete Git path sets for the five fixture implementation commits; b422 product-source dependency has its own five-file census.",
+    "failure_attribution_at_slice_base": "not_established"
+  },
+  "global_runtime_goal": "UNRUN",
+  "companion_footprint": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation",
+    "wave_count": 5,
+    "artifact_file_count": 20,
+    "paths_pending_git_commit": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-empty-catalog-wave-340/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-owner-cas-wave-781f/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/http-source-wave-542d/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-4e47/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/environment-and-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation/selected-view-wave-c605/stdout.txt"
+    ],
+    "artifact_total_bytes": 1091646
+  },
+  "latest_wave_included": true,
+  "this_lease_actions": {
+    "source_files_edited": false,
+    "test_files_edited": false,
+    "product_tests_or_runtime_waves_launched": false,
+    "numerical_execution_launched": false,
+    "read_only_receipt_validation_script_run": true,
+    "commit_created": false
+  },
+  "latest_wave_status": "FAIL; latest recorded 781f unit wave is 47 passed / 1 failed. Owner fix is in progress; no final PASS is included."
+}

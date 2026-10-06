@@ -1,0 +1,181 @@
+{
+  "schema": "policyos.e02.source_hash_manifest.v1",
+  "unit": "A",
+  "slice": "runtime-fixture-validation",
+  "fixture_base_sha": "b5e1f973ed9bce3e8dbb53321fb386156ef5d01c",
+  "candidate_sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+  "candidate_tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+  "fixture_implementation_commits": [
+    {
+      "sha": "09ebd740e57c52a8f0801b04d3e81634b67307b8",
+      "tree_sha": "f9fe0ad5250228d39d7938d0de01c754d382b286",
+      "parent_shas": [
+        "b5e1f973ed9bce3e8dbb53321fb386156ef5d01c"
+      ],
+      "subject": "test(runtime): isolate run API catalog construction from production inputs",
+      "changed_paths": [
+        {
+          "status": "A",
+          "path": "policy-engine/tests/_helpers/bounded_run_catalog.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+        }
+      ]
+    },
+    {
+      "sha": "c605726092f7df9b5ef3c4f016f51cfd77c06d8b",
+      "tree_sha": "c09c642f7e45049698bfe9d2bb9ee365aaa07ba2",
+      "parent_shas": [
+        "09ebd740e57c52a8f0801b04d3e81634b67307b8"
+      ],
+      "subject": "test(runtime): bind selected-view replay fixtures to persisted context owners",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+        }
+      ]
+    },
+    {
+      "sha": "340279d8a895380492b7f4e2bb7f52e7f02301be",
+      "tree_sha": "dd1c79f2f6f4147998b3495a8f91bb404d0ad57f",
+      "parent_shas": [
+        "c605726092f7df9b5ef3c4f016f51cfd77c06d8b"
+      ],
+      "subject": "test(runtime): keep bootstrap catalog empty and non-fetchable",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/_helpers/bounded_run_catalog.py"
+        }
+      ]
+    },
+    {
+      "sha": "4e47c81aaf7f785e614282fdd872ed610d149490",
+      "tree_sha": "c8aa57407710faf0b159edc426172e0aff1f141e",
+      "parent_shas": [
+        "340279d8a895380492b7f4e2bb7f52e7f02301be"
+      ],
+      "subject": "test(runtime): keep context slots and CG2 fixture decisions coherent",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+        }
+      ]
+    },
+    {
+      "sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+      "tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+      "parent_shas": [
+        "b422361e3425e6b21a40e889dbaceea3c8354bc8"
+      ],
+      "subject": "test(runtime): scope run lifecycle CAS fixtures to their served owner",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+        }
+      ]
+    }
+  ],
+  "fixture_source_path_census": {
+    "method": "Union of complete changed-path lists for each pinned fixture implementation commit; separate b422 product-source dependency excluded.",
+    "path_denominator": 4,
+    "file_type_denominator": {
+      "py": 4
+    },
+    "paths": [
+      "policy-engine/tests/_helpers/bounded_run_catalog.py",
+      "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+      "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+    ]
+  },
+  "fixture_candidate_source_files": [
+    {
+      "path": "policy-engine/tests/_helpers/bounded_run_catalog.py",
+      "git_blob_at_candidate": "c8b2b5146dcfe94f8e8a7d41ae4db7c63264bcdb",
+      "sha256_at_candidate": "fd4a0e4e9bbfbb0a15279db794bb87392cdda43dc963500975613caaab437140",
+      "bytes_at_candidate": 2049
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+      "git_blob_at_candidate": "40a2fcee29728ae9a8c600c98b20d2a403e99a76",
+      "sha256_at_candidate": "e5fcedaf44f62b30fccf068767ee864d309217bb41f7b4b35f9766ee1ed95523",
+      "bytes_at_candidate": 1519
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+      "git_blob_at_candidate": "0f2b01018aef68a65bba2ff36bf60c294862ddb7",
+      "sha256_at_candidate": "611b596479a3e7deb0c82c6417cb10484f75dd3fa9d8551d041a7ea7609ba7ad",
+      "bytes_at_candidate": 60211
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+      "git_blob_at_candidate": "806792e05fb0c67f7d2ae437380b7792833b6d85",
+      "sha256_at_candidate": "06b1d4bf059359f627a394725f66aef2a8d741aa8edd95148d3c975184e74562",
+      "bytes_at_candidate": 119329
+    }
+  ],
+  "source_facade_dependency": {
+    "sha": "b422361e3425e6b21a40e889dbaceea3c8354bc8",
+    "tree_sha": "24ee0a9aa49b027ae52c1184f2a2ace8f011283a",
+    "parent_shas": [
+      "4e47c81aaf7f785e614282fdd872ed610d149490"
+    ],
+    "subject": "refactor(runtime): consume existing DTO and artifact facades",
+    "production_source_changes": true,
+    "path_denominator": 5,
+    "file_type_denominator": {
+      "py": 5
+    },
+    "files": [
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+        "git_blob_at_commit": "40ef8706c2a3159b51bc4cc3a670f2be15756d3b",
+        "sha256_at_commit": "c1b31ae2195e87bbca1c6fdf1f02813d6c1936cd44f9262c88c8a792d789472c",
+        "bytes_at_commit": 60573
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "git_blob_at_commit": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e",
+        "sha256_at_commit": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+        "bytes_at_commit": 353329
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+        "git_blob_at_commit": "49860221dd050487c845d293d255ffeaf9cfe344",
+        "sha256_at_commit": "8f95e2a6a6be6bb907a8c4a128b596a99733270619706f008e22c89b2e7ca7f4",
+        "bytes_at_commit": 26477
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob_at_commit": "9d152183179bf98e5d0f70aa3669cf7ca4f6e191",
+        "sha256_at_commit": "60e869db7967a8a66a46b1abb92f0fbdeb786e37f72427d854c6c0b9ab3db46f",
+        "bytes_at_commit": 589856
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "git_blob_at_commit": "db398c4c857680c7c78464abc0828488543e5c2b",
+        "sha256_at_commit": "f45db503361176a1bd8313b4835f93172e904d739e0430341f5cde88fa8ac9a9",
+        "bytes_at_commit": 129827
+      }
+    ]
+  },
+  "latest_test_only_commit": {
+    "sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
+    "tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+    "parent_shas": [
+      "b422361e3425e6b21a40e889dbaceea3c8354bc8"
+    ],
+    "subject": "test(runtime): scope run lifecycle CAS fixtures to their served owner"
+  },
+  "note": "Fixture test/support path census and b422 product-source dependency are separate. The report has one byte-exact local copy of each retained wave file; this manifest does not duplicate those outputs."
+}

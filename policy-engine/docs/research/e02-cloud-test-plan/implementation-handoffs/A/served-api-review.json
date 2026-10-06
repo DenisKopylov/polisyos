@@ -1,5 +1,5 @@
 {
-  "schema": "policyos.e02.implementation_handoff.v1",
+  "schema": "policyos.e02.source_review.v1",
   "unit": "A",
   "slice": "served-api-review",
   "branch": "codex/e02-A-full-queue",
@@ -121,7 +121,7 @@
   "checks": [
     {
       "kind": "read_only_source_review",
-      "outcome": "completed",
+      "outcome": "PASS",
       "tests_run": false,
       "numerical_execution": false,
       "generator_receipts": "export exit 0; all 4 client-generation commands returncode 0 in served-api-final-6993",

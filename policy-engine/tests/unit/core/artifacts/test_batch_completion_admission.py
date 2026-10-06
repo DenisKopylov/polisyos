@@ -7,9 +7,9 @@ import time
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions, _signature_ops, _transfer_ops
+from polisyos.core.artifacts import signing as signing_module
 from polisyos.core.artifacts import store as store_module
 from polisyos.core.artifacts.signing import (
-    ArtifactBatchAbortError,
     BulkVerificationReport,
     Ed25519Signer,
     Ed25519Verifier,
@@ -151,7 +151,7 @@ def test_global_basis_loss_preserves_finished_row_and_aborts(tmp_path, monkeypat
 
     def lose_basis(ref):
         if ref.artifact_id == refs[1].artifact_id:
-            raise ArtifactBatchAbortError("authorization_lost")
+            raise signing_module.ArtifactBatchAbortError("authorization_lost")
         return actual(ref)
 
     monkeypatch.setattr(store, "_load_verified_snapshot", lose_basis)
@@ -203,7 +203,7 @@ def test_selected_and_default_same_blob_remain_two_exact_confirmations(tmp_path)
 
 
 def test_cryptographically_valid_wrong_size_manifest_still_refuses(tmp_path):
-    store, _verifier, _refs = signed_store(tmp_path)
+    store, _verifier, refs = signed_store(tmp_path)
     pair = KeyPair.generate()
     signer = Ed25519Signer.from_pem(pair.private_pem())
     verifier = Ed25519Verifier()

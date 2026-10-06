@@ -1,0 +1,130 @@
+"""Verify committed quantity-export evidence without importing the product/backend."""
+import ast
+import gzip
+import hashlib
+import json
+import subprocess
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-D-published-oracle')
+DEST = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation'
+TRANSPORT = '3fdf0e7a90f0b9f26218e1fad865f111dd068109'
+BASE = '887391aac65ff59aedac6ad0b46352d00852ef9e'
+SOURCE = '50b74c312a11d7a712969ca147a94013c5857125'
+STYLE = '6923f970df02c2fac1aff3be9fc81eaecdcb0bcc'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/'
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def blob(sha: str, path: str) -> bytes:
+    return git('show', f'{sha}:{path}')
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+receipt = json.loads(blob(TRANSPORT, PREFIX + 'frontier-quantity-export.json'))
+compressed = blob(TRANSPORT, receipt['complete_outputs']['path'])
+raw = gzip.decompress(compressed)
+assert digest(compressed) == receipt['complete_outputs']['sha256']
+assert digest(raw) == receipt['complete_outputs']['uncompressed_sha256']
+members = json.loads(raw)['members']
+assert set(members) == {item['name'] for item in receipt['complete_outputs']['members']}
+member_checks = []
+for item in receipt['complete_outputs']['members']:
+    data = members[item['name']].encode('utf-8')
+    assert len(data) == item['bytes']
+    assert digest(data) == item['sha256']
+    member_checks.append({**item, 'result': 'MATCH'})
+
+run_checks = []
+for label, source, expected_exit, expected_failures in [
+    ('baseline', BASE, 1, 5), ('positive', SOURCE, 0, 0)
+]:
+    run = json.loads(members[f'{label}/run.json'])
+    assert run['source_sha'] == source == run['after_sha']
+    tree = git('rev-parse', source + '^{tree}').decode().strip()
+    assert run['source_tree'] == tree
+    assert run['exit_code'] == expected_exit
+    assert run['complete_output_sha256'] == digest(members[f'{label}/complete.txt'].encode())
+    origins = json.loads(members[f'{label}/origins.json'])
+    assert origins['source'] == source
+    assert origins['backend_loaded'] == dict.fromkeys(['torch', 'botorch', 'gpytorch', 'SALib'], False)
+    rows = origins['actual_loaded_products']
+    for row in rows:
+        path = str(Path(row['path']).relative_to('/workspace/e02-D-published-root'))
+        actual = digest(blob(source, path))
+        assert row['match'] is True
+        assert row['sha256'] == row['git_sha256'] == actual
+    junit = ET.fromstring(members[f'{label}/junit.xml'])
+    suite = junit.find('testsuite')
+    assert suite is not None
+    assert int(suite.attrib['tests']) == 5
+    assert int(suite.attrib['failures']) == expected_failures
+    assert int(suite.attrib['errors']) == int(suite.attrib['skipped']) == 0
+    cases = suite.findall('testcase')
+    if label == 'baseline':
+        for case in cases:
+            failure = case.find('failure')
+            assert failure is not None
+            assert "KeyError: 'hypervolume_assessments'" in (failure.text or '')
+    run_checks.append({
+        'scope': label, 'source': source, 'tree': tree,
+        'loaded_product_module_bindings': len(rows),
+        'loaded_product_module_result': 'MATCH',
+        'backend_loaded': origins['backend_loaded'],
+        'tests': 5, 'PASS': 5 - expected_failures, 'FAIL': expected_failures,
+        'ERROR': 0, 'SKIP': 0, 'wall_seconds': run['wall_seconds'],
+        'exit_code': run['exit_code'], 'command': run['command'],
+        'environment': run['environment'],
+        'before_after_source': 'MATCH',
+        'status_after_not_captured': True,
+    })
+
+path = 'policy-engine/src/polisyos/scientist/policy_design/output.py'
+source_bytes = blob(SOURCE, path)
+style_bytes = blob(STYLE, path)
+assert ast.dump(ast.parse(source_bytes), include_attributes=False) == ast.dump(
+    ast.parse(style_bytes), include_attributes=False
+)
+test_path = 'policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py'
+assert blob(BASE, test_path) == blob(SOURCE, test_path) == blob(STYLE, test_path)
+ledger = json.loads(blob(SOURCE, PREFIX + 'criterion-ledger.json'))
+criterion = next(row for row in ledger['criterion_occurrences'] if row['id'] == 'B111@OPT-01')
+card = criterion['original_acceptance_binding']['canonical_card']
+card_bytes = blob(card['source_sha'], card['path'])
+assert digest(card_bytes) == card['sha256'] and len(card_bytes) == card['bytes']
+assert digest(criterion['canonical_content']['text'].encode()) == criterion['canonical_content']['sha256']
+result = {
+    'schema': 'policyos.e02.D.independent-binding-review.v1',
+    'reviewer': 'numerical_oracle', 'transport': TRANSPORT,
+    'transport_tree': git('rev-parse', TRANSPORT + '^{tree}').decode().strip(),
+    'payload_sha256': digest(compressed), 'payload_bytes': len(compressed),
+    'uncompressed_sha256': digest(raw), 'members': member_checks,
+    'runs': run_checks,
+    'source_bindings': {
+        'output_implementation_sha256': digest(source_bytes),
+        'output_style_sha256': digest(style_bytes),
+        'output_style_whole_module_ast_equal': True,
+        'test_sha256': digest(blob(BASE, test_path)),
+        'test_bytes_base_implementation_style_equal': True,
+        'implementation_tree': git('rev-parse', SOURCE + '^{tree}').decode().strip(),
+        'style_tree': git('rev-parse', STYLE + '^{tree}').decode().strip(),
+    },
+    'original_criterion': criterion,
+    'execution': 'stdlib Git/payload/XML/AST verification only; no backend or pytest run',
+}
+(DEST / 'frontier-export-independent-binding-output.json').write_text(
+    json.dumps(result, ensure_ascii=False, indent=2) + '\n'
+)
+print(json.dumps({
+    'members': len(member_checks), 'runs': [
+        {key: run[key] for key in ['scope', 'PASS', 'FAIL', 'ERROR', 'SKIP', 'loaded_product_module_bindings']}
+        for run in run_checks
+    ], 'whole_module_ast_equal': True, 'result': 'MATCH'
+}))

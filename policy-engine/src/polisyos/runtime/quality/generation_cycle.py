@@ -4612,10 +4612,17 @@ class FoundryValuePort:
         repo_root: Path | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         artifact_store: ArtifactStore | None = None,
+        catalog_overlay_path: Path | None = None,
+        activated_observation_projection: (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+        ) = None,
     ) -> None:
         self._owner_gateway = owner_gateway or RealValueOwnerGateway(
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
+            catalog_overlay_path=catalog_overlay_path,
+            artifact_store=artifact_store,
+            activated_observation_projection=activated_observation_projection,
         )
         self._evaluation_context = evaluation_context
         self._eval_safety_verifier = eval_safety_verifier
@@ -9954,6 +9961,7 @@ def _load_value_data_profile_from_l1_dcat(
     registered_dataset_id: str | None = None
     registered_canonical_unit: str | None = None
     selected_wdi_observation_ids: tuple[str, ...] = ()
+    selected_projection_ids: tuple[str, ...] = ()
     registered_measurement_units_by_id: dict[str, str] = {}
     if activated_observation_projection is not None:
         projection_type = (
@@ -10090,8 +10098,25 @@ def _load_value_data_profile_from_l1_dcat(
                     ),
                 )
             selected_wdi_observation_ids = tuple(sorted(set(selected_ids)))
+        selected_projection_ids = tuple(
+            sorted(
+                row.observation.observation_id
+                for row in observation_projection.observations
+                if normalized_scope_region is None
+                or row.observation.country_code == normalized_scope_region
+                or row.observation.observation_id in selected_wdi_observation_ids
+            )
+        )
+        if len(selected_projection_ids) > owner_row_limit:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_too_large",
+                "The admitted scoped member set exceeds the bounded N8 row limit",
+                owner_access_ref=f"{owner_access_ref}#activated-observation-projection",
+            )
     parameters.extend(
         (
+            observation_projection is not None,
+            list(selected_projection_ids),
             normalized_scope_region,
             normalized_scope_region,
             list(selected_wdi_observation_ids),
@@ -10123,8 +10148,19 @@ def _load_value_data_profile_from_l1_dcat(
         dcat_path,
         overlay_path=selected_overlay,
     )
+    # C derives the class from its verified passport; the separate audit table
+    # is not an N8 authority input. Hash all physical fields from C's typed model.
+    physical_columns = (
+        tuple(
+            name
+            for name in type(observation_projection.observations[0].observation).model_fields
+            if name != "observation_class"
+        )
+        if observation_projection is not None
+        else ()
+    )
     try:
-        raw_rows = con.execute(
+        cursor = con.execute(
             """
             SELECT
               COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,
@@ -10133,13 +10169,13 @@ def _load_value_data_profile_from_l1_dcat(
               dataset_id,
               observation_id,
               condition_json,
-              canonical_var,
-              country_code,
-              year,
-              survey_year,
-              wave
+              *
             FROM ds_observations
             WHERE canonical_var = ?
+              AND (
+                NOT CAST(? AS BOOLEAN)
+                OR observation_id IN (SELECT UNNEST(CAST(? AS VARCHAR[])))
+              )
               AND value IS NOT NULL
               AND COALESCE(year, survey_year, wave) IS NOT NULL
               AND (
@@ -10153,7 +10189,9 @@ def _load_value_data_profile_from_l1_dcat(
             LIMIT ?
             """,
             parameters,
-        ).fetchall()
+        )
+        raw_rows = cursor.fetchall()
+        physical_row_columns = tuple(column[0] for column in cursor.description[6:])
     finally:
         con.close()
     if len(raw_rows) > owner_row_limit:
@@ -10167,6 +10205,13 @@ def _load_value_data_profile_from_l1_dcat(
         )
     projected_rows_by_id: dict[str, tuple[object, ...]] = {}
     if observation_projection is not None:
+        fetched_ids = tuple(sorted(str(row[4]) for row in raw_rows))
+        if fetched_ids != selected_projection_ids:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_drift",
+                "N8 physical rows do not equal the admitted scoped member set",
+                owner_access_ref=f"{owner_access_ref}#activated-observation-projection",
+            )
         physical_rows_by_id: dict[str, list[tuple[object, ...]]] = {}
         for raw_row in raw_rows:
             physical_rows_by_id.setdefault(str(raw_row[4]), []).append(raw_row)
@@ -10181,29 +10226,23 @@ def _load_value_data_profile_from_l1_dcat(
                     continue
                 projected_unit = normalized_scope_region
             physical_matches = physical_rows_by_id.get(observation.observation_id, [])
-            expected_physical = (
-                observation.observation_id,
-                observation.dataset_id,
-                observation.canonical_var,
-                observation.country_code,
-                observation.year,
-                observation.survey_year,
-                observation.wave,
-                observation.value,
-                observation.condition_json,
-            )
-            actual_physical = (
-                str(physical_matches[0][4]),
-                str(physical_matches[0][3]),
-                str(physical_matches[0][6]),
-                str(physical_matches[0][7]),
-                physical_matches[0][8],
-                physical_matches[0][9],
-                physical_matches[0][10],
-                physical_matches[0][2],
-                str(physical_matches[0][5]),
-            ) if len(physical_matches) == 1 else None
-            if actual_physical != expected_physical:
+            actual_row_hash = None
+            if len(physical_matches) == 1:
+                physical_row = dict(
+                    zip(physical_row_columns, physical_matches[0][6:], strict=True)
+                )
+                try:
+                    physical_payload = {
+                        column: physical_row[column] for column in physical_columns
+                    }
+                    physical_payload["observation_class"] = passport.observation_class
+                    physical_observation = type(observation).model_validate(physical_payload)
+                    actual_row_hash = content_sha256(
+                        physical_observation.model_dump(mode="json")
+                    )
+                except (KeyError, ValueError):
+                    pass
+            if actual_row_hash != projected.row_content_sha256:
                 raise ValueOwnerAccessError(
                     "acquire_data:active_observation_projection_drift",
                     (
@@ -10229,26 +10268,26 @@ def _load_value_data_profile_from_l1_dcat(
                         f"{owner_access_ref}#activated-observation-projection"
                     ),
                 )
-            if observation.observation_id in selected_wdi_observation_ids:
-                if (
-                    registered_canonical_unit is None
-                    or passport.registration.field_binding.raw_unit
-                    != registered_canonical_unit
-                    or passport.registration.field_binding.unit_transform != "identity"
-                ):
-                    raise ValueOwnerAccessError(
-                        "acquire_data:active_observation_unit_transform_not_applied",
-                        (
-                            "The selected WDI value cannot enter N8 unchanged without an "
-                            "identity unit binding"
-                        ),
-                        owner_access_ref=(
-                            f"{owner_access_ref}#activated-observation-projection"
-                        ),
-                    )
-                registered_measurement_units_by_id[
-                    observation.observation_id
-                ] = registered_canonical_unit
+            declared_condition_unit = _measurement_unit_from_condition_json(
+                observation.condition_json
+            )
+            if (
+                registered_canonical_unit is None
+                or passport.registration.field_binding.raw_unit != registered_canonical_unit
+                or passport.registration.field_binding.unit_transform != "identity"
+                or (
+                    declared_condition_unit is not None
+                    and declared_condition_unit != registered_canonical_unit
+                )
+            ):
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_unit_binding_mismatch",
+                    "The selected C value does not bind the passport's identity unit",
+                    owner_access_ref=f"{owner_access_ref}#activated-observation-projection",
+                )
+            registered_measurement_units_by_id[
+                observation.observation_id
+            ] = registered_canonical_unit
             projected_rows_by_id[observation.observation_id] = (
                 projected_unit,
                 int(period_id),
@@ -10267,7 +10306,11 @@ def _load_value_data_profile_from_l1_dcat(
     for unit, period, value, dataset_id, observation_id, condition_json in raw_rows:
         numeric_value = float(value)
         if not math.isfinite(numeric_value):
-            continue
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_row_non_finite",
+                "A selected N8 observation is nonfinite; the denominator cannot be reduced",
+                owner_access_ref=f"{owner_access_ref}#selected-row-value",
+            )
         source_dataset_id = _optional_text(dataset_id) or ""
         measurement_unit = (
             registered_measurement_units_by_id.get(str(observation_id))

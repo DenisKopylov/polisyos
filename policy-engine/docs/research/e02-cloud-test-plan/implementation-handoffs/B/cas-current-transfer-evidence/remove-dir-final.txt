@@ -1,0 +1,10 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[False] _
+tests/unit/core/artifacts/test_transfer_generation_publication.py:289: in test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation
+    assert observed["public_exists"], "two-rename publication exposed an absent generation"
+E   AssertionError: two-rename publication exposed an absent generation
+E   assert False
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[False]
+1 failed, 1 passed in 1.01s

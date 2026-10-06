@@ -1,0 +1,32 @@
+--- policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py
++++ policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py
+@@ -308,19 +308,22 @@
+     head_release = threading.Event()
+     head_finished = threading.Event()
+     if operation == "checkpoint":
+-        original_update = checkpoint.update_checkpoint_head
+-
+-        def held_update(*args, **kwargs):
++        original_replace = checkpoint.os.replace
++
++        def held_replace(source, target):
++            if Path(target).name != checkpoint.CHECKPOINT_HEAD_FILENAME:
++                return original_replace(source, target)
+             head_entered.set()
+             try:
+                 assert head_release.wait(5)
+-                return original_update(*args, **kwargs)
++                return original_replace(source, target)
+             finally:
+                 head_finished.set()
+ 
+-        # Instrument the real filesystem boundary, then call its original
+-        # atomic updater with the complete native checkpoint/ref/history.
+-        monkeypatch.setattr(checkpoint, "update_checkpoint_head", held_update)
++        # The original budget fence has admitted this atomic replacement.
++        # Once this real syscall enters, expiry cannot claim rollback; required
++        # head durability and history must complete without a caller ACK.
++        monkeypatch.setattr(checkpoint.os, "replace", held_replace)
+         executor._checkpoint_hook = checkpoint.CASCheckpointHook(
+             store=store, run_dir=ctx.run.trace_path.parent
+         )

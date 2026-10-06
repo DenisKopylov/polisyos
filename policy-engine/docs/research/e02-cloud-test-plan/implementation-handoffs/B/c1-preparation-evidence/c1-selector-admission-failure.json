@@ -1,0 +1,43 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+    "--repo",
+    "/workspace/e02-B-current-coordination",
+    "--sha",
+    "c1d031ed48134a2c084b937f0275884aeb40971c",
+    "--equivalents",
+    "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "--output",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/repaired-final-selector.json",
+    "--raw-output",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/repaired-final-selector-lineage.json"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "c1d031ed48134a2c084b937f0275884aeb40971c",
+  "tree": "d09913b83338767e0e063739f97f583a19390e12",
+  "head_after": "c1d031ed48134a2c084b937f0275884aeb40971c",
+  "wall_s": 12.155771235004067,
+  "process_rusage_maxrss_kib": 101656,
+  "exit_code": 1,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/c1-selector-admission-failure.txt",
+  "output_sha256": "3075568e88e39c1cd6939ab09bc0095f202e4eb83cff76b9c7bb66245998c54f",
+  "source_environment": {
+    "PYTHONPATH": null,
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": null,
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

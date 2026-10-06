@@ -1,0 +1,87 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry ____
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/baseline-node-pytest/test_exact_view_import_uses_de0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb0ec7ab820>
+
+    def test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "source")
+        payload = b"exact-view imports must publish through the CAS owner transaction"
+        source_ref = source.put_bytes(payload, _options())
+        manifest_bytes = source.get_manifest_bytes(source_ref)
+        target_root = tmp_path / "target"
+        target = FileSystemCAS(target_root).for_tenant("tenant-exact-view")
+        index = target._ownership_index
+        captured: list[dict[str, Any]] = []
+        write_intent = index.write_transaction_intent
+        publish_member = target._publish_transaction_member
+    
+        def capture_intent(
+            artifact_id: ArtifactID,
+            document: dict[str, Any],
+            *,
+            lease: Any,
+        ) -> Path:
+            if document.get("status") == "pending":
+                captured.append(deepcopy(document))
+            return write_intent(artifact_id, document, lease=lease)
+    
+        def interrupt_before_first_final(
+            stage_path: Path | None,
+            final_path: Path,
+            *,
+            expected_sha256: str,
+        ) -> bool:
+            raise RuntimeError("simulated exact-view interruption after durable intent")
+    
+        monkeypatch.setattr(index, "write_transaction_intent", capture_intent)
+        monkeypatch.setattr(target, "_publish_transaction_member", interrupt_before_first_final)
+        with pytest.raises(RuntimeError, match="simulated exact-view interruption"):
+>           target.import_exact_view(
+                payload,
+                manifest_bytes,
+                artifact_id=source_ref,
+            )
+
+tests/unit/core/artifacts/test_multi_tenant_shared_cas.py:610: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/artifacts/store.py:1413: in import_exact_view
+    with self._admit_import_members(intake) as admission:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:3007: in _admit_import_members
+    self._require_bound_context_for_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = None, owner = {'cell_id': None, 'tenant_id': 'tenant-exact-view'}
+
+    @staticmethod
+    def _require_bound_context_for_owner(
+        context: ArtifactTenantContextInfo | None,
+        owner: dict[str, str | None] | None,
+        *,
+        require_bound: bool = False,
+    ) -> None:
+        """Compare declared bound identity with the concrete scoped write owner."""
+        if owner is None:
+            return
+        tenant_id = owner["tenant_id"]
+        if tenant_id is None:
+            raise ArtifactOwnershipError("Scoped write owner has no concrete tenant")
+        if context is None:
+            if require_bound:
+>               raise ArtifactOwnershipError(
+                    f"Import is not owned by tenant {owner['tenant_id']}: "
+                    "manifest has no bound tenant/cell context"
+                )
+E               polisyos.core.artifacts.ownership.ArtifactOwnershipError: Import is not owned by tenant tenant-exact-view: manifest has no bound tenant/cell context
+
+src/polisyos/core/artifacts/store.py:2826: ArtifactOwnershipError
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_multi_tenant_shared_cas.py::test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry

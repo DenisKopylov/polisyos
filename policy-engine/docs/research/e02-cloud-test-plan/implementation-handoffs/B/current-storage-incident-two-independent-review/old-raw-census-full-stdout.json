@@ -1,0 +1,212 @@
+{
+  "schema": "policyos.e02.declared_old_raw_report_census_correction.v1",
+  "actual_utc": "2026-10-06T18:31:17.616613+00:00",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-flat-evidence-independent-review/declared-raw-census-audit.py"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation",
+  "input_capture": {
+    "path": "/tmp/e02-flat-evidence-independent-review/full-old-B-raw-census-all-suffixes-paths.txt",
+    "bytes": 19507667,
+    "sha256": "0aa3b8ee72bdee42822e5dbc9d813775149eea6883f8f58a6612117a31aaf662"
+  },
+  "input_config": {
+    "path": "/tmp/e02-flat-evidence-independent-review/full-old-B-raw-census-all-suffixes.json",
+    "bytes": 6451,
+    "sha256": "ccf8922f57fd9390b8f33e93452d650ccb62dda70a5c7c8280e4eb0bfa5df664"
+  },
+  "enumeration_profile": {
+    "argv": [
+      "rg",
+      "--files",
+      "--hidden",
+      "--no-ignore",
+      "--follow",
+      "-g",
+      "!**/.git/**",
+      "-g",
+      "!**/node_modules/**",
+      "-g",
+      "!**/.venv/**",
+      "-g",
+      "!**/environment/**",
+      "-g",
+      "!**/*cache*/**",
+      "-g",
+      "!**/*pytest*/**",
+      "-g",
+      "!**/tmp/**",
+      "-g",
+      "!**/*-tmp/**",
+      "-g",
+      "!**/*-input/**",
+      "-g",
+      "!**/fixtures/**",
+      "-g",
+      "!**/*projection*/**",
+      "/workspace/e02-B-acceptance",
+      "/workspace/e02-B-adapters",
+      "/workspace/e02-B-b52-oracle",
+      "/workspace/e02-B-b52-review515",
+      "/workspace/e02-B-cas",
+      "/workspace/e02-B-cas-alias-base",
+      "/workspace/e02-B-cas-alias-fix",
+      "/workspace/e02-B-cmp-res",
+      "/workspace/e02-B-coordination",
+      "/workspace/e02-B-dur-ledger",
+      "/workspace/e02-B-exe-state",
+      "/workspace/e02-B-run",
+      "/workspace/e02-B-run-review-base",
+      "/workspace/e02-B-run-review-candidate"
+    ],
+    "exit_code": 0,
+    "captured_epoch": 1791311104.6467705
+  },
+  "actual_selector": "Existing 14 old B roots from captured rg --files --hidden --no-ignore --follow argv; all suffixes, exact raw path segment under .polisyos or _build only; excludes explicitly supplied .git/dependency/env/cache/pytest/tmp/projection/input/fixtures/testcase paths. This intentionally excludes tracked architecture raw paths.",
+  "roots": {
+    "/workspace/e02-B-acceptance": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-adapters": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-b52-oracle": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-b52-review515": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-cas": {
+      "regular_report_files": 0,
+      "report_aliases": 3,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-cas-alias-base": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-cas-alias-fix": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-cmp-res": {
+      "regular_report_files": 37,
+      "report_aliases": 2,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-coordination": {
+      "regular_report_files": 36,
+      "report_aliases": 1,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-dur-ledger": {
+      "regular_report_files": 14,
+      "report_aliases": 1,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-exe-state": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-run": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-run-review-base": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    },
+    "/workspace/e02-B-run-review-candidate": {
+      "regular_report_files": 0,
+      "report_aliases": 0,
+      "other_kinds": 0
+    }
+  },
+  "totals": {
+    "roots": 14,
+    "selected_report_files_or_aliases": 94,
+    "regular_report_files": 87,
+    "report_aliases": 7,
+    "excluded_nonreport_raw_paths": 14,
+    "regular_reports_over_50000000_bytes": 0,
+    "preserved_report_aliases_over_50000000_bytes": 7
+  },
+  "regular_reports_over_50000000_bytes": [],
+  "preserved_report_aliases_over_50000000_bytes": [
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/production-invocation-final.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x4",
+      "logical_bytes": 170856799
+    },
+    {
+      "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/production-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x5",
+      "logical_bytes": 170856509
+    },
+    {
+      "path": "/workspace/e02-B-cas/policy-engine/_build/e02-cas/raw/archive-path-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x0",
+      "logical_bytes": 170954884
+    },
+    {
+      "path": "/workspace/e02-B-cas/policy-engine/_build/e02-cas/raw/tenant-production-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x1",
+      "logical_bytes": 170953977
+    },
+    {
+      "path": "/workspace/e02-B-cas/policy-engine/_build/e02-cas/raw/production-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x2",
+      "logical_bytes": 170857020
+    },
+    {
+      "path": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/exe-acceptance-invocation.json",
+      "target": "/tmp/braw-e02-B-old-invocation-20261006/x0",
+      "logical_bytes": 170857261
+    },
+    {
+      "path": "/workspace/e02-B-dur-ledger/policy-engine/_build/e02-B-dur-ledger/raw/production-invocation.json",
+      "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x3",
+      "logical_bytes": 170858015
+    }
+  ],
+  "excluded_nonreport_raw_paths": [
+    "/workspace/e02-B-b52-oracle/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-adapters/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-acceptance/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-b52-review515/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-cas-alias-fix/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-cmp-res/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-cas-alias-base/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-cas/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-exe-state/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-dur-ledger/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-run/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-coordination/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-run-review-candidate/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore",
+    "/workspace/e02-B-run-review-base/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/.gitignore"
+  ],
+  "qualification": "Corrects prior all-raw-segment denominator that also included tracked architecture directories. Absence is bounded to captured complete path traversal and current lstat of its selected paths, not new files after capture, current-* lanes, Docker protected roots, fixtures/env/caches, or all filesystem data. Four current EXE historical invocation files are separately explicit preserved ledger inputs, outside this old-root profile.",
+  "outcome": "PASS_BOUNDED_CENSUS_PROFILE",
+  "unresolved_by_construction": [
+    "new files after captured rg traversal",
+    "directories excluded by supplied globs",
+    "all current B lanes beyond four explicit preserved EXE invocation paths",
+    "protected Docker physical storage",
+    "semantic immutability of arbitrary filesystem files"
+  ],
+  "no_mutation": "Read-only path/list/stat metadata. No evidence content copy/move/delete/native/service/gate/source operation."
+}

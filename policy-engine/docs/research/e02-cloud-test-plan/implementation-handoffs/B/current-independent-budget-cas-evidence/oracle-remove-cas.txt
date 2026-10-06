@@ -1,0 +1,42 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[same_size] _
+tests/unit/core/artifacts/test_put_consumer_oracle.py:59: in test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer
+    store.put_bytes(_PAYLOAD, opts)
+src/polisyos/core/artifacts/store.py:2409: in put_bytes
+    deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(
+src/polisyos/core/artifacts/store.py:2340: in _put_blob_and_manifest_once
+    self._publish_transaction_member(
+src/polisyos/core/artifacts/store.py:2660: in _publish_transaction_member
+    raise ArtifactIntegrityError(f"Immutable CAS member conflicts: {member}")
+E   polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: Immutable CAS member conflicts: artifacts/sha256/8f/c2/8fc21f0d023d59385d7cffb5c77f8a22f1840b3a6b80137f0ce251dc100bc8fc.manifest.json
+
+During handling of the above exception, another exception occurred:
+tests/unit/core/artifacts/test_put_consumer_oracle.py:58: in test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer
+    with pytest.raises(ArtifactIntegrityError, match="Blob sha256 mismatch"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'Blob sha256 mismatch'
+E     Actual message: 'Immutable CAS member conflicts: artifacts/sha256/8f/c2/8fc21f0d023d59385d7cffb5c77f8a22f1840b3a6b80137f0ce251dc100bc8fc.manifest.json'
+_ test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[short] _
+tests/unit/core/artifacts/test_put_consumer_oracle.py:59: in test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer
+    store.put_bytes(_PAYLOAD, opts)
+src/polisyos/core/artifacts/store.py:2409: in put_bytes
+    deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(
+src/polisyos/core/artifacts/store.py:2340: in _put_blob_and_manifest_once
+    self._publish_transaction_member(
+src/polisyos/core/artifacts/store.py:2660: in _publish_transaction_member
+    raise ArtifactIntegrityError(f"Immutable CAS member conflicts: {member}")
+E   polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: Immutable CAS member conflicts: artifacts/sha256/8f/c2/8fc21f0d023d59385d7cffb5c77f8a22f1840b3a6b80137f0ce251dc100bc8fc.manifest.json
+
+During handling of the above exception, another exception occurred:
+tests/unit/core/artifacts/test_put_consumer_oracle.py:58: in test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer
+    with pytest.raises(ArtifactIntegrityError, match="Blob sha256 mismatch"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'Blob sha256 mismatch'
+E     Actual message: 'Immutable CAS member conflicts: artifacts/sha256/8f/c2/8fc21f0d023d59385d7cffb5c77f8a22f1840b3a6b80137f0ce251dc100bc8fc.manifest.json'
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_put_consumer_oracle.py::test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[same_size]
+FAILED tests/unit/core/artifacts/test_put_consumer_oracle.py::test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[short]
+2 failed in 0.31s

@@ -1,0 +1,486 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "final-stylegate-readonly-audit",
+  "closure_ids": [],
+  "proposed_criterion_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "97305720bf87c6c0c1dfd614d4e99a8acb8bf55a",
+  "implementation_commits": [
+    "3b24152272ee0610b3cb04c9003f87dcd37e6795"
+  ],
+  "candidate_tree_sha": "c74d62db5c799ad16230d172f5307eee2be3282e",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/audit-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/instrument-custody.json"
+  ],
+  "baseline_cells": [],
+  "reviewed_root_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "reviewed_root_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+  "reviewer": "/root/cas_probe; independent readonly metadata auditor, not root gate launcher/cohort author",
+  "checks": [
+    {
+      "command": {
+        "complete_actual_argv_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-ruff.json",
+          "sha256": "9e53b8bf08f20e873a5aa415ff5e7ee94cd4d4d00f6894ea3d7fa7ba6b6ababf",
+          "bytes": 21607
+        },
+        "prefix": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache"
+        ],
+        "operand_count": 213,
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine"
+      },
+      "target_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "target_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "environment": {
+        "source": "original command metadata and full profile, independently verified SHA256",
+        "profile_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-ruff-profile.json",
+          "sha256": "bae7daffe69103f75044d99f63a017da852cff87a26a92379c03b28eefcb11f5",
+          "bytes": 68573
+        },
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "execution_role": "original root gate, not independently replayed by leaf"
+      },
+      "input_closure": {
+        "literal_comparison_base": "86f37d782a709d298a9908ca3ef891adc9f89253",
+        "full_paths_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-ruff-profile.json",
+          "sha256": "bae7daffe69103f75044d99f63a017da852cff87a26a92379c03b28eefcb11f5",
+          "bytes": 68573
+        },
+        "selector_key": "inputs.paths",
+        "file_count": 213,
+        "file_type": ".py",
+        "all_213_worktree_bytes_verified_equal_frozen_git": true,
+        "head_before_and_after": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "separate_198_projection_count_not_substitute": 209
+      },
+      "outcome": "FAIL",
+      "actual_exit_code": 1,
+      "output": {
+        "complete_stdout_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-ruff.txt",
+          "sha256": "118e68e8f6aca2e9c3f5e6c9f567bff2480d73a53878df1091744754ef97badc",
+          "bytes": 2813386
+        },
+        "independent_full_parse_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/audit-stdout.json",
+          "source_sha": "3b24152272ee0610b3cb04c9003f87dcd37e6795",
+          "bytes": 59381,
+          "sha256": "8434fa0c98f6d1874df1241db28139df1fccd3e03000feaf29e22c39ad8763e2"
+        },
+        "deciding_summary": "4271 diagnostics:4270 in96B handoff witnessdrivers;1I001 test_async_executor_hardening.py:3:1;productionRuff0"
+      }
+    },
+    {
+      "command": {
+        "complete_actual_argv_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-format.json",
+          "sha256": "9c4bec9800d3eafa69d9f8d34fcdf1b2b2fa7ab9887301799f71e373ee7e92cc",
+          "bytes": 21608
+        },
+        "prefix": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check"
+        ],
+        "operand_count": 213,
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine"
+      },
+      "target_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "target_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "environment": {
+        "source": "original command metadata and full profile, independently verified SHA256",
+        "profile_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-format-profile.json",
+          "sha256": "d3a9e0d3be152f7ae7b196e0fc88cf097c351edf99e402aa6b8c8bece443f08b",
+          "bytes": 68573
+        },
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "execution_role": "original root gate, not independently replayed by leaf"
+      },
+      "input_closure": {
+        "literal_comparison_base": "86f37d782a709d298a9908ca3ef891adc9f89253",
+        "full_paths_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-format-profile.json",
+          "sha256": "d3a9e0d3be152f7ae7b196e0fc88cf097c351edf99e402aa6b8c8bece443f08b",
+          "bytes": 68573
+        },
+        "selector_key": "inputs.paths",
+        "file_count": 213,
+        "file_type": ".py",
+        "all_213_worktree_bytes_verified_equal_frozen_git": true,
+        "head_before_and_after": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "separate_198_projection_count_not_substitute": 209
+      },
+      "outcome": "FAIL",
+      "actual_exit_code": 1,
+      "output": {
+        "complete_stdout_ref": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-format.txt",
+          "sha256": "28dbc4df56e416965fbf8f5cd84ff65376ee90c18b1ac5298bd3af6cf464643b",
+          "bytes": 12910
+        },
+        "independent_full_parse_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/audit-stdout.json",
+          "source_sha": "3b24152272ee0610b3cb04c9003f87dcd37e6795",
+          "bytes": 59381,
+          "sha256": "8434fa0c98f6d1874df1241db28139df1fccd3e03000feaf29e22c39ad8763e2"
+        },
+        "deciding_summary": "99 would reformat:96B handoff witnessdrivers+checkpoint.py+executor.py+test_async_executor.py;114 already formatted"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        ".polisyos/e02-B-current/raw/final-style-audit/audit.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "target_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "environment": {
+        "auditor_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "auditor_python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "mutation_scope": "own ignored scratch+later Git metadata companions only; root read-only"
+      },
+      "input_closure": {
+        "all_six_original_artifacts": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-format-profile.json",
+            "sha256": "d3a9e0d3be152f7ae7b196e0fc88cf097c351edf99e402aa6b8c8bece443f08b",
+            "bytes": 68573
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-format.json",
+            "sha256": "9c4bec9800d3eafa69d9f8d34fcdf1b2b2fa7ab9887301799f71e373ee7e92cc",
+            "bytes": 21608
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-format.txt",
+            "sha256": "28dbc4df56e416965fbf8f5cd84ff65376ee90c18b1ac5298bd3af6cf464643b",
+            "bytes": 12910
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-ruff-profile.json",
+            "sha256": "bae7daffe69103f75044d99f63a017da852cff87a26a92379c03b28eefcb11f5",
+            "bytes": 68573
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-ruff.json",
+            "sha256": "9e53b8bf08f20e873a5aa415ff5e7ee94cd4d4d00f6894ea3d7fa7ba6b6ababf",
+            "bytes": 21607
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-ruff.txt",
+            "sha256": "118e68e8f6aca2e9c3f5e6c9f567bff2480d73a53878df1091744754ef97badc",
+            "bytes": 2813386
+          }
+        ],
+        "frozen_source_configs": [
+          {
+            "path": "AGENTS.md",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+            "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+            "bytes": 22656
+          },
+          {
+            "path": "policy-engine/CONTRIBUTING.md",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+            "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+            "bytes": 10553
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+            "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+            "bytes": 20260
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "63d8874b95576792abf84eeaf3db871139e14490",
+            "sha256": "d71d4aa68d1cb754139030367514b3662fa4c9acde54d55af66311213a3c32a1",
+            "bytes": 20783
+          },
+          {
+            "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "7f4cc9ab9541a44c26e4648a2c08326e53743492",
+            "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a",
+            "bytes": 61268
+          },
+          {
+            "path": "policy-engine/docs/reference/repository-hygiene.md",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "52a47350da7480fb64d926d09165ebd926d3646f",
+            "sha256": "61819965a29b9f451cf2ba8fdf633ce14dee100ebc1b31a146a9cecfd0ad111e",
+            "bytes": 11625
+          },
+          {
+            "path": "policy-engine/docs/reference/quality-gates.md",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "6089ea41c53460d6848701b17ed01258d834f3d2",
+            "sha256": "b8fd86119ed42f6400548a5977a08e426346167db3ae39895028c5a898298b9d",
+            "bytes": 33606
+          },
+          {
+            "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "f7cadd9fd47cf2d7187e9e6c596b1967a0b4e0e6",
+            "sha256": "5572cf55639b6f69c46aff6fdb8bd577d84782f0d8eff79a7bc7fcb0ff48f6eb",
+            "bytes": 7482
+          },
+          {
+            "path": "policy-engine/tools/devx/workspace/lint_fast.py",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "d4c62885b8878c2f3e72c0fb0d95ee349b0fcf38",
+            "sha256": "8a347c43d7f0a9a06a5fadd660b9197b0a5a67abf42b1e0bff7b6a7b6a87b061",
+            "bytes": 2096
+          },
+          {
+            "path": "policy-engine/ruff.toml",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "a0928fffdad2d96d6030fc23584801beac45b560",
+            "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+            "bytes": 247
+          },
+          {
+            "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+            "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "git_blob": "b4e4d47dc80dbd45234e806f44073fd575ebf56d",
+            "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607",
+            "bytes": 26782
+          }
+        ],
+        "all_213_input_bytes_match_frozen_git": true,
+        "instrument_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/instrument-custody.json",
+          "source_sha": "3b24152272ee0610b3cb04c9003f87dcd37e6795",
+          "bytes": 12741,
+          "sha256": "2ed5691622ddf5e427e4d2d8c5ce693cc61a8678b05c9d95a60aea80e3dd5ed4"
+        }
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/audit-stdout.json",
+        "source_sha": "3b24152272ee0610b3cb04c9003f87dcd37e6795",
+        "bytes": 59381,
+        "sha256": "8434fa0c98f6d1874df1241db28139df1fccd3e03000feaf29e22c39ad8763e2"
+      },
+      "meaning": "Metadata/source/input/output custody and complete diagnostic/count reconciliation PASS; original style gate outcomes remain FAIL. No product runtime/case-count/closure claim."
+    },
+    {
+      "command": "UNRUN: exact style gate replay at a base before all B work",
+      "target_sha": "86f37d782a709d298a9908ca3ef891adc9f89253",
+      "environment": "not_established; no baseline checkout or gate execution requested",
+      "input_closure": "Complete selected denominator213;209also changed since198entry; zero-intersection proof absent and impossible for this whole B slice profile",
+      "outcome": "UNRUN",
+      "output": "P41 inherited/disjoint attribution NOT_ESTABLISHED. Older frozen witness bytes alone do not prove inheritance."
+    }
+  ],
+  "property": {
+    "statement": "Exact frozen root final stylegate full213literal Python inputs and complete deciding stdout are independently reconciled. Audit PASS means custody/count reconciliation only; both underlying gates FAIL.",
+    "runtime_path": [
+      "original root launcher run-frozen.py",
+      "original argv/profile and frozen Git input bytes",
+      "complete Ruff4271 diagnostics and format99/114 stdout",
+      "independent read-only full parser/Git reconciliation"
+    ],
+    "path_plane": "metadata/measurement; no product runtime evaluated",
+    "proxy_divergence": "Fresh198projection209 differs from literal86f37gate213 by4actualnamedinputs. Restricting interpretation to4270witness diagnostics would omit1testI001 and3source/test format failures.",
+    "negative_controls": [
+      "No additional runtime, baseline, style, or synthetic controls run under this read-only task. Actual nonzero counts/fullinput intersection refute witness-only-green or inherited/disjoint shortcuts."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "metadata_audit_PASS; final_all_changed_ruff_FAIL; final_all_changed_format_FAIL; P41_inherited_or_disjoint_NOT_ESTABLISHED; no_closure_claim",
+  "input_census": {
+    "literal_base": "86f37d782a709d298a9908ca3ef891adc9f89253",
+    "count": 213,
+    "file_type_counts": {
+      ".py": 213
+    },
+    "category_counts": {
+      "docs_witnesses": 110,
+      "production": 48,
+      "tests": 55
+    },
+    "all_selected_worktree_bytes_match_frozen_git": 213,
+    "full_input_list_ref": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-ruff-profile.json#inputs.paths",
+    "fresh_projection_only": {
+      "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "count": 209,
+      "category_counts": {
+        "docs_witnesses": 109,
+        "production": 47,
+        "tests": 53
+      },
+      "not_a_gate_substitute": true
+    },
+    "literal_only_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+      "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py"
+    ]
+  },
+  "diagnostic_distribution": {
+    "ruff": {
+      "total": 4271,
+      "docs_witnesses": 4270,
+      "docs_witness_file_count": 96,
+      "tests": 1,
+      "production": 0,
+      "codes": {
+        "ANN001": 397,
+        "ANN002": 21,
+        "ANN003": 16,
+        "ANN201": 228,
+        "ANN202": 22,
+        "ANN204": 20,
+        "ANN205": 13,
+        "B023": 16,
+        "B905": 5,
+        "C401": 1,
+        "C408": 11,
+        "C420": 2,
+        "E401": 87,
+        "E402": 211,
+        "E501": 773,
+        "E701": 221,
+        "E702": 1012,
+        "E731": 1,
+        "E741": 3,
+        "F401": 50,
+        "F811": 35,
+        "I001": 134,
+        "PT017": 1,
+        "PT018": 81,
+        "RUF005": 9,
+        "RUF007": 3,
+        "RUF059": 4,
+        "S101": 380,
+        "S102": 21,
+        "S314": 3,
+        "S603": 152,
+        "S606": 3,
+        "S607": 172,
+        "SIM102": 1,
+        "T201": 146,
+        "UP017": 16
+      },
+      "full_path_distribution_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/audit-stdout.json",
+        "source_sha": "3b24152272ee0610b3cb04c9003f87dcd37e6795",
+        "bytes": 59381,
+        "sha256": "8434fa0c98f6d1874df1241db28139df1fccd3e03000feaf29e22c39ad8763e2"
+      }
+    },
+    "format": {
+      "would_reformat": 99,
+      "already_formatted": 114,
+      "docs_witnesses": 96,
+      "production": 2,
+      "tests": 1,
+      "non_docs_paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+          "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+          "git_blob": "a6a5b6cb483abe855225bdbf3860ef8475a7134a",
+          "sha256": "4712314f04747f9c29f601c71adb681cd921a6f89e4f7d426ab4850a11cb2b21",
+          "bytes": 87102
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+          "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+          "git_blob": "abcede045da1496a8338f8206f960b0a06155709",
+          "sha256": "7dd103dcaf4deed17d3f5612d96f3b0283991096922518cbf929bd91e3e6c520",
+          "bytes": 77010
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+          "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+          "git_blob": "227a2713f94e56ca4c361d1bb3ebeea40718588e",
+          "sha256": "59f0acf06052db762b2b0b638f02a6d9fb0c1b825e2d6844c572186f821f61de",
+          "bytes": 30571
+        }
+      ]
+    },
+    "ruff_non_docs_diagnostics": [
+      {
+        "code": "I001",
+        "message": "Import block is un-sorted or un-formatted",
+        "path": "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "line": 3,
+        "column": 1
+      }
+    ]
+  },
+  "source_profile_boundaries": {
+    "e02_closeout_literal_all_changed_python_required": "verification-and-closeout.md lines51-52,60",
+    "canonical_lint_fast_scope": "specific authored operands at _repo_hygiene.py lines12-34, actual lint_fast.py lines41-51 omit docs Python; this distinct profile does not replace the e02 literal gate",
+    "docs_python_exemption": "none_established; repository-hygiene.md lines18-25,54-59 includes authored docs and repo-wide authored Python"
+  },
+  "witness_byte_custody": {
+    "classified_scope": "All96red docs files are exact tracked policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B witnessdrivers. Selected docs110; no exemption claim.",
+    "full_frozen_path_blob_sha256_count_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/audit-stdout.json",
+      "source_sha": "3b24152272ee0610b3cb04c9003f87dcd37e6795",
+      "bytes": 59381,
+      "sha256": "8434fa0c98f6d1874df1241db28139df1fccd3e03000feaf29e22c39ad8763e2"
+    },
+    "original_log_mutations": false,
+    "original_source_or_hash_mutations": false,
+    "meaning": "Prior script/receipt hashes and source@SHA remain evidence of prior executions. These files are current required literal stylegate inputs and their hygiene debt is explicit."
+  },
+  "root_freeze_custody": {
+    "head_before": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "tree_before": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+    "head_after": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "tree_after": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+    "status_before": "",
+    "status_after": "",
+    "root_git_mutations_by_auditor": false
+  },
+  "limitations_and_next_owner": [
+    "No style gate, test collection, product runtime or baseline replay executed by this auditor.",
+    "Witness driver classification names exact tracked B handoff paths; it neither exempts them nor promotes historical evidence to candidate PASS.",
+    "Full 2.8MB Ruff stdout remains ignored raw path@SHA; audit parsed every header/location and reconciled the terminal count. Remote evidence availability requires root Git transfer or qualified receiver replay.",
+    "Frozen original historical witness bytes must be preserved under immutable source/artifact refs. Any forward cleanup requires owners to preserve prior hashes/receipts and review semantic identity; no original output or checksum was rewritten.",
+    "Production source fixes belong EXE owner for checkpoint.py/executor.py; test style fixes belong EXE test owner; historical witness hygiene/custody routing belongs each evidence owner under root/G coordination.",
+    "Root/G owns required closeout gate disposition and immutable evidence transfer. No canonical Ruff exemption, assertion weakening, or inherited-red waiver introduced.",
+    "Both full argv/profiles and huge deciding Ruff stdout currently exist in root ignored raw path@SHA. Remote acceptance of unavailable bytes requires root evidence transfer or qualified exact replay; this audit summary does not supply a missing raw log.",
+    "Historical driver hygiene must be assigned to actual evidence owners with custody preserved at immutable refs; do not rewrite original outputs/checksums or silently present cleaned successor scripts as the old executed inputs.",
+    "No source/test/style changes, new worktree/helper, baseline replay, collection, or product gate execution in this audit. Publication changes only own B JSON metadata; frozen root HEAD unchanged."
+  ],
+  "companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/audit-stdout.json",
+      "source_sha": "3b24152272ee0610b3cb04c9003f87dcd37e6795",
+      "bytes": 59381,
+      "sha256": "8434fa0c98f6d1874df1241db28139df1fccd3e03000feaf29e22c39ad8763e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-stylegate-audit/instrument-custody.json",
+      "source_sha": "3b24152272ee0610b3cb04c9003f87dcd37e6795",
+      "bytes": 12741,
+      "sha256": "2ed5691622ddf5e427e4d2d8c5ce693cc61a8678b05c9d95a60aea80e3dd5ed4"
+    }
+  ],
+  "git_diff_check_scope": "Only new two JSON implementation companions; git diff --cached --check PASS before implementation commit. No whole historic branch/log whitespace claim."
+}

@@ -1,0 +1,51 @@
+{
+  "target_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+  "candidate_tree_sha": "185dc1e866579d48712580bd62b39aff83529158",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--repo-root",
+    "/workspace/e02-B-current-execution-state/policy-engine",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--receipt",
+    "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-invocation/raw.json"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-invocation/input-closure.json",
+    "sha256": "071ed80550d84e00920156b91cc47646b0b5691fbc5b4762002edc19e1fe4242",
+    "tracked_paths": 13850,
+    "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "driver_sha256": "d00105b9385369bc6bfeeb90ede651b44dd24ff7b4cba897fdb091f12e010efd",
+  "start_utc": "2026-10-06T12:12:37.505760+00:00",
+  "end_utc": "2026-10-06T12:16:25.641892+00:00",
+  "wall_s": 228.13611565199972,
+  "max_rss_kib": 8362372,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-invocation/input-closure.json",
+      "sha256": "071ed80550d84e00920156b91cc47646b0b5691fbc5b4762002edc19e1fe4242",
+      "bytes": 2792137
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-invocation/raw.json",
+      "sha256": "f1ff7dc3d198c011327feafc51ba7cb3a64f03605ad7a315a6bc2dfae9a3d1ff",
+      "bytes": 171252817
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-invocation/stdout.txt",
+      "sha256": "762079b2e57b0ba724becf96642cf3f82c97cf24dfa4083294434812b1e808b9",
+      "bytes": 4518
+    }
+  ]
+}

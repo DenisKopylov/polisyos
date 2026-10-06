@@ -1,0 +1,656 @@
+.............FF.F.........                                               [100%]
+=================================== FAILURES ===================================
+_ test_executor_generation_separates_state_and_original_history_array_roots[collision-absolute] _
+
+cls = <class 'polisyos.foundry.methods.backends.checkpointing.ChainCheckpoint'>
+path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ0/writer/checkpoint_f0c810b4_0000_20261006T103917.json')
+
+    @classmethod
+    def load(cls, path: Path) -> ChainCheckpoint:
+        """Deserialise from *path*."""
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                raise CheckpointLoadError("Checkpoint manifest must be a JSON object.")
+            snapshot_base = path.parent
+            if "checkpoint_format" in data:
+                if data["checkpoint_format"] != "generation-v1":
+                    raise CheckpointLoadError("Unsupported checkpoint manifest format.")
+                snapshot_path = _resolve_checkpoint_member_path(path.parent, data["snapshot_ref"])
+                snapshot_bytes = snapshot_path.read_bytes()
+                if hashlib.sha256(snapshot_bytes).hexdigest() != data["snapshot_sha256"]:
+                    raise CheckpointLoadError("Checkpoint generation snapshot content mismatch.")
+                data = json.loads(snapshot_bytes)
+                if not isinstance(data, dict):
+                    raise CheckpointLoadError("Checkpoint snapshot must be a JSON object.")
+                snapshot_base = snapshot_path.parent
+>           state = _deserialise_state(data.pop("intermediate_state"), snapshot_base)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:314: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:1058: in _deserialise_state
+    return {key: _deserialise_state(value, base_dir) for key, value in payload.items()}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:1060: in _deserialise_state
+    return [_deserialise_state(value, base_dir) for value in payload]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:1058: in _deserialise_state
+    return {key: _deserialise_state(value, base_dir) for key, value in payload.items()}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+payload = {'__npy_dtype__': '<i8', '__npy_ref__': 'snapshot__WyJub2RlX3Jlc3VsdHMiLCIwIiwib3V0cHV0Il0.npy', '__npy_sha256__': 'd852176e565f255e8fa23c1f55dd79fbec0ca1332c0a23c08ceb717e0c6472fd', '__npy_shape__': []}
+base_dir = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-r..._generation_separ0/writer/.checkpoint_f0c810b4_0000_20261006T103917.json.generations/6a11b1f9e9214887850ccd495eb54008')
+
+    def _deserialise_state(payload: Any, base_dir: Path) -> Any:
+        """Inverse of ``_serialise_state`` for mappings and nested sequences."""
+        if isinstance(payload, dict) and "__npy_ref__" in payload:
+            sidecar_path = _resolve_sidecar_path(base_dir, payload)
+            if not sidecar_path.exists():
+                raise CheckpointLoadError(f"Checkpoint sidecar missing: {sidecar_path}")
+            try:
+                array = np.load(sidecar_path, allow_pickle=False)
+            except (EOFError, OSError, ValueError) as exc:
+                raise CheckpointLoadError(f"Checkpoint sidecar is unreadable: {sidecar_path}") from exc
+            if not isinstance(array, np.ndarray):
+                raise CheckpointLoadError(f"Checkpoint sidecar is not a NumPy array: {sidecar_path}")
+            expected_shape = payload.get("__npy_shape__")
+            expected_dtype = payload.get("__npy_dtype__")
+            expected_digest = payload.get("__npy_sha256__")
+            if (
+                not isinstance(expected_shape, list)
+                or not isinstance(expected_dtype, str)
+                or not isinstance(expected_digest, str)
+            ):
+                raise CheckpointLoadError(
+                    f"Checkpoint sidecar content binding is missing: {sidecar_path}"
+                )
+            if list(array.shape) != expected_shape or array.dtype.str != expected_dtype:
+                raise CheckpointLoadError(f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}")
+            if _array_content_digest(array) != expected_digest:
+>               raise CheckpointLoadError(f"Checkpoint sidecar content mismatch: {sidecar_path}")
+E               polisyos.foundry.methods.backends.checkpointing.CheckpointLoadError: Checkpoint sidecar content mismatch: /workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ0/writer/.checkpoint_f0c810b4_0000_20261006T103917.json.generations/6a11b1f9e9214887850ccd495eb54008/snapshot__WyJub2RlX3Jlc3VsdHMiLCIwIiwib3V0cHV0Il0.npy
+
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:1055: CheckpointLoadError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc960072f90>
+relative_directory = False, state_key = 'node_results'
+
+    @pytest.mark.parametrize("relative_directory", [False, True], ids=["absolute", "relative"])
+    @pytest.mark.parametrize("state_key", ["node_results", "independent"], ids=["collision", "control"])
+    def test_executor_generation_separates_state_and_original_history_array_roots(
+        tmp_path, monkeypatch, relative_directory, state_key
+    ):
+        from pathlib import Path
+    
+        import numpy as np
+    
+        chain, registry, node, _ = _history_array_checkpoints(tmp_path / "bootstrap")
+        monkeypatch.chdir(tmp_path)
+        directory = Path("writer") if relative_directory else tmp_path / "writer"
+        initial_state = {state_key: [{"output": np.asarray(11)}]}
+        overrides = {node.id: {"value": 2}}
+        original = CheckpointingChainExecutor(registry=registry, checkpoint_dir=directory).execute(
+            chain, initial_state=initial_state, params_per_node=overrides, seed=23
+        )
+>       checkpoint = ChainCheckpoint.load(next(directory.glob("checkpoint*.json")))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/workspace/e02-B-current-composition/policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py:504: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'polisyos.foundry.methods.backends.checkpointing.ChainCheckpoint'>
+path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ0/writer/checkpoint_f0c810b4_0000_20261006T103917.json')
+
+    @classmethod
+    def load(cls, path: Path) -> ChainCheckpoint:
+        """Deserialise from *path*."""
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                raise CheckpointLoadError("Checkpoint manifest must be a JSON object.")
+            snapshot_base = path.parent
+            if "checkpoint_format" in data:
+                if data["checkpoint_format"] != "generation-v1":
+                    raise CheckpointLoadError("Unsupported checkpoint manifest format.")
+                snapshot_path = _resolve_checkpoint_member_path(path.parent, data["snapshot_ref"])
+                snapshot_bytes = snapshot_path.read_bytes()
+                if hashlib.sha256(snapshot_bytes).hexdigest() != data["snapshot_sha256"]:
+                    raise CheckpointLoadError("Checkpoint generation snapshot content mismatch.")
+                data = json.loads(snapshot_bytes)
+                if not isinstance(data, dict):
+                    raise CheckpointLoadError("Checkpoint snapshot must be a JSON object.")
+                snapshot_base = snapshot_path.parent
+            state = _deserialise_state(data.pop("intermediate_state"), snapshot_base)
+            node_results: list[dict[str, Any]] = []
+            if "node_results" in data:
+                node_results_payload = _deserialise_state(
+                    {"node_results": data.pop("node_results")},
+                    snapshot_base,
+                )
+                node_results = node_results_payload["node_results"]
+            return cls(
+                chain_digest=data["chain_digest"],
+                completed_fqns=data["completed_fqns"],
+                completed_node_ids=data["completed_node_ids"],
+                intermediate_state=state,
+                node_timing_ms=data.get("node_timing_ms", []),
+                created_at=data.get("created_at", 0.0),
+                execution_digest=data.get("execution_digest"),
+                node_results=node_results,
+                history_complete=data.get("history_complete") is True,
+                checkpoint_path=path,
+            )
+        except (
+            OSError,
+            json.JSONDecodeError,
+            KeyError,
+            TypeError,
+            ValueError,
+            CheckpointError,
+        ) as exc:
+>           raise CheckpointLoadError(f"Failed to load checkpoint at {path}: {exc}") from exc
+E           polisyos.foundry.methods.backends.checkpointing.CheckpointLoadError: Failed to load checkpoint at /workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ0/writer/checkpoint_f0c810b4_0000_20261006T103917.json: Checkpoint sidecar content mismatch: /workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ0/writer/.checkpoint_f0c810b4_0000_20261006T103917.json.generations/6a11b1f9e9214887850ccd495eb54008/snapshot__WyJub2RlX3Jlc3VsdHMiLCIwIiwib3V0cHV0Il0.npy
+
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:342: CheckpointLoadError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 10:39:17 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 10:39:17 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:17 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.49 fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:17 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:17 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.56 fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:17 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:17 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.65 fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_executor_generation_separates_state_and_original_history_array_roots[collision-relative] _
+
+self = <ChainCheckpoint completed=1 digest=f0c810b4... path=None>
+path = PosixPath('writer/checkpoint_f0c810b4_0000_20261006T103918.json')
+
+    def save(self, path: Path) -> None:
+        """Publish one immutable snapshot generation through an atomic pointer."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with _checkpoint_write_lock(path):
+            generation_dir = path.parent / f".{path.name}.generations" / uuid4().hex
+            tmp_paths: list[Path] = []
+            manifest_published = False
+            generation_created = False
+    
+            def mark_manifest_published() -> None:
+                nonlocal manifest_published
+                manifest_published = True
+                self.checkpoint_path = path
+    
+            try:
+                generation_dir = _resolve_checkpoint_member_path(
+                    path.parent, str(generation_dir.relative_to(path.parent))
+                )
+                generation_dir.mkdir(parents=True, exist_ok=False)
+                generation_created = True
+                payload, sidecars = _serialise_state(
+                    self.intermediate_state,
+                    "snapshot",
+                    force_encoded=True,
+                )
+                history_payload: dict[str, Any] | None = None
+                if self.node_results:
+                    history_payload, history_sidecars = _serialise_state(
+                        {"node_results": self.node_results},
+                        "snapshot",
+                        force_encoded=True,
+                    )
+                    sidecars.update(history_sidecars)
+                data = {
+                    "chain_digest": self.chain_digest,
+                    "completed_fqns": self.completed_fqns,
+                    "completed_node_ids": self.completed_node_ids,
+                    "intermediate_state": payload,
+                    "node_timing_ms": self.node_timing_ms,
+                    "created_at": self.created_at,
+                    "execution_digest": self.execution_digest,
+                    "history_complete": self.history_complete,
+                }
+                if history_payload is not None:
+                    data["node_results"] = history_payload["node_results"]
+    
+                for sidecar_name, arr in sidecars.items():
+                    sidecar_path = generation_dir / sidecar_name
+                    tmp_sidecar = _tmp_path_for(sidecar_path)
+                    tmp_paths.append(tmp_sidecar)
+                    _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
+                    tmp_paths.remove(tmp_sidecar)
+    
+                snapshot_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                snapshot_path = generation_dir / "snapshot.json"
+                tmp_snapshot = _tmp_path_for(snapshot_path)
+                tmp_paths.append(tmp_snapshot)
+                _atomic_write_bytes(tmp_snapshot, snapshot_path, snapshot_bytes)
+                tmp_paths.remove(tmp_snapshot)
+                # The immutable generation and its parent entry must precede
+                # the pointer that lets a reader select them.
+                _fsync_dir(generation_dir.parent)
+                _fsync_dir(path.parent)
+                pointer = {
+                    "checkpoint_format": "generation-v1",
+>                   "snapshot_ref": str(snapshot_path.relative_to(path.parent)),
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "snapshot_sha256": hashlib.sha256(snapshot_bytes).hexdigest(),
+                }
+
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:261: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-r...par1/writer/.checkpoint_f0c810b4_0000_20261006T103918.json.generations/01213e6c3668459a922f218804ac5cdf/snapshot.json')
+other = PosixPath('writer')
+
+    def relative_to(self, other, *, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if not hasattr(other, 'with_segments'):
+            other = self.with_segments(other)
+        for step, path in enumerate(chain([other], other.parents)):
+            if path == self or path in self.parents:
+                break
+            elif not walk_up:
+>               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ1/writer/.checkpoint_f0c810b4_0000_20261006T103918.json.generations/01213e6c3668459a922f218804ac5cdf/snapshot.json' is not in the subpath of 'writer'
+
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:490: ValueError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc95ed428b0>
+relative_directory = True, state_key = 'node_results'
+
+    @pytest.mark.parametrize("relative_directory", [False, True], ids=["absolute", "relative"])
+    @pytest.mark.parametrize("state_key", ["node_results", "independent"], ids=["collision", "control"])
+    def test_executor_generation_separates_state_and_original_history_array_roots(
+        tmp_path, monkeypatch, relative_directory, state_key
+    ):
+        from pathlib import Path
+    
+        import numpy as np
+    
+        chain, registry, node, _ = _history_array_checkpoints(tmp_path / "bootstrap")
+        monkeypatch.chdir(tmp_path)
+        directory = Path("writer") if relative_directory else tmp_path / "writer"
+        initial_state = {state_key: [{"output": np.asarray(11)}]}
+        overrides = {node.id: {"value": 2}}
+>       original = CheckpointingChainExecutor(registry=registry, checkpoint_dir=directory).execute(
+            chain, initial_state=initial_state, params_per_node=overrides, seed=23
+        )
+
+/workspace/e02-B-current-composition/policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py:501: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:536: in execute
+    self._save_checkpoint(
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:643: in _save_checkpoint
+    chk.save(path)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <ChainCheckpoint completed=1 digest=f0c810b4... path=None>
+path = PosixPath('writer/checkpoint_f0c810b4_0000_20261006T103918.json')
+
+    def save(self, path: Path) -> None:
+        """Publish one immutable snapshot generation through an atomic pointer."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with _checkpoint_write_lock(path):
+            generation_dir = path.parent / f".{path.name}.generations" / uuid4().hex
+            tmp_paths: list[Path] = []
+            manifest_published = False
+            generation_created = False
+    
+            def mark_manifest_published() -> None:
+                nonlocal manifest_published
+                manifest_published = True
+                self.checkpoint_path = path
+    
+            try:
+                generation_dir = _resolve_checkpoint_member_path(
+                    path.parent, str(generation_dir.relative_to(path.parent))
+                )
+                generation_dir.mkdir(parents=True, exist_ok=False)
+                generation_created = True
+                payload, sidecars = _serialise_state(
+                    self.intermediate_state,
+                    "snapshot",
+                    force_encoded=True,
+                )
+                history_payload: dict[str, Any] | None = None
+                if self.node_results:
+                    history_payload, history_sidecars = _serialise_state(
+                        {"node_results": self.node_results},
+                        "snapshot",
+                        force_encoded=True,
+                    )
+                    sidecars.update(history_sidecars)
+                data = {
+                    "chain_digest": self.chain_digest,
+                    "completed_fqns": self.completed_fqns,
+                    "completed_node_ids": self.completed_node_ids,
+                    "intermediate_state": payload,
+                    "node_timing_ms": self.node_timing_ms,
+                    "created_at": self.created_at,
+                    "execution_digest": self.execution_digest,
+                    "history_complete": self.history_complete,
+                }
+                if history_payload is not None:
+                    data["node_results"] = history_payload["node_results"]
+    
+                for sidecar_name, arr in sidecars.items():
+                    sidecar_path = generation_dir / sidecar_name
+                    tmp_sidecar = _tmp_path_for(sidecar_path)
+                    tmp_paths.append(tmp_sidecar)
+                    _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
+                    tmp_paths.remove(tmp_sidecar)
+    
+                snapshot_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                snapshot_path = generation_dir / "snapshot.json"
+                tmp_snapshot = _tmp_path_for(snapshot_path)
+                tmp_paths.append(tmp_snapshot)
+                _atomic_write_bytes(tmp_snapshot, snapshot_path, snapshot_bytes)
+                tmp_paths.remove(tmp_snapshot)
+                # The immutable generation and its parent entry must precede
+                # the pointer that lets a reader select them.
+                _fsync_dir(generation_dir.parent)
+                _fsync_dir(path.parent)
+                pointer = {
+                    "checkpoint_format": "generation-v1",
+                    "snapshot_ref": str(snapshot_path.relative_to(path.parent)),
+                    "snapshot_sha256": hashlib.sha256(snapshot_bytes).hexdigest(),
+                }
+                json_bytes = json.dumps(pointer, indent=2, sort_keys=True).encode("utf-8")
+                tmp_json = _tmp_path_for(path)
+                tmp_paths.append(tmp_json)
+                _atomic_write_bytes(tmp_json, path, json_bytes, on_publish=mark_manifest_published)
+                tmp_paths.remove(tmp_json)
+            except (
+                OSError,
+                TypeError,
+                ValueError,
+                CheckpointSerializationError,
+                CheckpointLoadError,
+            ) as exc:
+                # Cleanup remains in the same actual writer lock. Only this
+                # unpublished UUID generation belongs to the failed writer.
+                _cleanup_paths(tmp_paths)
+                if not manifest_published:
+                    if generation_created:
+                        try:
+                            shutil.rmtree(generation_dir)
+                        except OSError:
+                            _logger.debug(
+                                "checkpoint_generation_cleanup_failed path=%s", generation_dir
+                            )
+>                   raise CheckpointSaveError(
+                        f"Failed to save checkpoint at {path}: {exc}"
+                    ) from exc
+E                   polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError: Failed to save checkpoint at writer/checkpoint_f0c810b4_0000_20261006T103918.json: '/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ1/writer/.checkpoint_f0c810b4_0000_20261006T103918.json.generations/01213e6c3668459a922f218804ac5cdf/snapshot.json' is not in the subpath of 'writer'
+
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:287: CheckpointSaveError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 10:39:17 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 10:39:17 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:17 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.74 fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:17 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:18 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.58 fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:18 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:18 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.52 fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.methods.checkpointing:checkpointing.py:658 checkpoint_save_failed path=writer/checkpoint_f0c810b4_0000_20261006T103918.json error_type=CheckpointSaveError message=Failed to save checkpoint at writer/checkpoint_f0c810b4_0000_20261006T103918.json: '/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ1/writer/.checkpoint_f0c810b4_0000_20261006T103918.json.generations/01213e6c3668459a922f218804ac5cdf/snapshot.json' is not in the subpath of 'writer'
+_ test_executor_generation_separates_state_and_original_history_array_roots[control-relative] _
+
+self = <ChainCheckpoint completed=1 digest=f0c810b4... path=None>
+path = PosixPath('writer/checkpoint_f0c810b4_0000_20261006T103918.json')
+
+    def save(self, path: Path) -> None:
+        """Publish one immutable snapshot generation through an atomic pointer."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with _checkpoint_write_lock(path):
+            generation_dir = path.parent / f".{path.name}.generations" / uuid4().hex
+            tmp_paths: list[Path] = []
+            manifest_published = False
+            generation_created = False
+    
+            def mark_manifest_published() -> None:
+                nonlocal manifest_published
+                manifest_published = True
+                self.checkpoint_path = path
+    
+            try:
+                generation_dir = _resolve_checkpoint_member_path(
+                    path.parent, str(generation_dir.relative_to(path.parent))
+                )
+                generation_dir.mkdir(parents=True, exist_ok=False)
+                generation_created = True
+                payload, sidecars = _serialise_state(
+                    self.intermediate_state,
+                    "snapshot",
+                    force_encoded=True,
+                )
+                history_payload: dict[str, Any] | None = None
+                if self.node_results:
+                    history_payload, history_sidecars = _serialise_state(
+                        {"node_results": self.node_results},
+                        "snapshot",
+                        force_encoded=True,
+                    )
+                    sidecars.update(history_sidecars)
+                data = {
+                    "chain_digest": self.chain_digest,
+                    "completed_fqns": self.completed_fqns,
+                    "completed_node_ids": self.completed_node_ids,
+                    "intermediate_state": payload,
+                    "node_timing_ms": self.node_timing_ms,
+                    "created_at": self.created_at,
+                    "execution_digest": self.execution_digest,
+                    "history_complete": self.history_complete,
+                }
+                if history_payload is not None:
+                    data["node_results"] = history_payload["node_results"]
+    
+                for sidecar_name, arr in sidecars.items():
+                    sidecar_path = generation_dir / sidecar_name
+                    tmp_sidecar = _tmp_path_for(sidecar_path)
+                    tmp_paths.append(tmp_sidecar)
+                    _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
+                    tmp_paths.remove(tmp_sidecar)
+    
+                snapshot_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                snapshot_path = generation_dir / "snapshot.json"
+                tmp_snapshot = _tmp_path_for(snapshot_path)
+                tmp_paths.append(tmp_snapshot)
+                _atomic_write_bytes(tmp_snapshot, snapshot_path, snapshot_bytes)
+                tmp_paths.remove(tmp_snapshot)
+                # The immutable generation and its parent entry must precede
+                # the pointer that lets a reader select them.
+                _fsync_dir(generation_dir.parent)
+                _fsync_dir(path.parent)
+                pointer = {
+                    "checkpoint_format": "generation-v1",
+>                   "snapshot_ref": str(snapshot_path.relative_to(path.parent)),
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "snapshot_sha256": hashlib.sha256(snapshot_bytes).hexdigest(),
+                }
+
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:261: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-r...par3/writer/.checkpoint_f0c810b4_0000_20261006T103918.json.generations/040cab08a60f4d07939d13aee4128c33/snapshot.json')
+other = PosixPath('writer')
+
+    def relative_to(self, other, *, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if not hasattr(other, 'with_segments'):
+            other = self.with_segments(other)
+        for step, path in enumerate(chain([other], other.parents)):
+            if path == self or path in self.parents:
+                break
+            elif not walk_up:
+>               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ3/writer/.checkpoint_f0c810b4_0000_20261006T103918.json.generations/040cab08a60f4d07939d13aee4128c33/snapshot.json' is not in the subpath of 'writer'
+
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:490: ValueError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc95ed81d50>
+relative_directory = True, state_key = 'independent'
+
+    @pytest.mark.parametrize("relative_directory", [False, True], ids=["absolute", "relative"])
+    @pytest.mark.parametrize("state_key", ["node_results", "independent"], ids=["collision", "control"])
+    def test_executor_generation_separates_state_and_original_history_array_roots(
+        tmp_path, monkeypatch, relative_directory, state_key
+    ):
+        from pathlib import Path
+    
+        import numpy as np
+    
+        chain, registry, node, _ = _history_array_checkpoints(tmp_path / "bootstrap")
+        monkeypatch.chdir(tmp_path)
+        directory = Path("writer") if relative_directory else tmp_path / "writer"
+        initial_state = {state_key: [{"output": np.asarray(11)}]}
+        overrides = {node.id: {"value": 2}}
+>       original = CheckpointingChainExecutor(registry=registry, checkpoint_dir=directory).execute(
+            chain, initial_state=initial_state, params_per_node=overrides, seed=23
+        )
+
+/workspace/e02-B-current-composition/policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py:501: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:536: in execute
+    self._save_checkpoint(
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:643: in _save_checkpoint
+    chk.save(path)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <ChainCheckpoint completed=1 digest=f0c810b4... path=None>
+path = PosixPath('writer/checkpoint_f0c810b4_0000_20261006T103918.json')
+
+    def save(self, path: Path) -> None:
+        """Publish one immutable snapshot generation through an atomic pointer."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with _checkpoint_write_lock(path):
+            generation_dir = path.parent / f".{path.name}.generations" / uuid4().hex
+            tmp_paths: list[Path] = []
+            manifest_published = False
+            generation_created = False
+    
+            def mark_manifest_published() -> None:
+                nonlocal manifest_published
+                manifest_published = True
+                self.checkpoint_path = path
+    
+            try:
+                generation_dir = _resolve_checkpoint_member_path(
+                    path.parent, str(generation_dir.relative_to(path.parent))
+                )
+                generation_dir.mkdir(parents=True, exist_ok=False)
+                generation_created = True
+                payload, sidecars = _serialise_state(
+                    self.intermediate_state,
+                    "snapshot",
+                    force_encoded=True,
+                )
+                history_payload: dict[str, Any] | None = None
+                if self.node_results:
+                    history_payload, history_sidecars = _serialise_state(
+                        {"node_results": self.node_results},
+                        "snapshot",
+                        force_encoded=True,
+                    )
+                    sidecars.update(history_sidecars)
+                data = {
+                    "chain_digest": self.chain_digest,
+                    "completed_fqns": self.completed_fqns,
+                    "completed_node_ids": self.completed_node_ids,
+                    "intermediate_state": payload,
+                    "node_timing_ms": self.node_timing_ms,
+                    "created_at": self.created_at,
+                    "execution_digest": self.execution_digest,
+                    "history_complete": self.history_complete,
+                }
+                if history_payload is not None:
+                    data["node_results"] = history_payload["node_results"]
+    
+                for sidecar_name, arr in sidecars.items():
+                    sidecar_path = generation_dir / sidecar_name
+                    tmp_sidecar = _tmp_path_for(sidecar_path)
+                    tmp_paths.append(tmp_sidecar)
+                    _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
+                    tmp_paths.remove(tmp_sidecar)
+    
+                snapshot_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                snapshot_path = generation_dir / "snapshot.json"
+                tmp_snapshot = _tmp_path_for(snapshot_path)
+                tmp_paths.append(tmp_snapshot)
+                _atomic_write_bytes(tmp_snapshot, snapshot_path, snapshot_bytes)
+                tmp_paths.remove(tmp_snapshot)
+                # The immutable generation and its parent entry must precede
+                # the pointer that lets a reader select them.
+                _fsync_dir(generation_dir.parent)
+                _fsync_dir(path.parent)
+                pointer = {
+                    "checkpoint_format": "generation-v1",
+                    "snapshot_ref": str(snapshot_path.relative_to(path.parent)),
+                    "snapshot_sha256": hashlib.sha256(snapshot_bytes).hexdigest(),
+                }
+                json_bytes = json.dumps(pointer, indent=2, sort_keys=True).encode("utf-8")
+                tmp_json = _tmp_path_for(path)
+                tmp_paths.append(tmp_json)
+                _atomic_write_bytes(tmp_json, path, json_bytes, on_publish=mark_manifest_published)
+                tmp_paths.remove(tmp_json)
+            except (
+                OSError,
+                TypeError,
+                ValueError,
+                CheckpointSerializationError,
+                CheckpointLoadError,
+            ) as exc:
+                # Cleanup remains in the same actual writer lock. Only this
+                # unpublished UUID generation belongs to the failed writer.
+                _cleanup_paths(tmp_paths)
+                if not manifest_published:
+                    if generation_created:
+                        try:
+                            shutil.rmtree(generation_dir)
+                        except OSError:
+                            _logger.debug(
+                                "checkpoint_generation_cleanup_failed path=%s", generation_dir
+                            )
+>                   raise CheckpointSaveError(
+                        f"Failed to save checkpoint at {path}: {exc}"
+                    ) from exc
+E                   polisyos.foundry.methods.backends.checkpointing.CheckpointSaveError: Failed to save checkpoint at writer/checkpoint_f0c810b4_0000_20261006T103918.json: '/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ3/writer/.checkpoint_f0c810b4_0000_20261006T103918.json.generations/040cab08a60f4d07939d13aee4128c33/snapshot.json' is not in the subpath of 'writer'
+
+/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:287: CheckpointSaveError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 10:39:18 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 10:39:18 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:18 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.54 fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:18 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:18 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.58 fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:18 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:39:18 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.55 fqn=tests.checkpoint_execution.history_array@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.methods.checkpointing:checkpointing.py:658 checkpoint_save_failed path=writer/checkpoint_f0c810b4_0000_20261006T103918.json error_type=CheckpointSaveError message=Failed to save checkpoint at writer/checkpoint_f0c810b4_0000_20261006T103918.json: '/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-roots-red-e82-tmp/test_executor_generation_separ3/writer/.checkpoint_f0c810b4_0000_20261006T103918.json.generations/040cab08a60f4d07939d13aee4128c33/snapshot.json' is not in the subpath of 'writer'
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_executor_generation_separates_state_and_original_history_array_roots[collision-absolute]
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_executor_generation_separates_state_and_original_history_array_roots[collision-relative]
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_executor_generation_separates_state_and_original_history_array_roots[control-relative]
+3 failed, 23 passed in 6.41s

@@ -1,0 +1,106 @@
+{
+  "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "python_prefix": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "old_count": 174,
+  "new_count": 194,
+  "old_missing": [],
+  "changed_original": {},
+  "added": {
+    "babel": [
+      "2.17.0"
+    ],
+    "backrefs": [
+      "6.2"
+    ],
+    "colorama": [
+      "0.4.6"
+    ],
+    "ghp-import": [
+      "2.1.0"
+    ],
+    "griffelib": [
+      "2.0.2"
+    ],
+    "jinja2": [
+      "3.1.6"
+    ],
+    "markdown": [
+      "3.10.2"
+    ],
+    "markupsafe": [
+      "3.0.3"
+    ],
+    "mergedeep": [
+      "1.3.4"
+    ],
+    "mkdocs": [
+      "1.6.1"
+    ],
+    "mkdocs-autorefs": [
+      "1.4.4"
+    ],
+    "mkdocs-get-deps": [
+      "0.2.2"
+    ],
+    "mkdocs-material": [
+      "9.7.6"
+    ],
+    "mkdocs-material-extensions": [
+      "1.3.1"
+    ],
+    "mkdocstrings": [
+      "1.0.3"
+    ],
+    "mkdocstrings-python": [
+      "2.0.3"
+    ],
+    "paginate": [
+      "0.5.7"
+    ],
+    "pymdown-extensions": [
+      "10.21.2"
+    ],
+    "pyyaml-env-tag": [
+      "1.1"
+    ],
+    "watchdog": [
+      "6.0.0"
+    ]
+  },
+  "editable_direct_url": {
+    "url": "file:///workspace/e02-B-current-coordination/policy-engine",
+    "dir_info": {
+      "editable": true
+    }
+  },
+  "module_origins": {
+    "polisyos": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/__init__.py",
+    "tools": "/workspace/e02-B-current-coordination/policy-engine/tools/__init__.py"
+  },
+  "which": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "uv": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "node": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+    "corepack": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/corepack",
+    "npm": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm"
+  },
+  "bound_environment": {
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "POLISYOS_PYTEST_WORKERS": null,
+    "POLISYOS_PYTEST_DIST": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "XLA_FLAGS": null,
+    "JAX_NUM_THREADS": null,
+    "TF_NUM_INTEROP_THREADS": null,
+    "TF_NUM_INTRAOP_THREADS": null
+  },
+  "execution_qualification": "metadata/source locator only; no product gate or native backend"
+}

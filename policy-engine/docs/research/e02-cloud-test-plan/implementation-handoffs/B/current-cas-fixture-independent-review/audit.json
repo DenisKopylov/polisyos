@@ -1,0 +1,569 @@
+{
+  "result": "PASS",
+  "mode": "source/evidence-only; no product or pytest execution",
+  "base_sha": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+  "target_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+  "target_tree": "96da5130c34dc8add6c71ade65121e831531c64d",
+  "publication_sha": "97305720bf87c6c0c1dfd614d4e99a8acb8bf55a",
+  "publication_tree": "c43995dd21ebbe0e4e716886b8c079b3f1e91c52",
+  "changed_tracked_paths": [
+    "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py"
+  ],
+  "source_changed_paths": [],
+  "ast": {
+    "other_statements_identical": true,
+    "target_postsetup26_statements_identical": true,
+    "asserts_identical": 9,
+    "semantic_to_format_whole_file_identical": true,
+    "old_setup": [
+      "source = FileSystemCAS(tmp_path / 'source')",
+      "payload = b'exact-view imports must publish through the CAS owner transaction'",
+      "source_ref = source.put_bytes(payload, _options())"
+    ],
+    "new_setup": [
+      "from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo",
+      "source = FileSystemCAS(tmp_path / 'source').for_tenant('tenant-exact-view')",
+      "payload = b'exact-view imports must publish through the CAS owner transaction'",
+      "source_ref = source.put_bytes(payload, replace(_options(), tenant_context=ArtifactTenantContextInfo(tenant_id='tenant-exact-view')))"
+    ]
+  },
+  "bound_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1605,
+      "sha256": "9b7a34a4dd9a1755158989bd84887e60963850db5e42f6ce15f94cda926197ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4237,
+      "sha256": "4c52019a81752d2428f7f8a3c2e4c52d8d5657c242cb26f8720b2a5d92e82fb9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/baseline-node.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4404,
+      "sha256": "43e3b6d6ba2da58b1b89241b47386033e187759a85f81a99d9415964741f553f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1608,
+      "sha256": "cca152aa438a2d3de4c7bcd641e333b66be23d25c9ac18b3ccf25633537eaa76"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4361,
+      "sha256": "144254107acd2d596870f65e7e4e7e4407ff73771f10d3c80ee008a396b87ad3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-node.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4528,
+      "sha256": "f361b19aa2715192c655000518b691de622f474354e7cdfcb5a3a7b4a90063c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1629,
+      "sha256": "649600bfb1e3282a130c734415dad00a078df1fe40626fb0f59cc835b30f2834"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 4372,
+      "sha256": "b030a1c10f14540b2438c359996a3af2cdcbed37ce9ce55c540dcb2793af8493"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 12083,
+      "sha256": "15b0b9314845ee2ebbd65a8cc2b268ba82d7cae94ab288d8fcd93ea507c4ed8d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1595,
+      "sha256": "703491e77f8a627b9bd9fefe51300972933f33a6144f968c389d8612e2713161"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 80,
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-node.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 419,
+      "sha256": "895b804fd0fd0e03014be53af4d00cabe56a22ef191e0d78f30af49aec40d4e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1617,
+      "sha256": "ae3b2eb052d777f9c6fbf7ee924b71ae95b879f4e2c14909febb5509cf543d31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 80,
+      "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/bound-whole-consumers.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 7963,
+      "sha256": "7fb991984d248b7d0e8429867e93c2629a2f179d90ad72dfee36b279de5b8dfa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1620,
+      "sha256": "6a007ada964b637ddca88d7354e4f0e1a1f633dc857d3d45517263d9f8817d8b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 80,
+      "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 7963,
+      "sha256": "89ecdaaba23c958e4794272b3d8c4d71c42ea23ad5111824db7b942c52ddfb43"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-ruff.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-format.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/format.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 102,
+      "sha256": "13c3f8d006ab1bfc3a4f446316bc2a563ca0c2334837e0cc3ef7c608831f28b5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/assertion-preservation.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 441,
+      "sha256": "d302b458b1e3dba9092c2aca2669b8e3ddc2b719bcb30a556beebb0683567f03"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/format-ast.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 520,
+      "sha256": "5cfde0bbe5e86471021d6b5816bd1a81eaeafa2de87f24d4d60c129af90f57da"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "source_sha": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+      "bytes": 24572,
+      "sha256": "f574fb646019857f0df1cae71c16304a36d52d85504ff3d852a265f2d98f9fcc"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 24787,
+      "sha256": "ea350b993f693b6421ea0bab58c01e0acbf6f6a7e7c8152c7c3043d856d7f3e4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 14387,
+      "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 189110,
+      "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 1137,
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+    },
+    {
+      "path": "policy-engine/ruff.toml",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    {
+      "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 26782,
+      "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "source_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-style.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 940,
+      "sha256": "40982d0a93392ead020fa2f7872d3aa756a0845d4ab4147804f7cf72e0d7abf9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/ruff.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ],
+  "bound_ref_count": 33,
+  "bound_bytes": 354339,
+  "author_check_counts_reconciled": [
+    {
+      "check": "baseline-node",
+      "tests": 1,
+      "failed": 1,
+      "skipped": 0,
+      "target_sha": "f53842e1c635dc390f47073f6ad1526a3f2e12c5"
+    },
+    {
+      "check": "candidate-node",
+      "tests": 1,
+      "failed": 1,
+      "skipped": 0,
+      "target_sha": "7dc6de4283ebb77ace82dada7ef68f81e454d9f6"
+    },
+    {
+      "check": "candidate-whole-consumers",
+      "tests": 46,
+      "failed": 1,
+      "skipped": 0,
+      "target_sha": "7dc6de4283ebb77ace82dada7ef68f81e454d9f6"
+    },
+    {
+      "check": "bound-node",
+      "tests": 1,
+      "failed": 0,
+      "skipped": 0,
+      "target_sha": "5494f7d056ddc251107f416299db76400a96efce"
+    },
+    {
+      "check": "bound-whole-consumers",
+      "tests": 46,
+      "failed": 0,
+      "skipped": 0,
+      "target_sha": "5494f7d056ddc251107f416299db76400a96efce"
+    },
+    {
+      "check": "frozen-whole-consumers",
+      "tests": 46,
+      "failed": 0,
+      "skipped": 0,
+      "target_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2"
+    }
+  ],
+  "frozen_author_check": {
+    "name": "frozen-whole-consumers",
+    "command_argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "tests/unit/core/artifacts/test_import_admission_noop.py",
+      "--basetemp",
+      "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/frozen-whole-consumers-pytest",
+      "-o",
+      "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/frozen-whole-consumers-cache",
+      "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.xml"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+    "target_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+    "target_tree": "96da5130c34dc8add6c71ade65121e831531c64d",
+    "head_after": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+      "POLISYOS_METRICS_PORT": "0",
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "E02_B_PROPERTY_REMOVAL": null
+    },
+    "input_closure": "Actual tracked test selectors and source at exact target commit in admitted own checkout; explicit own src:product PYTHONPATH, native pytest importlib configuration, isolated named basetemp/cache. No source/test overlay or optional-test exclusion. Complete invocation/RSS/wall and full stdout/JUnit retained. Full dynamic transitive import-read census was not measured; no P41 claim.",
+    "outcome": "PASS",
+    "exit_code": 0,
+    "actual_cases": 46,
+    "passed": 46,
+    "failed": 0,
+    "skipped": 0,
+    "wall_s": 4.668587013002252,
+    "exact_child_maxrss_kib": 94068,
+    "metadata": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.json",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 1620,
+      "sha256": "6a007ada964b637ddca88d7354e4f0e1a1f633dc857d3d45517263d9f8817d8b"
+    },
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.txt",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 80,
+      "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/frozen-whole-consumers.xml",
+      "source_sha": "04a44c0481ae17e979c1aa12345ec4bf3448cadd",
+      "bytes": 7963,
+      "sha256": "89ecdaaba23c958e4794272b3d8c4d71c42ea23ad5111824db7b942c52ddfb43"
+    }
+  },
+  "frozen_author_cases": [
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_uncommitted_tenant_publication_is_unreadable_after_writer_interruption",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_independent_cas_reader_waits_for_tenant_owner_generation",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_second_process_reader_waits_on_the_canonical_root_stripe",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_signature_only_pending_publication_is_denied_and_exact_retry_recovers",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_nested_distinct_artifact_lease_fails_without_deadlock",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_next_writer_recovers_unreferenced_private_stage_directory",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_stage_recovery_never_follows_or_removes_symlink_targets",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_unclaimed_candidate_put_has_and_read_still_succeed",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_intent_completion_requires_each_exact_claim_in_one_owner_generation",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_same_request_recovers_missing_stage_with_pinned_manifest_timestamp",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_import_retry_reuses_pinned_manifest_after_transaction_stage_quarantine",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-directory]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-archive]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-exact]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-directory]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-archive]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-exact]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[foreign-directory]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[foreign-archive]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[foreign-exact]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[cell-directory]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[cell-archive]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[cell-exact]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[None-directory]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[None-archive]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[None-exact]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[cell-a-directory]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[cell-a-archive]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[cell-a-exact]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-directory]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-archive]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-exact]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-directory]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-archive]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-exact]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_bound_unclaimed_import_recovers_exact_durable_intent[archive]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_bound_unclaimed_import_recovers_exact_durable_intent[exact]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_passive_unscoped_cache_is_not_scoped_admission[False]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_passive_unscoped_cache_is_not_scoped_admission[True]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_cell_none_is_exact_identity_not_a_query_wildcard[None-cell-a]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_cell_none_is_exact_identity_not_a_query_wildcard[cell-a-None]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context0]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context1]",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_import_keeps_its_actual_artifact_lease_through_staging_and_publication",
+      "pass": true
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_mixed_package_stages_only_unclaimed_artifact_members",
+      "pass": true
+    }
+  ],
+  "historical_failure_qualification": "Baseline unbound and first for_tenant-only source remain legitimately pre-stage rejected. They do not establish product fault at the intended durable boundary; full source/context change is explicit.",
+  "limitation": "No independently executed runtime here. Read/AST/hash/JUnit verification is independent;46 actual executions were performed by author at frozen target, with the recorded partial input closure."
+}
+

@@ -1,0 +1,4628 @@
+{
+  "schema": "policyos.e02.predecessor_consumer_case_join.v1",
+  "audit_mode": "read-only native output reconciliation; no product/test/gate invoked",
+  "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "inputs": [
+    {
+      "role": "wrapper",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.json",
+      "bytes": 2977,
+      "sha256": "5d1bb970219aed1ab7119e9141a08548d07fbad505f7ff54583edbb6490e5349"
+    },
+    {
+      "role": "xml",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+      "bytes": 3583926,
+      "sha256": "f1ddd4788163d030277242ac7233312da78a68f6aaee27a511b0b3cb7f2cef5b"
+    },
+    {
+      "role": "stdout",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.txt",
+      "bytes": 3611397,
+      "sha256": "675ebace8ab28945f3b97f4fb37374f1ae3832f15e0475cad58e392fed54abf5"
+    },
+    {
+      "role": "inventory",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-inventory.json",
+      "bytes": 20097609,
+      "sha256": "9d8ab52071bb88523755aa80c55a954223ceca47e693a1626dca2b2750b0faa4"
+    },
+    {
+      "role": "profile",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-profile.json",
+      "bytes": 18280,
+      "sha256": "31a9a4d2953c5206d2cbca516164d6a1f66ad8bc67385246e325e66feea39dba"
+    },
+    {
+      "role": "selector",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/terminal-final-selector.json",
+      "bytes": 669809,
+      "sha256": "dd66cd003b0bc7b2c98c78d96e47a901109c2dd2b09635231c86f58dd7b3d34c"
+    },
+    {
+      "role": "args",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.args",
+      "bytes": 12893,
+      "sha256": "24708e41b0b03b0282012fca607814dfd4b52c70c4335896b277f486d49e04e4"
+    }
+  ],
+  "binding_assertions": "All original seven input bytes, frozen SHA/tree, exact argv/selector/card/module observer and complete case phase/XML joins checked. Initial detailed derivation remains ignored raw by hash.",
+  "complete_execution_context": {
+    "whole_files": 229,
+    "actual_collected_items": 3578,
+    "inventory_case_outcomes": {
+      "PASS": 2177,
+      "FAIL": 85,
+      "ERROR": 1314,
+      "SKIP": 2
+    },
+    "junit_record_count_including_collection_reports": 3578,
+    "wrapper_exit_code": 1,
+    "wall_s": 2686.7558818729885,
+    "rss_kib": 1817684,
+    "collection_failed": 0,
+    "collection_skipped": 0,
+    "actual_deselected_items": 0,
+    "ini_addopts": [
+      "-ra",
+      "-q",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "--benchmark-storage=file://./_cache/benchmarks"
+    ]
+  },
+  "declared_consumer_denominator": {
+    "file_selection_rule": "Whole selected core/artifacts and core/phase0 files, three remediation CAS files, actual chronology proof and access_audit module",
+    "whole_files": 48,
+    "file_suffixes": {
+      ".py": 48
+    },
+    "actual_cases": 501,
+    "per_file_actual_outcomes": {
+      "tests/unit/core/artifacts/backends/test_caching_store.py": {
+        "PASS": 28
+      },
+      "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py": {
+        "PASS": 12
+      },
+      "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+        "PASS": 11
+      },
+      "tests/unit/core/artifacts/test_async_store.py": {
+        "PASS": 3
+      },
+      "tests/unit/core/artifacts/test_batch_completion_admission.py": {
+        "PASS": 20
+      },
+      "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py": {
+        "PASS": 4
+      },
+      "tests/unit/core/artifacts/test_cas_integrity_report.py": {
+        "PASS": 1
+      },
+      "tests/unit/core/artifacts/test_import_admission_noop.py": {
+        "PASS": 34
+      },
+      "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py": {
+        "PASS": 11
+      },
+      "tests/unit/core/artifacts/test_manifest_serialization_schema.py": {
+        "PASS": 6
+      },
+      "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py": {
+        "PASS": 12
+      },
+      "tests/unit/core/artifacts/test_put_consumer_oracle.py": {
+        "PASS": 2
+      },
+      "tests/unit/core/artifacts/test_put_integrity_retry.py": {
+        "PASS": 5
+      },
+      "tests/unit/core/artifacts/test_signed_evidence.py": {
+        "PASS": 6
+      },
+      "tests/unit/core/artifacts/test_storage_protocol_boundaries.py": {
+        "PASS": 3
+      },
+      "tests/unit/core/artifacts/test_transfer_generation_publication.py": {
+        "PASS": 25
+      },
+      "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py": {
+        "PASS": 14
+      },
+      "tests/unit/core/artifacts/test_verification_snapshot_report.py": {
+        "PASS": 9
+      },
+      "tests/unit/core/phase0/test_artifact_export_import.py": {
+        "PASS": 1
+      },
+      "tests/unit/core/phase0/test_artifact_graph.py": {
+        "PASS": 4
+      },
+      "tests/unit/core/phase0/test_artifact_store.py": {
+        "PASS": 11
+      },
+      "tests/unit/core/phase0/test_audit_export_verify.py": {
+        "PASS": 6
+      },
+      "tests/unit/core/phase0/test_audit_manifest_compat.py": {
+        "PASS": 3
+      },
+      "tests/unit/core/phase0/test_canon_json.py": {
+        "PASS": 5
+      },
+      "tests/unit/core/phase0/test_cli.py": {
+        "PASS": 8
+      },
+      "tests/unit/core/phase0/test_cli_resume.py": {
+        "PASS": 3
+      },
+      "tests/unit/core/phase0/test_cli_signing.py": {
+        "PASS": 5
+      },
+      "tests/unit/core/phase0/test_decorators.py": {
+        "PASS": 7
+      },
+      "tests/unit/core/phase0/test_environment_manifest.py": {
+        "PASS": 20
+      },
+      "tests/unit/core/phase0/test_logs.py": {
+        "PASS": 2
+      },
+      "tests/unit/core/phase0/test_metric_validation_cli.py": {
+        "PASS": 1
+      },
+      "tests/unit/core/phase0/test_metrics.py": {
+        "PASS": 8
+      },
+      "tests/unit/core/phase0/test_observability.py": {
+        "PASS": 2
+      },
+      "tests/unit/core/phase0/test_phase0_quality_validation_contract.py": {
+        "PASS": 2
+      },
+      "tests/unit/core/phase0/test_propagation.py": {
+        "PASS": 4
+      },
+      "tests/unit/core/phase0/test_provenance_contract_shims.py": {
+        "PASS": 2
+      },
+      "tests/unit/core/phase0/test_registry_bundle.py": {
+        "PASS": 4
+      },
+      "tests/unit/core/phase0/test_run_context.py": {
+        "PASS": 2
+      },
+      "tests/unit/core/phase0/test_signing.py": {
+        "PASS": 11
+      },
+      "tests/unit/core/phase0/test_store_signing.py": {
+        "PASS": 21
+      },
+      "tests/unit/core/phase0/test_tracer.py": {
+        "PASS": 11
+      },
+      "tests/unit/core/phase0/test_workspace_commands.py": {
+        "PASS": 6
+      },
+      "tests/unit/core/phase0/test_worktree_admission.py": {
+        "PASS": 23
+      },
+      "tests/unit/remediation/test_cas_01.py": {
+        "PASS": 18
+      },
+      "tests/unit/remediation/test_cas_02.py": {
+        "PASS": 18
+      },
+      "tests/unit/remediation/test_cas_03.py": {
+        "PASS": 16
+      },
+      "tests/unit/runtime/http/test_runtime_authorization_access_audit.py": {
+        "ERROR": 32
+      },
+      "tests/unit/runtime/quality/test_chronology_proof.py": {
+        "ERROR": 38,
+        "PASS": 1
+      }
+    },
+    "selected_files_without_collected_items": []
+  },
+  "owned_critical_and_nonpass_cases": [
+    {
+      "nodeid": "tests/unit/core/artifacts/test_artifact_store_protocol.py::TestFileSystemCASRoundTrip::test_governed_public_read_closure_is_exact_and_does_not_override_tenant_owner",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[False-put_bytes]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[False-put_json]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[True-put_bytes]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[True-put_json]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_import_admission_noop.py::test_import_keeps_its_actual_artifact_lease_through_staging_and_publication",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_consumer_oracle.py::test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[same_size]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_consumer_oracle.py::test_damaged_duplicate_put_is_refused_before_fresh_process_retry_consumer[short]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[same_size_bytes]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[short_bytes]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[selected_manifest_size]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[default]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_put_integrity_retry.py::test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[selected]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_pre_read_failure_cannot_invent_blob_measurements",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index[False]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index[True]",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/core/phase0/test_artifact_store.py::test_corruption_detection",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_cas_01.py::test_concurrent_writers_publish_only_the_persisted_first_writer_profile",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_cas_01.py::test_exception_releases_same_id_lock_for_scoped_view_waiter",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_cas_01.py::test_colliding_lock_stripe_keeps_distinct_cas_bytes_and_manifests",
+      "outcome": "PASS",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ]
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_authorization_allow_is_appended_to_existing_access_audit_trail",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_authorization_allow_is_ap in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1102,
+      "native_xml_diagnostic_sha256": "f20db07f4d0554d495ba20ee058967d25733b989c3f9f2d8611d7e2806524df6"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_authorization_deny_is_appended_to_existing_access_audit_trail",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_authorization_deny_is_app in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1101,
+      "native_xml_diagnostic_sha256": "f4cfb5a7e7d76fc11eeb5a7db8406b7c6b481a332f059d9ea471c489f70e154e"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.case_inspection]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_acquisition_get_rego_deni in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1132,
+      "native_xml_diagnostic_sha256": "5a732a4b475e9933e80a43e14758a45710ef404b52073327ed8894e57dc7fb88"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.run_paper]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_acquisition_get_rego_deni in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1126,
+      "native_xml_diagnostic_sha256": "7910a646352b347c2bff73154b17d7c39bed9e2408d4cc6d269fd3a5d1b9bc6f"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.governed_projection.depth_n_cycle_board]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_acquisition_get_rego_deni in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1156,
+      "native_xml_diagnostic_sha256": "7a0abf051efed6d89c528e81224716ba4e639e9f627989a1395c493367081799"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_invalid_delegation_denial_emits_one_terminal_audit",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_invalid_delegation_denial in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1090,
+      "native_xml_diagnostic_sha256": "a9b9058b14f95070084b2cee3a71aacd3c95b141da8382ee26d957a4f255db41"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_dependency_override_denial_emits_one_terminal_audit",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_dependency_override_denia in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1091,
+      "native_xml_diagnostic_sha256": "7d6548f43f49a99b1727f13ac01a2030bf3fbd3b22e3d3536bffd3536d3199ca"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_unbound_resource_denial_emits_one_terminal_audit",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_unbound_resource_denial_e in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1088,
+      "native_xml_diagnostic_sha256": "46e99f244d87892d41f342eb6ef771e7911575772392970339bd1b617a545042"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_missing_identity_denial_is_appended_without_unbound_authority_claims",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_missing_identity_denial_i in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1108,
+      "native_xml_diagnostic_sha256": "c8fe7f9ca2c84a2740a9e8ec8a818bb095a0a7f2cd1cdeb62b8a3da5e4088ec5"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_opa_denial_is_appended_once",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_opa_denial_is_appended_on in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1067,
+      "native_xml_diagnostic_sha256": "b00eba22b7f04b3e663fdf56b899b945b2b922030ab24806527f3b63d4813d69"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_opa_timeout_is_appended_once",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_opa_timeout_is_appended_o in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1068,
+      "native_xml_diagnostic_sha256": "3515980c2f4524280513a554f3a8e34c50926b065128c53ef8af90664576f295"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_resource_binding_denial_is_appended_before_opa",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_resource_binding_denial_i in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1086,
+      "native_xml_diagnostic_sha256": "a3587d448fa7c3be3bf5bf0e36cf5b49be05ef3260d7d2ffe11bfb91e11b709b"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_step_up_denial_is_appended_without_token_material",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_step_up_denial_is_appende in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1089,
+      "native_xml_diagnostic_sha256": "ec80b9c9f27befe9ad84b6ee238416eae83056544ef2f047d7d754e25830a1de"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_denied_mutation_remains_denied_when_access_audit_append_fails",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_denied_mutation_remains_d in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1101,
+      "native_xml_diagnostic_sha256": "907af55a9499c4e1a50578e63cc7e5ee6002fb08edfca48c07ae3353966b2982"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_opa_unavailable_is_appended_once",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_opa_unavailable_is_append in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1072,
+      "native_xml_diagnostic_sha256": "46b6034fe6c257dfd5f330dbafe98ce8926d0d0bb159fa01edf1b34ed75fc3e8"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_lower_stakes_action_denies_when_access_audit_append_fails",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_lower_stakes_action_denie in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1097,
+      "native_xml_diagnostic_sha256": "53094d9c8dfa88b1af0536e77805635e160e7d9e8743e028b47c8bd06949641f"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_high_stakes_action_denies_when_access_audit_append_fails",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_high_stakes_action_denies in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1096,
+      "native_xml_diagnostic_sha256": "28c291a7427279f0cd91d35b6c4cea67d6e7558030596f8cc0e83c004c5efd5c"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[replace-binding]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_handler_cannot_mutate_sea in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1105,
+      "native_xml_diagnostic_sha256": "063c77d987df2c946c0297c746594eaac2a7e7e2635ecb16155a47e0ecea73f6"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[mutate-resource]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_handler_cannot_mutate_sea in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1105,
+      "native_xml_diagnostic_sha256": "d7ec5db74d3b76e8e2feade36e9267e5171dec9bfac2ae33bfa206cbadc1034a"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[base-dict-mutator]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_handler_cannot_mutate_sea in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1107,
+      "native_xml_diagnostic_sha256": "5c8d5781ce60d0bca0d5930f1847a4956eff75d3c64a9e15a0d634deaf93d2ae"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[base-state-dict-mutator]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_handler_cannot_mutate_sea in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1113,
+      "native_xml_diagnostic_sha256": "5f7caf7c6ba91876385eb2fad63db227e38b558a8b3609ba2ae018dda6a6f6e1"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_handler_cannot_mutate_sealed_authorization_state[clear-state]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_handler_cannot_mutate_sea in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1101,
+      "native_xml_diagnostic_sha256": "a0ebf071965447e0d6b12e1d378b4c0b2262733ac90c0a371a3b8c623664d4c1"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_blocking_authorization_resolver_does_not_stall_event_loop",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_blocking_authorization_re in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1097,
+      "native_xml_diagnostic_sha256": "4c35c7a39e3927240d6e8f01489094eac9fc3d87c4b545721f98420c7245ff94"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_human_decision_exposure_is_a_top_level_completed_event",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_human_decision_exposure_i in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1094,
+      "native_xml_diagnostic_sha256": "2480acc4d49831b975d29fd389f1408ee0d1fb8c64dc0ee3c5b1cfd6107d7977"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_signature_failure_leaves_no_completed_row",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_exposure_signature_failur in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1090,
+      "native_xml_diagnostic_sha256": "f637970e1c51d121204983a753c24d26cd241452007bcaee7fa27581c8f48a04"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_replay_race_has_one_durable_completed_winner",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_exposure_replay_race_has_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1093,
+      "native_xml_diagnostic_sha256": "e7bad730f55dcc2bca64d6fc83d1f0390f19ee46bc3a89445a16ddb98630ed6d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_reservation_waits_for_the_cross_process_file_lock",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_exposure_reservation_wait in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1098,
+      "native_xml_diagnostic_sha256": "738c110159046cfe0141fd8b43281a6c18c1d6622e4d145a5a9963047124cac7"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_reservation_can_complete_only_once_when_quota_exceeds_one",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_exposure_reservation_can_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1106,
+      "native_xml_diagnostic_sha256": "ced3f6109dbd3103d06e1550d3e1291e69daa4aa2b310cb2c3f5c5bfc172d275"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_reservation_fails_closed_on_truncated_audit_row",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_exposure_reservation_fail in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1096,
+      "native_xml_diagnostic_sha256": "428af95a988d466834c5ae8535b4685f5451d0620f519fd78802cf6a05f868d7"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_raw_completed_append_rejects_forged_receipt",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_exposure_raw_completed_ap in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1092,
+      "native_xml_diagnostic_sha256": "3d9a850cd4b9ffb6832f40cbf1abf5918c799e995ad7a88a9ef56970e1091015"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_partial_or_cancelled_send_never_emits_completed_receipt",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_exposure_partial_or_cance in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1104,
+      "native_xml_diagnostic_sha256": "1ac44913e709e5b2cb3c0d727eae943b3bba433e2d96aece2c8648492a8fac21"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_altered_final_frame_never_emits_completed_receipt",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_exposure_altered_final_fr in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1098,
+      "native_xml_diagnostic_sha256": "3cf314b40668cc3673c93ffd8175f58d8906de7b5d97cc8f1a95aa099a740bd9"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_owner_resolution_binds_exact_policy_dependencies",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_owner_resolution_binds_ex in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1088,
+      "native_xml_diagnostic_sha256": "cb4298b11235f6f6c4edf432f4aa09f16292363fe08266d15dcdb3d129e9c115"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_served_qualification_reads_policy_store_and_writes_runtime_store",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_served_qualification_read in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1104,
+      "native_xml_diagnostic_sha256": "6f3e2b5ad62504685c0a130fa73fed932d2e10fecd893fe9eb8472a60021d165"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_shared_policy_and_runtime_store_remains_a_qualified_control",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_shared_policy_and_runtime in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1099,
+      "native_xml_diagnostic_sha256": "b226a68f446124cb42cbc191fd435870b29bad3228bdcbb07b98506d7cf46c2e"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_clear_process_appointment_discards_all_dependency_factories",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_clear_process_appointment in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1099,
+      "native_xml_diagnostic_sha256": "fcf8aff84d81d8796b2beb6d9731256507d1fe0e56b4f5288571b5b270c7fb0f"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_real_store_round_trip_binds_fixed_manifests_and_distinct_hashes",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_real_store_round_trip_bin in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1103,
+      "native_xml_diagnostic_sha256": "44a831cfd7eb4da19db6cdb2a610f054b56c8267cb06351fd80f8c4e643196ef"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_native_projection_selects_honest_view_after_wrong_first_writer",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_native_projection_selects in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1102,
+      "native_xml_diagnostic_sha256": "c1f8b752ef4f2d88bd8f183cf39a8f7685c354df076325ed292a9c645a7cc363"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_owner_source_read_uses_selected_manifest_view",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_owner_source_read_uses_se in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1085,
+      "native_xml_diagnostic_sha256": "1e820c0d4a40e3048cf8d4044a8699f7db4490fdea5d9ef61d102745fcb058de"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_policy_owner_byte_reader_requires_the_selected_manifest_view",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_policy_owner_byte_reader_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1100,
+      "native_xml_diagnostic_sha256": "32367bfd3558399018476a84090c3ec616d76998c2ac95ed85ef76fe4e7a274c"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_reader_reloads_raw_bytes_and_reruns_real_verifier",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_reader_reloads_raw_bytes_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1089,
+      "native_xml_diagnostic_sha256": "ede38d705d2c5495abd3624e758eb604623db5e751a69682640eef5c1f50abf8"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_reader_replays_versioned_historical_manifest_projection[v1]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_reader_replays_versioned_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1099,
+      "native_xml_diagnostic_sha256": "2af76181e0f3f63c0703453335d37bbc709f5e76266c4dd046c449fb40f79839"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_reader_replays_versioned_historical_manifest_projection[v2]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_reader_replays_versioned_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1099,
+      "native_xml_diagnostic_sha256": "527d7f5102b375f7251f054e18adf934f1389089dc38edb491c5f69805185eec"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_reader_rejects_historical_manifest_canon_drift[v1]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_reader_rejects_historical in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1090,
+      "native_xml_diagnostic_sha256": "41b51212deca5568bc91393c6fc05872aa16d6f1415a6889c98167826db9ae5b"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_reader_rejects_historical_manifest_canon_drift[v2]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_reader_rejects_historical in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1090,
+      "native_xml_diagnostic_sha256": "6d489935a79250a3a5d2479da5d9cb6360807e651d941d8730c0e1c7aa5e5395"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_reader_missing_result_is_query_bound",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_reader_missing_result_is_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1076,
+      "native_xml_diagnostic_sha256": "457b8909587ea33393b92efff096a71205402ec7ebf41370205fc256c84e742f"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_reader_present_corruption_is_not_absence",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_reader_present_corruption in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1080,
+      "native_xml_diagnostic_sha256": "1db26c1bd3652ea2c8ff4b4e841f813ee418a76d20c36492ed81abd51f781f87"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_reader_does_not_treat_audit_sidecar_as_a_green_input",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_reader_does_not_treat_aud in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1092,
+      "native_xml_diagnostic_sha256": "3c75e4b4bd2f5ed5f5195c05f6dbcb4b7dd3ce3f53f05c7a4e4230c7c070b64b"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_identical_bundle_under_wrong_first_writer_manifest_selects_honest_view[kind]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_identical_bundle_under_wr in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1116,
+      "native_xml_diagnostic_sha256": "cd3b667bbc1cf680d7508fa76182650e0a607a6e01feecbe37a6c4360287c938"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_identical_bundle_under_wrong_first_writer_manifest_selects_honest_view[schema]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_identical_bundle_under_wr in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1118,
+      "native_xml_diagnostic_sha256": "dd5b1bb6b21fb42a225073b13e96475ab624278c11da3327a27f59c55ca69bda"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_identical_bundle_under_wrong_first_writer_manifest_selects_honest_view[lineage]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_identical_bundle_under_wr in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1119,
+      "native_xml_diagnostic_sha256": "510898496fae94d8f6962bb8edcc45ccaae6cabd17a8651c7fed4da28d0d7aa8"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_wrong_first_writer_sidecar_lineage_selects_honest_view_and_reader",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_wrong_first_writer_sideca in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1105,
+      "native_xml_diagnostic_sha256": "d0d0229967be0bf957b4770be262978b3720f1c364ec8540426638568c293f03"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_changed_expected_identity_rejects_before_any_proof_write[bundle_hash]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_changed_expected_identity in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1109,
+      "native_xml_diagnostic_sha256": "303ba9910109fa9c43a3b082a7875ebc1fc0ad3774b3d29f7de92c49e74e630c"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_changed_expected_identity_rejects_before_any_proof_write[expected_prefix]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_changed_expected_identity in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1113,
+      "native_xml_diagnostic_sha256": "e7bf348fef62ac72b7fdc298fee5cdd5f988b7d79998a8ff0d2bee85073a3db3"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_query_reconciliation_disagreement_rejects_before_store_access",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_query_reconciliation_disa in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1101,
+      "native_xml_diagnostic_sha256": "1d2f43e57c9e9c0fa06a90d704435ee7a5a6992c22ba9fb061a3bae9d4cb79e5"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_present_but_corrupt_owner_source_rejects_before_proof_write[owner_receipt]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_present_but_corrupt_owner in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1114,
+      "native_xml_diagnostic_sha256": "c6844f3eba069ea60d0321e5559d10558850408a4af236b748f7f16d2e1fb083"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_present_but_corrupt_owner_source_rejects_before_proof_write[native_denominator]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_present_but_corrupt_owner in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1119,
+      "native_xml_diagnostic_sha256": "f236d3ce1c22c445d05aa550da1efe275d418197b119aefa43438ef466057abf"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_present_but_corrupt_owner_source_rejects_before_proof_write[query_context]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_present_but_corrupt_owner in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1114,
+      "native_xml_diagnostic_sha256": "47351dfe355e3354c7ffa0a8547db5f5abcaa99d27e10f8a40dd62e987aa574d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_present_but_corrupt_owner_source_rejects_before_proof_write[native_member]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_present_but_corrupt_owner in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1114,
+      "native_xml_diagnostic_sha256": "585ef444e02d8d6aad3a6d0f02cd04db7d7b28f05952126c5c1dc6448d72b849"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_valid_bundle_with_owner_receipt_field_substitution_fails_before_write[member_admission_basis_ref]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_valid_bundle_with_owner_r in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1137,
+      "native_xml_diagnostic_sha256": "20cb1126cceab6e31e710a965df3ea021db45375f95b5cd4815eba2380b2dfc1"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_valid_bundle_with_owner_receipt_field_substitution_fails_before_write[member_admission_context_ref]",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_valid_bundle_with_owner_r in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1139,
+      "native_xml_diagnostic_sha256": "b1bc5da1e353413d3ab0616a65463813e9e8de475743281b222fca2e8e8d453d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_forged_reconciliation_is_revalidated_before_store_access",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_forged_reconciliation_is_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1096,
+      "native_xml_diagnostic_sha256": "2bd53ff97d7b282e2b7959945acddb5476e01c6d753f6a01aa61c84d0d8bd4bd"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_role_correct_but_subject_wrong_member_fails_before_proof_write",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_role_correct_but_subject_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1102,
+      "native_xml_diagnostic_sha256": "323aef519f96e7e8e6ea099fa31c7fc5284f40440485bd4c81aeef0d5cb260ac"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_continuation_is_fieldless_nonserializable_one_shot_and_unforgeable",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_continuation_is_fieldless in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1106,
+      "native_xml_diagnostic_sha256": "e3ca959d7ef2aefa2b7bf7f53550690e2d126c3ac03d818486b393130d0a4242"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_changed_hidden_payload_fails_before_store_access",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_changed_hidden_payload_fa in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1088,
+      "native_xml_diagnostic_sha256": "5057c48aca23f5260581106e9a535d9199ef042b5a9da1fc7c6ccde0323e83ae"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_concurrent_second_borrow_rejects_without_another_store_call",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_concurrent_second_borrow_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1099,
+      "native_xml_diagnostic_sha256": "dbb176b1d6a419018b06f794ae6640f74f3b6a2bfb57f7fccd36c12a6c101a04"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_fork_while_borrowed_and_store_locked_tombstones_child_without_store_call",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_fork_while_borrowed_and_s in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1112,
+      "native_xml_diagnostic_sha256": "9da8261f6fb6621f3ebde740c9d76d6b9eb938074e9a1be773718de1baee1030"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_fork_during_parent_factory_resolution_cannot_resume_factory_in_child",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_fork_during_parent_factor in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1108,
+      "native_xml_diagnostic_sha256": "dc5f06bfa815b083aefd0d56fc43f59d4911ba80468212c4c72d625ead802eef"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_fork_tombstones_inherited_owner_and_requires_child_local_appointment",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_fork_tombstones_inherited in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1108,
+      "native_xml_diagnostic_sha256": "7fe402e83236ef5e3f5a91e4486fd4bd20ff1fd9c73eb3bed4ff1c52ff56c5f1"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_chronology_proof.py::test_fork_after_issue_rejects_inherited_continuation_without_store_calls",
+      "outcome": "ERROR",
+      "phase_outcomes": [
+        [
+          "setup",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "failed on setup with \"OSError",
+      "observation_bucket": "tmp_path_numbered_dir_admission_failure",
+      "terminal_message": "failed on setup with \"OSError: could not create numbered dir with prefix test_fork_after_issue_rejects_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\"",
+      "native_xml_diagnostic_utf8_bytes": 1107,
+      "native_xml_diagnostic_sha256": "52d4698701b5858cb4d5de36b04dbdb1562ff3fc8e88409d535980246ace03cc"
+    }
+  ],
+  "all_85_failed_call_cases": [
+    {
+      "nodeid": "tests/integration/scientist/test_res_03_real_simulation_route.py::test_res_03_real_simulation_later_failure_reaches_user_route",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 17888,
+      "native_xml_diagnostic_sha256": "1418f58b909c7ccc98deefd019967881d09398a9cded9e052c4dbad1c8d136e8"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "AssertionError",
+      "observation_bucket": "AssertionError",
+      "terminal_message": "AssertionError: [\"acquire\", \"release\", \"acquire\", \"poll\", \"poll\", \"poll\", \"commit\", \"poll\", \"flush\", \"commit\", \"release\"]\nassert not {'commit', 'flush', 'poll'}\n +  where {'commit', 'flush', 'poll'} = <built-in method intersection of set object at 0x7f2304103060>(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...])\n +    where <built-in method intersection of set object at 0x7f2304103060> = {'commit', 'flush', 'poll'}.intersection",
+      "native_xml_diagnostic_utf8_bytes": 3297,
+      "native_xml_diagnostic_sha256": "31d1dd5b544c124952387bfeb072b7dc85ef08f836ad3f881f31f4d84ad12555"
+    },
+    {
+      "nodeid": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "AssertionError",
+      "observation_bucket": "AssertionError",
+      "terminal_message": "AssertionError: {'after_fresh': {'actual_handles_without_disconnect_confirmation': ['8c7e4717-723d-4240-b9c8-249ca1911694'], 'available_permits': 1, 'confirmed_disconnects': ['2803faf1-1154-4af0-9159-78cc021225fc'], 'disconnect_calls': ['8c7e4717-723d-4240-b9c8-249ca1911694', '2803faf1-1154-4af0-9159-78cc021225fc'], ...}, 'after_registry_retry': {'actual_handles_without_disconnect_confirmation': ['8c7e4717-723d-4240-b9c8-249ca1911694'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['8c7e4717-723d-4240-b9c8-249ca1911694'], ...}, 'before_retry': {'actual_handles_without_disconnect_confirmation': ['8c7e4717-723d-4240-b9c8-249ca1911694'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['8c7e4717-723d-4240-b9c8-249ca1911694'], ...}, 'during_fresh': {'actual_handles_without_disconnect_confirmation': ['2803faf1-1154-4af0-9159-78cc021225fc', '8c7e4717-723d-4240-b9c8-249ca1911694'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['8c7e4717-723d-4240-b9c8-249ca1911694'], ...}, ...}\nassert {'8c7e4717-72..._done': None}} == {}\n  \n  Left contains 1 more item:\n  {'8c7e4717-723d-4240-b9c8-249ca1911694': {'closed': False,\n                                            'pending_permit': False,\n                                            'task_done': None}}\n  \n  Full diff:...\n  \n  ...Full output truncated (8 lines hidden), use '-vv' to show",
+      "native_xml_diagnostic_utf8_bytes": 7637,
+      "native_xml_diagnostic_sha256": "c996664f711f420993071b8951673bf72c415e3f5cb44bc3bf9accb6d972e29d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/services/test_evaluation_safety.py::test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "AssertionError",
+      "observation_bucket": "AssertionError",
+      "terminal_message": "AssertionError: assert ['promotion_s...ot_completed'] == []\n  \n  Left contains 2 more items, first extra item: 'promotion_source_unresolved:persisted-source-run:ValueError'\n  \n  Full diff:\n  - []\n  + [\n  +     'promotion_source_unresolved:persisted-source-run:ValueError',\n  +     'control_job_core_run_source_not_completed',\n  + ]",
+      "native_xml_diagnostic_utf8_bytes": 21532,
+      "native_xml_diagnostic_sha256": "68900356ba8c1c945977893c06e96efc5c5a5af10ece625252b10daa72effa0c"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_analysis_api.py::test_attractor_analysis_route_persists_and_loads_result",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1777,
+      "native_xml_diagnostic_sha256": "d84811051c0ff33bb1f88484b18cecdf6dfa1d7aceecebf6847539cdeda37237"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_analysis_api.py::test_attractor_analysis_route_builds_basin_map_for_ensemble",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1782,
+      "native_xml_diagnostic_sha256": "d44dfc98607e1ada63276eea3ff6de1a112ecf096fb90c39a2eef872997095e2"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_analysis_api.py::test_continuation_branch_route_persists_and_loads_sidecar",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1780,
+      "native_xml_diagnostic_sha256": "1b70111f41aabb7a78f59eff1eeba91958773502bb3ea229d1654ff001e4c77d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_runtime_lifecycle_health_tracks_startup_and_shutdown",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1881,
+      "native_xml_diagnostic_sha256": "c2f9bbc696b2e462af075d66ae3fcc4a4f8fd3b7bb1b268758f2010bf95a8047"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_api_version_headers_surface_deprecation_policy",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1997,
+      "native_xml_diagnostic_sha256": "5f51e0482a7dbdde16474dd34313bff256065bb06ee6e42522d234227b41a917"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_api_maturity.py::test_runs_live_endpoint_advertises_sse_flow_control",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 2218,
+      "native_xml_diagnostic_sha256": "a7aa138f5bbc80bc51f69d71d91fc2a3cd98198d419aaa79c76d2120525fefbc"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_architecture_boundaries.py::test_runtime_container_lifecycle_keeps_legacy_state_bindings_consistent",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1906,
+      "native_xml_diagnostic_sha256": "e0e21648bc3bb77beac2292e0c68a23260546740c7ae55565f85ee4b6e951570"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_architecture_boundaries.py::test_runtime_container_and_control_service_share_artifact_store",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1778,
+      "native_xml_diagnostic_sha256": "1ecf6283ad6c5b7e9c1e7d9d90f10aa348897505ecdffc2213e3ac05112f607d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_raw_and_manifest_artifact_surfaces_block_secret_pii",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 14534,
+      "native_xml_diagnostic_sha256": "8eabcbdaee1c4faad5874a9f58b6916afdb74c7f711a34a1f05bce4cadecfe40"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_composed_gate_blocks_declared_inconsistent_time_source_on_raw_and_export",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13751,
+      "native_xml_diagnostic_sha256": "8957c395866e0ca94b4e3b3b877e6e52b71ff4592cdcb58a9790842c6055d618"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_composed_gate_blocks_s12_deref_bypass_on_raw_and_export",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13163,
+      "native_xml_diagnostic_sha256": "79fe1ecf3df90465a3d4bcc80d2b79d336dd0495a8b780f6fb36c53445cb969d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_artifact_surface_safety.py::test_lineage_routes_block_clean_no_authority",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13025,
+      "native_xml_diagnostic_sha256": "e80d1d77e33d6b88f615635f15e44514aab37391291c8359a93fc7f514430616"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_api.py::TestLaunchNlRun::test_launch_nl_run_research_red_preflight_creates_short_failed_job",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 4406,
+      "native_xml_diagnostic_sha256": "c853e3ec1a56ea493dfe2c5eb2e7412b31792c935d3423e1a1f73ccfcb878553"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_hardening.py::test_dev_fixture_identity_cannot_request_governed_run",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 2104,
+      "native_xml_diagnostic_sha256": "119ea688861b7743d914f1bd9e572015aeccabee89acb7ac59e6ee86ea28b294"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_hardening.py::test_dev_fixture_identity_cannot_request_research_run",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 2104,
+      "native_xml_diagnostic_sha256": "d398c149dcbb38a884171267874c24f05d048d2b3c2624a418ff3d165cfaa403"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_job_execution_intent.py::test_lex_worker_keeps_completion_diagnostic_under_admitted_scope",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "StopIteration",
+      "observation_bucket": "StopIteration",
+      "terminal_message": "StopIteration",
+      "native_xml_diagnostic_utf8_bytes": 2019,
+      "native_xml_diagnostic_sha256": "11dd604cb055f89d85ecd3e1b385e28f2820cb925aa6c9bdf0e84f383f903f76"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_service_di.py::test_runtime_container_exposes_one_decision_validity_owner",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1797,
+      "native_xml_diagnostic_sha256": "e065be31849a28ac38646050dfbfb22b3045b43bbf30519ca03209cfe36903bc"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_service_di.py::test_control_service_builds_retrieval_with_injected_provider_bundle",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 2946,
+      "native_xml_diagnostic_sha256": "bdac2744af20f63c698c7cfa2c71abb75580c63045944e9bf5b0d636bb9dbde0"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_service_di.py::test_runtime_container_passes_control_registry_provider_override",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13118,
+      "native_xml_diagnostic_sha256": "17b1a2a3defdd0b2b02539bd04ca042edfcb64dc48e89c01c286ff6558757fc9"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_service_di.py::test_served_simulate_only_replays_source_bound_n4_candidate_into_joint_n5",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError",
+      "observation_bucket": "required_intervention_artifacts_missing",
+      "terminal_message": "polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest",
+      "native_xml_diagnostic_utf8_bytes": 2504,
+      "native_xml_diagnostic_sha256": "88dfe2eae55b360fa2cb72903da4440c5cb126a7e4615a4ea2395f715e1bc85e"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_control_service_di.py::test_served_owner_context_keeps_missing_n4_source_candidate_limited",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError",
+      "observation_bucket": "required_intervention_artifacts_missing",
+      "terminal_message": "polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest",
+      "native_xml_diagnostic_utf8_bytes": 2304,
+      "native_xml_diagnostic_sha256": "673332437f6f1bf35121249ab89df1175550543d28d0f01351165129b0312386"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py::test_cycle_board_claims_equal_live_owner_recomputation_and_detect_corruption",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "SystemExit",
+      "observation_bucket": "SystemExit",
+      "terminal_message": "SystemExit: 1",
+      "native_xml_diagnostic_utf8_bytes": 8989,
+      "native_xml_diagnostic_sha256": "32479787c520b3e827f931f431ca070a8aab6a678b0951a06b43e68b1b86239b"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_decision_validity_api.py::test_monitor_ref_without_epoch_binding_is_rejected_before_bridge_persistence",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1991,
+      "native_xml_diagnostic_sha256": "ff2c24a2bdb2484dfb8e1b74a1483e4dae9b93e54fff410c1062ca7e9264a3ef"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_epoch_issuance_composition.py::test_container_propagates_exact_owner_to_actual_legacy_launch[False]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13541,
+      "native_xml_diagnostic_sha256": "0c8852239af9c2296116a67529c26ec4f3155ed6d3e102e9880ef5cd0ea39714"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_epoch_issuance_composition.py::test_container_propagates_exact_owner_to_actual_legacy_launch[True]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13540,
+      "native_xml_diagnostic_sha256": "e6958a4326069c995612123ac0c1b4c79c0d99938bc0d2ec72473c82f5299f0d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_epoch_issuance_composition.py::test_startup_verifier_provenance_is_readable_in_actual_tenant_scope",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "polisyos.core.artifacts.ownership.ArtifactOwnershipError",
+      "observation_bucket": "artifact_owner_refusal_other",
+      "terminal_message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:2809f82c48d24902d6a2ece8f1d5c6f9da5a3ef5888a8ca33d5b11284325db23 is not owned by tenant tenant-a/cell-a for read_manifest; current owners: tenant-a/cell-a",
+      "native_xml_diagnostic_utf8_bytes": 4637,
+      "native_xml_diagnostic_sha256": "5406274cf668e224454f7bcb272baec2fb3913fbcbfd2ba5b4d238c45df0fcf2"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_governed_projection_service.py::test_value_gate_projection_contains_denominators_receipts_and_outer_set_slots",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "pydantic_core._pydantic_core.ValidationError",
+      "observation_bucket": "pydantic_core._pydantic_core.ValidationError",
+      "terminal_message": "pydantic_core._pydantic_core.ValidationError: 1 validation error for DependencyDiscriminantOwnerBinding\n  Value error, received dependency discriminant requires resolved bytes [type=value_error, input_value={'binding_name': 'foundry...pass', first_case=None)}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+      "native_xml_diagnostic_utf8_bytes": 3149,
+      "native_xml_diagnostic_sha256": "1f31b8419df3a5b806e5bc654c8071d2a35ae0f38c03725584e34abe8ea6b666"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_human_decision_service.py::test_production_gate_issues_subject_bound_exposure_session",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "polisyos.core.artifacts.ownership.ArtifactOwnershipError",
+      "observation_bucket": "bound_cell_mismatch_refusal",
+      "terminal_message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell",
+      "native_xml_diagnostic_utf8_bytes": 3726,
+      "native_xml_diagnostic_sha256": "c664ef8e5b57eda65c04024bdbae6f684faf53da0585296aea71a97866126f56"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_human_decision_service.py::test_exposure_session_is_issued_for_and_resolved_by_exact_live_subject",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "polisyos.core.artifacts.ownership.ArtifactOwnershipError",
+      "observation_bucket": "bound_cell_mismatch_refusal",
+      "terminal_message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell",
+      "native_xml_diagnostic_utf8_bytes": 3856,
+      "native_xml_diagnostic_sha256": "8c6a2d487b33b969be78fe0186730640d4312b91f8366e35932277dbde0ee390"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_mobility_api.py::test_mobility_estimate_route_persists_report_and_serves_related_endpoints",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1795,
+      "native_xml_diagnostic_sha256": "96040eba96ed1acc7f3c474f93fa512b446fe238b39dd98a817ba7d4906fb032"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_mobility_api.py::test_mobility_bounds_route_returns_transport_bounds_payload",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 1782,
+      "native_xml_diagnostic_sha256": "1070155c9e6ac7e5c6c35969012d422496522e80e91d9c4e6a48238b5edfd0e2"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_fails_unknown_serious_metric_before_workflow",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 2462,
+      "native_xml_diagnostic_sha256": "6971058cc8cc5b45c8297bb39e688eda67015283cc27520ac650275b8227e8e0"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_records_metric_taxonomy_evidence_for_canonicalized_aliases",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3412,
+      "native_xml_diagnostic_sha256": "69ce160fcd6b1e46884ae6f5d6b2177fd411f718e7865cebd94bc80d76492e44"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_materializes_data_snapshot_without_data_source",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 4220,
+      "native_xml_diagnostic_sha256": "791ddbedfd63137cc7b341e9eb5135283c486690ea5ef3c536b1c79c46f0583f"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_can_run_simulated_llm_without_mock_fallback",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 4006,
+      "native_xml_diagnostic_sha256": "ccfc01fe5f97ad686e314b9b866df7aaf20e819fc010b661662b0e2a32a2dc33"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_serious_nl_pipeline_persists_normative_applicability_report_ref",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3404,
+      "native_xml_diagnostic_sha256": "5a655590651b9dcdfd078d18f616fc050d49b3dd073ff2ab0d69a4b86458e99b"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_serious_nl_pipeline_conflict_check_uses_active_corpus_constraints",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3864,
+      "native_xml_diagnostic_sha256": "29619a5033acca84af3bac0599b8c5ceb39d6dd0732d1b9e65379a8ade35d79d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_serious_nl_pipeline_phase_24_persists_runtime_quality_refs_fail_closed[research]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 4064,
+      "native_xml_diagnostic_sha256": "b324f765aab3e51edc03640944c5eb6f1eba5d4a6fc0699a1785e10ff3429440"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_serious_nl_pipeline_phase_24_persists_runtime_quality_refs_fail_closed[governed]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 4064,
+      "native_xml_diagnostic_sha256": "5820bc6936a87956cdbea8e3108e7826b907cd4e75152fd17783df9c98b6d7af"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_serious_nl_pipeline_phase_24_persists_runtime_quality_refs_fail_closed[production]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 4066,
+      "native_xml_diagnostic_sha256": "3df3d7014a7160f0c41242c01d2e9437151dc69f1b22146d671f16d903715d7f"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_serious_nl_pipeline_materializes_policy_intent_before_scientist_workflow",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 4145,
+      "native_xml_diagnostic_sha256": "7af31df94d892106148a2fa3a47585bc46adfc7926e9ac8a2ca3b96439e0a2f3"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_serious_nl_pipeline_blocks_missing_jurisdiction_before_scientist_workflow",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 2793,
+      "native_xml_diagnostic_sha256": "cce7f68104272884f3f1075cacc75e57978704e44ed50a96a6f68b89b70739d9"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_production_data_canary_materializes_local_lane_without_external_fetch",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 12877,
+      "native_xml_diagnostic_sha256": "5e9718e25502e85431793c04414bf6d607c5e0d6ddee9986ea72eef2c88ca5fa"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_serious_nl_pipeline_persists_foundry_method_report_from_final_state",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 8483,
+      "native_xml_diagnostic_sha256": "8068d1a5738e1642b99da748a25085a6934620cfa8910ced283fc3831a1de4d4"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_passes_resolved_curated_dir_to_llm_data_need_extractor",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 4096,
+      "native_xml_diagnostic_sha256": "69048586111617da4763cfef232bda3a2127f749d68b26ee3a0e665662bf7055"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_network",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3442,
+      "native_xml_diagnostic_sha256": "8c3930cf8f1879a6bd51017223fc180a7a46f5418ac89ac54f4ba9be6539de11"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_persists_multimodel_adjudication_and_keeps_unsupported_claim_blocking",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 5657,
+      "native_xml_diagnostic_sha256": "edc064a5969a9984929f2182f39b0ce0d9842d4007d091529c797c29836af7c2"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_promotes_serious_causal_context_into_scientist_params",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 5112,
+      "native_xml_diagnostic_sha256": "359d42c813ea0ea45dedc0c41ca3ccfa50df6f9c7d04e0166f95007753b2cfde"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_reports_gateway_failure_when_mock_fallback_is_disallowed",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3815,
+      "native_xml_diagnostic_sha256": "c28bfbd6d01be7bb3973108a521d47016ce2caa80de07742452c8928fe468bd9"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_surfaces_formalizer_schema_healing_in_variant_telemetry",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3702,
+      "native_xml_diagnostic_sha256": "cac14af2a7a231d386bf9750825601c1a559efa1817781cf2da260540575953d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_promotes_formalizer_structured_schema_failure",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3787,
+      "native_xml_diagnostic_sha256": "ca9a3383402fce22c9163c8a429f6019c80aff65f3ce5e085b17c1baf3ad40e8"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_propagates_scientist_workflow_failure",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3770,
+      "native_xml_diagnostic_sha256": "b769232e194f378ae2f34515f9906592915589090d3ca6acd6d95a8b9751d65f"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_updates_control_job_progress",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3375,
+      "native_xml_diagnostic_sha256": "28d0a928fb89fcab17f52bfb040c313745b2afa05eb1e3a080bd32b8abbd857e"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_bridges_scientist_trace_events_to_control_progress",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 4933,
+      "native_xml_diagnostic_sha256": "4b648080cfd13d8011f75dad4e6b67464031d13fbb4509051f402c5d6218cef0"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_marks_progress_failed_when_scientist_raises",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 3278,
+      "native_xml_diagnostic_sha256": "4f725db77c6958bf2133252a2d96b720ebb80a5b884ca3902334766b13aacd5d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_normative_generation_bridge.py::test_app_factory_passes_typed_deployment_trust_to_default_service",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13102,
+      "native_xml_diagnostic_sha256": "1befe09f6a1e43e61c152a29586e46c169721dac885e98fd21c7a3005be2deec"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_decision_verification_routes.py::test_legacy_browser_token_receives_public_verifier_refusal",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 12769,
+      "native_xml_diagnostic_sha256": "c22e28fda0b1ccbce775cd4dba1538dd0eaceb97a07edfb7b08c18eb7d422814"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_decision_verification_routes.py::test_public_verification_does_not_make_private_run_routes_public",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 12773,
+      "native_xml_diagnostic_sha256": "06b30d263c533d1f18cc1662ff12472fec9b61ddb44db3fb9193258779234a5d"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_decision_verification_routes.py::test_served_verifier_denies_signature_intent_and_counterfactual_tracks_gate",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 16951,
+      "native_xml_diagnostic_sha256": "83c54568e88e25bc014e63d513d4c0e647c1c08837863b5977594912d1bad3c0"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13395,
+      "native_xml_diagnostic_sha256": "2db5629f695f8f50426f479bacb487c6429bef96560638b6469bfe876a99c121"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_anonymous_publication_refuses_after_only_current_closure_is_withdrawn",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13500,
+      "native_xml_diagnostic_sha256": "85b7f3d79a7ec92ca562660eb96be65d5f58b3184041848e651d54cde0e78127"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_private_reconciler_closes_retained_locator_without_rewriting_signed_record",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13502,
+      "native_xml_diagnostic_sha256": "b4f8cea192d9f8f6a3390f865a1dd73012263aab42661247a8f032ae3bed6820"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_private_reconciler_retries_issuance_after_durable_boundaries[issued]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13634,
+      "native_xml_diagnostic_sha256": "6f8afe9dbbcae09a555066761387dffab13e00397e59313b547a07c396af6452"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_private_reconciler_retries_issuance_after_durable_boundaries[completions]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13639,
+      "native_xml_diagnostic_sha256": "aea887043ab7431ade2d92b12a5748bb9b6b49fdea5f6bf866bd9997e77f99ab"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_private_reconciler_rejects_symlinked_owner_directory_before_escape",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13565,
+      "native_xml_diagnostic_sha256": "361f810dd4ccac6786bb22ecc86cf2ca1834eaceba50e0ed194e7949adc6e792"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_candidate_preparation_remains_available_without_public_root_custody",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13381,
+      "native_xml_diagnostic_sha256": "09375273b8bde9aedc8353ad59cbeaede15ba86b21fbf99e41890a918f6ef201"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_http_publication_relocates_selected_manifest_profiles",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13490,
+      "native_xml_diagnostic_sha256": "133dfb1eb83d565249dbde8917b8a140f85184a7341e3163e94550a1a04ba6aa"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_governed_owner_rejects_removed_selected_view_and_keeps_tenant_reads",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13447,
+      "native_xml_diagnostic_sha256": "d58d1ff084d6bdb50722a1cfcaa093d0aaa46699d2a1e22c180343c22433ed9e"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13474,
+      "native_xml_diagnostic_sha256": "e61b74563c9ae72ddcc1f543b8bdd95413bdae058baf7d3c5cbb4d0c1cd8b846"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_governed_http_rejects_foreign_tenant_body_and_unappointed_source",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13180,
+      "native_xml_diagnostic_sha256": "a1b3352a420b5ba28faed3f3cbe2d573611bf8d12956e5209c39ec4a3c7ead99"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_governed_http_rejects_a_candidate_ledger_source",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 14673,
+      "native_xml_diagnostic_sha256": "49c6684b86b7030f1f392bb7e38b4f78ba4d41a8693d4f6a756ba3da23da6835"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_governed_http_corruption_removes_public_content_and_custody_membership[signature]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13595,
+      "native_xml_diagnostic_sha256": "869e57c368fd96f446bb2fe2c8fda2a1b5ec99220fc70a12a2750e219a4bde9e"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_governed_http_corruption_removes_public_content_and_custody_membership[source]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13592,
+      "native_xml_diagnostic_sha256": "6db7705624f9c4f42b118a6a5393bd38875cff29180cf5c40cb64800c5b95d37"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_public_export.py::test_governed_http_rejects_invalid_mandate_signature_before_issuance",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "ValueError",
+      "observation_bucket": "catalog_source_unreadable",
+      "terminal_message": "ValueError: catalog_fetch_source_unreadable",
+      "native_xml_diagnostic_utf8_bytes": 13564,
+      "native_xml_diagnostic_sha256": "1a498753bd0e23f4863727b7d888a1a6b1cbab5ebcdee0013e25f6286cc00aa5"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_run_paper_api.py::test_run_bound_case_resolver_hashes_the_exact_manifest_bytes_it_parses",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "Failed",
+      "observation_bucket": "expected_refusal_not_observed",
+      "terminal_message": "Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.run_paper_contracts.RunPaperSourceError'>",
+      "native_xml_diagnostic_utf8_bytes": 1185,
+      "native_xml_diagnostic_sha256": "ebb5e77ff73305c57e711fd53adddde03f4271fb2262c1c73a894a165dbbb71e"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_run_paper_api.py::test_run_bound_case_resolver_rejects_every_cas_role_falsifier[verify-manifest]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "Failed",
+      "observation_bucket": "expected_refusal_not_observed",
+      "terminal_message": "Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.run_paper_contracts.RunPaperSourceError'>",
+      "native_xml_diagnostic_utf8_bytes": 1289,
+      "native_xml_diagnostic_sha256": "c0bbfecff341982e3dc121d4a32b17b8b65fe97484808220185f23b49b505e28"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_run_paper_api.py::test_run_bound_case_resolver_rejects_every_cas_role_falsifier[bytes-manifest]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "Failed",
+      "observation_bucket": "expected_refusal_not_observed",
+      "terminal_message": "Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.run_paper_contracts.RunPaperSourceError'>",
+      "native_xml_diagnostic_utf8_bytes": 1289,
+      "native_xml_diagnostic_sha256": "33c594cf783ab2bc820dd2cb788931438b23d85c8f23fd672bc9a32c22949c69"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_run_paper_api.py::test_run_bound_case_resolver_rejects_every_cas_role_falsifier[kind-manifest]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "Failed",
+      "observation_bucket": "expected_refusal_not_observed",
+      "terminal_message": "Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.run_paper_contracts.RunPaperSourceError'>",
+      "native_xml_diagnostic_utf8_bytes": 1288,
+      "native_xml_diagnostic_sha256": "02ec8523193d04bc9ed5bbf0d215155f29fce9ab6be29fdaac7f3d6b8ea3250a"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_run_paper_api.py::test_run_bound_case_resolver_rejects_every_cas_role_falsifier[media-manifest]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "Failed",
+      "observation_bucket": "expected_refusal_not_observed",
+      "terminal_message": "Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.run_paper_contracts.RunPaperSourceError'>",
+      "native_xml_diagnostic_utf8_bytes": 1289,
+      "native_xml_diagnostic_sha256": "1b4f6f357e657e283d4a3c1603a14b6cdcd3e4e88c2ffcd1cb00129667fcf4f9"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_run_paper_api.py::test_run_bound_case_resolver_rejects_every_cas_role_falsifier[schema-manifest]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "Failed",
+      "observation_bucket": "expected_refusal_not_observed",
+      "terminal_message": "Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.run_paper_contracts.RunPaperSourceError'>",
+      "native_xml_diagnostic_utf8_bytes": 1290,
+      "native_xml_diagnostic_sha256": "cf71e1e2b62fbf6193734f1a31e10872a77fc2cbf3290ebca171dbba35363852"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_run_paper_api.py::test_run_bound_case_resolver_rejects_every_cas_role_falsifier[producer-manifest]",
+      "outcome": "FAIL",
+      "phase_outcomes": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "observed_exception_type": "Failed",
+      "observation_bucket": "expected_refusal_not_observed",
+      "terminal_message": "Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.run_paper_contracts.RunPaperSourceError'>",
+      "native_xml_diagnostic_utf8_bytes": 1292,
+      "native_xml_diagnostic_sha256": "d24d3eb1b28bc9e0aaf34a31c29b668a530075e376a15d6814497871ce9afe46"
+    }
+  ],
+  "full_failure_observation_distribution": {
+    "catalog_source_unreadable": 67,
+    "AssertionError": 3,
+    "StopIteration": 1,
+    "required_intervention_artifacts_missing": 2,
+    "SystemExit": 1,
+    "artifact_owner_refusal_other": 1,
+    "pydantic_core._pydantic_core.ValidationError": 1,
+    "bound_cell_mismatch_refusal": 2,
+    "expected_refusal_not_observed": 7
+  },
+  "full_failure_exception_type_distribution": {
+    "ValueError": 67,
+    "AssertionError": 3,
+    "StopIteration": 1,
+    "polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError": 2,
+    "SystemExit": 1,
+    "polisyos.core.artifacts.ownership.ArtifactOwnershipError": 3,
+    "pydantic_core._pydantic_core.ValidationError": 1,
+    "Failed": 7
+  },
+  "full_error_observation_distribution": {
+    "catalog_source_unreadable": 344,
+    "required_intervention_artifacts_missing": 41,
+    "explicit_enospc": 1,
+    "tmp_path_numbered_dir_admission_failure": 928
+  },
+  "owned_native_diagnostic_text": [
+    {
+      "nodeid": "tests/unit/runtime/http/test_epoch_issuance_composition.py::test_startup_verifier_provenance_is_readable_in_actual_tenant_scope",
+      "outcome": "FAIL",
+      "native_xml_attributes": {
+        "message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:2809f82c48d24902d6a2ece8f1d5c6f9da5a3ef5888a8ca33d5b11284325db23 is not owned by tenant tenant-a/cell-a for read_manifest; current owners: tenant-a/cell-a"
+      },
+      "decoded_native_xml_text_utf8": "tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest/test_startup_verifier_provenan0')\n\n    def test_startup_verifier_provenance_is_readable_in_actual_tenant_scope(tmp_path) -> None:\n        \"\"\"Startup construction must not leave its real evidence unowned at request time.\"\"\"\n    \n        store = artifacts.FileSystemCAS(tmp_path / \"cas\").with_ambient_ownership_enforcement()\n    \n        class MissingOrigin:\n            def resolve_admitted_origin_for_transition(self, **kwargs):\n                raise ValueError(\"origin absent\")\n    \n        verifier = CanonicalEpochTransitionVerifier(\n            store=store,\n            origins=cast(\"Any\", MissingOrigin()),\n            decision_validity_owner=DecisionValidityService(store),\n        )\n        with tenant_scope(None, tenant_id=\"tenant-a\", cell_id=\"cell-a\"):\n            transition = store.put_bytes(\n                b\"refused candidate\",\n                artifacts.ArtifactWriteOptions(kind=\"test.transition\", media_type=\"text/plain\"),\n            )\n            with pytest.raises(ValueError):\n                verifier.verify(\n                    transition_artifact_ref=transition,\n                    requested_query_context_ref=\"sha256:\" + \"a\" * 64,\n                    expected_authority_purpose=\"decision_validity_epoch_transition\",\n                )\n>           assert store.get_bytes(verifier.verifier_provenance_ref.artifact_id)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/unit/runtime/http/test_epoch_issuance_composition.py:88: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/core/artifacts/store.py:437: in wrapped\n    result = method(self, artifact_id, *args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/core/artifacts/store.py:1329: in get_bytes\n    data = self._read_verified_blob(aid, blob, manifest_ref=ref)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/core/artifacts/store.py:4256: in _read_verified_blob\n    return _read_verified_blob(\nsrc/polisyos/core/artifacts/_integrity_ops.py:171: in read_verified_blob\n    manifest = load_manifest(artifact_id)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/core/artifacts/store.py:4259: in <lambda>\n    load_manifest=lambda selected_id: self.get_manifest(manifest_ref or selected_id),\n                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/core/artifacts/store.py:437: in wrapped\n    result = method(self, artifact_id, *args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/core/artifacts/store.py:1490: in get_manifest\n    self._require_default_manifest_access(\nsrc/polisyos/core/artifacts/store.py:1106: in _require_default_manifest_access\n    self._require_artifact_owner(artifact_id, operation=operation, ref=ref)\nsrc/polisyos/core/artifacts/store.py:980: in _require_artifact_owner\n    self._ownership_index.require_owner(\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <polisyos.core.artifacts.ownership.ArtifactOwnershipIndex object at 0x7f237cd35810>\nartifact_id = ArtifactID(root='sha256:2809f82c48d24902d6a2ece8f1d5c6f9da5a3ef5888a8ca33d5b11284325db23')\n\n    def require_owner(\n        self,\n        artifact_id: ArtifactID | str,\n        *,\n        tenant_id: str,\n        cell_id: str | None = None,\n        operation: str = \"read\",\n    ) -> None:\n        \"\"\"Fail closed unless the tenant owns the artifact.\"\"\"\n        aid = _coerce_artifact_id(artifact_id)\n        normalized_tenant = _normal_tenant_id(tenant_id)\n        normalized_cell = _normal_cell_id(cell_id)\n        if self.is_owned_by(aid, tenant_id=normalized_tenant, cell_id=normalized_cell):\n            return\n        owners = self.owners_for(aid)\n        owner_labels = [\n            _owner_label(record.get(\"tenant_id\"), record.get(\"cell_id\")) for record in owners\n        ]\n        owner_text = \", \".join(owner_labels) if owner_labels else \"unowned\"\n>       raise ArtifactOwnershipError(\n            f\"Artifact {aid} is not owned by tenant \"\n            f\"{_owner_label(normalized_tenant, normalized_cell)} for {operation}; \"\n            f\"current owners: {owner_text}\"\n        )\nE       polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:2809f82c48d24902d6a2ece8f1d5c6f9da5a3ef5888a8ca33d5b11284325db23 is not owned by tenant tenant-a/cell-a for read_manifest; current owners: tenant-a/cell-a\n\nsrc/polisyos/core/artifacts/ownership.py:1573: ArtifactOwnershipError",
+      "diagnostic_sha256": "5406274cf668e224454f7bcb272baec2fb3913fbcbfd2ba5b4d238c45df0fcf2"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_human_decision_service.py::test_production_gate_issues_subject_bound_exposure_session",
+      "outcome": "FAIL",
+      "native_xml_attributes": {
+        "message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell"
+      },
+      "decoded_native_xml_text_utf8": "tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest/test_production_gate_issues_su0')\n\n    def test_production_gate_issues_subject_bound_exposure_session(tmp_path: Path) -> None:\n        fixture = _signed_current_production_gate_fixture(tmp_path)\n        gate_input = fixture.gate_input.model_copy(update={\"exposure_session_ref\": None})\n        proof = _bound_read_permission(\n            fixture.base,\n            resource_kind=\"runtime.run.human_decision_gate\",\n            selectors={\n                \"run_id\": \"run-gy-pa2\",\n                \"source_kind\": \"production_approval\",\n            },\n        )\n    \n>       issued = fixture.base.service.issue_exposure_session(\n            gate_input,\n            bound_permission=proof,\n        )\n\ntests/unit/runtime/http/test_human_decision_service.py:1265: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/runtime/http/services/human_decisions.py:1280: in issue_exposure_session\n    return self._persist_exposure_session(session, input_refs=input_refs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/runtime/http/services/human_decisions.py:1499: in _persist_exposure_session\n    result = self._sink.write_authority_artifact(\nsrc/polisyos/runtime/http/services/control/run_lifecycle.py:1856: in write_authority_artifact\n    return write_runtime_authority_artifact(\nsrc/polisyos/runtime/http/services/control/artifacts.py:576: in write_runtime_authority_artifact\n    result = write_authority_artifact(\nsrc/polisyos/runtime/http/services/control/artifacts.py:281: in write_authority_artifact\n    effective_attestation_ref = _persist_cas_writer_attestation(\nsrc/polisyos/runtime/http/services/control/artifacts.py:435: in _persist_cas_writer_attestation\n    ref = store.put_json(\nsrc/polisyos/core/artifacts/store.py:2529: in put_json\n    return self.put_bytes(data, opts2)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/core/artifacts/store.py:2462: in put_bytes\n    deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(\nsrc/polisyos/core/artifacts/store.py:2214: in _put_blob_and_manifest_once\n    self._require_bound_context_for_owner(opts.tenant_context, owner)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ncontext = ArtifactTenantContextInfo(tenant_id='tenant-a', cell_id=None)\nowner = {'cell_id': 'cell-a', 'tenant_id': 'tenant-a'}\n\n    @staticmethod\n    def _require_bound_context_for_owner(\n        context: ArtifactTenantContextInfo | None,\n        owner: dict[str, str | None] | None,\n        *,\n        require_bound: bool = False,\n    ) -> None:\n        \"\"\"Compare declared bound identity with the concrete scoped write owner.\"\"\"\n        if owner is None:\n            return\n        tenant_id = owner[\"tenant_id\"]\n        if tenant_id is None:\n            raise ArtifactOwnershipError(\"Scoped write owner has no concrete tenant\")\n        if context is None:\n            if require_bound:\n                raise ArtifactOwnershipError(\n                    f\"Import is not owned by tenant {owner['tenant_id']}: \"\n                    \"manifest has no bound tenant/cell context\"\n                )\n            return\n        if context.tenant_id != owner[\"tenant_id\"]:\n            raise ArtifactOwnershipError(\"Manifest is bound to a different tenant\")\n        if context.cell_id != owner[\"cell_id\"]:\n>           raise ArtifactOwnershipError(\"Manifest is bound to a different cell\")\nE           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell\n\nsrc/polisyos/core/artifacts/store.py:2815: ArtifactOwnershipError",
+      "diagnostic_sha256": "c664ef8e5b57eda65c04024bdbae6f684faf53da0585296aea71a97866126f56"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_human_decision_service.py::test_exposure_session_is_issued_for_and_resolved_by_exact_live_subject",
+      "outcome": "FAIL",
+      "native_xml_attributes": {
+        "message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell"
+      },
+      "decoded_native_xml_text_utf8": "tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest/test_exposure_session_is_issue0')\n\n    def test_exposure_session_is_issued_for_and_resolved_by_exact_live_subject(\n        tmp_path: Path,\n    ) -> None:\n        \"\"\"Removing the subject join would let a same-tenant reviewer steal a session.\"\"\"\n    \n        fixture = _signed_current_gate_fixture(tmp_path)\n        gate_input = fixture.adapter_input.model_copy(update={\"exposure_session_ref\": None})\n        gate_permission = _bound_read_permission(\n            fixture,\n            resource_kind=\"runtime.run.human_decision_gate\",\n            selectors={\n                \"run_id\": gate_input.run_id,\n                \"source_kind\": gate_input.source_kind,\n            },\n        )\n    \n>       issued = fixture.service.issue_exposure_session(\n            gate_input,\n            bound_permission=gate_permission,\n        )\n\ntests/unit/runtime/http/test_human_decision_service.py:2107: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/runtime/http/services/human_decisions.py:1280: in issue_exposure_session\n    return self._persist_exposure_session(session, input_refs=input_refs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/runtime/http/services/human_decisions.py:1499: in _persist_exposure_session\n    result = self._sink.write_authority_artifact(\nsrc/polisyos/runtime/http/services/control/run_lifecycle.py:1856: in write_authority_artifact\n    return write_runtime_authority_artifact(\nsrc/polisyos/runtime/http/services/control/artifacts.py:576: in write_runtime_authority_artifact\n    result = write_authority_artifact(\nsrc/polisyos/runtime/http/services/control/artifacts.py:281: in write_authority_artifact\n    effective_attestation_ref = _persist_cas_writer_attestation(\nsrc/polisyos/runtime/http/services/control/artifacts.py:435: in _persist_cas_writer_attestation\n    ref = store.put_json(\nsrc/polisyos/core/artifacts/store.py:2529: in put_json\n    return self.put_bytes(data, opts2)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/core/artifacts/store.py:2462: in put_bytes\n    deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(\nsrc/polisyos/core/artifacts/store.py:2214: in _put_blob_and_manifest_once\n    self._require_bound_context_for_owner(opts.tenant_context, owner)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ncontext = ArtifactTenantContextInfo(tenant_id='tenant-a', cell_id=None)\nowner = {'cell_id': 'cell-a', 'tenant_id': 'tenant-a'}\n\n    @staticmethod\n    def _require_bound_context_for_owner(\n        context: ArtifactTenantContextInfo | None,\n        owner: dict[str, str | None] | None,\n        *,\n        require_bound: bool = False,\n    ) -> None:\n        \"\"\"Compare declared bound identity with the concrete scoped write owner.\"\"\"\n        if owner is None:\n            return\n        tenant_id = owner[\"tenant_id\"]\n        if tenant_id is None:\n            raise ArtifactOwnershipError(\"Scoped write owner has no concrete tenant\")\n        if context is None:\n            if require_bound:\n                raise ArtifactOwnershipError(\n                    f\"Import is not owned by tenant {owner['tenant_id']}: \"\n                    \"manifest has no bound tenant/cell context\"\n                )\n            return\n        if context.tenant_id != owner[\"tenant_id\"]:\n            raise ArtifactOwnershipError(\"Manifest is bound to a different tenant\")\n        if context.cell_id != owner[\"cell_id\"]:\n>           raise ArtifactOwnershipError(\"Manifest is bound to a different cell\")\nE           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell\n\nsrc/polisyos/core/artifacts/store.py:2815: ArtifactOwnershipError",
+      "diagnostic_sha256": "8c6a2d487b33b969be78fe0186730640d4312b91f8366e35932277dbde0ee390"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_human_decision_exposure_is_a_top_level_completed_event",
+      "outcome": "ERROR",
+      "native_xml_attributes": {
+        "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_human_decision_exposure_i in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+      },
+      "decoded_native_xml_text_utf8": "fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Function test_human_decision_exposure_is_a_top_level_completed_event>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_human_decision_exposure_i in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError",
+      "diagnostic_sha256": "2480acc4d49831b975d29fd389f1408ee0d1fb8c64dc0ee3c5b1cfd6107d7977"
+    },
+    {
+      "nodeid": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_signature_failure_leaves_no_completed_row",
+      "outcome": "ERROR",
+      "native_xml_attributes": {
+        "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_exposure_signature_failur in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+      },
+      "decoded_native_xml_text_utf8": "fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Function test_exposure_signature_failure_leaves_no_completed_row>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_exposure_signature_failur in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError",
+      "diagnostic_sha256": "f637970e1c51d121204983a753c24d26cd241452007bcaee7fa27581c8f48a04"
+    }
+  ],
+  "test_source_custody": [
+    {
+      "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 39751,
+      "sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 34836,
+      "sha256": "df322346f50d545b2eb7049c7ff03f4827abe7282b7e8fdff2ab92fe513d1fe2"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 27917,
+      "sha256": "bcfa3165f4de79df0b39fbb147f3d2cb7873a56bcffd9c3d112abc223cf60af1"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 10082,
+      "sha256": "43c39a7064b161649c2a4cf65c1363ec4f2c02555f09523ebe47dc7a0ad36065"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 2279,
+      "sha256": "dda8d14da68846e8c2df061c18ee678d6efe0154959370b97e5473b7a037a2f4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 14133,
+      "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 2582,
+      "sha256": "2cf4a16829b342bd9b35a69fc28fcbfff845e3e8b56166d0a0cf207429038dda"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 4638,
+      "sha256": "cb4bb3f5564bfc4e9e602466989e622e114e725f16c4488b12c9a051d0bf2aa4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 14387,
+      "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 10821,
+      "sha256": "4018de5c4c54c765ad77616a5f5da52e327aa86e995f80920c20f175b151b752"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 5649,
+      "sha256": "c30f463f851085b56fade4aafa60d26de822062eb261e61297b1403bea41b466"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 24787,
+      "sha256": "ea350b993f693b6421ea0bab58c01e0acbf6f6a7e7c8152c7c3043d856d7f3e4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 4011,
+      "sha256": "4c3ad9d5c7c2662b8e192570f54b13defd26beef7bda71bd378f2505b6157576"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 5011,
+      "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_signed_evidence.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 7305,
+      "sha256": "08a2fc52ab0eebe5b3d1b465663ba566d6f59ceff81e545f867adce1157b0b3e"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 7246,
+      "sha256": "058fd8c5f7c117a189b9cd86c6e369339c561e5bb38f9cb904d1257a07c9d6cd"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 23917,
+      "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 9989,
+      "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 5578,
+      "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 1412,
+      "sha256": "c98392b794ec39606f137b17f24379cf1c165072936c2b8b7948cdefbad7c30b"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_graph.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 2913,
+      "sha256": "cb720254abc71c32771a848948b69f88a87711b0d0e8a4996e4483fe5fa4c86b"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 7257,
+      "sha256": "3c610fbed5e7c7f416b0eb9ebf0220cc2e5495452e24728ca658a5532b3cae7b"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_audit_export_verify.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 5833,
+      "sha256": "fce5b4e0c6cd7aecb12248008b7a0447322839841845a36c94abdb895858f5a7"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_audit_manifest_compat.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 4728,
+      "sha256": "88d318dce390fdcb7e7233da897bfa0c1881cf6bc581d9aa34d2d667dfdcfff1"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_canon_json.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 1457,
+      "sha256": "19dd0144c4ff594513cbe0aa45f3eeef03065a3c4f97970ee3b8b818a3e6fad8"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_cli.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 9895,
+      "sha256": "f57a9689060a90643bd1b61e060307ad177ff0270244e05ff50f84ddbeae5692"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_cli_resume.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 2466,
+      "sha256": "8dbd60ab636b667c41c682262feb06fd8e7a225f955f6e02d82374c75200a357"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 4595,
+      "sha256": "414daba848a4814c1f65ef02318efc74b326191a96abad028939fc0cda69fcd7"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_decorators.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 5714,
+      "sha256": "d633cb5896bd84fc3bfdc9a620e2d5946cb14e78307009534b98b0001ca8a008"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_environment_manifest.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 13363,
+      "sha256": "ecb42584e3d65a16035ef80545e154b183225f6b9c60195619ed5a807def7588"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_logs.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 1627,
+      "sha256": "f9eb4cd7d76bfbed26479679c4028a83815965fe51728f8eb0e74ed0eac541c6"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_metric_validation_cli.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 1956,
+      "sha256": "0d6e2be569e39255390fa6fdf9d7948108a865e5c2219c28eb3e7597329f4a02"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_metrics.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 4697,
+      "sha256": "f9c5559c3a1869295d28a331f827e905cd136d17e2b6611c056e4a793338ea90"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_observability.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 2893,
+      "sha256": "9d3bab9129aff33cc2ddd5161972c56e6c11997fbcf05316bbc2e447b8086ca0"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 1218,
+      "sha256": "e2c59f50e1de9dcfe5d4e4436dae0f483b762595b82e9cca84d1483786f35541"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_propagation.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 3844,
+      "sha256": "30456b263fc3bf4ae9731ae8ad1f7c96d216ccef6c0de56af45386bbb7fd9c02"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_provenance_contract_shims.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 2304,
+      "sha256": "6bbe79b75c96fb2dc55afe5e3e65a4caca13923fa7671af19b1761d332d0fb4c"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_registry_bundle.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 4824,
+      "sha256": "e58f4611a289e00d773f2f106137916e9311162fd789991281778d7f59b06ae5"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_run_context.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 4314,
+      "sha256": "ba2e51668cccb71a0156ff912ff10d554f7383cc8dd72d6062f6183240a6d065"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_signing.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 6894,
+      "sha256": "4af98942b89206f63cea7fa3e27ece121bdafcea179b1cc957cf4befe8c97973"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_store_signing.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 14325,
+      "sha256": "21d210a1d4b9493e3400f64b109e5f820821495c298dfbe3f3017a17bd3abf34"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_tracer.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 5970,
+      "sha256": "74bb2650bb6bb65b3b5db3927d84f7686efa372a16830b29de91149541310611"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_workspace_commands.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 2918,
+      "sha256": "36ca54ffb2b3eb1ee0b72c3a07cb646a63382da720b4a9ef04ce7d800430756f"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_worktree_admission.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 8532,
+      "sha256": "2fc4c2c48505c8465d10cfbc44f99ea24dc03b6ef958a2af03d920fa3d8108fc"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 8699,
+      "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 12269,
+      "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 48119,
+      "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 24197,
+      "sha256": "d64c46bb4055cb6cd65fcff05067ef6c89941b5af316a63931088fbebaa98771"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 31421,
+      "sha256": "19636b58cf687da7ec3eb9c3ded9ef9cb0ed6c24f0b3bcb6aa10e31eda9db9b9"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 109346,
+      "sha256": "f56f1239f79fbc3c22d9fea856df05adf00bc9006e48c3b445c450c82a4c6ffd"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_analysis_api.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 3717,
+      "sha256": "fb11e25613eea5ff5645fe707ebe7417f131ee9d54cb51b4fbb7091577feb0ef"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_api_maturity.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 10135,
+      "sha256": "60ffdd080d946190d9e3dd3dd5e8a95a95014ca13baf1877ee025224d1ad885f"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_architecture_boundaries.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 18604,
+      "sha256": "daf21462d1bc91fc9096fb5fd6417ea82cb6bf0a3796ae0e7aa0c5da1c9362c2"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_artifact_surface_safety.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 8071,
+      "sha256": "5e95df05377ea7699cb3500ca861bee525d5480cd2ac8b331d70f301dc4f5aad"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 100312,
+      "sha256": "2640fda5cc310bb74673467aa4ccff927d619708c22fa43a1767eeb48428750b"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_hardening.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 5627,
+      "sha256": "eaa3f63b8b00bafa1daa03632f3fd64726b4feda374fa7aa874080a67cd8457c"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 75617,
+      "sha256": "765ecc3270c338e3a7753e02836f5bbfd4ad8ce28642eb3fedadf1a5453598ea"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 123424,
+      "sha256": "01278a3cecfc6d3ca20dca7c10b817adf16847cf1ed5c5d28e47d87fd5d3b821"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 6065,
+      "sha256": "dfaa94c6bf30f462d6d6119be5fc9f19d17e3b7c849601885cb3080efdbe85f0"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_decision_validity_api.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 37372,
+      "sha256": "dc621de07ab9e3915ab8e7b67ea7ab0cdf9afdbd6769bcb3993a04e7df9e62a7"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_epoch_issuance_composition.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 4828,
+      "sha256": "a9162845e05ec0f0a69abe700a5c99fdcd4d066c7ac845b7d0027a2d7a226d04"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_governed_projection_service.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 75433,
+      "sha256": "57d2070fb7a794803e5b3fc291c630c5f8e17cd3627be88278390aef858ca099"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_service.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 129504,
+      "sha256": "9bac7dc0dd225e2cae3a34389cadc69bc41f9cbb6a5c0d8faee6d5cb0e1d7e38"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_mobility_api.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 3352,
+      "sha256": "72a8673d683b61a8eef7a9ca8b9a484b6afa8ca80ece630e0798a39ef3e8ed6d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 171460,
+      "sha256": "99d6b21eab61bed66d23d58326b07df6b800aacff2d4ea916ab5e056864a85e7"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 46269,
+      "sha256": "7faaf00f351b304edf51462e8c02dbe8bea3fcffd2b52cbd0ea5b826131aa27b"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 20081,
+      "sha256": "87d7c963c8e5f998662e6c4028f09235e6a0eb3bf58509b04d8171fe0b750556"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_public_export.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 51511,
+      "sha256": "3a8ad7447d9728ae66370794e47addd3976c1605b294cec3eb5a9c2d66e8d66e"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_run_paper_api.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 50174,
+      "sha256": "d6ce9713073cf9ebd85d5d0d6033234e64dcfffa823b472a7eb60a51623ceec3"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 48767,
+      "sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_chronology_proof.py",
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "bytes": 64363,
+      "sha256": "069e7d9509449da6ee232809909d864c835eff44dbb94746433cd04f5c911f8f"
+    }
+  ],
+  "seven_typing_batch_test_files_identical_456_to_5ece": [
+    "tests/unit/core/artifacts/test_put_integrity_retry.py",
+    "tests/unit/core/artifacts/test_import_admission_noop.py",
+    "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "tests/unit/core/artifacts/test_cas_integrity_report.py",
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py"
+  ],
+  "retained_epoch_ownership_fixture": {
+    "index_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest/test_startup_verifier_provenan0/cas/artifacts/ownership/index.json",
+    "index_bytes": 203,
+    "index_sha256": "86e18be166cb70d03106a1977f97838b68e50cc1f04dc50d218cc595241c2670",
+    "generation_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest/test_startup_verifier_provenan0/cas/artifacts/ownership/generations/8e6e1ef0650510039f78a884ccd459503b8ce83ce31c60d4933ca9564adf3959.json",
+    "generation_bytes": 2206,
+    "generation_sha256": "8e6e1ef0650510039f78a884ccd459503b8ce83ce31c60d4933ca9564adf3959",
+    "selected_artifact_id": "sha256:2809f82c48d24902d6a2ece8f1d5c6f9da5a3ef5888a8ca33d5b11284325db23",
+    "selected_claim_rows": [
+      {
+        "cell_id": "cell-a",
+        "claimed_at": "2026-10-06T16:55:54+00:00",
+        "manifest_profile_sha256": "sha256:01b538c879efdf441ef16d14b11e0a6fafb530f8ad43a7daaa1d275a0a0d0893",
+        "tenant_id": "tenant-a",
+        "writer": "FileSystemCAS"
+      }
+    ],
+    "qualification": "Literal JSON read only. The exact-profile ownership row does not assert default-manifest ownership. No fresh runtime read replay was executed."
+  },
+  "source_qualification": "456 is a predecessor. Seven test files match successor5ece, whose independent102case/typebatch receipt is separate; this joins no new-candidate full-cohort proof. Recorded backing-file identities are not an import/resource/child read-set.",
+  "observation_classification_limit": "Buckets describe actual typed diagnostic/failing assertion quantities, not defect causality, P41 inheritance, institutional owner decisions or finding closure. Explicit ENOSPC1 and numbered-dir928 are distinguished; no catalog failure is silently relabeled as disk exhaustion."
+}

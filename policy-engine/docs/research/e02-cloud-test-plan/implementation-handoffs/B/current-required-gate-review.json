@@ -1,0 +1,679 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "slice": "current-required-gate-input-failure-review",
+  "reviewer": "cmp_res_probe",
+  "branch": "codex/e02-B-current-composition",
+  "related_finding_ids": [],
+  "closure_ids": [],
+  "formal_finding_closure": false,
+  "reviewer_workspace_base_sha": "62db384e4ffb6bf58cd37ee93c7c75a5ba0288eb",
+  "reviewed_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "reviewed_tree_sha": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "scope": "Independent read-only adjudication of two completed required gates on root frozen4e: architecture guardrails and production_invocation only. Full source/text input queries and semantic source traces; no new gates/tests/probes/source writes, no runtime/cohort/JUnit outcomes parsed. ADAPTER owns runtime cohort reconciliation. Own receipt metadata append only.",
+  "verdict": "TWO_COMPLETED_REQUIRED_GATES_FAILED; NO_RUNTIME_DEFECT_ADJUDICATED",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Exact completed outputs, full static source/hash denominator and seven source-consumer traces. No full-runtime, universal input closure or finding admission inferred.",
+  "source_custody": {
+    "exact_frozen_local_git_tree": true,
+    "postrun_root_head": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "postrun_root_worktree_clean": true,
+    "source_remote_ancestry": "not_established_by_this_review"
+  },
+  "raw_bindings": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-architecture.txt",
+      "bytes": 123233,
+      "sha256": "3c1a37a7f2a900c270e8faca0fe21ef985cc77ad59bc3d319dd34bcd625d2f16"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-architecture.json",
+      "bytes": 1876,
+      "sha256": "468ec9869249db069e257bd17a78840d55d67d9ff2922882367a85f700a3b7a3"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-architecture-profile.json",
+      "bytes": 2097,
+      "sha256": "92fe8c56454ec7d14fab3cbbb83cd8a4eba048b3d44e68720e7d7c8c1a624fa8"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-production-invocation.txt",
+      "bytes": 15603,
+      "sha256": "24d0b9bf90a0333fcef4c5403cc52970d3d3e08e269f0734aaa81a0893387238"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-production-invocation.json",
+      "bytes": 2122,
+      "sha256": "e2c7bcca1ac96732b786150a60dffc80428ade98508cec8f2f8aab8d89c3542a"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-production-invocation-profile.json",
+      "bytes": 2426,
+      "sha256": "a0813062ceba9bfdf052abf46e3385027bb857170af31d529852aae237e5770c"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-production-invocation-full.json",
+      "bytes": 173230115,
+      "sha256": "3a5e725a003f2992225bb9d7fe067ba19b4afc4001b8274aee3776ed24763358"
+    }
+  ],
+  "raw_custody": {
+    "local_complete_bytes": "independently_read_and_hashed",
+    "moderate_stdout_owner": "Root will commit complete moderate stdout/wrappers/profile after final wave; this receipt cites existing absolute paths/hash and no future source commit.",
+    "large_raw": "173230115-byte production report stays ignored; if G cannot obtain these deciding bytes, full report custody at G is not_established and exact static command must be replayed there. A moderate summary is not replacement deciding evidence."
+  },
+  "query": {
+    "script": {
+      "path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/final-gate-review/query_final_required_gates.py",
+      "bytes": 9354,
+      "sha256": "027e67dca32961e55101c9cf73fe97f2f25dca74a5102c7f8370cc2f638afffc"
+    },
+    "full_query_output_ignored": {
+      "path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/final-gate-review/full-query.json",
+      "bytes": 15751,
+      "sha256": "27d110e0ea3e5f223e8a4f9aed763aa08859bb5e445ac5767bc9df033983fc6d"
+    },
+    "argv": [
+      "python3",
+      "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/final-gate-review/query_final_required_gates.py",
+      "--repo",
+      "/workspace/e02-B-current-coordination",
+      "--base",
+      "198076863e143dea9f89f02734b13d50dae3eed5",
+      "--source",
+      "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "--historical",
+      "a175392fb4b49d19189152609d93e2ec149a4704",
+      "--raw",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review"
+    ],
+    "exit_code": 0,
+    "kind": "complete evidence query, no gate/runtime execution",
+    "environment": {
+      "sys_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "sys_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+    },
+    "retention": "Local ignored script/output exact bytes; derived output is navigation, original gate outputs remain deciding. Root may retain script, not duplicate a full derived source inventory."
+  },
+  "source_bindings": [
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "git_blob": "08474ca1c4ed05c21d338a734c36113c4667132b",
+      "bytes": 27007,
+      "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "bytes": 103077,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+      "git_blob": "4ba9adfe8327ee020efd91ad1621d447ef271a95",
+      "bytes": 947189,
+      "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "git_blob": "0b5a7ff298a836f32dbe499ed9da5b2b148976b7",
+      "bytes": 189110,
+      "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62",
+      "bytes": 35161,
+      "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+      "git_blob": "173dc65f7a507b88cf0fa3b9a211ddace25f2fcc",
+      "bytes": 25310,
+      "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+      "git_blob": "a8d670610f73536e3831a65a7d091432d4bfb599",
+      "bytes": 18511,
+      "sha256": "2f4bd7b8f46cedacd3c26134ecc9a7b9d03dd868953b34cf306dd1702a0ec035"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py",
+      "git_blob": "d942b4bbc04330f29eff9667014d5588a0f2aa17",
+      "bytes": 25953,
+      "sha256": "b256152d8f36ffd09dcc0062fc47c8e0209b496f672cc451da59a09302b58816"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "git_blob": "66832c75dbc811d9c020352682ace45f0dcc3a15",
+      "bytes": 42439,
+      "sha256": "4ded29c3bb1ef77202b4a57d9595e8b4665552293e9b92321e675a52dcbee559"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+      "git_blob": "845b5cf428d1a4bca16f410e8e580382b0a9c2ec",
+      "bytes": 6744,
+      "sha256": "99ba75d7f3848cc77a3fe775a3b394aa1df21e32f10364040345cbb5dc309c06"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+      "git_blob": "cfa6273688e423357fbad240d24f99b171f1a7a3",
+      "bytes": 41586,
+      "sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "git_blob": "a6a5b6cb483abe855225bdbf3860ef8475a7134a",
+      "bytes": 87102,
+      "sha256": "4712314f04747f9c29f601c71adb681cd921a6f89e4f7d426ab4850a11cb2b21"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/src/polisyos/core/components/_cli_replay.py",
+      "git_blob": "075a1675fdd0cb6aec4125a73796acc807fbef97",
+      "bytes": 11427,
+      "sha256": "362ac69390b58ec1c17c457d38e3f050ace1c2638c756f3fb251cea245aad942"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/tools/ops_runners/runtime_cli.py",
+      "git_blob": "9ae2b36a4e01ce11b3096c8eafe97e96893ccb7c",
+      "bytes": 51248,
+      "sha256": "60cb4d4d24986e2e007422d74707a5e870a0961519ed24aca217a2fde08e61b9"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "git_blob": "f8a9dda954bc3bee4f9d4441311f2dcc9fe392e7",
+      "bytes": 2812414,
+      "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+    },
+    {
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "git_blob": "38f8b0b40ca439aa5e52cf39b3c8cda894391db6",
+      "bytes": 2365635,
+      "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+    }
+  ],
+  "gate_runs": [
+    {
+      "tag": "final-architecture",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "source_before": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "source_after": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "actual_exit_code": 1,
+      "wall_s": 223.58893917199748,
+      "process_rusage_maxrss_kib": 1159028,
+      "wrapper_ref": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-architecture.json",
+      "launch_profile_ref": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-architecture-profile.json",
+      "environment": "Complete actual selected child environment and launcher inputs are preserved in hashed raw wrapper/profile files, not repeated here.",
+      "launcher_sha256": "8fe0a22c2704c69390f51a855678fa6cde0402bd117096309e213834f54f0c7a"
+    },
+    {
+      "tag": "final-production-invocation",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-production-invocation-full.json"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "source_before": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "source_after": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "actual_exit_code": 1,
+      "wall_s": 222.2949866370036,
+      "process_rusage_maxrss_kib": 8500144,
+      "wrapper_ref": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-production-invocation.json",
+      "launch_profile_ref": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-production-invocation-profile.json",
+      "environment": "Complete actual selected child environment and launcher inputs are preserved in hashed raw wrapper/profile files, not repeated here.",
+      "launcher_sha256": "8fe0a22c2704c69390f51a855678fa6cde0402bd117096309e213834f54f0c7a"
+    }
+  ],
+  "complete_footprint_and_source_input_reconciliation": {
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "candidate": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "footprint_query": "Complete git diff --name-only -z base candidate; full tracked Git tree and actual source glob, not sampled grep.",
+    "counts": {
+      "changed_paths": 1115,
+      "file_types": {
+        ".json": 403,
+        ".txt": 268,
+        ".toml": 23,
+        ".py": 209,
+        ".log": 43,
+        ".xml": 140,
+        ".md": 12,
+        ".diff": 9,
+        ".cjs": 2,
+        ".blob": 6
+      },
+      "scanner_current_python_paths": 5938,
+      "scanner_changed_intersection": 100,
+      "scanner_changed_intersection_by_directory": {
+        "tests": 53,
+        "src": 47
+      },
+      "architecture_source_python_paths": 2701,
+      "architecture_changed_source_intersection": 47,
+      "architecture_actual_glob_equals_frozen_tracked_set": true
+    },
+    "source_snapshots": {
+      "current": {
+        "python_files": 5938,
+        "sha256": "59a086c9c88f336cf974fa1f312d7e46557dd4d37a6413f2e7e2bd2ae7751d06",
+        "postrun_git_blob_mismatches": []
+      },
+      "baseline": {
+        "python_files": 5904,
+        "sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5",
+        "postrun_git_blob_mismatches": []
+      }
+    },
+    "qualification": "All5938 postrun current filesystem Python source bytes equal candidate Git blobs; current/base canonical text-set hashes equal original scanner denominator. Architecture actual src glob equals2701 tracked set. This is complete STATIC SOURCE input readback at review time, not per-loader/child/resource readset.",
+    "script_manifest": {
+      "candidate_path": "policy-engine/pyproject.toml",
+      "candidate_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "byte_equal": true,
+      "qualification": "Tracked pyproject scripts are additional static roots; source binding above plus exact base reference closes this manifest input independently of Python text-set hash."
+    }
+  },
+  "production_invocation": {
+    "outcome": "FAIL",
+    "actual_exit": 1,
+    "coverage": "partial",
+    "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ],
+    "counts": {
+      "denominator": {
+        "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+        "current_files": 5938,
+        "base_files": 5904,
+        "source_files": 2701,
+        "current_sha256": "59a086c9c88f336cf974fa1f312d7e46557dd4d37a6413f2e7e2bd2ae7751d06",
+        "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+      },
+      "mechanisms": 13147,
+      "status_counts": {
+        "unresolved_by_construction": 9256,
+        "uninvoked": 2160,
+        "static_path": 1731
+      },
+      "changed_by_status": {
+        "unresolved_by_construction": 175,
+        "static_path": 4,
+        "uninvoked": 7
+      },
+      "lost_path_count": 0,
+      "new_unresolved": 175,
+      "unresolved": 9256,
+      "indirect_boundary_scopes": 34713,
+      "unresolved_receiver_calls": 140009,
+      "root_count": 401
+    },
+    "predicate_provenance_emitted": "recomputed",
+    "runtime_invocation_established": false,
+    "regression_classifications": [
+      {
+        "symbol": "polisyos.core.artifacts.store._transactional_read.decorate",
+        "refs": [
+          "policy-engine/src/polisyos/core/artifacts/store.py:405",
+          "policy-engine/src/polisyos/core/artifacts/store.py:1212"
+        ],
+        "consumer": "Returned decorator applied to11 FileSystemCAS method definitions, including has/get_bytes/selected-view/signature/read surfaces; wrapped method obtains the actual coordinator lease, checks pending transaction, calls the method and captures read operation.",
+        "static_divergence": "The graph resolves the factory call but does not bind the returned callable to the implicit Python decorator application. source_callers=[] for decorate cannot decide whether CAS reads run.",
+        "base_definition_exists": true,
+        "same_ast_as_a175": false,
+        "native_source_ref": "policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py:64",
+        "scanner_cell": {
+          "status": "uninvoked",
+          "changed": true,
+          "lost_path": false,
+          "recorded_source_caller_count": 0,
+          "recorded_test_caller_count": 0
+        },
+        "adjudication": "STATIC_BINDING_BOUNDARY; RUNTIME_INVOCATION_NOT_DECIDED_BY_THIS_GATE",
+        "source_trace_predicate_basis": "independently_reconciled_source_only",
+        "runtime_verdict_by_reviewer": "UNRUN"
+      },
+      {
+        "symbol": "polisyos.core.llm.traced_client._OptionalSpan.__getattr__.optional",
+        "refs": [
+          "policy-engine/src/polisyos/core/llm/traced_client.py:118",
+          "policy-engine/src/polisyos/core/llm/traced_client.py:208",
+          "policy-engine/src/polisyos/core/llm/traced_client.py:512"
+        ],
+        "consumer": "__getattr__ returns optional, and actual TracedLLMClient span.set_attribute/set_status/record_exception calls invoke that returned callback. This isolates optional telemetry failures from mandatory accounting.",
+        "static_divergence": "Unknown receiver/getattr-produced callable and returned closure are unmeasured by the static graph; zero recorded direct callers is not missing provider/accounting consumer.",
+        "base_definition_exists": false,
+        "same_ast_as_a175": false,
+        "native_source_ref": "policy-engine/tests/unit/remediation/test_llm_01.py:100",
+        "scanner_cell": {
+          "status": "uninvoked",
+          "changed": true,
+          "lost_path": false,
+          "recorded_source_caller_count": 0,
+          "recorded_test_caller_count": 0
+        },
+        "adjudication": "STATIC_BINDING_BOUNDARY; RUNTIME_INVOCATION_NOT_DECIDED_BY_THIS_GATE",
+        "source_trace_predicate_basis": "independently_reconciled_source_only",
+        "runtime_verdict_by_reviewer": "UNRUN"
+      },
+      {
+        "symbol": "polisyos.fabric.connectors.resilience.circuit_breaker.with_circuit_breaker.decorator",
+        "refs": [
+          "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py:675",
+          "policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py:300",
+          "policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py:536"
+        ],
+        "consumer": "Factory returns decorator, consumed by ordinary @with_circuit_breaker() and actual chained factory(function) wrappers in reference connectors. Inner async wrapper leases the actual bounded circuit registry through provider operation.",
+        "static_divergence": "Implicit and returned-callable application is not resolved as a direct edge to nested decorator. Its changed body is diagnosed while no previously resolved static root is lost.",
+        "base_definition_exists": true,
+        "same_ast_as_a175": false,
+        "native_source_ref": null,
+        "qualification": "Reference connector consumer independently source-traced; no claim this review ran it or independently saw its execution in final native cohort.",
+        "scanner_cell": {
+          "status": "uninvoked",
+          "changed": true,
+          "lost_path": false,
+          "recorded_source_caller_count": 0,
+          "recorded_test_caller_count": 0
+        },
+        "adjudication": "STATIC_BINDING_BOUNDARY; RUNTIME_INVOCATION_NOT_DECIDED_BY_THIS_GATE",
+        "source_trace_predicate_basis": "independently_reconciled_source_only",
+        "runtime_verdict_by_reviewer": "UNRUN"
+      },
+      {
+        "symbol": "polisyos.fabric.connectors.resilience.rate_limiter.with_rate_limit.decorator",
+        "refs": [
+          "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py:426",
+          "policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py:535"
+        ],
+        "consumer": "Actual REST connector and ordinary decorator consumers apply returned decorator. Async wrapper leases limiter, awaits acquire then calls actual provider; native pressure tests exercise that decorator path.",
+        "static_divergence": "Chained call/returned decorator identity is outside direct-call binding; source_callers=[] is a bounded static measurement, not absence of rate-gated operations.",
+        "base_definition_exists": true,
+        "same_ast_as_a175": false,
+        "native_source_ref": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py:16",
+        "scanner_cell": {
+          "status": "uninvoked",
+          "changed": true,
+          "lost_path": false,
+          "recorded_source_caller_count": 0,
+          "recorded_test_caller_count": 0
+        },
+        "adjudication": "STATIC_BINDING_BOUNDARY; RUNTIME_INVOCATION_NOT_DECIDED_BY_THIS_GATE",
+        "source_trace_predicate_basis": "independently_reconciled_source_only",
+        "runtime_verdict_by_reviewer": "UNRUN"
+      },
+      {
+        "symbol": "polisyos.foundry.methods.backends.chain_executor.collect_chain_node_inputs",
+        "refs": [
+          "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py:377",
+          "policy-engine/src/polisyos/foundry/methods/backends/__init__.py:86",
+          "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py:1063"
+        ],
+        "consumer": "CompiledChainExecutor.__call__ explicitly invokes the shared materializer imported from the backend facade; facade literal mapping/importlib/getattr resolves canonical existing implementation. Real2node required-edge tests invoke compiled executor and verify arithmetic.",
+        "static_divergence": "Facade TYPE_CHECKING imports are deliberately excluded and dynamic lazy map is not evaluated; compiler call resolves facade name rather than actual implementation symbol, so zero source callers cannot establish missing materialization.",
+        "base_definition_exists": false,
+        "same_ast_as_a175": false,
+        "native_source_ref": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py:290",
+        "scanner_cell": {
+          "status": "uninvoked",
+          "changed": true,
+          "lost_path": false,
+          "recorded_source_caller_count": 0,
+          "recorded_test_caller_count": 0
+        },
+        "adjudication": "STATIC_BINDING_BOUNDARY; RUNTIME_INVOCATION_NOT_DECIDED_BY_THIS_GATE",
+        "source_trace_predicate_basis": "independently_reconciled_source_only",
+        "runtime_verdict_by_reviewer": "UNRUN"
+      },
+      {
+        "symbol": "polisyos.foundry.methods.backends.chain_executor.merge_chain_execution_context",
+        "refs": [
+          "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py:1056",
+          "policy-engine/src/polisyos/foundry/methods/backends/__init__.py:90",
+          "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py:1110"
+        ],
+        "consumer": "Every compiled node invocation merges current context through the canonical existing owner exported by the same lazy facade. The actual required edge consumer uses these per-node inputs/context.",
+        "static_divergence": "Same unresolved lazy export binding; do not add duplicate merger or fake CLI calls to satisfy static proxy.",
+        "base_definition_exists": false,
+        "same_ast_as_a175": false,
+        "native_source_ref": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py:290",
+        "scanner_cell": {
+          "status": "uninvoked",
+          "changed": true,
+          "lost_path": false,
+          "recorded_source_caller_count": 0,
+          "recorded_test_caller_count": 0
+        },
+        "adjudication": "STATIC_BINDING_BOUNDARY; RUNTIME_INVOCATION_NOT_DECIDED_BY_THIS_GATE",
+        "source_trace_predicate_basis": "independently_reconciled_source_only",
+        "runtime_verdict_by_reviewer": "UNRUN"
+      },
+      {
+        "symbol": "polisyos.scientist.orchestration.engine.checkpoint.resume_from_checkpoint",
+        "refs": [
+          "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2087",
+          "policy-engine/src/polisyos/core/components/_cli_replay.py:219",
+          "policy-engine/src/polisyos/core/components/_cli_replay.py:272",
+          "policy-engine/tools/ops_runners/runtime_cli.py:36",
+          "policy-engine/tools/ops_runners/runtime_cli.py:150",
+          "policy-engine/pyproject.toml:211"
+        ],
+        "consumer": "Installed polisyos console script dispatches resume to _dispatch_core(importlib/getattr), _cli_replay resolves checkpoint module and explicitly calls resume_from_checkpoint. Native checkpoint tests also call the real CAS/recovery consumer.",
+        "static_divergence": "CLI entry root exists, but string import_module/getattr receiver identities are not bound by scanner;24 test callers are known, non-test dynamic call is source-traced here. Zero recorded source callers cannot decide missing resume orchestration.",
+        "base_definition_exists": true,
+        "same_ast_as_a175": true,
+        "native_source_ref": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+        "scanner_cell": {
+          "status": "uninvoked",
+          "changed": true,
+          "lost_path": false,
+          "recorded_source_caller_count": 0,
+          "recorded_test_caller_count": 24
+        },
+        "adjudication": "STATIC_BINDING_BOUNDARY; RUNTIME_INVOCATION_NOT_DECIDED_BY_THIS_GATE",
+        "source_trace_predicate_basis": "independently_reconciled_source_only",
+        "runtime_verdict_by_reviewer": "UNRUN"
+      }
+    ],
+    "conclusion": "All7 regression-named cells are changed without resolved direct path; lost_path is false for all and global lost_path count is0. Their actual existing source consumers are shown above. Gate FAIL remains an actual required static diagnostic; it does not prove runtime non-invocation or product-body correctness."
+  },
+  "architecture": {
+    "outcome": "FAIL",
+    "actual_exit": 1,
+    "top_failure_records": 166,
+    "deep_import_records": 163,
+    "deep_import_unique_source_paths": 85,
+    "deep_import_changed_source_bytes": 20,
+    "deep_import_unchanged_source_bytes": 143,
+    "flagged_target_import_declarations_absent_at_base": 12,
+    "other_complete_failures": [
+      "- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline.",
+      "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json.",
+      "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+    ],
+    "required_generated_families": [
+      {
+        "id": "runtime-openapi-snapshot",
+        "outputs": [
+          "schemas/runtime_api_v1.openapi.json"
+        ]
+      },
+      {
+        "id": "runtime-api-client",
+        "outputs": [
+          "packages/runtime-api-client/types.ts",
+          "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+        ]
+      },
+      {
+        "id": "runtime-dashboard-api-types",
+        "outputs": [
+          "apps/runtime-dashboard/src/api/types.ts"
+        ]
+      },
+      {
+        "id": "trust-claim-posture-register",
+        "outputs": [
+          "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+        ]
+      }
+    ],
+    "freshness_clean": [
+      "runtime-api-client (3 generator-observed outputs).",
+      "runtime-dashboard-api-types (1 generator-observed outputs)."
+    ],
+    "required_generation_unrun_reported": false,
+    "standalone_atlas": "UNRUN_BY_THIS_COMMAND; explicit native notice, no optional Atlas result claimed",
+    "conclusion": "166 native top-level failure records reconcile as1 baseline drift+163 deep-import creep+2 generated mismatches. Four required families attempted:2 clean (4 observed outputs),2 mismatch (1 output each). Root public-surface sync success is separate from deep baseline and actual generation freshness; no waiver."
+  },
+  "property_and_falsifier": [
+    {
+      "gate": "production_invocation",
+      "intended_measured_property": "Resolved static direct-call reachability of concrete public source callables from project scripts/non-test __main__, stopping at deferred bodies.",
+      "actual_predicate": "AST changed/lost-path plus no reached path and no recognized indirect witness. Exit1 iff regressions nonempty; unresolved changed alternatives also remain partial.",
+      "basis": "recomputed by original gate; independently reconciled static source/output here",
+      "actual_divergent_case": "CompiledChainExecutor.__call__ explicitly calls collect_chain_node_inputs through canonical lazy facade, but the implementation cell has source_callers=[]/uninvoked. CLI resume and returned decorators supply additional concrete source countercases.",
+      "scope": "This demonstrates inability to promote static absence to runtime absence. No new runtime/remove-property probe run; actual current native outcomes are separate ADAPTER custody."
+    },
+    {
+      "gate": "architecture/deep_import",
+      "intended_measured_property": "Declared static cross-root imports respect supported entrypoints or intentional baseline/valid exception; baseline bytes mirror current full static edge set.",
+      "actual_predicate": "Complete src AST imports and literal package-entrypoint SOT plus baseline/exception comparisons.",
+      "basis": "recomputed; full source set/changed-path intersections independently reconciled",
+      "falsifier": "Observed163 edges absent from committed baseline and baseline byte drift directly falsify current declared static guardrail inputs. This does not infer all runtime import restrictions; TYPE_CHECKING and other declared AST imports belong to its static domain."
+    },
+    {
+      "gate": "architecture/generated_freshness",
+      "intended_measured_property": "Required owner generators emit all declared outputs and emitted bytes match frozen published expected bytes under actual isolated source/environment.",
+      "actual_predicate": "Actual successful output probes, full filesystem output census and byte comparison, not file-name markers.",
+      "basis": "recomputed by root gate; complete emitted failure/clean records independently reconciled",
+      "falsifier": "Actual runtime-openapi-snapshot and trust-claim-posture-register outputs differ from committed expected bytes. These are active publication-freshness failures, not new demonstrated execution-body defects. No candidate output bytes/diff are preserved in native stdout; exact field causes remain not_established here."
+    }
+  ],
+  "historical_and_P41": {
+    "historical_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+    "purpose": "Source context only; not a slice-base replay or better-looking gate substitute.",
+    "historical_source_equal_deep_import_edges": 146,
+    "resume_function_same_historical_ast": true,
+    "changed_path_input_intersections_nonzero": true,
+    "gate_failure_inherited_attribution": "not_established",
+    "reason": "No exact gate command replay on pre-own-work slice-base with zero full input intersection exists in this review. Current footprint intersects scanner100paths/source47paths.143 flagged edge sourcefiles unchanged from198 and historicala175 equality are source facts, never a P41 inherited-gate waiver."
+  },
+  "native_scope_note": {
+    "selected_native_files_exist": "Read source selection only:110 candidate wholefiles and relevant CAS/LLM/rate/JIT/checkpoint tests are selected; no item/report outcome parsing.",
+    "outcomes": "NOT_ADJUDICATED_BY_THIS_REVIEWER",
+    "missing_consumer_claim": "No missing runtime consumer claim from these7 static diagnoses. Existing source consumer trace is not itself proof the final cohort executed that body.",
+    "selection_input": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-selector.json",
+      "bytes": 519067,
+      "sha256": "19207856a245f157f0fd8a478fbf1f69767de17cc62adda1ebdc22bd974d5a05",
+      "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "whole_file_count": 110
+    }
+  },
+  "recommendations_to_root_G": [
+    {
+      "class": "active_generated_surface_failure",
+      "owner": "team-runtime/team-architecture via G admitted writer",
+      "action": "Keep both actual freshness mismatches RED. Inspect/retain owner-produced candidate byte differences in supported frozen environment before authorized regeneration of OpenAPI/trust artifact and dependent clients. Do not hand-edit generated authority fields, suppress freshness, or equate public-surface sync with freshness.",
+      "code_vs_metadata": "Exact generated field causes not established because isolated candidate bytes/diff are not retained in stdout; owner generator/metadata reconciliation first. No runtime production fix prescribed by this review."
+    },
+    {
+      "class": "static_import_contract_baseline_failure",
+      "owner": "architecture plus canonical module owners/G",
+      "action": "Review introduced12 import declarations against existing supported facade contracts; reuse correct canonical public exports where available. Remaining baseline drift needs explicit architecture-owner acceptance/repair, not blind sync of163 edges or universal exemption.",
+      "code_vs_metadata": "Could require canonical import spelling/facade repairs and intentional metadata surface/baseline updates; never a runtime semantic rule invented to get green."
+    },
+    {
+      "class": "static_binding_unresolved_boundary",
+      "owner": "production_invocation instrument owner/G",
+      "action": "Retain required static FAIL/partial175 unresolved diagnosis and seven source traces. If instrument is repaired, use generic returned-callable/decorator and literal lazy import/getattr binding or explicitly record those boundaries as unresolved. Do not add fake callers, duplicate implementations or per-symbol exemptions.",
+      "code_vs_metadata": "No actual missing runtime producer/consumer established for7; source measurement/qualified failure metadata rather than product mechanism rewrite."
+    },
+    {
+      "class": "delivery_input_custody",
+      "owner": "B root/G",
+      "action": "Root commits complete moderate logs/wrappers/source receipt after wave; preserve huge fullJSON absolute path/hash. If deciding raw is unavailable at G, its custody is not_established and rerun exact scanner command from the4e checkout with pinned198 base and supported environment; this reviewer launched no rerun.",
+      "code_vs_metadata": "Receipt/input custody only; freeze4e unchanged."
+    }
+  ],
+  "limitations": [
+    "No current native cohort/runtime/JUnit adjudication; ADAPTER owns it.",
+    "No new tests, gates, actual decoder/consumer run or source fixes performed.",
+    "Gate wrappers record actual wait4 child exit/wall/RSS and head before/after; do not substitute static status for native process exit. No timestamps, per-module census, complete child/backend/resource/data/network reads established by these wrappers.",
+    "Architecture isolated generator environment provisions frozen dependencies and top-package origin preflight, but no universal per-module/resource census. Optional Atlas remains separately unrun.",
+    "No finding formally closed; all gate failures and uncertainty kept explicit."
+  ],
+  "pattern_pass": {
+    "P29": "Static reachability/source traces not runtime proof; actual generated byte comparisons kept distinct.",
+    "P35": "Full173230115-byte JSON, all5938/5904 source set hashes,2701 architecture source set and166 completed failure records reconciled by named full-set query.",
+    "P37": "Predicate basis split original gate recomputation and independent source/output reconciliation; no authority from declaration.",
+    "P38": "Seven concrete dynamic-binding divergences shown without replacing the measured static predicate.",
+    "P40": "Recommend generic canonical binding/import/surface corrections, not per-symbol escape whitelist.",
+    "P41": "Inherited attribution not_established; nonzero complete source intersections and no base replay."
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "policyos.e02.independent-check.v1",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+    "gc",
+    "6af060e952ae1561065f2a70668a790f5f6edcd5",
+    "/workspace/e02-B-current-execution-state/policy-engine",
+    "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+    "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/gc/pytest-scratch-first",
+    "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/gc/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+  "tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+  "head_after": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+  "source_worktree_clean_after": true,
+  "own_driver_git_sha": "82c5e37ff2a8e14a29dbbe90018961002a248289",
+  "driver": {
+    "path": "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+    "sha256": "5c784b50faf4dc5f999b7dc8dfbee5e374dfeef79d642fe5526e00661eedf928",
+    "bytes": 5790
+  },
+  "test_input": {
+    "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+    "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+    "bytes": 11173
+  },
+  "supporting_input": {
+    "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+    "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+    "git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+  },
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state/policy-engine",
+    "caps_absent": [
+      "OMP_NUM_THREADS",
+      "MKL_NUM_THREADS",
+      "OPENBLAS_NUM_THREADS",
+      "NUMEXPR_NUM_THREADS",
+      "VECLIB_MAXIMUM_THREADS",
+      "BLIS_NUM_THREADS"
+    ],
+    "conftest": "disabled; builtin fixtures only",
+    "fixture_mount": "/tmp tmpfs; no physical disk durability or powerloss claim"
+  },
+  "input_closure": "Explicit recorded in-memory AST property-removal only; actual FileSystemCAS, canonical filesystem delegates, real producer, Event barriers, and unchanged independent oracle assertions. No production dataset or DB.",
+  "execution_overlay": {
+    "case": "gc",
+    "literal_source_in_output": true,
+    "base_source_disk_identity_only": true
+  },
+  "started_at": "2026-10-06T17:23:58.347139+00:00",
+  "exit_code": 1,
+  "wall_s": 13.547660540003562,
+  "process_rusage_maxrss_kib": 697664,
+  "output_path": "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/gc/native.txt",
+  "output_sha256": "8e7dfe0d334c3cef99d98c8a5a4a3468db2d0ede0bcb18956823f6f43c5450c9",
+  "output_bytes": 14447,
+  "harness_state": "EXECUTED",
+  "storage_before": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G   30G  583M  99% /\nnone            8.8G  645M  8.2G   8% /tmp\n",
+  "storage_after": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G   30G  584M  99% /\nnone            8.8G  646M  8.2G   8% /tmp\n"
+}

@@ -1,0 +1,355 @@
+{
+  "scope": "Exact declared source/test/config bytes; complete dynamic runtime readset not attested. Source universe available via pinned Git tree.",
+  "snapshots": {
+    "456f34938731b1ef11555d8333d011d3552574ec": {
+      "tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+      "paths": {
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py": {
+          "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+          "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+          "bytes": 102653
+        },
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py": {
+          "git_blob": "a6a5b6cb483abe855225bdbf3860ef8475a7134a",
+          "sha256": "4712314f04747f9c29f601c71adb681cd921a6f89e4f7d426ab4850a11cb2b21",
+          "bytes": 87102
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py": {
+          "git_blob": "227a2713f94e56ca4c361d1bb3ebeea40718588e",
+          "sha256": "59f0acf06052db762b2b0b638f02a6d9fb0c1b825e2d6844c572186f821f61de",
+          "bytes": 30571
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+          "git_blob": "406d208eb37fe7e45009f1d726203bc25b31fd62",
+          "sha256": "442e105be30e8cacb8436a2755bedf12bb792cf46e9b65fd2539d1724f8e43d1",
+          "bytes": 18096
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": {
+          "git_blob": "58b2fcd7be1be931d3bf12f5481ef3e1490dfe6b",
+          "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+          "bytes": 17286
+        },
+        "AGENTS.md": {
+          "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "bytes": 22656
+        },
+        "policy-engine/pyproject.toml": {
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "policy-engine/pytest.ini": {
+          "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "policy-engine/uv.lock": {
+          "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "policy-engine/tests/conftest.py": {
+          "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md": {
+          "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+          "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+          "bytes": 20260
+        }
+      }
+    },
+    "6af060e952ae1561065f2a70668a790f5f6edcd5": {
+      "tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+      "paths": {
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml": {
+          "git_blob": "27f567702a19ed21d589f59122107e2d77814b7b",
+          "sha256": "23de440112b85d9942657ea339774c59c22071bce5092e4a8b0b27dece02b9c9",
+          "bytes": 1581
+        },
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py": {
+          "git_blob": "f4793e795874e0c5a000f1c37684e9f6ef727506",
+          "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1",
+          "bytes": 105281
+        },
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py": {
+          "git_blob": "643b23afc55a52a95991c921f61d56f01924b864",
+          "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e",
+          "bytes": 98249
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py": {
+          "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+          "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+          "bytes": 30571
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+          "git_blob": "5371ea84d9b40d7f09587285f4594c675c9b7160",
+          "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c",
+          "bytes": 18097
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py": {
+          "git_blob": "971fb7734b6127aced4478d146026628c8b95e8a",
+          "sha256": "ac03afd543d161e6c662ebfca42ff2a24f8e8d43281b0dc26f986600f73b7b49",
+          "bytes": 13798
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": {
+          "git_blob": "58b2fcd7be1be931d3bf12f5481ef3e1490dfe6b",
+          "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+          "bytes": 17286
+        },
+        "AGENTS.md": {
+          "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "bytes": 22656
+        },
+        "policy-engine/pyproject.toml": {
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "policy-engine/pytest.ini": {
+          "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "policy-engine/uv.lock": {
+          "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "policy-engine/tests/conftest.py": {
+          "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md": {
+          "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+          "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+          "bytes": 20260
+        }
+      }
+    },
+    "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a": {
+      "tree": "eae52c9304e3a48b0f81f16ffc279cbb39c1f9b8",
+      "paths": {
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml": {
+          "git_blob": "27f567702a19ed21d589f59122107e2d77814b7b",
+          "sha256": "23de440112b85d9942657ea339774c59c22071bce5092e4a8b0b27dece02b9c9",
+          "bytes": 1581
+        },
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py": {
+          "git_blob": "f4793e795874e0c5a000f1c37684e9f6ef727506",
+          "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1",
+          "bytes": 105281
+        },
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py": {
+          "git_blob": "40eeedd7144942f5d8a52894ed85fdea52d2bdb8",
+          "sha256": "9666c6b8da3967d4cc486f6271d3478cc7abd870ae0117df8946e9a168756db7",
+          "bytes": 98271
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py": {
+          "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+          "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+          "bytes": 30571
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+          "git_blob": "5371ea84d9b40d7f09587285f4594c675c9b7160",
+          "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c",
+          "bytes": 18097
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py": {
+          "git_blob": "f619c5cfb6b92180f62bf1ea57f87661983f5141",
+          "sha256": "e37eb7ca949e14a5c270b7bcd42033a63b1d1f172ce40e5fa8494471e2f35556",
+          "bytes": 16159
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": {
+          "git_blob": "78724bc3c646ae63b7472d86adb64bc7fa0ee683",
+          "sha256": "2506acfd6cf23511fe59b71c0e56de150b11d1d0e3f83163fbe28135cbc89174",
+          "bytes": 17473
+        },
+        "AGENTS.md": {
+          "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "bytes": 22656
+        },
+        "policy-engine/pyproject.toml": {
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "policy-engine/pytest.ini": {
+          "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "policy-engine/uv.lock": {
+          "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "policy-engine/tests/conftest.py": {
+          "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md": {
+          "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+          "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+          "bytes": 20260
+        }
+      }
+    },
+    "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497": {
+      "tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+      "paths": {
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml": {
+          "git_blob": "27f567702a19ed21d589f59122107e2d77814b7b",
+          "sha256": "23de440112b85d9942657ea339774c59c22071bce5092e4a8b0b27dece02b9c9",
+          "bytes": 1581
+        },
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py": {
+          "git_blob": "f4793e795874e0c5a000f1c37684e9f6ef727506",
+          "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1",
+          "bytes": 105281
+        },
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py": {
+          "git_blob": "8c5eee05114f1d932a42d8bacd68f080e65f7c91",
+          "sha256": "9640210bbe273c3ce14898ac4683539298198b6628898e5d5c057ccc4eee7cdd",
+          "bytes": 99236
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py": {
+          "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+          "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+          "bytes": 30571
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+          "git_blob": "5371ea84d9b40d7f09587285f4594c675c9b7160",
+          "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c",
+          "bytes": 18097
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py": {
+          "git_blob": "7086c4ec612db237c4ad6dc27e6fb228656219dc",
+          "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994",
+          "bytes": 20042
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": {
+          "git_blob": "d96ef006d33b273c5e1d320a154ab738fcf86d1f",
+          "sha256": "88f9f7396627a53587be19fd1a5e4859c9bf15c36df272239dea8f354eea0d2c",
+          "bytes": 18169
+        },
+        "AGENTS.md": {
+          "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "bytes": 22656
+        },
+        "policy-engine/pyproject.toml": {
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "policy-engine/pytest.ini": {
+          "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "policy-engine/uv.lock": {
+          "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "policy-engine/tests/conftest.py": {
+          "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md": {
+          "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+          "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+          "bytes": 20260
+        }
+      }
+    },
+    "bc958e8efface67193a1347e867cc7567dbfc8bc": {
+      "tree": "5fcdbe9777dd727113c1115031cc77dcfc5d438c",
+      "paths": {
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml": {
+          "git_blob": "27f567702a19ed21d589f59122107e2d77814b7b",
+          "sha256": "23de440112b85d9942657ea339774c59c22071bce5092e4a8b0b27dece02b9c9",
+          "bytes": 1581
+        },
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py": {
+          "git_blob": "f4793e795874e0c5a000f1c37684e9f6ef727506",
+          "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1",
+          "bytes": 105281
+        },
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py": {
+          "git_blob": "d8e35255f19c1b04c21be0eec63991a4f4985646",
+          "sha256": "4c47817a7c9df15450ba3269b66672f8c4d588bafc8345efb1bdb8dba5d4c9f6",
+          "bytes": 99224
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py": {
+          "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+          "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+          "bytes": 30571
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+          "git_blob": "5371ea84d9b40d7f09587285f4594c675c9b7160",
+          "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c",
+          "bytes": 18097
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py": {
+          "git_blob": "7086c4ec612db237c4ad6dc27e6fb228656219dc",
+          "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994",
+          "bytes": 20042
+        },
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": {
+          "git_blob": "d96ef006d33b273c5e1d320a154ab738fcf86d1f",
+          "sha256": "88f9f7396627a53587be19fd1a5e4859c9bf15c36df272239dea8f354eea0d2c",
+          "bytes": 18169
+        },
+        "AGENTS.md": {
+          "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "bytes": 22656
+        },
+        "policy-engine/pyproject.toml": {
+          "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "bytes": 11007
+        },
+        "policy-engine/pytest.ini": {
+          "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "bytes": 1021
+        },
+        "policy-engine/uv.lock": {
+          "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "bytes": 779204
+        },
+        "policy-engine/tests/conftest.py": {
+          "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+          "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+          "bytes": 9664
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md": {
+          "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+          "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+          "bytes": 20260
+        }
+      }
+    }
+  },
+  "changes": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py"
+  ],
+  "facade_delta": "diff --git a/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py b/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py\nindex 8c5eee051..d8e35255f 100644\n--- a/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py\n+++ b/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py\n@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida\n \n from polisyos.common.async_tools import run_blocking_async, run_coro_sync\n from polisyos.common.logger import get_logger\n-from polisyos.core.artifacts.async_store import (\n+from polisyos.core.artifacts import (\n     AsyncArtifactStoreAdapter,\n     AsyncFileSystemArtifactStore,\n     ensure_async_artifact_store,"
+}

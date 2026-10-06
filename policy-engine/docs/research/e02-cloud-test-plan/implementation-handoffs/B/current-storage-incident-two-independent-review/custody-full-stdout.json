@@ -1,0 +1,462 @@
+{
+  "schema": "policyos.e02.independent_storage_incident_two_readback.v1",
+  "started_utc": "2026-10-06T18:29:49.720551+00:00",
+  "finished_utc": "2026-10-06T18:29:52.753071+00:00",
+  "elapsed_seconds": 3.0325241088867188,
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-flat-evidence-independent-review/combined-audit.py"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation",
+  "author_lane_snapshot": {
+    "head": "62d8d21b4506ac99b163542b8ef30a7122d7f7e8",
+    "tree": "228c9aeaf1c22c989b35214f046f4c2b3993c25d",
+    "branch": "codex/e02-B-current-cas-generation",
+    "head_after": "62d8d21b4506ac99b163542b8ef30a7122d7f7e8"
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "uid": 1000
+  },
+  "outcome": "PASS_CURRENT_BOUNDED_READBACK",
+  "groups": [
+    {
+      "group": "flat-21",
+      "ledger": {
+        "path": "/tmp/braw-e02-B-flat-20261006/custody.jsonl",
+        "bytes": 15371,
+        "sha256": "e27bc09b47999e4c4e17e9c9c4696d6ca50cb3a9bc3239f043cf4230ff0c6af0"
+      },
+      "ledger_rows": 42,
+      "preservation_instrument": {
+        "path": "/tmp/e02-preserve-flat-evidence.py",
+        "bytes": 2340,
+        "sha256": "8931d945dda68f6d4d37d2b7db807af3d6f743c0db0166170921e0ae27a68a85"
+      },
+      "pairs": 21,
+      "logical_unique_bytes": 34921134,
+      "observations": [
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current456-runtime_api_v1.openapi.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x0",
+          "bytes": 2812414,
+          "sha256": "d47e024a2a747d7826f3bb636a0c98d34012e54aea41f6a34c579023132644a7",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+          "target": "/tmp/braw-e02-B-flat-20261006/x1",
+          "bytes": 1431050,
+          "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+          "target": "/tmp/braw-e02-B-flat-20261006/x2",
+          "bytes": 1333443,
+          "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-all-changed-ruff.txt",
+          "target": "/tmp/braw-e02-B-flat-20261006/x3",
+          "bytes": 2813386,
+          "sha256": "118e68e8f6aca2e9c3f5e6c9f567bff2480d73a53878df1091744754ef97badc",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-architecture.txt",
+          "target": "/tmp/braw-e02-B-flat-20261006/x4",
+          "bytes": 123233,
+          "sha256": "3c1a37a7f2a900c270e8faca0fe21ef985cc77ad59bc3d319dd34bcd625d2f16",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-case-statuses-pre-parser.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x5",
+          "bytes": 113461,
+          "sha256": "88cca4c5cc092074506766a7d8eadd29964d8509ec73345d05b5d6effa279d55",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pre-final050-changed-python-ruff.txt",
+          "target": "/tmp/braw-e02-B-flat-20261006/x6",
+          "bytes": 1510152,
+          "sha256": "3a4a39b546df333b56006a7b8ffbe63a252cd6fe1fa5507d332ae23814e20589",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pre-freeze-bb544-full-lineage.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x7",
+          "bytes": 8328939,
+          "sha256": "278124d028b964df11b8aa945a25f418b0f0f2f549a33e890ada479055acf616",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pre-freeze-bb544-full-selector.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x8",
+          "bytes": 392915,
+          "sha256": "554f6e0e49a40a4135a5337931df1ad25b0f0154543b6f6ecdecf4d41ba09125",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/prefreeze-d3-selector.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x9",
+          "bytes": 611224,
+          "sha256": "39f8ae8572346ede195873ae8a5846c60eddd8471b9325203b71212dd4d6a52e",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/prefreeze-ff-selector.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x10",
+          "bytes": 642373,
+          "sha256": "6b9b82124260eb718e81bc80c4d47c1b1ffba78dea6230bd7607617c321f0545",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-all-changed-ruff.txt",
+          "target": "/tmp/braw-e02-B-flat-20261006/x11",
+          "bytes": 2913214,
+          "sha256": "94b7ce7ca4a50c145969f7a06cc248baf23133893a699657e87744d74360c619",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-architecture.txt",
+          "target": "/tmp/braw-e02-B-flat-20261006/x12",
+          "bytes": 123233,
+          "sha256": "3c1a37a7f2a900c270e8faca0fe21ef985cc77ad59bc3d319dd34bcd625d2f16",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.txt",
+          "target": "/tmp/braw-e02-B-flat-20261006/x13",
+          "bytes": 3611397,
+          "sha256": "675ebace8ab28945f3b97f4fb37374f1ae3832f15e0475cad58e392fed54abf5",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+          "target": "/tmp/braw-e02-B-flat-20261006/x14",
+          "bytes": 3583926,
+          "sha256": "f1ddd4788163d030277242ac7233312da78a68f6aaee27a511b0b3cb7f2cef5b",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-all-changed-ruff.txt",
+          "target": "/tmp/braw-e02-B-flat-20261006/x15",
+          "bytes": 2913214,
+          "sha256": "94b7ce7ca4a50c145969f7a06cc248baf23133893a699657e87744d74360c619",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-architecture.txt",
+          "target": "/tmp/braw-e02-B-flat-20261006/x16",
+          "bytes": 123233,
+          "sha256": "3c1a37a7f2a900c270e8faca0fe21ef985cc77ad59bc3d319dd34bcd625d2f16",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/baseline-B151.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x17",
+          "bytes": 100997,
+          "sha256": "ebb215baa8ad181c6b20bbbd918efe903e05ab8613910b20026890d306ce4866",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/current-intake.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x18",
+          "bytes": 250454,
+          "sha256": "a8849b189237b89b3789d6e1bb241ef095d8cd768d69e861451920a9ed52b8db",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/final-selector.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x19",
+          "bytes": 519067,
+          "sha256": "19207856a245f157f0fd8a478fbf1f69767de17cc62adda1ebdc22bd974d5a05",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/terminal-final-selector.json",
+          "target": "/tmp/braw-e02-B-flat-20261006/x20",
+          "bytes": 669809,
+          "sha256": "dd66cd003b0bc7b2c98c78d96e47a901109c2dd2b09635231c86f58dd7b3d34c",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        }
+      ]
+    },
+    {
+      "group": "old-root-1",
+      "ledger": {
+        "path": "/tmp/braw-e02-B-old-invocation-20261006/custody.jsonl",
+        "bytes": 717,
+        "sha256": "aa19bc21605bed27ee05df4ace826ba6b33c1e3e520b2df6491e3c1d65ddd168"
+      },
+      "ledger_rows": 2,
+      "preservation_instrument": {
+        "path": "/tmp/e02-preserve-old-invocation.py",
+        "bytes": 2308,
+        "sha256": "38a6957c20dd07e2f0930791fca5b9017472c9dcbd940d00bfdc075f23e66bfb"
+      },
+      "pairs": 1,
+      "logical_unique_bytes": 170857261,
+      "observations": [
+        {
+          "source": "/workspace/e02-B-coordination/.polisyos/e02-B/raw/exe-acceptance-invocation.json",
+          "target": "/tmp/braw-e02-B-old-invocation-20261006/x0",
+          "bytes": 170857261,
+          "sha256": "a023e0cf811ee26297c804b047ed7aeee28cd176637a9d848ea9f26035f2d775",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        }
+      ]
+    },
+    {
+      "group": "old-lanes-6",
+      "ledger": {
+        "path": "/tmp/braw-e02-B-old-six-invocations-20261006/custody.jsonl",
+        "bytes": 4464,
+        "sha256": "2bf813ba8079250941eb34e71c493f5a14caae79807fd22998dee35783b7fdcb"
+      },
+      "ledger_rows": 12,
+      "preservation_instrument": {
+        "path": "/tmp/e02-preserve-old-six-invocations.py",
+        "bytes": 2829,
+        "sha256": "84e1e66b221f81d329c51436775016c11eb4aab7beee628f735dc542f5b9a2ae"
+      },
+      "pairs": 6,
+      "logical_unique_bytes": 1025337204,
+      "observations": [
+        {
+          "source": "/workspace/e02-B-cas/policy-engine/_build/e02-cas/raw/archive-path-invocation.json",
+          "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x0",
+          "bytes": 170954884,
+          "sha256": "7dd5d32b73b87958407beea9507568c3d738fbbfea8e8890ba9e73cfd062e4ac",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-cas/policy-engine/_build/e02-cas/raw/tenant-production-invocation.json",
+          "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x1",
+          "bytes": 170953977,
+          "sha256": "10944217619bbf0c874fa465e9c0c5980ddcabb34552773413ce76a88e6d0e58",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-cas/policy-engine/_build/e02-cas/raw/production-invocation.json",
+          "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x2",
+          "bytes": 170857020,
+          "sha256": "a38cbb5bcf7015d7f0d066a0e61eaae3b99fca6eb4af5ad351b893bc331e2b3f",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-dur-ledger/policy-engine/_build/e02-B-dur-ledger/raw/production-invocation.json",
+          "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x3",
+          "bytes": 170858015,
+          "sha256": "3da2607946b1f0cbd009321bd1fa5797b8821cd50f5f0718db454e9b57a7e743",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/production-invocation-final.json",
+          "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x4",
+          "bytes": 170856799,
+          "sha256": "64f076a7b34c74dfd49c856ceec520ee9349d8c4004ecc22c45671ecac1df58d",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/production-invocation.json",
+          "target": "/tmp/braw-e02-B-old-six-invocations-20261006/x5",
+          "bytes": 170856509,
+          "sha256": "d6c6bea4621c14f9f28e4160572db689c17e4d0d1da31244a942b177d5b73eac",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        }
+      ]
+    },
+    {
+      "group": "historic-exe-4",
+      "ledger": {
+        "path": "/tmp/braw-e02-B-old-exe-four-invocations-20261006/custody.jsonl",
+        "bytes": 3113,
+        "sha256": "72d9edde169ae8f14cdc3d38f8a83206a6cc93cb27e3977ed8f433733a6c4a22"
+      },
+      "ledger_rows": 8,
+      "preservation_instrument": {
+        "path": "/tmp/e02-preserve-old-exe-four-invocations.py",
+        "bytes": 2698,
+        "sha256": "5565f2bf5dff37fa91fb95e4fd985f11d6d0e13425bcccfa128c564103608439"
+      },
+      "pairs": 4,
+      "logical_unique_bytes": 685301910,
+      "observations": [
+        {
+          "source": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-complete-invocation-native/raw.json",
+          "target": "/tmp/braw-e02-B-old-exe-four-invocations-20261006/x0",
+          "bytes": 171603426,
+          "sha256": "e18a145af359deb14e86526898747f32c7548d19cba7c14093021018a8e3fa35",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-list-invocation/raw.json",
+          "target": "/tmp/braw-e02-B-old-exe-four-invocations-20261006/x1",
+          "bytes": 171494918,
+          "sha256": "8507c5d5787f8afae0b054e384ec27e6eb102e184f8ce876ea6e2666785c6fc4",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-invocation/raw.json",
+          "target": "/tmp/braw-e02-B-old-exe-four-invocations-20261006/x2",
+          "bytes": 171252817,
+          "sha256": "f1ff7dc3d198c011327feafc51ba7cb3a64f03605ad7a315a6bc2dfae9a3d1ff",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        },
+        {
+          "source": "/workspace/e02-B-current-execution-state/_build/current-execution-state/invocation/raw.json",
+          "target": "/tmp/braw-e02-B-old-exe-four-invocations-20261006/x3",
+          "bytes": 170950749,
+          "sha256": "100c6afe5995a6829238fe53a2356090241ec88bcb724dca8836f9c4d82f5b8f",
+          "recorded_mode": 384,
+          "actual_target_mode": 384,
+          "target_nlink": 1,
+          "outcome": "PASS_EXACT_CURRENT_ALIAS_AND_BOTH_BYTE_STREAMS"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "groups": 4,
+    "ledger_rows": 64,
+    "unique_pairs": 32,
+    "unique_logical_bytes": 1916417509
+  },
+  "negative_controls": [
+    {
+      "property": "sha256",
+      "mutation": "both ledger declarations changed in memory; all actual files and alias paths unchanged",
+      "outcome": "EXPECTED_REFUSAL",
+      "reason": "source-byte binding mismatch: /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current456-runtime_api_v1.openapi.json"
+    },
+    {
+      "property": "bytes",
+      "mutation": "both ledger declarations changed in memory; all actual files and alias paths unchanged",
+      "outcome": "EXPECTED_REFUSAL",
+      "reason": "source-byte binding mismatch: /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current456-runtime_api_v1.openapi.json"
+    }
+  ],
+  "filesystems_after_readback": {
+    "/workspace": {
+      "st_dev": 27,
+      "fragment_bytes": 4096,
+      "total_bytes": 33770192896,
+      "physical_free_bytes": 2092568576,
+      "user_available_bytes": 357806080
+    },
+    "/tmp": {
+      "st_dev": 33,
+      "fragment_bytes": 4096,
+      "total_bytes": 9441349632,
+      "physical_free_bytes": 6311944192,
+      "user_available_bytes": 6311944192
+    }
+  },
+  "qualifications": [
+    "Only current pathname/regular-target/mode/length/SHA256 and stable opened-byte witnesses independently reconciled; past preservation copy/fsync sequence is author-observed.",
+    "Underlying filesystem and inode identities changed. No new product CAS durability, PostgreSQL defect, power-loss or multihost guarantee is established.",
+    "No explicit target-directory fsync before alias publication exists in these instruments; target-directory crash durability not established.",
+    "/tmp is volatile local storage. Availability to G outside this VM is not_established until deciding bytes are transferred or exact checks rerun.",
+    "No repeatable fixture/input-projection directories, used environment/cache, source, original evidence bytes or services mutated by this auditor; only small independent metadata written."
+  ],
+  "predicate_basis": "independently_reconciled"
+}

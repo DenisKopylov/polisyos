@@ -1,0 +1,20 @@
+id = "2026-10-06-e02-b-foundry-checkpoint-generations"
+title = "Publish complete Foundry checkpoint generations"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Publish state, completed frontier, original result history and NumPy sidecars in one immutable generation selected by an atomic content-bound pointer; encode every array with its complete logical root/path, normalize relative paths and keep failed-writer rollback under the same filesystem lock."
+evidence = [
+  "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+  "tests/unit/foundry/methods/backends/test_checkpointing.py",
+  "tests/unit/remediation/test_res_04.py",
+]
+compatibility = "New saves use a generation-v1 pointer file. Existing direct-JSON checkpoints remain readable; consumers must load through ChainCheckpoint.load rather than inspect root JSON state fields. New saves refuse non-string mapping keys and user dictionaries containing the reserved __npy_ref__ tag before pointer publication."
+change_class = "behavior-change"
+surface_classification = "internal: polisyos.foundry.methods.backends.checkpointing"
+migration = "Use ChainCheckpoint.load for both pointer and legacy files. Treat CheckpointPublicationUncertainError as a visible publication with unacknowledged directory durability and inspect or retry the checkpoint."
+limitations = "Generations are retained without garbage collection. The protocol assumes a local filesystem supporting flock, atomic replacement and directory fsync. Real-process termination and concurrent readers/writers are tested; power loss, hostile filesystem mutation, Scientist orchestration and exactly-once external effects remain outside this change."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/components/README.md"]
+runbook_docs = []

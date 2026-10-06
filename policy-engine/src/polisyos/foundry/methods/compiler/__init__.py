@@ -17,19 +17,30 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Any, Protocol, TypeVar
+from uuid import UUID
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 
+from polisyos.foundry.methods.artifacts import (
+    SourceIdentityUnavailableError,
+    implementation_identity_projection,
+)
+from polisyos.foundry.methods.backends import (
+    collect_chain_node_inputs,
+    merge_chain_execution_context,
+)
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
-from polisyos.foundry.methods.base import MethodSignature
-from polisyos.foundry.methods.exceptions import CompilationError, ParameterValidationError
+from polisyos.foundry.methods.base import MethodSignature, _stable_digest
 from polisyos.foundry.methods.compiler.specialization import (
     BackendSpec,
+    ShapeSpec,
     Specialization,
     build_specialization,
 )
+from polisyos.foundry.methods.components.io import dematerialize_method_output
+from polisyos.foundry.methods.exceptions import CompilationError, ParameterValidationError
 
 __all__ = [
     "CompilationCache",
@@ -145,15 +156,33 @@ class CompilationCache:
         with self._lock:
             return CacheToken(self._generation)
 
-    def claim_flight(self, key: str) -> tuple[_InFlight, bool]:
-        """Claim one compilation flight for every compiler sharing this cache."""
-        with self._flight_lock:
-            flight = self._flights.get(key)
-            if flight is not None:
+    def claim_flight(
+        self, key: str, *, spec: Specialization | None = None, token: CacheToken | None = None
+    ) -> tuple[_InFlight, bool]:
+        """Reconcile publication/generation before claiming a shared build."""
+        with self._lock:
+            if token is not None and token.generation != self._generation:
+                flight = _InFlight(event=threading.Event(), invalidated=True)
+                flight.event.set()
                 return flight, False
-            flight = _InFlight(event=threading.Event())
-            self._flights[key] = flight
-            return flight, True
+            if spec is not None:
+                cache_key = self._cache_key(spec, token)
+                entry = self._cache.get(cache_key)
+                if entry is not None:
+                    self._hits += 1
+                    entry.last_access = time.monotonic()
+                    entry.access_count += 1
+                    self._cache.move_to_end(cache_key)
+                    flight = _InFlight(event=threading.Event(), result=entry.compiled)
+                    flight.event.set()
+                    return flight, False
+            with self._flight_lock:
+                flight = self._flights.get(key)
+                if flight is not None:
+                    return flight, False
+                flight = _InFlight(event=threading.Event())
+                self._flights[key] = flight
+                return flight, True
 
     def complete_flight(
         self,
@@ -503,6 +532,18 @@ def _wait_for_flight(
     return "completed"
 
 
+def _implementation_digest(method_class: type, signature: MethodSignature) -> str:
+    try:
+        return _stable_digest(
+            {
+                "signature_digest": signature.stable_digest(),
+                "source": implementation_identity_projection(method_class),
+            }
+        )
+    except SourceIdentityUnavailableError as exc:
+        raise CompilationError(signature.fqn, str(exc)) from exc
+
+
 class MethodCompiler:
     """
     Compiles Foundry methods to optimized JAX functions.
@@ -573,6 +614,7 @@ class MethodCompiler:
                 jit_enabled=jit,
                 vmap_axis=vmap_axis,
                 donate_argnums=donate_argnums,
+                implementation_hash=_implementation_digest(method_class, sig),
             )
 
             cached = self._cache.get(spec, token=token)
@@ -582,7 +624,7 @@ class MethodCompiler:
                 return _bind_compiled_method(cached, dynamic_defaults)
 
             flight_key = f"{token.generation}:{spec.cache_key}"
-            flight, leader = self._cache.claim_flight(flight_key)
+            flight, leader = self._cache.claim_flight(flight_key, spec=spec, token=token)
 
             if not leader:
                 wait_status = _wait_for_flight(
@@ -650,6 +692,8 @@ class MethodCompiler:
                     _kernel=kernel,
                 )
                 compiled = _bind_compiled_method(template, dynamic_defaults)
+                if _implementation_digest(method_class, sig) != spec.implementation_hash:
+                    raise CompilationError(sig.fqn, "Implementation changed during compilation")
                 published = self._cache.publish_flight(
                     flight_key,
                     flight,
@@ -708,6 +752,13 @@ class MethodCompiler:
             dynamic_values: tuple[Any, ...],
             runtime_params: Mapping[str, Any],
         ) -> Any:
+            if specialization.implementation_hash and (
+                _implementation_digest(method_class, signature)
+                != specialization.implementation_hash
+            ):
+                raise CompilationError(
+                    signature.fqn, "Implementation changed before kernel tracing"
+                )
             dynamic_params = {name: value for name, value in zip(dynamic_names, dynamic_values)}
             all_params = {**static_params, **dynamic_params, **runtime_params}
             return pure_step(state, all_params)
@@ -750,6 +801,10 @@ class MethodCompiler:
             raise TypeError(f"Expected CompiledMethodChain, got {type(chain)}")
 
         compiled_methods: list[tuple[MethodNode, CompiledMethod]] = []
+        method_classes = {
+            chain.get_signature(node_id).fqn: self._registry.get(chain.get_signature(node_id).fqn)
+            for node_id in chain.execution_order
+        }
         if infer_shapes:
             shape_values: dict[str, Any] = {}
             for node_id in chain.execution_order:
@@ -759,16 +814,32 @@ class MethodCompiler:
         else:
             shape_values = sample_state
         unresolved_outputs: set[str] = set()
+        occurrence_shapes: dict[UUID, dict[str, Any]] = {}
+        unresolved_by_occurrence: dict[UUID, set[str]] = {}
 
         for node_id in chain.execution_order:
             node = chain.get_node(node_id)
             sig = chain.get_signature(node_id)
+            if method_classes[sig.fqn].signature.stable_digest() != sig.stable_digest():
+                raise CompilationError(
+                    sig.fqn, "Current method ABI disagrees with the compiled chain"
+                )
 
             input_shapes = self._infer_input_shapes(sig, shape_values)
+            bound_unknown: set[str] = set()
+            for binding in chain.get_bindings_for_target(node_id):
+                source_id = binding.source_node_id
+                source_shape = occurrence_shapes.get(source_id, {}).get(binding.source_slot)
+                if source_shape is not None:
+                    input_shapes[binding.target_slot] = source_shape
+                elif binding.source_slot in unresolved_by_occurrence.get(source_id, set()):
+                    input_shapes.pop(binding.target_slot, None)
+                    bound_unknown.add(binding.target_slot)
             missing_shapes = [
                 slot.name
                 for slot in sig.input_slots
-                if slot.name in unresolved_outputs and slot.name not in input_shapes
+                if (slot.name in unresolved_outputs or slot.name in bound_unknown)
+                and slot.name not in input_shapes
             ]
             if missing_shapes:
                 raise CompilationError(
@@ -786,9 +857,19 @@ class MethodCompiler:
                 sample_inputs=input_shapes,
                 jit=jit,
             )
+            if compiled.specialization.implementation_hash != _implementation_digest(
+                method_classes[sig.fqn], sig
+            ):
+                raise CompilationError(
+                    sig.fqn, "Registry implementation changed during chain compilation"
+                )
             compiled_methods.append((node, compiled))
 
             if infer_shapes:
+                node_shapes: dict[str, Any] = {}
+                node_unknown = self._update_output_shapes(sig, input_shapes, node_shapes, set())
+                occurrence_shapes[node_id] = node_shapes
+                unresolved_by_occurrence[node_id] = node_unknown
                 unresolved_outputs = self._update_output_shapes(
                     sig,
                     input_shapes,
@@ -799,6 +880,10 @@ class MethodCompiler:
         return CompiledChainExecutor(
             chain=chain,
             compiled_methods=tuple(compiled_methods),
+            method_classes=MappingProxyType(method_classes),
+            _runtime_compiler=MethodCompiler(
+                registry=_CompiledMethods(method_classes), cache=self._cache
+            ),
         )
 
     def _infer_input_shapes(
@@ -943,18 +1028,30 @@ class CompiledChainExecutor:
 
     chain: Any
     compiled_methods: tuple[tuple[Any, CompiledMethod], ...]
+    method_classes: Mapping[str, type] = field(default_factory=dict)
+    _runtime_compiler: MethodCompiler | None = field(default=None, repr=False, compare=False)
 
     def __call__(
         self,
         state: Any,
-        params: Mapping[str, Mapping[str, Any]] | None = None,
+        params: Mapping[str | UUID, Mapping[str, Any]] | None = None,
     ) -> Any:
         params = params or {}
         current_state = state
+        current_context = state
+        node_slot_outputs: dict[UUID, Mapping[str, Any]] = {}
+        registry = _CompiledMethods(self.method_classes)
 
         for node, compiled in self.compiled_methods:
-            method_params = dict(node.params)
-            overrides = params.get(node.method_fqn)
+            method_class = registry.get(node.method_fqn)
+            if (
+                _implementation_digest(method_class, compiled.signature)
+                != compiled.specialization.implementation_hash
+            ):
+                raise CompilationError(
+                    node.method_fqn, "Implementation changed before chain execution"
+                )
+            overrides = params.get(node.id, params.get(node.method_fqn))
             if overrides:
                 static_overlap = compiled.signature.static_param_names & overrides.keys()
                 if static_overlap:
@@ -963,9 +1060,54 @@ class CompiledChainExecutor:
                         value=list(static_overlap),
                         reason="Static parameters require recompilation",
                     )
-                method_params.update(overrides)
-
-            current_state = compiled.step_fn(current_state, method_params)
+            method_class, materialized, signature, payload = collect_chain_node_inputs(
+                self.chain,
+                node.id,
+                registry,
+                node_slot_outputs,
+                None,
+                current_state,
+                compiled.signature,
+                current_context,
+                None if overrides is None else {node.id: overrides},
+            )
+            dynamic_payload = {
+                name: value
+                for name, value in payload.items()
+                if name not in signature.static_param_names
+            }
+            # Declared downstream shape/dtype metadata is preparation only.
+            # Reconcile the cache key with the real materialized input before
+            # executing a node; this does not perform its numerical body twice.
+            if self._runtime_compiler is not None:
+                actual_inputs = self._runtime_compiler._infer_input_shapes(signature, materialized)
+                if (
+                    len(signature.input_slots) == 1
+                    and hasattr(materialized, "shape")
+                    and hasattr(materialized, "dtype")
+                ):
+                    actual_inputs[next(iter(signature.input_slots)).name] = materialized
+                actual_shapes = tuple(
+                    (name, ShapeSpec.from_array(value))
+                    for name, value in sorted(actual_inputs.items())
+                )
+                if actual_shapes != compiled.specialization.input_shapes:
+                    compiled = self._runtime_compiler.compile(
+                        node.method_fqn,
+                        params=payload,
+                        sample_inputs=actual_inputs,
+                        jit=compiled.specialization.jit_enabled,
+                        backend=compiled.specialization.backend,
+                        vmap_axis=compiled.specialization.vmap_axis,
+                        donate_argnums=compiled.specialization.donate_argnums,
+                    )
+            current_state = compiled.step_fn(materialized, dynamic_payload)
+            node_slot_outputs[node.id] = dematerialize_method_output(
+                method_class=method_class,
+                signature=signature,
+                output=current_state,
+            )
+            current_context = merge_chain_execution_context(current_context, current_state)
 
         return current_state
 
@@ -979,6 +1121,17 @@ class CompiledChainExecutor:
     @property
     def total_compile_time_ms(self) -> float:
         return sum(c.compile_time_ms for _, c in self.compiled_methods)
+
+
+@dataclass(frozen=True, slots=True)
+class _CompiledMethods:
+    methods: Mapping[str, type]
+
+    def get(self, fqn: str) -> type:
+        try:
+            return self.methods[fqn]
+        except KeyError as exc:
+            raise CompilationError(fqn, "Compiled chain lacks its owning method class") from exc
 
 
 # =============================================================================

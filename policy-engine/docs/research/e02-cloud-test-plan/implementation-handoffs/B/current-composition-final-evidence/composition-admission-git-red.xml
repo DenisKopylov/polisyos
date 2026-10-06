@@ -1,0 +1,911 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="10" skipped="0" tests="10" time="0.380" timestamp="2026-10-06T12:13:50.685096+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_complete_incoming_dag_materializes_actual_two_source_values[False]" time="0.056"><failure message="polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']">explicit = False
+
+    @pytest.mark.parametrize("explicit", [False, True])
+    def test_strict_complete_incoming_dag_materializes_actual_two_source_values(explicit):
+        registry = _registry(_Left, _Right, _Merge)
+        composer = MethodComposer(registry=registry, linker=SlotLinker(LinkerConfig.semantic_strict()))
+        left, right, merge = (composer.add(method.signature.fqn) for method in (_Left, _Right, _Merge))
+        if explicit:
+            composer.connect(left, merge, {"value": "left"})
+            composer.connect(right, merge, {"value": "right"})
+        else:
+            # Each source has one candidate for each target: constrain the target
+            # names by an explicit first edge, then auto-fill the residual input.
+&gt;           composer.connect(left, merge, {"value": "left"})
+
+tests/unit/foundry/methods/components/test_composition_e02.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/components/composer.py:559: in connect
+    link_result = self._linker.link(
+src/polisyos/foundry/methods/components/linker.py:211: in link
+    return self._link_explicit(source_sig, target_sig, explicit_mapping)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.foundry.methods.components.linker.SlotLinker object at 0x7fa2ef274590&gt;
+source_sig = MethodSignature(name='source', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset(), output_slo...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+target_sig = MethodSignature(name='merge', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset({SlotSpec(name...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+mapping = {'value': 'left'}
+
+    def _link_explicit(
+        self,
+        source_sig: MethodSignature,
+        target_sig: MethodSignature,
+        mapping: Mapping[str, str],
+    ) -&gt; LinkResult:
+        source_outputs = _slots_by_name(source_sig.output_slots)
+        target_inputs = _slots_by_name(target_sig.input_slots)
+    
+        bindings: list[SlotBinding] = []
+        warnings: list[str] = []
+        connected_inputs: set[str] = set()
+    
+        for src_name, tgt_name in mapping.items():
+            if src_name not in source_outputs:
+                raise SlotConnectionError(
+                    f"Source output slot '{src_name}' not found in "
+                    f"{source_sig.fqn}. Available: {list(source_outputs.keys())}"
+                )
+            if tgt_name not in target_inputs:
+                raise SlotConnectionError(
+                    f"Target input slot '{tgt_name}' not found in "
+                    f"{target_sig.fqn}. Available: {list(target_inputs.keys())}"
+                )
+    
+            src_slot = source_outputs[src_name]
+            tgt_slot = target_inputs[tgt_name]
+    
+            compat = check_slot_compatibility(
+                src_slot,
+                tgt_slot,
+                strict_shape=self._config.strict_shape,
+                allow_unsafe_shapes=self._config.allow_unsafe_shapes,
+            )
+    
+            if not compat.compatible:
+                if compat.reason == IncompatibilityReason.UNIT_DIMENSION_MISMATCH:
+                    raise UnitMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.unit.symbol,
+                        tgt_slot.unit.symbol,
+                    )
+                if compat.reason == IncompatibilityReason.SHAPE_MISMATCH:
+                    raise ShapeMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.shape,
+                        tgt_slot.shape,
+                    )
+                raise SlotConnectionError(
+                    f"Cannot connect {src_name} -&gt; {tgt_name}: "
+                    f"{compat.warnings[0] if compat.warnings else 'incompatible'}"
+                )
+    
+            # Semantic compatibility check (respects config.check_semantic_compatibility)
+            self._check_semantic(src_name, tgt_name)
+    
+            binding = SlotBinding(
+                source_method=source_sig.fqn,
+                source_slot=src_name,
+                target_method=target_sig.fqn,
+                target_slot=tgt_name,
+                compatibility=compat,
+            )
+            bindings.append(binding)
+            connected_inputs.add(tgt_name)
+    
+            warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
+            warnings.extend(compat.warnings)
+    
+        unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
+    
+        if unconnected and not self._config.allow_partial_links:
+&gt;           raise SlotConnectionError(
+                f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
+                f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
+            )
+E           polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']
+
+src/polisyos/foundry/methods/components/linker.py:288: SlotConnectionError</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_complete_incoming_dag_materializes_actual_two_source_values[True]" time="0.015"><failure message="polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']">explicit = True
+
+    @pytest.mark.parametrize("explicit", [False, True])
+    def test_strict_complete_incoming_dag_materializes_actual_two_source_values(explicit):
+        registry = _registry(_Left, _Right, _Merge)
+        composer = MethodComposer(registry=registry, linker=SlotLinker(LinkerConfig.semantic_strict()))
+        left, right, merge = (composer.add(method.signature.fqn) for method in (_Left, _Right, _Merge))
+        if explicit:
+&gt;           composer.connect(left, merge, {"value": "left"})
+
+tests/unit/foundry/methods/components/test_composition_e02.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/components/composer.py:559: in connect
+    link_result = self._linker.link(
+src/polisyos/foundry/methods/components/linker.py:211: in link
+    return self._link_explicit(source_sig, target_sig, explicit_mapping)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.foundry.methods.components.linker.SlotLinker object at 0x7fa2ef269a90&gt;
+source_sig = MethodSignature(name='source', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset(), output_slo...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+target_sig = MethodSignature(name='merge', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset({SlotSpec(name...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+mapping = {'value': 'left'}
+
+    def _link_explicit(
+        self,
+        source_sig: MethodSignature,
+        target_sig: MethodSignature,
+        mapping: Mapping[str, str],
+    ) -&gt; LinkResult:
+        source_outputs = _slots_by_name(source_sig.output_slots)
+        target_inputs = _slots_by_name(target_sig.input_slots)
+    
+        bindings: list[SlotBinding] = []
+        warnings: list[str] = []
+        connected_inputs: set[str] = set()
+    
+        for src_name, tgt_name in mapping.items():
+            if src_name not in source_outputs:
+                raise SlotConnectionError(
+                    f"Source output slot '{src_name}' not found in "
+                    f"{source_sig.fqn}. Available: {list(source_outputs.keys())}"
+                )
+            if tgt_name not in target_inputs:
+                raise SlotConnectionError(
+                    f"Target input slot '{tgt_name}' not found in "
+                    f"{target_sig.fqn}. Available: {list(target_inputs.keys())}"
+                )
+    
+            src_slot = source_outputs[src_name]
+            tgt_slot = target_inputs[tgt_name]
+    
+            compat = check_slot_compatibility(
+                src_slot,
+                tgt_slot,
+                strict_shape=self._config.strict_shape,
+                allow_unsafe_shapes=self._config.allow_unsafe_shapes,
+            )
+    
+            if not compat.compatible:
+                if compat.reason == IncompatibilityReason.UNIT_DIMENSION_MISMATCH:
+                    raise UnitMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.unit.symbol,
+                        tgt_slot.unit.symbol,
+                    )
+                if compat.reason == IncompatibilityReason.SHAPE_MISMATCH:
+                    raise ShapeMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.shape,
+                        tgt_slot.shape,
+                    )
+                raise SlotConnectionError(
+                    f"Cannot connect {src_name} -&gt; {tgt_name}: "
+                    f"{compat.warnings[0] if compat.warnings else 'incompatible'}"
+                )
+    
+            # Semantic compatibility check (respects config.check_semantic_compatibility)
+            self._check_semantic(src_name, tgt_name)
+    
+            binding = SlotBinding(
+                source_method=source_sig.fqn,
+                source_slot=src_name,
+                target_method=target_sig.fqn,
+                target_slot=tgt_name,
+                compatibility=compat,
+            )
+            bindings.append(binding)
+            connected_inputs.add(tgt_name)
+    
+            warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
+            warnings.extend(compat.warnings)
+    
+        unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
+    
+        if unconnected and not self._config.allow_partial_links:
+&gt;           raise SlotConnectionError(
+                f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
+                f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
+            )
+E           polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']
+
+src/polisyos/foundry/methods/components/linker.py:288: SlotConnectionError</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_linker_refuses_incomplete_incoming_dag_at_build[SemanticValidationLevel.OFF]" time="0.010"><failure message="polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']">level = &lt;SemanticValidationLevel.OFF: 'off'&gt;
+
+    @pytest.mark.parametrize("level", list(SemanticValidationLevel))
+    def test_strict_linker_refuses_incomplete_incoming_dag_at_build(level):
+        registry = _registry(_Left, _Merge)
+        composer = MethodComposer(registry=registry, linker=SlotLinker(LinkerConfig.strict()))
+        left = composer.add(_Left.signature.fqn)
+        merge = composer.add(_Merge.signature.fqn)
+&gt;       composer.connect(left, merge, {"value": "left"})
+
+tests/unit/foundry/methods/components/test_composition_e02.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/components/composer.py:559: in connect
+    link_result = self._linker.link(
+src/polisyos/foundry/methods/components/linker.py:211: in link
+    return self._link_explicit(source_sig, target_sig, explicit_mapping)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.foundry.methods.components.linker.SlotLinker object at 0x7fa2ef26a990&gt;
+source_sig = MethodSignature(name='source', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset(), output_slo...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+target_sig = MethodSignature(name='merge', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset({SlotSpec(name...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+mapping = {'value': 'left'}
+
+    def _link_explicit(
+        self,
+        source_sig: MethodSignature,
+        target_sig: MethodSignature,
+        mapping: Mapping[str, str],
+    ) -&gt; LinkResult:
+        source_outputs = _slots_by_name(source_sig.output_slots)
+        target_inputs = _slots_by_name(target_sig.input_slots)
+    
+        bindings: list[SlotBinding] = []
+        warnings: list[str] = []
+        connected_inputs: set[str] = set()
+    
+        for src_name, tgt_name in mapping.items():
+            if src_name not in source_outputs:
+                raise SlotConnectionError(
+                    f"Source output slot '{src_name}' not found in "
+                    f"{source_sig.fqn}. Available: {list(source_outputs.keys())}"
+                )
+            if tgt_name not in target_inputs:
+                raise SlotConnectionError(
+                    f"Target input slot '{tgt_name}' not found in "
+                    f"{target_sig.fqn}. Available: {list(target_inputs.keys())}"
+                )
+    
+            src_slot = source_outputs[src_name]
+            tgt_slot = target_inputs[tgt_name]
+    
+            compat = check_slot_compatibility(
+                src_slot,
+                tgt_slot,
+                strict_shape=self._config.strict_shape,
+                allow_unsafe_shapes=self._config.allow_unsafe_shapes,
+            )
+    
+            if not compat.compatible:
+                if compat.reason == IncompatibilityReason.UNIT_DIMENSION_MISMATCH:
+                    raise UnitMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.unit.symbol,
+                        tgt_slot.unit.symbol,
+                    )
+                if compat.reason == IncompatibilityReason.SHAPE_MISMATCH:
+                    raise ShapeMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.shape,
+                        tgt_slot.shape,
+                    )
+                raise SlotConnectionError(
+                    f"Cannot connect {src_name} -&gt; {tgt_name}: "
+                    f"{compat.warnings[0] if compat.warnings else 'incompatible'}"
+                )
+    
+            # Semantic compatibility check (respects config.check_semantic_compatibility)
+            self._check_semantic(src_name, tgt_name)
+    
+            binding = SlotBinding(
+                source_method=source_sig.fqn,
+                source_slot=src_name,
+                target_method=target_sig.fqn,
+                target_slot=tgt_name,
+                compatibility=compat,
+            )
+            bindings.append(binding)
+            connected_inputs.add(tgt_name)
+    
+            warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
+            warnings.extend(compat.warnings)
+    
+        unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
+    
+        if unconnected and not self._config.allow_partial_links:
+&gt;           raise SlotConnectionError(
+                f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
+                f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
+            )
+E           polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']
+
+src/polisyos/foundry/methods/components/linker.py:288: SlotConnectionError</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_linker_refuses_incomplete_incoming_dag_at_build[SemanticValidationLevel.WARN]" time="0.010"><failure message="polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']">level = &lt;SemanticValidationLevel.WARN: 'warn'&gt;
+
+    @pytest.mark.parametrize("level", list(SemanticValidationLevel))
+    def test_strict_linker_refuses_incomplete_incoming_dag_at_build(level):
+        registry = _registry(_Left, _Merge)
+        composer = MethodComposer(registry=registry, linker=SlotLinker(LinkerConfig.strict()))
+        left = composer.add(_Left.signature.fqn)
+        merge = composer.add(_Merge.signature.fqn)
+&gt;       composer.connect(left, merge, {"value": "left"})
+
+tests/unit/foundry/methods/components/test_composition_e02.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/components/composer.py:559: in connect
+    link_result = self._linker.link(
+src/polisyos/foundry/methods/components/linker.py:211: in link
+    return self._link_explicit(source_sig, target_sig, explicit_mapping)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.foundry.methods.components.linker.SlotLinker object at 0x7fa2ef2f1940&gt;
+source_sig = MethodSignature(name='source', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset(), output_slo...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+target_sig = MethodSignature(name='merge', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset({SlotSpec(name...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+mapping = {'value': 'left'}
+
+    def _link_explicit(
+        self,
+        source_sig: MethodSignature,
+        target_sig: MethodSignature,
+        mapping: Mapping[str, str],
+    ) -&gt; LinkResult:
+        source_outputs = _slots_by_name(source_sig.output_slots)
+        target_inputs = _slots_by_name(target_sig.input_slots)
+    
+        bindings: list[SlotBinding] = []
+        warnings: list[str] = []
+        connected_inputs: set[str] = set()
+    
+        for src_name, tgt_name in mapping.items():
+            if src_name not in source_outputs:
+                raise SlotConnectionError(
+                    f"Source output slot '{src_name}' not found in "
+                    f"{source_sig.fqn}. Available: {list(source_outputs.keys())}"
+                )
+            if tgt_name not in target_inputs:
+                raise SlotConnectionError(
+                    f"Target input slot '{tgt_name}' not found in "
+                    f"{target_sig.fqn}. Available: {list(target_inputs.keys())}"
+                )
+    
+            src_slot = source_outputs[src_name]
+            tgt_slot = target_inputs[tgt_name]
+    
+            compat = check_slot_compatibility(
+                src_slot,
+                tgt_slot,
+                strict_shape=self._config.strict_shape,
+                allow_unsafe_shapes=self._config.allow_unsafe_shapes,
+            )
+    
+            if not compat.compatible:
+                if compat.reason == IncompatibilityReason.UNIT_DIMENSION_MISMATCH:
+                    raise UnitMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.unit.symbol,
+                        tgt_slot.unit.symbol,
+                    )
+                if compat.reason == IncompatibilityReason.SHAPE_MISMATCH:
+                    raise ShapeMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.shape,
+                        tgt_slot.shape,
+                    )
+                raise SlotConnectionError(
+                    f"Cannot connect {src_name} -&gt; {tgt_name}: "
+                    f"{compat.warnings[0] if compat.warnings else 'incompatible'}"
+                )
+    
+            # Semantic compatibility check (respects config.check_semantic_compatibility)
+            self._check_semantic(src_name, tgt_name)
+    
+            binding = SlotBinding(
+                source_method=source_sig.fqn,
+                source_slot=src_name,
+                target_method=target_sig.fqn,
+                target_slot=tgt_name,
+                compatibility=compat,
+            )
+            bindings.append(binding)
+            connected_inputs.add(tgt_name)
+    
+            warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
+            warnings.extend(compat.warnings)
+    
+        unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
+    
+        if unconnected and not self._config.allow_partial_links:
+&gt;           raise SlotConnectionError(
+                f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
+                f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
+            )
+E           polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']
+
+src/polisyos/foundry/methods/components/linker.py:288: SlotConnectionError</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_strict_linker_refuses_incomplete_incoming_dag_at_build[SemanticValidationLevel.STRICT]" time="0.009"><failure message="polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']">level = &lt;SemanticValidationLevel.STRICT: 'strict'&gt;
+
+    @pytest.mark.parametrize("level", list(SemanticValidationLevel))
+    def test_strict_linker_refuses_incomplete_incoming_dag_at_build(level):
+        registry = _registry(_Left, _Merge)
+        composer = MethodComposer(registry=registry, linker=SlotLinker(LinkerConfig.strict()))
+        left = composer.add(_Left.signature.fqn)
+        merge = composer.add(_Merge.signature.fqn)
+&gt;       composer.connect(left, merge, {"value": "left"})
+
+tests/unit/foundry/methods/components/test_composition_e02.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/components/composer.py:559: in connect
+    link_result = self._linker.link(
+src/polisyos/foundry/methods/components/linker.py:211: in link
+    return self._link_explicit(source_sig, target_sig, explicit_mapping)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.foundry.methods.components.linker.SlotLinker object at 0x7fa2ef1988a0&gt;
+source_sig = MethodSignature(name='source', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset(), output_slo...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+target_sig = MethodSignature(name='merge', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset({SlotSpec(name...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+mapping = {'value': 'left'}
+
+    def _link_explicit(
+        self,
+        source_sig: MethodSignature,
+        target_sig: MethodSignature,
+        mapping: Mapping[str, str],
+    ) -&gt; LinkResult:
+        source_outputs = _slots_by_name(source_sig.output_slots)
+        target_inputs = _slots_by_name(target_sig.input_slots)
+    
+        bindings: list[SlotBinding] = []
+        warnings: list[str] = []
+        connected_inputs: set[str] = set()
+    
+        for src_name, tgt_name in mapping.items():
+            if src_name not in source_outputs:
+                raise SlotConnectionError(
+                    f"Source output slot '{src_name}' not found in "
+                    f"{source_sig.fqn}. Available: {list(source_outputs.keys())}"
+                )
+            if tgt_name not in target_inputs:
+                raise SlotConnectionError(
+                    f"Target input slot '{tgt_name}' not found in "
+                    f"{target_sig.fqn}. Available: {list(target_inputs.keys())}"
+                )
+    
+            src_slot = source_outputs[src_name]
+            tgt_slot = target_inputs[tgt_name]
+    
+            compat = check_slot_compatibility(
+                src_slot,
+                tgt_slot,
+                strict_shape=self._config.strict_shape,
+                allow_unsafe_shapes=self._config.allow_unsafe_shapes,
+            )
+    
+            if not compat.compatible:
+                if compat.reason == IncompatibilityReason.UNIT_DIMENSION_MISMATCH:
+                    raise UnitMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.unit.symbol,
+                        tgt_slot.unit.symbol,
+                    )
+                if compat.reason == IncompatibilityReason.SHAPE_MISMATCH:
+                    raise ShapeMismatchError(
+                        src_name,
+                        tgt_name,
+                        src_slot.shape,
+                        tgt_slot.shape,
+                    )
+                raise SlotConnectionError(
+                    f"Cannot connect {src_name} -&gt; {tgt_name}: "
+                    f"{compat.warnings[0] if compat.warnings else 'incompatible'}"
+                )
+    
+            # Semantic compatibility check (respects config.check_semantic_compatibility)
+            self._check_semantic(src_name, tgt_name)
+    
+            binding = SlotBinding(
+                source_method=source_sig.fqn,
+                source_slot=src_name,
+                target_method=target_sig.fqn,
+                target_slot=tgt_name,
+                compatibility=compat,
+            )
+            bindings.append(binding)
+            connected_inputs.add(tgt_name)
+    
+            warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
+            warnings.extend(compat.warnings)
+    
+        unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
+    
+        if unconnected and not self._config.allow_partial_links:
+&gt;           raise SlotConnectionError(
+                f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
+                f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
+            )
+E           polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.merge@1.0.0: ['right']. Available outputs from tests.composition_e02.source@1.0.0: ['value']
+
+src/polisyos/foundry/methods/components/linker.py:288: SlotConnectionError</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_required_explicit_earlier_occurrence_excludes_future_same_fqn" time="0.010"><failure message="polisyos.foundry.methods.exceptions.CyclicDependencyError: Cyclic dependency detected: tests.composition_e02.sensitivity@1.0.0 -&gt; tests.composition_e02.estimate@1.0.0 -&gt; tests.composition_e02.sensitivity@1.0.0 -&gt; tests.composition_e02.sensitivity@1.0.0">def test_required_explicit_earlier_occurrence_excludes_future_same_fqn():
+        registry = _registry(_Estimate, _Sensitivity)
+        composer = MethodComposer(registry=registry)
+        first = composer.add(_Estimate.signature.fqn)
+        sensitivity = composer.add(_Sensitivity.signature.fqn)
+        future = composer.add(_Estimate.signature.fqn)
+        composer.connect(first, sensitivity, {"value": "value"})
+        composer.connect(sensitivity, future, {"value": "value"})
+&gt;       chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/components/test_composition_e02.py:179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/components/composer.py:679: in build
+    order = self._dag.topological_order(extra_predecessors=req_predecessors)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = CompositionDAG(nodes={UUID('07ef9fb4-f8a3-400b-ba3e-fb75c91ea9de'): MethodNode(tests.composition_e02.estimate@1.0.0, i...: LinkResult(tests.composition_e02.sensitivity@1.0.0 -&gt; tests.composition_e02.estimate@1.0.0, bindings=1, warnings=0)})
+extra_predecessors = {UUID('77dae778-0cd5-49b3-9870-94445c599943'): {UUID('07ef9fb4-f8a3-400b-ba3e-fb75c91ea9de'), UUID('6a1f381b-e5f4-46d8-92c3-873cc04ab534')}}
+
+    def topological_order(
+        self,
+        extra_predecessors: Mapping[UUID, set[UUID]] | None = None,
+    ) -&gt; list[UUID]:
+        graph: dict[UUID, set[UUID]] = {}
+        for node_id in self.nodes:
+            preds = set(self.predecessors.get(node_id, set()))
+            if extra_predecessors and node_id in extra_predecessors:
+                preds |= {p for p in extra_predecessors[node_id] if p in self.nodes}
+            graph[node_id] = preds
+    
+        sorter = graphlib.TopologicalSorter(graph)
+        try:
+            sorter.prepare()
+        except graphlib.CycleError as exc:
+            cycle_nodes: list[UUID] = []
+            for arg in exc.args:
+                if isinstance(arg, (list, tuple)):
+                    cycle_nodes = list(arg)
+                    break
+            cycle_fqns = [
+                self.nodes[uid].method_fqn if uid in self.nodes else str(uid) for uid in cycle_nodes
+            ]
+            if not cycle_fqns:
+                cycle_fqns = ["&lt;cycle&gt;"]
+&gt;           raise CyclicDependencyError(cycle_fqns) from None
+E           polisyos.foundry.methods.exceptions.CyclicDependencyError: Cyclic dependency detected: tests.composition_e02.sensitivity@1.0.0 -&gt; tests.composition_e02.estimate@1.0.0 -&gt; tests.composition_e02.sensitivity@1.0.0 -&gt; tests.composition_e02.sensitivity@1.0.0
+
+src/polisyos/foundry/methods/components/composer.py:215: CyclicDependencyError</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_required_only_occurrence_selects_nearest_earlier_instance" time="0.013"><failure message="AssertionError: assert frozenset({UU...c5dde65ec9')}) == frozenset({UU...c5dde65ec9')})&#10;  &#10;  Extra items in the left set:&#10;  UUID('4132d345-501f-45f9-8352-9a7b81f685be')&#10;  Use -v to get more diff">def test_required_only_occurrence_selects_nearest_earlier_instance():
+        registry = _registry(_Estimate, _Sensitivity)
+        composer = MethodComposer(registry=registry)
+        first = composer.add(_Estimate.signature.fqn)
+        second = composer.add(_Estimate.signature.fqn)
+        dependent = composer.add(_Sensitivity.signature.fqn)
+        chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+&gt;       assert chain.dag.predecessors[dependent.id] == frozenset({second.id})
+E       AssertionError: assert frozenset({UU...c5dde65ec9')}) == frozenset({UU...c5dde65ec9')})
+E         
+E         Extra items in the left set:
+E         UUID('4132d345-501f-45f9-8352-9a7b81f685be')
+E         Use -v to get more diff
+
+tests/unit/foundry/methods/components/test_composition_e02.py:194: AssertionError</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_required_only_ambiguous_future_instances_are_typed_refused" time="0.010"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.exceptions.MissingRequirementError'&gt;">def test_required_only_ambiguous_future_instances_are_typed_refused():
+        registry = _registry(_Estimate, _Sensitivity)
+        composer = MethodComposer(registry=registry)
+        composer.add(_Sensitivity.signature.fqn)
+        composer.add(_Estimate.signature.fqn)
+        composer.add(_Estimate.signature.fqn)
+&gt;       with pytest.raises(MissingRequirementError, match="ambiguous"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.exceptions.MissingRequirementError'&gt;
+
+tests/unit/foundry/methods/components/test_composition_e02.py:207: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_manual_auto_single_edge_structural_refusal_has_identical_typed_reason[unit]" time="0.001"><failure message="polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.target@1.0.0: ['target']. Available outputs from tests.composition_e02.source@1.0.0: ['source']">gate = 'unit'
+
+    @pytest.mark.parametrize("gate", ["unit", "shape"])
+    def test_manual_auto_single_edge_structural_refusal_has_identical_typed_reason(gate):
+        if gate == "unit":
+            source = _slot("source", unit=Unit("currency", "USD"))
+            target = _slot("target", unit=Unit("time", "yr"))
+            expected = UnitMismatchError
+        else:
+            source = _slot("source", shape=(2,), kind=SlotType.VECTOR)
+            target = _slot("target", shape=(3,), kind=SlotType.VECTOR)
+            expected = ShapeMismatchError
+        source_sig = replace(_SIGNATURE, output_slots=frozenset({source}))
+        target_sig = replace(_SIGNATURE, name="target", input_slots=frozenset({target}))
+        errors = []
+        for mapping in ({"source": "target"}, None):
+            with pytest.raises(expected) as result:
+&gt;               SlotLinker(LinkerConfig.strict()).link(source_sig, target_sig, mapping)
+
+tests/unit/foundry/methods/components/test_composition_e02.py:226: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/components/linker.py:212: in link
+    return self._link_auto(source_sig, target_sig)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.foundry.methods.components.linker.SlotLinker object at 0x7fa2ef191750&gt;
+source_sig = MethodSignature(name='source', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset(), output_slo...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+target_sig = MethodSignature(name='target', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset({SlotSpec(nam...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+
+    def _link_auto(
+        self,
+        source_sig: MethodSignature,
+        target_sig: MethodSignature,
+    ) -&gt; LinkResult:
+        source_outputs = _slots_by_name(source_sig.output_slots)
+        target_inputs = _slots_by_name(target_sig.input_slots)
+    
+        warnings: list[str] = []
+        candidate_edges: dict[str, list[tuple[SlotSpec, SlotCompatibility]]] = {}
+    
+        # Build the complete admissible edge set before selecting any source.
+        # This keeps matching from making an irrevocable greedy choice and
+        # applies the same structural and semantic checks to every edge.
+        for tgt_name, tgt_slot in target_inputs.items():
+            compatible: list[tuple[SlotSpec, SlotCompatibility]] = []
+            semantic_mismatches: list[tuple[str, str]] = []
+    
+            for src_name, src_slot in source_outputs.items():
+                compat = check_slot_compatibility(
+                    src_slot,
+                    tgt_slot,
+                    strict_shape=self._config.strict_shape,
+                    allow_unsafe_shapes=self._config.allow_unsafe_shapes,
+                )
+                if not compat.compatible:
+                    if src_name == tgt_name:
+                        warnings.append(
+                            f"Slot '{tgt_name}' exists in both but incompatible: "
+                            f"{compat.warnings[0] if compat.warnings else 'type mismatch'}"
+                        )
+                    continue
+    
+                try:
+                    self._check_semantic(src_name, tgt_name)
+                except SemanticCompatibilityError:
+                    semantic_mismatches.append((src_name, tgt_name))
+                    continue
+                compatible.append((src_slot, compat))
+    
+            # A structurally compatible but semantically forbidden edge is a
+            # real rejection, not an unconnected input.  If no admissible
+            # alternative exists, surface the same semantic error as explicit
+            # linking; otherwise leave the forbidden edge out of matching.
+            if not compatible and semantic_mismatches:
+                src_name, rejected_target = semantic_mismatches[0]
+                self._check_semantic(src_name, rejected_target)
+    
+            candidate_edges[tgt_name] = sorted(
+                compatible,
+                key=lambda item: _candidate_sort_key(
+                    item,
+                    tgt_slot,
+                    prefer_exact_names=self._config.prefer_exact_names,
+                ),
+            )
+    
+        matched_sources: dict[str, str] = {}
+    
+        def augment(target_name: str, seen_sources: set[str]) -&gt; bool:
+            """Find an augmenting path for one target in the bounded graph."""
+            for src_slot, _compat in candidate_edges[target_name]:
+                src_name = src_slot.name
+                if src_name in seen_sources:
+                    continue
+                seen_sources.add(src_name)
+                previous_target = matched_sources.get(src_name)
+                if previous_target is None or augment(previous_target, seen_sources):
+                    matched_sources[src_name] = target_name
+                    return True
+            return False
+    
+        for target_name in target_inputs:
+            augment(target_name, set())
+    
+        matched_targets = {
+            target_name: source_name for source_name, target_name in matched_sources.items()
+        }
+        bindings: list[SlotBinding] = []
+    
+        for tgt_name, tgt_slot in target_inputs.items():
+            src_name = matched_targets.get(tgt_name)
+            if src_name is None:
+                continue
+    
+            src_slot, compat = next(
+                (slot, edge_compat)
+                for slot, edge_compat in candidate_edges[tgt_name]
+                if slot.name == src_name
+            )
+            binding = SlotBinding(
+                source_method=source_sig.fqn,
+                source_slot=src_name,
+                target_method=target_sig.fqn,
+                target_slot=tgt_name,
+                compatibility=compat,
+            )
+            bindings.append(binding)
+    
+            exact_name = self._config.prefer_exact_names and src_name == tgt_name
+            if not exact_name:
+                warnings.append(f"Auto-linked: {src_name} -&gt; {tgt_name}")
+            warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
+            warnings.extend(compat.warnings)
+    
+            if len(candidate_edges[tgt_name]) &gt; 1 and not exact_name:
+                others = sorted(
+                    slot.name for slot, _ in candidate_edges[tgt_name] if slot.name != src_name
+                )
+                if others:
+                    warnings.append(
+                        f"Multiple compatible sources for '{tgt_name}': used '{src_name}', "
+                        f"also available: {others}"
+                    )
+    
+        unconnected = tuple(
+            name for name in target_inputs if name not in matched_targets
+        )
+    
+        if unconnected and not self._config.allow_partial_links:
+&gt;           raise SlotConnectionError(
+                f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
+                f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
+            )
+E           polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.target@1.0.0: ['target']. Available outputs from tests.composition_e02.source@1.0.0: ['source']
+
+src/polisyos/foundry/methods/components/linker.py:421: SlotConnectionError</failure></testcase><testcase classname="tests.unit.foundry.methods.components.test_composition_e02" name="test_manual_auto_single_edge_structural_refusal_has_identical_typed_reason[shape]" time="0.001"><failure message="polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.target@1.0.0: ['target']. Available outputs from tests.composition_e02.source@1.0.0: ['source']">gate = 'shape'
+
+    @pytest.mark.parametrize("gate", ["unit", "shape"])
+    def test_manual_auto_single_edge_structural_refusal_has_identical_typed_reason(gate):
+        if gate == "unit":
+            source = _slot("source", unit=Unit("currency", "USD"))
+            target = _slot("target", unit=Unit("time", "yr"))
+            expected = UnitMismatchError
+        else:
+            source = _slot("source", shape=(2,), kind=SlotType.VECTOR)
+            target = _slot("target", shape=(3,), kind=SlotType.VECTOR)
+            expected = ShapeMismatchError
+        source_sig = replace(_SIGNATURE, output_slots=frozenset({source}))
+        target_sig = replace(_SIGNATURE, name="target", input_slots=frozenset({target}))
+        errors = []
+        for mapping in ({"source": "target"}, None):
+            with pytest.raises(expected) as result:
+&gt;               SlotLinker(LinkerConfig.strict()).link(source_sig, target_sig, mapping)
+
+tests/unit/foundry/methods/components/test_composition_e02.py:226: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/components/linker.py:212: in link
+    return self._link_auto(source_sig, target_sig)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.foundry.methods.components.linker.SlotLinker object at 0x7fa2ef15be30&gt;
+source_sig = MethodSignature(name='source', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset(), output_slo...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+target_sig = MethodSignature(name='target', namespace='tests.composition_e02', version='1.0.0', input_slots=frozenset({SlotSpec(nam...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+
+    def _link_auto(
+        self,
+        source_sig: MethodSignature,
+        target_sig: MethodSignature,
+    ) -&gt; LinkResult:
+        source_outputs = _slots_by_name(source_sig.output_slots)
+        target_inputs = _slots_by_name(target_sig.input_slots)
+    
+        warnings: list[str] = []
+        candidate_edges: dict[str, list[tuple[SlotSpec, SlotCompatibility]]] = {}
+    
+        # Build the complete admissible edge set before selecting any source.
+        # This keeps matching from making an irrevocable greedy choice and
+        # applies the same structural and semantic checks to every edge.
+        for tgt_name, tgt_slot in target_inputs.items():
+            compatible: list[tuple[SlotSpec, SlotCompatibility]] = []
+            semantic_mismatches: list[tuple[str, str]] = []
+    
+            for src_name, src_slot in source_outputs.items():
+                compat = check_slot_compatibility(
+                    src_slot,
+                    tgt_slot,
+                    strict_shape=self._config.strict_shape,
+                    allow_unsafe_shapes=self._config.allow_unsafe_shapes,
+                )
+                if not compat.compatible:
+                    if src_name == tgt_name:
+                        warnings.append(
+                            f"Slot '{tgt_name}' exists in both but incompatible: "
+                            f"{compat.warnings[0] if compat.warnings else 'type mismatch'}"
+                        )
+                    continue
+    
+                try:
+                    self._check_semantic(src_name, tgt_name)
+                except SemanticCompatibilityError:
+                    semantic_mismatches.append((src_name, tgt_name))
+                    continue
+                compatible.append((src_slot, compat))
+    
+            # A structurally compatible but semantically forbidden edge is a
+            # real rejection, not an unconnected input.  If no admissible
+            # alternative exists, surface the same semantic error as explicit
+            # linking; otherwise leave the forbidden edge out of matching.
+            if not compatible and semantic_mismatches:
+                src_name, rejected_target = semantic_mismatches[0]
+                self._check_semantic(src_name, rejected_target)
+    
+            candidate_edges[tgt_name] = sorted(
+                compatible,
+                key=lambda item: _candidate_sort_key(
+                    item,
+                    tgt_slot,
+                    prefer_exact_names=self._config.prefer_exact_names,
+                ),
+            )
+    
+        matched_sources: dict[str, str] = {}
+    
+        def augment(target_name: str, seen_sources: set[str]) -&gt; bool:
+            """Find an augmenting path for one target in the bounded graph."""
+            for src_slot, _compat in candidate_edges[target_name]:
+                src_name = src_slot.name
+                if src_name in seen_sources:
+                    continue
+                seen_sources.add(src_name)
+                previous_target = matched_sources.get(src_name)
+                if previous_target is None or augment(previous_target, seen_sources):
+                    matched_sources[src_name] = target_name
+                    return True
+            return False
+    
+        for target_name in target_inputs:
+            augment(target_name, set())
+    
+        matched_targets = {
+            target_name: source_name for source_name, target_name in matched_sources.items()
+        }
+        bindings: list[SlotBinding] = []
+    
+        for tgt_name, tgt_slot in target_inputs.items():
+            src_name = matched_targets.get(tgt_name)
+            if src_name is None:
+                continue
+    
+            src_slot, compat = next(
+                (slot, edge_compat)
+                for slot, edge_compat in candidate_edges[tgt_name]
+                if slot.name == src_name
+            )
+            binding = SlotBinding(
+                source_method=source_sig.fqn,
+                source_slot=src_name,
+                target_method=target_sig.fqn,
+                target_slot=tgt_name,
+                compatibility=compat,
+            )
+            bindings.append(binding)
+    
+            exact_name = self._config.prefer_exact_names and src_name == tgt_name
+            if not exact_name:
+                warnings.append(f"Auto-linked: {src_name} -&gt; {tgt_name}")
+            warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
+            warnings.extend(compat.warnings)
+    
+            if len(candidate_edges[tgt_name]) &gt; 1 and not exact_name:
+                others = sorted(
+                    slot.name for slot, _ in candidate_edges[tgt_name] if slot.name != src_name
+                )
+                if others:
+                    warnings.append(
+                        f"Multiple compatible sources for '{tgt_name}': used '{src_name}', "
+                        f"also available: {others}"
+                    )
+    
+        unconnected = tuple(
+            name for name in target_inputs if name not in matched_targets
+        )
+    
+        if unconnected and not self._config.allow_partial_links:
+&gt;           raise SlotConnectionError(
+                f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
+                f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
+            )
+E           polisyos.foundry.methods.exceptions.SlotConnectionError: Unconnected required inputs in tests.composition_e02.target@1.0.0: ['target']. Available outputs from tests.composition_e02.source@1.0.0: ['source']
+
+src/polisyos/foundry/methods/components/linker.py:421: SlotConnectionError</failure></testcase></testsuite></testsuites>

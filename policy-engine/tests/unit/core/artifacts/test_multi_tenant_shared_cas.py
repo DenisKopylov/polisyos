@@ -22,13 +22,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 
 
 def _artifact_paths(root: Path, artifact_id: ArtifactID) -> tuple[Path, Path]:
-    directory = (
-        root
-        / "artifacts"
-        / "sha256"
-        / artifact_id.hex[:2]
-        / artifact_id.hex[2:4]
-    )
+    directory = root / "artifacts" / "sha256" / artifact_id.hex[:2] / artifact_id.hex[2:4]
     return (
         directory / f"{artifact_id.hex}.blob",
         directory / f"{artifact_id.hex}.manifest.json",
@@ -469,9 +463,7 @@ def test_same_request_recovers_missing_stage_with_pinned_manifest_timestamp(
     manifest_specs = pending["views"]
     assert isinstance(manifest_specs, list)
     default_spec = next(
-        view
-        for view in manifest_specs
-        if isinstance(view, dict) and view["selector"] == "default"
+        view for view in manifest_specs if isinstance(view, dict) and view["selector"] == "default"
     )
     default_stage = default_spec["manifest_stage"]
     assert isinstance(default_stage, str)
@@ -497,9 +489,7 @@ def test_same_request_recovers_missing_stage_with_pinned_manifest_timestamp(
         expected_default_digest
     )
     manifest = writer.get_manifest(artifact_ref)
-    assert writer._manifests.profile_sha256(manifest) == default_spec[
-        "manifest_profile_sha256"
-    ]
+    assert writer._manifests.profile_sha256(manifest) == default_spec["manifest_profile_sha256"]
     assert manifest.created_at.isoformat() == pending["manifest_created_at"]
     assert writer.get_bytes(artifact_ref) == payload
 
@@ -544,11 +534,7 @@ def test_import_retry_reuses_pinned_manifest_after_transaction_stage_quarantine(
 
     assert len(captured) == 1
     pending = captured[0]
-    manifest_spec = next(
-        view
-        for view in pending["views"]
-        if view["selector"] == "default"
-    )
+    manifest_spec = next(view for view in pending["views"] if view["selector"] == "default")
     stage_ref = manifest_spec["manifest_stage"]
     assert isinstance(stage_ref, str)
     expected_manifest = source.get_manifest_bytes(source_ref)
@@ -565,9 +551,7 @@ def test_import_retry_reuses_pinned_manifest_after_transaction_stage_quarantine(
 
     _blob, default_manifest = _artifact_paths(target_root, source_ref.artifact_id)
     assert default_manifest.read_bytes() == expected_manifest
-    assert target.get_manifest(source_ref).created_at.isoformat() == pending[
-        "manifest_created_at"
-    ]
+    assert target.get_manifest(source_ref).created_at.isoformat() == pending["manifest_created_at"]
     assert target.get_bytes(source_ref) == payload
 
 
@@ -575,9 +559,18 @@ def test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    source = FileSystemCAS(tmp_path / "source")
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+
+    # Admit genuine same-owner producer bytes before exercising durable import faults.
+    source = FileSystemCAS(tmp_path / "source").for_tenant("tenant-exact-view")
     payload = b"exact-view imports must publish through the CAS owner transaction"
-    source_ref = source.put_bytes(payload, _options())
+    source_ref = source.put_bytes(
+        payload,
+        replace(
+            _options(),
+            tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-exact-view"),
+        ),
+    )
     manifest_bytes = source.get_manifest_bytes(source_ref)
     target_root = tmp_path / "target"
     target = FileSystemCAS(target_root).for_tenant("tenant-exact-view")
@@ -631,9 +624,9 @@ def test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry(
     blob, default_manifest = _artifact_paths(target_root, source_ref.artifact_id)
     assert blob.read_bytes() == payload
     assert default_manifest.read_bytes() == manifest_bytes
-    assert target.get_manifest(imported_ref).created_at.isoformat() == pending[
-        "manifest_created_at"
-    ]
+    assert (
+        target.get_manifest(imported_ref).created_at.isoformat() == pending["manifest_created_at"]
+    )
     assert target.get_bytes(imported_ref) == payload
     assert target._ownership_index.is_owned_by(
         source_ref.artifact_id,

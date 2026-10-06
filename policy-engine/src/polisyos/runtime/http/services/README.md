@@ -3,6 +3,22 @@
 `runtime.http.services` contains the application logic behind the runtime API. It owns run indexing,
 timeline/debug views, artifact inspection, lineage traversal, and control-plane orchestration.
 
+## Worker write admission
+
+`ControlPlaneStore` binds worker writes to the current job owner, attempt and
+unexpired lease. Every canonical SQL mutation rechecks the locked job row in
+the same transaction before publication and commit. Expiry or takeover rejects
+the stale writer and rolls back its mutations. A renewal in that transaction
+uses the renewed row. Terminal continuation is admitted only after the store
+verifies its own immediate lifecycle transition and affected row.
+
+Administrative job updates use a separate unbound store on the same database;
+a bound worker cannot bypass its fence with raw SQL. Real separate-worker and
+expiry checks run in `tests/unit/remediation/test_dur_02_process.py` and
+`tests/unit/runtime/http/test_control_plane_store.py`. The cloud receipt proves
+the exercised SQLite path; PostgreSQL requires an isolated DSN and a separate
+backend replay.
+
 ## Purpose
 
 Use this package for route-adjacent runtime API behavior that needs shared

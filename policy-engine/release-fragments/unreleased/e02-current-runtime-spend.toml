@@ -1,0 +1,11 @@
+id = "e02-current-runtime-spend"
+title = "Preserve known completed-failure spend across retry boundaries"
+type = "fixed"
+component = "scientist.orchestration.engine"
+owner = "team-policyos-runtime"
+summary = "Completed provider failures retain their positive state-budget spend through thread, coroutine and Linux process boundaries. Retry settles that known quantity once while isolating ordinary failed-attempt writes. Process errors use the existing versioned, integrity-checked state codec for a budget-only projection."
+evidence = ["tests/unit/scientist/orchestration/engine/test_retry.py"]
+compatibility = "Local terminal failures keep the original exception as their cause. Existing typed process error categories and retry filters remain unchanged."
+surface_classification = "internal: scientist retry state settlement"
+migration = "No schema migration; the additional optional process error field is produced and consumed by the same runtime boundary."
+limitations = "State-budget spend is known only for a physically completed, admitted attempt. Late or cancelled external work remains unknown. This quantity is not an independent vendor billing claim."

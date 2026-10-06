@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-oracle-cas-quantity",
+    "--junitxml",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/oracle-cas-quantity.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "a82302c3f964c2f8bff4d127d900bf33289d2e16",
+  "tree": "ed6eb14803d1305c4f2a528453cc0ec1300486bc",
+  "head_after": "a82302c3f964c2f8bff4d127d900bf33289d2e16",
+  "wall_s": 1.3279397599981166,
+  "process_rusage_maxrss_kib": 87176,
+  "exit_code": 1,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/oracle-cas-quantity.txt",
+  "output_sha256": "606125fd41d9b769a90984eea1558c5b0f4f2e2c695f6438e5a723ee24bbb617",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8"
+  }
+}

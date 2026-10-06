@@ -1,0 +1,204 @@
+[
+  {
+    "argv": [
+      "du",
+      "-x",
+      "-B1",
+      "--max-depth=1",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310538.0813236,
+    "end_epoch": 1791310539.4585767,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-0.txt",
+    "bytes": 5838,
+    "sha256": "0d1afc70666ed994aaffb59a7b56163dbb8f8d864f25c98e9eb7602e5bce3b7c"
+  },
+  {
+    "argv": [
+      "du",
+      "-x",
+      "-B1",
+      "--max-depth=1",
+      "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310539.45873,
+    "end_epoch": 1791310539.7744029,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-1.txt",
+    "bytes": 1327,
+    "sha256": "e51704faeeb6894f7716fd78a200dfe04b74f51af6bc8f90d4b595c8df104f2a"
+  },
+  {
+    "argv": [
+      "du",
+      "-x",
+      "-B1",
+      "--max-depth=1",
+      "/workspace/e02-B-current-execution-state"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310539.7744865,
+    "end_epoch": 1791310540.5008857,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-2.txt",
+    "bytes": 403,
+    "sha256": "13dfc42b0474a8444304241f3e41184693368bfff282126f5a7e2fea8241aa32"
+  },
+  {
+    "argv": [
+      "docker",
+      "info",
+      "--format",
+      "{{json .DockerRootDir}} {{json .Driver}} {{json .Containers}} {{json .Images}}"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310540.500959,
+    "end_epoch": 1791310540.5493627,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-3.txt",
+    "bytes": 28,
+    "sha256": "475bba84b5db0936d23c77df9b5f2e635363232c8cae6b01fa0adcd95310606b"
+  },
+  {
+    "argv": [
+      "docker",
+      "image",
+      "inspect",
+      "postgres:17-alpine"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310540.549404,
+    "end_epoch": 1791310540.5621347,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-4.txt",
+    "bytes": 2686,
+    "sha256": "b98b392cc973615e7e0b6fe4df8b845347dc2beb1be24119a26b6e95454a4956"
+  },
+  {
+    "argv": [
+      "docker",
+      "volume",
+      "inspect",
+      "e02-b38-pg-20261006-143b68a-data"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310540.562167,
+    "end_epoch": 1791310540.5734596,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-5.txt",
+    "bytes": 391,
+    "sha256": "f10a262f06ad1e5f6572b22238ee03c60c960c2a28ad0030df589aa76902a182"
+  },
+  {
+    "argv": [
+      "docker",
+      "system",
+      "df",
+      "-v"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310540.5734847,
+    "end_epoch": 1791310540.585773,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-6.txt",
+    "bytes": 555,
+    "sha256": "97d0a6d6c730df148843160555d904fa3fc121ebc08d2fec3df2308689410c04"
+  },
+  {
+    "argv": [
+      "df",
+      "-B1",
+      "/",
+      "/workspace",
+      "/tmp"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310540.5857964,
+    "end_epoch": 1791310540.5871563,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-7.txt",
+    "bytes": 240,
+    "sha256": "95399845aef92a542463c9bcf6a08fe8b1abf3c104c2dfb94ae9c663a916b4ec"
+  },
+  {
+    "argv": [
+      "du",
+      "-x",
+      "-B1",
+      "--max-depth=2",
+      "/workspace/e02-B-current-execution-state/_build"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310593.2761064,
+    "end_epoch": 1791310593.8111763,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-8.txt",
+    "bytes": 8314,
+    "sha256": "5702e4f6d1ff1965e39286343395c8d3d4999078f7761e4620d2c667d1482843"
+  },
+  {
+    "argv": [
+      "du",
+      "-x",
+      "-B1",
+      "--max-depth=1",
+      "/workspace/e02-B-current-execution-state/policy-engine"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310593.811358,
+    "end_epoch": 1791310593.986276,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-9.txt",
+    "bytes": 1709,
+    "sha256": "734fb3f2c7b19c30d81c85b5018ad9a69911a2829ad1fc86a805b36f8e5be969"
+  },
+  {
+    "argv": [
+      "du",
+      "-x",
+      "-B1",
+      "--max-depth=1",
+      "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310593.9863694,
+    "end_epoch": 1791310594.2752948,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-10.txt",
+    "bytes": 2213,
+    "sha256": "fe2fe1b745632d551fd2c46e31c5c8351b12c3bbb16da92b97f741313b7800d2"
+  },
+  {
+    "argv": [
+      "ps",
+      "-eo",
+      "pid,lstart,args"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310594.275383,
+    "end_epoch": 1791310594.2923806,
+    "exit_code": 0,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-11.txt",
+    "bytes": 44448,
+    "sha256": "f52eb1a33d924f679c7233f322ec80cd18471abba4f7e9d27d901c0857cf47a7"
+  },
+  {
+    "argv": [
+      "du",
+      "-x",
+      "-B1",
+      "--max-depth=0",
+      "/var/lib/docker"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "start_epoch": 1791310594.292718,
+    "end_epoch": 1791310594.2944174,
+    "exit_code": 1,
+    "stdout_stderr_path": "/tmp/e02-cas-storage-census-20261006/command-12.txt",
+    "bytes": 84,
+    "sha256": "b220edb6a7be27a6856d9a981c1ee96684f7d8f01796e47e88ac1187ca078984"
+  }
+]

@@ -1,0 +1,8 @@
+COMMAND ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "ruff", "check", "src/polisyos/core/artifacts/store.py", "src/polisyos/core/artifacts/_transfer_ops.py", "src/polisyos/core/artifacts/backends/caching_store.py", "tests/unit/core/artifacts/test_transfer_generation_publication.py", "tests/unit/core/artifacts/test_import_admission_noop.py", "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py", "tests/unit/remediation/test_cas_02.py"]
+All checks passed!
+COMMAND ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "ruff", "format", "--check", "src/polisyos/core/artifacts/store.py", "src/polisyos/core/artifacts/_transfer_ops.py", "src/polisyos/core/artifacts/backends/caching_store.py", "tests/unit/core/artifacts/test_transfer_generation_publication.py", "tests/unit/core/artifacts/test_import_admission_noop.py", "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py", "tests/unit/remediation/test_cas_02.py"]
+7 files already formatted
+COMMAND ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "ruff", "check", "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py"]
+All checks passed!
+COMMAND ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "ruff", "format", "--check", "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py"]
+1 file already formatted

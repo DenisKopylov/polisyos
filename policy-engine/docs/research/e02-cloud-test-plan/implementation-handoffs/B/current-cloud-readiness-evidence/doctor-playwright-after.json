@@ -1,0 +1,24 @@
+{
+  "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "head_after": "99af508a5282854f3e609c5a94bc19ac55893dde",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-c",
+    "from dataclasses import asdict; import json; from tools.devx.workspace import doctor; print(json.dumps({\"doctor_file\":doctor.__file__,\"frontend_root\":str(doctor.FRONTEND_ROOT),\"smoke\":doctor.PLAYWRIGHT_SMOKE})); result=doctor._check_playwright(); print(json.dumps(asdict(result))); raise SystemExit(0 if result.ok else 1)"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "environment": {
+    "node_path": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+    "node_version": "22.22.0",
+    "pnpm_version": "10.33.2",
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PLAYWRIGHT_BROWSERS_PATH": null,
+    "no_process_or_numeric_quota_added": true
+  },
+  "outcome": "PASS",
+  "exit_code": 0,
+  "wall_s": 0.9456546620058361,
+  "output_path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/browser-readiness/doctor-playwright-after.txt",
+  "output_bytes": 514,
+  "output_sha256": "873d8f74ef1e7eaef354aa8eb59ecd5ee97b2c12733242f7b4dd2ee4486ff82b"
+}

@@ -1,0 +1,104 @@
+..............FF.                                                        [100%]
+=================================== FAILURES ===================================
+_ test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls[source_names0-target_names0] _
+
+source_names = ('a', 'b'), target_names = ('left', 'right')
+
+    @pytest.mark.parametrize(
+        ("source_names", "target_names"),
+        [(("a", "b"), ("left", "right")), (("z_source", "a_source"), ("z_target", "a_target"))],
+    )
+    def test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls(
+        source_names, target_names
+    ):
+        values = []
+        for permutation in (source_names, source_names[::-1]):
+            registry, composer, source, target = _pair_chain(source_names, target_names)
+            composer.connect(source, target, dict(zip(permutation, target_names)))
+            chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+            values.append(
+                execute_heterogeneous_chain(chain, state={}, registry=registry).final_state["result"]
+            )
+        assert values == [711, 1107]
+        _, composer, source, target = _pair_chain(source_names, target_names)
+>       with pytest.raises(SlotConnectionError, match="Ambiguous automatic bindings"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.foundry.methods.exceptions.SlotConnectionError'>
+
+tests/unit/foundry/methods/components/test_composition_e02.py:312: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.source@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] chain_start                    total_nodes=2
+2026-10-06 12:29:27 [debug    ] method_dispatch_start          backend=numpy fqn=tests.composition_e02.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.63 fqn=tests.composition_e02.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [debug    ] chain_node_complete            fqn=tests.composition_e02.source@1.0.0 node_index=1 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:29:27 [debug    ] method_dispatch_start          backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.55 fqn=tests.composition_e02.weighted_consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [debug    ] chain_node_complete            fqn=tests.composition_e02.weighted_consumer@1.0.0 node_index=2 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:29:27 [info     ] chain_complete                 total_nodes=2 total_wall_time_ms=46.03
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.source@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] chain_start                    total_nodes=2
+2026-10-06 12:29:27 [debug    ] method_dispatch_start          backend=numpy fqn=tests.composition_e02.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.56 fqn=tests.composition_e02.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [debug    ] chain_node_complete            fqn=tests.composition_e02.source@1.0.0 node_index=1 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:29:27 [debug    ] method_dispatch_start          backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.93 fqn=tests.composition_e02.weighted_consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [debug    ] chain_node_complete            fqn=tests.composition_e02.weighted_consumer@1.0.0 node_index=2 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:29:27 [info     ] chain_complete                 total_nodes=2 total_wall_time_ms=46.36
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.source@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+_ test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls[source_names1-target_names1] _
+
+source_names = ('z_source', 'a_source'), target_names = ('z_target', 'a_target')
+
+    @pytest.mark.parametrize(
+        ("source_names", "target_names"),
+        [(("a", "b"), ("left", "right")), (("z_source", "a_source"), ("z_target", "a_target"))],
+    )
+    def test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls(
+        source_names, target_names
+    ):
+        values = []
+        for permutation in (source_names, source_names[::-1]):
+            registry, composer, source, target = _pair_chain(source_names, target_names)
+            composer.connect(source, target, dict(zip(permutation, target_names)))
+            chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+            values.append(
+                execute_heterogeneous_chain(chain, state={}, registry=registry).final_state["result"]
+            )
+        assert values == [711, 1107]
+        _, composer, source, target = _pair_chain(source_names, target_names)
+>       with pytest.raises(SlotConnectionError, match="Ambiguous automatic bindings"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.foundry.methods.exceptions.SlotConnectionError'>
+
+tests/unit/foundry/methods/components/test_composition_e02.py:312: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.source@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] chain_start                    total_nodes=2
+2026-10-06 12:29:27 [debug    ] method_dispatch_start          backend=numpy fqn=tests.composition_e02.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.63 fqn=tests.composition_e02.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [debug    ] chain_node_complete            fqn=tests.composition_e02.source@1.0.0 node_index=1 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:29:27 [debug    ] method_dispatch_start          backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.56 fqn=tests.composition_e02.weighted_consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [debug    ] chain_node_complete            fqn=tests.composition_e02.weighted_consumer@1.0.0 node_index=2 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:29:27 [info     ] chain_complete                 total_nodes=2 total_wall_time_ms=45.97
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.source@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] chain_start                    total_nodes=2
+2026-10-06 12:29:27 [debug    ] method_dispatch_start          backend=numpy fqn=tests.composition_e02.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.63 fqn=tests.composition_e02.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [debug    ] chain_node_complete            fqn=tests.composition_e02.source@1.0.0 node_index=1 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:29:27 [debug    ] method_dispatch_start          backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.6 fqn=tests.composition_e02.weighted_consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:29:27 [debug    ] chain_node_complete            fqn=tests.composition_e02.weighted_consumer@1.0.0 node_index=2 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:29:27 [info     ] chain_complete                 total_nodes=2 total_wall_time_ms=46.16
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.source@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+2026-10-06 12:29:27 [info     ] method_registered              backend=numpy fqn=tests.composition_e02.weighted_consumer@1.0.0 lazy=False namespace=tests.composition_e02 override=False tags=[] version=1.0.0
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/components/test_composition_e02.py::test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls[source_names0-target_names0]
+FAILED tests/unit/foundry/methods/components/test_composition_e02.py::test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls[source_names1-target_names1]
+2 failed, 15 passed in 0.86s

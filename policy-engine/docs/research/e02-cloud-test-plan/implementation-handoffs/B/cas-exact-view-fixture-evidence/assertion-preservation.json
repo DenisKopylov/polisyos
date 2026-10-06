@@ -1,0 +1,11 @@
+{
+  "base": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+  "implementation": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+  "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+  "untouched_other_module_statements_ast": "MATCH",
+  "exact_fixture_after_input_setup_ast": "MATCH",
+  "unchanged_fixture_statements": 26,
+  "original_assert_nodes": 9,
+  "candidate_assert_nodes": 9,
+  "production_changed_paths": []
+}

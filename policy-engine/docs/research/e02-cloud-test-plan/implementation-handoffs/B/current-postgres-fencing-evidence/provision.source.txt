@@ -1,0 +1,12 @@
+"""Own reversible PostgreSQL fixture; no root Python profile mutation or cleanup."""
+import json,pathlib,subprocess,time
+OUT=pathlib.Path('/tmp/e02-B38-pg-evidence');DOCKER=['/usr/local/bin/docker','--host','unix:///var/run/docker.sock'];NAME='e02-b38-pg-20261006-143b68a';VOL=NAME+'-data';records=[]
+def run(label,args):
+ start=time.monotonic();p=subprocess.run(args,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True);(OUT/(label+'.txt')).write_text(p.stdout);records.append({'label':label,'argv':args,'exit_code':p.returncode,'wall_s':time.monotonic()-start,'output':str(OUT/(label+'.txt'))});assert p.returncode==0,(label,p.stdout);return p.stdout
+image=json.loads(run('image-inspect',DOCKER+['image','inspect','postgres:17-alpine']))[0]
+run('volume-create',DOCKER+['volume','create','--label','polisyos.task=e02-B38','--label','polisyos.owner=exe-state',VOL])
+cid=run('container-create',DOCKER+['run','-d','--name',NAME,'--label','polisyos.task=e02-B38','--label','polisyos.owner=exe-state','-p','127.0.0.1::5432','-e','POSTGRES_HOST_AUTH_METHOD=trust','-e','POSTGRES_USER=e02_b38','-e','POSTGRES_DB=e02_b38','-v',VOL+':/var/lib/postgresql/data',image['Id']]).strip()
+container=json.loads(run('container-inspect',DOCKER+['inspect',cid]))[0];volume=json.loads(run('volume-inspect',DOCKER+['volume','inspect',VOL]))[0];port=container['NetworkSettings']['Ports']['5432/tcp'][0];assert port['HostIp']=='127.0.0.1'
+dsn='postgresql://e02_b38@127.0.0.1:'+port['HostPort']+'/e02_b38'
+(OUT/'dsn.txt').write_text(dsn+'\n');identity={'image_id':image['Id'],'image_repo_digests':image['RepoDigests'],'image_repo_tags':image['RepoTags'],'container_id':cid,'container_name':NAME,'volume':volume,'published_port':port,'dsn':dsn,'input_profile':'/tmp/e02-B38-pg-profile','root_python':'/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python','commands':records,'resources':{'cpu_worker_numeric_quota':'none','reversible_stop':'docker stop ownname; keepcontainer+volume; no rm/drop'},'auth_premise':'Unique isolated fixture database trust auth, host-bound127.0.0.1; no production authority.'}
+(OUT/'identity.json').write_text(json.dumps(identity,indent=2)+'\n');print(json.dumps(identity,indent=2))

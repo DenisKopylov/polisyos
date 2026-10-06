@@ -1,0 +1,30 @@
+id = "2026-10-06-e02-b-cas-bound-import"
+title = "Admit bound CAS imports before staging and preserve exact cache bytes"
+type = "fixed"
+component = "artifacts"
+owner = "team-runtime"
+summary = "Scoped import requires the exact bound tenant/cell before private stage or claims; already claimed views accept only byte-identical owner no-ops. Write-through caching copies the durable owner's selected metadata bytes."
+evidence = ["tests/unit/core/artifacts/test_import_admission_noop.py", "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py", "tests/unit/remediation/test_cas_02.py", "tests/unit/core/artifacts/backends/test_caching_store.py"]
+compatibility = "Scoped imports of unbound manifests now refuse, including previously unclaimed targets. Passive unscoped caches can retain bound metadata without scoped claims. Explicit foreign bound context refuses generic put/resume. Write-through publishes remotely before exact local population; existing local defaults remain immutable."
+change_class = "behavior-runtime"
+surface_classification = "public_stable: filesystem CAS import and caching store"
+migration = "Use a matching bound source manifest for scoped import. Retain unscoped non-authority caches for passive exact-byte reuse. Handle existing cache warn/raise policy after remote publication."
+api = "Public method arguments are unchanged; duplicate exact same-owner imports return existing references without private staging or owner-generation mutation."
+limitations = "Implements the bounded fail-closed E02 recommendation, not a ratified public cross-tenant policy. Producer writes with unspecified context retain existing behavior. Legacy unbound-to-scoped consumer tests remain a disclosed compatibility conflict."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = ["src/polisyos/core/artifacts/README.md"]
+
+[[compatibility_change]]
+id = "cas-bound-import-before-stage"
+change_class = "behavior-runtime"
+impact = "behavior_change"
+surface = "public_stable: filesystem CAS imports"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Scoped imports require exact bound owner identity; repeated claimed views accept only a true byte-identical no-op before staging."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = ["src/polisyos/core/artifacts/README.md"]

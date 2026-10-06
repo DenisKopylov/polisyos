@@ -1,0 +1,12 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_real_forty_item_source_waits_for_a_bounded_pending_window ________
+tests/unit/core/artifacts/test_batch_completion_admission.py:282: in test_real_forty_item_source_waits_for_a_bounded_pending_window
+    assert not fifth.wait(0.1), (
+E   AssertionError: inventory advanced beyond four before any callback could finish
+E   assert not True
+E    +  where True = wait(0.1)
+E    +    where wait = <threading.Event at 0x7fc81b1683e0: set>.wait
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_real_forty_item_source_waits_for_a_bounded_pending_window
+1 failed in 0.85s

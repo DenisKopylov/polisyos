@@ -1,0 +1,57 @@
+{
+  "schema": "policyos.e02.independent-check.v1",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "--noconftest",
+    "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+    "-c",
+    "/workspace/e02-B-current-coordination/policy-engine/pytest.ini",
+    "-o",
+    "addopts=",
+    "--basetemp",
+    "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-final/pytest-scratch-first",
+    "--junitxml",
+    "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-final/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "head_after": "456f34938731b1ef11555d8333d011d3552574ec",
+  "own_test_sha": "6419cf76e49ab3e14bdf4d63057b549abc1193d2",
+  "test_input": {
+    "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+    "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+    "bytes": 11173
+  },
+  "supporting_input": {
+    "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+    "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+    "git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+  },
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+    "caps_absent": [
+      "OMP_NUM_THREADS",
+      "MKL_NUM_THREADS",
+      "OPENBLAS_NUM_THREADS",
+      "NUMEXPR_NUM_THREADS",
+      "VECLIB_MAXIMUM_THREADS",
+      "BLIS_NUM_THREADS"
+    ],
+    "conftest": "disabled because own ancestry prepends ownsrc; only built-in pytest fixtures used"
+  },
+  "input_closure": "One healthy real registered async producer/CAS/head control, then2soriginalworkflowbudget actualcheckpointartifact/head-tempfsync/head-return/GC-history-read Event barriers andcallerCancel; all physical delegatesreal, freshCAS/head/history/workerreservation observations beforeassertions. ActualGC history contains3completeCAScheckpointfixtureinputs; no productiondataset orDB.",
+  "exit_code": 1,
+  "wall_s": 20.89508473800379,
+  "process_rusage_maxrss_kib": 703652,
+  "output_path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/short-base456-final/native.txt",
+  "output_sha256": "ffaa826ee1d3b4d22352f185b7fcb7010b27cb08c1da46d51d98fbaa12982547",
+  "output_bytes": 41568,
+  "harness_state": "EXECUTED"
+}

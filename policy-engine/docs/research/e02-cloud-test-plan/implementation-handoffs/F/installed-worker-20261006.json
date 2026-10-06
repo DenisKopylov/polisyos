@@ -39,7 +39,7 @@
   "candidate_tree_sha": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
   "implementation_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
   "branch": "codex/e02-F-installed-worker-20261006",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/63",
   "changed_paths": [
     "policy-engine/architecture/public_surface/inventory.json",
     "policy-engine/docs/reference/foundry/structural-causal-models.md",
@@ -1156,5 +1156,11 @@
         "original_sha256": "8f7a373bf994d7078dbe09ba13c019a32f4f8cec086ad537dbf7b17f1b2bc670"
       }
     ]
+  },
+  "publication": {
+    "first_published_head": "d1d42d7211d3576ed8579d004b854ef09d0c6748",
+    "remote_branch": "codex/e02-F-installed-worker-20261006",
+    "transport": "ordinary git push succeeded; initial remote head matches local receipt commit",
+    "attachment": "Required leaf tool attempted; host call remained pending and was terminated. Root requested to attach PR63 through working host."
   }
 }

@@ -1,0 +1,453 @@
+{
+  "schema": "policyos.e02.independent_configured_transfer_partial_review.v1",
+  "verdict": "PASS_WITHIN_EVIDENCE_AND_FOUR_PREFIT_REFUSAL_SCOPE",
+  "author_receipt": {
+    "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+    "tree": "4e3c663b1a851bd6aed187c40a287b988d9be9fa",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+    "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+    "bytes": 52230,
+    "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
+  },
+  "payload": {
+    "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+    "tree": "04f41d16428832c2fd821df31103dd927e409211",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/deciding-inputs-and-outputs.json.xz",
+    "git_blob": "11077d0f3e5a3f30df4d43f825b20a75e8e9dfd1",
+    "encoded_bytes": 479592,
+    "encoded_sha256": "94fcc74d8d36e111e8d0f6190af9f6350f97f1af2ca79af6ac6d3e3fa73bb8b8",
+    "decoded_bytes": 8016158,
+    "decoded_sha256": "cace28f63a8c02c8c9ac71b1888d1518aae64ed26204de871f01c3e762fbd896",
+    "members": 510,
+    "capture_members": 26,
+    "actual_fixture_files": 484,
+    "all_member_hashes_sizes_and_retained_original_bytes_equal": true,
+    "missing_originals": [],
+    "ordered_member_identity_projection_sha256": "958cdaf3c095629db15729b4dc37188cf1428c16cd453030d6aff7194d0926a1"
+  },
+  "runtime_source": {
+    "sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+    "product_and_test_changed_by_reviewer": false,
+    "input_and_head_before_after_unchanged": true
+  },
+  "origin_verification": {
+    "five-interrupted": {
+      "exec_events": 823,
+      "unique_paths": 823,
+      "record_count_including_censuses": 1074,
+      "errors": [],
+      "event_kinds": {
+        "observer_loaded": 1,
+        "polisyos_module_exec": 823,
+        "polisyos_module_census": 2,
+        "configure": 1,
+        "collection_complete": 1,
+        "case_start": 1,
+        "case_report": 1
+      }
+    },
+    "four-prefit-negatives": {
+      "exec_events": 251,
+      "unique_paths": 251,
+      "record_count_including_censuses": 1004,
+      "errors": [],
+      "event_kinds": {
+        "observer_loaded": 1,
+        "polisyos_module_exec": 251,
+        "polisyos_module_census": 2,
+        "configure": 1,
+        "collection_complete": 1,
+        "case_start": 4,
+        "case_report": 12,
+        "case_finish": 4,
+        "session_finish": 1
+      }
+    }
+  },
+  "source_bindings_checked": {
+    "unique_direct_source_paths": 20,
+    "original_acceptance_paragraphs_match_pinned_bundles": true,
+    "measurement_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/run-five.py.txt",
+        "bytes": 7234,
+        "sha256": "5bea4b64e700b2518d29942610283d6bb22e559843866aa66076d7730e14741e",
+        "original_byte_equality": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/run-four-prefit-negatives.py.txt",
+        "bytes": 7694,
+        "sha256": "4112a38ae388b154b99819c43c75adc3892dfa8cc250dfc2895fd4004240557f",
+        "original_byte_equality": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/passive-fit-probe.py.txt",
+        "bytes": 5313,
+        "sha256": "e88d13d77481230c658c5523340a1ccdc9e17d4d68e25e627ddd2188cb7875ed",
+        "original_byte_equality": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-runtime-observer.py.txt",
+        "bytes": 12753,
+        "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81",
+        "original_byte_equality": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-wave-source-helpers.py.txt",
+        "bytes": 20492,
+        "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7",
+        "original_byte_equality": true
+      }
+    ]
+  },
+  "actual_fit_observation": {
+    "status": "PHYSICAL_CONSTRUCTION_AND_FIT_CALL_RETURN_SNAPSHOTS_OBSERVED; FULL_POSITIVE_CONSUMER_UNRUN",
+    "model_type": "botorch.models.gp_regression.SingleTaskGP",
+    "observed_call_return_counts": {
+      "polisyos.scientist.methods.search.strategies.bayesian._fit_full_gp:call": 1,
+      "botorch.models.gp_regression.__init__:call": 1,
+      "botorch.models.gp_regression.__init__:return": 1,
+      "botorch.fit.fit_gpytorch_mll:call": 1,
+      "botorch.fit.fit_gpytorch_mll:return": 1,
+      "polisyos.scientist.methods.search.strategies.bayesian._fit_full_gp:return": 1
+    },
+    "history_member": "five-interrupted/pytest-basetemp-6282447c14454c92a53ad6172dd935f1/test_ordinary_controller_confi0/cas/artifacts/sha256/ad/a9/ada9b5a9bd443b4e311b07995795733bfe51ba2a2388128602d36f8d87c9b889.blob",
+    "history_content_sha256": "ada9b5a9bd443b4e311b07995795733bfe51ba2a2388128602d36f8d87c9b889",
+    "history_row_count": 8,
+    "original_rows": [
+      {
+        "evaluation_ref": {
+          "artifact_id": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f",
+          "media_type": "application/json"
+        },
+        "candidate_ref": {
+          "artifact_id": "sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        "x": 0.3333333333333333,
+        "score": 0.011344444444444445,
+        "manifest_profile_recomputed": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f"
+      },
+      {
+        "evaluation_ref": {
+          "artifact_id": "sha256:d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:26f0eb0c353d4758ce680eb45f814c87a56398a525fa888955942cde9a50086d",
+          "media_type": "application/json"
+        },
+        "candidate_ref": {
+          "artifact_id": "sha256:4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02",
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        "x": 0.4444444444444444,
+        "score": 0.015541975308641973,
+        "manifest_profile_recomputed": "sha256:26f0eb0c353d4758ce680eb45f814c87a56398a525fa888955942cde9a50086d"
+      },
+      {
+        "evaluation_ref": {
+          "artifact_id": "sha256:6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:d00bd6e7d86bbc9a1c69a5a65ae5634914f25b77d0f815c710085534a12f3e5d",
+          "media_type": "application/json"
+        },
+        "candidate_ref": {
+          "artifact_id": "sha256:520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903",
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        "x": 0.2222222222222222,
+        "score": 0.031838271604938274,
+        "manifest_profile_recomputed": "sha256:d00bd6e7d86bbc9a1c69a5a65ae5634914f25b77d0f815c710085534a12f3e5d"
+      },
+      {
+        "evaluation_ref": {
+          "artifact_id": "sha256:dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:b68add55c29c5d133121f42922b17c5fbca8ef4dd6f84cf04c40747f9ee7ee36",
+          "media_type": "application/json"
+        },
+        "candidate_ref": {
+          "artifact_id": "sha256:0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268",
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        "x": 0.5555555555555556,
+        "score": 0.044430864197530874,
+        "manifest_profile_recomputed": "sha256:b68add55c29c5d133121f42922b17c5fbca8ef4dd6f84cf04c40747f9ee7ee36"
+      },
+      {
+        "evaluation_ref": {
+          "artifact_id": "sha256:4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:919d389d09853de6433b9283821f2f1b3a7065acbc90e3b795dc5bc4ee073cb6",
+          "media_type": "application/json"
+        },
+        "candidate_ref": {
+          "artifact_id": "sha256:098838924b421575100523720a15b2c227d54bceead3479774114c02b23b5706",
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        "x": 0.1111111111111111,
+        "score": 0.07702345679012346,
+        "manifest_profile_recomputed": "sha256:919d389d09853de6433b9283821f2f1b3a7065acbc90e3b795dc5bc4ee073cb6"
+      },
+      {
+        "evaluation_ref": {
+          "artifact_id": "sha256:60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301",
+          "media_type": "application/json"
+        },
+        "candidate_ref": {
+          "artifact_id": "sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        "x": 0.6666666666666666,
+        "score": 0.09801111111111109,
+        "manifest_profile_recomputed": "sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301"
+      },
+      {
+        "evaluation_ref": {
+          "artifact_id": "sha256:b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:9971cfbf28345fc13278aa25c1723a1041fcb7fbf865cec74b932142f7b96e2c",
+          "media_type": "application/json"
+        },
+        "candidate_ref": {
+          "artifact_id": "sha256:918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad",
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        "x": 0.7777777777777778,
+        "score": 0.17628271604938273,
+        "manifest_profile_recomputed": "sha256:9971cfbf28345fc13278aa25c1723a1041fcb7fbf865cec74b932142f7b96e2c"
+      },
+      {
+        "evaluation_ref": {
+          "artifact_id": "sha256:b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:f43987244e4bc6dc11b846ff11ae022aad64937b9926f136f8664c68903156ff",
+          "media_type": "application/json"
+        },
+        "candidate_ref": {
+          "artifact_id": "sha256:fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e",
+          "kind": "search.candidate",
+          "media_type": "application/json"
+        },
+        "x": 0.8888888888888888,
+        "score": 0.27924567901234565,
+        "manifest_profile_recomputed": "sha256:f43987244e4bc6dc11b846ff11ae022aad64937b9926f136f8664c68903156ff"
+      }
+    ],
+    "raw_X": [
+      [
+        0.3333333333333333
+      ],
+      [
+        0.4444444444444444
+      ],
+      [
+        0.2222222222222222
+      ],
+      [
+        0.5555555555555556
+      ],
+      [
+        0.1111111111111111
+      ],
+      [
+        0.6666666666666666
+      ],
+      [
+        0.7777777777777778
+      ],
+      [
+        0.8888888888888888
+      ]
+    ],
+    "raw_y_bo": [
+      [
+        -0.011344444444444445
+      ],
+      [
+        -0.015541975308641973
+      ],
+      [
+        -0.031838271604938274
+      ],
+      [
+        -0.044430864197530874
+      ],
+      [
+        -0.07702345679012346
+      ],
+      [
+        -0.09801111111111109
+      ],
+      [
+        -0.17628271604938273
+      ],
+      [
+        -0.27924567901234565
+      ]
+    ],
+    "transformed_train_X": [
+      [
+        0.28571428571428575
+      ],
+      [
+        0.4285714285714286
+      ],
+      [
+        0.14285714285714288
+      ],
+      [
+        0.5714285714285715
+      ],
+      [
+        0.0
+      ],
+      [
+        0.7142857142857144
+      ],
+      [
+        0.8571428571428573
+      ],
+      [
+        1.0
+      ]
+    ],
+    "transformed_train_Y": [
+      0.8633800390411897,
+      0.8182879939914195,
+      0.6432247602687818,
+      0.5079486251194709,
+      0.15782215767419588,
+      -0.06763806757465532,
+      -0.9084720840909604,
+      -2.0145534244294425
+    ],
+    "outcome_mean": -0.0917148148148148,
+    "outcome_sample_std": 0.09308805709664558,
+    "input_offset": 0.1111111111111111,
+    "input_coefficient": 0.7777777777777777,
+    "learned_parameters_before": {
+      "likelihood.noise_covar.raw_noise": [
+        0.0067379469983279705
+      ],
+      "mean_module.raw_constant": 0.0,
+      "covar_module.raw_lengthscale": [
+        [
+          0.20478667318820953
+        ]
+      ]
+    },
+    "learned_parameters_after": {
+      "likelihood.noise_covar.raw_noise": [
+        0.002763913862944327
+      ],
+      "mean_module.raw_constant": -0.9761271514632872,
+      "covar_module.raw_lengthscale": [
+        [
+          0.3535942647084174
+        ]
+      ]
+    },
+    "expected_value_method": "Read original candidate/evaluation/history CAS bytes, independently decode canonical float tags, sort actual original rows by score, negate minimizing score, compute affine input normalization and sample-standardized output with stdlib arithmetic. No backend, posterior, or kernel used as expected calculation.",
+    "tolerance": {
+      "relative": 1e-12,
+      "absolute": 1e-14
+    },
+    "posterior_or_quality_or_convergence_claim": false
+  },
+  "four_prefit_refusals": {
+    "status": "PASS",
+    "cases": 4,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "deselections": 0,
+    "per_case": [
+      {
+        "case": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py::test_ordinary_controller_transfer_refuses_changed_source_or_basis_before_fit[changed_ref]",
+        "fit_and_constructor_calls": 0,
+        "model": null,
+        "warm_rows": 0,
+        "stage_b_calls": 0,
+        "activity_started": false
+      },
+      {
+        "case": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py::test_ordinary_controller_transfer_refuses_changed_source_or_basis_before_fit[basis]",
+        "fit_and_constructor_calls": 0,
+        "model": null,
+        "warm_rows": 0,
+        "stage_b_calls": 0,
+        "activity_started": false
+      },
+      {
+        "case": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py::test_ordinary_controller_transfer_refuses_changed_source_or_basis_before_fit[direction]",
+        "fit_and_constructor_calls": 0,
+        "model": null,
+        "warm_rows": 0,
+        "stage_b_calls": 0,
+        "activity_started": false
+      },
+      {
+        "case": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py::test_ordinary_controller_transfer_refuses_changed_source_or_basis_before_fit[false_outcome]",
+        "fit_and_constructor_calls": 0,
+        "model": null,
+        "warm_rows": 0,
+        "stage_b_calls": 0,
+        "activity_started": false
+      }
+    ],
+    "actual_corrupted_original_bodies": 8,
+    "actual_coherently_republished_false_guard_bodies": 8,
+    "changed_basis_and_direction_targets_observed": true,
+    "scope": "Complete JUnit/call reports plus passive test-return state; no positive controller completion inferred."
+  },
+  "positive_interruption": {
+    "session_status": "ERROR",
+    "all_five_call_outcomes": "UNRUN",
+    "collection_complete": true,
+    "only_setup_report": "PASS",
+    "test_call_reports": 0,
+    "junit": "MISSING",
+    "actual_exit": -9,
+    "actual_signal": 9,
+    "wall_seconds": 282.9121839069994,
+    "full_acquisition_evaluation_assertions": "UNRUN",
+    "cause": "NOT_ESTABLISHED; cgroup oom260→262/oom_kill38→39 has no PID-specific cause record.",
+    "before_memory_events": "low 0\nhigh 0\nmax 26720289\noom 260\noom_kill 38\noom_group_kill 0",
+    "after_memory_events": "low 0\nhigh 0\nmax 30565478\noom 262\noom_kill 39\noom_group_kill 0"
+  },
+  "limitations": [
+    "Observed fit call/return events and changed learned model state establish physical native work, not successful test call completion, acquisition/evaluation outcome, numerical correctness, optimization quality, scientific adequacy or full criterion closure.",
+    "The passive Python profiler records call/return frame events; it does not instrument solver internals or independently certify convergence.",
+    "No fitted snapshot or four-negative substitute supplies the missing positive test verdict.",
+    "Historical independent GP26 remains a separate source-bound witness and was not rerun or inherited here.",
+    "Source-origin denominator covers recorded main-process repository paths only; no child-worker or native-library import census is invented.",
+    "Thread getter observations do not identify setter provenance; no unlimited-host or PID-specific OOM cause is asserted.",
+    "Original canonical B128/B131/B114 full criteria remain broader than this supplement; author closure_ids=[] retained."
+  ],
+  "review_environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "imports": "stdlib only"
+  },
+  "runtime_reruns": 0,
+  "source_or_test_edits": 0,
+  "root_writes": 0,
+  "child_agents": 0,
+  "cleanup_actions": 0,
+  "formal_closed": 0,
+  "D_accepted_in_G": false,
+  "closure_ids": []
+}

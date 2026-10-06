@@ -1,0 +1,52 @@
+{
+  "schema": "e02.E.portable-review-copy-index.v1",
+  "source_candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "reviewed_publication_commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+  "source_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-final-root-narrative-a9-v3/copy-index.json",
+    "bytes": 968,
+    "sha256": "90505f22867a8de8039b7fc99ff04432bdd0ac02e67cbca4b3579cb7ee3a424b"
+  },
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-root-narrative-a9-v3/README.md",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-narrative-independent/README.md",
+      "bytes": 590,
+      "sha256": "212f91be591ced2572ccf810e32557327f142d9023bd3eba7a7557a6f80ffe4c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-root-narrative-a9-v3/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-narrative-independent/review.json",
+      "bytes": 12914,
+      "sha256": "82ed0a0947a4d8ead99aecd932a5650686ae651d43512357f77a784eea6a0303"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-root-narrative-a9-v3/reviewed-README.md",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-narrative-independent/reviewed-README.md",
+      "bytes": 8447,
+      "sha256": "92955eb85ca9234e9496e6fa7119b8831c5469f3bfb945718dfd8749e3696452"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-root-narrative-a9-v3/reviewed-cleanup-candidates-final.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-narrative-independent/reviewed-cleanup-candidates-final.json",
+      "bytes": 14705,
+      "sha256": "8d89c90a7588f55b02d9272cc4b307a06447ee1509633d6d0e8f268b957e1d0c"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-root-narrative-a9-v3/reviewed-final-handoff-v2.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-narrative-independent/reviewed-final-handoff-v2.json",
+      "bytes": 21233,
+      "sha256": "b8d90afb421ba1f5c277d34df30bf92dba25381cf8a275a4d12607e33f9a11ed"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-root-narrative-a9-v3/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-narrative-independent/copy-index.json",
+      "bytes": 968,
+      "sha256": "90505f22867a8de8039b7fc99ff04432bdd0ac02e67cbca4b3579cb7ee3a424b"
+    }
+  ],
+  "file_count": 6,
+  "total_bytes": 58857,
+  "rule": "Immutable originals unchanged; independent bounded review GO is separate from numerical HOLD/globalFAIL/finding owner decisions."
+}

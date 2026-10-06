@@ -1,0 +1,1 @@
+{"verdict": "GO-bounded-final-refbinding-and-byte-custody", "records": 67, "bytes": 4432658, "controls": 10, "root_unchanged": ["9954f394b470961d9e144a557f3cefeb9e0a67b6", "e923abf31637b4299ec36a467f4c6b06e26cae1c"], "final_refbindings": {"bytes": 2233, "sha256": "63dc6362551f2c3bbe389b60e73d4ef028a8d79896e5ef3708fefdeff1fba689"}}

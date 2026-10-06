@@ -1,0 +1,47 @@
+{
+  "schema": "e02.E.final-handoff-refbinding.v1",
+  "reviewed_draft": {
+    "bytes": 21233,
+    "sha256": "b8d90afb421ba1f5c277d34df30bf92dba25381cf8a275a4d12607e33f9a11ed"
+  },
+  "final_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-handoff-v2.json",
+    "bytes": 22960,
+    "sha256": "b2745a726ffa29e6b56f2ec8dafa96ee8a86d0a978f96f1693e5bd78a0892bd2"
+  },
+  "allowed_changed_handoff_fields": [
+    "final_independent_closeout_review",
+    "final_independent_narrative_review",
+    "final_independent_publication_review",
+    "publication_state"
+  ],
+  "substantive_fields_unchanged": true,
+  "README_change": "Three exact independent-review links added; all substantive reviewed narrative unchanged",
+  "review_copy_groups": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-independent/portable-copy-index.json",
+      "records": 10,
+      "bytes": 276389,
+      "original_index_sha256": "ea743ac1290764b9631db11c5edf5b629918b0d8ea41fd4b62d78fdc9c2a303a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-narrative-independent/portable-copy-index.json",
+      "records": 6,
+      "bytes": 58857,
+      "original_index_sha256": "90505f22867a8de8039b7fc99ff04432bdd0ac02e67cbca4b3579cb7ee3a424b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
+      "records": 51,
+      "bytes": 4097412,
+      "original_index_sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b"
+    }
+  ],
+  "review_copy_records": 67,
+  "review_copy_bytes": 4432658,
+  "source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "wave": "1441PASS4FAIL0ERROR0SKIP",
+  "required_global_gates": "7FAIL;13+23UNRUN",
+  "finding_status_changes": 0,
+  "rule": "No product, test, schema, architecture, canonicalharness, numeric/gate rerun or historical output rewriting. Final commit identity is obtained after commit and remote readback."
+}

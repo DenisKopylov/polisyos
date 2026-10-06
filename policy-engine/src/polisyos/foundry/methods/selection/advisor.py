@@ -9,7 +9,7 @@ import re
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field, is_dataclass, replace
-from typing import Any, Literal, get_args, get_type_hints
+from typing import TYPE_CHECKING, Any, Literal, get_args, get_type_hints
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -59,6 +59,9 @@ from polisyos.ir.analytics import (
     truthfulness_depth,
 )
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
+
+if TYPE_CHECKING:
+    from polisyos.foundry.extensions.registry import FoundryExtensionRegistryReport
 
 _FIDELITY_ORDER = {"low": 0, "medium": 1, "high": 2}
 _IMPLEMENTATION_DEPTH = {
@@ -422,6 +425,10 @@ class MethodRouteConstraint(BaseModel):
     allowed_method_fqns: tuple[str, ...] = Field(min_length=1)
     manifest_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     route_content_hashes: tuple[str, ...] = Field(min_length=1)
+
+
+class _ValueMethodRegistryAdmissionError(ValueError):
+    """The selector cannot establish a complete, successful registry intake."""
 
 
 def method_accepts_input_contract(method: object, contract_id: str) -> bool:
@@ -1122,13 +1129,15 @@ def method_selection_context_hash(
 
     _manifest_targets(observation_to_contract_manifest)
     reg = registry or MethodRegistry.get_instance()
-    from polisyos.foundry.methods import ensure_all_methods_registered
-
-    ensure_all_methods_registered(reg)
-    catalog = build_method_catalog_snapshot(registry=reg)
+    registry_report = _admit_complete_value_method_registry(reg)
+    catalog = build_method_catalog_snapshot(
+        registry=reg,
+        registry_report=registry_report,
+    )
     return _method_selection_context_hash_for_catalog(
         catalog=catalog,
         registry=reg,
+        registry_report=registry_report,
         candidate=candidate,
         problem=problem,
         requested_method_fqn=requested_method_fqn,
@@ -1158,6 +1167,7 @@ def _method_selection_context_hash_for_catalog(
     *,
     catalog: MethodCatalogSnapshot,
     registry: MethodRegistry,
+    registry_report: FoundryExtensionRegistryReport,
     candidate: object,
     problem: object,
     requested_method_fqn: str | None,
@@ -1166,6 +1176,12 @@ def _method_selection_context_hash_for_catalog(
     route_constraint: MethodRouteConstraint | None = None,
 ) -> str:
     """Hash one effective value-advisor query and its catalog snapshot."""
+
+    manifest = registry_report.discovery_manifest
+    if manifest is None or not registry_report.registry_binding_sha256:
+        raise _ValueMethodRegistryAdmissionError(
+            "value_method_registry_discovery_provenance_missing"
+        )
 
     value_entries = tuple(
         entry
@@ -1184,7 +1200,9 @@ def _method_selection_context_hash_for_catalog(
     profile_hash = _problem_runtime_hints(problem).get("value_data_profile_content_hash")
     value_catalog_projection_hash = _value_catalog_projection_hash(value_entries)
     payload = {
-        "schema_version": "policyos.foundry.method_selection_context.v4",
+        "schema_version": "policyos.foundry.method_selection_context.v5",
+        "registry_discovery_manifest_id": manifest.manifest_id,
+        "registry_binding_sha256": registry_report.registry_binding_sha256,
         "value_catalog_projection_hash": value_catalog_projection_hash,
         "candidate_signal": _candidate_selection_signal(candidate),
         "problem_signal": _problem_selection_signal(problem),
@@ -1198,6 +1216,56 @@ def _method_selection_context_hash_for_catalog(
         "runtime_budget_ms": (float(runtime_budget_ms) if runtime_budget_ms is not None else None),
     }
     return _method_selection_receipt_content_hash(payload)
+
+
+def _admit_complete_value_method_registry(
+    registry: MethodRegistry,
+) -> FoundryExtensionRegistryReport:
+    """Bootstrap and bind the complete registry source used by value selection.
+
+    The selected catalog denominator must come from a successful, content-bound
+    discovery run. A visible subset or a partial component bridge is never
+    promoted as a complete value-method universe.
+    """
+
+    from polisyos.foundry.extensions import FoundryExtensionRegistryReport
+    from polisyos.foundry.methods import ensure_all_methods_registered
+
+    report = ensure_all_methods_registered(registry)
+    if not isinstance(report, FoundryExtensionRegistryReport):
+        raise TypeError("value_method_registry_report_unreadable")
+    if not report.success:
+        failures = [f"{error.component_id}: {error.message}" for error in report.errors]
+        failures.extend(str(error) for error in report.discovery_errors)
+        raise _ValueMethodRegistryAdmissionError(
+            "value_method_registry_intake_incomplete"
+            + (":" + "; ".join(failures) if failures else "")
+        )
+    manifest = report.discovery_manifest
+    if manifest is None:
+        raise _ValueMethodRegistryAdmissionError(
+            "value_method_registry_discovery_provenance_missing"
+        )
+    if not manifest.is_bound:
+        raise _ValueMethodRegistryAdmissionError(
+            "value_method_registry_discovery_unbound:"
+            + "|".join(manifest.unbound_inputs)
+        )
+
+    manifest_fqns = tuple(sorted(row.component_id for row in manifest.components))
+    registry_fqns = tuple(sorted(report.registry_fqns))
+    if (
+        len(manifest_fqns) != len(set(manifest_fqns))
+        or manifest_fqns != registry_fqns
+    ):
+        raise _ValueMethodRegistryAdmissionError(
+            "value_method_registry_manifest_membership_mismatch"
+        )
+    if not report.registry_binding_sha256:
+        raise _ValueMethodRegistryAdmissionError(
+            "value_method_registry_content_binding_missing"
+        )
+    return report
 
 
 def select_value_method_for_problem(
@@ -1221,9 +1289,12 @@ def select_value_method_for_problem(
         )
     reg = registry or MethodRegistry.get_instance()
     try:
-        from polisyos.foundry.methods import ensure_all_methods_registered
-
-        ensure_all_methods_registered(reg)
+        registry_report = _admit_complete_value_method_registry(reg)
+    except _ValueMethodRegistryAdmissionError as exc:
+        return _blocked_value_selection(
+            code="value_method_registry_intake_incomplete",
+            reason=str(exc),
+        )
     except Exception as exc:
         return _blocked_value_selection(
             code="value_method_registry_unavailable",
@@ -1231,7 +1302,10 @@ def select_value_method_for_problem(
         )
 
     try:
-        catalog = build_method_catalog_snapshot(registry=reg)
+        catalog = build_method_catalog_snapshot(
+            registry=reg,
+            registry_report=registry_report,
+        )
     except Exception as exc:
         return _blocked_value_selection(
             code="value_method_catalog_unavailable",
@@ -1269,6 +1343,7 @@ def select_value_method_for_problem(
     selection_context_hash = _method_selection_context_hash_for_catalog(
         catalog=catalog,
         registry=reg,
+        registry_report=registry_report,
         candidate=candidate,
         problem=problem,
         requested_method_fqn=requested_method_fqn,
@@ -1276,43 +1351,6 @@ def select_value_method_for_problem(
         runtime_budget_ms=runtime_budget_ms,
         route_constraint=route_constraint,
     )
-    if requested_method_fqn:
-        requested = str(requested_method_fqn)
-        entry = entry_by_fqn.get(requested)
-        if entry is None:
-            return _blocked_value_selection(
-                code="unsupported_method_unavailable",
-                reason=f"Requested value method {requested!r} is not in the reachable registry.",
-                denominator=denominator,
-            )
-        if not entry.runnable:
-            return _blocked_value_selection(
-                code="unsupported_method_unavailable",
-                reason=f"Requested value method {requested!r} is registered but not runnable.",
-                selected_method_fqn=requested,
-                denominator=denominator,
-                disabled_reasons=tuple(str(item) for item in entry.disabled_reasons),
-            )
-        selection_receipt = _build_registry_requested_value_method_selection_receipt(
-            catalog=catalog,
-            registry=reg,
-            requested_method_fqn=requested,
-            selection_context_hash=selection_context_hash,
-        )
-        return {
-            "status": "selected",
-            "selected_method_fqn": requested,
-            "selection_source": "requested_registry_method",
-            "candidate_signal": _candidate_selection_signal(candidate),
-            "problem_signal": _problem_selection_signal(problem),
-            "denominator": denominator,
-            "score_trace": (),
-            "ranked_alternatives": tuple(
-                row.model_dump(mode="python") for row in selection_receipt.ranked_alternatives
-            ),
-            "selection_receipt": selection_receipt.model_dump(mode="json"),
-            "blockers": (),
-        }
 
     query = _value_method_advisor_query(
         candidate=candidate,
@@ -1339,6 +1377,55 @@ def select_value_method_for_problem(
         and entry.runnable
         and set(required_data_modalities).issubset(set(entry.data_modalities))
     )
+    if requested_method_fqn:
+        requested = str(requested_method_fqn)
+        entry = entry_by_fqn.get(requested)
+        if entry is None:
+            return _blocked_value_selection(
+                code="unsupported_method_unavailable",
+                reason=f"Requested value method {requested!r} is not in the reachable registry.",
+                denominator=denominator,
+            )
+        if not entry.runnable:
+            return _blocked_value_selection(
+                code="unsupported_method_unavailable",
+                reason=f"Requested value method {requested!r} is registered but not runnable.",
+                selected_method_fqn=requested,
+                denominator=denominator,
+                disabled_reasons=tuple(str(item) for item in entry.disabled_reasons),
+            )
+        if requested not in {candidate.fqn for candidate in eligible_value_entries}:
+            return _blocked_value_selection(
+                code="value_method_required_data_modality_unavailable",
+                reason=(
+                    f"Requested value method {requested!r} does not satisfy required "
+                    "data modalities: "
+                    f"{', '.join(required_data_modalities)}."
+                ),
+                denominator=denominator,
+                required_data_modalities=required_data_modalities,
+            )
+        selection_receipt = _build_registry_requested_value_method_selection_receipt(
+            catalog=catalog,
+            registry=reg,
+            requested_method_fqn=requested,
+            selection_context_hash=selection_context_hash,
+        )
+        return {
+            "status": "selected",
+            "selected_method_fqn": requested,
+            "selection_source": "requested_registry_method",
+            "candidate_signal": _candidate_selection_signal(candidate),
+            "problem_signal": _problem_selection_signal(problem),
+            "denominator": denominator,
+            "score_trace": (),
+            "ranked_alternatives": tuple(
+                row.model_dump(mode="python") for row in selection_receipt.ranked_alternatives
+            ),
+            "selection_receipt": selection_receipt.model_dump(mode="json"),
+            "blockers": (),
+        }
+
     if required_data_modalities and not eligible_value_entries:
         return _blocked_value_selection(
             code="value_method_required_data_modality_unavailable",

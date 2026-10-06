@@ -9,16 +9,19 @@ import sys
 import sysconfig
 import time
 from dataclasses import replace
+from itertools import combinations
 from pathlib import Path
 
 import numpy as np
 import pytest
 from pydantic import ValidationError
 
+import polisyos.foundry.methods as foundry_methods
 import polisyos.foundry.methods.components.value_evidence as value_evidence
 import polisyos.foundry.methods.selection as method_selection
 import polisyos.foundry.methods.selection.advisor as advisor_module
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry, MethodCatalogSnapshot
+from polisyos.foundry.extensions import controlled_builtin_foundry_method_registry_scope
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -29,6 +32,7 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
+from polisyos.foundry.methods.components.bridge import ComponentsBridgeError
 from polisyos.foundry.methods.components.consensus import (
     ConsensusTarget,
     EstimandSpec,
@@ -400,6 +404,234 @@ def test_registered_singleton_value_denominator_is_accepted_but_fictional_reques
 
     assert fictional["status"] == "blocked"
     assert fictional["blockers"] == ("unsupported_method_unavailable",)
+
+
+def test_bound_full_registry_keeps_one_eligible_value_method_and_rejects_registered_nonvalue(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Selection uses the bound full source while retaining a singleton eligible set."""
+
+    with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+        manifest = report.discovery_manifest
+        assert manifest is not None and manifest.is_bound
+        manifest_fqns = tuple(sorted(row.component_id for row in manifest.components))
+        assert manifest_fqns == tuple(sorted(report.registry_fqns))
+        monkeypatch.setattr(
+            foundry_methods,
+            "ensure_all_methods_registered",
+            lambda active_registry: report if active_registry is registry else None,
+        )
+        catalog = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+        value_entries = tuple(
+            entry
+            for entry in catalog.entries
+            if advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+        )
+        singleton: tuple[MethodCatalogEntry, tuple[str, ...]] | None = None
+        modality_universe = tuple(
+            sorted({modality for entry in value_entries for modality in entry.data_modalities})
+        )
+        for size in range(1, len(modality_universe) + 1):
+            for required in combinations(modality_universe, size):
+                eligible = tuple(
+                    entry
+                    for entry in value_entries
+                    if entry.runnable
+                    and set(required).issubset(set(entry.data_modalities))
+                )
+                if len(eligible) == 1:
+                    singleton = eligible[0], required
+                    break
+            if singleton is not None:
+                break
+
+        assert singleton is not None, "the complete built-in source has a singleton eligible set"
+        selected_entry, required_modalities = singleton
+        candidate = {
+            "candidate_id": "complete-registry-singleton-eligibility",
+            "diversity_key": required_modalities,
+        }
+        problem = {
+            "design_problem_id": "complete-registry-singleton-eligibility",
+            "problem_statement": "Select one runnable method for the declared data modalities.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_required_data_modalities": required_modalities,
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": "panel" in required_modalities,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                },
+            },
+        }
+
+        selection = select_value_method_for_problem(
+            registry=registry,
+            candidate=candidate,
+            problem=problem,
+        )
+        expected_denominator = tuple(sorted(entry.fqn for entry in value_entries))
+        assert selection["status"] == "selected"
+        assert selection["selected_method_fqn"] == selected_entry.fqn
+        assert selection["denominator"] == expected_denominator
+        assert len(selection["denominator"]) > 1
+        assert tuple(row["method_fqn"] for row in selection["ranked_alternatives"]) == (
+            selected_entry.fqn,
+        )
+        receipt = MethodSelectionReceipt.model_validate(selection["selection_receipt"])
+        assert receipt.verify_selection_context(
+            method_selection.method_selection_context_hash(
+                registry=registry,
+                candidate=candidate,
+                problem=problem,
+            )
+        ) is receipt
+
+        nonvalue_entry = next(
+            entry
+            for entry in catalog.entries
+            if not advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+        )
+        nonvalue = select_value_method_for_problem(
+            registry=registry,
+            candidate=candidate,
+            problem=problem,
+            requested_method_fqn=nonvalue_entry.fqn,
+        )
+        assert nonvalue["status"] == "blocked"
+        assert nonvalue["blockers"] == ("unsupported_method_unavailable",)
+
+
+def test_value_selection_refuses_a_registry_member_hidden_after_bound_intake(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A complete manifest member removed after intake cannot disappear from selection."""
+
+    with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+        manifest = report.discovery_manifest
+        assert manifest is not None and manifest.is_bound
+        hidden_fqn = next(row.component_id for row in manifest.components)
+        monkeypatch.setattr(
+            foundry_methods,
+            "ensure_all_methods_registered",
+            lambda active_registry: report if active_registry is registry else None,
+        )
+        real_build_catalog = advisor_module.build_method_catalog_snapshot
+
+        def _remove_manifest_member_before_snapshot(**kwargs: object) -> MethodCatalogSnapshot:
+            assert registry.unregister(hidden_fqn)
+            return real_build_catalog(**kwargs)
+
+        monkeypatch.setattr(
+            advisor_module,
+            "build_method_catalog_snapshot",
+            _remove_manifest_member_before_snapshot,
+        )
+        selection = select_value_method_for_problem(
+            registry=registry,
+            candidate={"candidate_id": "hidden-manifest-member"},
+            problem={
+                "design_problem_id": "hidden-manifest-member",
+                "problem_statement": "Select a registered method.",
+                "domain": "generic_policy",
+            },
+        )
+
+    assert selection["status"] == "blocked"
+    assert selection["blockers"] == ("value_method_catalog_unavailable",)
+    assert "catalog_registry_admission_membership_mismatch" in selection["reason"]
+
+
+def test_value_selection_refuses_failed_registry_bridge_report(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A partial component bridge is not promoted as the full selector denominator."""
+
+    with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+        report.errors.append(
+            ComponentsBridgeError(
+                component_id="selection-test.component",
+                message="component bridge rejected the declaration",
+            )
+        )
+        monkeypatch.setattr(
+            foundry_methods,
+            "ensure_all_methods_registered",
+            lambda active_registry: report if active_registry is registry else None,
+        )
+        selection = select_value_method_for_problem(
+            registry=registry,
+            candidate={"candidate_id": "incomplete-registry-intake"},
+            problem={
+                "design_problem_id": "incomplete-registry-intake",
+                "problem_statement": "Select a registered method.",
+                "domain": "generic_policy",
+            },
+        )
+
+    assert selection["status"] == "blocked"
+    assert selection["blockers"] == ("value_method_registry_intake_incomplete",)
+    assert "selection-test.component" in selection["reason"]
+
+
+def test_requested_value_method_cannot_bypass_required_data_modalities(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An explicit registered value request still has to meet hard modality needs."""
+
+    method_fqn = "econometrics.panel.event_study@1.0.0"
+    with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+        manifest = report.discovery_manifest
+        assert manifest is not None and manifest.is_bound
+        catalog = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+        entry = next(entry for entry in catalog.entries if entry.fqn == method_fqn)
+        assert entry.runnable
+        assert "panel" in entry.data_modalities
+        assert "time-series" not in entry.data_modalities
+        monkeypatch.setattr(
+            foundry_methods,
+            "ensure_all_methods_registered",
+            lambda active_registry: report if active_registry is registry else None,
+        )
+        compatible = select_value_method_for_problem(
+            registry=registry,
+            candidate={"candidate_id": "explicit-compatible-panel"},
+            problem={
+                "design_problem_id": "explicit-compatible-panel",
+                "problem_statement": "Use the registered panel method.",
+                "domain": "generic_policy",
+                "runtime_hints": {"value_required_data_modalities": ("panel",)},
+            },
+            requested_method_fqn=method_fqn,
+        )
+        incompatible = select_value_method_for_problem(
+            registry=registry,
+            candidate={"candidate_id": "explicit-incompatible-timeseries"},
+            problem={
+                "design_problem_id": "explicit-incompatible-timeseries",
+                "problem_statement": "Keep the required time-series input.",
+                "domain": "generic_policy",
+                "runtime_hints": {"value_required_data_modalities": ("time-series",)},
+            },
+            requested_method_fqn=method_fqn,
+        )
+
+    assert compatible["status"] == "selected"
+    assert compatible["selected_method_fqn"] == method_fqn
+    assert incompatible["status"] == "blocked"
+    assert incompatible["blockers"] == ("value_method_required_data_modality_unavailable",)
+    assert incompatible["required_data_modalities"] == ("time-series",)
 
 
 def test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_top_k(

@@ -6,7 +6,7 @@ import asyncio
 from collections.abc import Callable
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -23,7 +23,7 @@ from polisyos.scientist.methods.doe.designs import (
 from polisyos.scientist.methods.doe.designs import (
     ParameterSpec as DOEParameterSpec,
 )
-from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.doe.stress_report import StressTestReport, admit_objective_threshold
 from polisyos.scientist.methods.search.adversarial import run_stress_test
 from polisyos.scientist.methods.search.funnel.types import observe_funnel_resource_response
 from polisyos.scientist.methods.search.objective import CompositeObjective
@@ -48,6 +48,10 @@ class ScenarioAttackSurface(BaseModel):
     benchmark_split_manifest: BenchmarkSplitManifest | None = None
     vulnerability_threshold: float | None = None
     notes: list[str] = Field(default_factory=list)
+
+    _admit_threshold = field_validator("vulnerability_threshold", mode="before")(
+        admit_objective_threshold
+    )
 
 
 class AdversarialScenarioProposal(BaseModel):

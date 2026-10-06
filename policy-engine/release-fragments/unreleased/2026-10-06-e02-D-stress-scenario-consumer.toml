@@ -1,0 +1,27 @@
+id = "2026-10-06-e02-D-stress-scenario-consumer"
+title = "Carry observed scenario denominators through blueprint stress reports"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Blueprint stress scores use producer scenario counts rather than grouped issue examples; absent thresholds and unavailable legacy components cannot establish robustness."
+evidence = ["tests/unit/scientist/search/test_stress_scenario_evidence.py", "tests/unit/scientist/search/test_adversarial_streaming.py"]
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.scientist; existing doe.stress_report and adversarial report surfaces"
+compatibility = "New adversarial writers emit StressTestReport schema 1.1 with optional strict scenario evidence. New readers accept 1.0; absent new fields are omitted from legacy serialization. Legacy strict readers require upgrade for 1.1. is_robust now requires complete available scenario evidence; historical issue-only reports remain readable but do not establish robustness. Threshold intakes refuse booleans, strings, nonfinite values and overflowing numbers."
+migration = "Upgrade stress report consumers before activating 1.1 writers. Inspect scenario_evidence, partial adequacy and observed-finite scope; never infer population probability or model uncertainty from this fraction. Blueprint suite replacement carries individual count bases; unsupported legacy components require their producer evidence. Optional configured in-process BudgetMiddleware reaches the existing funnel factory with the same run scope; this is not deployed service wiring."
+limitations = "The declared finite observed stream is not whole-space coverage or a population sampling law. Existing grouped example order/top-k and payload bounds are preserved. No finding closure, institutional acceptance or default deployed owner wiring is established by this change. E owns DOE engine/profile adoption; B owns resource authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/methods/doe/README.md"]
+
+[[compatibility_change]]
+id = "e02-stress-scenario-evidence-consumer"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist; existing doe.stress_report"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable; missing assessment basis cannot establish robustness"
+release_note = "Strict readers must admit StressTestReport 1.1 before new writers; issue-only historical reports no longer establish is_robust."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/doe/README.md"]

@@ -8,8 +8,9 @@ import math
 from enum import StrEnum
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from .stress_report import admit_objective_threshold
 from .uncertainty import SensitivityUncertaintyBundle, SensitivityUncertaintyConfig
 
 
@@ -233,7 +234,7 @@ def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
     """
     if seed is None:
         return None
-    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode("utf-8")
+    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode()
     digest = hashlib.blake2b(payload, digest_size=8).digest()
     return int.from_bytes(digest, byteorder="little") % (2**32)
 
@@ -247,9 +248,7 @@ def _salib_parameter_mapping(
 ) -> tuple[str, list[float]]:
     """Resolve one parameter to the pinned SALib distribution contract."""
     if not math.isfinite(parameter.lower_bound) or not math.isfinite(parameter.upper_bound):
-        raise ValueError(
-            f"parameter '{parameter.name}' requires finite physical bounds for SALib"
-        )
+        raise ValueError(f"parameter '{parameter.name}' requires finite physical bounds for SALib")
 
     lower = parameter.lower_bound
     upper = parameter.upper_bound
@@ -383,6 +382,10 @@ class AdversarialPlan(BaseModel):
     seed: int | None = None
     stop_on_first_vulnerability: bool = True
     collect_top_k: int = Field(default=20, ge=1)
+
+    _admit_threshold = field_validator("vulnerability_threshold", mode="before")(
+        admit_objective_threshold
+    )
 
     @property
     def num_parameters(self) -> int:

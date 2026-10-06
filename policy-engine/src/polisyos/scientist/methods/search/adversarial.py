@@ -17,9 +17,11 @@ from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, Benc
 from polisyos.scientist.methods.doe.designs import AdversarialPlan, AdversarialStrategy
 from polisyos.scientist.methods.doe.sampling import generate_adversarial_samples
 from polisyos.scientist.methods.doe.stress_report import (
+    StressScenarioEvidence,
     StressTestReport,
     Vulnerability,
     VulnerabilityType,
+    admit_objective_threshold,
 )
 from polisyos.scientist.methods.search.controller import SearchIteration
 from polisyos.scientist.methods.search.objective import (
@@ -570,6 +572,8 @@ def run_stress_test(
     a population probability. Grouping and top-k only select issue examples.
     """
     runtime_context = context or {}
+    # Recheck callers using model_construct/model_copy before sampling or callbacks.
+    threshold = admit_objective_threshold(adversarial_plan.vulnerability_threshold)
     param_names = [item.name for item in adversarial_plan.parameter_specs]
     initial_samples = generate_adversarial_samples(adversarial_plan)
     objective_direction = _resolve_adversarial_direction(base_objective)
@@ -614,7 +618,7 @@ def run_stress_test(
 
         vuln = _detect_objective_vulnerability(
             objective=objective,
-            threshold=adversarial_plan.vulnerability_threshold,
+            threshold=threshold,
             direction=objective_direction,
             parameters=parameters,
             vuln_id=f"vuln_objective_{idx}",
@@ -635,13 +639,10 @@ def run_stress_test(
     ):
         remaining = max(1, adversarial_plan.max_iterations - total_evaluated)
         stopping_criteria: list[StoppingCriterion] = [MaxIterations(remaining)]
-        if (
-            adversarial_plan.stop_on_first_vulnerability
-            and adversarial_plan.vulnerability_threshold is not None
-        ):
+        if adversarial_plan.stop_on_first_vulnerability and threshold is not None:
             stopping_criteria.append(
                 VulnerabilityFound(
-                    adversarial_plan.vulnerability_threshold,
+                    threshold,
                     direction=objective_direction,
                 )
             )
@@ -698,10 +699,10 @@ def run_stress_test(
             if _is_worse_objective(objective, worst_case_objective, objective_direction):
                 worst_case_objective = objective
                 worst_case_parameters = candidate_parameters
-            if adversarial_plan.vulnerability_threshold is not None:
+            if threshold is not None:
                 vuln = _detect_objective_vulnerability(
                     objective=objective,
-                    threshold=adversarial_plan.vulnerability_threshold,
+                    threshold=threshold,
                     direction=objective_direction,
                     parameters=candidate_parameters,
                     vuln_id=f"vuln_search_{idx}",
@@ -727,14 +728,25 @@ def run_stress_test(
         if adversarial_plan.strategy is AdversarialStrategy.SEARCH_LOOP
         else len(initial_samples)
     )
-    completeness = (
-        finite_evaluated > 0 and finite_evaluated == planned_scenarios and not evaluation_unverified
+    scenario_evidence = StressScenarioEvidence(
+        attempted=total_evaluated,
+        finite_evaluated=finite_evaluated,
+        violated_scenarios=violated_scenarios,
+        unknown_or_nonfinite=invalid_evaluation_count,
+        planned_scenarios=planned_scenarios,
+        critical_occurrences=summary.severity_counts.get("critical", 0),
+        high_occurrences=summary.severity_counts.get("high", 0),
+        medium_occurrences=summary.severity_counts.get("medium", 0),
+        assessment_rule="objective_threshold" if threshold is not None else "unavailable",
+        objective_direction=objective_direction.value,
+        vulnerability_threshold=threshold,
     )
+    completeness = scenario_evidence.complete
     evaluation_status = "complete" if completeness else "partial"
-    robustness_score = (
-        (finite_evaluated - violated_scenarios) / finite_evaluated if finite_evaluated > 0 else None
-    )
+    robustness_score = scenario_evidence.observed_fraction
     report = StressTestReport(
+        schema_version="1.1",
+        scenario_evidence=scenario_evidence,
         report_id=stable_world_id_from_canon(
             prefix="stress.report",
             payload=_canon_safe(
@@ -769,21 +781,7 @@ def run_stress_test(
             "evaluation_status": evaluation_status,
             "invalid_evaluation_count": invalid_evaluation_count,
             "valid_evaluation_count": finite_evaluated,
-            "attempted": total_evaluated,
-            "finite_evaluated": finite_evaluated,
-            "violated_scenarios": violated_scenarios,
-            "unknown_or_nonfinite": invalid_evaluation_count,
-            "planned_scenarios": planned_scenarios,
-            "completeness": completeness,
-            "score_scope": "observed_finite_scenarios",
-            "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
-            "score_status": (
-                "unavailable"
-                if finite_evaluated == 0
-                else "observed"
-                if completeness
-                else "conditional"
-            ),
+            **scenario_evidence.accounting_metadata(),
             "observed_vulnerability_count": summary.observed_count,
             "unique_vulnerability_count": len(summary.unique_keys),
             "presented_vulnerability_count": len(vulnerabilities),
@@ -796,7 +794,9 @@ def run_stress_test(
             PutOptions(
                 kind="scientist.stress_test_report",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.0"),
+                schema=SchemaInfo(
+                    name="polisyos.scientist.StressTestReport", version=report.schema_version
+                ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )

@@ -10,8 +10,7 @@
     "B66"
   ],
   "bundle_ids": [
-    "LLM-01",
-    "LLM-02"
+    "LLM-01"
   ],
   "closure_ids": [],
   "slice_base_sha": "21cf3f92a8bf3f09e6a02a9d22835bacc3983dbd",
@@ -233,5 +232,15 @@
   },
   "custody_append": "Initial evidence commit130 retained13 files; repository generic JSONL ignore omitted six tiny physical inputfiles. Normal forward f72 commit adds exact same already-hashed fixture bytes. No original outputs/fixture/test/source changed; complete index19 paths now reconciles Git.",
   "receipt_footprint_rule": "changed_paths is exact union diff-tree of declared3 implementation commits, excludes this separate receipt.",
-  "publication": "Normal topic push and fresh fetch/readback performed after this separate receipt commit; no future commit SHA or unexecuted result encoded."
+  "publication": "Normal topic push and fresh fetch/readback performed after this separate receipt commit; no future commit SHA or unexecuted result encoded.",
+  "consulted_adjacent_bundle_ids": [
+    "LLM-02"
+  ],
+  "criterion_owner_reconciliation": "Canonical finding-owners.tsv maps both B65/B66 to LLM-01. Cache/reuse source under adjacent LLM-02 is read for consumer compatibility only; no B67/B68 closure or adjudication claimed.",
+  "receipt_metadata_history": [
+    {
+      "commit": "e11fe1866965962544d911a5c249dc25ac947a0f",
+      "role": "Original separate receipt; forward correction removes adjacent consulted LLM-02 from exact criterion-owner bundle_ids. All source, oracle, evidence and20 implementation paths unchanged."
+    }
+  ]
 }

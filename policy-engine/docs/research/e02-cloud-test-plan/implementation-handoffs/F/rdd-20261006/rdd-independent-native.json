@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+    "tests/unit/remediation/test_cau_03.py",
+    "tests/unit/foundry/methods/catalog/causal/test_rdd.py"
+  ],
+  "cwd": "/workspace/e02-F-rdd-20261006/policy-engine",
+  "source_before": {
+    "sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+    "tree": "c5821a7f576a407e8c99af53f5e101a33ebac2fd",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit": 0,
+  "duration_seconds": 18.6471107006073,
+  "maxrss_kib": 590436,
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-native.stdout.txt",
+      "bytes": 2804,
+      "sha256": "30b28795778bc7c05e500d028201a4e5dc34078c5ad7d7d66b20659b2d0299e3"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

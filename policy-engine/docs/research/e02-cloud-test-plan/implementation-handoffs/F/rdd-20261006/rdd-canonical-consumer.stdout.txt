@@ -1,0 +1,1 @@
+{"outcome": "PASS", "consumer": "dematerialize_method_output", "projected_keys": ["causal_effect_report"], "same_report_object": true, "raw_missing_alias_diagnostic_preserved": true}

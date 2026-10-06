@@ -1,0 +1,104 @@
+{
+  "outcome": "PASS",
+  "source_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "scope": "Native linear sharp control tau3, no leading curvature bias",
+  "input_rows": 800,
+  "cases": [
+    {
+      "params": {
+        "bandwidth": 0.45,
+        "bias_bandwidth": 0.65,
+        "polynomial_order": 1,
+        "kernel": "triangular",
+        "bias_correction": true,
+        "manipulation_test": false
+      },
+      "corrected_point": 2.999999999999995,
+      "corrected_se": 2.605450109632821e-15,
+      "conventional_point": 2.999999999999993,
+      "conventional_se": 7.777233680950415e-16,
+      "outcome": "PASS"
+    },
+    {
+      "params": {
+        "bandwidth": 0.45,
+        "bias_bandwidth": 0.65,
+        "polynomial_order": 2,
+        "kernel": "triangular",
+        "bias_correction": true,
+        "manipulation_test": false
+      },
+      "corrected_point": 2.9999999999999747,
+      "corrected_se": 1.5980322908677032e-14,
+      "conventional_point": 2.9999999999999942,
+      "conventional_se": 2.194200342118457e-15,
+      "outcome": "PASS"
+    },
+    {
+      "params": {
+        "bandwidth": 0.45,
+        "bias_bandwidth": 0.65,
+        "polynomial_order": 1,
+        "kernel": "uniform",
+        "bias_correction": true,
+        "manipulation_test": false
+      },
+      "corrected_point": 2.9999999999999987,
+      "corrected_se": 1.2323941449478444e-15,
+      "conventional_point": 3.000000000000001,
+      "conventional_se": 3.229560116899799e-16,
+      "outcome": "PASS"
+    },
+    {
+      "params": {
+        "bandwidth": 0.45,
+        "bias_bandwidth": 0.65,
+        "polynomial_order": 2,
+        "kernel": "uniform",
+        "bias_correction": true,
+        "manipulation_test": false
+      },
+      "corrected_point": 3.0000000000000027,
+      "corrected_se": 8.462895755207637e-15,
+      "conventional_point": 2.999999999999996,
+      "conventional_se": 1.855435637970578e-15,
+      "outcome": "PASS"
+    },
+    {
+      "params": {
+        "bandwidth": 0.45,
+        "bias_bandwidth": 0.65,
+        "polynomial_order": 1,
+        "kernel": "epanechnikov",
+        "bias_correction": true,
+        "manipulation_test": false
+      },
+      "corrected_point": 3.0000000000000036,
+      "corrected_se": 2.540435335665803e-15,
+      "conventional_point": 3.0000000000000138,
+      "conventional_se": 9.369246989177647e-16,
+      "outcome": "PASS"
+    },
+    {
+      "params": {
+        "bandwidth": 0.45,
+        "bias_bandwidth": 0.65,
+        "polynomial_order": 2,
+        "kernel": "epanechnikov",
+        "bias_correction": true,
+        "manipulation_test": false
+      },
+      "corrected_point": 3.0000000000000275,
+      "corrected_se": 1.542342738835554e-14,
+      "conventional_point": 3.000000000000055,
+      "conventional_se": 4.49910452701695e-15,
+      "outcome": "PASS"
+    }
+  ],
+  "prior_harness_errors": [
+    "first inline harness omitted required cutoff; Pydantic rejected before estimator",
+    "second inline harness treated decorated pure_step dict as report; corrected by reading actual report slot"
+  ]
+}

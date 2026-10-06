@@ -1,0 +1,24 @@
+.                                                                        [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py::test_registered_rbc_survives_cas_and_fresh_typed_reader
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py::test_registered_rbc_survives_cas_and_fresh_typed_reader
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py::test_registered_rbc_survives_cas_and_fresh_typed_reader
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py::test_registered_rbc_survives_cas_and_fresh_typed_reader
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [ERROR] causal_effect_report: missing_key — Declared output slot 'causal_effect_report' missing from result
+    result = testfunction(**testargs)
+
+tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py::test_registered_rbc_survives_cas_and_fresh_typed_reader
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = testfunction(**testargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 5 warnings in 17.49s

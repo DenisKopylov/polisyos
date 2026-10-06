@@ -1,0 +1,1114 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "rdd-sharp-rbc-20261006",
+  "closure_ids": [
+    "B210",
+    "B211"
+  ],
+  "bundle_ids": [
+    "CAU-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+    "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+  ],
+  "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+  "branch": "codex/e02-F-rdd-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/dev-oracles/rdd-cct/README.md",
+    "policy-engine/dev-oracles/rdd-cct/compare.py",
+    "policy-engine/dev-oracles/rdd-cct/pyproject.toml",
+    "policy-engine/dev-oracles/rdd-cct/uv.lock",
+    "policy-engine/docs/reference/foundry/causal-rdd-profile.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-rdd-sharp-rbc.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+    "policy-engine/tests/unit/remediation/test_cau_03.py"
+  ],
+  "source_bindings": [
+    {
+      "path": "policy-engine/dev-oracles/rdd-cct/README.md",
+      "sha256": "de8e32282ded82881b53ee93464d96d73c34df3a1460b63e11901f9879ce7877",
+      "bytes": 2336
+    },
+    {
+      "path": "policy-engine/dev-oracles/rdd-cct/compare.py",
+      "sha256": "afaec800736965f975be2c8903432e20c0602547800c41e84b1cbabc7036bf1c",
+      "bytes": 13605
+    },
+    {
+      "path": "policy-engine/dev-oracles/rdd-cct/pyproject.toml",
+      "sha256": "a1c0d8b647573e512d62c4ea6ec93a0f929a60b655bc9417ad3bd31338fbf965",
+      "bytes": 259
+    },
+    {
+      "path": "policy-engine/dev-oracles/rdd-cct/uv.lock",
+      "sha256": "ff3084bcea0238ba84825fa75dbed11d794cfe526d7b821b237fdf19f300fcce",
+      "bytes": 80392
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/causal-rdd-profile.md",
+      "sha256": "426f144c6ff9d7a0479d88fed9cb359a953938d67902f4a57c33ac9f6cf13aec",
+      "bytes": 3670
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-rdd-sharp-rbc.toml",
+      "sha256": "c39de51ecf5279955d9683208e26ee2207d108c89072ca944a7426e2d912bcf5",
+      "bytes": 2335
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "sha256": "1e13e98fa6238f76b545c8597b03ae1eff648807e17609713ad084c21701e009",
+      "bytes": 26555
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+      "sha256": "b9d4ca99f4ddce7b3f298b2ba186c21a174843f9cc856f3912d5f2b64a9fe63d",
+      "bytes": 10770
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cau_03.py",
+      "sha256": "1c0c76b9a47bb33b01b74662d844b4934ae4df07dcbde851a7a34a955116442a",
+      "bytes": 10412
+    }
+  ],
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-canonical-consumer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-canonical-consumer.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-canonical-consumer.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-abi.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-abi.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-abi.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-native.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-native.stdout.txt.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-oracle.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-oracle.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-parity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-parity.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-parity.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/architecture.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/architecture.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/base-property.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/base-property.stdout.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/baseline-B210-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/baseline-B211-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/compatibility-release-scoped.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/compatibility-release.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/compatibility-release.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-consumer-fix.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-consumer-fix.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-consumer.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-consumer.stdout.text.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-targeted.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-targeted.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate-final.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate-final.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate-readonly.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate-readonly.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/linear-controls.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/linear-controls.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/linear_controls.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.product.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.product.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.reference.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-install.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-install.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.product.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.product.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.reference.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.product.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.product.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.reference.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.product.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.product.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.reference.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.raw.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/property-importer.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/property-importer.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-delta-review.json"
+  ],
+  "baseline_cells": {
+    "B210": [
+      {
+        "id": "F02-P070",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "PASS",
+        "source_file": "received/F02.txt",
+        "source_line": "198",
+        "raw_archives_received": 0,
+        "semantic_adequacy": "not_established for candidate; historical navigation only"
+      },
+      {
+        "id": "F03-P077",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "PASS",
+        "source_file": "received/F03.txt",
+        "source_line": "207",
+        "raw_archives_received": 0,
+        "semantic_adequacy": "not_established for candidate; historical navigation only"
+      },
+      {
+        "id": "F07-P062",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "state": "PASS",
+        "source_file": "received/F07.txt",
+        "source_line": "68",
+        "raw_archives_received": 0,
+        "semantic_adequacy": "not_established for candidate; historical navigation only"
+      },
+      {
+        "id": "F14-P082",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "state": "PASS",
+        "source_file": "received/F14.txt",
+        "source_line": "432",
+        "raw_archives_received": 0,
+        "semantic_adequacy": "not_established for candidate; historical navigation only"
+      }
+    ],
+    "B211": [
+      {
+        "id": "F02-P070",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "PASS",
+        "source_file": "received/F02.txt",
+        "source_line": "198",
+        "raw_archives_received": 0,
+        "semantic_adequacy": "not_established for candidate; historical navigation only"
+      },
+      {
+        "id": "F03-P077",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "state": "PASS",
+        "source_file": "received/F03.txt",
+        "source_line": "207",
+        "raw_archives_received": 0,
+        "semantic_adequacy": "not_established for candidate; historical navigation only"
+      },
+      {
+        "id": "F07-P062",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "state": "PASS",
+        "source_file": "received/F07.txt",
+        "source_line": "68",
+        "raw_archives_received": 0,
+        "semantic_adequacy": "not_established for candidate; historical navigation only"
+      },
+      {
+        "id": "F14-P082",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "state": "PASS",
+        "source_file": "received/F14.txt",
+        "source_line": "432",
+        "raw_archives_received": 0,
+        "semantic_adequacy": "not_established for candidate; historical navigation only"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "native-causal-profile",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py tests/unit/remediation/test_cau_03.py tests/unit/foundry/methods/catalog/causal/test_rdd.py -o addopts= -q -ra",
+      "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.stdout",
+      "passed": 57,
+      "failed": 0,
+      "skipped": 0,
+      "errors": 0,
+      "warnings": 10,
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.execution.json"
+    },
+    {
+      "name": "actual-external-reference-and-coverage",
+      "command": "/workspace/e02-F-20261006-receipts/rdd/oracle-venv/bin/python dev-oracles/rdd-cct/compare.py --product-python /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python --replicates 2000 --output /workspace/e02-F-20261006-receipts/rdd/oracle-coverage.json",
+      "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.json",
+      "deciding_output": {
+        "outcome": "PASS",
+        "case_count": 4036,
+        "differential_failure_count": 0,
+        "coverage": [
+          {
+            "true_jump": 0.0,
+            "seed_first": 271000,
+            "seed_last": 272999,
+            "replicates": 2000,
+            "covered": 1879,
+            "coverage": 0.9395,
+            "binomial_Clopper_Pearson_99pct": [
+              0.9244397002602118,
+              0.9524206677451729
+            ],
+            "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+            "outcome": "PASS"
+          },
+          {
+            "true_jump": 3.0,
+            "seed_first": 821000,
+            "seed_last": 822999,
+            "replicates": 2000,
+            "covered": 1877,
+            "coverage": 0.9385,
+            "binomial_Clopper_Pearson_99pct": [
+              0.9233370445758633,
+              0.9515285696159681
+            ],
+            "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+            "outcome": "PASS"
+          }
+        ],
+        "maximum_abs_differences": {
+          "tau_us": 1.0302869668521453e-13,
+          "tau_bc": 3.090860900556436e-12,
+          "se_us": 1.1796119636642288e-14,
+          "se_rb": 1.4199530440350827e-11,
+          "ci": 3.658229275060876e-11
+        }
+      },
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.execution.json"
+    },
+    {
+      "name": "real-RBC-removal",
+      "command": "/workspace/e02-F-20261006-receipts/rdd/oracle-venv/bin/python dev-oracles/rdd-cct/compare.py --product-python /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python --replicates 2000 --removal --output /workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage-final.json",
+      "target_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.json",
+      "expected_outcome": "FAIL",
+      "exit_code": 1,
+      "control_property": "delete corrected weights/bias covariance inside actual product process but keep success/profile/bias flag; all numerical comparisons and both repeated coverage targets reject",
+      "deciding_output": {
+        "outcome": "FAIL",
+        "case_count": 4036,
+        "differential_failure_count": 12108,
+        "coverage": [
+          {
+            "true_jump": 0.0,
+            "seed_first": 271000,
+            "seed_last": 272999,
+            "replicates": 2000,
+            "covered": 1687,
+            "coverage": 0.8435,
+            "binomial_Clopper_Pearson_99pct": [
+              0.8215054496742898,
+              0.863835772640195
+            ],
+            "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+            "outcome": "FAIL"
+          },
+          {
+            "true_jump": 3.0,
+            "seed_first": 821000,
+            "seed_last": 822999,
+            "replicates": 2000,
+            "covered": 1676,
+            "coverage": 0.838,
+            "binomial_Clopper_Pearson_99pct": [
+              0.8157245752412147,
+              0.8586435635864071
+            ],
+            "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+            "outcome": "FAIL"
+          }
+        ],
+        "maximum_abs_differences": {
+          "tau_us": 1.0302869668521453e-13,
+          "tau_bc": 0.919330453492945,
+          "se_us": 1.1796119636642288e-14,
+          "se_rb": 0.9882689130569361,
+          "ci": 3.4649424795314214
+        }
+      }
+    },
+    {
+      "name": "analytic-linear-control",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /workspace/e02-F-20261006-receipts/rdd/linear_controls.py",
+      "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/linear-controls.json",
+      "case_count": 6,
+      "property": "all supported p1/2×3kernels retain known tau3 without curvature; nonlinear exactcurve distinguishes removed correction"
+    },
+    {
+      "name": "RDD-property-importer",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/property/foundry/methods/catalog/causal/test_causal_properties.py -k rdd -o addopts= -q -ra",
+      "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/property-importer.stdout",
+      "passed": 2,
+      "deselected": 2,
+      "failed": 0,
+      "skipped": 0,
+      "errors": 0,
+      "pytest_s": 55.79
+    },
+    {
+      "name": "independent-scientific-and-canonical-component-consumer",
+      "command": "CAU reviewer exact argv/cwd/source before/after in native/parity/canonical consumer JSON",
+      "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-review.json",
+      "reviewer": "F CAU direct leaf, independent from author",
+      "native_passed": 57,
+      "independent_nonpolynomial_parity_cases": 36,
+      "canonical_consumer": "dematerialize_method_output emits exactly declared causal_effect_report slot retaining actual report identity"
+    },
+    {
+      "name": "production-invocation",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt /workspace/e02-F-20261006-receipts/rdd/production-invocation.raw.json",
+      "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.stdout",
+      "exit_code": 3,
+      "actual_status": "UNRESOLVED",
+      "coverage": "partial",
+      "runtime_invocation_established": false,
+      "full_lossless_raw_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.raw.json.gz",
+      "input_denominator": "all tracked src/**/*.py,tools/**/*.py,tests/**/*.py; current5905/base5904/source2698 files",
+      "regressions": [],
+      "new_unresolved_by_construction": [
+        "polisyos.foundry.methods.catalog.causal.rdd.RegressionDiscontinuity.pure_step"
+      ],
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.execution.json"
+    },
+    {
+      "name": "architecture-guardrails",
+      "command": "UV_NO_SYNC=1 UV_PROJECT_ENVIRONMENT=/workspace/e02-F-closeout-20261006/policy-engine/.venv /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+      "target_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/architecture.stdout",
+      "exit_code": 2,
+      "actual_status": "required generators UNRUN plus partial measured FAIL; no complete verdict",
+      "unrun": [
+        "runtime-api-client generator exit254:openapi-typescript missing",
+        "runtime-dashboard-api-types generator exit254:openapi-typescript missing"
+      ],
+      "partial_findings": "deep import creep/generated freshness; complete118097B log retained",
+      "P41_provenance": "not_established: no exact pre-work baseline+emptydenominator intersection proof"
+    },
+    {
+      "name": "full-docs-gate",
+      "command": "UV_NO_SYNC=1 UV_PROJECT_ENVIRONMENT=/workspace/e02-F-closeout-20261006/policy-engine/.venv /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.cli validation check-docs-gate --repo-root . --base-ref 198076863e143dea9f89f02734b13d50dae3eed5",
+      "target_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate-final.stdout",
+      "exit_code": 1,
+      "actual_status": "global freshness baseline expired/10violations/hash drift; strict docs downstream stages UNRUN",
+      "P41_provenance": "not_established; no inherited-red exemption"
+    },
+    {
+      "name": "full-compatibility-release",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m tools.ops_runners.release.check_compatibility_release_gates --fail-on-contract-errors",
+      "target_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/compatibility-release.stdout",
+      "exit_code": 1,
+      "complete_fragments": 82,
+      "contract_errors": 2,
+      "P41_provenance": "not_established; full outcome retained"
+    },
+    {
+      "name": "owned-release-fragment",
+      "command": "canonical build_report(repo_root=candidate,fragments_dir=exact isolated copy of one owned TOML); full input/output in committed scoped JSON",
+      "target_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "declared deterministic native/synthetic fixtures and exact source bindings; no admitted production data",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/compatibility-release-scoped.json",
+      "complete_fragments": 1,
+      "contract_errors": 0,
+      "limits": "scoped fragment validity; does not turn separatefull82fragmentFAILintoPASS"
+    },
+    {
+      "name": "ruff-and-diff",
+      "command": "nativePython -m ruff check/format --check exactfourPythonpaths; git diff --check",
+      "target_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "environment": "PYTHONPATH=src:.; readonly root application Python3.14.7 (native), isolated locked Python3.14.2/rdrobust2.1.0 (external reference); no process/worker/CPU quota",
+      "input_closure": "rdd.py,newRDDtest,remediationtest_cau_03,devcompare.py; later dev-onlydelta Ruff PASS; no numeric/formula delta",
+      "outcome": "PASS",
+      "output": "All checks passed!; 4 files already formatted; diff check empty"
+    },
+    {
+      "name": "independent-final-delta-review",
+      "command": "CAU read-only exact cdede69..fb022aa 3path diff/modulehash/freshfull4036removal receipt reconciliation",
+      "target_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "environment": "independent CAU reviewer; exact Git objects plus decidingrawbytes",
+      "input_closure": "entire3path delta and full numeric removaloutputs; nativeproductmodule identical1e13e98",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-delta-review.json",
+      "limits": "no independent4000repeat claimed; priorcomplete independent57native+36freshnonpolynomialparity remains sourcecdede"
+    }
+  ],
+  "criterion_decisions": [
+    {
+      "id": "B210",
+      "original_criterion": [
+        {
+          "criterion_id": "B210",
+          "document": "B_r19",
+          "lines": [
+            5170,
+            5181
+          ],
+          "sha256": "3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+          "card": "CAU-03"
+        }
+      ],
+      "criterion_acceptance": "RDD curvature correction must be applied with its declared local polynomial/bandwidth basis; test a known curved response against the uncorrected result and a linear control.",
+      "check_names": [
+        "native-causal-profile",
+        "actual-external-reference-and-coverage",
+        "real-RBC-removal",
+        "analytic-linear-control",
+        "independent-scientific-and-canonical-component-consumer"
+      ],
+      "outcome": "PASS",
+      "finding_state": "closed",
+      "predicate_basis": "recomputed",
+      "limits": "B210 finite sharp fixed HC0 synthetic/asymptotic implementation only; no real-design authority/fuzzy/selector/cluster claim; B211 O(np) weighted structures and conventional covariance compatibility only, no measuredwholemethodspeedup; G integration acceptance and fullgatepass not established",
+      "closure_scope": "Exact original CAU-03 acceptance and selected finite F-M6 sharp HC0 profile. Scientific/domain assumptions and broadproduction/gate readiness remain separate limitations."
+    },
+    {
+      "id": "B211",
+      "original_criterion": [
+        {
+          "criterion_id": "B211",
+          "document": "B_r19",
+          "lines": [
+            5182,
+            5193
+          ],
+          "sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+          "card": "CAU-03"
+        }
+      ],
+      "criterion_acceptance": "RDD kernel, observation order and standard error must remain invariant to input permutation and follow the declared kernel; test the same data permuted, kernel alternatives and SE against the reference.",
+      "check_names": [
+        "native-causal-profile",
+        "RDD-property-importer"
+      ],
+      "outcome": "PASS",
+      "finding_state": "closed",
+      "predicate_basis": "recomputed",
+      "limits": "B210 finite sharp fixed HC0 synthetic/asymptotic implementation only; no real-design authority/fuzzy/selector/cluster claim; B211 O(np) weighted structures and conventional covariance compatibility only, no measuredwholemethodspeedup; G integration acceptance and fullgatepass not established",
+      "closure_scope": "Exact original CAU-03 acceptance and selected finite F-M6 sharp HC0 profile. Scientific/domain assumptions and broadproduction/gate readiness remain separate limitations."
+    }
+  ],
+  "property": {
+    "statement": "Explicit supported sharp-RD bias_correction executes published CCT2014 combined weights and bias-covariance-aware HC0 variance; typed report contains tau_bc,se.rb,robustCI and exact options/input hash; conventional default retained separately; both fits avoid NxN weight matrices",
+    "runtime_path": [
+      "native RDDObservationalData",
+      "registered MethodDispatcher -> actual RegressionDiscontinuity",
+      "typed CausalEffectReport",
+      "persist_causal_effect_report -> FileSystemCAS",
+      "fresh FileSystemCAS load_causal_effect_report",
+      "actual canonical dematerialize_method_output -> declared causal_effect_report slot"
+    ],
+    "proxy_divergence": "Removed RBC producer retains success/profile/bias_correction markers but point/SE/CI differ from actual independent rdrobust and both coverage targets fall to84.35/83.80%. Raw output key census misses canonical alias projection, so it cannot decide ABI failure by itself.",
+    "negative_controls": [
+      "known curved tau3 vs conventional; original exactlinearcontrol",
+      "memory-only producer removal retaining markers rejected numerical12108differences/bothcoverageFAIL",
+      "robustCI uses se.rb at .8/.95/.99; invalid levels/settings point-free",
+      "row permutation preserves estimates while rowbound hashchanges; changedcutoffchanges target/hash",
+      "np.diag forbidden duringactualRBC; onlysmall2×2/3×3 solves observed",
+      "all6conventionalkernel/orderactualdiagonalWLSoracle point/SE/count/permutation",
+      "fuzzyrequested no typedtreatment input returnspoint-free limitation"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B210 and B211 closed against exact original generic code/method criteria with explicit finite scientific scope; actual production Scientist integration and fullgate acceptance are separate, pending root/G receipts",
+  "source_freeze_provenance": {
+    "native_and_positive_coverage_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+    "append_only_final_implementation_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+    "rdd_numeric_module_sha256": "1e13e98fa6238f76b545c8597b03ae1eff648807e17609713ad084c21701e009",
+    "native_module_bytes_identical_between_commits": true,
+    "delta": "releasefragment + devoracle removalcoverage population correction; nativeformula/typedowner/tests unchanged; no positive4000rerun because identical positive specimens/productcode",
+    "known_old_harness_gap": "old --removal, including explicit --replicates2000, omitted all repeatedcoverage groups and executed36settings only; complete oldfailure/evidence preserved; final corrected run4036cases"
+  },
+  "environment_authority": {
+    "product": "readonly root provisioned application Python3.14.7 with NumPy2.3.5/SciPy1.16.3; candidate PYTHONPATH actualrdd modulepath/digest measured; rdrobust absent and not claimed as productbackend",
+    "development_reference": "isolated authorized Python3.14.2 rdrobust2.1.0 environment; exact devuv.lock alltransitives; public callable only, no implementation source read/copied",
+    "external_reference_wheel_sha256": "8179f8f75445876297317a9805b81cbbf2e1e39bf804a460a8c23d0d7fa33263",
+    "distribution_decision": "dev-only reference explicitly authorized; GPL productdistribution not authorized/assumed and no productdependency added",
+    "optional_backends": "DoWhy/EconML baselinePython3.14markers exclude them; absence not backendPASS"
+  },
+  "published_method_basis": {
+    "reference": "CCT2014 DOI10.3982/ECTA11757 AppendixA.1/A.2 TheoremA.1(V)",
+    "pdf_download_url": "https://rdpackages.github.io/references/Calonico-Cattaneo-Titiunik_2014_ECMA.pdf",
+    "pdf_bytes": 348148,
+    "pdf_sha256": "354d9010ca1f8c3bc98e090a30a498178422b95449a0773e9366757e089ac602",
+    "input_identity": "inputSHA256 recomputed from ordered running/outcome/cutoff littleendianfloat64bytes androwcount; seed/DGP/options shared and hashverified independently across native/referenceenvs",
+    "authority_purpose": "bounded numerical/method implementation verification; not a real-data identification/publication/admissibility decision"
+  },
+  "content_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-canonical-consumer.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-canonical-consumer.json",
+      "sha256": "3f31ceb0155d44f8b6d812968c4b9bcb38b906a24839af898e072a074cf6487a",
+      "bytes": 2122
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-canonical-consumer.stderr.txt",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-canonical-consumer.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-canonical-consumer.stdout.txt",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-canonical-consumer.stdout.txt",
+      "sha256": "7e15aefd7aad0f7dedbe4acc9a72f4d175e6c88cebff6437da37e791ecfef09c",
+      "bytes": 183
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-abi.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-abi.json",
+      "sha256": "22728a7a25a35e9308ca485fd5ee985ebf9bda55bf67ec0be47cc96d24f0169d",
+      "bytes": 1977
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-abi.stderr.txt",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-abi.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-abi.stdout.txt",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-abi.stdout.txt",
+      "sha256": "e15164c707b695ad7b94b53d7806222fd96507178a9bea370297ffd9fc78ea55",
+      "bytes": 309
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-native.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-native.json",
+      "sha256": "acd67066652f4e094d940fd40ae1b3d34d19dc40e3be7b03b3268e69d51574f8",
+      "bytes": 1454
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-native.stderr.txt",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-native.stdout.txt.text.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-native.stdout.txt",
+      "sha256": "4ffb529c3a440e3616e62aac12668231fb66549cbcbe124c6ea5ba64f289ff8f",
+      "bytes": 3031,
+      "decoded_bytes": 2804,
+      "decoded_sha256": "30b28795778bc7c05e500d028201a4e5dc34078c5ad7d7d66b20659b2d0299e3",
+      "encoding": "UTF-8 text_json, field text; decoded bytes preserve originalfullstdout including trailingwhitespace"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-oracle.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-oracle.json",
+      "sha256": "3f2399de78d422b72c7a16470a8e5163a971db3a377c4ec669ca317ade57477a",
+      "bytes": 45973
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-oracle.py",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-oracle.py",
+      "sha256": "c2b3f5e51c99bc8c0091b90c26ba39b00b1c703eb637da24a670f589c4334fa4",
+      "bytes": 3478
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-parity.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-parity.json",
+      "sha256": "d8add518c043b348c1c5178ed9dcf1a4aec19532975ab66e9de1cdfb691d1dc6",
+      "bytes": 1256
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-parity.stderr.txt",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-parity.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-parity.stdout.txt",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-parity.stdout.txt",
+      "sha256": "2bb95ce903456de0c4ed28e748cfea91a972c96338015b84b4c9909fea5dc009",
+      "bytes": 278
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-review.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-review.json",
+      "sha256": "efe97105f165e16467b95d2bfe985e9c4162a8b8964012ba5e732c42f6f44da2",
+      "bytes": 4343
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/architecture.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/architecture.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/architecture.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/architecture.stdout",
+      "sha256": "e3e8ee950fd4195e8ee549ef286788f0103e9fb82bdfcd31a4b1342893d12e08",
+      "bytes": 118097
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/base-property.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/base-property.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/base-property.stdout.text.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/base-property.stdout",
+      "sha256": "7c6993bab46edad4726f18bc153b64942ec61daeaeaf642e8223249c3c198daa",
+      "bytes": 32150,
+      "decoded_bytes": 30887,
+      "decoded_sha256": "791c76cd04ec7ca2a805853e9638c961efb17bca2cc8f56f246b68868bfee8ed",
+      "encoding": "UTF-8 text_json, field text; decoded bytes preserve originalfullstdout including trailingwhitespace"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/baseline-B210-query.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/baseline-B210-query.json",
+      "sha256": "72f9dfca90a4c4fc304998257e34888a0e707ecb1688f9c6118b88cbe273d122",
+      "bytes": 5773
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/baseline-B211-query.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/baseline-B211-query.json",
+      "sha256": "7bb86a2c575d571e917f4290f244d766ab18cddbb4ca53c314420df3fba47b79",
+      "bytes": 5773
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/compatibility-release-scoped.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/compatibility-release-scoped.json",
+      "sha256": "d1a47182324aeee4a1b22af99f95f2677f82a79d2a05c1fe1946d22141344291",
+      "bytes": 793
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/compatibility-release.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/compatibility-release.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/compatibility-release.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/compatibility-release.stdout",
+      "sha256": "9f645291a9251a6b074c4c68c3a17152609b4433e67ae57c363dff51557eb5e9",
+      "bytes": 1253
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-consumer-fix.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/development-consumer-fix.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-consumer-fix.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/development-consumer-fix.stdout",
+      "sha256": "b1f5db8158d1113378fc780d54af9fb97655ba99af87a95ce6991964513b0e21",
+      "bytes": 2071
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-consumer.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/development-consumer.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-consumer.stdout.text.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/development-consumer.stdout",
+      "sha256": "7e8b8442bfb52818aceb976b76fe2a1eae4a895cb82d294beda01a903b4ab7f0",
+      "bytes": 58907,
+      "decoded_bytes": 58445,
+      "decoded_sha256": "f006eeab861bceb25342b22ceda7235bf3486c83a2c730f436da214eb8a2282c",
+      "encoding": "UTF-8 text_json, field text; decoded bytes preserve originalfullstdout including trailingwhitespace"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-targeted.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/development-targeted.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/development-targeted.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/development-targeted.stdout",
+      "sha256": "089fe7f480add9efbf3e5c4d65c8fc06112361c8529b1593e86995d5705c3600",
+      "bytes": 1871
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate-final.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/docs-gate-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate-final.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/docs-gate-final.stdout",
+      "sha256": "7ee3b341f9ed27dc94c264974619dae8ab6efced8d996327b3bcfa4df17fbdb9",
+      "bytes": 815
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate-readonly.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/docs-gate-readonly.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate-readonly.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/docs-gate-readonly.stdout",
+      "sha256": "c3385a2dd03c44c0971180d684166417807a8e0055b49c3f6915a5fd820a06bd",
+      "bytes": 813
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/docs-gate.stderr",
+      "sha256": "a60dbaf6f9b263556692472b95473617346b41b23b36c273191aa419a7626ac5",
+      "bytes": 1349
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/docs-gate.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/docs-gate.stdout",
+      "sha256": "c3385a2dd03c44c0971180d684166417807a8e0055b49c3f6915a5fd820a06bd",
+      "bytes": 813
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/linear-controls.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/linear-controls.json",
+      "sha256": "f548be6846f3871a5930c781db0ee4f5ea12b0231fc96d7bae3bfaa1c1bd1019",
+      "bytes": 3216
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/linear-controls.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/linear-controls.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/linear_controls.py",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/linear_controls.py",
+      "sha256": "216d5cda5030f59ce01d0327ee7ca57a0f9e9e19365c8bbe52aa8500c09c8ff5",
+      "bytes": 1913
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.execution.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/native-final.execution.json",
+      "sha256": "938d50f158a5692191afe42d1e2117531851999562b3247c0078999637ef49c3",
+      "bytes": 1341
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/native-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/native-final.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/native-final.stdout",
+      "sha256": "90ea07ad963da01917a8d52b1f60b7b97b7fbfe22505574ef4d6621112f4f6ee",
+      "bytes": 2448
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.execution.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-coverage.execution.json",
+      "sha256": "3ee3acd9a7b8a480a33cd393ea006457b6b3ff026495fabda85ddc3e039cdb05",
+      "bytes": 1354
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-coverage.json",
+      "sha256": "1f644179f202801e651a9520ae1b336edff3165f328ad345244bf6cff066e071",
+      "bytes": 11204
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.product.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-coverage.product.json",
+      "sha256": "0483fcc5d1e3864c1ca41feea10ec209337cddbb54baa28a55dc9a7c79826c1c",
+      "bytes": 1101864
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.product.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-coverage.product.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.reference.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-coverage.reference.json",
+      "sha256": "4d4f485d2875c09dd8ba5bacc6f604a28eb90cd729e1621cee1b72c186a790c9",
+      "bytes": 1096495
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-coverage.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-coverage.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-coverage.stdout",
+      "sha256": "fb0ba471d78593a2db573a087aa0d6954d5c54e8a5d0d0e730817c440d67f756",
+      "bytes": 1204
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-install.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-install.stderr",
+      "sha256": "94a67bc32f3ab56519e2b8968794f59e1c344323bfd405a86dabd1748da76502",
+      "bytes": 1184
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-install.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-install.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage-final.json",
+      "sha256": "7138f2786ea135347fcbaec22a25a83ff83f4ba18eb32fbacfe9d83946cf87f1",
+      "bytes": 13842
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.product.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage-final.product.json",
+      "sha256": "10ef5e4ad47d66a25f5074fcf71dd2c6d7b8cd6a50c60915caebb1cbba4af856",
+      "bytes": 1103181
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.product.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage-final.product.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.reference.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage-final.reference.json",
+      "sha256": "4d4f485d2875c09dd8ba5bacc6f604a28eb90cd729e1621cee1b72c186a790c9",
+      "bytes": 1096495
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage-final.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage-final.stdout",
+      "sha256": "63d013beb191912c42eb3fd8afd919118a9881097d8af1309c143ca36256f5b4",
+      "bytes": 1194
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage.json",
+      "sha256": "c79b4c58c7fd83dd15c098c0cd14f26e6581365d788b0299be38a2b31bf8ab84",
+      "bytes": 13019
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.product.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage.product.json",
+      "sha256": "27a30b7a568b4c1bb997cc124de7e4b7615ed927dc2a91dbb29578fa0b46e82d",
+      "bytes": 15656
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.product.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage.product.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.reference.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage.reference.json",
+      "sha256": "01c247eb293744069317914e663a70f9e9c919895206ab10ec792d54df7eadcc",
+      "bytes": 10253
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal-coverage.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage.stdout",
+      "sha256": "23d03d205ed2a78ff6451f08e8852b3a31f9c817fb8f1abe001f11bd21dde426",
+      "bytes": 387
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.execution.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal.execution.json",
+      "sha256": "53f08a8156dedcd9eb962d9dbc44c3dacd3ddf15153eff1ab875f9bc031af77b",
+      "bytes": 1333
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal.json",
+      "sha256": "495de0839306a6002a4e533700be7e6cfa1abf7a3d63e47d35ddc712090bbc1a",
+      "bytes": 12999
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.product.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal.product.json",
+      "sha256": "27a30b7a568b4c1bb997cc124de7e4b7615ed927dc2a91dbb29578fa0b46e82d",
+      "bytes": 15656
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.product.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal.product.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.reference.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal.reference.json",
+      "sha256": "01c247eb293744069317914e663a70f9e9c919895206ab10ec792d54df7eadcc",
+      "bytes": 10253
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/oracle-removal.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal.stdout",
+      "sha256": "63df8adfc82072fce78cc189df114427451546c19f96736937360f933cd130ea",
+      "bytes": 385
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.execution.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/production-invocation.execution.json",
+      "sha256": "f4380bed44e1ff889dba35ed6aefedbe4ad8e59c1f838473c49299918d397db0",
+      "bytes": 1347
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.raw.json.gz",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/production-invocation.raw.json.gz",
+      "sha256": "88a59962ceb95ac8f46ce5acd0cb3ba88b0bd039d0b68ba121feeca744b6cf37",
+      "bytes": 5985485
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/production-invocation.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/production-invocation.stdout",
+      "sha256": "f9449bbd7e6207a262e0d776692339bb4e5a31d510a603744c50f47c98f76a7a",
+      "bytes": 1437
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/property-importer.stderr",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/property-importer.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/property-importer.stdout",
+      "original_path": "/workspace/e02-F-20261006-receipts/rdd/property-importer.stdout",
+      "sha256": "92a14f1bbc46b35acb052ab72037ba87b4aff06d162bb1150c16cb2ee8e1ea55",
+      "bytes": 113
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/rdd-independent-delta-review.json",
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-delta-review.json",
+      "bytes": 2708,
+      "sha256": "eb77c093fa0e92cc536a101acff33e950baec55caa7a9ce5dbce378d3d38b5bb"
+    }
+  ],
+  "lossless_raw_binding": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-20261006/production-invocation.raw.json.gz",
+    "encoding": "gzip binary complete staticinstrumentJSON,notproductiondataset",
+    "decoded_bytes": 170878325,
+    "decoded_sha256": "b39b3dadb2581dcf37c45301e985d62d0eff3463f9961d6c07a2dd2f672bd499",
+    "compressed_bytes": 5985485,
+    "compressed_sha256": "88a59962ceb95ac8f46ce5acd0cb3ba88b0bd039d0b68ba121feeca744b6cf37",
+    "reason_for_Git": "retain every deciding census byte while avoiding170MB raw staging; boundedpartial/UNRESOLVED witness andreceivercustody"
+  },
+  "known_harness_and_warning_history": [
+    "/usr/bin/time absent before any product process; exactchildwait4 used and complete metadata retained",
+    "developmentconsumer mistakenly used missing envelope.coverage; fixed test to actualconfidence_level, complete1FAIL/56PASS andlater57PASS retained",
+    "initial linearscratch omittedcutoff then assumed decorateddictwasreport; corrected usingactualreport slot; final6PASS sourcebound",
+    "firstdocsgate nesteduv made ownlocal.venv; readonlysharedapplication unchanged; corrected UV_NO_SYNC1/UV_PROJECT_ENVIRONMENT; bothcomplete outputs retained",
+    "rawdispatch native57tests10warnings inclmonitor missingdeclaredalias; actualcanonicaldematerializer separatelyPASS, so warnings notsilenced and rawkeycount not ABIdefect",
+    "Threeactualstdoutlogs contain trailingwhitespace; Gitcompanions are losslessUTF8textJSON with rawdecodedhashes, not trimmed or silently normalized. Rawlocals remain unchanged."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P14",
+      "P29",
+      "P32",
+      "P33",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "P40": "B210 inference/coverage andB211structure/memory are separateclasses; unresolved realdesign/firststage inputs declared rather thanlocalpatchladder",
+    "P41": "fullarchitecture/docs/compatibility red provenance not_established, no inheritedredexemption"
+  },
+  "limitations_and_next_owner": [
+    "G fetch exacttopichead+committed receipts and review prior to integration; no G codeacceptance/integration or mainpublication claimed",
+    "Root owns actual Scientist causal consumer source/options integration; current dispatcher/CAS/canonicalcomponent consumer witnesses are real but scoped",
+    "Continuity/no manipulation/valid bandwidth and sampling regularity are not inferred from successful computation; admittedrealdata design checks remain localG on exactcomposedSHA",
+    "Finitefirstprofile sharp/fixedsymmetrich:b/p1,2/q=p+1/HC0/uniqueX; cluster,otherVCE,automaticselectors,masspointadjustment typedunsupported; fuzzyheld missingtypedtreatment/compliance input",
+    "Existing IK-like rule remains heuristic; count-ratio diagnostic not validatedMcCrary; conventionalhomoskedastic covariance not universal robustinference",
+    "Complete architecturerequiredgeneratorsUNRUN andpartialfindings, docsFAIL10 andfullcompatibilityFAIL2 remainseparate; fullrequiredCI notoverridden"
+  ],
+  "cleanup_candidates_trash_only": [
+    "/workspace/e02-F-20261006-receipts/rdd/oracle-venv",
+    "/workspace/e02-F-rdd-20261006/policy-engine/.venv",
+    "/workspace/e02-F-20261006-receipts/rdd/release-fragment-inputs"
+  ],
+  "cleanup_state": "no nativeTrash available; no deletion/pruning performed; preserve source, uniqueevidence and productiondata"
+}

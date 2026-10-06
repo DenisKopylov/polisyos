@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import numpy as np,json; from polisyos.foundry.methods.catalog.causal.rdd import RegressionDiscontinuity as M; from polisyos.foundry.methods.catalog.causal.protocols import RDDObservationalData; from polisyos.foundry.methods.components.io import dematerialize_method_output; x=np.linspace(-1,1,600); y=1+x+3*(x>=0)+np.where(x<0,2*x*x,6*x*x)+.2*np.sin(71*x); o=M.pure_step(RDDObservationalData(running_variable=x,outcome=y,cutoff=0),{\"bias_correction\":True,\"bandwidth\":.45,\"bias_bandwidth\":.65,\"manipulation_test\":False}); result=dematerialize_method_output(method_class=M,signature=M.signature,output=o); assert set(result)=={\"causal_effect_report\"}; assert result[\"causal_effect_report\"] is o[\"report\"]; print(json.dumps({\"outcome\":\"PASS\",\"consumer\":\"dematerialize_method_output\",\"projected_keys\":sorted(result),\"same_report_object\":True,\"raw_missing_alias_diagnostic_preserved\":True}))"
+  ],
+  "cwd": "/workspace/e02-F-rdd-20261006/policy-engine",
+  "source_before": {
+    "sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+    "tree": "c5821a7f576a407e8c99af53f5e101a33ebac2fd",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit": 0,
+  "duration_seconds": 6.749825477600098,
+  "maxrss_kib": 557792,
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-canonical-consumer.stdout.txt",
+      "bytes": 183,
+      "sha256": "7e15aefd7aad0f7dedbe4acc9a72f4d175e6c88cebff6437da37e791ecfef09c"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-canonical-consumer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

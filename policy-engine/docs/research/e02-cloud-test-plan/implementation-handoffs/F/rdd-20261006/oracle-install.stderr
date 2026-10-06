@@ -1,0 +1,46 @@
+Using CPython 3.14.2 interpreter at: /workspace/polisyos/policy-engine/.venv/bin/python
+Creating virtual environment at: /workspace/e02-F-20261006-receipts/rdd/oracle-venv
+Resolved 25 packages in 2.33s
+Downloading pillow (6.6MiB)
+Downloading statsmodels (11.5MiB)
+Downloading pandas (10.3MiB)
+Downloading scipy (33.7MiB)
+Downloading fonttools (5.1MiB)
+Downloading numpy (15.9MiB)
+Downloading kiwisolver (1.4MiB)
+Downloading plotnine (1.5MiB)
+Downloading matplotlib (10.4MiB)
+ Downloaded plotnine
+ Downloaded kiwisolver
+ Downloaded pillow
+ Downloaded statsmodels
+ Downloaded fonttools
+ Downloaded pandas
+ Downloaded matplotlib
+ Downloaded numpy
+ Downloaded scipy
+Prepared 13 packages in 8.23s
+Installed 23 packages in 41ms
+ + contourpy==1.4.0
+ + cycler==0.12.1
+ + fonttools==4.66.1
+ + formulaic==1.2.2
+ + interface-meta==2.0.1
+ + kiwisolver==1.5.1
+ + matplotlib==3.11.2
+ + mizani==0.14.6
+ + narwhals==2.26.0
+ + numpy==2.5.3
+ + packaging==26.3
+ + pandas==3.0.6
+ + patsy==1.0.3
+ + pillow==12.3.0
+ + plotnine==0.15.8
+ + pyparsing==3.3.3
+ + python-dateutil==2.9.0.post0
+ + rdrobust==2.1.0
+ + scipy==1.18.1
+ + six==1.17.0
+ + statsmodels==0.15.0
+ + typing-extensions==4.16.0
+ + wrapt==2.5.0

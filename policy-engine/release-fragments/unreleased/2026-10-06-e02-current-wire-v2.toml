@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-current-wire-v2"
+title = "Version strict Decimal state and outcome transport"
+type = "fixed"
+component = "scientist-orchestration"
+owner = "team-scientist"
+summary = "New state_wire.v2 and outcome_wire.v2 writers require typed finite Decimal budget values before model coercion; readers retain explicit legacy wire compatibility."
+evidence = ["tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py"]
+compatibility = "JSON readers outside the canonical deserializer must unwrap the versioned value envelope. Canonical readers continue accepting legacy unversioned state/outcome and journal mutations.v1."
+change_class = "python-public-api"
+surface_classification = "public_experimental: scientist runner serialization"
+migration = "Use serialize_state/deserialize_state and serialize_outcome/deserialize_outcome at both transport ends. Safe frame version 1 and its digest are independent of typed payload version 2."
+api = "Python function signatures remain compatible."
+limitations = "Wire decoding provides typed transport and content integrity, not permission or institutional authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/orchestration/engine/runner/README.md"]
+runbook_docs = []

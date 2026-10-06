@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import suppress
 
 import pytest
 
@@ -306,10 +307,8 @@ async def test_preexisting_cancellation_count_is_not_a_new_pool_cancellation() -
         task = asyncio.current_task()
         assert task is not None
         task.cancel()
-        try:
+        with suppress(asyncio.CancelledError):
             await asyncio.sleep(0)
-        except asyncio.CancelledError:
-            pass
         assert task.cancelling() == 1
         return await pool.acquire()
 

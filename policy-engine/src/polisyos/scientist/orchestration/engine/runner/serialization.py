@@ -8,8 +8,9 @@ Version header
 --------------
 ``serialize_state_safe`` / ``deserialize_state_safe`` prepend a single
 version byte (currently ``\\x01``) and append a SHA-256 integrity hash.
-The plain ``serialize_state`` / ``deserialize_state`` remain backward-
-compatible and produce / consume raw JSON bytes (version 0, implicit).
+Current state/outcome writers emit a tagged v2 JSON envelope. Readers retain
+legacy raw JSON and v1 integrity framing; the framing version is independent of
+the typed payload schema. V2 budgets require finite Decimal tags before coercion.
 """
 
 from __future__ import annotations
@@ -56,6 +57,10 @@ except ImportError:  # pragma: no cover - fallback
 _VERSION_1 = b"\x01"
 _HASH_LENGTH = 32  # SHA-256 digest length in bytes
 _WIRE_MAX_DEPTH = 128
+_STATE_WIRE_SCHEMA = "polisyos.scientist.state_wire.v2"
+_OUTCOME_WIRE_SCHEMA = "polisyos.scientist.outcome_wire.v2"
+
+
 _WIRE_TYPE_KEY = "_type"
 _WIRE_DECIMAL = "decimal"
 _WIRE_BYTES = "bytes"
@@ -96,11 +101,9 @@ class NativeNodeOutcomeBatch:
 def deserialize_outcome_batch(data_by_alias: dict[str, bytes]) -> NativeNodeOutcomeBatch:
     """Decode a complete batch through the canonical typed outcome boundary."""
     return NativeNodeOutcomeBatch(
-        outcomes={
-            alias: deserialize_outcome(data)
-            for alias, data in data_by_alias.items()
-        }
+        outcomes={alias: deserialize_outcome(data) for alias, data in data_by_alias.items()}
     )
+
 
 # Transport models keep their established v0 mapping shape.  Artifact models
 # are wrapped with their import identity so a nested reference cannot silently
@@ -154,9 +157,7 @@ def _wire_model_types() -> dict[str, type[BaseModel]]:
             StateMutation,
             SkippedNodeBlocker,
         )
-        _WIRE_MODEL_TYPES = {
-            f"{model.__module__}.{model.__qualname__}": model for model in models
-        }
+        _WIRE_MODEL_TYPES = {f"{model.__module__}.{model.__qualname__}": model for model in models}
     return _WIRE_MODEL_TYPES
 
 
@@ -280,9 +281,7 @@ def _encode_wire_value(
             raise TypeError("Cycle detected while serializing sequence")
         seen.add(value_id)
         try:
-            return [
-                _encode_wire_value(item, depth=depth + 1, seen=seen) for item in value
-            ]
+            return [_encode_wire_value(item, depth=depth + 1, seen=seen) for item in value]
         finally:
             seen.remove(value_id)
 
@@ -394,6 +393,49 @@ def _decode_wire_value(value: Any, *, depth: int = 0) -> Any:
     raise DeserializationError(f"Unsupported decoded wire value: {type(value).__name__}")
 
 
+def _typed_state_payload(payload: Any) -> None:
+    """Validate v2 budget types before model coercion can hide malformed input."""
+    if not isinstance(payload, Mapping) or not isinstance(payload.get("budgets"), Mapping):
+        raise DeserializationError("Typed state wire requires an explicit budget mapping")
+    for name, budget in payload["budgets"].items():
+        if (
+            not isinstance(budget, Mapping)
+            or set(budget) != {_WIRE_TYPE_KEY, "value"}
+            or budget.get(_WIRE_TYPE_KEY) != _WIRE_DECIMAL
+            or not isinstance(budget.get("value"), str)
+        ):
+            raise DeserializationError(f"Typed budget requires a Decimal tag: {name}")
+
+
+def _typed_envelope(schema: str, value: Any) -> dict[str, Any]:
+    return {"wire_schema": schema, "value": value}
+
+
+def _read_typed_envelope(raw: Any, *, outcome: bool) -> Any:
+    if not isinstance(raw, Mapping) or "wire_schema" not in raw:
+        return raw
+    schema = raw.get("wire_schema")
+    expected = _OUTCOME_WIRE_SCHEMA if outcome else _STATE_WIRE_SCHEMA
+    if outcome and schema == _OUTCOME_MUTATION_WIRE_SCHEMA:
+        return raw  # Historical journal envelope retains its original meaning.
+    if schema != expected or set(raw) != {"wire_schema", "value"}:
+        raise DeserializationError("Unsupported or malformed typed wire envelope")
+    payload = raw["value"]
+    if outcome:
+        if (
+            isinstance(payload, Mapping)
+            and payload.get("wire_schema") == _OUTCOME_MUTATION_WIRE_SCHEMA
+        ):
+            nested = payload.get("outcome")
+            state = nested.get("state") if isinstance(nested, Mapping) else None
+        else:
+            state = payload.get("state") if isinstance(payload, Mapping) else None
+    else:
+        state = payload
+    _typed_state_payload(state)
+    return payload
+
+
 def _validate_state_budget_payload(payload: Mapping[str, Any]) -> None:
     """Reject non-finite legacy budget strings before Pydantic coercion."""
     budgets = payload.get("budgets")
@@ -424,9 +466,7 @@ def _validate_decoded_state(value: Any) -> Any:
     if isinstance(value, ExperimentState):
         for name, budget in value.budgets.items():
             if not budget.is_finite():
-                raise DeserializationError(
-                    f"Non-finite Decimal budget is not supported: {name}"
-                )
+                raise DeserializationError(f"Non-finite Decimal budget is not supported: {name}")
     return value
 
 
@@ -469,7 +509,9 @@ def serialize_state(state: Any) -> bytes:
     bytes
         Compact JSON bytes ready for wire transfer.
     """
-    return _dumps(_encode_wire_value(state))
+    encoded = _encode_wire_value(state)
+    _typed_state_payload(encoded)
+    return _dumps(_typed_envelope(_STATE_WIRE_SCHEMA, encoded))
 
 
 def deserialize_state(data: bytes) -> Any:
@@ -495,7 +537,8 @@ def deserialize_state(data: bytes) -> Any:
         # Detect version-1 payload
         if data and data[:1] == _VERSION_1:
             data = _unwrap_safe(data)
-        decoded = _validate_decoded_state(_decode_wire_value(_loads(data)))
+        raw = _read_typed_envelope(_loads(data), outcome=False)
+        decoded = _validate_decoded_state(_decode_wire_value(raw))
         return ExperimentState.model_validate(decoded)
     except DeserializationError:
         raise
@@ -530,10 +573,14 @@ def serialize_outcome(outcome: Any) -> bytes:
     from polisyos.scientist.orchestration.engine.state_branching import mutation_journal_for_state
 
     if not isinstance(outcome, NodeOutcome):
-        return _dumps(_encode_wire_value(outcome))
+        encoded = _encode_wire_value(outcome)
+        _typed_state_payload(encoded.get("state") if isinstance(encoded, Mapping) else None)
+        return _dumps(_typed_envelope(_OUTCOME_WIRE_SCHEMA, encoded))
     journal = mutation_journal_for_state(outcome.state)
     if journal is None:
-        return _dumps(_encode_wire_value(outcome))
+        encoded = _encode_wire_value(outcome)
+        _typed_state_payload(encoded["state"])
+        return _dumps(_typed_envelope(_OUTCOME_WIRE_SCHEMA, encoded))
 
     # A branch is implemented as an ExperimentState subclass for write tracking.
     # The subclass itself is process-local; only the declared model fields and
@@ -542,14 +589,19 @@ def serialize_outcome(outcome: Any) -> bytes:
         outcome.state.model_dump(mode="python", by_alias=True, exclude_none=False)
     )
     serializable_outcome = outcome.model_copy(update={"state": state})
+    encoded_outcome = _encode_wire_value(serializable_outcome)
+    _typed_state_payload(encoded_outcome["state"])
     return _dumps(
-        {
-            "wire_schema": _OUTCOME_MUTATION_WIRE_SCHEMA,
-            "outcome": _encode_wire_value(serializable_outcome),
-            "state_mutations": _encode_wire_value(
-                [_wire_state_mutation(mutation) for mutation in tuple(journal.operations)]
-            ),
-        }
+        _typed_envelope(
+            _OUTCOME_WIRE_SCHEMA,
+            {
+                "wire_schema": _OUTCOME_MUTATION_WIRE_SCHEMA,
+                "outcome": encoded_outcome,
+                "state_mutations": _encode_wire_value(
+                    [_wire_state_mutation(mutation) for mutation in tuple(journal.operations)]
+                ),
+            },
+        )
     )
 
 
@@ -605,7 +657,7 @@ def deserialize_outcome(data: bytes) -> Any:
         data = _coerce_wire_bytes(data)
         if data and data[:1] == _VERSION_1:
             data = _unwrap_safe(data)
-        raw = _loads(data)
+        raw = _read_typed_envelope(_loads(data), outcome=True)
         if isinstance(raw, Mapping) and "wire_schema" in raw:
             return _decode_journaled_outcome(raw)
         decoded = _validate_decoded_state(_decode_wire_value(raw))
@@ -629,7 +681,7 @@ def serialize_state_safe(state: Any) -> tuple[bytes, str]:
     (payload, sha256_hex)
         The versioned payload bytes and the hex digest.
     """
-    json_bytes = _dumps(_encode_wire_value(state))
+    json_bytes = serialize_state(state)
     digest = hashlib.sha256(json_bytes).digest()
     payload = _VERSION_1 + json_bytes + digest
     return payload, hashlib.sha256(json_bytes).hexdigest()
@@ -643,14 +695,8 @@ def deserialize_state_safe(data: bytes) -> Any:
     DeserializationError
         On version mismatch, truncated data, or integrity failure.
     """
-    from polisyos.scientist.orchestration.engine.state import ExperimentState
-
-    json_bytes = _unwrap_safe(data)
-    try:
-        decoded = _validate_decoded_state(_decode_wire_value(_loads(json_bytes)))
-        return ExperimentState.model_validate(decoded)
-    except _SERIALIZATION_ERRORS as exc:
-        raise DeserializationError(f"Failed to deserialize state: {exc}") from exc
+    json_bytes = _unwrap_safe(_coerce_wire_bytes(data))
+    return deserialize_state(json_bytes)
 
 
 def _unwrap_safe(data: bytes) -> bytes:

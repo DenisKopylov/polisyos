@@ -9,6 +9,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from types import CodeType, FunctionType
 
 import pytest
 
@@ -67,8 +68,18 @@ def main() -> int:
     ast.fix_missing_locations(tree)
     effective_source = ast.unparse(tree)
     namespace = dict(vars(module))
-    exec(compile(tree, str(path) + "::actual-property-removal", "exec"), namespace)
-    setattr(module, function.__name__, namespace[function.__name__])
+    compiled = compile(tree, str(path) + "::actual-property-removal", "exec")
+    codes = [
+        value
+        for value in compiled.co_consts
+        if isinstance(value, CodeType) and value.co_name == function.__name__
+    ]
+    assert len(codes) == 1 and codes[0].co_freevars == function.__code__.co_freevars
+    replacement_function = FunctionType(
+        codes[0], namespace, function.__name__, function.__defaults__, function.__closure__
+    )
+    replacement_function.__kwdefaults__ = function.__kwdefaults__
+    setattr(module, function.__name__, replacement_function)
     print(
         json.dumps(
             {

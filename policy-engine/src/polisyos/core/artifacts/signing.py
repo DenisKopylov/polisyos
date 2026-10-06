@@ -204,12 +204,12 @@ class BulkVerificationReport(BatchCompletion):
             rows[key] = row
         for request in expected:
             aid, profile, ref = artifact_reference_parts(request)
-            row = rows.pop((str(aid), profile), None)
-            if row is None:
+            matched = rows.pop((str(aid), profile), None)
+            if matched is None:
                 raise ValueError("signature batch lacks one exact valid confirmation")
             if ref is not None and (
-                row.artifact_ref is None
-                or artifact_ref_identity_key(row.artifact_ref) != artifact_ref_identity_key(ref)
+                matched.artifact_ref is None
+                or artifact_ref_identity_key(matched.artifact_ref) != artifact_ref_identity_key(ref)
             ):
                 raise ValueError("signature batch does not confirm the exact typed view")
         if rows:

@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/installed-latest/final_launch.py",
+    "sdist",
+    "b220"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-consumer",
+  "source_before": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "source_after": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "started_utc": "2026-10-06T12:44:04.003207+00:00",
+  "ended_utc": "2026-10-06T12:44:13.135557+00:00",
+  "wall_seconds": 9.132346530997893,
+  "child_maxrss_kib": 582496,
+  "exit_code": 0,
+  "outcome": "PASS",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-b220.stdout",
+      "sha256": "2f10b132ff0844942d0536ed245cddbe19dd4b6db5d62ff1006b6b19bf2dace5",
+      "bytes": 9763
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-b220.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "environment": {
+    "PYTHONPATH": null,
+    "worker_python": null
+  }
+}

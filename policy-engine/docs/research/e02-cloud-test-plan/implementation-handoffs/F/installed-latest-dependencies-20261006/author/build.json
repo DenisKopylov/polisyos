@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "uv",
+    "build",
+    "--wheel",
+    "--sdist",
+    "--out-dir",
+    "/workspace/e02-F-20261006-receipts/installed-latest/dist"
+  ],
+  "cwd": "/workspace/e02-F-installed-worker-20261006/policy-engine",
+  "source_before": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "source_after": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "started_utc": "2026-10-06T12:39:57.096989+00:00",
+  "ended_utc": "2026-10-06T12:40:20.317460+00:00",
+  "wall_seconds": 23.220468904997688,
+  "child_maxrss_kib": 31012,
+  "exit_code": 0,
+  "outcome": "PASS",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/build.stderr",
+      "sha256": "9622b79848e361463e4c146b1e147a8acf50bf6ba936879f5b4ab6c7ca28e791",
+      "bytes": 385
+    }
+  },
+  "environment": {
+    "PYTHONPATH": null,
+    "worker_python": null
+  }
+}

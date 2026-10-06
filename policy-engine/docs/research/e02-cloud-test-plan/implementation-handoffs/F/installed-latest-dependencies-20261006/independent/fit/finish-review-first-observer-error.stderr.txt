@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/finish_review.py", line 26, in <module>
+    text=Path(output['path']).read_text();assert re.search(r'\b'+str(count)+r' passed, '+str(warnings)+r' warnings in ',text)
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

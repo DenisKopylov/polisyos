@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/e02-F-20261006-receipts/installed-latest/installed_binding.py"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-latest",
+  "source_before": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "source_after": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "started_utc": "2026-10-06T12:44:04.003254+00:00",
+  "ended_utc": "2026-10-06T12:44:04.692135+00:00",
+  "wall_seconds": 0.6888823919871356,
+  "child_maxrss_kib": 24060,
+  "exit_code": 0,
+  "outcome": "PASS",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/installed-bindings.stdout",
+      "sha256": "5543403f8583bd75646787340a7cff8af0958cecb8508ab1ac5a4a3cd9e380cc",
+      "bytes": 473
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/installed-bindings.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "environment": {
+    "PYTHONPATH": null,
+    "worker_python": null
+  }
+}

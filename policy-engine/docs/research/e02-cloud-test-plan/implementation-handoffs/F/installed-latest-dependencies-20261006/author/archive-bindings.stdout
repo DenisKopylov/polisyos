@@ -1,0 +1,18 @@
+{
+  "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+  "product_source_denominator": 2910,
+  "forced_resources": 7,
+  "total_byte_bound": 2917,
+  "unexpected_wheel_product_files": 0,
+  "wheel": {
+    "path": "/workspace/e02-F-20261006-receipts/installed-latest/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "sha256": "3ca350edb9ece34937555aad15540d6981a8ec46cf97c4f8594dd4de36cb6376",
+    "bytes": 15078639
+  },
+  "sdist": {
+    "path": "/workspace/e02-F-20261006-receipts/installed-latest/dist/policy_engine-0.1.0.tar.gz",
+    "sha256": "bcd8b27b291172f42c1a2ccf4b2d07e56d66f76235971b47aff413019a659bab",
+    "bytes": 71441223
+  }
+}

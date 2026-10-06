@@ -1,0 +1,1 @@
+{"source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6", "outcome": "PASS", "exit_code": 0, "wall_time_s": 26.50216988399916, "archive_source_binding_records": 2917, "before_after_installed_records": 2917}

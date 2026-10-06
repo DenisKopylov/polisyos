@@ -1,0 +1,59 @@
+{
+  "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+  "byte_proof_output": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/full-source-archive-installed-bindings.json",
+  "native_checks": [
+    {
+      "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "profile": "wheel",
+      "command": [
+        "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/installed-latest/compatibility_launch.py",
+        "wheel"
+      ],
+      "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-consumer",
+      "environment": {
+        "PYTHONPATH": "unset",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "Python-I": true
+      },
+      "exit": 0,
+      "outcome": "PASS",
+      "wall_s": 9.001265179002075,
+      "output": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/wheel-compatibility.stdout.txt",
+      "stderr": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/wheel-compatibility.stderr.txt"
+    },
+    {
+      "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "profile": "sdist",
+      "command": [
+        "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/installed-latest/compatibility_launch.py",
+        "sdist"
+      ],
+      "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-consumer",
+      "environment": {
+        "PYTHONPATH": "unset",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "Python-I": true
+      },
+      "exit": 0,
+      "outcome": "PASS",
+      "wall_s": 8.93156865000492,
+      "output": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/sdist-compatibility.stdout.txt",
+      "stderr": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/sdist-compatibility.stderr.txt"
+    }
+  ],
+  "decision": "GO_bounded_installed_identity_and_ABI",
+  "product_byte_denominator": 2917,
+  "actual_python_denominator": 3146,
+  "live_backend_numerical_cases": "Author actuallatest wheel3/sdist3 outputs separately sourcebound; reviewer has not repeated asset-mutating3-case suites.",
+  "profile_assets_unchanged": true,
+  "limits": [
+    "No real-data/source authority or production admission.",
+    "Dependencies reused readonly, not independently resolved.",
+    "Oldab56source green is not used as latestsource proof; all current5cd Git/archive/site bytes rechecked directly."
+  ]
+}

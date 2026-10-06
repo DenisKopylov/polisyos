@@ -1,0 +1,14 @@
+{
+  "command": [
+    "git",
+    "ls-remote",
+    "origin",
+    "refs/heads/codex/e02-F-installed-worker-20261006"
+  ],
+  "remote_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "output": {
+    "path": "/workspace/e02-F-20261006-receipts/installed-latest/source-remote-readback.stdout",
+    "bytes": 90,
+    "sha256": "d32b87e8a12af1bb5408f95561be43d5b3f95d2464d900569e157f53a08f781f"
+  }
+}

@@ -1,0 +1,287 @@
+{
+  "python": "3.12.14",
+  "executable": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+  "prefix": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv",
+  "isolated": 1,
+  "sys_path": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python312.zip",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload",
+    "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages"
+  ],
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "distributions": [
+    {
+      "name": "causal-learn",
+      "version": "0.1.4.8",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/causal_learn-0.1.4.8.dist-info"
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/cffi-2.1.1.dist-info"
+    },
+    {
+      "name": "clarabel",
+      "version": "0.11.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/clarabel-0.11.1.dist-info"
+    },
+    {
+      "name": "cloudpickle",
+      "version": "3.1.2",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/cloudpickle-3.1.2.dist-info"
+    },
+    {
+      "name": "contourpy",
+      "version": "1.4.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/contourpy-1.4.0.dist-info"
+    },
+    {
+      "name": "cvxpy",
+      "version": "1.9.3",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/cvxpy-1.9.3.dist-info"
+    },
+    {
+      "name": "cycler",
+      "version": "0.12.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/cycler-0.12.1.dist-info"
+    },
+    {
+      "name": "Cython",
+      "version": "3.3.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/cython-3.3.0.dist-info"
+    },
+    {
+      "name": "dowhy",
+      "version": "0.14",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/dowhy-0.14.dist-info"
+    },
+    {
+      "name": "fonttools",
+      "version": "4.66.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/fonttools-4.66.1.dist-info"
+    },
+    {
+      "name": "formulaic",
+      "version": "1.2.2",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/formulaic-1.2.2.dist-info"
+    },
+    {
+      "name": "graphviz",
+      "version": "0.21",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/graphviz-0.21.dist-info"
+    },
+    {
+      "name": "highspy",
+      "version": "1.15.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/highspy-1.15.1.dist-info"
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/iniconfig-2.3.0.dist-info"
+    },
+    {
+      "name": "interface_meta",
+      "version": "2.0.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/interface_meta-2.0.1.dist-info"
+    },
+    {
+      "name": "Jinja2",
+      "version": "3.1.6",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/jinja2-3.1.6.dist-info"
+    },
+    {
+      "name": "joblib",
+      "version": "1.6.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/joblib-1.6.0.dist-info"
+    },
+    {
+      "name": "kiwisolver",
+      "version": "1.5.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/kiwisolver-1.5.1.dist-info"
+    },
+    {
+      "name": "llvmlite",
+      "version": "0.50.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/llvmlite-0.50.0.dist-info"
+    },
+    {
+      "name": "MarkupSafe",
+      "version": "3.0.4",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/markupsafe-3.0.4.dist-info"
+    },
+    {
+      "name": "matplotlib",
+      "version": "3.11.2",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/matplotlib-3.11.2.dist-info"
+    },
+    {
+      "name": "momentchi2",
+      "version": "0.1.8",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/momentchi2-0.1.8.dist-info"
+    },
+    {
+      "name": "mpmath",
+      "version": "1.3.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/mpmath-1.3.0.dist-info"
+    },
+    {
+      "name": "narwhals",
+      "version": "2.26.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/narwhals-2.26.0.dist-info"
+    },
+    {
+      "name": "networkx",
+      "version": "3.7",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/networkx-3.7.dist-info"
+    },
+    {
+      "name": "numba",
+      "version": "0.68.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/numba-0.68.0.dist-info"
+    },
+    {
+      "name": "numpy",
+      "version": "2.4.6",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/numpy-2.4.6.dist-info"
+    },
+    {
+      "name": "osqp",
+      "version": "1.1.3",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/osqp-1.1.3.dist-info"
+    },
+    {
+      "name": "packaging",
+      "version": "26.3",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/packaging-26.3.dist-info"
+    },
+    {
+      "name": "pandas",
+      "version": "3.0.6",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pandas-3.0.6.dist-info"
+    },
+    {
+      "name": "patsy",
+      "version": "1.0.3",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/patsy-1.0.3.dist-info"
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pillow-12.3.0.dist-info"
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pluggy-1.6.0.dist-info"
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pycparser-3.0.dist-info"
+    },
+    {
+      "name": "pydot",
+      "version": "4.0.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pydot-4.0.1.dist-info"
+    },
+    {
+      "name": "Pygments",
+      "version": "2.21.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pygments-2.21.0.dist-info"
+    },
+    {
+      "name": "pyparsing",
+      "version": "3.3.3",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pyparsing-3.3.3.dist-info"
+    },
+    {
+      "name": "pytest",
+      "version": "9.0.2",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pytest-9.0.2.dist-info"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/python_dateutil-2.9.0.post0.dist-info"
+    },
+    {
+      "name": "qdldl",
+      "version": "0.1.9.post1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/qdldl-0.1.9.post1.dist-info"
+    },
+    {
+      "name": "scikit-learn",
+      "version": "1.9.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/scikit_learn-1.9.1.dist-info"
+    },
+    {
+      "name": "scipy",
+      "version": "1.15.3",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/scipy-1.15.3.dist-info"
+    },
+    {
+      "name": "scs",
+      "version": "3.3.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/scs-3.3.1.dist-info"
+    },
+    {
+      "name": "setuptools",
+      "version": "84.0.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/setuptools-84.0.0.dist-info"
+    },
+    {
+      "name": "six",
+      "version": "1.17.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/six-1.17.0.dist-info"
+    },
+    {
+      "name": "sparsediffpy",
+      "version": "0.6.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/sparsediffpy-0.6.1.dist-info"
+    },
+    {
+      "name": "statsmodels",
+      "version": "0.15.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/statsmodels-0.15.0.dist-info"
+    },
+    {
+      "name": "sympy",
+      "version": "1.14.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/sympy-1.14.0.dist-info"
+    },
+    {
+      "name": "threadpoolctl",
+      "version": "3.7.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/threadpoolctl-3.7.0.dist-info"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/tqdm-4.70.1.dist-info"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.16.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/typing_extensions-4.16.0.dist-info"
+    },
+    {
+      "name": "wrapt",
+      "version": "2.5.0",
+      "metadata_path": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/wrapt-2.5.0.dist-info"
+    }
+  ],
+  "distribution_count": 52,
+  "module_origins": {
+    "dowhy": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/dowhy/__init__.py",
+    "dowhy.causal_model": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/dowhy/causal_model.py",
+    "dowhy.gcm": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/dowhy/gcm/__init__.py",
+    "dowhy.gcm.fitting_sampling": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/dowhy/gcm/fitting_sampling.py",
+    "numpy": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/numpy/__init__.py",
+    "scipy": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/scipy/__init__.py",
+    "pandas": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pandas/__init__.py",
+    "sklearn": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/sklearn/__init__.py",
+    "networkx": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/networkx/__init__.py"
+  }
+}

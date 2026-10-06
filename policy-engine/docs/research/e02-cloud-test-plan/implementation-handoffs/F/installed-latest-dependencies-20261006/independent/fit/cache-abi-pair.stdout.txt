@@ -1,0 +1,66 @@
+[
+  {
+    "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "profile": "wheel",
+    "command": [
+      "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python",
+      "-I",
+      "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/cache_abi_launch.py",
+      "wheel"
+    ],
+    "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-consumer",
+    "environment": {
+      "PYTHONPATH": "unset",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "Python-I": true
+    },
+    "wall_s": 9.792998611999792,
+    "exit": 0,
+    "outcome": "PASS",
+    "output": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/wheel-cache-abi.stdout.txt",
+    "output_ref": {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/wheel-cache-abi.stdout.txt",
+      "bytes": 144171,
+      "sha256": "40a3c0f0c53414b17d77a2b5ea812739fe6b290783407f6f28c72e9b3d4c2a36"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/wheel-cache-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "profile_assets_unchanged": true
+  },
+  {
+    "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "profile": "sdist",
+    "command": [
+      "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/bin/python",
+      "-I",
+      "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/cache_abi_launch.py",
+      "sdist"
+    ],
+    "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-consumer",
+    "environment": {
+      "PYTHONPATH": "unset",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "Python-I": true
+    },
+    "wall_s": 9.864634764002403,
+    "exit": 0,
+    "outcome": "PASS",
+    "output": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/sdist-cache-abi.stdout.txt",
+    "output_ref": {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/sdist-cache-abi.stdout.txt",
+      "bytes": 144171,
+      "sha256": "6919e87365c3b1270b9dcf9050d23d1edd3d4ac7f116fd310dd5349167ef84f3"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/sdist-cache-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "profile_assets_unchanged": true
+  }
+]

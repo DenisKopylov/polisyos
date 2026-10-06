@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/installed-latest/b220-removal.py",
+    "nested_freeze",
+    "wheel"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-consumer",
+  "source_before": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "source_after": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "started_utc": "2026-10-06T12:42:34.553110+00:00",
+  "ended_utc": "2026-10-06T12:42:46.619987+00:00",
+  "wall_seconds": 12.06687693799904,
+  "child_maxrss_kib": 581596,
+  "exit_code": 1,
+  "outcome": "FAIL",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-b220-remove-freeze.stdout",
+      "sha256": "0722f2a9de610697baaaefbff952ad1b9f8961ec9cfacad46ed0620d6c72df3c",
+      "bytes": 2976
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-b220-remove-freeze.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "environment": {
+    "PYTHONPATH": null,
+    "worker_python": null
+  }
+}

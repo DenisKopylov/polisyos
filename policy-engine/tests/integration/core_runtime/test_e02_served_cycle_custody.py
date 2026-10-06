@@ -46,6 +46,7 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         _control_job_execution_scope_from_event,
     )
     from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationContextHandoff,
         CandidateSimulationN5InputV5,
         CandidateSimulationScenarioProfile,
         CandidateSimulationSyntheticModelDeclarationV1,
@@ -61,6 +62,8 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
     from polisyos.runtime.quality.generation_cycle import (
         JointSimulationPort,
         _DefaultSimulationBoundFoundryValuePort,
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
     )
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
@@ -69,6 +72,10 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
     )
     from polisyos.runtime.quality.intervention_atom_binding import (
         derive_candidate_scenario_atom,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+        build_content_bound_simulation_receipt,
     )
     from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
     from polisyos.scientist.orchestration.llm import factory as llm_factory
@@ -238,6 +245,18 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         assert type(n4_source_v2) is N4CandidateScenarioSourceRecordV2
         n4_candidate = n4_source_v2.source_record.candidate
         assert n4_candidate is not None
+        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+            context_job = CycleSubstrateContextArtifactOwner(
+                store=first_context.store
+            ).resolve_historical_job_artifact(
+                input_record.context_job_ref,
+                problem=n4_source_v2.source_record.problem,
+                expected_job_id=completed.job_id,
+                expected_run_id=completed.run_id,
+                expected_tenant_id=_TENANT_ID,
+                expected_cell_id=_CELL_ID,
+            )
+        owner_world_model_record = context_job.context.world_model_record
         derived_atom = input_record.materialization.derived_n5_atom
         assert derived_atom == derive_candidate_scenario_atom(
             n4_candidate.atom,
@@ -274,6 +293,9 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         compiled_run = CompiledRecursiveGenerationCycleRun.model_validate(
             canon.from_canonical_bytes(compiled_bytes)
         )
+        recursive_run = compiled_run.recursive_run
+        assert recursive_run.run_id == f"recursive:{recursive_run.recursive_graph.graph_id}"
+        assert recursive_run.run_id != completed.run_id
         selected_cycles = tuple(
             cycle
             for leaf in compiled_run.recursive_run.leaf_nodes
@@ -326,6 +348,7 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         assert row["world_model_record_content_hash"] == (
             input_record.materialization.world_model_record_hash
         )
+        assert row["world_model_record_id"] == str(owner_world_model_record.world_model_record_id)
         projected_result_ref = ArtifactRef.model_validate(row["n5_result_ref"])
         assert artifact_ref_identity_key(projected_result_ref) == artifact_ref_identity_key(
             simulation.simulation_result_ref
@@ -337,6 +360,7 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         assert observation["predicate_basis"] == "recomputed"
         assert observation["authority_purpose"] == "conditional_simulation_only"
         assert len(n8_calls) == 2
+        assert len(n5_calls) == 1
         assert n9_calls == []
 
         # A sibling candidate hash in the selected cycle cannot borrow this
@@ -416,8 +440,12 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         assert fallback_atom_rows[0].observation.status == "value_blocked"
         assert len(n8_calls) == 2
 
-        # A different server-configured profile for the same problem cannot
-        # reinterpret the persisted candidate run on the ordinary GET surface.
+        # A content-addressed V5 input under another job, profile, and tenant
+        # remains foreign when substituted into this run's selected view.
+        foreign_job_id = "foreign-job-conditional-replay"
+        foreign_run_id = "foreign-run-conditional-replay"
+        foreign_tenant_id = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+        foreign_cell_id = "cell-b"
         foreign_profile_payload = profile.model_dump(mode="json", exclude={"content_hash"})
         foreign_profile_payload["profile_id"] = f"{profile.profile_id}.foreign"
         foreign_profile_payload["content_hash"] = gy_content_hash(foreign_profile_payload)
@@ -436,6 +464,228 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         foreign_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
             foreign_declaration_payload
         )
+        foreign_repository = GenerationSourceRepository(store=fresh_context.store)
+        with tenant_scope(None, tenant_id=foreign_tenant_id, cell_id=foreign_cell_id):
+            foreign_declaration_ref = foreign_repository.persist_candidate_model_declaration(
+                declaration=foreign_declaration,
+                job_id=foreign_job_id,
+                run_id=foreign_run_id,
+                tenant_id=foreign_tenant_id,
+                cell_id=foreign_cell_id,
+            )
+            foreign_input_payload = input_record.model_dump(mode="json", exclude={"content_hash"})
+            foreign_input_payload.update(
+                {
+                    "job_id": foreign_job_id,
+                    "run_id": foreign_run_id,
+                    "tenant_id": foreign_tenant_id,
+                    "cell_id": foreign_cell_id,
+                    "profile": foreign_profile.model_dump(mode="json"),
+                    "profile_config_ref": candidate_simulation_profile_ref(foreign_profile),
+                    "model_declaration_ref": foreign_declaration_ref.model_dump(mode="json"),
+                }
+            )
+            foreign_materialization = foreign_input_payload["materialization"]
+            foreign_materialization["profile_hash"] = foreign_profile.content_hash
+            foreign_materialization["model_declaration_ref"] = foreign_declaration_ref.model_dump(
+                mode="json"
+            )
+            foreign_materialization.pop("content_hash")
+            foreign_materialization["content_hash"] = gy_content_hash(foreign_materialization)
+            foreign_input_payload["content_hash"] = gy_content_hash(foreign_input_payload)
+            foreign_input_record = CandidateSimulationN5InputV5.model_validate(
+                foreign_input_payload
+            )
+            foreign_input_ref = foreign_repository.persist_candidate_simulation_input_v5(
+                input_record=foreign_input_record
+            )
+        with tenant_scope(None, tenant_id=foreign_tenant_id, cell_id=foreign_cell_id):
+            assert fresh_context.store.verify(foreign_input_ref).ok
+            foreign_manifest = fresh_context.store.get_manifest(foreign_input_ref)
+            assert foreign_manifest.kind == "runtime.quality.candidate_simulation_n5_input"
+            assert foreign_manifest.artifact_schema is not None
+            assert foreign_manifest.artifact_schema.version == "5.0"
+            assert foreign_manifest.tenant_context is not None
+            assert foreign_manifest.tenant_context.tenant_id == foreign_tenant_id
+            assert foreign_manifest.same_input_closure is not None
+            assert foreign_manifest.same_input_closure.job_id == foreign_job_id
+            assert foreign_manifest.same_input_closure.run_id == foreign_run_id
+            round_tripped_foreign_input = CandidateSimulationN5InputV5.model_validate(
+                canon.from_canonical_bytes(fresh_context.store.get_bytes(foreign_input_ref))
+            )
+        assert round_tripped_foreign_input == foreign_input_record
+        foreign_selected_cycle = selected_cycle.model_copy(
+            update={
+                "simulation": selected_cycle.simulation.model_copy(
+                    update={
+                        "diagnostics": {
+                            **diagnostics,
+                            "candidate_simulation_n5_input_selected_ref": (
+                                foreign_input_ref.model_dump(mode="json")
+                            ),
+                            "candidate_simulation_n5_input_ref": str(foreign_input_ref.artifact_id),
+                        }
+                    }
+                )
+            }
+        )
+        foreign_selected_leaf_run = candidate_leaf_run.model_copy(
+            update={
+                "cycles": tuple(
+                    foreign_selected_cycle if cycle == selected_cycle else cycle
+                    for cycle in candidate_leaf_run.cycles
+                )
+            }
+        )
+        foreign_selected_nodes = tuple(
+            node.model_copy(update={"cycle_run": foreign_selected_leaf_run})
+            if node.node_ref == candidate_leaf.node_ref
+            else node
+            for node in compiled_run.recursive_run.nodes
+        )
+        foreign_selected_run = compiled_run.recursive_run.model_copy(
+            update={"nodes": foreign_selected_nodes}
+        )
+        with tenant_scope(None, tenant_id=foreign_tenant_id, cell_id=foreign_cell_id):
+            foreign_selected_rows = replay_conditional_simulation_values(
+                foreign_selected_run,
+                store=fresh_context.store,
+                context_owner=CycleSubstrateContextArtifactOwner(store=fresh_context.store),
+                admission_owner=replay_owner._cycle_substrate_context_admission_owner,
+                expected_job_id=completed.job_id,
+                expected_run_id=completed.run_id,
+                expected_tenant_id=_TENANT_ID,
+                expected_cell_id=_CELL_ID,
+            )
+        assert len(foreign_selected_rows) == 1
+        assert foreign_selected_rows[0].projection_source == "not_established"
+        assert foreign_selected_rows[0].observation.status == "value_blocked"
+        assert len(n8_calls) == 2
+
+        # A valid receipt and CAS hash over the same semantic WMR hash cannot
+        # substitute a sibling WMR occurrence for the exact context owner ID.
+        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+            original_result = load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=fresh_context.store,
+                expected_world_model_record_content_hash=owner_world_model_record.content_hash,
+                expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
+                expected_selected_outcomes=(input_record.outcome_variable,),
+            )
+        sibling_result_payload = original_result.content_bound_payload()
+        sibling_world_model_record_id = f"{owner_world_model_record.world_model_record_id}:sibling"
+        sibling_result_payload["world_model_record_ref"] = sibling_world_model_record_id
+        sibling_receipt = build_content_bound_simulation_receipt(
+            engine_kind=original_result.receipt.engine_kind,
+            payload=sibling_result_payload,
+            diagnostics=sibling_result_payload["diagnostics"],
+        )
+        sibling_result = JointSimulationResult.model_validate(
+            {
+                **sibling_result_payload,
+                "receipt": sibling_receipt.model_dump(mode="json"),
+            }
+        )
+        sibling_result._content_payload = sibling_result_payload
+        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+            sibling_result_ref = persist_joint_simulation_result(
+                sibling_result,
+                store=fresh_context.store,
+            )
+        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+            assert fresh_context.store.verify(sibling_result_ref).ok
+            loaded_sibling_result = load_joint_simulation_result(
+                sibling_result_ref,
+                store=fresh_context.store,
+                expected_world_model_record_content_hash=owner_world_model_record.content_hash,
+                expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
+                expected_selected_outcomes=(input_record.outcome_variable,),
+            )
+        assert loaded_sibling_result.world_model_record_content_hash == (
+            owner_world_model_record.content_hash
+        )
+        assert loaded_sibling_result.world_model_record_ref == sibling_world_model_record_id
+        sibling_simulation = simulation.model_copy(
+            update={
+                "simulation_result_ref": sibling_result_ref,
+                "simulation_ref": sibling_receipt.payload_hash,
+            }
+        )
+        handoff = CandidateSimulationContextHandoff(
+            context=context_job.context,
+            context_job_ref=input_record.context_job_ref,
+            profile=input_record.profile,
+            profile_config_ref=input_record.profile_config_ref,
+            job_id=completed.job_id,
+            run_id=completed.run_id,
+            tenant_id=_TENANT_ID,
+            cell_id=_CELL_ID,
+            model_declaration=model_declaration,
+            model_declaration_ref=input_record.model_declaration_ref,
+            ncm_ref=input_record.ncm_ref,
+        )
+        n5_input_ref = ArtifactRef.model_validate(
+            diagnostics["candidate_simulation_n5_input_selected_ref"]
+        )
+        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+            sibling_execution_ref = GenerationSourceRepository(
+                store=fresh_context.store
+            ).persist_candidate_simulation_execution_v5(
+                input_ref=n5_input_ref,
+                simulation=sibling_simulation,
+                handoff=handoff,
+            )
+        sibling_diagnostics = {
+            **diagnostics,
+            "candidate_simulation_execution_selected_ref": (
+                sibling_execution_ref.model_dump(mode="json")
+            ),
+            "candidate_simulation_execution_ref": str(sibling_execution_ref.artifact_id),
+        }
+        sibling_cycle = selected_cycle.model_copy(
+            update={
+                "simulation": selected_cycle.simulation.model_copy(
+                    update={
+                        "simulation_result_ref": sibling_result_ref,
+                        "simulation_ref": sibling_receipt.payload_hash,
+                        "diagnostics": sibling_diagnostics,
+                    }
+                )
+            }
+        )
+        sibling_leaf_run = candidate_leaf_run.model_copy(
+            update={
+                "cycles": tuple(
+                    sibling_cycle if cycle == selected_cycle else cycle
+                    for cycle in candidate_leaf_run.cycles
+                )
+            }
+        )
+        sibling_nodes = tuple(
+            node.model_copy(update={"cycle_run": sibling_leaf_run})
+            if node.node_ref == candidate_leaf.node_ref
+            else node
+            for node in compiled_run.recursive_run.nodes
+        )
+        sibling_world_run = compiled_run.recursive_run.model_copy(update={"nodes": sibling_nodes})
+        with tenant_scope(None, tenant_id=scope.tenant_id, cell_id=scope.cell_id):
+            sibling_world_rows = replay_conditional_simulation_values(
+                sibling_world_run,
+                store=fresh_context.store,
+                context_owner=CycleSubstrateContextArtifactOwner(store=fresh_context.store),
+                admission_owner=replay_owner._cycle_substrate_context_admission_owner,
+                expected_job_id=completed.job_id,
+                expected_run_id=completed.run_id,
+                expected_tenant_id=_TENANT_ID,
+                expected_cell_id=_CELL_ID,
+            )
+        assert len(sibling_world_rows) == 1
+        assert sibling_world_rows[0].projection_source == "not_established"
+        assert sibling_world_rows[0].observation.status == "value_blocked"
+        assert len(n8_calls) == 2
+
+        # A different server-configured profile for the same problem cannot
+        # reinterpret the persisted candidate run on the ordinary GET surface.
         foreign_profile_context = build_runtime_api_context(
             cas_root=cas_root,
             core_runs_root=cas_root / "runs",

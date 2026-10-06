@@ -517,6 +517,13 @@
       "git_blob": "cf17b25de9290188729d8cc974445647813ac82d",
       "bytes": 3124,
       "sha256": "7a97fd02bc64f58c47737108926aa9f6e93f72b1fbd4f18c9842da9c4755ac53"
+    },
+    "configured_transfer_actual8c": {
+      "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+      "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+      "bytes": 52230,
+      "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
     }
   },
   "criterion_occurrences": [
@@ -3840,9 +3847,16 @@
           "source_sha": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c",
           "scope": "Exact historical/targeted receipt implementation/run sources, environment and complete output refs; not new8c execution.",
           "runtime_environment_and_output_pointer": ""
+        },
+        {
+          "reference_key": "configured_transfer_actual8c",
+          "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+          "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "scope": "Actual ordinary GP fit partial positive plus separate four-prefit guards; no full positive or owner-authority admission.",
+          "runtime_environment_and_output_pointer": "/checks"
         }
       ],
-      "current_residual": "Final exact8c composed criterion/affected-consumer wave was interrupted without a received completed test verdict. Recover exact deciding bytes or perform authorized exact-source verification; source-qualified bounded mechanism evidence remains separate.",
+      "current_residual": "Final exact8c composed criterion/affected-consumer wave was interrupted without a received completed test verdict. Recover exact deciding bytes or perform authorized exact-source verification; source-qualified bounded mechanism evidence remains separate. Exact8c ordinary configured-transfer positive remains ERROR after native construction/fit; separate four prefit refusals PASS. Final replacement candidate and actual composed execution remain pending.",
       "minimum_original_positive_ref": null,
       "next_owner": "root exact final-output recovery/affected verification; canonical OPT-03 consumer owner",
       "baseline_census_ref": {
@@ -4902,9 +4916,16 @@
           "source_sha": "22b5fd724414416e3d617f0546479b122ed6f313",
           "scope": "Exact historical/targeted receipt implementation/run sources, environment and complete output refs; not new8c execution.",
           "runtime_environment_and_output_pointer": ""
+        },
+        {
+          "reference_key": "configured_transfer_actual8c",
+          "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+          "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "scope": "Actual ordinary GP fit partial positive plus separate four-prefit guards; no full positive or owner-authority admission.",
+          "runtime_environment_and_output_pointer": "/checks"
         }
       ],
-      "current_residual": "Final exact8c composed criterion/affected-consumer wave was interrupted without a received completed test verdict. Recover exact deciding bytes or perform authorized exact-source verification; source-qualified bounded mechanism evidence remains separate.",
+      "current_residual": "Final exact8c composed criterion/affected-consumer wave was interrupted without a received completed test verdict. Recover exact deciding bytes or perform authorized exact-source verification; source-qualified bounded mechanism evidence remains separate. Exact8c ordinary configured-transfer positive remains ERROR after native construction/fit; separate four prefit refusals PASS. Final replacement candidate and actual composed execution remain pending.",
       "minimum_original_positive_ref": null,
       "next_owner": "root exact final-output recovery/affected verification; canonical TRN-01 consumer owner",
       "baseline_census_ref": {
@@ -5091,6 +5112,13 @@
           "source_sha": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c",
           "scope": "Exact historical/targeted receipt implementation/run sources, environment and complete output refs; not new8c execution.",
           "runtime_environment_and_output_pointer": ""
+        },
+        {
+          "reference_key": "configured_transfer_actual8c",
+          "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+          "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+          "scope": "Actual ordinary GP fit partial positive plus separate four-prefit guards; no full positive or owner-authority admission.",
+          "runtime_environment_and_output_pointer": "/checks"
         }
       ],
       "current_residual": "Actual tenant/split/source reuse owner decision and approved adapter/basis are absent. Metadata-only content binding supplies no authorization.",
@@ -7034,6 +7062,55 @@
       },
       "scope": "20 raw-loss cases fail original-value assertion before later strict rejection;1 actual enforcer false-zero settlement fails before intended fresh snapshot;3 healthy actual fresh-ledger controls PASS. No inherited/removal classification.",
       "fresh_8c_execution": false
+    },
+    {
+      "id": "configured_transfer8c_positive_interrupted",
+      "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "outcome": "ERROR_UNRUN",
+      "expected_cases": 5,
+      "completed_test_call_outcomes": 0,
+      "complete_positive_JUnit": false,
+      "child_exit_code": -9,
+      "counts": {
+        "completed_PASS": 0,
+        "FAIL": null,
+        "ERROR": null,
+        "SKIP": null
+      },
+      "observed_native_substeps": "SingleTaskGP constructor/fit returned on8originalCASrows, learned parameters changed; no completed controller/acquisition result",
+      "evidence_ref": {
+        "reference_key": "configured_transfer_actual8c",
+        "json_pointer": "/checks/0"
+      },
+      "environment_and_complete_output_ref": {
+        "reference_key": "configured_transfer_actual8c",
+        "json_pointer": "/checks/0"
+      },
+      "scope": "Partial native execution, not completed test or fit-adequacy verdict.",
+      "fresh_8c_execution": true
+    },
+    {
+      "id": "configured_transfer8c_four_prefit_guards",
+      "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "outcome": "PASS",
+      "counts": {
+        "tests": 4,
+        "PASS": 4,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "fit_or_constructor_calls": 0,
+      "evidence_ref": {
+        "reference_key": "configured_transfer_actual8c",
+        "json_pointer": "/checks/1"
+      },
+      "environment_and_complete_output_ref": {
+        "reference_key": "configured_transfer_actual8c",
+        "json_pointer": "/checks/1"
+      },
+      "scope": "Separate changed_ref/basis/direction/false_outcome refusals before fit, not positive controller completion.",
+      "fresh_8c_execution": true
     }
   ],
   "final_wave": {
@@ -7074,8 +7151,11 @@
       "expected_cases": 5,
       "outcome": "ERROR_UNRUN",
       "actual_GP_execution_verified": false,
-      "output_ref": null,
-      "meaning": "Installed backend and actual construction/fit were observed; full configured controller/acquisition positive did not complete. Preserve ERROR/UNRUN, not backend unavailable or positivePASS. Separate negative outputs must be received at exact source before any claim.",
+      "output_ref": {
+        "reference_key": "configured_transfer_actual8c",
+        "json_pointer": "/checks/0/complete_output_refs"
+      },
+      "meaning": "Complete separate four-prefit refusal verdict is received4PASS/0fit. The interrupted positive produced native constructor/MLL return/fitted state, yet full controller/acquisition positive remains ERROR/partial UNRUN. Installed/constructed/fitted backend is available; no backend-unavailable or five-positivePASS claim.",
       "received_targeted_attempt": {
         "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
         "source_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
@@ -7083,29 +7163,70 @@
         "child_exit_code": -9,
         "signal": "SIGKILL",
         "harness_exit_code": 137,
-        "wall_seconds": 282.912,
+        "wall_seconds": 282.9121839069994,
         "junit_received": false,
         "completed_outcome_ref": null,
         "cause": "not_established",
-        "predicate_basis": "consumer_asserted",
+        "predicate_basis": "independently_reconciled",
         "output_directory": "/tmp/e02-D-configured-transfer-8c-0e231fbbd4834d39a00f102320fa7587",
-        "Git_payload_ref": null
+        "Git_payload_ref": {
+          "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/deciding-inputs-and-outputs.json.xz",
+          "encoded_bytes": 479592,
+          "encoded_sha256": "94fcc74d8d36e111e8d0f6190af9f6350f97f1af2ca79af6ac6d3e3fa73bb8b8"
+        },
+        "receipt_ref": {
+          "reference_key": "configured_transfer_actual8c",
+          "json_pointer": "/checks/0"
+        }
       },
       "observed_actual_substeps": {
         "native_SingleTaskGP_constructor_return": true,
         "original_CAS_rows": 8,
         "fit_gpytorch_mll_call_and_return": true,
         "fitted_state_captured": true,
-        "predicate_basis": "consumer_asserted",
+        "learned_parameters_changed": true,
+        "fit_event_counts": {
+          "polisyos.scientist.methods.search.strategies.bayesian._fit_full_gp:call": 1,
+          "botorch.models.gp_regression.__init__:call": 1,
+          "botorch.models.gp_regression.__init__:return": 1,
+          "botorch.fit.fit_gpytorch_mll:call": 1,
+          "botorch.fit.fit_gpytorch_mll:return": 1,
+          "polisyos.scientist.methods.search.strategies.bayesian._fit_full_gp:return": 1
+        },
+        "metadata_predicate_basis": "independently_reconciled",
+        "fit_evidence_ref": {
+          "reference_key": "configured_transfer_actual8c",
+          "json_pointer": "/actual_partial_fit_observations"
+        },
         "complete_controller_acquisition_PASS": false,
-        "not_full_consumer_verdict": true
+        "no_completed_positive_test_call": true
       },
       "negative_controls": {
-        "four_prefit_cases_in_this_session": "UNRUN",
-        "separate_same_profile_negative_attempt": "PENDING_COMMITTED_DECIDING_OUTPUT",
-        "received_verdict_ref": null
+        "four_prefit_cases_in_positive_interrupted_session": "UNRUN",
+        "separate_same_profile_negative_attempt": "PASS",
+        "counts": {
+          "tests": 4,
+          "PASS": 4,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "fit_or_constructor_calls": 0,
+        "receipt_ref": {
+          "reference_key": "configured_transfer_actual8c",
+          "json_pointer": "/checks/1"
+        },
+        "complete_output_refs": {
+          "reference_key": "configured_transfer_actual8c",
+          "json_pointer": "/checks/1/complete_output_refs"
+        }
       },
-      "actual_GP_execution_verification_scope": "Root-reported native constructor/fit substeps captured; exact Git-bound payload not independently received in this preliminary checkpoint."
+      "actual_GP_execution_verification_scope": "Actual committed native construction/fit events and their source/output bytes reconciled, but full configured controller/acquisition positive is ERROR/partial UNRUN; no completed five-case positive verdict.",
+      "independent_numerical_review": {
+        "state": "ASSIGNED_BY_ROOT; publication not received",
+        "receipt_ref": null
+      }
     },
     "observed_process_state": {
       "child": {
@@ -7159,9 +7280,10 @@
   "separate_scope_tasks": {
     "B109": {
       "finite_original": "Fast/direct exact1–4D helper criterion has bounded evidence; final verification pending",
-      "ordinary_default_workflow": "OPEN",
+      "ordinary_default_workflow": "OPEN; D existing configured-registry bridge actively being finished",
       "gap": "Default HierarchicalPolicySearchAdapter coordinator lacks ParetoRegistry and actual A-W04 complete eligible/feasible/unknown export plus A-W01 caller bridge.",
-      "minimum_ref": null
+      "minimum_ref": null,
+      "next_implementation_ref": null
     },
     "B108": {
       "finite_original": "Declared alias/unit/presence/conflict/zero intake bounded evidence; final verification pending",
@@ -7417,7 +7539,11 @@
       "current_composed_verification": {
         "wave_ref": "/final_wave",
         "outcome": "ERROR_UNRUN",
-        "complete_verdict_ref": null
+        "complete_verdict_ref": null,
+        "configured_transfer8c_ref": {
+          "reference_key": "configured_transfer_actual8c",
+          "scope": "Four prefit guards PASS; partial native positive ERROR; final composed positive pending."
+        }
       },
       "next_step": "Root receives exact composed affected-consumer outputs; requested original-positive owners supply only missing typed input/law/decision. Do not substitute a generic production requirement.",
       "closure_ids": [],
@@ -7584,7 +7710,11 @@
       "current_composed_verification": {
         "wave_ref": "/final_wave",
         "outcome": "ERROR_UNRUN",
-        "complete_verdict_ref": null
+        "complete_verdict_ref": null,
+        "configured_transfer8c_ref": {
+          "reference_key": "configured_transfer_actual8c",
+          "scope": "Four prefit guards PASS; partial native positive ERROR; final composed positive pending."
+        }
       },
       "next_step": "Root receives exact composed affected-consumer outputs; requested original-positive owners supply only missing typed input/law/decision. Do not substitute a generic production requirement.",
       "closure_ids": [],
@@ -8104,5 +8234,19 @@
     "publication_draft_source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
     "original_bytes_unchanged": true,
     "normalized_candidate_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47"
+  },
+  "current_root_docs_checkpoint": {
+    "sha": "f055e68f87bf9ce465528e1d7e6225f8dfd16d94",
+    "source_test_identity_to8c": "Root reports unchanged; current accounting target stays exact8c",
+    "predicate_basis": "consumer_asserted"
+  },
+  "next_Search_bridge": {
+    "state": "D_ENGINEERING_WORK_IN_PROGRESS",
+    "actual_next_candidate_source_sha": null,
+    "actual_next_candidate_tree": null,
+    "current_root_report": "Existing configured ParetoRegistry wiring at3 constructor ports, existing tenant/cell scope/hash-conflict admission, parameterless physical-row projection; actual A initial_context minimal1947B review patch prepared but A owner API contract pending.",
+    "predicate_basis": "consumer_asserted",
+    "new_source_or_test_PASS_claim": false,
+    "formal_final_accounting": "WAIT_FOR_NEW_IMMUTABLE_CANDIDATE"
   }
 }

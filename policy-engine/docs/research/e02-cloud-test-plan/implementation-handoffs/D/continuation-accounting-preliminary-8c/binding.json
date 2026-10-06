@@ -3225,5 +3225,241 @@
   "runtime_invocations_here": 0,
   "source_test_mutations": 0,
   "formal_closed": 0,
-  "accepted_in_G": false
+  "accepted_in_G": false,
+  "configured_transfer_output_accounting": {
+    "schema": "policyos.e02.configured_transfer_output_binding_accounting.v1",
+    "receipt_source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+    "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "compressed_bytes": 479592,
+    "compressed_sha256": "94fcc74d8d36e111e8d0f6190af9f6350f97f1af2ca79af6ac6d3e3fa73bb8b8",
+    "raw_bytes": 8016158,
+    "raw_sha256": "cace28f63a8c02c8c9ac71b1888d1518aae64ed26204de871f01c3e762fbd896",
+    "member_count": 510,
+    "member_all_hash_matches": true,
+    "receipt_member_refs": [
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/complete.stdout.txt",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/complete.stderr.txt",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/execution-manifest.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/events.jsonl",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/actual-fit-events.jsonl",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/before.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/after.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/result.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/retained-fixture-identities.json",
+        "MATCH": true
+      },
+      {
+        "check": "five-interrupted",
+        "member": "five-interrupted/partial-evidence-reconciliation.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/complete.stdout.txt",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/complete.stderr.txt",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/execution-manifest.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/events.jsonl",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/actual-fit-events.jsonl",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/before.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/after.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/result.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/retained-fixture-identities.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/negative-evidence-reconciliation.json",
+        "MATCH": true
+      },
+      {
+        "check": "four-prefit-negatives",
+        "member": "four-prefit-negatives/junit.xml",
+        "MATCH": true
+      }
+    ],
+    "source_references": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/common/serialization.py",
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "MATCH": true
+      }
+    ],
+    "four_negative_JUnit_cases": 4,
+    "four_negative_JUnit_outcomes": {
+      "PASS": 4
+    },
+    "fit_event_subsets": {
+      "five-interrupted": {
+        "native_call_counts": {
+          "polisyos.scientist.methods.search.strategies.bayesian._fit_full_gp:call": 1,
+          "botorch.models.gp_regression.__init__:call": 1,
+          "botorch.models.gp_regression.__init__:return": 1,
+          "botorch.fit.fit_gpytorch_mll:call": 1,
+          "botorch.fit.fit_gpytorch_mll:return": 1,
+          "polisyos.scientist.methods.search.strategies.bayesian._fit_full_gp:return": 1
+        },
+        "records": 7
+      },
+      "four-prefit-negatives": {
+        "native_call_counts": {},
+        "records": 5
+      }
+    },
+    "five_positive_JUnit_present": false,
+    "errors": [],
+    "scope": "Output/source byte and JUnit/event subset accounting only; numerical scientific/consumer acceptance remains separate parent-routed independent review.",
+    "predicate_basis": "independently_reconciled"
+  },
+  "new_runtime_invocations_for_this_update": 0
 }

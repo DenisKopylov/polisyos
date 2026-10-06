@@ -593,7 +593,7 @@ class LessonRegistry:
                         else LessonTrustLevel.LOW_CONFIDENCE
                     ),
                     "provenance_weight": weight,
-                    "last_accessed_at": target_context.timestamp,
+                    "last_accessed_at": datetime.now(UTC),
                     "transfer_chain": [*card.transfer_chain, transfer_hop],
                     "metadata": {
                         **card.metadata,
@@ -707,16 +707,19 @@ class LessonRegistry:
         snapshot = self.index_snapshot(context=target_context)
         results: list[LessonCard] = []
         now = self._query_time(query, target_context=target_context)
+        accessed_at = datetime.now(UTC)
         for entry in self._sorted_entries(snapshot):
             if entry.invalidated:
                 continue
             if not self._entry_matches(entry, query):
                 continue
-            card = self._materialize_query_card(entry, now=now, policy=policy)
+            card = self._materialize_query_card(
+                entry, now=now, accessed_at=accessed_at, policy=policy
+            )
             if card is None or not self._matches_query(card, query):
                 continue
             results.append(card)
-            self._touch_access(entry, now=now, context=target_context)
+            self._touch_access(entry, now=accessed_at, context=target_context)
             if len(results) >= query.limit:
                 break
         return results
@@ -724,6 +727,7 @@ class LessonRegistry:
     def _query_local_aggregated(
         self, query: LessonQuery, *, now: datetime, policy: TransferPolicy | None = None
     ) -> list[LessonCard]:
+        accessed_at = datetime.now(UTC)
         candidates: list[
             tuple[
                 tuple[bool, float, int, float],
@@ -755,11 +759,13 @@ class LessonRegistry:
 
         results: list[LessonCard] = []
         for _, entry, snapshot, namespace_context in sorted(candidates, key=lambda item: item[0]):
-            card = self._materialize_query_card(entry, now=now, policy=policy)
+            card = self._materialize_query_card(
+                entry, now=now, accessed_at=accessed_at, policy=policy
+            )
             if card is None or not self._matches_query(card, query):
                 continue
             results.append(card)
-            self._touch_access(entry, now=now, context=namespace_context)
+            self._touch_access(entry, now=accessed_at, context=namespace_context)
             if len(results) >= query.limit:
                 break
 
@@ -860,6 +866,7 @@ class LessonRegistry:
         entry: LessonIndexEntry,
         *,
         now: datetime,
+        accessed_at: datetime,
         policy: TransferPolicy | None = None,
     ) -> LessonCard | None:
         card = load_lesson_card(self._store, entry.artifact_ref)
@@ -874,7 +881,7 @@ class LessonRegistry:
         if effective is None:
             return None
         return effective.model_copy(
-            update={"last_accessed_at": now, "provenance_weight": entry.provenance_weight}
+            update={"last_accessed_at": accessed_at, "provenance_weight": entry.provenance_weight}
         )
 
     @staticmethod

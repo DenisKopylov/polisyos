@@ -96,10 +96,11 @@ def test_retention_reads_and_restart_never_refresh_evidence(tmp_path):
     registry.record_local(_card(), context=_context("source"))
     later = AS_OF + timedelta(days=100)
     broad = LessonQuery(domain="source", tenant_hash="tenant-a", as_of=later)
+    before_read = datetime.now(UTC)
     first = registry.query(broad)
     assert first[0].confidence == 0.5
     assert first[0].trust_level is LessonTrustLevel.LOW_CONFIDENCE
-    assert first[0].last_accessed_at == later
+    assert before_read <= first[0].last_accessed_at <= datetime.now(UTC)
     strict = broad.model_copy(
         update={"min_confidence": 0.8, "trust_levels": [LessonTrustLevel.LOCAL]}
     )
@@ -172,3 +173,24 @@ def test_aggregate_transfer_lookup_keeps_the_explicit_target_time(tmp_path):
 def test_naive_query_time_is_refused(tmp_path):
     with pytest.raises(ValueError, match="timezone"):
         _registry(tmp_path).query(LessonQuery(as_of=AS_OF.replace(tzinfo=None)))
+
+
+@pytest.mark.parametrize("aggregate", [False, True])
+def test_historical_read_retains_evidence_at_actual_access_time(tmp_path, aggregate):
+    registry = _registry(tmp_path)
+    registry.record_local(_card(), context=_context("source"))
+    query = LessonQuery(as_of=AS_OF)
+    if not aggregate:
+        query = query.model_copy(update={"domain": "source", "tenant_hash": "tenant-a"})
+    before_read = datetime.now(UTC)
+    card = registry.query(query)[0]
+    assert card.created_at == AS_OF
+    assert before_read <= card.last_accessed_at <= datetime.now(UTC)
+    fresh = _registry(tmp_path)
+    entry = fresh.index_snapshot(context=_context("source")).entries[0]
+    assert entry.last_seen == AS_OF
+    assert before_read <= entry.last_accessed_at <= datetime.now(UTC)
+    assert fresh.garbage_collect(ttl_days=90) == 0
+    assert fresh.query(query)[0].confidence == 0.9
+    # Retention did not change present-day evidence sufficiency.
+    assert fresh.query(query.model_copy(update={"as_of": datetime.now(UTC)}))[0].confidence == 0.5

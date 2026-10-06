@@ -1180,6 +1180,16 @@ def _coerce_policy_evaluation(payload: Any) -> PolicyEvaluationVector | None:
 def _candidate_payload_without_hash(payload: dict[str, Any]) -> dict[str, Any]:
     cleaned = dict(payload)
     cleaned.pop("candidate_hash", None)
+    # The native parameter generator retains this technical envelope in history.
+    # Only its exact empty semantic payload can be projected into a policy DTO.
+    if "semantic" in cleaned:
+        if cleaned["semantic"] != {"interventions": []}:
+            raise ValueError("Native policy candidate has meaningful or unknown semantic fields")
+        cleaned.pop("semantic")
+    if "_strategy_metadata" in cleaned:
+        if not isinstance(cleaned["_strategy_metadata"], dict):
+            raise ValueError("Native policy candidate strategy metadata must be a mapping")
+        cleaned.pop("_strategy_metadata")
     return cleaned
 
 

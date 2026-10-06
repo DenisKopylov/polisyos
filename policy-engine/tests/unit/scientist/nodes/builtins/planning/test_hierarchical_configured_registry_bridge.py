@@ -143,8 +143,13 @@ def test_actual_typed_rows_reach_disk_and_fresh_projection(
     assert projection == result.pareto_projection
     assert projection.assessment.status == "basis_limited"
     assert projection.ranked_frontier_hashes == ()
-    # Existing observed-coordinate quantity may be positive; it is not a rank/authority grant.
-    assert snapshot.hypervolume_by_view["global_feasible"] > 0
+    # Existing observed-coordinate quantity is not a rank/authority grant.
+    assert snapshot.hypervolume_assessments["global_feasible"].status == "available"
+    if parameterless:
+        # One observed point equals the existing derived reference, giving genuine zero.
+        assert snapshot.hypervolume_by_view["global_feasible"] == 0.0
+    else:
+        assert snapshot.hypervolume_by_view["global_feasible"] > 0
     ref = module._persist_frontier_report(
         execution_context, state=minimal_state, loop_id="actual_rows", search_result=result
     )
@@ -360,3 +365,30 @@ def test_tenant_scope_resets_after_registry_publication_fault(tmp_path, monkeypa
                 stage_b_evaluator=_evaluate,
             )
         assert get_current_tenant_id_or_none() == "ambient"
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        {"semantic": {"interventions": [{"kind": "meaningful"}]}},
+        {"_strategy_metadata": "malformed"},
+        {"unregistered_candidate_field": "unknown"},
+    ],
+)
+def test_actual_report_refuses_nonprojectable_candidate_envelopes(
+    tmp_path, execution_context, minimal_state, extra
+):
+    registry = ParetoRegistry(tmp_path / "registry")
+    result = module.HierarchicalPolicySearchAdapter(pareto_registry=registry).run_search(
+        _candidate(parameterless=True),
+        loop_id="nonprojectable",
+        search_config=_config(),
+        stage_b_evaluator=_evaluate,
+    )
+    history = next(iter(result.state.parameter_search_results.values())).history
+    history[0].candidate = {**history[0].candidate, **extra}
+    with pytest.raises(ValueError):
+        module._persist_frontier_report(
+            execution_context, state=minimal_state, loop_id="nonprojectable", search_result=result
+        )
+    assert len(ParetoRegistry(registry._root).get_snapshot("nonprojectable").entries) == 1

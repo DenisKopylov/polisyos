@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="104" time="47.952" timestamp="2026-10-06T15:16:29.992831+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[1]" time="0.025" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[20]" time="0.007" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_absent_threshold_does_not_assess_robustness" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-True]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-False]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-0]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-nan]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-inf]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[plan-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-True]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-False]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-0]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-nan]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-inf]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_threshold_intakes_refuse_values_before_float_coercion[surface-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.000" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_unknown_or_empty_finite_basis_remains_partial[values0-1.0]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_unknown_or_empty_finite_basis_remains_partial[values1-None]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_suite_replacement_keeps_count_basis_separate_from_issue_groups" time="0.002" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_legacy_issue_counts_cannot_supply_missing_scenario_evidence" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_known_complete_nonviolating_stream_is_robust" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_fresh_report_reader_refuses_corrupted_count_basis[attempted-True]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_fresh_report_reader_refuses_corrupted_count_basis[violated_scenarios-3]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_fresh_reader_refuses_score_independent_of_retained_basis" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_negated_objective_inverts_sign" time="0.000" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_grid_extreme_reports_worst_case" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_top_k_does_not_change_ten_violation_score" time="0.002" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_lower_tail_selects_negative_worst_case" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_tracks_lower_tail_through_adaptive_step" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_stops_on_first_lower_tail_vulnerability" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_reverses_order_for_minimize_cost" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_composite_budget_cost_selects_high_cost_as_worst_case" time="0.000" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[missing]" time="0.002"><failure message="AssertionError: assert None == 1.0&#10; +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score">invalid_result = None
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -&gt; None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -&gt; Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+        assert report.total_scenarios_evaluated == 32
+        assert report.metadata["attempted"] == 33
+        assert report.metadata["unknown_or_nonfinite"] == 1
+        assert report.set_adequacy_status == "partial"
+&gt;       assert report.robustness_score == 1.0
+E       AssertionError: assert None == 1.0
+E        +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_adversarial.py:431: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[non_numeric]" time="0.002"><failure message="AssertionError: assert None == 1.0&#10; +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score">invalid_result = {'simulation_results': {'budget_deficit': 'not-a-number'}}
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -&gt; None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -&gt; Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+        assert report.total_scenarios_evaluated == 32
+        assert report.metadata["attempted"] == 33
+        assert report.metadata["unknown_or_nonfinite"] == 1
+        assert report.set_adequacy_status == "partial"
+&gt;       assert report.robustness_score == 1.0
+E       AssertionError: assert None == 1.0
+E        +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_adversarial.py:431: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[nan]" time="0.001"><failure message="AssertionError: assert None == 1.0&#10; +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score">invalid_result = {'simulation_results': {'budget_deficit': nan}}
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -&gt; None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -&gt; Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+        assert report.total_scenarios_evaluated == 32
+        assert report.metadata["attempted"] == 33
+        assert report.metadata["unknown_or_nonfinite"] == 1
+        assert report.set_adequacy_status == "partial"
+&gt;       assert report.robustness_score == 1.0
+E       AssertionError: assert None == 1.0
+E        +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_adversarial.py:431: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[inf]" time="0.001"><failure message="AssertionError: assert None == 1.0&#10; +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score">invalid_result = {'simulation_results': {'budget_deficit': inf}}
+
+    @pytest.mark.parametrize(
+        "invalid_result",
+        [
+            pytest.param(None, id="missing"),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": "not-a-number"}},
+                id="non_numeric",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.nan}},
+                id="nan",
+            ),
+            pytest.param(
+                {"simulation_results": {"budget_deficit": math.inf}},
+                id="inf",
+            ),
+        ],
+    )
+    def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+        invalid_result: object,
+    ) -&gt; None:
+        """Invalid adaptive feedback cannot become a positive robustness claim."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            max_iterations=33,
+            stop_on_first_vulnerability=False,
+        )
+        space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+        strategy = RecordingStrategy(space)
+        adapter = RecordingStrategyAdapter(strategy, space)
+        calls = 0
+    
+        def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -&gt; Any:
+            nonlocal calls
+            del candidate, context
+            calls += 1
+            if calls == 33:
+                return invalid_result
+            return {"simulation_results": {"budget_deficit": 1.0}}
+    
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=stage_b,
+            candidate_generator=adapter,
+            context={},
+        )
+    
+        assert calls == 33
+        assert report.total_scenarios_evaluated == 32
+        assert report.metadata["attempted"] == 33
+        assert report.metadata["unknown_or_nonfinite"] == 1
+        assert report.set_adequacy_status == "partial"
+&gt;       assert report.robustness_score == 1.0
+E       AssertionError: assert None == 1.0
+E        +  where None = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_8d9d5528acdbf3bbdc2f8adb29613e3bc2a5cf973fc35af..._established', 'observed_vulnerability_count': 1, 'unique_vulnerability_count': 1, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_adversarial.py:431: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_platform_meta_evaluator_passes_healthy_sentinel_injection" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_platform_meta_evaluator_detects_holdout_rotation_failure" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_platform_meta_evaluator_rejects_mistyped_rotations" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial" name="test_platform_meta_evaluator_passes_drift_attack_when_tracker_degrades" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[-0.5-gdp]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[-0.5-cost]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[0.0-gdp]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[0.0-cost]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[0.5-gdp]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_physical_direction_fraction_and_exact_cas_readback[0.5-cost]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_unknown_outcomes_are_separate_from_finite_fraction[1]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_unknown_outcomes_are_separate_from_finite_fraction[2]" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_first_violation_does_not_claim_complete_observed_stream" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_typed_adaptive_extremum_and_best_feedback_survive_cas[gdp]" time="0.007" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_typed_adaptive_extremum_and_best_feedback_survive_cas[cost]" time="0.006" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_repeated_scenarios_are_not_unique_issue_denominator[1]" time="0.002" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_repeated_scenarios_are_not_unique_issue_denominator[10]" time="0.002" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_search_loop_without_adaptive_producer_remains_partial" time="0.001" /><testcase classname="tests.unit.scientist.search.test_adversarial_streaming" name="test_full_vulnerability_payloads_are_bounded_during_real_run" time="15.326" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_replay_resolution_does_not_fallback_to_checkpoint_ref" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_replay_resolution_prefers_replayable_audit_bundle" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_source_statuses_fall_back_to_nested_evidence_sources" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_source_statuses_prefer_cross_graph_profile_when_available" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_blueprint_caller_cannot_bypass_production_eval_safety_owner" time="0.033" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_merge_stress_reports_replaces_phase_d4_suite_findings_by_suite_id" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_merge_stress_reports_can_clear_stale_phase_d4_findings_after_pass" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_spec_declares_strategic_phase_d_reads_and_writes" time="0.000" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_component" time="0.078" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_blocks_when_causal_report_is_missing" time="0.044" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_blocks_on_unreadable_contract_payoff_refs" time="0.066" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_blocks_on_contract_payoff_mismatch" time="0.046" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_invalid_input_records_degraded_path" time="0.031" /><testcase classname="tests.unit.scientist.search.test_policy_blueprint_runtime_guards" name="test_runtime_strategic_helper_persistence_failure_records_degraded_path" time="0.052" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[2-0-2-complete]" time="0.001"><failure message="assert False is True">finite = 2, unknown = 0, planned = 2, status = 'complete'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+&gt;       assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+E       assert False is True
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:57: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[1-1-2-partial]" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising">finite = 1, unknown = 1, planned = 2, status = 'partial'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+        assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+&gt;       assert result.is_promising
+E       AssertionError: assert False
+E        +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:58: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[1-0-2-partial]" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising">finite = 1, unknown = 0, planned = 2, status = 'partial'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+        assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+&gt;       assert result.is_promising
+E       AssertionError: assert False
+E        +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:58: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[0-2-2-partial]" time="0.001"><failure message="AssertionError: assert False&#10; +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising">finite = 0, unknown = 2, planned = 2, status = 'partial'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+        assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+&gt;       assert result.is_promising
+E       AssertionError: assert False
+E        +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:58: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_real_level5_consumes_adequacy_scope_without_probability_claim[0-0-0-partial]" time="0.002"><failure message="AssertionError: assert False&#10; +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising">finite = 0, unknown = 0, planned = 0, status = 'partial'
+
+    @pytest.mark.parametrize(
+        ("finite", "unknown", "planned", "status"),
+        [
+            (2, 0, 2, "complete"),
+            (1, 1, 2, "partial"),
+            (1, 0, 2, "partial"),
+            (0, 2, 2, "partial"),
+            (0, 0, 0, "partial"),
+        ],
+    )
+    def test_real_level5_consumes_adequacy_scope_without_probability_claim(
+        finite, unknown, planned, status
+    ):
+        stress = report(finite=finite, unknown=unknown, planned=planned)
+        stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)
+        result = stage.evaluate({"candidate_id": "candidate-1"}, {"stress_test_report": stress})
+        assessment = result.feedback["stress_observed_sample_assessment"]
+        assert assessment["status"] == status
+        assert assessment["observed_fraction"] == stress.robustness_score
+        assert assessment["population_probability"] == "not_established"
+        model = result.uncertainty_envelope.uncertainties[UncertaintyType.MODEL]
+        assert model.level == 1
+        assert model.quantification_method == "stress_sample_does_not_establish_model_uncertainty"
+        assert result.feedback["stress_robust"] is (True if status == "complete" else None)
+&gt;       assert result.is_promising
+E       AssertionError: assert False
+E        +  where False = FunnelStageResult(policy_candidate={'candidate_id': 'candidate-1'}, objective_value=0.0, is_promising=False, stage_nam...ne, resource_event_ids=(), fidelity_level=5, audit_refs=[], actionable_side_information_ref=None, terminal_action=None).is_promising
+
+tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py:58: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt1]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt2]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt3]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_missing_or_malformed_scope_is_unassessed_even_with_score_one[corrupt4]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.funnel.test_level5_refutation_governance" name="test_actual_stage_and_funnel_aggregate_keep_observed_complete_unknown_model_distinct" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_same_scope_refinement_is_current_while_history_keeps_unknown_risk" time="0.003" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[subject_id]" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[value_slot]" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[input_signature]" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[procedure_id]" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_scope_identity_prevents_cross_scope_continuation[population_scope]" time="0.002" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_empty_tracker_has_one_explicit_not_established_routing_state" time="0.000" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_persisted_empty_report_fails_closed_over_stale_normal_mode" time="0.008" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_statistically_bad_tracker_is_observed_drift_not_empty_state" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_level6_degradation_preflight_reads_existing_payload_without_runner" time="0.000" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_level6_owner_recheck_happens_before_effectful_runner" time="0.000" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_level6_normal_path_bool_preflight_cannot_admit_runner_effects" time="0.000" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_production_owner_recheck_requires_explicit_write_permission" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_orchestrator_honors_persisted_no_promotion_projection_without_tracker" time="0.001" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[no_promotion]" time="0.033" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[reduced_judge]" time="0.031" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work[auto_cap]" time="0.031" /><testcase classname="tests.unit.remediation.test_fun_03" name="test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work" time="0.036" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_translator_falls_back_deterministically_without_gateway" time="0.002" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_translator_gateway_parses_think_prefixed_json" time="0.002" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_translator_surfaces_degraded_evidence_channels" time="0.001" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_translator_compliance_flags_all_anti_spin_invariants" time="0.000" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_constraint_critic_surfaces_budget_and_not_assessed_findings" time="0.002" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_scenario_adversary_fallback_and_execution" time="0.012" /><testcase classname="tests.unit.scientist.policy_design.test_phase_b_policy_workers" name="test_scenario_adversary_gateway_parses_think_prefixed_json" time="0.001" /></testsuite></testsuites>

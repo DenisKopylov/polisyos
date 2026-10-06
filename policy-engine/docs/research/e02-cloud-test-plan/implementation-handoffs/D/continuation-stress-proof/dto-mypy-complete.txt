@@ -1,0 +1,4 @@
+src/polisyos/scientist/methods/doe/stress_report.py:19: error: Argument 1 to "float" has incompatible type "object"; expected "str | Buffer | SupportsFloat | SupportsIndex"  [arg-type]
+src/polisyos/scientist/methods/doe/stress_report.py:195: error: Item "None" of "StressScenarioEvidence | None" has no attribute "assessment_rule"  [union-attr]
+src/polisyos/scientist/methods/doe/designs.py:22: error: Missing type parameters for generic type "dict"  [type-arg]
+Found 3 errors in 2 files (checked 2 source files)

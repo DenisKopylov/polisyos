@@ -1,0 +1,237 @@
+FFFFFFFF.FFFFF.FFFF                                                      [100%]
+=================================== FAILURES ===================================
+______ test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[1] ______
+
+tmp_path = PosixPath('/dev/shm/e02-D-STR-baseline-20261006-b/test_blueprint_fraction_uses_30')
+top_k = 1
+
+    @pytest.mark.parametrize("top_k", [1, 20])
+    def test_blueprint_fraction_uses_32_scenarios_not_one_issue_example(
+        tmp_path: Path, top_k: int
+    ) -> None:
+        producer = _run([1.0] * 31 + [3.0], top_k=top_k)
+>       assert producer.robustness_score == 31 / 32
+E       AssertionError: assert None == (31 / 32)
+E        +  where None = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_bd738cea9c9d50118cd5252bbb92823256852e299bdbce3...navailable', 'observed_vulnerability_count': 32, 'unique_vulnerability_count': 32, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:51: AssertionError
+_____ test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[20] ______
+
+tmp_path = PosixPath('/dev/shm/e02-D-STR-baseline-20261006-b/test_blueprint_fraction_uses_31')
+top_k = 20
+
+    @pytest.mark.parametrize("top_k", [1, 20])
+    def test_blueprint_fraction_uses_32_scenarios_not_one_issue_example(
+        tmp_path: Path, top_k: int
+    ) -> None:
+        producer = _run([1.0] * 31 + [3.0], top_k=top_k)
+>       assert producer.robustness_score == 31 / 32
+E       AssertionError: assert None == (31 / 32)
+E        +  where None = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_b10771794484fcdb01166153e3c2545d2eae6754d8e0d73...available', 'observed_vulnerability_count': 32, 'unique_vulnerability_count': 32, 'presented_vulnerability_count': 20}).robustness_score
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:51: AssertionError
+_______________ test_absent_threshold_does_not_assess_robustness _______________
+
+    def test_absent_threshold_does_not_assess_robustness() -> None:
+        report = _run([1.0, 1.0], threshold=None)
+        assert report.robustness_score is None
+        assert report.is_robust is False
+        assert report.set_adequacy_status == "partial"
+        assert report.metadata["score_status"] == "unavailable"
+>       assert _recompute_stress_test_report(report).robustness_score is None
+E       AssertionError: assert 0.0 is None
+E        +  where 0.0 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_1474ebc3e0fae4d88f9da8c8661600eedf4de272e9cf6f5...'unavailable', 'observed_vulnerability_count': 2, 'unique_vulnerability_count': 2, 'presented_vulnerability_count': 1}).robustness_score
+E        +    where StressTestReport(schema_version='1.0', report_id='stress.report.sha256_1474ebc3e0fae4d88f9da8c8661600eedf4de272e9cf6f5...'unavailable', 'observed_vulnerability_count': 2, 'unique_vulnerability_count': 2, 'presented_vulnerability_count': 1}) = _recompute_stress_test_report(StressTestReport(schema_version='1.0', report_id='stress.report.sha256_1474ebc3e0fae4d88f9da8c8661600eedf4de272e9cf6f5...'unavailable', 'observed_vulnerability_count': 2, 'unique_vulnerability_count': 2, 'presented_vulnerability_count': 1}))
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:81: AssertionError
+____ test_threshold_intakes_refuse_values_before_float_coercion[plan-True] _____
+
+invalid = True, intake = 'plan'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+____ test_threshold_intakes_refuse_values_before_float_coercion[plan-False] ____
+
+invalid = False, intake = 'plan'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+______ test_threshold_intakes_refuse_values_before_float_coercion[plan-0] ______
+
+invalid = '0', intake = 'plan'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+_____ test_threshold_intakes_refuse_values_before_float_coercion[plan-nan] _____
+
+invalid = nan, intake = 'plan'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+_____ test_threshold_intakes_refuse_values_before_float_coercion[plan-inf] _____
+
+invalid = inf, intake = 'plan'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+___ test_threshold_intakes_refuse_values_before_float_coercion[surface-True] ___
+
+invalid = True, intake = 'surface'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+__ test_threshold_intakes_refuse_values_before_float_coercion[surface-False] ___
+
+invalid = False, intake = 'surface'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+____ test_threshold_intakes_refuse_values_before_float_coercion[surface-0] _____
+
+invalid = '0', intake = 'surface'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+___ test_threshold_intakes_refuse_values_before_float_coercion[surface-nan] ____
+
+invalid = nan, intake = 'surface'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+___ test_threshold_intakes_refuse_values_before_float_coercion[surface-inf] ____
+
+invalid = inf, intake = 'surface'
+
+    @pytest.mark.parametrize("invalid", [True, False, "0", float("nan"), float("inf"), 10**400])
+    @pytest.mark.parametrize("intake", ["plan", "surface"])
+    def test_threshold_intakes_refuse_values_before_float_coercion(invalid: object, intake: str) -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:87: Failed
+_______ test_unknown_or_empty_finite_basis_remains_partial[values0-1.0] ________
+
+values = [None, 1.0], expected = 1.0
+
+    @pytest.mark.parametrize("values, expected", [([None, 1.0], 1.0), ([None, None], None)])
+    def test_unknown_or_empty_finite_basis_remains_partial(values: list, expected: float | None) -> None:
+        report = _recompute_stress_test_report(_run(values))
+>       assert report.robustness_score == expected
+E       AssertionError: assert 0.0 == 1.0
+E        +  where 0.0 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_dafddf566417c4fe113b906a7cebba69e561c39a12d4ab3...'unavailable', 'observed_vulnerability_count': 2, 'unique_vulnerability_count': 2, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:98: AssertionError
+_______ test_unknown_or_empty_finite_basis_remains_partial[values1-None] _______
+
+values = [None, None], expected = None
+
+    @pytest.mark.parametrize("values, expected", [([None, 1.0], 1.0), ([None, None], None)])
+    def test_unknown_or_empty_finite_basis_remains_partial(values: list, expected: float | None) -> None:
+        report = _recompute_stress_test_report(_run(values))
+>       assert report.robustness_score == expected
+E       AssertionError: assert 0.0 == None
+E        +  where 0.0 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_dafddf566417c4fe113b906a7cebba69e561c39a12d4ab3...'unavailable', 'observed_vulnerability_count': 2, 'unique_vulnerability_count': 2, 'presented_vulnerability_count': 1}).robustness_score
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:98: AssertionError
+_____ test_suite_replacement_keeps_count_basis_separate_from_issue_groups ______
+
+    def test_suite_replacement_keeps_count_basis_separate_from_issue_groups() -> None:
+        base = _run([1.0] * 31 + [3.0])
+        failing_suite = _run([1.0] * 3 + [3.0])
+        failing_suite.metadata["challenge_suite_id"] = "strategic_gaming_v1"
+        failing_suite.vulnerabilities[0].vulnerability_id = "strategic_gaming_v1:issue"
+        merged = _recompute_stress_test_report(_merge_stress_test_reports(base, [failing_suite]))
+>       assert merged.robustness_score == 34 / 36
+E       AssertionError: assert 0.0 == (34 / 36)
+E        +  where 0.0 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_bd738cea9c9d50118cd5252bbb92823256852e299bdbce3...ategic_gaming_v1'], 'phase_d4_suite_scenario_counts': {'strategic_gaming_v1': 0}, 'base_total_scenarios_evaluated': 0}).robustness_score
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:110: AssertionError
+_______ test_legacy_issue_counts_cannot_supply_missing_scenario_evidence _______
+
+    def test_legacy_issue_counts_cannot_supply_missing_scenario_evidence() -> None:
+        legacy = StressTestReport(report_id="legacy", total_scenarios_evaluated=32, robustness_score=1.0)
+>       assert legacy.is_robust is False
+E       AssertionError: assert True is False
+E        +  where True = StressTestReport(schema_version='1.0', report_id='legacy', total_scenarios_evaluated=32, adversarial_plan_ref=None, fi...e_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={}).is_robust
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:121: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[1]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_blueprint_fraction_uses_32_scenarios_not_one_issue_example[20]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_absent_threshold_does_not_assess_robustness
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[plan-True]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[plan-False]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[plan-0]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[plan-nan]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[plan-inf]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[surface-True]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[surface-False]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[surface-0]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[surface-nan]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_threshold_intakes_refuse_values_before_float_coercion[surface-inf]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_unknown_or_empty_finite_basis_remains_partial[values0-1.0]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_unknown_or_empty_finite_basis_remains_partial[values1-None]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_suite_replacement_keeps_count_basis_separate_from_issue_groups
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_legacy_issue_counts_cannot_supply_missing_scenario_evidence

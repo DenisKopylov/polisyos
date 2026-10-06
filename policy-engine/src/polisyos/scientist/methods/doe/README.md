@@ -32,7 +32,18 @@ component bases yield an unavailable score. Unknown or unfinished runs remain
 partial. Complete means the declared observed stream, not the whole parameter
 space or a population probability. These fractions do not establish model
 uncertainty. The blueprint carries and replaces complete component count bases
-without deriving them from issue lists.
+without deriving them from issue lists. The D challenge adapter declares
+`challenge_case_pass@1.0`: one uniquely named case with an explicit expected
+outcome and consistent strict boolean passed/failed result is one finite
+observed case. Skipped cases stay outside attempts, while unknown or
+inconsistent attempted outcomes remain separate; both prevent completeness.
+Empty/zero-finite suites publish unavailable scores and cannot be promoted.
+Passing suites also publish their typed basis for the real blueprint consumer.
+Report-level `scenario_complete` requires every declared component to be
+complete. An empty component remains partial when combined with a nonempty
+component; a finite observed subset fraction is then conditional.
+This adapter consumes existing case outcomes; it does not authenticate or
+recompute their scientific predicate.
 
 New readers accept legacy 1.0 reports without inventing scenario evidence;
 `is_robust` requires complete, available evidence with no observed violation.
@@ -52,6 +63,12 @@ instance and its usual store/run/logger, then calls the ordinary node. JSON
 `ExperimentState.params` never carries the owner. Plain `ExecutionContext`
 remains unmanaged; the subtype creates no ledger, permission or authority.
 Serialized deployment-factory adoption requires its appointed owner separately.
+Blueprint funnel JSON preserves outcome evaluation status and the existing
+outcome/stage/trace compute amount, cost source, provider Decimal amount and
+resource-event references. Provider Decimal amounts are JSON strings; unavailable
+amounts remain null. This projection preserves observations and feedback, and
+does not turn a provider report into billing authority or prove the default
+node executes a paid provider.
 
 ## Bounded distribution contract (DOE-02)
 

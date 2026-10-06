@@ -1,0 +1,61 @@
+{
+  "schema": "policyos.e02.owner_request.v1",
+  "unit": "D",
+  "supplier_owner": "E/DOE-01",
+  "request": "Review and ordinarily compose the E sensitivity producer with D stress/blueprint consumers, adopt the raw typed threshold intake, and independently execute the existing run-admission controls.",
+  "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "D_source_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+  "D_test_candidate_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+  "supplier_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006.json",
+    "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+    "sha256": "94adcd53cfdcdc3ffe37dc7631a702331424e648612472470e38b4f2a63da255"
+  },
+  "predicate_basis": "not_established",
+  "predicate_scope": "Combined E→D execution has no completed verdict; request and caller recipe do not assert acceptance, deployed reachability or scientific population law.",
+  "consumer_recipe": {
+    "entry": "SensitivityBridge.analyze_search_space → persisted analysis_ref → SensitivityAwareCandidateGenerator.from_artifact → run_stress_test → _recompute_stress_test_report → StressTestReport1.1 CAS/freshreader",
+    "oracle_path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+    "oracle_source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+    "physical_fixture": "f(p,q)=2p+0.5q; p/q declared dimensionless in [0,1]; Morris2 trajectories/seed7 gives6 evaluations; objective direction is actual CompositeObjective(BudgetDeficitObjective) minimize and threshold1.75 in its physical cost coordinate.",
+    "expected_stress_scope": "32 initial+6 adaptive attempts; observed violated count determines (38-violated)/38; top-k1 vs20 uses same fixed stream; no population/model uncertainty claim.",
+    "adaptive_round_controls": "Actual AdaptiveSampler6+12 rows=18, two declared rounds; max_estimated_runs9 admits first6 and refuses next12 before sampling/materialization, returning prior6 with stop_reason max_estimated_runs_exceeded.",
+    "grid_materialization_control": "Actual GRID_EXTREME product12 dimensions generates only admitted prefix3 before list/array materialization (4096 possiblecorners); iterator falsifier rejects a fourth enumerated corner.",
+    "rounding": "No hidden rerun; report actual completed row and round counts, not estimated invocation count or whole-space coverage.",
+    "expected_input_closure": "Complete pinned Dsrc/architecture/pyproject plus seven exact Eoverlays in committed compositionprofile; adaptive.py byteidentical between E041 and Dc2. Fresh available testsrc replaces helper only with pinned successor for added round refusal witness."
+  },
+  "existing_supplier_guard_findings": {
+    "SensitivityPlan_max_estimated_runs": "Present in E041 plan admission, not a missing mechanism claim.",
+    "AdaptiveSampler_preflight": "Present in E041 adaptive.py; compiled/body blob identical Dc2 e33274d4b96519b35159b02a42c593cf09d6364e.",
+    "GRID_EXTREME_prefix": "Present as itertools.islice before materialization in E041 sampling.py.",
+    "raw_threshold_intake": "E041 AdversarialPlan has not adopted D strict before-validator; E owner must preserve None/0 and refusebool/string/nonfinite/overflow before coercion when adopting D designs change."
+  },
+  "attempts": [
+    {
+      "outcome": "ERROR",
+      "scope": "Initial incomplete input projection missing tracked architecture TOML before evaluator; no product verdict.",
+      "resource_payload": "doe-bridge-resource.json",
+      "complete_payload": "doe-bridge-complete.txt"
+    },
+    {
+      "outcome": "ERROR",
+      "scope": "Corrected full Git profile; process SIGKILL-9, emptystdout, no numerical stage verdict.",
+      "resource_payload": "doe-bridge-full-resource.json",
+      "complete_payload": "doe-bridge-full-complete.txt"
+    },
+    {
+      "outcome": "ERROR",
+      "scope": "Same corrected fullprofile, SIGKILL-9, emptystdout; shared memory counters not individual cause attribution.",
+      "resource_payload": "doe-bridge-full-b-resource.json",
+      "complete_payload": "doe-bridge-full-b-complete.txt"
+    }
+  ],
+  "output_binding": "Payload files will be bound by the separate continuation stress receipt; scratch is captured output, never domain input.",
+  "next_inputs": {
+    "ordinary_composed_candidate_ref": null,
+    "independent_completed_bridge_receipt_ref": null,
+    "population_law_ref": null,
+    "production_input_history_ref": null
+  },
+  "closure_ids": []
+}

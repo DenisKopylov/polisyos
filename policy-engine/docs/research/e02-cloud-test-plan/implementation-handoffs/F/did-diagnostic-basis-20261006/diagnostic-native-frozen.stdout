@@ -1,0 +1,32 @@
+........................................................................ [ 91%]
+.......                                                                  [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py::test_actual_registry_retirement_old_slots_dispatch_and_fresh_cas
+tests/unit/foundry/methods/catalog/causal/test_did.py::test_did_standard_known_att
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py:166: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = testfunction(**testargs)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_bootstrap_resamples_panel_units_not_att_cells
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:75: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(_single_cell_panel())
+
+tests/unit/remediation/test_cau_02.py::test_staggered_p_value_uses_centered_scalar_null_distribution
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:88: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(_single_cell_panel(), seed=19)
+
+tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_excludes_already_affected_not_yet_controls
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:109: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_zero_anticipation_preserves_not_yet_treated_characterization
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:133: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(
+
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[0]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[1]
+tests/unit/remediation/test_cau_02.py::test_staggered_supported_anticipation_preserves_known_contrast[anticipation2]
+  /workspace/e02-F-cau-20261006/policy-engine/tests/unit/remediation/test_cau_02.py:253: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=40)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+79 passed, 9 warnings in 61.29s (0:01:01)

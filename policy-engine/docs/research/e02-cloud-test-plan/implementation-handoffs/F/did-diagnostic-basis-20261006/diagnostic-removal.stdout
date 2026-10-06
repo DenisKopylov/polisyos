@@ -1,0 +1,135 @@
+Canonical helper actual input digest loses outcome/time_treatment; diagnostic labels/profile/scalar target and numerical computation preserved.
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change[StandardDifferenceInDifferences-outcome] _
+
+field = 'outcome'
+method = <class 'polisyos.foundry.methods.catalog.causal.did.StandardDifferenceInDifferences'>
+
+    @pytest.mark.parametrize("field", ["outcome", "treatment", "time_treatment"])
+    @pytest.mark.parametrize(
+        "method", [StandardDifferenceInDifferences, StaggeredDifferenceInDifferences]
+    )
+    def test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change(field, method):
+        data = _panel()
+        value = getattr(data, field)
+        if field == "outcome":
+            value = value.copy()
+            value[0, -1] += 1  # Outside the preperiod: same diagnostic, different source.
+        elif field == "treatment":
+            value = value.copy()
+            value[0] = 0
+        else:
+            value = 4
+        changed = data.model_copy(update={field: value})
+        first = method._diagnostic_contract(data)
+        second = method._diagnostic_contract(changed)
+>       assert (
+            first["diagnostic_contract"]["input_sha256"]
+            != second["diagnostic_contract"]["input_sha256"]
+        )
+E       AssertionError: assert '6a33b168339099ba1a29001c60e7265492cadbd91574195a24b8994f70202559' != '6a33b168339099ba1a29001c60e7265492cadbd91574195a24b8994f70202559'
+
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py:117: AssertionError
+_ test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change[StandardDifferenceInDifferences-time_treatment] _
+
+field = 'time_treatment'
+method = <class 'polisyos.foundry.methods.catalog.causal.did.StandardDifferenceInDifferences'>
+
+    @pytest.mark.parametrize("field", ["outcome", "treatment", "time_treatment"])
+    @pytest.mark.parametrize(
+        "method", [StandardDifferenceInDifferences, StaggeredDifferenceInDifferences]
+    )
+    def test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change(field, method):
+        data = _panel()
+        value = getattr(data, field)
+        if field == "outcome":
+            value = value.copy()
+            value[0, -1] += 1  # Outside the preperiod: same diagnostic, different source.
+        elif field == "treatment":
+            value = value.copy()
+            value[0] = 0
+        else:
+            value = 4
+        changed = data.model_copy(update={field: value})
+        first = method._diagnostic_contract(data)
+        second = method._diagnostic_contract(changed)
+>       assert (
+            first["diagnostic_contract"]["input_sha256"]
+            != second["diagnostic_contract"]["input_sha256"]
+        )
+E       AssertionError: assert '6a33b168339099ba1a29001c60e7265492cadbd91574195a24b8994f70202559' != '6a33b168339099ba1a29001c60e7265492cadbd91574195a24b8994f70202559'
+
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py:117: AssertionError
+_ test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change[StaggeredDifferenceInDifferences-outcome] _
+
+field = 'outcome'
+method = <class 'polisyos.foundry.methods.catalog.causal.did.StaggeredDifferenceInDifferences'>
+
+    @pytest.mark.parametrize("field", ["outcome", "treatment", "time_treatment"])
+    @pytest.mark.parametrize(
+        "method", [StandardDifferenceInDifferences, StaggeredDifferenceInDifferences]
+    )
+    def test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change(field, method):
+        data = _panel()
+        value = getattr(data, field)
+        if field == "outcome":
+            value = value.copy()
+            value[0, -1] += 1  # Outside the preperiod: same diagnostic, different source.
+        elif field == "treatment":
+            value = value.copy()
+            value[0] = 0
+        else:
+            value = 4
+        changed = data.model_copy(update={field: value})
+        first = method._diagnostic_contract(data)
+        second = method._diagnostic_contract(changed)
+>       assert (
+            first["diagnostic_contract"]["input_sha256"]
+            != second["diagnostic_contract"]["input_sha256"]
+        )
+E       AssertionError: assert '6a33b168339099ba1a29001c60e7265492cadbd91574195a24b8994f70202559' != '6a33b168339099ba1a29001c60e7265492cadbd91574195a24b8994f70202559'
+
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py:117: AssertionError
+_ test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change[StaggeredDifferenceInDifferences-time_treatment] _
+
+field = 'time_treatment'
+method = <class 'polisyos.foundry.methods.catalog.causal.did.StaggeredDifferenceInDifferences'>
+
+    @pytest.mark.parametrize("field", ["outcome", "treatment", "time_treatment"])
+    @pytest.mark.parametrize(
+        "method", [StandardDifferenceInDifferences, StaggeredDifferenceInDifferences]
+    )
+    def test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change(field, method):
+        data = _panel()
+        value = getattr(data, field)
+        if field == "outcome":
+            value = value.copy()
+            value[0, -1] += 1  # Outside the preperiod: same diagnostic, different source.
+        elif field == "treatment":
+            value = value.copy()
+            value[0] = 0
+        else:
+            value = 4
+        changed = data.model_copy(update={field: value})
+        first = method._diagnostic_contract(data)
+        second = method._diagnostic_contract(changed)
+>       assert (
+            first["diagnostic_contract"]["input_sha256"]
+            != second["diagnostic_contract"]["input_sha256"]
+        )
+E       AssertionError: assert '6a33b168339099ba1a29001c60e7265492cadbd91574195a24b8994f70202559' != '6a33b168339099ba1a29001c60e7265492cadbd91574195a24b8994f70202559'
+
+tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py:117: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py::test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change[StandardDifferenceInDifferences-outcome]
+FAILED tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py::test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change[StandardDifferenceInDifferences-time_treatment]
+FAILED tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py::test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change[StaggeredDifferenceInDifferences-outcome]
+FAILED tests/unit/foundry/methods/catalog/causal/test_did_diagnostic_binding.py::test_every_actual_diagnostic_input_is_bound_even_if_result_does_not_change[StaggeredDifferenceInDifferences-time_treatment]
+4 failed, 1 warning in 0.19s

@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_docs_gate.py",
+    "--repo-root",
+    ".",
+    "--base-ref",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "--head-ref",
+    "759c984f475d07c982c0f22f747588706ac752e8"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_sha": "759c984f475d07c982c0f22f747588706ac752e8",
+  "source_tree": "c809bbf602705c045add1728bc31573447382d61",
+  "utc": "2026-10-06T15:02:49.865601+00:00",
+  "elapsed_s": 1.9462387569947168,
+  "exit_code": 1,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:.:tools"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/docs-gate.stdout",
+    "bytes": 990,
+    "sha256": "49cdeb6037669931e2872bd1e03ac3db49302cb617803e0fd0048b5ebe73bd05"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/docs-gate.stderr",
+    "bytes": 1184,
+    "sha256": "18c31f289877994f3ca1175ce1ed3a847030eddbc353e33939ec5820c8078419"
+  }
+}

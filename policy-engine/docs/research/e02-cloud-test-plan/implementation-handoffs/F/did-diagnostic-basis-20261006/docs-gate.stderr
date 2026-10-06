@@ -1,0 +1,31 @@
+   Building policy-engine @ file:///workspace/e02-F-cau-20261006/policy-engine
+Downloading uvloop (4.1MiB)
+Downloading pydantic-core (2.0MiB)
+Downloading jax (2.8MiB)
+Downloading fonttools (4.7MiB)
+Downloading ml-dtypes (4.8MiB)
+Downloading pyarrow (45.5MiB)
+Downloading pymoo (4.9MiB)
+Downloading cryptography (4.2MiB)
+Downloading aiohttp (1.6MiB)
+Downloading numpy (15.8MiB)
+Downloading jaxlib (76.4MiB)
+Downloading tiktoken (1.1MiB)
+Downloading pillow (6.6MiB)
+Downloading libcst (2.2MiB)
+Downloading grpcio (6.4MiB)
+Downloading matplotlib (9.4MiB)
+Downloading pandas (11.8MiB)
+Downloading zstandard (5.3MiB)
+Downloading kiwisolver (1.4MiB)
+Downloading scipy (34.1MiB)
+Downloading pygments (1.2MiB)
+Downloading duckdb (19.5MiB)
+ Downloaded pydantic-core
+ Downloaded aiohttp
+error: Failed to download `equinox==0.13.2`
+  cause: Failed to extract archive: equinox-0.13.2-py3-none-any.whl
+  cause: I/O operation failed during extraction
+  cause: failed to create directory `/workspace/e02-F-cau-20261006/policy-engine/_cache/uv/.tmpZw82uU/equinox/nn`: No space left on device (os error 28)
+
+hint: `equinox` (v0.13.2) was included because `policy-engine` (v0.1.0) depends on `equinox`

@@ -14,6 +14,7 @@ from polisyos.scientist.methods.autotune.pareto import (
     HypervolumeResult,
     _finite_vector,
     compute_hypervolume_assessed,
+    finite_real_scalar,
 )
 from polisyos.scientist.methods.search.objective import OptimizationDirection
 from polisyos.scientist.methods.search.strategies._deps import (
@@ -249,11 +250,11 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         Indicator availability never changes complete-vector front membership.
         """
         valid = self._admit_objective_rows(evaluations)
-        configured_reference = self._config.ref_point
-        invalid_reference = configured_reference is not None and (
-            (reference := _finite_vector(configured_reference)) is None
-            or len(reference) != len(self._objective_names)
-        )
+        try:
+            self._reference_configuration()
+            invalid_reference = False
+        except ValueError:
+            invalid_reference = True
         if not valid or not self._botorch_ready:
             result = HypervolumeResult(
                 value=None,
@@ -445,18 +446,28 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         mll = SumMarginalLogLikelihood(self._model.likelihood, self._model)
         fit_gpytorch_mll(mll)
 
-    def _update_ref_point(self, Y) -> None:
+    def _reference_configuration(self) -> tuple[tuple[float, ...] | None, float | None]:
+        """Admit configured numeric reference inputs before any tensor arithmetic."""
         if self._config.ref_point is not None:
             reference = _finite_vector(self._config.ref_point)
             if reference is None or len(reference) != len(self._objective_names):
                 raise ValueError("invalid_reference_point")
+            return reference, None
+        offset = finite_real_scalar(self._config.ref_point_offset)
+        if offset is None:
+            raise ValueError("invalid_reference_point")
+        return None, offset
+
+    def _update_ref_point(self, Y) -> None:
+        reference, configured_offset = self._reference_configuration()
+        if reference is not None:
             self._ref_point = self._torch.tensor(reference, dtype=self._torch.float64)
             if self._device != "cpu":
                 self._ref_point = self._ref_point.to(self._device)
             return
         worst = Y.min(dim=0).values
         best = Y.max(dim=0).values
-        offset = self._config.ref_point_offset * (best - worst).abs()
+        offset = configured_offset * (best - worst).abs()
         self._ref_point = worst - offset
 
     def _optimize_ehvi(self, soft_limit: bool, batch_size: int):

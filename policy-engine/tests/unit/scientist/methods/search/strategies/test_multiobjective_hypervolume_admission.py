@@ -96,3 +96,14 @@ def test_reference_intake_precedes_any_torch_conversion(reference):
     assert result.value is None
     assert result.assessment.reason == "invalid_reference_point"
     assert optimizer._ref_point is None
+
+
+@pytest.mark.parametrize("offset", [10**400, True, "broken", float("nan"), float("inf")])
+def test_derived_reference_uses_the_same_numeric_intake(offset):
+    optimizer = strategy()
+    optimizer._config.ref_point = None
+    optimizer._config.ref_point_offset = offset
+    result = optimizer.compute_hypervolume_assessed(rows())
+    assert result.value is None
+    assert result.assessment.reason == "invalid_reference_point"
+    assert optimizer._ref_point is None

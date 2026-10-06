@@ -1,0 +1,13 @@
+........................                                                 [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-async-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[False-async-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-sync-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-sync-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-async-fork]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_completed_failed_spend_settles_without_ordinary_branch[True-async-fork]
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=156328) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+24 passed, 124 deselected, 6 warnings in 2.99s

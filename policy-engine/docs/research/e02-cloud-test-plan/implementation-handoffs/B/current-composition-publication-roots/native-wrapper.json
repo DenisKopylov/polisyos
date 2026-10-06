@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-mapping-cache",
+    "-q",
+    "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "tests/unit/remediation/test_res_04.py",
+    "tests/unit/remediation/test_cmp_01.py",
+    "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-mapping-tmp",
+    "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-frozen-mapping.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "53e80d5d1022cc2c6375c5d364c69f058eca714a",
+    "tree": "00334b635615f89184188c2cec113eb006f49fb0",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T10:47:16.554113+00:00",
+  "exit_code": 0,
+  "wall_seconds": 11.080628568000975,
+  "max_rss_kib": 178556,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "source_after": {
+    "sha": "53e80d5d1022cc2c6375c5d364c69f058eca714a",
+    "tree": "00334b635615f89184188c2cec113eb006f49fb0",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "end_utc": "2026-10-06T10:47:27.694019+00:00"
+}

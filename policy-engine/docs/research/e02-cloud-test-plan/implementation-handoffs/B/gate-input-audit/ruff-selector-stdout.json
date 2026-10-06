@@ -1,0 +1,255 @@
+{
+  "purpose": "selector_and_diagnostic_census_only",
+  "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+  "tree": "5ff080ffa44cbe5226c2e3a746a2cd8a1587840a",
+  "tracked_py_pyi": 6565,
+  "changed_profiles": {
+    "observed_adjacent_snapshot": {
+      "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "05079708e678a8438a6df59ca3bfd906a3caa258",
+      "separator": "..",
+      "paths": 160,
+      "categories": {
+        "docs": 75,
+        "src": 43,
+        "tests": 42
+      },
+      "actual_current_lint_selector_overlap": 85,
+      "missing_in_live_checkout": []
+    },
+    "current_fresh_base": {
+      "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "separator": "..",
+      "paths": 177,
+      "categories": {
+        "docs": 92,
+        "src": 43,
+        "tests": 42
+      },
+      "actual_current_lint_selector_overlap": 85,
+      "missing_in_live_checkout": []
+    },
+    "published_closeout_command": {
+      "base": "86f37d782a709d298a9908ca3ef891adc9f89253",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "separator": "...",
+      "paths": 181,
+      "categories": {
+        "docs": 93,
+        "src": 44,
+        "tests": 44
+      },
+      "actual_current_lint_selector_overlap": 88,
+      "missing_in_live_checkout": []
+    }
+  },
+  "lint_fast_scope": [
+    "src/polisyos",
+    "tests",
+    "tools",
+    "schemas",
+    "scripts",
+    "examples",
+    "gcp/upload_gonka_secrets.py",
+    "ops/cloud/gcp/upload_gonka_secrets.py",
+    "jax_bootstrap.py",
+    "migrate.py"
+  ],
+  "existing_extend_excludes": [
+    "benchmarks",
+    "tools/research/benchmarks",
+    "tools/research/demos",
+    "tools/research"
+  ],
+  "discovery": {
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "--show-files",
+      "--extend-exclude",
+      "benchmarks",
+      "--extend-exclude",
+      "tools/research/benchmarks",
+      "--extend-exclude",
+      "tools/research/demos",
+      "--extend-exclude",
+      "tools/research",
+      "src/polisyos",
+      "tests",
+      "tools",
+      "schemas",
+      "scripts",
+      "examples",
+      "gcp/upload_gonka_secrets.py",
+      "ops/cloud/gcp/upload_gonka_secrets.py",
+      "jax_bootstrap.py",
+      "migrate.py"
+    ],
+    "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+    "exit": 0,
+    "stdout": {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/ruff-selector-a5ab/lint-fast-show-files.stdout.txt",
+      "bytes": 633125,
+      "sha256": "4ffddca77cea842e0df1d1394686c728989a00ebb658535b113b6ac78efce949"
+    },
+    "stderr": {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/ruff-selector-a5ab/lint-fast-show-files.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "actual_inputs": {
+    "count": 5933,
+    "categories": {
+      "examples": 36,
+      "jax_bootstrap.py": 1,
+      "migrate.py": 1,
+      "ops": 1,
+      "src": 2700,
+      "tests": 2779,
+      "tools": 415
+    },
+    "suffixes": {
+      ".py": 5921,
+      ".pyi": 5,
+      ".toml": 7
+    },
+    "all_tracked_bytes_reconciled": true,
+    "docs_paths": 0,
+    "explicit_missing_operands": [
+      "scripts",
+      "gcp/upload_gonka_secrets.py"
+    ]
+  },
+  "retained_failure": {
+    "artifact": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pre-final050-changed-python-ruff.txt",
+      "bytes": 1510152,
+      "sha256": "3a4a39b546df333b56006a7b8ffbe63a252cd6fe1fa5507d332ae23814e20589"
+    },
+    "diagnostics": 2320,
+    "diagnostic_files": 70,
+    "files_by_category": {
+      "docs": 68,
+      "src": 1,
+      "tests": 1
+    },
+    "diagnostics_by_category": {
+      "docs": 2318,
+      "src": 1,
+      "tests": 1
+    },
+    "non_docs": [
+      [
+        "S603",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py"
+      ],
+      [
+        "S102",
+        "policy-engine/tests/integration/scientist/test_checkpoint_resume.py"
+      ]
+    ]
+  },
+  "source_inputs": [
+    {
+      "path": "AGENTS.md",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "5572cf55639b6f69c46aff6fdb8bd577d84782f0d8eff79a7bc7fcb0ff48f6eb"
+    },
+    {
+      "path": "policy-engine/docs/reference/quality-gates.md",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "b8fd86119ed42f6400548a5977a08e426346167db3ae39895028c5a898298b9d"
+    },
+    {
+      "path": "policy-engine/docs/reference/repository-hygiene.md",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "61819965a29b9f451cf2ba8fdf633ce14dee100ebc1b31a146a9cecfd0ad111e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "d71d4aa68d1cb754139030367514b3662fa4c9acde54d55af66311213a3c32a1"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/lint_fast.py",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "8a347c43d7f0a9a06a5fadd660b9197b0a5a67abf42b1e0bff7b6a7b6a87b061"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/lint_full.py",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "9b98a2534cf415d074817fb222f91bfe3aa6847fa9b84ca77fe9249db35a721f"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "9f10b072b71edd7501d5b12c646a43ed839950a7209ac9ebd6632ee618be494a"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/runtime_surface.py",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "a4a24ee7723f7788df69388764a50c88924d8cb18c64f499ba19ef047235e158"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/verify.py",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207"
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619"
+    },
+    {
+      "path": "policy-engine/.pre-commit-config.yaml",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "eeb6f3ffaac0a1b589a4d49b0637e00289ddc28d7f30135ce6b7eb146cd8c53b"
+    },
+    {
+      "path": "policy-engine/ruff.toml",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    {
+      "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607"
+    },
+    {
+      "path": "policy-engine/architecture/tooling/tool_config_split.toml",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "3a8b2358153728f628febafda429410590ff4f578168188237893cb1b7e27a96"
+    },
+    {
+      "path": ".gitignore",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "25f59780d520dffab0981b6a42bebd2788d8c0e1705622493cea3dbfafdec412"
+    },
+    {
+      "path": "policy-engine/.gitignore",
+      "source": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "sha256": "77274a4c3534450075f1a95890b59cbacb17ee2a914de3d24916ca308626723c"
+    }
+  ],
+  "limitations": [
+    "No lint diagnostic gate executed.",
+    "Observed historical log lacks before/after source and argv capture.",
+    "No inherited-red/disjoint attribution or policy exemption.",
+    "Live filesystem and Git ignore policy observed only on this source snapshot."
+  ]
+}

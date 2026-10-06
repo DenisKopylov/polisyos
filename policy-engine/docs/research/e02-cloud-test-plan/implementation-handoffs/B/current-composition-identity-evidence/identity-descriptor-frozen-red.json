@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-cache",
+    "-q",
+    "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+    "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp",
+    "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "64b901bd633dec7f8f5b4a0b74720cab5da532e3",
+    "tree": "8929bfaf7e75fc865503109c40dbe979d266588d",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T11:34:05.488973+00:00",
+  "exit_code": 1,
+  "wall_seconds": 10.372022244002437,
+  "max_rss_kib": 178584,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "source_after": {
+    "sha": "64b901bd633dec7f8f5b4a0b74720cab5da532e3",
+    "tree": "8929bfaf7e75fc865503109c40dbe979d266588d",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "end_utc": "2026-10-06T11:34:15.916994+00:00"
+}

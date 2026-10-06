@@ -1,0 +1,1819 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="21" skipped="0" tests="53" time="14.610" timestamp="2026-10-06T11:13:10.176423+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[permanent-sync]" time="0.013" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[permanent-async-sync]" time="0.003" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[permanent-sync-thread]" time="0.023" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[permanent-async-thread]" time="0.004" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[permanent-sync-fork]" time="0.021" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[permanent-async-fork]" time="0.018" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[permanent-genuine-async]" time="0.003" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[provider_timeout-sync]" time="0.102" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[provider_timeout-async-sync]" time="0.108" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[provider_timeout-sync-thread]" time="0.002"><failure message="polisyos.scientist.orchestration.engine.errors.NodeTimeoutError: Node exceeded timeout of 1.0s">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_canonical_retry_boundary_9')
+ctx = &lt;MagicMock id='140334104255456'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa214fafd90&gt;
+route = 'sync-thread', kind = 'provider_timeout'
+
+    @pytest.mark.parametrize("route", _BOUNDARY_ROUTES)
+    @pytest.mark.parametrize(
+        "kind",
+        [
+            "permanent",
+            "provider_timeout",
+            "returned_permanent",
+            "custom_transient",
+            "filtered_transient",
+        ],
+    )
+    def test_canonical_retry_boundary_uses_actual_attempt_files(
+        tmp_path, ctx, state, monkeypatch, route, kind
+    ):
+        """Error shape and boundary preserve category/code and actual retry count."""
+        import contextvars
+    
+        attempt_file = tmp_path / "attempts.txt"
+        owner = contextvars.ContextVar("run_boundary_owner", default="missing")
+        token = owner.set("captured-owner")
+    
+        class ProviderError(ConnectionError):
+            code = "provider.transient"
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                with attempt_file.open("a") as stream:
+                    stream.write(owner.get() + "\n")
+                attempt = len(attempt_file.read_text().splitlines())
+                if attempt == 1:
+                    if kind == "permanent":
+                        raise ValueError("same diagnostic")
+                    if kind == "provider_timeout":
+                        raise TimeoutError("same diagnostic")
+                    if kind == "returned_permanent":
+                        return _fail_outcome(passed_state, code="node.invalid_state")
+                    if kind in {"custom_transient", "filtered_transient"}:
+                        raise ProviderError("same diagnostic")
+                return _ok_outcome(passed_state)
+    
+        class AsyncNode(Node):
+            async def execute_async(self, passed_ctx, passed_state):
+                return self.execute(passed_ctx, passed_state)
+    
+        monkeypatch.setattr(
+            retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
+        )
+        kwargs = dict(
+            retry_policy=RetryPolicy(
+                max_retries=1,
+                backoff_base_s=0.1,
+                jitter="none",
+                retry_on=["provider.transient"] if kind == "custom_transient" else ["node.exception"],
+            ),
+            timeout_s=None if route in {"sync", "async-sync"} else 1.0,
+            alias="canonical-boundary",
+        )
+        node = (AsyncNode if route == "genuine-async" else Node)()
+        try:
+            if kind in {"permanent", "filtered_transient"}:
+                with pytest.raises(RetryExhaustedError):
+                    _invoke_boundary(route, node, ctx, state, **kwargs)
+            else:
+&gt;               outcome = _invoke_boundary(route, node, ctx, state, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1554: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/orchestration/engine/test_retry.py:1488: in _invoke_boundary
+    return execute_with_retry_sync(node, ctx, state, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1024: in execute_with_retry_sync
+    outcome = _execute_with_timeout_sync(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = &lt;engine.test_retry.test_canonical_retry_boundary_uses_actual_attempt_files.&lt;locals&gt;.Node object at 0x7fa2146f1fd0&gt;
+ctx = &lt;MagicMock id='140334104255456'&gt;
+state = _JournaledExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, pa...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    def _execute_with_timeout_sync(
+        node: Any,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        *,
+        timeout_s: float,
+    ) -&gt; NodeOutcome:
+        authority = _AttemptAuthority()
+        worker_ctx = _build_attempt_context(ctx, authority)
+        worker_state = state.model_copy(deep=True)
+        if _can_use_forked_timeout_worker():
+            return _execute_with_timeout_process(
+                node,
+                worker_ctx,
+                worker_state,
+                timeout_s=timeout_s,
+                authority=authority,
+            )
+    
+        context = contextvars.copy_context()
+        future = get_shared_executor().submit(
+            context.run,
+            node.execute,
+            worker_ctx,
+            worker_state,
+        )
+        try:
+            return future.result(timeout=timeout_s)
+        except FuturesTimeoutError:
+            future.cancel()
+            authority.revoke()
+&gt;           raise NodeTimeoutError(
+                f"Node exceeded timeout of {timeout_s}s",
+            ) from None
+E           polisyos.scientist.orchestration.engine.errors.NodeTimeoutError: Node exceeded timeout of 1.0s
+
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1159: NodeTimeoutError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[provider_timeout-async-thread]" time="0.003"><failure message="polisyos.scientist.orchestration.engine.errors.NodeTimeoutError: Node exceeded timeout of 1.0s">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_canonical_retry_boundary_10')
+ctx = &lt;MagicMock id='140334104258816'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa214734670&gt;
+route = 'async-thread', kind = 'provider_timeout'
+
+    @pytest.mark.parametrize("route", _BOUNDARY_ROUTES)
+    @pytest.mark.parametrize(
+        "kind",
+        [
+            "permanent",
+            "provider_timeout",
+            "returned_permanent",
+            "custom_transient",
+            "filtered_transient",
+        ],
+    )
+    def test_canonical_retry_boundary_uses_actual_attempt_files(
+        tmp_path, ctx, state, monkeypatch, route, kind
+    ):
+        """Error shape and boundary preserve category/code and actual retry count."""
+        import contextvars
+    
+        attempt_file = tmp_path / "attempts.txt"
+        owner = contextvars.ContextVar("run_boundary_owner", default="missing")
+        token = owner.set("captured-owner")
+    
+        class ProviderError(ConnectionError):
+            code = "provider.transient"
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                with attempt_file.open("a") as stream:
+                    stream.write(owner.get() + "\n")
+                attempt = len(attempt_file.read_text().splitlines())
+                if attempt == 1:
+                    if kind == "permanent":
+                        raise ValueError("same diagnostic")
+                    if kind == "provider_timeout":
+                        raise TimeoutError("same diagnostic")
+                    if kind == "returned_permanent":
+                        return _fail_outcome(passed_state, code="node.invalid_state")
+                    if kind in {"custom_transient", "filtered_transient"}:
+                        raise ProviderError("same diagnostic")
+                return _ok_outcome(passed_state)
+    
+        class AsyncNode(Node):
+            async def execute_async(self, passed_ctx, passed_state):
+                return self.execute(passed_ctx, passed_state)
+    
+        monkeypatch.setattr(
+            retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
+        )
+        kwargs = dict(
+            retry_policy=RetryPolicy(
+                max_retries=1,
+                backoff_base_s=0.1,
+                jitter="none",
+                retry_on=["provider.transient"] if kind == "custom_transient" else ["node.exception"],
+            ),
+            timeout_s=None if route in {"sync", "async-sync"} else 1.0,
+            alias="canonical-boundary",
+        )
+        node = (AsyncNode if route == "genuine-async" else Node)()
+        try:
+            if kind in {"permanent", "filtered_transient"}:
+                with pytest.raises(RetryExhaustedError):
+                    _invoke_boundary(route, node, ctx, state, **kwargs)
+            else:
+&gt;               outcome = _invoke_boundary(route, node, ctx, state, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1554: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/orchestration/engine/test_retry.py:1487: in _invoke_boundary
+    return asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1798: in execute_with_retry_async
+    outcome = await _invoke(attempt_state)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1769: in _invoke
+    return await run_blocking_async(
+src/polisyos/common/async_tools.py:293: in run_blocking_async
+    return await asyncio.wait_for(future, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:488: in wait_for
+    return await fut
+           ^^^^^^^^^
+src/polisyos/common/async_tools.py:137: in invoke
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = &lt;engine.test_retry.test_canonical_retry_boundary_uses_actual_attempt_files.&lt;locals&gt;.Node object at 0x7fa2146f34d0&gt;
+ctx = &lt;MagicMock id='140334104258816'&gt;
+state = _JournaledExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, pa...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    def _execute_with_timeout_sync(
+        node: Any,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        *,
+        timeout_s: float,
+    ) -&gt; NodeOutcome:
+        authority = _AttemptAuthority()
+        worker_ctx = _build_attempt_context(ctx, authority)
+        worker_state = state.model_copy(deep=True)
+        if _can_use_forked_timeout_worker():
+            return _execute_with_timeout_process(
+                node,
+                worker_ctx,
+                worker_state,
+                timeout_s=timeout_s,
+                authority=authority,
+            )
+    
+        context = contextvars.copy_context()
+        future = get_shared_executor().submit(
+            context.run,
+            node.execute,
+            worker_ctx,
+            worker_state,
+        )
+        try:
+            return future.result(timeout=timeout_s)
+        except FuturesTimeoutError:
+            future.cancel()
+            authority.revoke()
+&gt;           raise NodeTimeoutError(
+                f"Node exceeded timeout of {timeout_s}s",
+            ) from None
+E           polisyos.scientist.orchestration.engine.errors.NodeTimeoutError: Node exceeded timeout of 1.0s
+
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1159: NodeTimeoutError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[provider_timeout-sync-fork]" time="0.132" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[provider_timeout-async-fork]" time="0.155" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[provider_timeout-genuine-async]" time="0.003"><failure message="polisyos.scientist.orchestration.engine.errors.NodeTimeoutError: Node exceeded timeout of 1.0s">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_canonical_retry_boundary_13')
+ctx = &lt;MagicMock id='140334103318880'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa214691190&gt;
+route = 'genuine-async', kind = 'provider_timeout'
+
+    @pytest.mark.parametrize("route", _BOUNDARY_ROUTES)
+    @pytest.mark.parametrize(
+        "kind",
+        [
+            "permanent",
+            "provider_timeout",
+            "returned_permanent",
+            "custom_transient",
+            "filtered_transient",
+        ],
+    )
+    def test_canonical_retry_boundary_uses_actual_attempt_files(
+        tmp_path, ctx, state, monkeypatch, route, kind
+    ):
+        """Error shape and boundary preserve category/code and actual retry count."""
+        import contextvars
+    
+        attempt_file = tmp_path / "attempts.txt"
+        owner = contextvars.ContextVar("run_boundary_owner", default="missing")
+        token = owner.set("captured-owner")
+    
+        class ProviderError(ConnectionError):
+            code = "provider.transient"
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                with attempt_file.open("a") as stream:
+                    stream.write(owner.get() + "\n")
+                attempt = len(attempt_file.read_text().splitlines())
+                if attempt == 1:
+                    if kind == "permanent":
+                        raise ValueError("same diagnostic")
+                    if kind == "provider_timeout":
+                        raise TimeoutError("same diagnostic")
+                    if kind == "returned_permanent":
+                        return _fail_outcome(passed_state, code="node.invalid_state")
+                    if kind in {"custom_transient", "filtered_transient"}:
+                        raise ProviderError("same diagnostic")
+                return _ok_outcome(passed_state)
+    
+        class AsyncNode(Node):
+            async def execute_async(self, passed_ctx, passed_state):
+                return self.execute(passed_ctx, passed_state)
+    
+        monkeypatch.setattr(
+            retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
+        )
+        kwargs = dict(
+            retry_policy=RetryPolicy(
+                max_retries=1,
+                backoff_base_s=0.1,
+                jitter="none",
+                retry_on=["provider.transient"] if kind == "custom_transient" else ["node.exception"],
+            ),
+            timeout_s=None if route in {"sync", "async-sync"} else 1.0,
+            alias="canonical-boundary",
+        )
+        node = (AsyncNode if route == "genuine-async" else Node)()
+        try:
+            if kind in {"permanent", "filtered_transient"}:
+                with pytest.raises(RetryExhaustedError):
+                    _invoke_boundary(route, node, ctx, state, **kwargs)
+            else:
+&gt;               outcome = _invoke_boundary(route, node, ctx, state, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1554: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/orchestration/engine/test_retry.py:1487: in _invoke_boundary
+    return asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1798: in execute_with_retry_async
+    outcome = await _invoke(attempt_state)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1755: in _invoke
+    return await _execute_with_timeout_async(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = &lt;engine.test_retry.test_canonical_retry_boundary_uses_actual_attempt_files.&lt;locals&gt;.AsyncNode object at 0x7fa21460de80&gt;
+ctx = &lt;MagicMock id='140334103318880'&gt;
+state = _JournaledExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, pa...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    async def _execute_with_timeout_async(
+        node: Any,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        *,
+        timeout_s: float,
+    ) -&gt; NodeOutcome:
+        """Run an async attempt with a revocable authority boundary."""
+        authority = _AttemptAuthority()
+        worker_ctx = _build_attempt_context(ctx, authority)
+        worker_state = state.model_copy(deep=True)
+        task = asyncio.create_task(node.execute_async(worker_ctx, worker_state))
+        try:
+            return await asyncio.wait_for(asyncio.shield(task), timeout=timeout_s)
+        except TimeoutError:
+            authority.revoke()
+            task.add_done_callback(_consume_finished_task)
+&gt;           raise NodeTimeoutError(
+                f"Node exceeded timeout of {timeout_s}s",
+            ) from None
+E           polisyos.scientist.orchestration.engine.errors.NodeTimeoutError: Node exceeded timeout of 1.0s
+
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1651: NodeTimeoutError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[returned_permanent-sync]" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[returned_permanent-async-sync]" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[returned_permanent-sync-thread]" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[returned_permanent-async-thread]" time="0.003" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[returned_permanent-sync-fork]" time="0.019" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[returned_permanent-async-fork]" time="0.028" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[returned_permanent-genuine-async]" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[custom_transient-sync]" time="0.103" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[custom_transient-async-sync]" time="0.108" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[custom_transient-sync-thread]" time="0.103" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[custom_transient-async-thread]" time="0.123" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[custom_transient-sync-fork]" time="0.148" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[custom_transient-async-fork]" time="0.146" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[custom_transient-genuine-async]" time="0.106" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[filtered_transient-sync]" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[filtered_transient-async-sync]" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[filtered_transient-sync-thread]" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[filtered_transient-async-thread]" time="0.005" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[filtered_transient-sync-fork]" time="0.017" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[filtered_transient-async-fork]" time="0.017" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_canonical_retry_boundary_uses_actual_attempt_files[filtered_transient-genuine-async]" time="0.003" /><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_whole_invocation_deadline_includes_retry_backoff[sync-thread]" time="1.003"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_whole_invocation_deadline0')
+ctx = &lt;MagicMock id='140334020474400'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa20f7d67b0&gt;
+route = 'sync-thread'
+
+    @pytest.mark.parametrize(
+        "route", ["sync-thread", "async-thread", "sync-fork", "async-fork", "genuine-async"]
+    )
+    def test_whole_invocation_deadline_includes_retry_backoff(tmp_path, ctx, state, monkeypatch, route):
+        """A retry cannot enter user code after its one invocation budget expired."""
+        attempts = tmp_path / "attempts.txt"
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                with attempts.open("a") as stream:
+                    stream.write("attempt\n")
+                if len(attempts.read_text().splitlines()) == 1:
+                    raise ConnectionError("retryable provider failure")
+                return _ok_outcome(passed_state)
+    
+        class AsyncNode(Node):
+            async def execute_async(self, passed_ctx, passed_state):
+                return self.execute(passed_ctx, passed_state)
+    
+        monkeypatch.setattr(
+            retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
+        )
+        start = _time.monotonic()
+&gt;       with pytest.raises(NodeTimeoutError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1585: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_whole_invocation_deadline_includes_retry_backoff[async-thread]" time="1.006"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_whole_invocation_deadline1')
+ctx = &lt;MagicMock id='140334021100944'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa20f7d7150&gt;
+route = 'async-thread'
+
+    @pytest.mark.parametrize(
+        "route", ["sync-thread", "async-thread", "sync-fork", "async-fork", "genuine-async"]
+    )
+    def test_whole_invocation_deadline_includes_retry_backoff(tmp_path, ctx, state, monkeypatch, route):
+        """A retry cannot enter user code after its one invocation budget expired."""
+        attempts = tmp_path / "attempts.txt"
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                with attempts.open("a") as stream:
+                    stream.write("attempt\n")
+                if len(attempts.read_text().splitlines()) == 1:
+                    raise ConnectionError("retryable provider failure")
+                return _ok_outcome(passed_state)
+    
+        class AsyncNode(Node):
+            async def execute_async(self, passed_ctx, passed_state):
+                return self.execute(passed_ctx, passed_state)
+    
+        monkeypatch.setattr(
+            retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
+        )
+        start = _time.monotonic()
+&gt;       with pytest.raises(NodeTimeoutError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1585: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_whole_invocation_deadline_includes_retry_backoff[sync-fork]" time="1.039"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_whole_invocation_deadline2')
+ctx = &lt;MagicMock id='140334021104640'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa20f7d7d20&gt;
+route = 'sync-fork'
+
+    @pytest.mark.parametrize(
+        "route", ["sync-thread", "async-thread", "sync-fork", "async-fork", "genuine-async"]
+    )
+    def test_whole_invocation_deadline_includes_retry_backoff(tmp_path, ctx, state, monkeypatch, route):
+        """A retry cannot enter user code after its one invocation budget expired."""
+        attempts = tmp_path / "attempts.txt"
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                with attempts.open("a") as stream:
+                    stream.write("attempt\n")
+                if len(attempts.read_text().splitlines()) == 1:
+                    raise ConnectionError("retryable provider failure")
+                return _ok_outcome(passed_state)
+    
+        class AsyncNode(Node):
+            async def execute_async(self, passed_ctx, passed_state):
+                return self.execute(passed_ctx, passed_state)
+    
+        monkeypatch.setattr(
+            retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
+        )
+        start = _time.monotonic()
+&gt;       with pytest.raises(NodeTimeoutError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1585: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_whole_invocation_deadline_includes_retry_backoff[async-fork]" time="1.044"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_whole_invocation_deadline3')
+ctx = &lt;MagicMock id='140334021105648'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa20f4447c0&gt;
+route = 'async-fork'
+
+    @pytest.mark.parametrize(
+        "route", ["sync-thread", "async-thread", "sync-fork", "async-fork", "genuine-async"]
+    )
+    def test_whole_invocation_deadline_includes_retry_backoff(tmp_path, ctx, state, monkeypatch, route):
+        """A retry cannot enter user code after its one invocation budget expired."""
+        attempts = tmp_path / "attempts.txt"
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                with attempts.open("a") as stream:
+                    stream.write("attempt\n")
+                if len(attempts.read_text().splitlines()) == 1:
+                    raise ConnectionError("retryable provider failure")
+                return _ok_outcome(passed_state)
+    
+        class AsyncNode(Node):
+            async def execute_async(self, passed_ctx, passed_state):
+                return self.execute(passed_ctx, passed_state)
+    
+        monkeypatch.setattr(
+            retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
+        )
+        start = _time.monotonic()
+&gt;       with pytest.raises(NodeTimeoutError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1585: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_whole_invocation_deadline_includes_retry_backoff[genuine-async]" time="1.005"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_whole_invocation_deadline4')
+ctx = &lt;MagicMock id='140334021109008'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa20f445240&gt;
+route = 'genuine-async'
+
+    @pytest.mark.parametrize(
+        "route", ["sync-thread", "async-thread", "sync-fork", "async-fork", "genuine-async"]
+    )
+    def test_whole_invocation_deadline_includes_retry_backoff(tmp_path, ctx, state, monkeypatch, route):
+        """A retry cannot enter user code after its one invocation budget expired."""
+        attempts = tmp_path / "attempts.txt"
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                with attempts.open("a") as stream:
+                    stream.write("attempt\n")
+                if len(attempts.read_text().splitlines()) == 1:
+                    raise ConnectionError("retryable provider failure")
+                return _ok_outcome(passed_state)
+    
+        class AsyncNode(Node):
+            async def execute_async(self, passed_ctx, passed_state):
+                return self.execute(passed_ctx, passed_state)
+    
+        monkeypatch.setattr(
+            retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
+        )
+        start = _time.monotonic()
+&gt;       with pytest.raises(NodeTimeoutError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1585: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_unconfigured_sync_bridge_has_no_implicit_timeout" time="0.007"><failure message="TimeoutError: Blocking call did not complete within 0.005s">fut = &lt;Future cancelled&gt;, timeout = 0.005
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        If the task suppresses the cancellation and returns a value instead,
+        that value is returned.
+    
+        This function is a coroutine.
+        """
+        # The special case for timeout &lt;= 0 is for the following case:
+        #
+        # async def test_waitfor():
+        #     func_started = False
+        #
+        #     async def func():
+        #         nonlocal func_started
+        #         func_started = True
+        #
+        #     try:
+        #         await asyncio.wait_for(func(), 0)
+        #     except asyncio.TimeoutError:
+        #         assert not func_started
+        #     else:
+        #         assert False
+        #
+        # asyncio.run(test_waitfor())
+    
+    
+        if timeout is not None and timeout &lt;= 0:
+            fut = ensure_future(fut)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise TimeoutError from exc
+    
+        async with timeouts.timeout(timeout):
+&gt;           return await fut
+                   ^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:488: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+func = &lt;bound method test_unconfigured_sync_bridge_has_no_implicit_timeout.&lt;locals&gt;.Node.execute of &lt;engine.test_retry.test_unconfigured_sync_bridge_has_no_implicit_timeout.&lt;locals&gt;.Node object at 0x7fa20f70ba10&gt;&gt;
+timeout_seconds = None, unbounded = False
+args = (&lt;MagicMock id='140334020470704'&gt;, ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index...f=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None))
+kwargs = {}, timeout = 0.005
+loop = &lt;_UnixSelectorEventLoop running=False closed=True debug=False&gt;
+call = functools.partial(&lt;bound method test_unconfigured_sync_bridge_has_no_implicit_timeout.&lt;locals&gt;.Node.execute of &lt;engine...f=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None))
+context = &lt;_contextvars.Context object at 0x7fa20f7b98c0&gt;
+future = &lt;Future cancelled&gt;
+
+    async def run_blocking_async[T](
+        func: Callable[..., T],
+        /,
+        *args: object,
+        timeout_seconds: float | None = None,
+        unbounded: bool = False,
+        **kwargs: object,
+    ) -&gt; T:
+        """Run a blocking call without stalling the loop.
+    
+        Omitted/None timeouts retain the helper default. An owner with no configured
+        deadline must explicitly pass ``unbounded=True``; combining it with a float
+        timeout is rejected before admission. Cancellation stops queued work, while
+        an already running callable retains its physical worker until it returns.
+        """
+        if unbounded and timeout_seconds is not None:
+            raise ValueError("unbounded cannot be combined with timeout_seconds")
+        timeout = None if unbounded else _normalize_timeout(timeout_seconds)
+        loop = asyncio.get_running_loop()
+        call = functools.partial(func, *args, **kwargs)
+        context = contextvars.copy_context()
+        future = loop.run_in_executor(_get_shared_executor(), context.run, call)
+        try:
+&gt;           return await asyncio.wait_for(future, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/polisyos/common/async_tools.py:293: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:487: in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Timeout [expired]&gt;
+exc_type = &lt;class 'asyncio.exceptions.CancelledError'&gt;
+exc_val = CancelledError(), exc_tb = &lt;traceback object at 0x7fa20f655c00&gt;
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -&gt; bool | None:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() &lt;= self._cancelling and exc_type is not None:
+                # Since there are no new cancel requests, we're
+                # handling this.
+                if issubclass(exc_type, exceptions.CancelledError):
+&gt;                   raise TimeoutError from exc_val
+E                   TimeoutError
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/timeouts.py:114: TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+ctx = &lt;MagicMock id='140334020470704'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa20f445860&gt;
+
+    def test_unconfigured_sync_bridge_has_no_implicit_timeout(ctx, state, monkeypatch):
+        from polisyos.common import async_tools
+    
+        monkeypatch.setattr(async_tools, "_DEFAULT_TIMEOUT_SECONDS", 0.005)
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                _time.sleep(0.02)
+                return _ok_outcome(passed_state)
+    
+&gt;       result = asyncio.run(
+            execute_with_retry_async(
+                Node(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=None,
+                alias="explicit-unbounded",
+            )
+        )
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1609: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1783: in execute_with_retry_async
+    return await _invoke(state)
+           ^^^^^^^^^^^^^^^^^^^^
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1777: in _invoke
+    return await run_blocking_async(node.execute, ctx, attempt_state)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = &lt;bound method test_unconfigured_sync_bridge_has_no_implicit_timeout.&lt;locals&gt;.Node.execute of &lt;engine.test_retry.test_unconfigured_sync_bridge_has_no_implicit_timeout.&lt;locals&gt;.Node object at 0x7fa20f70ba10&gt;&gt;
+timeout_seconds = None, unbounded = False
+args = (&lt;MagicMock id='140334020470704'&gt;, ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index...f=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None))
+kwargs = {}, timeout = 0.005
+loop = &lt;_UnixSelectorEventLoop running=False closed=True debug=False&gt;
+call = functools.partial(&lt;bound method test_unconfigured_sync_bridge_has_no_implicit_timeout.&lt;locals&gt;.Node.execute of &lt;engine...f=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None))
+context = &lt;_contextvars.Context object at 0x7fa20f7b98c0&gt;
+future = &lt;Future cancelled&gt;
+
+    async def run_blocking_async[T](
+        func: Callable[..., T],
+        /,
+        *args: object,
+        timeout_seconds: float | None = None,
+        unbounded: bool = False,
+        **kwargs: object,
+    ) -&gt; T:
+        """Run a blocking call without stalling the loop.
+    
+        Omitted/None timeouts retain the helper default. An owner with no configured
+        deadline must explicitly pass ``unbounded=True``; combining it with a float
+        timeout is rejected before admission. Cancellation stops queued work, while
+        an already running callable retains its physical worker until it returns.
+        """
+        if unbounded and timeout_seconds is not None:
+            raise ValueError("unbounded cannot be combined with timeout_seconds")
+        timeout = None if unbounded else _normalize_timeout(timeout_seconds)
+        loop = asyncio.get_running_loop()
+        call = functools.partial(func, *args, **kwargs)
+        context = contextvars.copy_context()
+        future = loop.run_in_executor(_get_shared_executor(), context.run, call)
+        try:
+            return await asyncio.wait_for(future, timeout=timeout)
+        except TimeoutError as exc:
+            # ``asyncio.TimeoutError`` is the built-in ``TimeoutError`` on the
+            # supported Python versions, so this handler also catches a timeout
+            # raised by the blocking callable itself. Preserve that inner error
+            # when the executor future completed; only rewrite a wait timeout
+            # after asyncio cancelled the future.
+            if future.done() and not future.cancelled():
+                raise
+            future.cancel()
+&gt;           raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s") from exc
+E           TimeoutError: Blocking call did not complete within 0.005s
+
+src/polisyos/common/async_tools.py:303: TimeoutError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_event_loop_block_cannot_publish_owned_write_after_deadline" time="0.043"><failure message="AssertionError: assert not True&#10; +  where True = exists()&#10; +    where exists = PosixPath('/tmp/pytest-of-agent/pytest-183/test_event_loop_block_cannot_p0/owned.json').exists">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_event_loop_block_cannot_p0')
+ctx = &lt;MagicMock id='140334020464656'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    def test_event_loop_block_cannot_publish_owned_write_after_deadline(tmp_path, ctx, state):
+        effects = tmp_path / "owned.json"
+    
+        class Store:
+            def put_json(self, payload, options):
+                effects.write_text(json.dumps(payload))
+    
+        ctx.store = Store()
+    
+        class Node:
+            async def execute_async(self, passed_ctx, passed_state):
+                _time.sleep(0.04)
+                passed_ctx.store.put_json({"late": True}, None)
+                return _ok_outcome(passed_state)
+    
+        with pytest.raises(NodeTimeoutError):
+            asyncio.run(
+                execute_with_retry_async(
+                    Node(), ctx, state, retry_policy=RetryPolicy(), timeout_s=0.01, alias="blocked-loop"
+                )
+            )
+&gt;       assert not effects.exists()
+E       AssertionError: assert not True
+E        +  where True = exists()
+E        +    where exists = PosixPath('/tmp/pytest-of-agent/pytest-183/test_event_loop_block_cannot_p0/owned.json').exists
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1643: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_queued_async_thread_attempt_never_enters_body_after_termination[deadline]" time="0.803"><failure message="polisyos.scientist.orchestration.engine.errors.RetryExhaustedError: Node queued: all 2 retries exhausted">fut = &lt;Future cancelled&gt;, timeout = 0.03
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        If the task suppresses the cancellation and returns a value instead,
+        that value is returned.
+    
+        This function is a coroutine.
+        """
+        # The special case for timeout &lt;= 0 is for the following case:
+        #
+        # async def test_waitfor():
+        #     func_started = False
+        #
+        #     async def func():
+        #         nonlocal func_started
+        #         func_started = True
+        #
+        #     try:
+        #         await asyncio.wait_for(func(), 0)
+        #     except asyncio.TimeoutError:
+        #         assert not func_started
+        #     else:
+        #         assert False
+        #
+        # asyncio.run(test_waitfor())
+    
+    
+        if timeout is not None and timeout &lt;= 0:
+            fut = ensure_future(fut)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise TimeoutError from exc
+    
+        async with timeouts.timeout(timeout):
+&gt;           return await fut
+                   ^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:488: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+func = &lt;function _execute_with_timeout_sync at 0x7fa2154cc1a0&gt;
+timeout_seconds = 0.03, unbounded = False
+args = (&lt;engine.test_retry.test_queued_async_thread_attempt_never_enters_body_after_termination.&lt;locals&gt;.Node object at 0x7fa...f=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None))
+kwargs = {'timeout_s': 0.03}, timeout = 0.03
+loop = &lt;_UnixSelectorEventLoop running=False closed=False debug=False&gt;
+call = functools.partial(&lt;function _execute_with_timeout_sync at 0x7fa2154cc1a0&gt;, &lt;engine.test_retry.test_queued_async_thread...utput_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None), timeout_s=0.03)
+context = &lt;_contextvars.Context object at 0x7fa20f4d40c0&gt;
+future = &lt;Future cancelled&gt;
+
+    async def run_blocking_async[T](
+        func: Callable[..., T],
+        /,
+        *args: object,
+        timeout_seconds: float | None = None,
+        unbounded: bool = False,
+        **kwargs: object,
+    ) -&gt; T:
+        """Run a blocking call without stalling the loop.
+    
+        Omitted/None timeouts retain the helper default. An owner with no configured
+        deadline must explicitly pass ``unbounded=True``; combining it with a float
+        timeout is rejected before admission. Cancellation stops queued work, while
+        an already running callable retains its physical worker until it returns.
+        """
+        if unbounded and timeout_seconds is not None:
+            raise ValueError("unbounded cannot be combined with timeout_seconds")
+        timeout = None if unbounded else _normalize_timeout(timeout_seconds)
+        loop = asyncio.get_running_loop()
+        call = functools.partial(func, *args, **kwargs)
+        context = contextvars.copy_context()
+        future = loop.run_in_executor(_get_shared_executor(), context.run, call)
+        try:
+&gt;           return await asyncio.wait_for(future, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/polisyos/common/async_tools.py:293: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:487: in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Timeout [expired]&gt;
+exc_type = &lt;class 'asyncio.exceptions.CancelledError'&gt;
+exc_val = CancelledError(), exc_tb = &lt;traceback object at 0x7fa20f0794c0&gt;
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -&gt; bool | None:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() &lt;= self._cancelling and exc_type is not None:
+                # Since there are no new cancel requests, we're
+                # handling this.
+                if issubclass(exc_type, exceptions.CancelledError):
+&gt;                   raise TimeoutError from exc_val
+E                   TimeoutError
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/timeouts.py:114: TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+node = &lt;engine.test_retry.test_queued_async_thread_attempt_never_enters_body_after_termination.&lt;locals&gt;.Node object at 0x7fa21425d160&gt;
+ctx = &lt;MagicMock id='140334020460960'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    async def execute_with_retry_async(
+        node: Any,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        *,
+        retry_policy: RetryPolicy,
+        timeout_s: float | None,
+        alias: str,
+        circuit_breaker: CircuitBreaker | None = None,
+        retry_stats: dict[str, int] | None = None,
+        liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None = None,
+    ) -&gt; NodeOutcome:
+        """Async retry wrapper for ``AsyncWorkflowExecutor``.
+    
+        * Timeout: a bounded async task or worker with a revocable attempt authority.
+        * Retry: loop + ``asyncio.sleep()``.
+        """
+        retry_policy = _apply_bounded_liveness_retry_ceiling(
+            alias=alias,
+            retry_policy=retry_policy,
+            liveness_config=liveness_config,
+        )
+        # Detect real execute_async (not MagicMock auto-generated attributes).
+        # Check the class dict to avoid MagicMock's __getattr__ false positives.
+        _has_async = "execute_async" in type(node).__dict__ or (
+            hasattr(node, "__class__")
+            and any("execute_async" in getattr(klass, "__dict__", {}) for klass in type(node).__mro__)
+        )
+    
+        async def _invoke(attempt_state: ExperimentState) -&gt; NodeOutcome:
+            if _has_async:
+                if timeout_s is None:
+                    return await node.execute_async(ctx, attempt_state)
+                return await _execute_with_timeout_async(
+                    node,
+                    ctx,
+                    attempt_state,
+                    timeout_s=timeout_s,
+                )
+            if timeout_s is not None:
+                if _can_use_forked_timeout_worker():
+                    return await _execute_with_timeout_process_async(
+                        node,
+                        ctx,
+                        attempt_state,
+                        timeout_s=timeout_s,
+                    )
+                return await run_blocking_async(
+                    _execute_with_timeout_sync,
+                    node,
+                    ctx,
+                    attempt_state,
+                    timeout_s=timeout_s,
+                    timeout_seconds=timeout_s,
+                )
+            return await run_blocking_async(node.execute, ctx, attempt_state)
+    
+        # Fast path
+        if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
+            if retry_stats is not None:
+                retry_stats["attempts"] = 1
+            return await _invoke(state)
+    
+        last_outcome: NodeOutcome | None = None
+        failed_spend: dict[str, Decimal] = {}
+        node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
+    
+        for attempt in range(retry_policy.max_retries + 1):
+            # Circuit breaker check
+            if circuit_breaker is not None and not circuit_breaker.allow_request():
+                raise CircuitBreakerOpenError(
+                    f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
+                )
+    
+            attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries &gt; 0 else state
+            try:
+&gt;               outcome = await _invoke(attempt_state)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1798: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1769: in _invoke
+    return await run_blocking_async(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = &lt;function _execute_with_timeout_sync at 0x7fa2154cc1a0&gt;
+timeout_seconds = 0.03, unbounded = False
+args = (&lt;engine.test_retry.test_queued_async_thread_attempt_never_enters_body_after_termination.&lt;locals&gt;.Node object at 0x7fa...f=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None))
+kwargs = {'timeout_s': 0.03}, timeout = 0.03
+loop = &lt;_UnixSelectorEventLoop running=False closed=False debug=False&gt;
+call = functools.partial(&lt;function _execute_with_timeout_sync at 0x7fa2154cc1a0&gt;, &lt;engine.test_retry.test_queued_async_thread...utput_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None), timeout_s=0.03)
+context = &lt;_contextvars.Context object at 0x7fa20f4d40c0&gt;
+future = &lt;Future cancelled&gt;
+
+    async def run_blocking_async[T](
+        func: Callable[..., T],
+        /,
+        *args: object,
+        timeout_seconds: float | None = None,
+        unbounded: bool = False,
+        **kwargs: object,
+    ) -&gt; T:
+        """Run a blocking call without stalling the loop.
+    
+        Omitted/None timeouts retain the helper default. An owner with no configured
+        deadline must explicitly pass ``unbounded=True``; combining it with a float
+        timeout is rejected before admission. Cancellation stops queued work, while
+        an already running callable retains its physical worker until it returns.
+        """
+        if unbounded and timeout_seconds is not None:
+            raise ValueError("unbounded cannot be combined with timeout_seconds")
+        timeout = None if unbounded else _normalize_timeout(timeout_seconds)
+        loop = asyncio.get_running_loop()
+        call = functools.partial(func, *args, **kwargs)
+        context = contextvars.copy_context()
+        future = loop.run_in_executor(_get_shared_executor(), context.run, call)
+        try:
+            return await asyncio.wait_for(future, timeout=timeout)
+        except TimeoutError as exc:
+            # ``asyncio.TimeoutError`` is the built-in ``TimeoutError`` on the
+            # supported Python versions, so this handler also catches a timeout
+            # raised by the blocking callable itself. Preserve that inner error
+            # when the executor future completed; only rewrite a wait timeout
+            # after asyncio cancelled the future.
+            if future.done() and not future.cancelled():
+                raise
+            future.cancel()
+&gt;           raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s") from exc
+E           TimeoutError: Blocking call did not complete within 0.030s
+
+src/polisyos/common/async_tools.py:303: TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_queued_async_thread_attem0')
+ctx = &lt;MagicMock id='140334020460960'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa20f446890&gt;
+termination = 'deadline'
+
+    @pytest.mark.parametrize("termination", ["deadline", "cancellation"])
+    @pytest.mark.asyncio
+    async def test_queued_async_thread_attempt_never_enters_body_after_termination(
+        tmp_path, ctx, state, monkeypatch, termination
+    ):
+        from polisyos.common.async_tools import _SharedExecutor
+    
+        executor = _SharedExecutor(max_workers=4)
+        occupied = threading.Barrier(5)
+        release = threading.Event()
+        effects = tmp_path / "physical-body"
+    
+        def blocker():
+            occupied.wait(timeout=2)
+            release.wait(timeout=2)
+    
+        blockers = [executor.submit(blocker) for _ in range(4)]
+        occupied.wait(timeout=2)
+        monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                effects.write_text("physical execution after owner return")
+                return _ok_outcome(passed_state)
+    
+        try:
+            task = asyncio.create_task(
+                execute_with_retry_async(
+                    Node(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(max_retries=2),
+                    timeout_s=0.03 if termination == "deadline" else 1.0,
+                    alias="queued",
+                )
+            )
+            if termination == "cancellation":
+                # Admit the real queued job before cancelling its async owner.
+                for _ in range(100):
+                    if executor._work_queue.qsize() &gt; 0:
+                        break
+                    await asyncio.sleep(0.001)
+                assert executor._work_queue.qsize() &gt; 0
+                task.cancel()
+            with pytest.raises(
+                NodeTimeoutError if termination == "deadline" else asyncio.CancelledError
+            ):
+&gt;               await task
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1717: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = &lt;engine.test_retry.test_queued_async_thread_attempt_never_enters_body_after_termination.&lt;locals&gt;.Node object at 0x7fa21425d160&gt;
+ctx = &lt;MagicMock id='140334020460960'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    async def execute_with_retry_async(
+        node: Any,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        *,
+        retry_policy: RetryPolicy,
+        timeout_s: float | None,
+        alias: str,
+        circuit_breaker: CircuitBreaker | None = None,
+        retry_stats: dict[str, int] | None = None,
+        liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None = None,
+    ) -&gt; NodeOutcome:
+        """Async retry wrapper for ``AsyncWorkflowExecutor``.
+    
+        * Timeout: a bounded async task or worker with a revocable attempt authority.
+        * Retry: loop + ``asyncio.sleep()``.
+        """
+        retry_policy = _apply_bounded_liveness_retry_ceiling(
+            alias=alias,
+            retry_policy=retry_policy,
+            liveness_config=liveness_config,
+        )
+        # Detect real execute_async (not MagicMock auto-generated attributes).
+        # Check the class dict to avoid MagicMock's __getattr__ false positives.
+        _has_async = "execute_async" in type(node).__dict__ or (
+            hasattr(node, "__class__")
+            and any("execute_async" in getattr(klass, "__dict__", {}) for klass in type(node).__mro__)
+        )
+    
+        async def _invoke(attempt_state: ExperimentState) -&gt; NodeOutcome:
+            if _has_async:
+                if timeout_s is None:
+                    return await node.execute_async(ctx, attempt_state)
+                return await _execute_with_timeout_async(
+                    node,
+                    ctx,
+                    attempt_state,
+                    timeout_s=timeout_s,
+                )
+            if timeout_s is not None:
+                if _can_use_forked_timeout_worker():
+                    return await _execute_with_timeout_process_async(
+                        node,
+                        ctx,
+                        attempt_state,
+                        timeout_s=timeout_s,
+                    )
+                return await run_blocking_async(
+                    _execute_with_timeout_sync,
+                    node,
+                    ctx,
+                    attempt_state,
+                    timeout_s=timeout_s,
+                    timeout_seconds=timeout_s,
+                )
+            return await run_blocking_async(node.execute, ctx, attempt_state)
+    
+        # Fast path
+        if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
+            if retry_stats is not None:
+                retry_stats["attempts"] = 1
+            return await _invoke(state)
+    
+        last_outcome: NodeOutcome | None = None
+        failed_spend: dict[str, Decimal] = {}
+        node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
+    
+        for attempt in range(retry_policy.max_retries + 1):
+            # Circuit breaker check
+            if circuit_breaker is not None and not circuit_breaker.allow_request():
+                raise CircuitBreakerOpenError(
+                    f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
+                )
+    
+            attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries &gt; 0 else state
+            try:
+                outcome = await _invoke(attempt_state)
+    
+                if outcome.status != "fail":
+                    _merge_spend(outcome.state, failed_spend)
+                    if circuit_breaker is not None:
+                        circuit_breaker.record_success()
+                    if retry_stats is not None:
+                        retry_stats["attempts"] = attempt + 1
+                    return outcome
+    
+                if circuit_breaker is not None:
+                    circuit_breaker.record_failure()
+    
+                if attempt &lt; retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
+                    attempt_spend = _spend_delta(state, outcome.state)
+                    _accumulate_spend(failed_spend, attempt_spend)
+                    last_outcome = outcome
+                    delay = _backoff_delay(attempt, retry_policy)
+                    _logger.info(
+                        "Retrying node %s (attempt %d/%d) after %.1fs",
+                        alias,
+                        attempt + 1,
+                        retry_policy.max_retries,
+                        delay,
+                    )
+                    _emit_retry_event(
+                        ctx,
+                        alias,
+                        attempt=attempt + 1,
+                        delay=delay,
+                        spend=attempt_spend,
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+    
+                if retry_stats is not None:
+                    retry_stats["attempts"] = attempt + 1
+                _merge_spend(outcome.state, failed_spend)
+                return outcome
+    
+            except (NodeTimeoutError, CircuitBreakerOpenError):
+                raise
+            except asyncio.CancelledError:
+                _logger.info("Node %s cancelled during attempt %d", alias, attempt)
+                raise
+            except _RETRY_RUNTIME_ERRORS as exc:
+                if circuit_breaker is not None:
+                    circuit_breaker.record_failure()
+                attempt_spend = _spend_delta(state, attempt_state)
+                _accumulate_spend(failed_spend, attempt_spend)
+                if attempt &lt; retry_policy.max_retries and _should_retry_exception(
+                    exc,
+                    retry_policy,
+                ):
+                    delay = _backoff_delay(attempt, retry_policy)
+                    _logger.info(
+                        "Retrying node %s after exception (attempt %d/%d): %s",
+                        alias,
+                        attempt + 1,
+                        retry_policy.max_retries,
+                        exc,
+                    )
+                    _emit_retry_event(
+                        ctx,
+                        alias,
+                        attempt=attempt + 1,
+                        delay=delay,
+                        spend=attempt_spend,
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+    
+                if retry_stats is not None:
+                    retry_stats["attempts"] = attempt + 1
+                _merge_spend(state, failed_spend)
+                dlq_ref = _persist_dead_letter(
+                    ctx,
+                    alias,
+                    node_id,
+                    exc,
+                    attempts=attempt + 1,
+                    policy=retry_policy,
+                )
+                if dlq_ref is not None:
+                    _emit_dead_letter_event(
+                        ctx,
+                        alias,
+                        attempt=attempt + 1,
+                        output=dlq_ref,
+                        spend=failed_spend,
+                    )
+&gt;               raise RetryExhaustedError(
+                    f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
+                ) from exc
+E               polisyos.scientist.orchestration.engine.errors.RetryExhaustedError: Node queued: all 2 retries exhausted
+
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1889: RetryExhaustedError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_queued_async_thread_attempt_never_enters_body_after_termination[cancellation]" time="0.005"><failure message="AssertionError: assert not True&#10; +  where True = exists()&#10; +    where exists = PosixPath('/tmp/pytest-of-agent/pytest-183/test_queued_async_thread_attem1/physical-body').exists">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_queued_async_thread_attem1')
+ctx = &lt;MagicMock id='140334122963632'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa20f446ba0&gt;
+termination = 'cancellation'
+
+    @pytest.mark.parametrize("termination", ["deadline", "cancellation"])
+    @pytest.mark.asyncio
+    async def test_queued_async_thread_attempt_never_enters_body_after_termination(
+        tmp_path, ctx, state, monkeypatch, termination
+    ):
+        from polisyos.common.async_tools import _SharedExecutor
+    
+        executor = _SharedExecutor(max_workers=4)
+        occupied = threading.Barrier(5)
+        release = threading.Event()
+        effects = tmp_path / "physical-body"
+    
+        def blocker():
+            occupied.wait(timeout=2)
+            release.wait(timeout=2)
+    
+        blockers = [executor.submit(blocker) for _ in range(4)]
+        occupied.wait(timeout=2)
+        monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                effects.write_text("physical execution after owner return")
+                return _ok_outcome(passed_state)
+    
+        try:
+            task = asyncio.create_task(
+                execute_with_retry_async(
+                    Node(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(max_retries=2),
+                    timeout_s=0.03 if termination == "deadline" else 1.0,
+                    alias="queued",
+                )
+            )
+            if termination == "cancellation":
+                # Admit the real queued job before cancelling its async owner.
+                for _ in range(100):
+                    if executor._work_queue.qsize() &gt; 0:
+                        break
+                    await asyncio.sleep(0.001)
+                assert executor._work_queue.qsize() &gt; 0
+                task.cancel()
+            with pytest.raises(
+                NodeTimeoutError if termination == "deadline" else asyncio.CancelledError
+            ):
+                await task
+            # Same-turn release falsifies deferred asyncio-only Future cancellation.
+            release.set()
+            for future in blockers:
+                future.result(timeout=2)
+            executor.shutdown(wait=True, cancel_futures=True)
+&gt;           assert not effects.exists()
+E           AssertionError: assert not True
+E            +  where True = exists()
+E            +    where exists = PosixPath('/tmp/pytest-of-agent/pytest-183/test_queued_async_thread_attem1/physical-body').exists
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1723: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_real_process_preserves_control_exception_without_retry[sync-SystemExit]" time="0.820"><failure message="AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}&#10;assert 'NodeTimeoutError' == 'SystemExit'&#10;  &#10;  - SystemExit&#10;  + NodeTimeoutError">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_real_process_preserves_co0')
+mode = 'sync', control = 'SystemExit'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+            assert observed["type"] == "RetryExhaustedError", observed
+            assert observed["cause_code"] == "node.control_unsupported", observed
+            assert observed["cause_category"] == "fatal", observed
+        else:
+&gt;           assert observed["type"] == control, observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'SystemExit'
+E             
+E             - SystemExit
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1766: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_real_process_preserves_control_exception_without_retry[sync-KeyboardInterrupt]" time="0.849"><failure message="AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}&#10;assert 'NodeTimeoutError' == 'KeyboardInterrupt'&#10;  &#10;  - KeyboardInterrupt&#10;  + NodeTimeoutError">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_real_process_preserves_co1')
+mode = 'sync', control = 'KeyboardInterrupt'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+            assert observed["type"] == "RetryExhaustedError", observed
+            assert observed["cause_code"] == "node.control_unsupported", observed
+            assert observed["cause_category"] == "fatal", observed
+        else:
+&gt;           assert observed["type"] == control, observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'KeyboardInterrupt'
+E             
+E             - KeyboardInterrupt
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1766: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_real_process_preserves_control_exception_without_retry[sync-SystemExitUnsupported]" time="0.862"><failure message="AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}&#10;assert 'NodeTimeoutError' == 'RetryExhaustedError'&#10;  &#10;  - RetryExhaustedError&#10;  + NodeTimeoutError">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_real_process_preserves_co2')
+mode = 'sync', control = 'SystemExitUnsupported'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+&gt;           assert observed["type"] == "RetryExhaustedError", observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'RetryExhaustedError'
+E             
+E             - RetryExhaustedError
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1762: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_real_process_preserves_control_exception_without_retry[async-SystemExit]" time="0.870"><failure message="AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}&#10;assert 'NodeTimeoutError' == 'SystemExit'&#10;  &#10;  - SystemExit&#10;  + NodeTimeoutError">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_real_process_preserves_co3')
+mode = 'async', control = 'SystemExit'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+            assert observed["type"] == "RetryExhaustedError", observed
+            assert observed["cause_code"] == "node.control_unsupported", observed
+            assert observed["cause_category"] == "fatal", observed
+        else:
+&gt;           assert observed["type"] == control, observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'SystemExit'
+E             
+E             - SystemExit
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1766: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_real_process_preserves_control_exception_without_retry[async-KeyboardInterrupt]" time="0.890"><failure message="AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}&#10;assert 'NodeTimeoutError' == 'KeyboardInterrupt'&#10;  &#10;  - KeyboardInterrupt&#10;  + NodeTimeoutError">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_real_process_preserves_co4')
+mode = 'async', control = 'KeyboardInterrupt'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+            assert observed["type"] == "RetryExhaustedError", observed
+            assert observed["cause_code"] == "node.control_unsupported", observed
+            assert observed["cause_category"] == "fatal", observed
+        else:
+&gt;           assert observed["type"] == control, observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'KeyboardInterrupt'
+E             
+E             - KeyboardInterrupt
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1766: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_real_process_preserves_control_exception_without_retry[async-SystemExitUnsupported]" time="0.878"><failure message="AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}&#10;assert 'NodeTimeoutError' == 'RetryExhaustedError'&#10;  &#10;  - RetryExhaustedError&#10;  + NodeTimeoutError">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_real_process_preserves_co5')
+mode = 'async', control = 'SystemExitUnsupported'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+&gt;           assert observed["type"] == "RetryExhaustedError", observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'RetryExhaustedError'
+E             
+E             - RetryExhaustedError
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1762: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_expired_retry_budget_preserves_spend_without_failed_branch" time="0.304"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_expired_retry_budget_pres0')
+ctx = &lt;MagicMock id='140334098146240'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa214672430&gt;
+
+    def test_expired_retry_budget_preserves_spend_without_failed_branch(
+        tmp_path, ctx, state, monkeypatch
+    ):
+        from decimal import Decimal
+        from types import SimpleNamespace
+    
+        effects = tmp_path / "attempts"
+    
+        class Node:
+            spec = SimpleNamespace(
+                metadata=SimpleNamespace(component_id="actual-costed-retry"),
+                state_writes=["params", "budgets"],
+            )
+    
+            def execute(self, passed_ctx, passed_state):
+                with effects.open("a") as stream:
+                    stream.write("attempt\n")
+                passed_state.params["failed_change"] = True
+                passed_state.budgets["run_spent_usd"] = Decimal("0.25")
+                return _fail_outcome(passed_state)
+    
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+&gt;       with pytest.raises(NodeTimeoutError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.NodeTimeoutError'&gt;
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1794: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_unbounded_thread_cancellation_revokes_owned_writes_but_cannot_stop_raw_effects" time="0.004"><failure message="AssertionError: assert not True&#10; +  where True = exists()&#10; +    where exists = PosixPath('/tmp/pytest-of-agent/pytest-183/test_unbounded_thread_cancella0/owned-effect').exists">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_unbounded_thread_cancella0')
+ctx = &lt;MagicMock id='140334098051968'&gt;
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa2158f3b60&gt;
+
+    @pytest.mark.asyncio
+    async def test_unbounded_thread_cancellation_revokes_owned_writes_but_cannot_stop_raw_effects(
+        tmp_path, ctx, state, monkeypatch
+    ):
+        from polisyos.common import async_tools
+    
+        executor = async_tools._SharedExecutor(max_workers=4)
+        monkeypatch.setattr(async_tools, "get_shared_executor", lambda: executor)
+        started, release, finished = threading.Event(), threading.Event(), threading.Event()
+        raw = tmp_path / "raw-effect"
+        owned = tmp_path / "owned-effect"
+    
+        class Store:
+            def put_json(self, payload, options):
+                owned.write_text("owner write admitted")
+    
+        ctx.store = Store()
+    
+        class Node:
+            def execute(self, passed_ctx, passed_state):
+                started.set()
+                release.wait(timeout=2)
+                raw.write_text("already running arbitrary user effect")
+                passed_ctx.store.put_json({}, None)
+                finished.set()
+                return _ok_outcome(passed_state)
+    
+        try:
+            task = asyncio.create_task(
+                execute_with_retry_async(
+                    Node(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(),
+                    timeout_s=None,
+                    alias="unbounded-cancel",
+                )
+            )
+            for _ in range(100):
+                if started.is_set():
+                    break
+                await asyncio.sleep(0.001)
+            assert started.is_set()
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+            release.set()
+            assert finished.wait(timeout=2)
+            assert raw.read_text() == "already running arbitrary user effect"
+&gt;           assert not owned.exists()
+E           AssertionError: assert not True
+E            +  where True = exists()
+E            +    where exists = PosixPath('/tmp/pytest-of-agent/pytest-183/test_unbounded_thread_cancella0/owned-effect').exists
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1857: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_retry" name="test_completed_provider_error_cannot_emit_retry_after_publication_deadline" time="0.132"><failure message="pydantic_core._pydantic_core.ValidationError: 1 validation error for TraceRefs&#10;outputs.0&#10;  Input should be a valid dictionary or instance of ArtifactRef [type=model_type, input_value=&lt;MagicMock name='mock.put...)' id='140334098048272'&gt;, input_type=MagicMock]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/model_type">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-183/test_completed_provider_error_0')
+state = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    def test_completed_provider_error_cannot_emit_retry_after_publication_deadline(tmp_path, state):
+        from polisyos.core.trace.record import TraceRecord
+        from polisyos.core.trace.sink import JsonlTraceSink
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    
+        trace_path = tmp_path / "trace.jsonl"
+        run = RunContext(
+            store=MagicMock(),
+            trace=JsonlTraceSink(trace_path),
+            run_manifest=RunManifest(
+                run_id="R_late_error",
+                registry_bundle=ArtifactRef(
+                    artifact_id="sha256:" + "0" * 64, kind="registry", media_type="application/json"
+                ),
+            ),
+        )
+        context = ExecutionContext(store=run.store, run=run, logger=MagicMock())
+    
+        class Node:
+            async def execute_async(self, passed_ctx, passed_state):
+                # The provider finishes on time. Its consumer wakes only after this
+                # real event-loop callback has consumed the publication budget.
+                asyncio.get_running_loop().call_soon(_time.sleep, 0.04)
+                raise ConnectionError("provider completed before blocked delivery")
+    
+        with pytest.raises(NodeTimeoutError):
+&gt;           asyncio.run(
+                execute_with_retry_async(
+                    Node(),
+                    context,
+                    state,
+                    retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1),
+                    timeout_s=0.01,
+                    alias="late-error",
+                )
+            )
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1889: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:1882: in execute_with_retry_async
+    _emit_dead_letter_event(
+../_build/e02-current-runtime/retry-frozen-base/overlay/pinned_retry.py:889: in _emit_dead_letter_event
+    ctx.run.emit(
+src/polisyos/core/run/context.py:370: in emit
+    self._emit_record(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = RunContext(store=&lt;MagicMock id='140334098045584'&gt;, trace=&lt;polisyos.core.trace.sink.JsonlTraceSink object at 0x7fa21410...f=None, tee_attestation_ref=None), _trace_path=None, _audit_sink=None, tenant_id=None, cell_id=None, access_scope=None)
+phase = 'scientist.node.late-error', event = 'NODE_DEAD_LETTER'
+
+    def _emit_record(
+        self,
+        phase: str,
+        event: str,
+        *,
+        run_terminality: RunTerminality | None = None,
+        inputs: list[ArtifactRef] | None = None,
+        outputs: list[ArtifactRef] | None = None,
+        metrics: dict[str, float | int] | None = None,
+    ) -&gt; None:
+        for ref in [*(inputs or []), *(outputs or [])]:
+            self._record_ref_owner(ref, writer=f"RunContext.emit:{event}")
+        rec = TraceRecord(
+            run_id=self.run_manifest.run_id,
+            phase=phase,
+            event=event,
+            run_terminality=run_terminality,
+            tenant_id=self.tenant_id,
+            cell_id=self.cell_id,
+&gt;           refs=TraceRefs(inputs=inputs or [], outputs=outputs or []),
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            metrics=metrics or {},
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for TraceRefs
+E       outputs.0
+E         Input should be a valid dictionary or instance of ArtifactRef [type=model_type, input_value=&lt;MagicMock name='mock.put...)' id='140334098048272'&gt;, input_type=MagicMock]
+E           For further information visit https://errors.pydantic.dev/2.12/v/model_type
+
+src/polisyos/core/run/context.py:397: ValidationError</failure></testcase></testsuite></testsuites>

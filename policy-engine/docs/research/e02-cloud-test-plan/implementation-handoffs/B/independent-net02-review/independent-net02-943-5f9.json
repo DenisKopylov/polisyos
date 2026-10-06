@@ -1,0 +1,88 @@
+{
+  "scope": "Independent read-only NET02 registry/regulator source and full6 nativeconsumer tests; unrelated dirtyLLM excluded by exact scopedbytes",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/independent-net02-943-5f9-cache",
+    "-q",
+    "tests/unit/fabric/connectors/test_resilience_e02.py",
+    "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/independent-net02-943-5f9-tmp",
+    "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/independent-net02-943-5f9.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "source_before": {
+    "HEAD": "4aedd41b256ee308c1832f488aa4318c6653b359",
+    "tree": "53dcd4fb1b3b457c6368f414418efe189527476d",
+    "status": "",
+    "scoped_files": {
+      "src/polisyos/fabric/connectors/resilience/_bounded_registry.py": {
+        "source_sha": "943325b228984dd949e03b609e3173d6de814dbe",
+        "module_path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429"
+      },
+      "src/polisyos/fabric/connectors/resilience/circuit_breaker.py": {
+        "source_sha": "943325b228984dd949e03b609e3173d6de814dbe",
+        "module_path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3"
+      },
+      "src/polisyos/fabric/connectors/resilience/rate_limiter.py": {
+        "source_sha": "943325b228984dd949e03b609e3173d6de814dbe",
+        "module_path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "sha256": "dd05419162834ba7c7f74a6a71b85b32fdbc1f26fe520094414d1e5c06763d8b"
+      },
+      "tests/unit/fabric/connectors/test_resilience_e02.py": {
+        "source_sha": "5f9c6a359a23ac4b8d7b5bc4ae662f304aeecd82",
+        "module_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "sha256": "00ad74184b6b839c0f6e05c80ed89c400172073eed0b7f6f742008e3e42346bb"
+      }
+    }
+  },
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "JAX_PLATFORMS": null,
+    "XLA_FLAGS": null
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T10:37:15.804380+00:00",
+  "exit_code": 0,
+  "wall_seconds": 2.116554005013313,
+  "max_rss_kib": 169740,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "source_after": {
+    "HEAD": "4aedd41b256ee308c1832f488aa4318c6653b359",
+    "tree": "53dcd4fb1b3b457c6368f414418efe189527476d",
+    "status": "",
+    "scoped_files": {
+      "src/polisyos/fabric/connectors/resilience/_bounded_registry.py": {
+        "source_sha": "943325b228984dd949e03b609e3173d6de814dbe",
+        "module_path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429"
+      },
+      "src/polisyos/fabric/connectors/resilience/circuit_breaker.py": {
+        "source_sha": "943325b228984dd949e03b609e3173d6de814dbe",
+        "module_path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3"
+      },
+      "src/polisyos/fabric/connectors/resilience/rate_limiter.py": {
+        "source_sha": "943325b228984dd949e03b609e3173d6de814dbe",
+        "module_path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "sha256": "dd05419162834ba7c7f74a6a71b85b32fdbc1f26fe520094414d1e5c06763d8b"
+      },
+      "tests/unit/fabric/connectors/test_resilience_e02.py": {
+        "source_sha": "5f9c6a359a23ac4b8d7b5bc4ae662f304aeecd82",
+        "module_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "sha256": "00ad74184b6b839c0f6e05c80ed89c400172073eed0b7f6f742008e3e42346bb"
+      }
+    }
+  },
+  "end_utc": "2026-10-06T10:37:17.974364+00:00"
+}

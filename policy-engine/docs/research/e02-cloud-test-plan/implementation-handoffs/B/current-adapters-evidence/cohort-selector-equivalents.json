@@ -1,0 +1,425 @@
+{
+  "tests/integration/scientist/test_async_cache_recovery.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+        "finding_ids": [
+          "B51",
+          "B55"
+        ],
+        "source_property": "Gated physical CAS read does not block loop; exact real operation replay and readable artifact.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache",
+        "finding_ids": [
+          "B52"
+        ],
+        "source_property": "After deadline/cancellation return, held physical read completes but cannot mutate executor cache.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "These are actual unit consumer boundaries, not the named integration selector or production deployment workload. Remote storage/multihost behavior and configured production input remain UNRUN."
+    ]
+  },
+  "tests/integration/scientist/test_execution_state_replay.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_is_off_loop_and_replays_real_operations",
+        "finding_ids": [
+          "B55"
+        ],
+        "source_property": "Real CAS cold seed, actual off-loop read and caller context, operation replay preserves unrelated current state and null; node executes once.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_unrelated_changes_and_reapplies_same_value_write",
+        "finding_ids": [
+          "B55",
+          "B72"
+        ],
+        "source_property": "Real branch journal replays same-value writes into changed current state, preserving unrelated value.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_distinguishes_delete_null_and_no_write",
+        "finding_ids": [
+          "B55",
+          "B72"
+        ],
+        "source_property": "Actual branch journals discriminate deletion, explicit null and no write.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "Bounded native operation replay only; whole tier process-kill atomic frontier/checkpoint publication is supplied by separate RES02 inputs, not inferred from these selectors."
+    ]
+  },
+  "tests/unit/core/artifacts/test_import_tenant_context.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim",
+        "finding_ids": [
+          "B150",
+          "B151"
+        ],
+        "source_property": "Real exact/directory/archive foreign/unbound owner import refuses before filesystem staging/claim; all receiving bytes unchanged.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop",
+        "finding_ids": [
+          "B148",
+          "B150"
+        ],
+        "source_property": "Actual same-owner reimport preserves receiving generation bytes and readable exact view after reopen, with zero staging.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "Exact read access/content equality is not institutional permission for downstream semantic reuse. CAS advertisement remains explicit per receipt."
+    ]
+  },
+  "tests/unit/core/artifacts/test_transfer_output_paths.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_same_destination_retains_complete_history_and_exact_new_inventory",
+        "finding_ids": [
+          "B148",
+          "B149"
+        ],
+        "source_property": "Directory/archive exports reuse actual destination; prior complete generation is readable, mode preserved and current inventory imported exactly.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "Finite local filesystem publication only; no power loss or arbitrary remote filesystem law."
+    ]
+  },
+  "tests/unit/core/artifacts/test_transfer_publication.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation",
+        "finding_ids": [
+          "B148",
+          "B149"
+        ],
+        "source_property": "Actual spawned process pauses after publication syscall, kernel termination preserves readable complete new and prior generations.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/core/artifacts/test_transfer_generation_publication.py::test_streamed_write_failure_preserves_old_generation_and_no_false_inventory",
+        "finding_ids": [
+          "B148",
+          "B149"
+        ],
+        "source_property": "Actual export file-fsync failure before publication preserves prior generation bytes, removes staging and reimports old content without false inventory.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "Whole publication discriminators do not establish failed fsync durability or multihost guarantees."
+    ]
+  },
+  "tests/unit/foundry/methods/test_compiler_e02.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/remediation/test_jit_01.py::test_native_jax_dynamic_defaults_rebind_without_recompile",
+        "finding_ids": [
+          "B49"
+        ],
+        "source_property": "Actual JAX cold/warm compiled handles produce20 and30 from changed dynamic defaults; this body alone does not assert shared native kernel identity.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/remediation/test_jit_01.py::test_single_flight_publishes_before_followers_are_notified",
+        "finding_ids": [
+          "B50"
+        ],
+        "source_property": "Gated canonical compilation/publication with concurrent followers observes one compilation and exact same delivered handle.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/remediation/test_jit_01.py::test_single_flight_error_releases_all_followers",
+        "finding_ids": [
+          "B50"
+        ],
+        "source_property": "Actual competing compile calls receive typed controlled compilation failure and release every follower.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "Shared kernel identity and unknown-shape inference criteria require the other complete JIT file inputs/owner evidence; JAX result values alone are not kernel reuse proof. Production datasets remain UNRUN."
+    ]
+  },
+  "tests/unit/remediation/test_dur_01.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_cold_record_spend_requires_bootstrap_across_processes",
+        "finding_ids": [
+          "B37"
+        ],
+        "source_property": "Actual fresh ledger subprocess mutation refuses absent bootstrap; actual middleware refuses without publishing unlimited state.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_malformed_existing_ledger_is_not_rebootstrapped",
+        "finding_ids": [
+          "B37"
+        ],
+        "source_property": "Malformed existing file refuses all actual mutations and preserves exact bytes.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_process_publication_fault_reopens_complete_or_requires_recovery",
+        "finding_ids": [
+          "B37"
+        ],
+        "source_property": "Real subprocess fsync/replace/kill fault distinguishes absent cold publication from complete old/new reopened snapshot.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_concurrent_real_middleware_processes_preserve_spend_and_exhausted_cap",
+        "finding_ids": [
+          "B37"
+        ],
+        "source_property": "Four real writer processes and concurrent reader use native ledger/middleware, final spend/provider spend100 and exhausted cap.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "Finite same-filesystem locked ledger contract only; failed directory fsync acknowledgment/power-loss/multihost law remains explicit."
+    ]
+  },
+  "tests/unit/remediation/test_exe_01.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_fail_fast_rechecks_cancellation_after_semaphore_acquire",
+        "finding_ids": [
+          "B51"
+        ],
+        "source_property": "Actual max-parallelism1 fail-fast executor refuses queued successor node bodies after the first actual node fails; no event-gated or outside-caller cancellation claim from this body.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache",
+        "finding_ids": [
+          "B52"
+        ],
+        "source_property": "Real late CAS worker after deadline/cancellation cannot publish executor cache.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_publication_trace_requires_completed_verified_storage",
+        "finding_ids": [
+          "B55"
+        ],
+        "source_property": "Native CAS publication completion, trace and reopen decide cache authority; cancelled or corrupt publication cannot emit success.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "Native consumers selected, no named remediation file. Exact input closure/whole-root execution still deferred in this audit."
+    ]
+  },
+  "tests/unit/remediation/test_llm_02.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+        "finding_ids": [
+          "B67"
+        ],
+        "source_property": "Actual scoped CAS source and functional owner decision recheck actor/epoch/exact content before reuse.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+        "finding_ids": [
+          "B67",
+          "B68"
+        ],
+        "source_property": "Gated actual follower refuses revoked owner decision before consuming shared result.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_different_actual_budget_owners_cannot_join_first_owners_flight",
+        "finding_ids": [
+          "B68"
+        ],
+        "source_property": "Real distinct persistent budget owners cannot join first owner flight; each own physical producer settles actual ledger.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "B67 institutional deployment owner grant/atomic epoch premise remains HELD/owner input; CAS readability or metadata is not reuse permission. Unsupported custom cache atomic contract remains outside canonical backend."
+    ]
+  },
+  "tests/unit/remediation/test_net_01.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_whole_acquisition_budget_rejects_late_handle",
+        "finding_ids": [
+          "B90"
+        ],
+        "source_property": "Real gated connect/health returns after absolute admission budget; no handle publish and actual ownership cleanup.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_cancelled_caller_cannot_receive_suppressed_late_handle",
+        "finding_ids": [
+          "B89",
+          "B90"
+        ],
+        "source_property": "Caller cancel before deadline plus suppressing actual connect/health cannot deliver handle; disconnect and physical permit settle exactly once.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/fabric/connectors/test_pool_e02.py::test_persistent_disconnect_failure_retains_exactly_one_permit",
+        "finding_ids": [
+          "B87",
+          "B89"
+        ],
+        "source_property": "Actual failed disconnect retains pending cleanup owner and one permit until real retry.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "B87/B89 served C streaming owner transfer remains separate consumer criterion and C-exclusive source; no hard physical drain/uncancellable provider wall bound claimed."
+    ]
+  },
+  "tests/unit/remediation/test_net_02.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/fabric/connectors/test_resilience.py::test_rate_limiter_sub_unit_rate_accepts_unit_request_and_preserves_pacing",
+        "finding_ids": [
+          "B91"
+        ],
+        "source_property": "Actual fractional monotonic refill eventually admits ordinary unit request with exact pacing.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/fabric/connectors/test_resilience.py::test_circuit_breaker_late_closed_success_does_not_claim_new_half_open_generation",
+        "finding_ids": [
+          "B92"
+        ],
+        "source_property": "Late actual prior-generation producer success cannot claim current half-open generation.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/fabric/connectors/test_resilience_e02.py::test_live_provider_owns_neutral_refilled_limiter_under_pressure",
+        "finding_ids": [
+          "B93"
+        ],
+        "source_property": "Actual live operation protects keyed neutral/refilled regulator through bounded registry pressure and lease removal falsifier.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "B93 canonical protected-state/ledger binding mismatch remains explicit G mapping; registry behavior is finite local, not distributed breaker/SLO."
+    ]
+  },
+  "tests/unit/remediation/test_run_01.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/common/test_async_tools.py::test_done_callbacks_hold_physical_capacity_and_refuse_nested_work",
+        "finding_ids": [
+          "B69"
+        ],
+        "source_property": "Four actual finished futures keep four physical callback workers busy; nested work is refused before executing, real shutdown drains.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_queued_async_thread_attempt_never_enters_body_after_termination",
+        "finding_ids": [
+          "B14",
+          "B40"
+        ],
+        "source_property": "Actual saturated executor queued attempt cannot start physical body after caller deadline/cancellation.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "Selector name must match current source definition; CPU/thread running uncooperative side effects remain bounded residual, opaque dynamic API/package distribution and non-Linux process isolation UNRUN."
+    ]
+  },
+  "tests/unit/remediation/test_run_02.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_real_new_session_grandchild",
+        "finding_ids": [
+          "B24"
+        ],
+        "source_property": "Actual kernel child/new-session grandchild effect files and supervisor ownership, success/timeout sync/async reap all owned PIDs without mutating caller subreaper.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_retry.py::test_owned_supervisor_reaps_tree_on_async_caller_cancellation",
+        "finding_ids": [
+          "B24"
+        ],
+        "source_property": "Actual caller cancellation after grandchild effects owns/reaps complete process tree.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "Supported Linux supervisor path only; arbitrary external processes and non-Linux isolation behavior UNRUN."
+    ]
+  },
+  "tests/unit/remediation/test_sta_01.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_branch_state_deeply_isolates_nested_elements_of_declared_leaf",
+        "finding_ids": [
+          "B57",
+          "B59"
+        ],
+        "source_property": "Mutation of nested list element under actual declared branch path does not mutate baseline.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_state_branching.py::test_snapshot_state_deep_clones_mutable_state_surfaces",
+        "finding_ids": [
+          "B57",
+          "B58"
+        ],
+        "source_property": "Actual snapshot params and causal method nested lists isolate mutations from baseline.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "General unsupported mutable domain types require exact owner contract; state isolation is not external effect rollback."
+    ]
+  },
+  "tests/unit/remediation/test_sta_02.py": {
+    "candidates": [
+      {
+        "selector": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_existing_bundle_is_revalidated_for_changed_request",
+        "finding_ids": [
+          "B60"
+        ],
+        "source_property": "Actual CAS parameter bundle used by causal node is rejected/recomputed for changed target request.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_bundle_reuses_without_reinvoking_selector",
+        "finding_ids": [
+          "B60"
+        ],
+        "source_property": "Healthy exact same request consumes actual stored bundle without calling ParameterSelector.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_preserves_presence_and_nested_missing_semantics",
+        "finding_ids": [
+          "B62"
+        ],
+        "source_property": "Actual canonical idempotency key distinguishes absent, null and nested missing consumer input.",
+        "grade": "bounded actual consumer discriminator from full source body; no new runtime claim"
+      }
+    ],
+    "residuals": [
+      "B61 HELD: no immutable source-owner/versioned SKG snapshot law or real production SKG premise is established by scalar query tests. Exact candidate/local-G input required; no equivalent selector substitutes that authority."
+    ]
+  }
+}

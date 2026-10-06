@@ -1,0 +1,128 @@
+{
+  "schema": "policyos.e02.independent_peer_native_audit.v1",
+  "review_command": [
+    "python3",
+    ".polisyos/e02-B-current/raw/deadline-failure-audit/review-peer.py"
+  ],
+  "review_cwd": "/workspace/e02-B-current-cas-generation",
+  "review_exit_code": 0,
+  "instrument_source_path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/deadline-failure-audit/review-peer.py",
+  "instrument_source_bytes": 5920,
+  "instrument_source_sha256": "b7f5c35f985c0d29f0a585aa3e2da39038705d44cef04183f362603d6f6aa0a2",
+  "instrument_source_utf8": "\"\"\"Read published peer native output; do not execute it.\"\"\"\nfrom pathlib import Path\nimport collections\nimport hashlib\nimport json\nimport subprocess\nimport xml.etree.ElementTree as ET\n\nPEER = Path('/workspace/e02-B-current-execution-state')\nSHA = '2cb45353f9e5c1b46d0af15d2b5110036629084b'\nPREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation'\nROOT = Path('/workspace/e02-B-current-coordination')\nSOURCE = '4e7a4924e6466e1b4eaa39b504435a1243aeb90b'\nOWN = Path('/workspace/e02-B-current-cas-generation')\n\n\ndef blob(path):\n    return subprocess.check_output(['/usr/bin/git', 'show', SHA + ':' + path], cwd=PEER)\n\n\nreceipt_bytes = blob(PREFIX + '.json')\nassert hashlib.sha256(receipt_bytes).hexdigest() == '2268474875d4f0f00b03e988a9358e3ac3536b0dbcc34db031a85341e9ab7224'\nreceipt = json.loads(receipt_bytes)\nassert len(receipt['evidence']) == 69\nfor ref in receipt['evidence']:\n    data = blob(ref['path'])\n    assert len(data) == ref['bytes']\n    assert hashlib.sha256(data).hexdigest() == ref['sha256']\n    assert data == (PEER / ref['path']).read_bytes()\nnative = json.loads(blob(PREFIX + '/native-receipt.json'))\nassert native['target_source_sha'] == SOURCE\nassert native['observed_root_head_before'] == native['observed_root_head_after'] == 'bbb93ce688ff8242902e5601ca720c1a5dc5f86d'\nassert native['cwd'] == str(PEER / 'policy-engine')\nassert native['exit_code'] == 0 and len(native['cases']) == 1 and native['cases'][0]['state'] == 'PASS'\nassert native['cases'][0]['name'] == 'test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]'\nfor ref in native['source_test_bindings']:\n    data = subprocess.check_output(['/usr/bin/git', 'show', SOURCE + ':' + ref['path']], cwd=ROOT)\n    assert hashlib.sha256(data).hexdigest() == ref['sha256']\n    assert len(data) == ref['bytes']\n    assert data == (ROOT / ref['path']).read_bytes() == (PEER / ref['path']).read_bytes()\nxml = ET.fromstring(blob(PREFIX + '/native-cohort.xml'))\ncases = list(xml.iter('testcase'))\nassert len(cases) == 1 and cases[0].attrib['name'] == native['cases'][0]['name']\nassert not list(cases[0])\nassert b'1 passed in 8.43s' in blob(PREFIX + '/native-stdout.txt')\nreadback = json.loads(blob(PREFIX + '/readback.json'))\noriginal_audit = json.loads((OWN / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/deadline-failure-independent-review/audit-stdout.json').read_text())\nobservations = []\nfor observation in readback['observations']:\n    consumers = observation['fresh_cas_consumer']\n    for item in consumers:\n        assert item['verify']['ok'] is True\n        assert item['verify']['artifact_id'] == item['ref']['artifact_id']\n        assert item['verify']['actual_sha256_hex'] == item['ref']['artifact_id'].split(':', 1)[1]\n        assert item['verify']['byte_size'] == item['byte_size']\n    assert observation['original_bytes_unchanged'] is True\n    if observation['label'] == 'original-whole-cohort-failure':\n        expected = {row['relative_path'].removeprefix('cas/'): (row['bytes'], row['sha256']) for row in original_audit['fixture']['regular_files']}\n        actual = {row['path']: (row['bytes'], row['sha256']) for row in observation['original_file_inventory']}\n        assert actual == expected and len(consumers) == 9 and observation['original_file_count'] == 38\n        assert observation['events'] == original_audit['fixture']['events']\n    else:\n        assert len(consumers) == 10 and observation['original_file_count'] == 42\n        assert [event['event'] for event in observation['events']] == ['RUN_STARTED', 'RUN_INPUT_ADDED']\n        assert observation['events'][1]['refs']['inputs'][0]['kind'] == 'scientist.workflow_spec'\n        assert sum(item['ref']['kind'] == 'scientist.experiment_state' for item in consumers) == 1\n    observations.append({'label': observation['label'], 'regular_files': observation['original_file_count'], 'verified_selected_refs': len(consumers), 'artifact_kind_counts': dict(collections.Counter(item['ref']['kind'] for item in consumers)), 'events': [event['event'] for event in observation['events']], 'original_bytes_unchanged': True})\nprint(json.dumps({\n    'outcome': 'PASS', 'scope': 'independent read-only peer metadata/source/native stdout/JUnit and readback audit; no runtime replay',\n    'peer_head': SHA, 'peer_tree': subprocess.check_output(['/usr/bin/git', 'rev-parse', SHA + '^{tree}'], cwd=PEER, text=True).strip(),\n    'peer_handoff': {'path': PREFIX + '.json', 'bytes': len(receipt_bytes), 'sha256': hashlib.sha256(receipt_bytes).hexdigest()},\n    'all_evidence_refs_git_hash_bytes_verified': 69,\n    'native': {'actual_checkout_cwd': native['cwd'], 'actual_root_source_checkout_head': native['observed_root_head_before'], 'source_byte_projection': SOURCE, 'whole_root_tree_is_not_source4e7': True, 'test_lane_before_commit': native['test_lane_sha'], 'command': native['command'], 'environment': native['environment'], 'outcome': 'PASS', 'cases': native['cases'], 'wall_s': native['wall_s'], 'stdout': native['stdout'], 'junit': native['junit'], 'qualification': native['qualification']},\n    'readback': observations,\n    'source_review': 'Replay actual source imports bind root PYTHONPATH; selected test/conftest/default importlib profile bytes unchanged. Real FileSystemCAS consumer uses isolated exact copies, full selected refs and verify/get_bytes; original files untouched. All69published artifact hashes reconcile.',\n    'limitations': ['The unmodified isolated1PASS does not erase original whole-cohort FAIL or reproduce its prior scheduler/load history.', 'Anonymous interleaved Task→originalfixture direct identity remains not established; original P37target entry premise failed.', 'No source/test/fixture change, review runtime, helper or new checkout executed by this independent reviewer.'],\n}, ensure_ascii=False, indent=2))\n",
+  "complete_stdout_bytes": 6107,
+  "complete_stdout_sha256": "c1c8cb2de07ccd9b87a6c873276495becaa4e26a6ebcdc1a50900aa4308ebbf6",
+  "complete_stdout_utf8": "{\n  \"outcome\": \"PASS\",\n  \"scope\": \"independent read-only peer metadata/source/native stdout/JUnit and readback audit; no runtime replay\",\n  \"peer_head\": \"2cb45353f9e5c1b46d0af15d2b5110036629084b\",\n  \"peer_tree\": \"7e38e042e78afe8b4167587a8f2b866391b6d211\",\n  \"peer_handoff\": {\n    \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation.json\",\n    \"bytes\": 88707,\n    \"sha256\": \"2268474875d4f0f00b03e988a9358e3ac3536b0dbcc34db031a85341e9ab7224\"\n  },\n  \"all_evidence_refs_git_hash_bytes_verified\": 69,\n  \"native\": {\n    \"actual_checkout_cwd\": \"/workspace/e02-B-current-execution-state/policy-engine\",\n    \"actual_root_source_checkout_head\": \"bbb93ce688ff8242902e5601ca720c1a5dc5f86d\",\n    \"source_byte_projection\": \"4e7a4924e6466e1b4eaa39b504435a1243aeb90b\",\n    \"whole_root_tree_is_not_source4e7\": true,\n    \"test_lane_before_commit\": \"37e16cbb9fa3bc914a76882c28abfb4f01c612bc\",\n    \"command\": [\n      \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python\",\n      \"-m\",\n      \"pytest\",\n      \"-vv\",\n      \"tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]\",\n      \"--basetemp\",\n      \"/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest\",\n      \"-o\",\n      \"cache_dir=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest-cache\",\n      \"--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/cohort.xml\"\n    ],\n    \"environment\": {\n      \"PATH\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback\",\n      \"PYTHONPATH\": \"/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools\",\n      \"UV_PROJECT_ENVIRONMENT\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment\",\n      \"UV_NO_SYNC\": \"1\",\n      \"POLISYOS_METRICS_PORT\": \"0\",\n      \"TIKTOKEN_CACHE_DIR\": \"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache\",\n      \"E02_B_COHORT_INVENTORY_PATH\": null\n    },\n    \"outcome\": \"PASS\",\n    \"cases\": [\n      {\n        \"classname\": \"tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody\",\n        \"name\": \"test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]\",\n        \"time\": \"0.972\",\n        \"state\": \"PASS\"\n      }\n    ],\n    \"wall_s\": 13.198886559010134,\n    \"stdout\": {\n      \"path\": \"/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/stdout.txt\",\n      \"sha256\": \"a68cdc653c7c4ba3b2d9f064e9b93c305be1b95efade8882ccea5ee1e3da17be\",\n      \"bytes\": 1525\n    },\n    \"junit\": {\n      \"path\": \"/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/cohort.xml\",\n      \"sha256\": \"af7c7869753f686e38b71e7b88fe49b08f55759e832cb42cfadb12db6174e4f9\",\n      \"bytes\": 464\n    },\n    \"qualification\": \"One unmodified native input in unique own-lane scratch; root production/test/config bytes exactly4e before/after, observed later docs-only root HEAD separate. Same installed environment. Does not replace the original whole-cohort FAIL or reproduce its scheduler/load history.\"\n  },\n  \"readback\": [\n    {\n      \"label\": \"original-whole-cohort-failure\",\n      \"regular_files\": 38,\n      \"verified_selected_refs\": 9,\n      \"artifact_kind_counts\": {\n        \"ir.mechanism_registry\": 1,\n        \"ir.slot_registry\": 1,\n        \"ir.merge_rule_registry\": 1,\n        \"ir.selector_field_registry\": 1,\n        \"ir.metric_registry\": 1,\n        \"core.registry_bundle\": 1,\n        \"ir.units_registry\": 1,\n        \"scientist.workflow_spec\": 1,\n        \"ir.constraint_registry\": 1\n      },\n      \"events\": [\n        \"RUN_STARTED\"\n      ],\n      \"original_bytes_unchanged\": true\n    },\n    {\n      \"label\": \"unchanged-narrow-native-replay\",\n      \"regular_files\": 42,\n      \"verified_selected_refs\": 10,\n      \"artifact_kind_counts\": {\n        \"ir.mechanism_registry\": 1,\n        \"ir.slot_registry\": 1,\n        \"ir.merge_rule_registry\": 1,\n        \"ir.selector_field_registry\": 1,\n        \"ir.metric_registry\": 1,\n        \"core.registry_bundle\": 1,\n        \"ir.units_registry\": 1,\n        \"scientist.workflow_spec\": 1,\n        \"scientist.experiment_state\": 1,\n        \"ir.constraint_registry\": 1\n      },\n      \"events\": [\n        \"RUN_STARTED\",\n        \"RUN_INPUT_ADDED\"\n      ],\n      \"original_bytes_unchanged\": true\n    }\n  ],\n  \"source_review\": \"Replay actual source imports bind root PYTHONPATH; selected test/conftest/default importlib profile bytes unchanged. Real FileSystemCAS consumer uses isolated exact copies, full selected refs and verify/get_bytes; original files untouched. All69published artifact hashes reconcile.\",\n  \"limitations\": [\n    \"The unmodified isolated1PASS does not erase original whole-cohort FAIL or reproduce its prior scheduler/load history.\",\n    \"Anonymous interleaved Task→originalfixture direct identity remains not established; original P37target entry premise failed.\",\n    \"No source/test/fixture change, review runtime, helper or new checkout executed by this independent reviewer.\"\n  ]\n}\n",
+  "parsed_review": {
+    "outcome": "PASS",
+    "scope": "independent read-only peer metadata/source/native stdout/JUnit and readback audit; no runtime replay",
+    "peer_head": "2cb45353f9e5c1b46d0af15d2b5110036629084b",
+    "peer_tree": "7e38e042e78afe8b4167587a8f2b866391b6d211",
+    "peer_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation.json",
+      "bytes": 88707,
+      "sha256": "2268474875d4f0f00b03e988a9358e3ac3536b0dbcc34db031a85341e9ab7224"
+    },
+    "all_evidence_refs_git_hash_bytes_verified": 69,
+    "native": {
+      "actual_checkout_cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "actual_root_source_checkout_head": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+      "source_byte_projection": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "whole_root_tree_is_not_source4e7": true,
+      "test_lane_before_commit": "37e16cbb9fa3bc914a76882c28abfb4f01c612bc",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+        "--basetemp",
+        "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest-cache",
+        "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/cohort.xml"
+      ],
+      "environment": {
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "outcome": "PASS",
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+          "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+          "time": "0.972",
+          "state": "PASS"
+        }
+      ],
+      "wall_s": 13.198886559010134,
+      "stdout": {
+        "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/stdout.txt",
+        "sha256": "a68cdc653c7c4ba3b2d9f064e9b93c305be1b95efade8882ccea5ee1e3da17be",
+        "bytes": 1525
+      },
+      "junit": {
+        "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/cohort.xml",
+        "sha256": "af7c7869753f686e38b71e7b88fe49b08f55759e832cb42cfadb12db6174e4f9",
+        "bytes": 464
+      },
+      "qualification": "One unmodified native input in unique own-lane scratch; root production/test/config bytes exactly4e before/after, observed later docs-only root HEAD separate. Same installed environment. Does not replace the original whole-cohort FAIL or reproduce its scheduler/load history."
+    },
+    "readback": [
+      {
+        "label": "original-whole-cohort-failure",
+        "regular_files": 38,
+        "verified_selected_refs": 9,
+        "artifact_kind_counts": {
+          "ir.mechanism_registry": 1,
+          "ir.slot_registry": 1,
+          "ir.merge_rule_registry": 1,
+          "ir.selector_field_registry": 1,
+          "ir.metric_registry": 1,
+          "core.registry_bundle": 1,
+          "ir.units_registry": 1,
+          "scientist.workflow_spec": 1,
+          "ir.constraint_registry": 1
+        },
+        "events": [
+          "RUN_STARTED"
+        ],
+        "original_bytes_unchanged": true
+      },
+      {
+        "label": "unchanged-narrow-native-replay",
+        "regular_files": 42,
+        "verified_selected_refs": 10,
+        "artifact_kind_counts": {
+          "ir.mechanism_registry": 1,
+          "ir.slot_registry": 1,
+          "ir.merge_rule_registry": 1,
+          "ir.selector_field_registry": 1,
+          "ir.metric_registry": 1,
+          "core.registry_bundle": 1,
+          "ir.units_registry": 1,
+          "scientist.workflow_spec": 1,
+          "scientist.experiment_state": 1,
+          "ir.constraint_registry": 1
+        },
+        "events": [
+          "RUN_STARTED",
+          "RUN_INPUT_ADDED"
+        ],
+        "original_bytes_unchanged": true
+      }
+    ],
+    "source_review": "Replay actual source imports bind root PYTHONPATH; selected test/conftest/default importlib profile bytes unchanged. Real FileSystemCAS consumer uses isolated exact copies, full selected refs and verify/get_bytes; original files untouched. All69published artifact hashes reconcile.",
+    "limitations": [
+      "The unmodified isolated1PASS does not erase original whole-cohort FAIL or reproduce its prior scheduler/load history.",
+      "Anonymous interleaved Task→originalfixture direct identity remains not established; original P37target entry premise failed.",
+      "No source/test/fixture change, review runtime, helper or new checkout executed by this independent reviewer."
+    ]
+  },
+  "role": "Independent readonly source/Git/profile/log reconciliation, not peer runtime author or tester"
+}

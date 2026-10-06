@@ -1,0 +1,16 @@
+id = "2026-10-06-e02-b-foundry-local-git-provenance"
+title = "Document the fixed local Git provenance probe"
+type = "changed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Document the private fixed-subcommand, argument-vector, no-shell Git metadata lookup and explain its single-call Ruff S603 annotation. Runtime command construction and fingerprint algorithms are unchanged."
+evidence = ["tests/unit/foundry/methods/test_artifacts.py"]
+compatibility = "No runtime, public signature, artifact schema or identity algorithm change."
+change_class = "equivalent-move"
+surface_classification = "internal: polisyos.foundry.methods.artifacts._fingerprint"
+migration = "None."
+limitations = "The configured local Git executable and repository are environment premises; local Git metadata grants no evidence authority or execution permission."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/artifacts/README.md"]
+runbook_docs = []

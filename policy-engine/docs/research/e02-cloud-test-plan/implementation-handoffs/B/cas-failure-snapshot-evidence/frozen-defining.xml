@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="12" time="20.579" timestamp="2026-10-06T15:18:02.597527+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]" time="0.058" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]" time="0.044" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]" time="0.038" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]" time="0.037"><failure message="AssertionError: assert 'Selected manifest profile mismatch' in 'byte_size mismatch'&#10; +  where 'byte_size mismatch' = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', byte_size=8, error='byte_size mismatch', manifest_sha256='34973d03b58016819a2a17e666a80b467d6d9e8e29eca9af5418d97c4c1c996b', manifest_profile_sha256='sha256:14072c45a53ead3d4c9cda01fa83d2866331a1cd9d67827da2681369477ce1fa').error">tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining-pytest/test_failed_selected_snapshot_3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fcc13c0c380&gt;
+damage = 'wrong_profile', reason = 'Selected manifest profile mismatch'
+
+    @pytest.mark.parametrize(
+        ("damage", "reason"),
+        [
+            ("corrupt", "sha256 mismatch"),
+            ("same_size", "sha256 mismatch"),
+            ("wrong_size", "byte_size mismatch"),
+            ("wrong_profile", "Selected manifest profile mismatch"),
+            ("invalid_manifest", "manifest invalid:"),
+            ("wrong_integrity", "manifest integrity mismatch"),
+            ("wrong_ref_type", "Artifact reference type"),
+        ],
+    )
+    def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(
+        tmp_path, monkeypatch, damage, reason
+    ):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        store.put_bytes(b"original", PutOptions(kind="default", media_type="text/plain"))
+        ref = store.put_bytes(b"original", PutOptions(kind="selected", media_type="text/plain"))
+        assert ref.manifest_profile_sha256 is not None
+        blob, _ = store._paths(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        selected = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        if damage in {"corrupt", "same_size"}:
+            blob.write_bytes(b"tampered!!!" if damage == "corrupt" else b"ORIGINAL")
+        elif damage in {"wrong_size", "wrong_integrity"}:
+            changes = {"byte_size": 100}
+            if damage == "wrong_integrity":
+                changes = {"integrity": manifest.integrity.model_copy(update={"sha256": "a" * 64})}
+            manifest = manifest.model_copy(update=changes)
+            profile = artifact_manifest_profile_sha256(manifest)
+            ref = ref.model_copy(update={"manifest_profile_sha256": profile})
+            selected = store._manifest_path_for_ref(ref.artifact_id, profile)
+            selected.write_bytes(store._manifests.to_bytes(manifest))
+        elif damage == "wrong_profile":
+            selected.write_bytes(
+                store._manifests.to_bytes(manifest.model_copy(update={"byte_size": 100}))
+            )
+        elif damage == "invalid_manifest":
+            selected.write_bytes(b"{}")
+        else:
+            ref = ref.model_copy(update={"kind": "foreign-type"})
+        actual_data = blob.read_bytes()
+        manifest_bytes = selected.read_bytes()
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read(path, *, member, max_bytes=None):
+            reads.append(member)
+            return actual_read(path, member=member, max_bytes=max_bytes)
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store.verify(ref)
+        assert not report.ok
+        assert report.actual_sha256_hex == hashlib.sha256(actual_data).hexdigest()
+        assert report.byte_size == len(actual_data)
+        assert report.manifest_sha256 == hashlib.sha256(manifest_bytes).hexdigest()
+&gt;       assert reason in report.error
+E       AssertionError: assert 'Selected manifest profile mismatch' in 'byte_size mismatch'
+E        +  where 'byte_size mismatch' = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', byte_size=8, error='byte_size mismatch', manifest_sha256='34973d03b58016819a2a17e666a80b467d6d9e8e29eca9af5418d97c4c1c996b', manifest_profile_sha256='sha256:14072c45a53ead3d4c9cda01fa83d2866331a1cd9d67827da2681369477ce1fa').error
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:83: AssertionError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]" time="0.040" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]" time="0.034" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]" time="0.033" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_failed_report_cannot_reread_operator_repaired_bytes[False]" time="0.028" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_failed_report_cannot_reread_operator_repaired_bytes[True]" time="0.022" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_pre_read_failure_cannot_invent_blob_measurements" time="0.021" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot" time="0.029" /><testcase classname="tests.unit.core.artifacts.test_verification_failure_snapshot_report" name="test_actual_chronology_reader_classifies_observed_corruption_as_rejected" time="0.024" /></testsuite></testsuites>

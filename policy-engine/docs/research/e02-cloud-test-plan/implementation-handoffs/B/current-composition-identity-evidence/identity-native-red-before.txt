@@ -1,0 +1,88 @@
+FF.                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_actual_registry_source_or_abi_replacement_refuses_original_history[source] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-native-red-before-tmp/test_actual_registry_source_or0')
+replacement = <class 'backends.test_checkpoint_identity._Replacement'>
+
+    @pytest.mark.parametrize("replacement", [_Replacement, _ChangedABI], ids=["source", "abi"])
+    def test_actual_registry_source_or_abi_replacement_refuses_original_history(tmp_path, replacement):
+        chain, registry = _chain()
+        dispatcher = _RecordingDispatcher()
+        producer = CheckpointingChainExecutor(
+            registry=registry, dispatcher=dispatcher, checkpoint_dir=tmp_path
+        )
+        original = producer.execute(chain, initial_state={"x": 3}, seed=7)
+        assert [row.output for _, row in original.node_results] == [{"product": 6}, {"total": 7}]
+        checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0001_*.json")))
+        registry.register(replacement, override=True)
+        if replacement is _Replacement:
+            cold = CheckpointingChainExecutor(registry=registry).execute(
+                chain, initial_state={"x": 3}, seed=7
+            )
+            assert cold.final_state["total"] == 10
+            assert (
+                replacement.signature.stable_digest()
+                == chain.get_signature(chain.execution_order[0]).stable_digest()
+            )
+        dispatcher.calls.clear()
+>       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'>
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:150: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 10:54:29 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 10:54:29 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 10:54:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.31 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.85 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=True tags=['test'] version=1.0.0
+2026-10-06 10:54:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.65 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.43 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_actual_registry_source_or_abi_replacement_refuses_original_history[abi] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-native-red-before-tmp/test_actual_registry_source_or1')
+replacement = <class 'backends.test_checkpoint_identity._ChangedABI'>
+
+    @pytest.mark.parametrize("replacement", [_Replacement, _ChangedABI], ids=["source", "abi"])
+    def test_actual_registry_source_or_abi_replacement_refuses_original_history(tmp_path, replacement):
+        chain, registry = _chain()
+        dispatcher = _RecordingDispatcher()
+        producer = CheckpointingChainExecutor(
+            registry=registry, dispatcher=dispatcher, checkpoint_dir=tmp_path
+        )
+        original = producer.execute(chain, initial_state={"x": 3}, seed=7)
+        assert [row.output for _, row in original.node_results] == [{"product": 6}, {"total": 7}]
+        checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0001_*.json")))
+        registry.register(replacement, override=True)
+        if replacement is _Replacement:
+            cold = CheckpointingChainExecutor(registry=registry).execute(
+                chain, initial_state={"x": 3}, seed=7
+            )
+            assert cold.final_state["total"] == 10
+            assert (
+                replacement.signature.stable_digest()
+                == chain.get_signature(chain.execution_order[0]).stable_digest()
+            )
+        dispatcher.calls.clear()
+>       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'>
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:150: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 10:54:29 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 10:54:29 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 10:54:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.7 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.45 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 10:54:29 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=True tags=['test'] version=1.0.0
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_registry_source_or_abi_replacement_refuses_original_history[source]
+FAILED tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_registry_source_or_abi_replacement_refuses_original_history[abi]
+2 failed, 1 passed in 0.47s

@@ -1,0 +1,422 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cas-current-admission",
+  "closure_ids": [
+    "B148"
+  ],
+  "bundle_ids": [
+    "CAS-02",
+    "CAS-01"
+  ],
+  "slice_base_sha": "9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+  "implementation_commits": [
+    "b882482a8937ae98fd1ffe35e75293903c9a0141",
+    "129ace949fe452959c965134fb37cffc4f8b4c94"
+  ],
+  "candidate_tree_sha": "304fb26898072ba55dd6613bc505181b2afa0300",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-bound-import.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-transfer-generations.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py",
+    "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+    "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+    "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+    "policy-engine/tests/unit/remediation/test_cas_02.py"
+  ],
+  "baseline_cells": [
+    "F01-P051",
+    "F09-P055",
+    "F14-P061"
+  ],
+  "baseline_basis": {
+    "route_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@198076863e143dea9f89f02734b13d50dae3eed5#B148",
+    "source_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_criteria": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B148",
+    "source_environment_input_closure_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@198076863e143dea9f89f02734b13d50dae3eed5#metadata-and-cell",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@198076863e143dea9f89f02734b13d50dae3eed5#metadata-and-cell",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@198076863e143dea9f89f02734b13d50dae3eed5#metadata-and-cell"
+    ],
+    "grade": "source_reported_compact_navigation_only; historical raw archives absent; no future candidate proof",
+    "engineering_recommendation": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md@198076863e143dea9f89f02734b13d50dae3eed5#bundle-cas-02; bounded fail-closed implementation, not normative cross-tenant policy ratification"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py _build/e02-B-current-cas-generation/raw/admission-frozen 129ace949fe452959c965134fb37cffc4f8b4c94 -q --tb=short --import-mode=importlib --strict-markers -ra --benchmark-storage=file://./_cache/benchmarks tests/unit/core/artifacts/test_import_admission_noop.py tests/unit/core/artifacts/test_transfer_generation_publication.py tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py tests/unit/remediation/test_cas_02.py tests/unit/core/artifacts/backends/test_caching_store.py tests/unit/core/artifacts/test_multi_tenant_shared_cas.py --basetemp=_build/e02-B-current-cas-generation/admission-frozen-tmp -o cache_dir=_build/e02-B-current-cas-generation/admission-frozen-cache --junitxml=_build/e02-B-current-cas-generation/raw/admission-frozen.xml",
+      "target_sha": "129ace949fe452959c965134fb37cffc4f8b4c94",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "PYTHONPATH": "src",
+        "runner_quota": null,
+        "test_profile": "Explicit repository importlib/strict-markers/benchmark-storage/-ra flags retain effective ini semantics even though generic runner clears addopts. No test-root PYTHONPATH injection is needed by runpy workers.",
+        "checkout_admission_refs": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/admission-create.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/admission-resume.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a"
+        ]
+      },
+      "input_closure": {
+        "source_and_all_six_complete_test_files": "129ace949fe452959c965134fb37cffc4f8b4c94",
+        "runner": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py",
+          "sha256": "36bc739eda113512e659a96359ff7961b2c6cf2124385ce46a1b4371117476b9",
+          "bytes": 1903
+        },
+        "property_removal_ref": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py@129ace949fe452959c965134fb37cffc4f8b4c94#_remove_lease_admission",
+        "runtime_inputs": "Actual local CAS packages, persisted member/claim/generation snapshots, distinct creation times, bounded OS spawn workers and competing threads. Unique basetemp/cache. No production dataset."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-frozen.txt",
+        "sha256": "e1024f4e10093975ffcd22344e6920a752c07aef9c5350d080d3d7ee09886293",
+        "bytes": 1449
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-frozen.xml",
+        "sha256": "44ba41d32379f3af8fe894fc9c32ab7fe002dce47260064a83a6ce3a23fd52d5",
+        "bytes": 22379
+      },
+      "execution": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-frozen.run.json",
+        "sha256": "74fb6e9480bc8214f06b55db48feeb164a517d9c03e934cef33d12e0c66a5766",
+        "bytes": 1448
+      },
+      "result": "121 actual cases:120 PASS/1 FAIL,17.14s; new admission34, transfer25, exact-cache4, canonicalCAS02 all18, nativecache28 PASS; native shared-CAS11PASS/1 unbound\u2192scoped exact retry compatibility FAIL.",
+      "interpretation": "Full cohort is FAIL due to explicitly retained compatibility conflict; bounded new mechanism cases PASS."
+    },
+    {
+      "command": "E02_B_PROPERTY_REMOVAL=cas-import-admission PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py _build/e02-B-current-cas-generation/raw/admission-remove-frozen 129ace949fe452959c965134fb37cffc4f8b4c94 -q --tb=short --import-mode=importlib --strict-markers -ra --benchmark-storage=file://./_cache/benchmarks tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop tests/unit/core/artifacts/test_import_admission_noop.py::test_import_keeps_its_actual_artifact_lease_through_staging_and_publication --basetemp=_build/e02-B-current-cas-generation/admission-remove-frozen-tmp -o cache_dir=_build/e02-B-current-cas-generation/admission-remove-frozen-cache --junitxml=_build/e02-B-current-cas-generation/raw/admission-remove-frozen.xml",
+      "target_sha": "129ace949fe452959c965134fb37cffc4f8b4c94",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "PYTHONPATH": "src",
+        "runner_quota": null,
+        "test_profile": "Explicit repository importlib/strict-markers/benchmark-storage/-ra flags retain effective ini semantics even though generic runner clears addopts. No test-root PYTHONPATH injection is needed by runpy workers.",
+        "checkout_admission_refs": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/admission-create.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/admission-resume.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a"
+        ]
+      },
+      "input_closure": {
+        "source_and_all_six_complete_test_files": "129ace949fe452959c965134fb37cffc4f8b4c94",
+        "runner": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py",
+          "sha256": "36bc739eda113512e659a96359ff7961b2c6cf2124385ce46a1b4371117476b9",
+          "bytes": 1903
+        },
+        "property_removal_ref": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py@129ace949fe452959c965134fb37cffc4f8b4c94#_remove_lease_admission",
+        "runtime_inputs": "Actual local CAS packages, persisted member/claim/generation snapshots, distinct creation times, bounded OS spawn workers and competing threads. Unique basetemp/cache. No production dataset."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-remove-frozen.txt",
+        "sha256": "41bf7d093d12017b907fdfd3a5c9d5c0376db91f4ed00d70a8ccbe9cfcbaff4a",
+        "bytes": 14716
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-remove-frozen.xml",
+        "sha256": "766e25114666f9e192f58e79f3f279e0deb02d869569f0df7378972913dfd59d",
+        "bytes": 21252
+      },
+      "execution": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-remove-frozen.run.json",
+        "sha256": "047eb21e7ab2be401b315366706278e814e8029721ee77a2f55fc06f542fe938",
+        "bytes": 1466
+      },
+      "result": "19 defining negative cases all FAIL after deleting the common lease admission while retaining helper names, report markers, and emission bound-context checks. Failures prove staging before refusal, non-noop private writes and actual competing writer escaping paused staging.",
+      "interpretation": "Expected behavioral removal discriminator FAIL, not product PASS."
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+      "target_sha": "9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/admission-base-input/policy-engine",
+        "PYTHONPATH": "src",
+        "runner_quota": null
+      },
+      "input_closure": {
+        "source_projection": {
+          "sha256": "3743595a07ad21578a265be66e98b0615bce3fba0f9b0f22ef7e0dcb71513fc6",
+          "bytes": 92344320,
+          "paths": [
+            "policy-engine/src",
+            "policy-engine/tests",
+            "policy-engine/pytest.ini",
+            "policy-engine/pyproject.toml",
+            "policy-engine/uv.lock"
+          ]
+        },
+        "base_git_tree": "3983f414cda21fcf33c4a97b9d3da7863eee7a97",
+        "test_overlays": [
+          {
+            "ref": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py@129ace949fe452959c965134fb37cffc4f8b4c94",
+            "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+          },
+          {
+            "ref": "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py@129ace949fe452959c965134fb37cffc4f8b4c94",
+            "sha256": "2cf4a16829b342bd9b35a69fc28fcbfff845e3e8b56166d0a0cf207429038dda"
+          }
+        ],
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+          "sha256": "1ebdd87d1ef13282407ea4bc70003df96ae5eae619f5071b21c9a3ce0fe5069b",
+          "bytes": 4707
+        },
+        "workspace_boundary": "Fresh tracked source projection inside the root-admitted CAS lane ignored scratch; no new Git checkout/worktree or retrospective admission claim.",
+        "note": "All projected source/tests/config bytes derive from immutable base909; only two exact new tests overlay129. Source archive is ignored locally and deterministically recoverable from Git, never committed or represented as a new admitted worktree."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-base-replay.txt",
+        "sha256": "629bca9162968b3b231c5e3fc27ec6103ba08e0888bdea3e69cfede78fa9d303",
+        "bytes": 20048
+      },
+      "execution": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-base-replay.run.json",
+        "sha256": "e38c9b1a212ab9c5bdc103c81598baf1b85000703c11981d2ff7dd949014aafe",
+        "bytes": 2277
+      },
+      "result": "38 exact-overlay cases on slice-base source909:34FAIL/4PASS. All4 distinct-clock cache cases fail exact remote bytes, plus admission/noop/lease/mixed guards fail actual defining properties. Baseline4PASS are matching bound recovery2 and passive unscoped cache2.",
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-base-replay.xml",
+        "sha256": "a1298fd1598c097d5181254ea88885778523081e3e385a4d2dee7acda25a1270",
+        "bytes": 25454
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+      "target_sha": "9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/admission-base-input/policy-engine",
+        "PYTHONPATH": "src",
+        "runner_quota": null
+      },
+      "input_closure": {
+        "source_projection": {
+          "sha256": "3743595a07ad21578a265be66e98b0615bce3fba0f9b0f22ef7e0dcb71513fc6",
+          "bytes": 92344320,
+          "paths": [
+            "policy-engine/src",
+            "policy-engine/tests",
+            "policy-engine/pytest.ini",
+            "policy-engine/pyproject.toml",
+            "policy-engine/uv.lock"
+          ]
+        },
+        "base_git_tree": "3983f414cda21fcf33c4a97b9d3da7863eee7a97",
+        "test_overlays": [
+          {
+            "ref": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py@129ace949fe452959c965134fb37cffc4f8b4c94",
+            "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+          },
+          {
+            "ref": "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py@129ace949fe452959c965134fb37cffc4f8b4c94",
+            "sha256": "2cf4a16829b342bd9b35a69fc28fcbfff845e3e8b56166d0a0cf207429038dda"
+          }
+        ],
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+          "sha256": "1ebdd87d1ef13282407ea4bc70003df96ae5eae619f5071b21c9a3ce0fe5069b",
+          "bytes": 4707
+        },
+        "workspace_boundary": "Fresh tracked source projection inside the root-admitted CAS lane ignored scratch; no new Git checkout/worktree or retrospective admission claim.",
+        "note": "All projected source/tests/config bytes derive from immutable base909; only two exact new tests overlay129. Source archive is ignored locally and deterministically recoverable from Git, never committed or represented as a new admitted worktree."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-base-mypy.txt",
+        "sha256": "082f2641cdd265e30bf1850a3dbbe9b27ae3456c84bc8af48fe6bb95ba4ab4f9",
+        "bytes": 5475
+      },
+      "execution": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-base-mypy.run.json",
+        "sha256": "706e778e657f120cc86862a2cd904b933f4e819b15d767e3a5ff99ff9e251d77",
+        "bytes": 1881
+      },
+      "result": "Full touched-module base gate remains FAIL26 diagnostics. Current gate FAIL23; source overlaps gate inputs, so no inherited/disjoint waiver."
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m mypy --follow-imports=silent src/polisyos/core/artifacts/store.py src/polisyos/core/artifacts/_transfer_ops.py src/polisyos/core/artifacts/backends/caching_store.py",
+      "target_sha": "129ace949fe452959c965134fb37cffc4f8b4c94",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "PYTHONPATH": "src",
+        "runner_quota": null,
+        "test_profile": "Explicit repository importlib/strict-markers/benchmark-storage/-ra flags retain effective ini semantics even though generic runner clears addopts. No test-root PYTHONPATH injection is needed by runpy workers.",
+        "checkout_admission_refs": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/admission-create.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/admission-resume.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a"
+        ]
+      },
+      "input_closure": "Three complete source files and all tracked mypy/import config at exact129; shared interpreter/dependencies.",
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-mypy-frozen.txt",
+        "sha256": "95fd980a0f0138a097f5a154b76528e7f8a7eed19c161d2ec21d68fb549617e5",
+        "bytes": 4920
+      },
+      "result": "23 diagnostics retained in full; introduced conflicting signature variable diagnostics were fixed, no config/ignore/quarantine waiver. Static gate is not green."
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/core/artifacts/store.py src/polisyos/core/artifacts/_transfer_ops.py src/polisyos/core/artifacts/backends/caching_store.py tests/unit/core/artifacts/test_transfer_generation_publication.py tests/unit/core/artifacts/test_import_admission_noop.py tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py tests/unit/remediation/test_cas_02.py\n/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/core/artifacts/store.py src/polisyos/core/artifacts/_transfer_ops.py src/polisyos/core/artifacts/backends/caching_store.py tests/unit/core/artifacts/test_transfer_generation_publication.py tests/unit/core/artifacts/test_import_admission_noop.py tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py tests/unit/remediation/test_cas_02.py\n/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py\n/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+      "target_sha": "129ace949fe452959c965134fb37cffc4f8b4c94",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "PYTHONPATH": "src",
+        "runner_quota": null,
+        "test_profile": "Explicit repository importlib/strict-markers/benchmark-storage/-ra flags retain effective ini semantics even though generic runner clears addopts. No test-root PYTHONPATH injection is needed by runpy workers.",
+        "checkout_admission_refs": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/admission-create.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/admission-resume.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a"
+        ]
+      },
+      "input_closure": {
+        "source_and_tests": "129ace949fe452959c965134fb37cffc4f8b4c94",
+        "base_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+          "sha256": "1ebdd87d1ef13282407ea4bc70003df96ae5eae619f5071b21c9a3ce0fe5069b",
+          "bytes": 4707
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+  "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/admission-ruff-frozen.txt",
+  "sha256": "5692378dc716ea09ce6acc9202a86c8dbb986be2d576fcfc6e259b6f0f4bdf09",
+  "bytes": 1445
+}
+    }
+  ],
+  "property": {
+    "statement": "The actual archive/directory and exact-view intake hashes all incoming bytes, resolves a closed validated member set, holds artifact/input leases before private stage and reuses the same admission at durable emission. Scoped unclaimed import requires exact declared bound tenant/cell. Claimed imports can only return already owned byte-identical views as a true no-op, with no stage/new claims/generation. Mixed packages stage only unclaimed members. Explicit generic producer bound mismatch refuses before put/resume intent.",
+    "runtime_path": [
+      "FileSystemCAS.import_subgraph/source pinned inode streaming snapshots",
+      "FileSystemCAS.import_exact_view/exact supplied bytes",
+      "_admit_import_members under concrete artifact/input leases",
+      "only unclaimed private stage, then _publish_staged_import re-admission",
+      "existing durable owner intent/deny-only pending publication/exact recovery",
+      "fresh scoped FileSystemCAS get_bytes/get_manifest_bytes/verify",
+      "CachingArtifactStore.put_bytes/put_json remote-first \u2192 shared exact-byte cache population consumer"
+    ],
+    "proxy_divergence": "Correct path/profile/digest declarations can accompany foreign or unbound scoped claims. Matching profile can conceal different creation bytes or an omitted existing signature. A zero claim delta still permits forbidden private staging. Merely named admission/helper/report markers do not prevent a competing real writer from returning while stage is paused after a removed lease.",
+    "negative_controls": [
+      "unclaimed scoped unbound, claimed scoped unbound, foreign tenant and mismatched cell for all3 import paths",
+      "None-vs-scoped cell compared as exact identity, not optional read-query wildcard",
+      "different creation bytes with same profile and absent exact existing signature",
+      "explicit generic producer foreign bound context",
+      "remove common lease admission with all named methods/markers/context emission check retained",
+      "real competing writer during paused stage",
+      "distinct creation-clock cache production against immutable prior defaults"
+    ],
+    "positive_controls": [
+      "same bound owner/cell exact no-op preserves all artifact/claim/signature/generation bytes",
+      "matching bound unclaimed archive/exact import after durable-intent interruption then exact retry/fresh readback",
+      "passive unscoped exact cache accepts bound/unbound bytes without claims",
+      "mixed package never stages already claimed members",
+      "directory exchange failure preserves complete old package and reopens through real importer",
+      "partial actual publication remains typed pending; fresh read refuses until exact recovery",
+      "remote-first cache publishes one canonical manifest and copies actual selected bytes while preserving unrelated local defaults"
+    ],
+    "p40_classification": "Common pre-stage+emission invariant closes archive/exact sibling admission class; explicit bound-context comparison also covers put/resume producer sibling. Distinct-clock reconstruction is a B150 view-identity consumer sibling, repaired by wiring the existing exact-byte transfer seam. No scientific authority/SIK completeness rule invented."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded B148 recommendation implemented; full runtime cohort and static gate remain FAIL as disclosed. Independent root source/runtime review and G acceptance pending; closure_ids proposed technical closure only.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B148",
+      "status": "bounded_pre_stage_noop_recommendation_ready_for_independent_acceptance",
+      "evidence": [
+        "checks[0] all34admissionPASS",
+        "checks[1]",
+        "checks[2]",
+        "property"
+      ]
+    },
+    {
+      "finding_id": "B149",
+      "status": "current_atomic_generation_and_pinned_consumer_regression_preserved",
+      "evidence": [
+        "cas-current-transfer.json",
+        "checks[0] all25transferPASS; default importlib worker gap fixed"
+      ]
+    },
+    {
+      "finding_id": "B150",
+      "historical_source_cell_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a#baseline_cells",
+      "status": "first_writer_view_regression_preserved_and_exact_cache_consumer_repaired",
+      "evidence": [
+        "checks[0] nativecache28 andnewdistinctclock4PASS",
+        "checks[2] deterministiccache4FAILonbase"
+      ]
+    },
+    {
+      "finding_id": "B151",
+      "status": "published_direct_put_refusal_retry_mechanism_unchanged_except_explicit_bound_context_guard",
+      "evidence": [
+        "cas-current-put.json",
+        "root independently authored oracle a82302c3f964c2f8bff4d127d900bf33289d2e16; root receipt reference pending"
+      ]
+    },
+    {
+      "finding_id": "B152",
+      "status": "pending_current_single_snapshot_size_hash_signature_report_slice",
+      "evidence": []
+    },
+    {
+      "finding_id": "B153",
+      "historical_source_cell_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a#baseline_cells",
+      "status": "striped_locks_regression_preserved_and_actual_import_lease_barrier_verified",
+      "evidence": [
+        "checks[0] actualcompetingwriter",
+        "checks[1] lease-removalfalsifier"
+      ]
+    },
+    {
+      "finding_id": "B154",
+      "status": "pending_typed_full_batch_and_actual_publisher_consumer",
+      "evidence": []
+    },
+    {
+      "finding_id": "B155",
+      "status": "pending_pendingwindow_iteration_deadline_and_census_boundary",
+      "evidence": []
+    }
+  ],
+  "compatibility_conflict": {
+    "node": "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py::test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry",
+    "previous_positive": "Unbound source manifest into initially unclaimed tenant-exact-view scoped target.",
+    "current_behavior": "Refuses before stage according to B.md bounded engineering recommendation. Native original test is retained FAIL; no assertion weakening or exclusion. Matching bound archive/exact recovery witnesses PASS.",
+    "semantic_owner_next": "G/existing semantic owners must adjudicate public tenant/cell import semantics or migrate the source producer to an explicit matching bound manifest. This implementation does not ratify cross-tenant public policy."
+  },
+  "limitations_and_next_owner": [
+    "Full121 cohort FAIL120/1 compatibility conflict. Whole mypy FAIL23; slice-base exact source replay FAIL26 and changedsourceinput overlap is nonzero, so no inherited green waiver. Root owns final broad architecture/fullB gates.",
+    "Source projection is a fresh immutable Git input fixture inside the admitted lane, not a new checkout. Its92MB archive stays ignored; exact Git refs+complete driver are independently replayable.",
+    "The stream preflight retains bounded8MiBmanifest/1MiBsignature metadata but complete per-member manifest inventory grows with package size. Blob bytes are not buffered. No constant-memory dataset census or B155deadline claim.",
+    "Cryptographic trust/revocation/key-policy all-confirmations gate is not inferred from structural detached-signature binding. B152/B154/B155 followups mandatory; no fullCAS closure.",
+    "Linux native exchange tested; Darwin localG exactnewnativefile remains UNVERIFIED, unsupported primitive fails closed. No power-loss/hostile parent/external inode mutation/multi-host guarantee.",
+    "Runtime source was frozen before final deciding checks. Unpinned development executions with intervening edits and fixture/clock assumptions are not deciding evidence; exact base/candidate/removal outputs here supersede them.",
+    "Producer contract for A/C: scoped import now requires manifest.tenant_context matching explicit targettenant/cell; unbound/foreign negative refuses before stage/intent. No A/C production files changed. Their actual callers must consume this exact Git checkpoint/typed refusal contract."
+  ]
+}

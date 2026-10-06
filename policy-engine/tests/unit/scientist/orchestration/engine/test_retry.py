@@ -2035,6 +2035,22 @@ def test_completed_failed_spend_settles_without_ordinary_branch(
     assert [entry["dirty_before"] for entry in attempts] == [None, None]
     assert settled.budgets["llm_spent_usd"] == Decimal(8)
     assert "failed_dirty" not in settled.params
+    from polisyos.core.trace.record import TraceRecord
+
+    assert run._trace_path is not None
+    records = [
+        TraceRecord.model_validate_json(line) for line in run._trace_path.read_text().splitlines()
+    ]
+    retry_events = [record for record in records if record.event == "NODE_RETRY"]
+    assert len(retry_events) == 1
+    assert retry_events[0].metrics["failed_cost_usd"] == 2.0
+    if terminal:
+        dead_letters = [record for record in records if record.event == "NODE_DEAD_LETTER"]
+        assert len(dead_letters) == 1
+        assert dead_letters[0].metrics["failed_cost_usd"] == 3.0
+        persisted = json.loads(store.get_bytes(dead_letters[0].refs.outputs[0]))
+        assert persisted["attempts"] == 2
+        assert persisted["alias"] == route
     assert mp.active_children() == []
 
 
@@ -2043,7 +2059,10 @@ def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
     import base64
     from decimal import Decimal
 
-    from polisyos.scientist.orchestration.engine.runner.serialization import serialize_state_safe
+    from polisyos.scientist.orchestration.engine.runner.serialization import (
+        DeserializationError,
+        serialize_state_safe,
+    )
 
     budgets = {"llm_spent_usd": Decimal(2)}
     run_id = "R_spend"
@@ -2069,7 +2088,8 @@ def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
         channel.put(("error", payload))
         status, received = channel.get(timeout=0.1)
         assert status == "error"
-        with pytest.raises(Exception):
+        rejection = DeserializationError if corruption in {"version", "hash"} else ValueError
+        with pytest.raises(rejection):
             retry_module._worker_node_error(received, expected_run_id="R_spend")
     finally:
         channel.close()

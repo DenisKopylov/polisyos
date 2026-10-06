@@ -1,0 +1,1300 @@
+{
+  "schema": "policyos.e02.deadline_failure_readonly_audit.v1",
+  "reviewer": "/root/cas_probe",
+  "observed_utc": "2026-10-06T14:50:49.352834+00:00",
+  "target_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "target_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+  "native_nodeid": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+  "original_case_outcome": "FAIL",
+  "case_junit": {
+    "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+    "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+    "time": "10.249"
+  },
+  "original_native_profile_refs": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+      "bytes": 1431050,
+      "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+      "bytes": 1333443,
+      "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+      "bytes": 2338,
+      "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+      "bytes": 10440,
+      "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json",
+      "bytes": 15412075,
+      "sha256": "48b98aad10a0ea46954f6aa0f9f166114f699672b6d332aaf78df8b7e3fe04c8"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.args",
+      "bytes": 6260,
+      "sha256": "7d647d55bce7b11638790942a70ada6f7a5a970b72bc20337fae9bf09ec8467d"
+    }
+  ],
+  "phase_reports": [
+    {
+      "nodeid": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+      "outcome": "passed",
+      "location": [
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        180,
+        "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]"
+      ],
+      "longrepr_type": "NoneType",
+      "longrepr_utf8_bytes": 0,
+      "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+      "when": "setup",
+      "duration": 0.002091461996315047,
+      "start": 1791297527.7163975,
+      "stop": 1791297527.7184882,
+      "classification": "passed",
+      "has_wasxfail": false,
+      "evaluated_xfail": false,
+      "evaluated_xfail_strict": null,
+      "call_had_exception": false
+    },
+    {
+      "nodeid": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+      "outcome": "failed",
+      "location": [
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        180,
+        "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]"
+      ],
+      "longrepr_type": "ExceptionChainRepr",
+      "longrepr_utf8_bytes": 3654,
+      "longrepr_sha256": "30c76f4a238f287fcca798b8e74765f65873fd0c7cccd72d4dc44fcc185aedc2",
+      "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+      "when": "call",
+      "duration": 10.245378611012711,
+      "start": 1791297527.7185879,
+      "stop": 1791297537.9639652,
+      "classification": "failed",
+      "has_wasxfail": false,
+      "evaluated_xfail": false,
+      "evaluated_xfail_strict": null,
+      "call_had_exception": true
+    },
+    {
+      "nodeid": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+      "outcome": "passed",
+      "location": [
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        180,
+        "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]"
+      ],
+      "longrepr_type": "NoneType",
+      "longrepr_utf8_bytes": 0,
+      "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+      "when": "teardown",
+      "duration": 0.0016685159935150295,
+      "start": 1791297537.984359,
+      "stop": 1791297537.9860282,
+      "classification": "passed",
+      "has_wasxfail": false,
+      "evaluated_xfail": false,
+      "evaluated_xfail_strict": null,
+      "call_had_exception": false
+    }
+  ],
+  "literal_failure_text": "tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1')\nkind = 'scientist.experiment_state', end = 'deadline'\n\n    @pytest.mark.asyncio\n    @pytest.mark.parametrize(\n        \"kind\", [\"scientist.workflow_spec\", \"scientist.experiment_state\", \"scientist.workflow_report\"]\n    )\n    @pytest.mark.parametrize(\"end\", [\"deadline\", \"cancel\"])\n    async def test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer(tmp_path, kind, end):\n        store = _WriteGateCAS(tmp_path / \"cas\")\n        ctx, node, workflow, executor = _setup(store, timeout=0.5 if end == \"deadline\" else None)\n        state = ExperimentState(run_id=\"R_deadline\", params={\"seed\": 7})\n        store.target = kind\n        loop_thread = threading.get_ident()\n        task = asyncio.create_task(executor.execute(workflow, state))\n        if end == \"deadline\":\n            release = _release_after_enter(store, 0.8)\n        else:\n            release = None\n        try:\n>           assert await asyncio.to_thread(store.entered.wait, 5)\nE           assert False\n\ntests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:198: AssertionError\n\nDuring handling of the above exception, another exception occurred:\n\ntmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1')\nkind = 'scientist.experiment_state', end = 'deadline'\n\n    @pytest.mark.asyncio\n    @pytest.mark.parametrize(\n        \"kind\", [\"scientist.workflow_spec\", \"scientist.experiment_state\", \"scientist.workflow_report\"]\n    )\n    @pytest.mark.parametrize(\"end\", [\"deadline\", \"cancel\"])\n    async def test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer(tmp_path, kind, end):\n        store = _WriteGateCAS(tmp_path / \"cas\")\n        ctx, node, workflow, executor = _setup(store, timeout=0.5 if end == \"deadline\" else None)\n        state = ExperimentState(run_id=\"R_deadline\", params={\"seed\": 7})\n        store.target = kind\n        loop_thread = threading.get_ident()\n        task = asyncio.create_task(executor.execute(workflow, state))\n        if end == \"deadline\":\n            release = _release_after_enter(store, 0.8)\n        else:\n            release = None\n        try:\n            assert await asyncio.to_thread(store.entered.wait, 5)\n            if end == \"cancel\":\n                task.cancel()\n            with pytest.raises(WorkflowTimeoutError if end == \"deadline\" else asyncio.CancelledError):\n                await task\n            assert not store.release.is_set(), (\n                \"owner wait refreshed or entered I/O was treated as cancelled\"\n            )\n            assert store.thread != loop_thread\n            assert node.calls == (1 if kind == \"scientist.workflow_report\" else 0)\n            if kind != \"scientist.workflow_report\":\n                assert executor._cache is None\n            assert ctx.run.run_manifest.outputs == []\n            assert len(ctx.run.run_manifest.inputs) == (\n                0\n                if kind == \"scientist.workflow_spec\"\n                else 1\n                if kind == \"scientist.experiment_state\"\n                else 2\n            )\n            before = _events(ctx)\n            assert not any(event.get(\"event\") == \"RUN_FINALIZED\" for event in before)\n        finally:\n            store.release.set()\n            if release:\n                release.join(5)\n>           assert await asyncio.to_thread(store.finished.wait, 5)\nE           assert False\n\ntests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:224: AssertionError",
+  "actual_module_case_census": {
+    "cases": 17,
+    "outcomes": {
+      "PASS": 16,
+      "FAIL": 1
+    },
+    "cases_observed": [
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[omitted-AsyncArtifactStoreAdapter]",
+        "time": "0.152",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[omitted-AsyncFileSystemArtifactStore]",
+        "time": "0.151",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[explicit_none-AsyncArtifactStoreAdapter]",
+        "time": "0.163",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[explicit_none-AsyncFileSystemArtifactStore]",
+        "time": "0.153",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[unbounded-AsyncArtifactStoreAdapter]",
+        "time": "0.155",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[unbounded-AsyncFileSystemArtifactStore]",
+        "time": "0.153",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.workflow_spec]",
+        "time": "0.964",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+        "time": "10.249",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.workflow_report]",
+        "time": "1.085",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.workflow_spec]",
+        "time": "0.173",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.experiment_state]",
+        "time": "0.183",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.workflow_report]",
+        "time": "0.265",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_workflow_without_owner_deadline_uses_explicit_unbounded_cas",
+        "time": "0.420",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_expired_native_cache_lookup_cannot_refresh_provider_admission",
+        "time": "0.735",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_entered_mutable_publication_is_unacknowledged_unknown_not_rollback[checkpoint]",
+        "time": "1.071",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_entered_mutable_publication_is_unacknowledged_unknown_not_rollback[run.finalize]",
+        "time": "1.135",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication",
+        "time": "0.247",
+        "outcome": "PASS"
+      }
+    ]
+  },
+  "literal_unhandled_task_traceback": {
+    "raw_start_line": 18486,
+    "raw_end_line": 18538,
+    "text": "           ^^^^^^^^^^^^^^^^^^^^^Task exception was never retrieved\nfuture: <Task finished name='Task-2200' coro=<AsyncWorkflowExecutor.execute() done, defined at /workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py:176> exception=WorkflowTimeoutError('Workflow deadline expired during scientist.workflow_spec')>\nTraceback (most recent call last):\n  File \"/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py\", line 488, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/async_store.py\", line 91, in put_json\n    return await run_blocking_async(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<6 lines>...\n    )\n    ^\n  File \"/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/async_tools.py\", line 293, in run_blocking_async\n    return await asyncio.wait_for(future, timeout=timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py\", line 488, in wait_for\n    return await fut\n           ^^^^^^^^^\nasyncio.exceptions.CancelledError\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py\", line 2316, in _put_workflow_artifact\n    ref = await asyncio.wait_for(pending, timeout=remaining)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py\", line 487, in wait_for\n    async with timeouts.timeout(timeout):\n               ~~~~~~~~~~~~~~~~^^^^^^^^^\n  File \"/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/timeouts.py\", line 114, in __aexit__\n    raise TimeoutError from exc_val\nTimeoutError\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py\", line 214, in execute\n    workflow_ref = await self._persist_workflow_spec(workflow)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py\", line 2329, in _persist_workflow_spec\n    return await self._put_workflow_artifact(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<10 lines>...\n    )\n    ^\n  File \"/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py\", line 2319, in _put_workflow_artifact\n    self._guard_workflow_admission(operation=opts.kind, execution_state=\"unknown\")\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py\", line 2285, in _guard_workflow_admission\n    raise WorkflowTimeoutError(\n    ...<3 lines>...\n    )\npolisyos.scientist.orchestration.engine.errors.WorkflowTimeoutError: Workflow deadline expired during scientist.workflow_spec\n",
+    "utf8_sha256": "a31d9fe03bb5d80050a5ac6ad1e324ab5f8003f6d82e36d17726ad095cc5092d",
+    "nearest_preceding_failure_header": [
+      14840,
+      "___________ test_exposure_signature_failure_leaves_no_completed_row ____________"
+    ]
+  },
+  "fixture": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1",
+    "regular_file_count": 38,
+    "directory_count_excluding_fixture_root": 37,
+    "file_type_counts": {
+      "lock": 10,
+      "blob": 9,
+      "manifest": 18,
+      "trace": 1
+    },
+    "regular_files": [
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429613,
+        "mtime_ns": 1791297527781496575
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429611,
+        "mtime_ns": 1791297527743434593
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/locks/stripe-09.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/locks/stripe-09.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429618,
+        "mtime_ns": 1791297527872559932
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429617,
+        "mtime_ns": 1791297527853469330
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429608,
+        "mtime_ns": 1791297527723606673
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429615,
+        "mtime_ns": 1791297527820474754
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429614,
+        "mtime_ns": 1791297527804137157
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429616,
+        "mtime_ns": 1791297527837071910
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429612,
+        "mtime_ns": 1791297527761004336
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/ownership/transactions/root.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "relative_path": "cas/artifacts/ownership/transactions/root.lock",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1429606,
+        "mtime_ns": 1791297527721761916
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+        "bytes": 3235,
+        "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+        "relative_path": "cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787834,
+        "mtime_ns": 1791297527772200773
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+        "bytes": 626,
+        "sha256": "764bfbf7e00e422628e580195301f854c8fb9e80a4577b4d76f2f1865d8c1636",
+        "relative_path": "cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787835,
+        "mtime_ns": 1791297527774200902
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+        "bytes": 626,
+        "sha256": "764bfbf7e00e422628e580195301f854c8fb9e80a4577b4d76f2f1865d8c1636",
+        "relative_path": "cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787836,
+        "mtime_ns": 1791297527776167930
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+        "bytes": 7840,
+        "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+        "relative_path": "cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1691758,
+        "mtime_ns": 1791297527734977977
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+        "bytes": 612,
+        "sha256": "5c07314ce3f1f8558c47e896c030347234c4b955647c27e54bf4e2b538541253",
+        "relative_path": "cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1691759,
+        "mtime_ns": 1791297527736989688
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+        "bytes": 612,
+        "sha256": "5c07314ce3f1f8558c47e896c030347234c4b955647c27e54bf4e2b538541253",
+        "relative_path": "cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1691760,
+        "mtime_ns": 1791297527738908165
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+        "bytes": 1086,
+        "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+        "relative_path": "cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1691764,
+        "mtime_ns": 1791297527753813681
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+        "bytes": 623,
+        "sha256": "6fdb0454e80b845847b32d9a9f8ce931c11cd720f80d94e01304602e10a2b58d",
+        "relative_path": "cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1691765,
+        "mtime_ns": 1791297527755503677
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+        "bytes": 623,
+        "sha256": "6fdb0454e80b845847b32d9a9f8ce931c11cd720f80d94e01304602e10a2b58d",
+        "relative_path": "cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1691766,
+        "mtime_ns": 1791297527756960225
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+        "bytes": 1477,
+        "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+        "relative_path": "cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787848,
+        "mtime_ns": 1791297527813320037
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+        "bytes": 631,
+        "sha256": "2f0f00ec3ebda932c6c109bde8310e1cc3e1645bf3ee9cffa16ffb70a7cc649e",
+        "relative_path": "cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787849,
+        "mtime_ns": 1791297527814808324
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+        "bytes": 631,
+        "sha256": "2f0f00ec3ebda932c6c109bde8310e1cc3e1645bf3ee9cffa16ffb70a7cc649e",
+        "relative_path": "cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787850,
+        "mtime_ns": 1791297527816524951
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+        "bytes": 2423,
+        "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+        "relative_path": "cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787855,
+        "mtime_ns": 1791297527829331161
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+        "bytes": 616,
+        "sha256": "4cd261b9add5997941e5983958914ce4a7c37fdb3f86f4c75c93bacae6035531",
+        "relative_path": "cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787856,
+        "mtime_ns": 1791297527830786376
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+        "bytes": 616,
+        "sha256": "4cd261b9add5997941e5983958914ce4a7c37fdb3f86f4c75c93bacae6035531",
+        "relative_path": "cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787857,
+        "mtime_ns": 1791297527832192408
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+        "bytes": 1204,
+        "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+        "relative_path": "cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787869,
+        "mtime_ns": 1791297527862307842
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+        "bytes": 1363,
+        "sha256": "c0e4c932341badbc7b7c87f014be1893e7a7f2746f84bc31cb75de7f32a97639",
+        "relative_path": "cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787870,
+        "mtime_ns": 1791297527863975346
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+        "bytes": 1363,
+        "sha256": "c0e4c932341badbc7b7c87f014be1893e7a7f2746f84bc31cb75de7f32a97639",
+        "relative_path": "cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787871,
+        "mtime_ns": 1791297527865482579
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+        "bytes": 464,
+        "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+        "relative_path": "cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787862,
+        "mtime_ns": 1791297527846614906
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+        "bytes": 613,
+        "sha256": "d86e271df2d66637ba1761433b0dbcadfe217ad8ba45f91ce6a239b8695cfc7e",
+        "relative_path": "cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787863,
+        "mtime_ns": 1791297527848061646
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+        "bytes": 613,
+        "sha256": "d86e271df2d66637ba1761433b0dbcadfe217ad8ba45f91ce6a239b8695cfc7e",
+        "relative_path": "cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787864,
+        "mtime_ns": 1791297527849652746
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+        "bytes": 264,
+        "sha256": "d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9",
+        "relative_path": "cas/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787876,
+        "mtime_ns": 1791297528541099808
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+        "bytes": 640,
+        "sha256": "0fff2bef14d2d11f8445928d6245918a6a6af44714bf02de86df1854e71ab4c9",
+        "relative_path": "cas/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787877,
+        "mtime_ns": 1791297528543001142
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+        "bytes": 640,
+        "sha256": "0fff2bef14d2d11f8445928d6245918a6a6af44714bf02de86df1854e71ab4c9",
+        "relative_path": "cas/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787878,
+        "mtime_ns": 1791297528544656303
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+        "bytes": 523,
+        "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+        "relative_path": "cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787841,
+        "mtime_ns": 1791297527795967171
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+        "bytes": 623,
+        "sha256": "39c2b0416eb1fdeac83c710406d3d7860cc8e6ba8988d14ab16c7bcb4ec86551",
+        "relative_path": "cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787842,
+        "mtime_ns": 1791297527798006424
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+        "bytes": 623,
+        "sha256": "39c2b0416eb1fdeac83c710406d3d7860cc8e6ba8988d14ab16c7bcb4ec86551",
+        "relative_path": "cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1787843,
+        "mtime_ns": 1791297527799778675
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/runs/R_deadline/trace.jsonl",
+        "bytes": 195,
+        "sha256": "cc578a68ac6759a8aaec69734c060a27067deebadd0c96c02a565e52a46afaf3",
+        "relative_path": "cas/runs/R_deadline/trace.jsonl",
+        "kind": "regular",
+        "mode": "0o600",
+        "inode": 1298542,
+        "mtime_ns": 1791297527872559932
+      }
+    ],
+    "directory_paths": [
+      "cas",
+      "cas/artifacts",
+      "cas/artifacts/ownership",
+      "cas/artifacts/ownership/transactions",
+      "cas/artifacts/ownership/transactions/intents",
+      "cas/artifacts/ownership/transactions/intents/0e",
+      "cas/artifacts/ownership/transactions/intents/12",
+      "cas/artifacts/ownership/transactions/intents/62",
+      "cas/artifacts/ownership/transactions/intents/87",
+      "cas/artifacts/ownership/transactions/intents/8e",
+      "cas/artifacts/ownership/transactions/intents/b0",
+      "cas/artifacts/ownership/transactions/intents/d4",
+      "cas/artifacts/ownership/transactions/intents/d5",
+      "cas/artifacts/ownership/transactions/intents/f2",
+      "cas/artifacts/ownership/transactions/locks",
+      "cas/artifacts/ownership/transactions/stage",
+      "cas/artifacts/sha256",
+      "cas/artifacts/sha256/0e",
+      "cas/artifacts/sha256/0e/23",
+      "cas/artifacts/sha256/12",
+      "cas/artifacts/sha256/12/5f",
+      "cas/artifacts/sha256/62",
+      "cas/artifacts/sha256/62/52",
+      "cas/artifacts/sha256/87",
+      "cas/artifacts/sha256/87/6d",
+      "cas/artifacts/sha256/8e",
+      "cas/artifacts/sha256/8e/1f",
+      "cas/artifacts/sha256/b0",
+      "cas/artifacts/sha256/b0/36",
+      "cas/artifacts/sha256/d4",
+      "cas/artifacts/sha256/d4/c9",
+      "cas/artifacts/sha256/d5",
+      "cas/artifacts/sha256/d5/0d",
+      "cas/artifacts/sha256/f2",
+      "cas/artifacts/sha256/f2/48",
+      "cas/runs",
+      "cas/runs/R_deadline"
+    ],
+    "literal_trace_utf8": "{\"ts\":\"2026-10-06T14:38:47Z\",\"run_id\":\"R_deadline\",\"phase\":\"core\",\"event\":\"RUN_STARTED\",\"run_terminality\":\"non_terminal\",\"refs\":{\"inputs\":[],\"outputs\":[]},\"metrics\":{},\"warnings\":[],\"errors\":[]}\n",
+    "events": [
+      {
+        "ts": "2026-10-06T14:38:47Z",
+        "run_id": "R_deadline",
+        "phase": "core",
+        "event": "RUN_STARTED",
+        "run_terminality": "non_terminal",
+        "refs": {
+          "inputs": [],
+          "outputs": []
+        },
+        "metrics": {},
+        "warnings": [],
+        "errors": []
+      }
+    ],
+    "artifact_count": 9,
+    "artifact_kind_counts": {
+      "core.registry_bundle": 1,
+      "ir.constraint_registry": 1,
+      "ir.mechanism_registry": 1,
+      "ir.merge_rule_registry": 1,
+      "ir.metric_registry": 1,
+      "ir.selector_field_registry": 1,
+      "ir.slot_registry": 1,
+      "ir.units_registry": 1,
+      "scientist.workflow_spec": 1
+    },
+    "artifacts": [
+      {
+        "artifact_id": "sha256:0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+        "kind": "ir.mechanism_registry",
+        "actual_blob": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+          "bytes": 3235,
+          "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+        },
+        "default_manifest": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+          "bytes": 626,
+          "sha256": "764bfbf7e00e422628e580195301f854c8fb9e80a4577b4d76f2f1865d8c1636"
+        },
+        "selected_view": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+          "bytes": 626,
+          "sha256": "764bfbf7e00e422628e580195301f854c8fb9e80a4577b4d76f2f1865d8c1636"
+        },
+        "selected_view_profile_hex_from_filename": "e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261",
+        "manifest_byte_size": 3235,
+        "actual_digest_matches_id_integrity_and_size": true,
+        "default_view_json_equal": true,
+        "literal_manifest": {
+          "artifact_id": "sha256:0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+          "byte_size": 3235,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-06T14:38:47Z",
+          "inputs": [],
+          "integrity": {
+            "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+          },
+          "kind": "ir.mechanism_registry",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "schema": {
+            "name": "polisyos.ir.kernel.MechanismTypeRegistry",
+            "version": "1.0"
+          },
+          "warnings": []
+        }
+      },
+      {
+        "artifact_id": "sha256:125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+        "kind": "ir.slot_registry",
+        "actual_blob": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+          "bytes": 7840,
+          "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+        },
+        "default_manifest": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+          "bytes": 612,
+          "sha256": "5c07314ce3f1f8558c47e896c030347234c4b955647c27e54bf4e2b538541253"
+        },
+        "selected_view": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+          "bytes": 612,
+          "sha256": "5c07314ce3f1f8558c47e896c030347234c4b955647c27e54bf4e2b538541253"
+        },
+        "selected_view_profile_hex_from_filename": "96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d",
+        "manifest_byte_size": 7840,
+        "actual_digest_matches_id_integrity_and_size": true,
+        "default_view_json_equal": true,
+        "literal_manifest": {
+          "artifact_id": "sha256:125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+          "byte_size": 7840,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-06T14:38:47Z",
+          "inputs": [],
+          "integrity": {
+            "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+          },
+          "kind": "ir.slot_registry",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "schema": {
+            "name": "polisyos.ir.kernel.SlotRegistry",
+            "version": "1.0"
+          },
+          "warnings": []
+        }
+      },
+      {
+        "artifact_id": "sha256:625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+        "kind": "ir.merge_rule_registry",
+        "actual_blob": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+          "bytes": 1086,
+          "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+        },
+        "default_manifest": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+          "bytes": 623,
+          "sha256": "6fdb0454e80b845847b32d9a9f8ce931c11cd720f80d94e01304602e10a2b58d"
+        },
+        "selected_view": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+          "bytes": 623,
+          "sha256": "6fdb0454e80b845847b32d9a9f8ce931c11cd720f80d94e01304602e10a2b58d"
+        },
+        "selected_view_profile_hex_from_filename": "cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271",
+        "manifest_byte_size": 1086,
+        "actual_digest_matches_id_integrity_and_size": true,
+        "default_view_json_equal": true,
+        "literal_manifest": {
+          "artifact_id": "sha256:625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+          "byte_size": 1086,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-06T14:38:47Z",
+          "inputs": [],
+          "integrity": {
+            "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+          },
+          "kind": "ir.merge_rule_registry",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "schema": {
+            "name": "polisyos.ir.kernel.MergeRuleRegistry",
+            "version": "2.0"
+          },
+          "warnings": []
+        }
+      },
+      {
+        "artifact_id": "sha256:876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+        "kind": "ir.selector_field_registry",
+        "actual_blob": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+          "bytes": 1477,
+          "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+        },
+        "default_manifest": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+          "bytes": 631,
+          "sha256": "2f0f00ec3ebda932c6c109bde8310e1cc3e1645bf3ee9cffa16ffb70a7cc649e"
+        },
+        "selected_view": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+          "bytes": 631,
+          "sha256": "2f0f00ec3ebda932c6c109bde8310e1cc3e1645bf3ee9cffa16ffb70a7cc649e"
+        },
+        "selected_view_profile_hex_from_filename": "57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f",
+        "manifest_byte_size": 1477,
+        "actual_digest_matches_id_integrity_and_size": true,
+        "default_view_json_equal": true,
+        "literal_manifest": {
+          "artifact_id": "sha256:876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+          "byte_size": 1477,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-06T14:38:47Z",
+          "inputs": [],
+          "integrity": {
+            "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+          },
+          "kind": "ir.selector_field_registry",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "schema": {
+            "name": "polisyos.ir.kernel.SelectorFieldRegistry",
+            "version": "1.0"
+          },
+          "warnings": []
+        }
+      },
+      {
+        "artifact_id": "sha256:8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+        "kind": "ir.metric_registry",
+        "actual_blob": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+          "bytes": 2423,
+          "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+        },
+        "default_manifest": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+          "bytes": 616,
+          "sha256": "4cd261b9add5997941e5983958914ce4a7c37fdb3f86f4c75c93bacae6035531"
+        },
+        "selected_view": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+          "bytes": 616,
+          "sha256": "4cd261b9add5997941e5983958914ce4a7c37fdb3f86f4c75c93bacae6035531"
+        },
+        "selected_view_profile_hex_from_filename": "58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e",
+        "manifest_byte_size": 2423,
+        "actual_digest_matches_id_integrity_and_size": true,
+        "default_view_json_equal": true,
+        "literal_manifest": {
+          "artifact_id": "sha256:8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+          "byte_size": 2423,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-06T14:38:47Z",
+          "inputs": [],
+          "integrity": {
+            "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+          },
+          "kind": "ir.metric_registry",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "schema": {
+            "name": "polisyos.ir.kernel.MetricRegistry",
+            "version": "1.0"
+          },
+          "warnings": []
+        }
+      },
+      {
+        "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+        "kind": "core.registry_bundle",
+        "actual_blob": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+          "bytes": 1204,
+          "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+        },
+        "default_manifest": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+          "bytes": 1363,
+          "sha256": "c0e4c932341badbc7b7c87f014be1893e7a7f2746f84bc31cb75de7f32a97639"
+        },
+        "selected_view": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+          "bytes": 1363,
+          "sha256": "c0e4c932341badbc7b7c87f014be1893e7a7f2746f84bc31cb75de7f32a97639"
+        },
+        "selected_view_profile_hex_from_filename": "a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895",
+        "manifest_byte_size": 1204,
+        "actual_digest_matches_id_integrity_and_size": true,
+        "default_view_json_equal": true,
+        "literal_manifest": {
+          "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+          "byte_size": 1204,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-06T14:38:47Z",
+          "inputs": [
+            {
+              "artifact_id": "sha256:125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62",
+              "role": "slot_registry"
+            },
+            {
+              "artifact_id": "sha256:625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47",
+              "role": "merge_registry"
+            },
+            {
+              "artifact_id": "sha256:f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+              "role": "constraint_registry"
+            },
+            {
+              "artifact_id": "sha256:0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d",
+              "role": "mechanism_registry"
+            },
+            {
+              "artifact_id": "sha256:876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec",
+              "role": "selector_field_registry"
+            },
+            {
+              "artifact_id": "sha256:8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9",
+              "role": "metric_registry"
+            },
+            {
+              "artifact_id": "sha256:d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+              "role": "units_registry"
+            }
+          ],
+          "integrity": {
+            "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+          },
+          "kind": "core.registry_bundle",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "warnings": []
+        }
+      },
+      {
+        "artifact_id": "sha256:d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+        "kind": "ir.units_registry",
+        "actual_blob": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+          "bytes": 464,
+          "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+        },
+        "default_manifest": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+          "bytes": 613,
+          "sha256": "d86e271df2d66637ba1761433b0dbcadfe217ad8ba45f91ce6a239b8695cfc7e"
+        },
+        "selected_view": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+          "bytes": 613,
+          "sha256": "d86e271df2d66637ba1761433b0dbcadfe217ad8ba45f91ce6a239b8695cfc7e"
+        },
+        "selected_view_profile_hex_from_filename": "a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4",
+        "manifest_byte_size": 464,
+        "actual_digest_matches_id_integrity_and_size": true,
+        "default_view_json_equal": true,
+        "literal_manifest": {
+          "artifact_id": "sha256:d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31",
+          "byte_size": 464,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-06T14:38:47Z",
+          "inputs": [],
+          "integrity": {
+            "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+          },
+          "kind": "ir.units_registry",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "schema": {
+            "name": "polisyos.ir.kernel.UnitsRegistry",
+            "version": "1.0"
+          },
+          "warnings": []
+        }
+      },
+      {
+        "artifact_id": "sha256:d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9",
+        "kind": "scientist.workflow_spec",
+        "actual_blob": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+          "bytes": 264,
+          "sha256": "d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9"
+        },
+        "default_manifest": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+          "bytes": 640,
+          "sha256": "0fff2bef14d2d11f8445928d6245918a6a6af44714bf02de86df1854e71ab4c9"
+        },
+        "selected_view": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+          "bytes": 640,
+          "sha256": "0fff2bef14d2d11f8445928d6245918a6a6af44714bf02de86df1854e71ab4c9"
+        },
+        "selected_view_profile_hex_from_filename": "58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44",
+        "manifest_byte_size": 264,
+        "actual_digest_matches_id_integrity_and_size": true,
+        "default_view_json_equal": true,
+        "literal_manifest": {
+          "artifact_id": "sha256:d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9",
+          "byte_size": 264,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": false,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-06T14:38:47Z",
+          "inputs": [],
+          "integrity": {
+            "sha256": "d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9"
+          },
+          "kind": "scientist.workflow_spec",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "schema": {
+            "name": "polisyos.scientist.orchestration.engine.WorkflowSpec",
+            "version": "1.0"
+          },
+          "warnings": []
+        }
+      },
+      {
+        "artifact_id": "sha256:f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+        "kind": "ir.constraint_registry",
+        "actual_blob": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+          "bytes": 523,
+          "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+        },
+        "default_manifest": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+          "bytes": 623,
+          "sha256": "39c2b0416eb1fdeac83c710406d3d7860cc8e6ba8988d14ab16c7bcb4ec86551"
+        },
+        "selected_view": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_workflow_cas_wait_cannot_1/cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+          "bytes": 623,
+          "sha256": "39c2b0416eb1fdeac83c710406d3d7860cc8e6ba8988d14ab16c7bcb4ec86551"
+        },
+        "selected_view_profile_hex_from_filename": "50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5",
+        "manifest_byte_size": 523,
+        "actual_digest_matches_id_integrity_and_size": true,
+        "default_view_json_equal": true,
+        "literal_manifest": {
+          "artifact_id": "sha256:f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3",
+          "byte_size": 523,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-06T14:38:47Z",
+          "inputs": [],
+          "integrity": {
+            "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+          },
+          "kind": "ir.constraint_registry",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "schema": {
+            "name": "polisyos.ir.kernel.ConstraintRegistry",
+            "version": "1.0"
+          },
+          "warnings": []
+        }
+      }
+    ]
+  },
+  "source_refs": [
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "git_blob": "58b2fcd7be1be931d3bf12f5481ef3e1490dfe6b",
+      "bytes": 17286,
+      "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+      "current_worktree_bytes_equal_frozen_git": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+      "bytes": 102653,
+      "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+      "current_worktree_bytes_equal_frozen_git": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+      "bytes": 7518,
+      "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+      "current_worktree_bytes_equal_frozen_git": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "current_worktree_bytes_equal_frozen_git": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/run/context.py",
+      "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "git_blob": "f391bf676c8f1feb6bf31ede8be7491e5be3b989",
+      "bytes": 16275,
+      "sha256": "c91029ec1e99435dbdbd234e47e796e90fcbe1f8897e7ac07f4abf9c75f4bc2c",
+      "current_worktree_bytes_equal_frozen_git": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+      "git_blob": "0b5a7ff298a836f32dbe499ed9da5b2b148976b7",
+      "bytes": 189110,
+      "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9",
+      "current_worktree_bytes_equal_frozen_git": true
+    }
+  ],
+  "source_path_correlation": [
+    "FileSystemCAS.put_json copies opts.kind and dispatches self.put_bytes; target-specific _WriteGateCAS therefore observes real state publication, not a constructor marker.",
+    "AsyncWorkflowExecutor.execute installs the one original absolute deadline, awaits workflow_spec before add_input and experiment_state.",
+    "_put_workflow_artifact uses the remaining original deadline in asyncio.wait_for and fences returned refs; its TimeoutError handler raises WorkflowTimeoutError only after the absolute owner predicate expires.",
+    "The exact captured unhandled task stack ends in execute:214 -> workflow_spec -> outer wait_for -> _guard:2285. This is real preceding-phase owner expiry, not a new per-call timeout.",
+    "RunContext.add_input emits RUN_INPUT_ADDED. Complete retained trace contains no such event; fixture contains only setup artifacts and workflow_spec.",
+    "The failed body entered.wait false and cleanup finished.wait false occur before task gather, so this failed path leaves its task exception unconsumed; other five barrier cases and remaining module cases observed PASS."
+  ],
+  "bounded_verdict": {
+    "target_gate_entry_premise": "NOT_ESTABLISHED; native entered.wait returned False",
+    "late_experiment_state_admission_or_publication": "NOT_OBSERVED in complete retained fixture/trace; no defining target I/O was exercised",
+    "preceding_workflow_spec_expiry": "Actual captured native WorkflowTimeoutError during preceding workflow_spec is source-bound; combined failed-case/cleanup/fixture evidence corroborates this explanation.",
+    "direct_task_object_to_fixture_identity": "NOT_ESTABLISHED; the anonymous unhandled task traceback carries no tmp_path/run_id/task-to-test marker and was interleaved into an unrelated HTTP failure report. Do not use Task-2200 name alone as identity.",
+    "p37_criterion_result": "Original FAIL retained; target-specific late entered-I/O defining property not established by this failed case.",
+    "p41_inherited_or_flake_label": "NOT_ESTABLISHED; no base replay or flake adjudication made.",
+    "new_product_bug": "NOT_ESTABLISHED by this failure; no late target artifact/ref accepted in retained scope."
+  },
+  "no_mutations_or_runs": {
+    "product_test_source_changes": false,
+    "fixture_cleanup_or_modification": false,
+    "gate_or_product_runtime_replay": false,
+    "helpers_or_worktrees_created": false
+  },
+  "root_at_review": {
+    "head_before": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+    "tree_before": "93b77f5da8b01f9f743438d92ca9cb48ad97dc90",
+    "status_before": "",
+    "head_after": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+    "tree_after": "93b77f5da8b01f9f743438d92ca9cb48ad97dc90",
+    "status_after": "",
+    "root_mutations_by_auditor": false,
+    "review_target_is_frozen_git4e7_not_current_metadata_head": true
+  },
+  "fixture_census_before_after_identical": true
+}

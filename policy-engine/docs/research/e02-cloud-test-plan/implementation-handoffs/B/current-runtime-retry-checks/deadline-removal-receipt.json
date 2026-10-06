@@ -1,0 +1,34 @@
+{
+  "mode": "error-publication-removal",
+  "base_sha": "141e1f47f375ef6805ede2a427f7555ae9690cf3",
+  "candidate_sha": "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+  "input_sha256": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": "dec60e1e0e36cf0483f501eab4d4b15429e204c997e88cbc23022fe3aa82a0a3",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py": "bf8637026abf8a1c47898954c818ff11ea88ec57b6b2da2114df7d16c53a68ba",
+    "policy-engine/tests/unit/scientist/orchestration/engine/_retry_setup_probe.py": "8674a2409897c6f5a532b751a9a1187cae69f4205669d9925ac92853986ca747",
+    "policy-engine/src/polisyos/common/async_tools.py": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7"
+  },
+  "overlay_basis_sha": "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+  "overlay_basis_source_sha256": "dec60e1e0e36cf0483f501eab4d4b15429e204c997e88cbc23022fe3aa82a0a3",
+  "removed_property": "Both owner error-publication deadline checks; all other canonical source bytes unchanged",
+  "executed_overlay_source_sha256": "8af5863c5baa0177df40098e88194d582f5817b87686f3f526f47d3a2e1ad2bc",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_retry.py",
+    "-k",
+    "completed_provider_error",
+    "--junitxml=/workspace/e02-B-current-runtime/_build/e02-current-runtime/retry-frozen-removal/native.xml"
+  ],
+  "PYTHONPATH": "/workspace/e02-B-current-runtime/_build/e02-current-runtime/retry-frozen-removal/overlay:/workspace/e02-B-current-runtime/policy-engine/src:/workspace/e02-B-current-runtime/policy-engine",
+  "POLISYOS_METRICS_PORT": "0",
+  "exit_code": 1,
+  "stdout_sha256": "d1bbff2da69ab366cc9cd21627f18ac6058cad3fe1ad5cf83b60e1cea7d95f18"
+}

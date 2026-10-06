@@ -1,0 +1,8 @@
+{
+  "provider": "/workspace/e02-B-current-coordination/policy-engine/node_modules/.pnpm/@vitest+browser-playwright@4.1.5_msw@2.14.2_@types+node@24.12.2_typescript@5.9.3__playw_1055c0f24e300b7d011b259b825f6c53/node_modules/@vitest/browser-playwright/dist/index.js",
+  "playwright": "/workspace/e02-B-current-coordination/policy-engine/node_modules/.pnpm/playwright@1.59.1/node_modules/playwright/index.js",
+  "pjson": "/workspace/e02-B-current-coordination/policy-engine/node_modules/.pnpm/playwright@1.59.1/node_modules/playwright/package.json",
+  "playwrightVersion": "1.59.1",
+  "core": "/workspace/e02-B-current-coordination/policy-engine/node_modules/.pnpm/playwright-core@1.59.1/node_modules/playwright-core/package.json",
+  "coreVersion": "1.59.1"
+}

@@ -1,0 +1,256 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-required-snapshot-consumer",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "RES-01",
+    "RES-02"
+  ],
+  "finding_ids": [
+    "B71",
+    "B73",
+    "B151",
+    "B152"
+  ],
+  "slice_base_sha": "27bf1c6676bb2ed4c23979b68f5bbe350333a85a",
+  "slice_base_tree_sha": "23a52933a4401bc713c4de13c6502fa9662a9ab2",
+  "implementation_commits": [
+    "e36dda3ca5941a6ab69264151fe2ca09fa968b61",
+    "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa"
+  ],
+  "candidate_sha": "f0c0492b4fd8ac6cddcbbe228598a11cd8810664",
+  "candidate_tree_sha": "0dc6511f2f2c33f82529e349d11f9891035b5888",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "owner": "B root independent source/consumer reviewer; EXE and CAS canonical writers; G integration",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/replay_base.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-mypy.run.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-mypy.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-replay.run.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-replay.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-replay.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-frozen.run.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-frozen.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-frozen.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-mypy-frozen.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-verification-snapshot.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-artifact-admission-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-artifact-admission-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-artifact-admission-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-artifact-admission-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-cache-validation-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-cache-validation-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-cache-validation-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-cache-validation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-required-artifact-frozen-red-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-required-artifact-frozen-red-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-required-artifact-frozen-red-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/native-b71-required-artifact-frozen-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/replay-previous-production.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/run_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/same-input-base.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/same-input-base.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/observations-extended.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/observations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/output-extended.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/output.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-extended.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/review-extended.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/review.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-verification-snapshot.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+    "policy-engine/src/polisyos/core/artifacts/protocol.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+    "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+    "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py",
+    "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py"
+  ],
+  "baseline_cells": [],
+  "source_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume.json",
+      "bytes": 35476,
+      "sha256": "2d5e159f4c10a836c2c07c0f860099259cd85d1ed055ba654499ce55f3dfec3f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-verification-snapshot.json",
+      "bytes": 17953,
+      "sha256": "cd4d2bc3f241816d4d6a17ef64d8b5eaca8e4f2978f998ca46d5740c63581d37"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-exe-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-exe-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-exe.xml"
+      ],
+      "target_sha": "f0c0492b4fd8ac6cddcbbe228598a11cd8810664",
+      "target_tree_sha": "0dc6511f2f2c33f82529e349d11f9891035b5888",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "python": "CPython3.14.2/pytest9.0.2 Linux6.18.44 x86_64",
+      "input_closure": "Complete current Git test paths in argv; own absolute source PYTHONPATH, real local FileSystemCAS/selected views, actual executor/checkpoint writer, fresh reader processes, isolated pytest scratch/caches, no production data. Native special path child invokes real source through runpy/importlib. Tiktoken input exact official cl100k ranks; no emulator.",
+      "outcome": "PASS",
+      "counts": {
+        "cases": 71,
+        "pass": 71,
+        "fail": 0,
+        "error": 0,
+        "skip": 0,
+        "xfail": 0
+      },
+      "wall_s": 36.56871376599884,
+      "process_rusage_maxrss_kib": 642124,
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-snapshot-consumer-evidence/currentf0-exe.json",
+          "bytes": 2171,
+          "sha256": "9633fbb65ddd5ae19a8094ab423b21f8ac7139847177cbd4709c86f8dcecb418"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-snapshot-consumer-evidence/currentf0-exe.txt",
+          "bytes": 80,
+          "sha256": "302c481d0476715670506a6664542c2cdca3bcb6f6be63ec67b5ba0dde493cf4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-snapshot-consumer-evidence/currentf0-exe.xml",
+          "bytes": 12279,
+          "sha256": "d3cc46317296da87281ef576d7b352aeace5203e5afdeec0083b8e72dda309ed"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-cas-snapshot-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-cas-snapshot-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currentf0-cas-snapshot.xml"
+      ],
+      "target_sha": "f0c0492b4fd8ac6cddcbbe228598a11cd8810664",
+      "target_tree_sha": "0dc6511f2f2c33f82529e349d11f9891035b5888",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "python": "CPython3.14.2/pytest9.0.2 Linux6.18.44 x86_64",
+      "input_closure": "Complete current Git test paths in argv; own absolute source PYTHONPATH, real local FileSystemCAS/selected views, actual executor/checkpoint writer, fresh reader processes, isolated pytest scratch/caches, no production data. Native special path child invokes real source through runpy/importlib. Tiktoken input exact official cl100k ranks; no emulator.",
+      "outcome": "PASS",
+      "counts": {
+        "cases": 85,
+        "pass": 85,
+        "fail": 0,
+        "error": 0,
+        "skip": 0,
+        "xfail": 0
+      },
+      "wall_s": 36.07849116199941,
+      "process_rusage_maxrss_kib": 786900,
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-snapshot-consumer-evidence/currentf0-cas-snapshot.json",
+          "bytes": 2256,
+          "sha256": "546b3c52e3f8996a3c4dd78e450315b4595b7187a9ac8703ce811e17e46c93a1"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-snapshot-consumer-evidence/currentf0-cas-snapshot.txt",
+          "bytes": 160,
+          "sha256": "e35c4fb0464f9c25fb1600faa381b8d99b1dfac2853362d44748385704772fe8"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-snapshot-consumer-evidence/currentf0-cas-snapshot.xml",
+          "bytes": 13865,
+          "sha256": "42851170d3a1a06bc6d804d137cbadf81cbd24d893efe528067c32bc2962bcb5"
+        }
+      ]
+    }
+  ],
+  "property": {
+    "statement": "Required typed completed-producer artifacts are verified/read as exact refs before suffix admission; owner cache validators apply before either sync or async replay. CAS verification and report use the same immutable content/manifest snapshot, including size/hash/signature authority checks.",
+    "runtime_path": [
+      "actual typed producer completion",
+      "CASCheckpointHook",
+      "fresh resumed consumer and remaining necessary typed read",
+      "private offloop owner CacheHitValidator before cached journal apply",
+      "FileSystemCAS single verified snapshot",
+      "actual quality report and fresh retry/readback child"
+    ],
+    "proxy_divergence": "Completed alias/non-null state alone can hide a missing selected artifact; valid hash on one read plus manifest/size on another read can report a nonexistent mixed snapshot. The real missing/corrupt/selected-profile and live byte-swap controls distinguish these quantities.",
+    "negative_controls": [
+      "Exact B71 same8inputs source89=2PASS6FAIL; candidate sourcee36 all8PASS in this71-case consumer wave.",
+      "Exact B152 same9inputs sourced53=4PASS5FAIL; sourceb6e all9PASS in this85-case actual wave.",
+      "Independent B151 property-removal two real fresh-process retry/readback tests remain binding in earlier root receipt; no green from marker/constructor/collection/exit code alone."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Code and targeted actual consumers accepted; per-finding full B cohort final adjudication pending",
+  "limitations_and_next_owner": [
+    {
+      "owner": "B EXE",
+      "note": "Workflow absolute budget integration and fresh B73 process/removal replay remain pending its RUN source dependency."
+    },
+    {
+      "owner": "B CAS/A",
+      "note": "Complete signature-batch publication consumer B154/B155 is a separate active slice; this snapshot evidence does not replace that consumer."
+    },
+    {
+      "owner": "G semantic owner",
+      "note": "Legacy unbound-to-scoped import compatibility failure retained in current-generation-resume-consumer; no cross-tenant owner authority invented."
+    },
+    {
+      "owner": "SKG",
+      "note": "B61 held, no versioned data_record owner contract."
+    }
+  ],
+  "p41": "No inherited-red attribution or waiver; full gate denominator intersects owned source."
+}

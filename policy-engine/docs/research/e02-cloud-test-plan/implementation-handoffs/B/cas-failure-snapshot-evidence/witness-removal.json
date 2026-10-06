@@ -1,0 +1,34 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/removal.py",
+    "-vv",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest",
+    "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+  "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+  "exit_code": 1,
+  "wall_s": 27.904996515004314,
+  "maxrss_kib": 887396,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "numerical_caps": "all6absent"
+  },
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal.txt",
+      "bytes": 50726,
+      "sha256": "9069c392de60d927976ec33ce71c9cef1fbce69f959eafa68ba26712b7c8332a"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal.xml",
+      "bytes": 61132,
+      "sha256": "db7796524110306393a7bf0c8ccfcd453823e7c90e0b6b071c422a597b5a92b6"
+    }
+  ]
+}

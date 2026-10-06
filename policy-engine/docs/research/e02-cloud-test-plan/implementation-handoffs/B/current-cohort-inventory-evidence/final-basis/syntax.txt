@@ -1,0 +1,1 @@
+Syntax compile PASS; no plugin import, collection or tests executed

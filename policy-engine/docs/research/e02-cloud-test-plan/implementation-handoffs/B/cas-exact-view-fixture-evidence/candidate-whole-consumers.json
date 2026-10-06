@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+    "tests/unit/core/artifacts/test_import_admission_noop.py",
+    "--basetemp",
+    "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/candidate-whole-consumers-pytest",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/cas-exact-view-fixture/candidate-whole-consumers-cache",
+    "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-exact-view-fixture-evidence/candidate-whole-consumers.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "head": "7dc6de4283ebb77ace82dada7ef68f81e454d9f6",
+  "tree": "d990e130fbea00735ec3d14d675d09dc1333b3a5",
+  "head_after": "7dc6de4283ebb77ace82dada7ef68f81e454d9f6",
+  "wall_s": 4.67918713700783,
+  "pid": 263134,
+  "exit_code": 1,
+  "process_rusage_maxrss_kib": 107120,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "E02_B_PROPERTY_REMOVAL": null
+  },
+  "output_sha256": "b030a1c10f14540b2438c359996a3af2cdcbed37ce9ce55c540dcb2793af8493"
+}

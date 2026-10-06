@@ -1,0 +1,415 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "run_writer",
+  "author": "exe_state_writer",
+  "slice": "current-exe-owner-independent-review",
+  "review_mode": "read-only production/tests; reviewer writes only own evidence documentation",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B14",
+    "B24",
+    "B40"
+  ],
+  "bundle_ids": [
+    "RUN-01"
+  ],
+  "reviewed_source_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+  "reviewed_tree_sha": "185dc1e866579d48712580bd62b39aff83529158",
+  "reviewed_slice_base_sha": "98cd71e93d8dc643c8245b6d49b0da0cad26e36a",
+  "negative_source_sha": "ff6d86f56948dc49780e5034d4ec2a3f619df8c6",
+  "source_identity": [
+    {
+      "at_sha": "ff6d86f56948dc49780e5034d4ec2a3f619df8c6",
+      "tree": "70e65c414b298c52a3280cd64cbf91b5a7f4f01c",
+      "files": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "git_blob": "f2fc0878cc6bc8310191bb095476077866ef333d",
+          "sha256": "fd65b5971cbca7c6ad6d755770cd801dc592ffd622224aee4947a37ce2eae0b5"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+          "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+          "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+        }
+      ]
+    },
+    {
+      "at_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "tree": "185dc1e866579d48712580bd62b39aff83529158",
+      "files": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "git_blob": "f60b7cc4b620894a1b7daeb7a2a117c5edf697c3",
+          "sha256": "ba199986b9ca60cd2b110af6d03ccdf679c9321426a01538ea0034e7898be66b"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+          "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+          "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+        }
+      ]
+    }
+  ],
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "classification": "BOUNDED_ORIGINAL_OWNER_PUBLICATION_ACCEPTED_WITH_MUTABLE_UNKNOWN_LIMIT",
+  "source_review": {
+    "full_files_read": [
+      "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "policy-engine/src/polisyos/core/artifacts/async_store.py"
+    ],
+    "initial_full_read": "async_executor.py full module ranges1-439,440-850,851-1300,1301-1750,1751-end; async_store.py entire module1-253; complete initial two-production-file diff98cd\u2192ff6d; complete real fixture.",
+    "successor_review": "Entire ff6d\u21921bd1 production delta and exact guard/callers, execution/finalize, checkpoint/tier, native cache/retry/result admission source; async_store bytes unchanged. Original invocation task/cancelling baseline is captured once; per-put baseline no longer reauthorizes after suppressed hook cancellation.",
+    "accepted_contracts": [
+      "Additive async-store unbounded=False preserves omitted/None legacy default and forwards explicit unbounded through all14 thread adapter method sites; native async stores retain identity/policy.",
+      "Executor explicitly selects unbounded adapter while original workflow absolute deadline fences local awaits and retry deadline_monotonic; expired cache admission is refused and typed node timeout details retained.",
+      "Immutable output refs, node/cache publications, checkpoint and finalize admissions check the original owner deadline/cancellation. Entered mutable operations are unacknowledged unknown, without a rollback/preemption claim."
+    ],
+    "unresolved_blocking_source_findings": []
+  },
+  "property": {
+    "statement": "A hook that suppresses original workflow cancellation cannot grant fresh authority for subsequent workflow output or finalization publication.",
+    "runtime_path": [
+      "actual NodeSpec/provider",
+      "immutable FileSystemCAS node artifact/cache",
+      "native async hook suppressing Task.cancel",
+      "actual CASCheckpointHook commit/head",
+      "AsyncWorkflowExecutor original-owner guard",
+      "real run trace/state/report/run-manifest consumer"
+    ],
+    "proxy_divergence": "Successful provider and physically valid checkpoint, unbounded deadline, and an unchanged per-put cancelling count are green on ff6d while the original task still has cancelling=1 and new state/report outputs + RUN_FINALIZED appear. Candidate keeps valid entered checkpoint but denies new owner admission.",
+    "negative_controls": [
+      "Exact ff6d actual suppressed-cancellation counterexample retained unchanged",
+      "Same executable/input on1bd1 with only source SHA/output-path constants changed",
+      "Uncancelled real provider/checkpoint normal success with all selected refs verified",
+      "Cooperative cancellation no hook completion/checkpoint/new outputs"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "baseline_cells": [
+    "F01-P008",
+    "F03-P083",
+    "F05-P104",
+    "F06-P021",
+    "F09-P017",
+    "F09-P084",
+    "F10-P012",
+    "F10-P080",
+    "F15-P012",
+    "F15-P096"
+  ],
+  "baseline_navigation": {
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry.json",
+      "at_sha": "b474a233099b3b398f484096c70f9d5d3cdd1d44",
+      "sha256": "19278186cea6dc6ab85d597fea0b808efa388e83de451c23857115437857f03b"
+    },
+    "source_environment_input_closure": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+      "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab",
+      "bytes": 97442
+    },
+    "qualification": "Source-reported baseline cell/context locators are navigation, never proof of this new candidate. Defining distinction comes from actual fresh provider/store/hook trace.",
+    "canonical_B40": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "lines": "752-770",
+      "excerpt_sha256": "f17b9fd705c06d2ecd01804f12058d43edb62f3e569a7432c602caad76c8808b"
+    },
+    "finding_pointers": {
+      "B14": "/finding_dispositions/0",
+      "B24": "/finding_dispositions/1",
+      "B40": "/finding_dispositions/3"
+    }
+  },
+  "matched_input": {
+    "driver_changes_only": [
+      "target_sha",
+      "empty output directory binding"
+    ],
+    "exact_diff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/matched-input.diff",
+      "sha256": "8b430000b9e3dc3c8316144c88dea1538a7d9fd0a5c7d843a8c109871ec78966",
+      "bytes": 1112
+    },
+    "candidate_fixture_contains_entire_negative_fixture_as_byte_prefix": true,
+    "negative_fixture_sha256": "c0f35d92580f305d527042d477985cb06a446af4beef7dfb8d1c78cae593de5e",
+    "candidate_fixture_sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+    "extra_candidate_test_is_defined_but_not_invoked_by_independent_driver": true
+  },
+  "checks": [
+    {
+      "target_sha": "ff6d86f56948dc49780e5034d4ec2a3f619df8c6",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py"
+      ],
+      "actual_execution_driver": "/workspace/e02-B-current-runtime/_build/e02-current-runtime/exe-ff6d-cancel-probe.py",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "installed_distributions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5"
+        },
+        "config_and_import_closure": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.json",
+          "sha256": "343631b025d9decec2361d4ac36ff0c6bde83b0fd309ae67d0e4e3cae323e68f",
+          "bytes": 264399
+        },
+        "actual_polisyos_imports_matched_to_candidate_git": 1086,
+        "qualification": "Source loaded from existing root-admitted EXE lane; no checkout, source edits, helper agent, or ignored prior candidate input. Original negative checks exact two production files and fixture before/after; complete imported source census was captured on candidate controls, not retroactively claimed for the negative."
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py",
+          "sha256": "9820e1e78b5c8b16b2f0b199af56762ee2787d2719e1617379f1aa9ec8969db1",
+          "bytes": 3207
+        },
+        "same_real_input": "Actual _setup/NodeSpec/provider from Git-pinned fixture, FileSystemCAS/RunContext/AsyncWorkflowExecutor and CASCheckpointHook; seed7, result14, workflow timeout None; event gate then caller Task.cancel at checkpoint."
+      },
+      "outcome": "FAIL",
+      "deciding_output": "Observed real cancellation was suppressed; actual checkpoint completed; executor returned ok and physically admitted two outputs plus RUN_FINALIZED.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative.json",
+        "sha256": "8099b04c5dd6dead46e99a3c6ccc684ef1131ad9e042c6bd6ae770b44c452770",
+        "bytes": 1983
+      },
+      "replay": "Use the matching admitted immutable EXE source tree and empty scratch output roots. Committed driver bytes match executed bytes. Only root/output absolute path bindings may be relocated; preserve target SHA and input body."
+    },
+    {
+      "target_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py"
+      ],
+      "actual_execution_driver": "/workspace/e02-B-current-runtime/_build/e02-current-runtime/exe-1bd1-cancel-probe.py",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "installed_distributions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5"
+        },
+        "config_and_import_closure": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.json",
+          "sha256": "343631b025d9decec2361d4ac36ff0c6bde83b0fd309ae67d0e4e3cae323e68f",
+          "bytes": 264399
+        },
+        "actual_polisyos_imports_matched_to_candidate_git": 1086,
+        "qualification": "Source loaded from existing root-admitted EXE lane; no checkout, source edits, helper agent, or ignored prior candidate input. Original negative checks exact two production files and fixture before/after; complete imported source census was captured on candidate controls, not retroactively claimed for the negative."
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py",
+          "sha256": "cec9977c3949b79a72714f46f69ab09555953d74ab82434965203b450bf1d6f4",
+          "bytes": 3207
+        },
+        "same_real_input": "Actual _setup/NodeSpec/provider from Git-pinned fixture, FileSystemCAS/RunContext/AsyncWorkflowExecutor and CASCheckpointHook; seed7, result14, workflow timeout None; event gate then caller Task.cancel at checkpoint."
+      },
+      "outcome": "PASS",
+      "deciding_output": "Same input suppresses cancellation and physically completes checkpoint, but original owner receives CancelledError execution_state=unknown, zero subsequent events/outputs/finalization.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate.json",
+        "sha256": "47a26f70573753db6af35f0858363a7c6b9f5c587c04d76816f9dc5949932820",
+        "bytes": 1339
+      },
+      "replay": "Use the matching admitted immutable EXE source tree and empty scratch output roots. Committed driver bytes match executed bytes. Only root/output absolute path bindings may be relocated; preserve target SHA and input body."
+    },
+    {
+      "target_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py"
+      ],
+      "actual_execution_driver": "/workspace/e02-B-current-runtime/_build/e02-current-runtime/exe-owner-controls.py",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "installed_distributions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5"
+        },
+        "config_and_import_closure": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.json",
+          "sha256": "343631b025d9decec2361d4ac36ff0c6bde83b0fd309ae67d0e4e3cae323e68f",
+          "bytes": 264399
+        },
+        "actual_polisyos_imports_matched_to_candidate_git": 1086,
+        "qualification": "Source loaded from existing root-admitted EXE lane; no checkout, source edits, helper agent, or ignored prior candidate input. Original negative checks exact two production files and fixture before/after; complete imported source census was captured on candidate controls, not retroactively claimed for the negative."
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py",
+          "sha256": "7bafee7e503bc1ca60e9820664c18e79d9ac4a2b1e6409fc59ff82f3afe8f003",
+          "bytes": 6096
+        },
+        "same_real_input": "Exact driver defines positive/cooperative and persisted-artifact readback controls; no provider/backend mocks."
+      },
+      "outcome": "PASS",
+      "deciding_output": "Two controls: cooperative cancellation yields no checkpoint/publication; uncancelled actual provider/checkpoint and verified state/report complete normally.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.json",
+        "sha256": "343631b025d9decec2361d4ac36ff0c6bde83b0fd309ae67d0e4e3cae323e68f",
+        "bytes": 264399
+      },
+      "replay": "Use the matching admitted immutable EXE source tree and empty scratch output roots. Committed driver bytes match executed bytes. Only root/output absolute path bindings may be relocated; preserve target SHA and input body."
+    },
+    {
+      "target_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.py"
+      ],
+      "actual_execution_driver": "/workspace/e02-B-current-runtime/_build/e02-current-runtime/exe-owner-artifact-readback.py",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "installed_distributions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5"
+        },
+        "config_and_import_closure": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.json",
+          "sha256": "343631b025d9decec2361d4ac36ff0c6bde83b0fd309ae67d0e4e3cae323e68f",
+          "bytes": 264399
+        },
+        "actual_polisyos_imports_matched_to_candidate_git": 1086,
+        "qualification": "Source loaded from existing root-admitted EXE lane; no checkout, source edits, helper agent, or ignored prior candidate input. Original negative checks exact two production files and fixture before/after; complete imported source census was captured on candidate controls, not retroactively claimed for the negative."
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.py",
+          "sha256": "0a504b2a8c179dbc7b1f7ec5443de70937293302adc7fbeea9ea1a5414459818",
+          "bytes": 2834
+        },
+        "same_real_input": "Exact driver defines positive/cooperative and persisted-artifact readback controls; no provider/backend mocks."
+      },
+      "outcome": "PASS",
+      "deciding_output": "Real reopened FileSystemCAS.verify/get_bytes + resolve_latest_checkpoint consume selected persisted output/run/checkpoint/cache refs; all11 selected artifact contents and four actual trace streams are preserved byte-exact inside output JSON.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.json",
+        "sha256": "13092498f70a549b3174b8086a9d6858741958efa09cfe630a36a057df0444b4",
+        "bytes": 38829
+      },
+      "replay": "Use the matching admitted immutable EXE source tree and empty scratch output roots. Committed driver bytes match executed bytes. Only root/output absolute path bindings may be relocated; preserve target SHA and input body."
+    }
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.json",
+      "sha256": "13092498f70a549b3174b8086a9d6858741958efa09cfe630a36a057df0444b4",
+      "bytes": 38829
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.py",
+      "sha256": "0a504b2a8c179dbc7b1f7ec5443de70937293302adc7fbeea9ea1a5414459818",
+      "bytes": 2834
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py",
+      "sha256": "cec9977c3949b79a72714f46f69ab09555953d74ab82434965203b450bf1d6f4",
+      "bytes": 3207
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate.json",
+      "sha256": "47a26f70573753db6af35f0858363a7c6b9f5c587c04d76816f9dc5949932820",
+      "bytes": 1339
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.json",
+      "sha256": "343631b025d9decec2361d4ac36ff0c6bde83b0fd309ae67d0e4e3cae323e68f",
+      "bytes": 264399
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py",
+      "sha256": "7bafee7e503bc1ca60e9820664c18e79d9ac4a2b1e6409fc59ff82f3afe8f003",
+      "bytes": 6096
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/initial-production.diff",
+      "sha256": "a5dc9099ec8872c1fdf7d28858edb884e10758d77e72426b9ab142a9670f15e3",
+      "bytes": 18987
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/matched-input.diff",
+      "sha256": "8b430000b9e3dc3c8316144c88dea1538a7d9fd0a5c7d843a8c109871ec78966",
+      "bytes": 1112
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py",
+      "sha256": "9820e1e78b5c8b16b2f0b199af56762ee2787d2719e1617379f1aa9ec8969db1",
+      "bytes": 3207
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative.json",
+      "sha256": "8099b04c5dd6dead46e99a3c6ccc684ef1131ad9e042c6bd6ae770b44c452770",
+      "bytes": 1983
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/successor-production.diff",
+      "sha256": "b62e6c16527f483ea90d1c08ddb89027a21f31f214eedb001a4b37a1b0c0b0b4",
+      "bytes": 4656
+    }
+  ],
+  "deciding_output": {
+    "negative": {
+      "returned": "ok",
+      "original_task_cancelling": 1,
+      "new_outputs": 2,
+      "events": [
+        "RUN_OUTPUT_ADDED",
+        "RUN_OUTPUT_ADDED",
+        "RUN_FINALIZED"
+      ],
+      "actual_checkpoint_exists": true
+    },
+    "candidate": {
+      "termination": "CancelledError execution_state=unknown",
+      "original_task_cancelling": 1,
+      "new_outputs": 0,
+      "events": [],
+      "actual_checkpoint_exists": true
+    },
+    "controls": "2PASS",
+    "physical_artifact_readback": "11 verified selected artifact payloads and4 full trace streams"
+  },
+  "capability_state_or_finding_state": "Accepted bounded canonical EXE consumer owner fence; no complete finding closure or hard preemption claim.",
+  "limitations_and_next_owner": [
+    "Already-entered synchronous/native mutable checkpoint/finalize may physically publish after expiry/cancellation; candidate declares unknown and denies later admissions. This review does not prove rollback.",
+    "Concurrent invocations on one executor and deliberate Task.uncancel ownership reassignment are not established here; no new supported contract is inferred.",
+    "Root owns final combined acceptance and engine public docs; G owns exact local production-dependent/profile closure. Native author26 reported separately by EXE, not counted as independently rerun by reviewer.",
+    "Original ff6d negative actual source checks cover two production files and fixture; all1086 candidate imported canonical source files and three config identities are independently captured only in controls output.",
+    "Fresh RUNb474 source/test/handoff bytes remain unchanged; this is an append-only independent review companion."
+  ],
+  "excluded_exploratory_runs": [
+    "Initial relative-path command did not open driver (UNRUN). First controls draft expected installed polisyos distribution metadata absent under explicit PYTHONPATH; runtime controls completed but no receipt, then corrected metadata census and rerun in fresh CAS output root. First readback draft used string API on typed ArtifactID; corrected explicit str and rerun. None is classified as a production failure."
+  ],
+  "known_spend_review_qualification": {
+    "at_sha": "2f278583a",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/review-settled-finding-qualification.json",
+    "statement": "EXE append-only normalization correctly ties independent completed known-spend quantity to B96 with B39/B40 controls; original9bb runtime remains unchanged. No vendor billing/financial/external-outcome closure is inferred."
+  }
+}

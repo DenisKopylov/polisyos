@@ -1,0 +1,602 @@
+{
+  "target_sha": "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+  "target_tree": "e53602b3b7ed0c638cd196f2dc019628bcbe7cd6",
+  "source": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+  "source_sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6",
+  "denominator": {
+    "source_files": 1,
+    "file_type": "Python AST",
+    "owner_class": "ControlPlaneStore",
+    "all_owner_methods": 96,
+    "SQL_or_transaction_inlet_methods": 42,
+    "publication_mutator_methods_including_delegators": 35
+  },
+  "full_inlet_census": [
+    {
+      "method": "compare_and_set_scenario_head",
+      "line": 1764,
+      "inlets": [
+        {
+          "callee": "_postgres_mutation_cursor",
+          "line": 1828
+        },
+        {
+          "callee": "_sqlite_mutation_connection",
+          "line": 1825
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "consume_step_up_assertion",
+      "line": 1832,
+      "inlets": [
+        {
+          "callee": "_postgres_mutation_cursor",
+          "line": 1863
+        },
+        {
+          "callee": "_sqlite_mutation_connection",
+          "line": 1856
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "hold_human_decision_write_fence",
+      "line": 1952,
+      "inlets": [
+        {
+          "callee": "_postgres_mutation_cursor",
+          "line": 2024
+        },
+        {
+          "callee": "_sqlite_mutation_connection",
+          "line": 1998
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "hold_human_decision_recovery_fence",
+      "line": 2054,
+      "inlets": [
+        {
+          "callee": "_postgres_mutation_cursor",
+          "line": 2114
+        },
+        {
+          "callee": "_sqlite_mutation_connection",
+          "line": 2088
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "mark_human_decision_recovery_required",
+      "line": 2143,
+      "inlets": [
+        {
+          "callee": "_sqlite_mutation_connection",
+          "line": 2184
+        },
+        {
+          "callee": "_postgres_mutation_cursor",
+          "line": 2193
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_reconcile_orphan_human_decision_reservation",
+      "line": 2217,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 2238
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_reconcile_empty_human_decision_reservation",
+      "line": 2261,
+      "inlets": [
+        {
+          "callee": "_sqlite_mutation_connection",
+          "line": 2293
+        },
+        {
+          "callee": "_postgres_mutation_cursor",
+          "line": 2302
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_reserve_human_decision_sqlite",
+      "line": 2317,
+      "inlets": [
+        {
+          "callee": "_sqlite_mutation_connection",
+          "line": 2328
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_reserve_human_decision_postgres",
+      "line": 2372,
+      "inlets": [
+        {
+          "callee": "_postgres_mutation_cursor",
+          "line": 2383
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "create_job",
+      "line": 2703,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 2771
+        },
+        {
+          "callee": "_execute",
+          "line": 2772
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "advance_acquisition_action_head",
+      "line": 3002,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 3032
+        },
+        {
+          "callee": "_execute",
+          "line": 3089
+        },
+        {
+          "callee": "_execute",
+          "line": 3101
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "append_normative_evidence_head",
+      "line": 3144,
+      "inlets": [
+        {
+          "callee": "_postgres_mutation_cursor",
+          "line": 3215
+        },
+        {
+          "callee": "_sqlite_mutation_connection",
+          "line": 3209
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "append_event",
+      "line": 3218,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 3220
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "upsert_progress",
+      "line": 3301,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 3318
+        },
+        {
+          "callee": "_execute",
+          "line": 3307
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "current_execution_completed_job_record",
+      "line": 3329,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 3331
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "publish_completed_job_proof",
+      "line": 3382,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 3399
+        },
+        {
+          "callee": "_execute",
+          "line": 3465
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "lease_next_job",
+      "line": 3492,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 3499
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "mark_running",
+      "line": 3536,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 3538
+        },
+        {
+          "callee": "_execute",
+          "line": 3541
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "complete_job",
+      "line": 3571,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 3588
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_complete_job_in_transaction",
+      "line": 3598,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 3628
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "fail_job",
+      "line": 3655,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 3671
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_fail_job_in_transaction",
+      "line": 3680,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 3698
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "acknowledge_dead_letter_job",
+      "line": 3761,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 3764
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "update_manifest_ref",
+      "line": 3773,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 3784
+        },
+        {
+          "callee": "_execute",
+          "line": 3790
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "update_progress_state",
+      "line": 3800,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 3816
+        },
+        {
+          "callee": "_execute",
+          "line": 3841
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "renew_job_lease",
+      "line": 3866,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 3885
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "heartbeat_worker",
+      "line": 3898,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 3942
+        },
+        {
+          "callee": "_execute",
+          "line": 3913
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "release_worker",
+      "line": 3971,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 3974
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "enqueue_outbox_event",
+      "line": 4007,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 4023
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "mark_outbox_published",
+      "line": 4106,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 4109
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "append_diagnostic_event",
+      "line": 4142,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 4193
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_enqueue_dead_letter_job",
+      "line": 4391,
+      "inlets": [
+        {
+          "callee": "_execute",
+          "line": 4425
+        },
+        {
+          "callee": "_execute",
+          "line": 4407
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_lease_next_sqlite",
+      "line": 4468,
+      "inlets": [
+        {
+          "callee": "_sqlite_mutation_connection",
+          "line": 4472
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_lease_next_postgres",
+      "line": 4508,
+      "inlets": [
+        {
+          "callee": "_postgres_mutation_cursor",
+          "line": 4513
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_ensure_sqlite_schema",
+      "line": 4547,
+      "inlets": [
+        {
+          "callee": "_sqlite_connection",
+          "line": 4549
+        }
+      ],
+      "scope_exception": "fresh-instance constructor DDL"
+    },
+    {
+      "method": "_ensure_postgres_schema",
+      "line": 4731,
+      "inlets": [
+        {
+          "callee": "_postgres_cursor",
+          "line": 4732
+        }
+      ],
+      "scope_exception": "fresh-instance constructor DDL"
+    },
+    {
+      "method": "_job_transaction",
+      "line": 5081,
+      "inlets": [
+        {
+          "callee": "_postgres_cursor",
+          "line": 5106
+        },
+        {
+          "callee": "_sqlite_connection",
+          "line": 5093
+        }
+      ],
+      "scope_exception": "canonical actual SQL transaction owner"
+    },
+    {
+      "method": "_sqlite_mutation_connection",
+      "line": 5115,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 5117
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_postgres_mutation_cursor",
+      "line": 5121,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 5123
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_execute",
+      "line": 5126,
+      "inlets": [
+        {
+          "callee": "_job_transaction",
+          "line": 5128
+        }
+      ],
+      "scope_exception": null
+    },
+    {
+      "method": "_fetchone",
+      "line": 5136,
+      "inlets": [
+        {
+          "callee": "_postgres_cursor",
+          "line": 5156
+        },
+        {
+          "callee": "_sqlite_connection",
+          "line": 5146
+        }
+      ],
+      "scope_exception": "read-only SQL intake"
+    },
+    {
+      "method": "_fetchall",
+      "line": 5164,
+      "inlets": [
+        {
+          "callee": "_postgres_cursor",
+          "line": 5184
+        },
+        {
+          "callee": "_sqlite_connection",
+          "line": 5174
+        }
+      ],
+      "scope_exception": "read-only SQL intake"
+    }
+  ],
+  "all_mutator_methods": [
+    "_complete_job_in_transaction",
+    "_emit_job_outbox_event",
+    "_enqueue_dead_letter_job",
+    "_fail_job_in_transaction",
+    "_lease_next_postgres",
+    "_lease_next_sqlite",
+    "_reconcile_empty_human_decision_reservation",
+    "_reconcile_orphan_human_decision_reservation",
+    "_reserve_human_decision_postgres",
+    "_reserve_human_decision_sqlite",
+    "acknowledge_dead_letter_job",
+    "advance_acquisition_action_head",
+    "append_diagnostic_event",
+    "append_event",
+    "append_normative_evidence_head",
+    "compare_and_set_scenario_head",
+    "complete_job",
+    "consume_step_up_assertion",
+    "create_job",
+    "enqueue_outbox_event",
+    "fail_job",
+    "heartbeat_worker",
+    "hold_human_decision_recovery_fence",
+    "hold_human_decision_write_fence",
+    "lease_next_job",
+    "mark_human_decision_recovery_required",
+    "mark_outbox_published",
+    "mark_running",
+    "publish_completed_job_proof",
+    "release_worker",
+    "renew_job_lease",
+    "reserve_human_decision_action",
+    "update_manifest_ref",
+    "update_progress_state",
+    "upsert_progress"
+  ],
+  "unadmitted_raw_resource_methods": [],
+  "callback_loan_scope": "HumanDecisionWriteFence and HumanDecisionRecoveryFence receive actual execute/load callbacks only within canonical admitted mutation connection/cursor contexts; public DTO construction does not grant store admission.",
+  "limitations": [
+    "Static source/inlet census is navigation and reviewer denominator, not runtime PASS.",
+    "Actual ControlWorker-bound injected store instance; unbound admin APIs and arbitrary raw SQL/new store instances are not universal store authorization.",
+    "No live PostgreSQL/backend, multi-host, external idempotency or power-loss claim."
+  ]
+}

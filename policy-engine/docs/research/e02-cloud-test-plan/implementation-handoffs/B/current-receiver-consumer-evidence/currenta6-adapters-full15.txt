@@ -1,0 +1,188 @@
+........................................................................ [ 20%]
+........................................................................ [ 40%]
+........................................................................ [ 61%]
+........................................................................ [ 81%]
+.........................................FF......................        [100%]
+=================================== FAILURES ===================================
+_ test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib] _
+
+backend = 'stdlib'
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta6-adapters-full15-pytest/test_real_worker_process_consu0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc6ebd98d70>
+
+    def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(
+        backend, tmp_path, monkeypatch
+    ):
+        """Exercise the actual remote worker bridge, not a direct codec-only loop."""
+        from polisyos.scientist.orchestration.engine.runner._activity_worker import (
+            run_node_in_worker_sync,
+        )
+    
+        physical_attempts = tmp_path / "attempts.jsonl"
+        original = _state()
+    
+        class DecimalWorkerNode:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.node_decimal_transport@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="DecimalTransport",
+                    description="Physical Decimal transport probe",
+                    tags=["test"],
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets"],
+                state_writes=[],
+            )
+    
+            def execute(self, ctx, state):
+                for key, value in original.budgets.items():
+                    assert type(state.budgets[key]) is Decimal
+                    assert state.budgets[key].as_tuple() == value.as_tuple()
+                with physical_attempts.open("a") as output:
+                    output.write(
+                        json.dumps({"pid": os.getpid(), "ppid": os.getppid(), "run_id": state.run_id})
+                        + "\n"
+                    )
+                return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
+    
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+            lambda registry: registry.register(DecimalWorkerNode()),
+        )
+        payload = {
+            "node_id": "scientist.node_decimal_transport@1.0.0",
+            "alias": "decimal",
+            "state_bytes": wire.serialize_state(original),
+            "timeout_s": 2.0,
+            "context_meta": {
+                "run_id": original.run_id,
+                "store_config": {"backend": "filesystem", "root": str(tmp_path / "store")},
+            },
+        }
+        parent, child = multiprocessing.get_context("fork").Pipe()
+    
+        def worker():
+            try:
+                child.send(("result", run_node_in_worker_sync(payload)))
+            except BaseException as error:
+                child.send(("error", repr(error)))
+            finally:
+                child.close()
+    
+        process = multiprocessing.get_context("fork").Process(target=worker)
+        process.start()
+        child.close()
+        try:
+            assert parent.poll(10.0), "actual worker did not emit an outcome"
+            kind, actual_bytes = parent.recv()
+            assert kind == "result", actual_bytes
+            restored = wire.deserialize_outcome(actual_bytes)
+            assert restored.status == "ok"
+            _assert_budgets(original, restored.state)
+            attempts = [json.loads(line) for line in physical_attempts.read_text().splitlines()]
+            assert len(attempts) == 1
+            assert attempts[0]["run_id"] == original.run_id
+>           assert attempts[0]["ppid"] == process.pid  # The real retry owner forks the node attempt.
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: assert 163167 == 162966
+E            +  where 162966 = <ForkProcess name='ForkProcess-1' pid=162966 parent=162860 started>.pid
+
+tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py:176: AssertionError
+_ test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson] _
+
+backend = 'orjson'
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta6-adapters-full15-pytest/test_real_worker_process_consu1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc6ec083770>
+
+    def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(
+        backend, tmp_path, monkeypatch
+    ):
+        """Exercise the actual remote worker bridge, not a direct codec-only loop."""
+        from polisyos.scientist.orchestration.engine.runner._activity_worker import (
+            run_node_in_worker_sync,
+        )
+    
+        physical_attempts = tmp_path / "attempts.jsonl"
+        original = _state()
+    
+        class DecimalWorkerNode:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.node_decimal_transport@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="DecimalTransport",
+                    description="Physical Decimal transport probe",
+                    tags=["test"],
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["budgets"],
+                state_writes=[],
+            )
+    
+            def execute(self, ctx, state):
+                for key, value in original.budgets.items():
+                    assert type(state.budgets[key]) is Decimal
+                    assert state.budgets[key].as_tuple() == value.as_tuple()
+                with physical_attempts.open("a") as output:
+                    output.write(
+                        json.dumps({"pid": os.getpid(), "ppid": os.getppid(), "run_id": state.run_id})
+                        + "\n"
+                    )
+                return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
+    
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+            lambda registry: registry.register(DecimalWorkerNode()),
+        )
+        payload = {
+            "node_id": "scientist.node_decimal_transport@1.0.0",
+            "alias": "decimal",
+            "state_bytes": wire.serialize_state(original),
+            "timeout_s": 2.0,
+            "context_meta": {
+                "run_id": original.run_id,
+                "store_config": {"backend": "filesystem", "root": str(tmp_path / "store")},
+            },
+        }
+        parent, child = multiprocessing.get_context("fork").Pipe()
+    
+        def worker():
+            try:
+                child.send(("result", run_node_in_worker_sync(payload)))
+            except BaseException as error:
+                child.send(("error", repr(error)))
+            finally:
+                child.close()
+    
+        process = multiprocessing.get_context("fork").Process(target=worker)
+        process.start()
+        child.close()
+        try:
+            assert parent.poll(10.0), "actual worker did not emit an outcome"
+            kind, actual_bytes = parent.recv()
+            assert kind == "result", actual_bytes
+            restored = wire.deserialize_outcome(actual_bytes)
+            assert restored.status == "ok"
+            _assert_budgets(original, restored.state)
+            attempts = [json.loads(line) for line in physical_attempts.read_text().splitlines()]
+            assert len(attempts) == 1
+            assert attempts[0]["run_id"] == original.run_id
+>           assert attempts[0]["ppid"] == process.pid  # The real retry owner forks the node attempt.
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: assert 163189 == 163188
+E            +  where 163188 = <ForkProcess name='ForkProcess-2' pid=163188 parent=162860 started>.pid
+
+tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py:176: AssertionError
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]
+tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=162860) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]
+FAILED tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]

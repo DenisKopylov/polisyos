@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/core/artifacts/test_put_integrity_retry.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-first-native",
+    "--junitxml",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/first-native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "e6a8221495c67125e915ba896b26cb3940c7272e",
+  "tree": "5ea239232feb8ccae470f170278a8a39deb67f64",
+  "head_after": "e6a8221495c67125e915ba896b26cb3940c7272e",
+  "wall_s": 8.976492595000309,
+  "process_rusage_maxrss_kib": 93668,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/first-native.txt",
+  "output_sha256": "57bb289a11c70f204c418acfdfffc42a68663202064913fefade34d80ba42534",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b152/probe.py",
+    "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b152/probe-tmp-2456"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "target_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine"
+  },
+  "input_sha256": "d9ac8f35f72ca8cd2777aa817df8affaa1419eefeadaa84d087c475db2d689e9",
+  "exit_code": 0,
+  "elapsed_seconds": 22.788989067077637,
+  "output_sha256": "acdd807d1648abdbb29b153d41dd66a4a29667eaee56fd62f3bde0846c914ec1",
+  "output_bytes": 5913,
+  "after_status": ""
+}

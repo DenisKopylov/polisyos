@@ -1,0 +1,49 @@
+{
+  "schema": "policyos.e02.inputs.v1",
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "bytes": 189537,
+      "sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "bytes": 12619,
+      "sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+      "source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "bytes": 9989,
+      "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "bytes": 98037,
+      "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    }
+  ],
+  "native_selector_inputs": "Same complete directory/whole-file selectors as prior frozen643, with the new defining module now containing14actual nativecases. All unchanged declared test/config files from the prior input-custody.json were reconciled below.",
+  "limitations": "Full transitive dynamic import census was not measured; no P41 inheritance claim and no assertion that own wholecheckout equals originalroot4e."
+}

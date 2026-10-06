@@ -1,0 +1,36 @@
+2026-10-06 11:43:25 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:43:25 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:43:25 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=True tags=['test'] version=1.0.0
+2026-10-06 11:43:25 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:43:25 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.24 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:43:25 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:43:25 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.59 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:43:26 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:43:26 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=15.21 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:43:26 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:43:26 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.02 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:43:26 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:43:26 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.57 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{
+  "target_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+  "target_tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+  "original_total": 7,
+  "unchanged_resume_total": 7,
+  "changed_actual_cold_total": 10,
+  "changed_resume_error": {
+    "type": "CheckpointDigestMismatchError",
+    "message": "Checkpoint execution identity does not match the effective chain plan, inputs, parameters, or seed."
+  },
+  "changed_resume_total": null,
+  "changed_resume_dispatches": [],
+  "history_complete": null,
+  "original_checkpoint_unchanged": true,
+  "source_class_same": true,
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "checkpoint_module": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py"
+  },
+  "end_utc": "2026-10-06T11:43:26.269678+00:00",
+  "meaning": "class identity and original inspected class source unchanged, actual helper callable changed; all CAS refs, ABI, seed, input, cache and history unchanged"
+}

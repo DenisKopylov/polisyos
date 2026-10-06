@@ -1,0 +1,329 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cas-verification-snapshot",
+  "closure_ids": [
+    "B152"
+  ],
+  "closure_status": "proposed bounded technical closure pending independent root/G acceptance",
+  "bundle_ids": [
+    "CAS-03"
+  ],
+  "slice_base_sha": "d53d147aacec22628eda54864c6f4a06bc7b214f",
+  "implementation_commits": [
+    "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa"
+  ],
+  "candidate_tree_sha": "7673862194915392886cc83c8843398b4667caa4",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-verification-snapshot.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+    "policy-engine/src/polisyos/core/artifacts/protocol.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py",
+    "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py",
+    "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py"
+  ],
+  "baseline_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a#finding_dispositions",
+  "baseline_cells": [
+  {
+    "cell_id": "F02-P052",
+    "canonical_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_sources_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json@198076863e143dea9f89f02734b13d50dae3eed5",
+    "role": "historical navigation only; source/env/input closure previously resolved, not candidate evidence"
+  },
+  {
+    "cell_id": "F08-P055",
+    "canonical_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_sources_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json@198076863e143dea9f89f02734b13d50dae3eed5",
+    "role": "historical navigation only; source/env/input closure previously resolved, not candidate evidence"
+  },
+  {
+    "cell_id": "F13-P060",
+    "canonical_cells_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_sources_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json@198076863e143dea9f89f02734b13d50dae3eed5",
+    "role": "historical navigation only; source/env/input closure previously resolved, not candidate evidence"
+  }
+],
+  "checks": [
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q --tb=short --import-mode=importlib --strict-markers -ra --benchmark-storage=file://./_cache/benchmarks tests/unit/core/artifacts/test_verification_snapshot_report.py tests/unit/core/artifacts/test_cas_integrity_report.py tests/unit/remediation/test_cas_03.py tests/unit/remediation/test_cas_02.py tests/unit/core/artifacts/test_import_admission_noop.py tests/unit/core/artifacts/test_put_integrity_retry.py --basetemp=_build/e02-B-current-cas-generation/snapshot-frozen-tmp -o cache_dir=_build/e02-B-current-cas-generation/snapshot-frozen-cache --junitxml=_build/e02-B-current-cas-generation/raw/snapshot-frozen.xml",
+      "target_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "PYTHONPATH": "src",
+        "runner_quota": null
+      },
+      "input_closure": {
+        "source_and_complete_test_files": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+        "runner_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-frozen.txt",
+        "sha256": "decd0d23f0bae7974830d62abfa32a9e2ebbad402192843e7d312c2c49fb36dc",
+        "bytes": 180
+      },
+      "execution": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-frozen.run.json",
+        "sha256": "9a5b932a6a7b30e39f64094e538fc082cf13dbdf1f62c95d026cc0a347581afa",
+        "bytes": 1406
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-frozen.xml",
+        "sha256": "a45a0ddb5f464dff32c22f2e4d07ecb429a27089e9c235d6ff8f10cd254f0c2b",
+        "bytes": 13509
+      },
+      "actual_suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "83",
+        "time": "27.469",
+        "timestamp": "2026-10-06T11:21:47.233442+00:00",
+        "hostname": "b878f4efbdfc"
+      }
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q --tb=short tests/unit/core/artifacts/test_verification_snapshot_report.py --basetemp=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-replay-tmp -o cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-replay-cache --junitxml=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/snapshot-base-replay.xml",
+      "target_sha": "d53d147aacec22628eda54864c6f4a06bc7b214f",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input/policy-engine",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "PYTHONPATH": "src",
+        "runner_quota": null
+      },
+      "input_closure": {
+        "source_projection": {
+          "sha256": "ae12f45da20f3a0a2d12dfa2a3850d75eebe1ba00a39b6a36576068200ed9a3c",
+          "bytes": 92385280,
+          "paths": [
+            "policy-engine/src",
+            "policy-engine/tests",
+            "policy-engine/pytest.ini",
+            "policy-engine/pyproject.toml",
+            "policy-engine/uv.lock"
+          ]
+        },
+        "base_tree": "f00e5ead99c0e9026475e0d3f2a7c4c2c97fcd5c",
+        "overlay": [
+          {
+            "ref": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py@b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+            "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+          },
+          {
+            "ref": "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py@b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+            "sha256": "cabb8b449999c0153d9f67cd65621404437c0df1f890a82b733fa3d54acf16eb"
+          }
+        ],
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/replay_base.py",
+          "sha256": "ce3327cb5cc30bcdf59ffadccf141d6ecf94cfb4397f5b6f1b20f0b16ea88b4a",
+          "bytes": 4805
+        },
+        "custody_boundary": "Fresh tracked source projection inside the root-admitted CAS lane ignored scratch; no new Git checkout/worktree or retrospective admission claim."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-replay.txt",
+        "sha256": "35da76f1ae1a180af6b8315c402481c4d401f788e1b1d64a54cc11aab1a210ba",
+        "bytes": 4831
+      },
+      "execution": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-replay.run.json",
+        "sha256": "e8597641a62e155f04a9f0399b53c911ec1a7c086fa2dc93873740dfa1022bbf",
+        "bytes": 2202
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-replay.xml",
+        "sha256": "8cb4781be010fd70a98de13cb6bb1ba767298cdf7dabf77f40c398f6cc4e0745",
+        "bytes": 7327
+      },
+      "actual_suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "5",
+        "skipped": "0",
+        "tests": "9",
+        "time": "6.387",
+        "timestamp": "2026-10-06T11:23:27.726124+00:00",
+        "hostname": "b878f4efbdfc"
+      }
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m mypy --follow-imports=silent src/polisyos/core/artifacts/store.py src/polisyos/core/artifacts/_signature_ops.py src/polisyos/core/artifacts/_integrity_ops.py src/polisyos/core/artifacts/cas_integrity_report.py src/polisyos/core/artifacts/protocol.py",
+      "target_sha": "d53d147aacec22628eda54864c6f4a06bc7b214f",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input/policy-engine",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "PYTHONPATH": "src",
+        "runner_quota": null
+      },
+      "input_closure": {
+        "source_projection": {
+          "sha256": "ae12f45da20f3a0a2d12dfa2a3850d75eebe1ba00a39b6a36576068200ed9a3c",
+          "bytes": 92385280,
+          "paths": [
+            "policy-engine/src",
+            "policy-engine/tests",
+            "policy-engine/pytest.ini",
+            "policy-engine/pyproject.toml",
+            "policy-engine/uv.lock"
+          ]
+        },
+        "base_tree": "f00e5ead99c0e9026475e0d3f2a7c4c2c97fcd5c",
+        "overlay": [
+          {
+            "ref": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py@b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+            "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+          },
+          {
+            "ref": "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py@b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+            "sha256": "cabb8b449999c0153d9f67cd65621404437c0df1f890a82b733fa3d54acf16eb"
+          }
+        ],
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/replay_base.py",
+          "sha256": "ce3327cb5cc30bcdf59ffadccf141d6ecf94cfb4397f5b6f1b20f0b16ea88b4a",
+          "bytes": 4805
+        },
+        "custody_boundary": "Fresh tracked source projection inside the root-admitted CAS lane ignored scratch; no new Git checkout/worktree or retrospective admission claim."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-mypy.txt",
+        "sha256": "a7975fa924d12a022ec5d830553134e941505b9c4eb8241a117b14a5ae14d159",
+        "bytes": 4047
+      },
+      "execution": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-base-mypy.run.json",
+        "sha256": "22a94d26d9554493a568cbe7e67f0a0f95426781aad4120bd1c5aff42fbb0212",
+        "bytes": 1976
+      }
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m mypy --follow-imports=silent src/polisyos/core/artifacts/store.py src/polisyos/core/artifacts/_signature_ops.py src/polisyos/core/artifacts/_integrity_ops.py src/polisyos/core/artifacts/cas_integrity_report.py src/polisyos/core/artifacts/protocol.py",
+      "target_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "PYTHONPATH": "src",
+        "runner_quota": null
+      },
+      "input_closure": "Five complete modules/config@b6e47; changed inputs overlap gate, no inherited/disjoint waiver",
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/snapshot-mypy-frozen.txt",
+        "sha256": "287b5c51f9d89c7861a2cd5b9131fdd09c7f043df01b6e3b82fe2dd27bc03e0d",
+        "bytes": 3575
+      },
+      "interpretation": "Current25 vsbase27diagnostics; generic read result type and read-only snapshot protocol remove legitimate typing gaps. Signature generic bounded runner pending, full diagnostics retained."
+    }
+  ],
+  "property": {
+    "statement": "Digest, byte_size, selected metadata and audit projection derive from one locally verified immutable byte/manifest snapshot. Real source pathname kinds cannot block verified reads.",
+    "runtime_path": [
+      "FileSystemCAS._snapshot_from_paths reads no-follow/nonblocking fds and validates actual len/hash",
+      "live verify / private-stage verifier / exact signature verifier reuse that owned pair",
+      "VerifiedSnapshotArtifactStore actualFileSystemCAS port",
+      "build_cas_integrity_report consumes retained manifest and digest without reopening",
+      "CASIntegrityReport audit artifact"
+    ],
+    "proxy_divergence": "Old staged helper hashes original8 bytes, mutation replaces blob with different22 bytes, laterstat/manifest claim22; report.ok stayed true for wrong bytes. Old audit helper projected foreign@99 from a second manifest after verifying raw-bytes. Exactbase finaloverlay fails both realpath properties.",
+    "negative_controls": [
+      "same-size changed content",
+      "wrongsize selected manifest",
+      "actual secondmanifest substitution",
+      "actual hash→laterstat filesystem replacement",
+      "separate OS process regular/dangling symlink,FIFO,UNIXsocket; preserves referent/manifest bytes"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded implemented snapshot producer+native consumers; independent acceptance pending, static gate FAIL",
+  "finding_dispositions": [
+    {
+      "finding_id": "B148",
+      "status": "bounded_pre_stage_noop_recommendation_ready_for_independent_acceptance",
+      "evidence": [
+        "checks[0] all34admissionPASS",
+        "checks[1]",
+        "checks[2]",
+        "property"
+      ]
+    },
+    {
+      "finding_id": "B149",
+      "status": "current_atomic_generation_and_pinned_consumer_regression_preserved",
+      "evidence": [
+        "cas-current-transfer.json",
+        "checks[0] all25transferPASS; default importlib worker gap fixed"
+      ]
+    },
+    {
+      "finding_id": "B150",
+      "historical_source_cell_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a#baseline_cells",
+      "status": "first_writer_view_regression_preserved_and_exact_cache_consumer_repaired",
+      "evidence": [
+        "checks[0] nativecache28 andnewdistinctclock4PASS",
+        "checks[2] deterministiccache4FAILonbase"
+      ]
+    },
+    {
+      "finding_id": "B151",
+      "status": "published_direct_put_refusal_retry_mechanism_unchanged_except_explicit_bound_context_guard",
+      "evidence": [
+        "cas-current-put.json",
+        "root independently authored oracle a82302c3f964c2f8bff4d127d900bf33289d2e16; root receipt reference pending"
+      ]
+    },
+    {
+      "finding_id": "B152",
+      "status": "bounded_snapshot_mechanism_ready_for_independent_acceptance",
+      "evidence": [
+        "checks[0]83PASS",
+        "checks[1]exactbase5FAIL4PASS",
+        "property"
+      ]
+    },
+    {
+      "finding_id": "B153",
+      "historical_source_cell_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json@9092080c0bd78165b0a94e6c613a1b94e0bf2d0a#baseline_cells",
+      "status": "striped_locks_regression_preserved_and_actual_import_lease_barrier_verified",
+      "evidence": [
+        "checks[0] actualcompetingwriter",
+        "checks[1] lease-removalfalsifier"
+      ]
+    },
+    {
+      "finding_id": "B154",
+      "status": "consumer_missing_external_all_confirmations_publisher;typed_batch_nextslice",
+      "evidence": []
+    },
+    {
+      "finding_id": "B155",
+      "status": "pending_pendingwindow_iteration_deadline_and_census_boundary",
+      "evidence": []
+    }
+  ],
+  "limitations_and_next_owner": [
+    "B154 remains consumer_missing until A actual all-confirmations publisher consumes fresh exact full typed signature report; B155 nextslice.",
+    "Whole static gate FAIL25; base FAIL27 but changed denominator overlaps, never inherited/disjoint green.",
+    "Single snapshot holds one blob in memory; no constant-memory, hostile parent mutation, power-loss or multihost claim.",
+    "Noncooperating later filesystem writes can change stored paths; snapshot report claims only retained checked bytes, not perpetual path stability.",
+    "Audit builder now requires optional verified snapshot backend capability; generic read/write protocol unchanged.",
+    "Initial development socket absolute path hitAF_UNIX length ERROR; corrected tracked worker uses same real socket with cwd+basename, no case skipped. Unpinned development outputs superseded by exact frozen83 cohort and exactbase projection."
+  ]
+}

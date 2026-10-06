@@ -1,0 +1,1361 @@
+{
+  "grade": "independent_immutable_source_and_captured_native_evidence_audit; no_product_import_or_runtime",
+  "git_executable": "/usr/local/bin/git",
+  "test_identity": {
+    "ref": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+    "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+    "git_blob": "1f677e7cf2fa3397ce02fd634ea65e622c480757",
+    "bytes": 12070,
+    "sha256": "19b14a681ffce04b13fc1973aa19fba064691751c3e7b8a5c0e697d3a7d5050f"
+  },
+  "test_tree": "5f18c250c0c74afce848a3da117185212af6c315",
+  "footprint": "A\tpolicy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py\n",
+  "product_sha": "f131958a71413154785823abeb0765d40499bad2",
+  "actual_root_sha": "48e1f7170b04f1362e9b7e1d9b74eb9763151830",
+  "actual_root_tree": "8ba3aa789a2997e523e37e6784fec207d86d9747",
+  "actual_root_vs_pinned_production_diff": "ZERO_DIFF",
+  "actual_root_vs_historic_production_diff": "ZERO_DIFF",
+  "historic_root_vs_pinned_pool_stream_diff": "ZERO_DIFF",
+  "source_identities": [
+    {
+      "ref": "f131958a71413154785823abeb0765d40499bad2",
+      "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "git_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29",
+      "bytes": 43461,
+      "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35"
+    },
+    {
+      "ref": "f131958a71413154785823abeb0765d40499bad2",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+      "bytes": 108192,
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+    },
+    {
+      "ref": "f131958a71413154785823abeb0765d40499bad2",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "git_blob": "31525859297cf05d5c190db00e5389ab0c61b0ff",
+      "bytes": 35047,
+      "sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405"
+    },
+    {
+      "ref": "f131958a71413154785823abeb0765d40499bad2",
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "git_blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c",
+      "bytes": 9344,
+      "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48"
+    },
+    {
+      "ref": "f131958a71413154785823abeb0765d40499bad2",
+      "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "git_blob": "71d21e8f8d4517c602efc2662106f35d45f0ebc4",
+      "bytes": 29359,
+      "sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31"
+    },
+    {
+      "ref": "f131958a71413154785823abeb0765d40499bad2",
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+      "git_blob": "f99d73848682b6b45a0a20dafbf8a5b3588b3e5e",
+      "bytes": 8342,
+      "sha256": "a3ccf9c8444e20a71898ba963f25d63cc0fd0d396921505b4d39a8ce44b40567"
+    },
+    {
+      "ref": "f131958a71413154785823abeb0765d40499bad2",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "git_blob": "0b5a7ff298a836f32dbe499ed9da5b2b148976b7",
+      "bytes": 189110,
+      "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9"
+    }
+  ],
+  "same_child_origins": [
+    {
+      "module": "polisyos.fabric.connectors.pool",
+      "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35"
+    },
+    {
+      "module": "polisyos.fabric.data_plane.streaming",
+      "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+    },
+    {
+      "module": "polisyos.fabric.data_plane.cursor_store",
+      "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405"
+    },
+    {
+      "module": "polisyos.fabric.connectors.sources.event_stream",
+      "origin": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48"
+    }
+  ],
+  "author_evidence_identities": [
+    {
+      "ref": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/native.txt",
+      "git_blob": "dc19a4268b30799ac35010416ca34bb176816db3",
+      "bytes": 40439,
+      "sha256": "a457b623d95800965be657f2f4cae8723e4d2e15d5bd0ef1bc429b064b67252f"
+    },
+    {
+      "ref": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/native.xml",
+      "git_blob": "989c2e5d82108e269bd5ad33eca034ebd235cfbd",
+      "bytes": 10726,
+      "sha256": "744cb047d52f8656971d315f03de51d1a633045741c516ac6ce52e07f571fa2e"
+    },
+    {
+      "ref": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-evidence/native-wrapper.json",
+      "git_blob": "35deaf5e939d9f397405a40a90915634d6b2ad29",
+      "bytes": 2825,
+      "sha256": "2c62850c8269876cc7f7a2f5d1b6e4bf983d53e3152e6b06776570e903289aaf"
+    }
+  ],
+  "native_counts": {
+    "cases": 8,
+    "pass": 7,
+    "fail": 1,
+    "error": 0,
+    "skip": 0,
+    "exit": 1
+  },
+  "case_names": [
+    "test_process_file_stream_cleanup_ownership[healthy]",
+    "test_process_file_stream_cleanup_ownership[subscribe-failure]",
+    "test_process_file_stream_cleanup_ownership[checkpoint-read-failure]",
+    "test_process_file_stream_cleanup_ownership[rewind-failure]",
+    "test_process_file_stream_cleanup_ownership[caller-cancel]",
+    "test_process_file_stream_cleanup_ownership[startup-owner-retry]",
+    "test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+    "test_direct_file_session_second_close_finishes_pending_cleanup"
+  ],
+  "observations": [
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22",
+          "c08329e4-0714-4222-a528-ea107b316562"
+        ],
+        "disconnect_calls": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22",
+          "c08329e4-0714-4222-a528-ea107b316562"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.318,
+          "created_at": "2026-10-06 15:33:18.573658+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22"
+        ],
+        "disconnect_calls": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.318,
+          "created_at": "2026-10-06 15:33:18.573658+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22"
+        ],
+        "disconnect_calls": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.318,
+          "created_at": "2026-10-06 15:33:18.573658+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "c08329e4-0714-4222-a528-ea107b316562"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22"
+        ],
+        "disconnect_calls": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.318,
+          "created_at": "2026-10-06 15:33:18.573658+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": 2,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22",
+          "c08329e4-0714-4222-a528-ea107b316562"
+        ],
+        "disconnect_calls": [
+          "eb8c635a-7544-4150-bb63-a638b268cb22",
+          "c08329e4-0714-4222-a528-ea107b316562"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.318,
+          "created_at": "2026-10-06 15:33:18.573658+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": false,
+      "primary_exception_type": null,
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "healthy"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1",
+          "52d251c0-ebfd-483d-9734-615dd0aa81d5"
+        ],
+        "disconnect_calls": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1",
+          "52d251c0-ebfd-483d-9734-615dd0aa81d5"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.159,
+          "created_at": "2026-10-06 15:33:18.791548+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1"
+        ],
+        "disconnect_calls": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.159,
+          "created_at": "2026-10-06 15:33:18.791548+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1"
+        ],
+        "disconnect_calls": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.159,
+          "created_at": "2026-10-06 15:33:18.791548+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "52d251c0-ebfd-483d-9734-615dd0aa81d5"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1"
+        ],
+        "disconnect_calls": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.159,
+          "created_at": "2026-10-06 15:33:18.791548+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1",
+          "52d251c0-ebfd-483d-9734-615dd0aa81d5"
+        ],
+        "disconnect_calls": [
+          "1d9fbf96-b815-4a9a-b493-575ef3b951f1",
+          "52d251c0-ebfd-483d-9734-615dd0aa81d5"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.159,
+          "created_at": "2026-10-06 15:33:18.791548+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "primary_exception_is_injected": true,
+      "primary_exception_type": "ConnectorStageError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "subscribe-failure"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac",
+          "77e475f5-39d5-4c36-9370-7c51ab32b182"
+        ],
+        "disconnect_calls": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac",
+          "77e475f5-39d5-4c36-9370-7c51ab32b182"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.156,
+          "created_at": "2026-10-06 15:33:18.804040+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac"
+        ],
+        "disconnect_calls": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.156,
+          "created_at": "2026-10-06 15:33:18.804040+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac"
+        ],
+        "disconnect_calls": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.156,
+          "created_at": "2026-10-06 15:33:18.804040+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "77e475f5-39d5-4c36-9370-7c51ab32b182"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac"
+        ],
+        "disconnect_calls": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.156,
+          "created_at": "2026-10-06 15:33:18.804040+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac",
+          "77e475f5-39d5-4c36-9370-7c51ab32b182"
+        ],
+        "disconnect_calls": [
+          "14c65797-d779-4928-9d5e-baeb35c8d3ac",
+          "77e475f5-39d5-4c36-9370-7c51ab32b182"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.156,
+          "created_at": "2026-10-06 15:33:18.804040+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": false,
+      "primary_exception_type": "CursorStoreError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "checkpoint-read-failure"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b",
+          "142ba111-21be-4270-b4aa-36be421a0869"
+        ],
+        "disconnect_calls": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b",
+          "142ba111-21be-4270-b4aa-36be421a0869"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.17800000000000002,
+          "created_at": "2026-10-06 15:33:18.841218+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b"
+        ],
+        "disconnect_calls": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.17800000000000002,
+          "created_at": "2026-10-06 15:33:18.841218+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b"
+        ],
+        "disconnect_calls": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.17800000000000002,
+          "created_at": "2026-10-06 15:33:18.841218+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "142ba111-21be-4270-b4aa-36be421a0869"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b"
+        ],
+        "disconnect_calls": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.17800000000000002,
+          "created_at": "2026-10-06 15:33:18.841218+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b",
+          "142ba111-21be-4270-b4aa-36be421a0869"
+        ],
+        "disconnect_calls": [
+          "299e1f3b-4bc5-4f7c-8ab0-0eabd853ee8b",
+          "142ba111-21be-4270-b4aa-36be421a0869"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.17800000000000002,
+          "created_at": "2026-10-06 15:33:18.841218+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 2,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": true,
+      "primary_exception_type": "ConnectorStageError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "rewind-failure"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80",
+          "3aad1bc8-a95a-490d-95c4-86e3fc7ae7a4"
+        ],
+        "disconnect_calls": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80",
+          "3aad1bc8-a95a-490d-95c4-86e3fc7ae7a4"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.15,
+          "created_at": "2026-10-06 15:33:18.855315+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80"
+        ],
+        "disconnect_calls": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.15,
+          "created_at": "2026-10-06 15:33:18.855315+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80"
+        ],
+        "disconnect_calls": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.15,
+          "created_at": "2026-10-06 15:33:18.855315+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "3aad1bc8-a95a-490d-95c4-86e3fc7ae7a4"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80"
+        ],
+        "disconnect_calls": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.15,
+          "created_at": "2026-10-06 15:33:18.855315+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80",
+          "3aad1bc8-a95a-490d-95c4-86e3fc7ae7a4"
+        ],
+        "disconnect_calls": [
+          "9c0fcaf9-9edb-4b35-bc16-b224c2521a80",
+          "3aad1bc8-a95a-490d-95c4-86e3fc7ae7a4"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.15,
+          "created_at": "2026-10-06 15:33:18.855315+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": false,
+      "primary_exception_type": "CancelledError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "caller-cancel"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "9ff1dc49-fd44-42c3-9a05-bc6581a81534"
+        ],
+        "disconnect_calls": [
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "9ff1dc49-fd44-42c3-9a05-bc6581a81534"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.165,
+          "created_at": "2026-10-06 15:33:18.867817+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "a3e77fd1-7481-4964-92bf-343189591507"
+        ],
+        "disconnect_calls": [
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.165,
+          "created_at": "2026-10-06 15:33:18.867817+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [
+          "a3e77fd1-7481-4964-92bf-343189591507"
+        ],
+        "available_permits": 0,
+        "confirmed_disconnects": [],
+        "disconnect_calls": [
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "a3e77fd1-7481-4964-92bf-343189591507": {
+            "closed": false,
+            "pending_permit": true,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 1,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.165,
+          "created_at": "2026-10-06 15:33:18.867817+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "9ff1dc49-fd44-42c3-9a05-bc6581a81534"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "a3e77fd1-7481-4964-92bf-343189591507"
+        ],
+        "disconnect_calls": [
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.165,
+          "created_at": "2026-10-06 15:33:18.867817+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "9ff1dc49-fd44-42c3-9a05-bc6581a81534"
+        ],
+        "disconnect_calls": [
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "a3e77fd1-7481-4964-92bf-343189591507",
+          "9ff1dc49-fd44-42c3-9a05-bc6581a81534"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.165,
+          "created_at": "2026-10-06 15:33:18.867817+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 0
+        }
+      },
+      "primary_exception_is_injected": true,
+      "primary_exception_type": "ConnectorStageError",
+      "primary_notes": [
+        "stream subscription pool close failed: RuntimeError('Connection cleanup remains pending for the closed pool')",
+        "stream subscription release failed: RuntimeError('Connection cleanup is pending for the released owner')",
+        "stream session startup cleanup remains pending after retry: RuntimeError('Connection cleanup is pending for the released owner')"
+      ],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "startup-owner-retry"
+    },
+    {
+      "after_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "b9963a50-782c-4cd0-88b3-a74e36beab44"
+        ],
+        "disconnect_calls": [
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066",
+          "b9963a50-782c-4cd0-88b3-a74e36beab44"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066": {
+            "closed": false,
+            "pending_permit": false,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.155,
+          "created_at": "2026-10-06 15:33:18.880306+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "after_registry_retry": {
+        "actual_handles_without_disconnect_confirmation": [
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [],
+        "disconnect_calls": [
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066": {
+            "closed": false,
+            "pending_permit": false,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.155,
+          "created_at": "2026-10-06 15:33:18.880306+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "before_retry": {
+        "actual_handles_without_disconnect_confirmation": [
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [],
+        "disconnect_calls": [
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066": {
+            "closed": false,
+            "pending_permit": false,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.155,
+          "created_at": "2026-10-06 15:33:18.880306+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "during_fresh": {
+        "actual_handles_without_disconnect_confirmation": [
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066",
+          "b9963a50-782c-4cd0-88b3-a74e36beab44"
+        ],
+        "available_permits": 1,
+        "confirmed_disconnects": [],
+        "disconnect_calls": [
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066": {
+            "closed": false,
+            "pending_permit": false,
+            "task_done": null
+          }
+        },
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.155,
+          "created_at": "2026-10-06 15:33:18.880306+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 0,
+          "total_connections": 1,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "fresh_real_file_rows": 2,
+      "initial_rows": null,
+      "observer_final_cleanup": {
+        "actual_handles_without_disconnect_confirmation": [],
+        "available_permits": 1,
+        "confirmed_disconnects": [
+          "b9963a50-782c-4cd0-88b3-a74e36beab44",
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066"
+        ],
+        "disconnect_calls": [
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066",
+          "b9963a50-782c-4cd0-88b3-a74e36beab44",
+          "056e0d3a-6ea7-44d8-9e0b-443f2cc4d066"
+        ],
+        "jsonl_open_fds": [],
+        "pending_cleanup": {},
+        "pool_closed": true,
+        "registry_pending_owner_count": 0,
+        "stats": {
+          "acquire_wait_time_total_ms": 0.155,
+          "created_at": "2026-10-06 15:33:18.880306+00:00",
+          "failed_health_checks": 0,
+          "idle_connections": 0,
+          "in_use_connections": 0,
+          "max_size": 1,
+          "pool_id": "stream-stream.jsonl-events",
+          "total_acquires": 1,
+          "total_closes": 1,
+          "total_connections": 0,
+          "total_creates": 1,
+          "total_health_checks": 1,
+          "total_releases": 1
+        }
+      },
+      "primary_exception_is_injected": false,
+      "primary_exception_type": "RuntimeError",
+      "primary_notes": [],
+      "same_pool_acquire": "PoolClosedError",
+      "stage": "process-disconnect-failure"
+    }
+  ],
+  "direct_observation": {
+    "after": {
+      "active": [],
+      "pending": [],
+      "permits": 1,
+      "session_closed": true
+    },
+    "before": {
+      "active": [
+        "fc036e78-9302-4473-a47e-e1760c5b9a8b"
+      ],
+      "pending": [
+        "fc036e78-9302-4473-a47e-e1760c5b9a8b"
+      ],
+      "session_closed": false
+    }
+  },
+  "native_wrapper": {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-c",
+      "import hashlib,json,pathlib,pytest\nfrom polisyos.fabric.connectors import pool\nfrom polisyos.fabric.data_plane import streaming,cursor_store\nfrom polisyos.fabric.connectors.sources import event_stream\nexpected={pool: \"0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35\",streaming:\"aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3\",cursor_store:\"e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405\",event_stream:\"63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48\"}\nfor module,digest in expected.items():\n p=pathlib.Path(module.__file__).resolve(); actual=hashlib.sha256(p.read_bytes()).hexdigest(); print(\"B87_ACTUAL_SOURCE\",json.dumps({\"module\":module.__name__,\"origin\":str(p),\"sha256\":actual}),flush=True); assert str(p).startswith(\"/workspace/e02-B-current-coordination/policy-engine/src/\") and actual==digest\nraise SystemExit(pytest.main([\"-vv\",\"-s\",\"/workspace/e02-B-current-durability/policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py\",\"--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/pytest\",\"-o\",\"cache_dir=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/cache\",\"--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/native.xml\"]))"
+    ],
+    "cwd": "/workspace/e02-B-current-durability/policy-engine",
+    "target_test_sha": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+    "product_source_sha": "f131958a71413154785823abeb0765d40499bad2",
+    "actual_heads_before": {
+      "own": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+      "root": "48e1f7170b04f1362e9b7e1d9b74eb9763151830"
+    },
+    "actual_heads_after": {
+      "own": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+      "root": "48e1f7170b04f1362e9b7e1d9b74eb9763151830"
+    },
+    "exit": 1,
+    "wall_s": 2.7074725440033944,
+    "maxrss_kib": 200672,
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+      "POLISYOS_METRICS_PORT": "0",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+    },
+    "stdout": {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/b87-cleanup-a6/native.txt",
+      "bytes": 40439,
+      "sha256": "a457b623d95800965be657f2f4cae8723e4d2e15d5bd0ef1bc429b064b67252f"
+    },
+    "profile": "Same native process imports and binds actual four root-backed modules before pytest; no code overlays, no process/worker/thread quota. Real connector-stage faults and observation of actual pool only."
+  },
+  "limitations": [
+    "Author execution is inspected, not replayed by reviewer.",
+    "New session uses a new pool; old closed pool is not reopened.",
+    "EventStreamConnector holds no persistent FD; no FD leak inferred.",
+    "Caller cancellation is gated before the file generator reads.",
+    "No close_stream-specific fault or repeated cancellation claim.",
+    "Four module identities observed; full nested import trace not captured."
+  ]
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "damage": "corrupt_bytes",
+    "ref": {
+      "artifact_id": "sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "kind": "probe.bytes",
+      "media_type": "text/plain"
+    },
+    "report": {
+      "ok": false,
+      "artifact_id": "sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "expected_sha256_hex": "0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "actual_sha256_hex": null,
+      "byte_size": null,
+      "error": "Blob sha256 mismatch for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5: 7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f",
+      "manifest_sha256": null,
+      "manifest_profile_sha256": null
+    },
+    "actual_snapshot_expected": {
+      "sha256": "7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f",
+      "byte_size": 11
+    },
+    "consumer_results": {
+      "get_bytes": {
+        "state": "refused",
+        "exception": "ArtifactIntegrityError",
+        "error": "Blob sha256 mismatch for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5: 7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f"
+      },
+      "integrity_proof": {
+        "state": "refused",
+        "exception": "ArtifactIntegrityError",
+        "error": "Blob sha256 mismatch for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5: 7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f"
+      }
+    }
+  },
+  {
+    "damage": "wrong_selected_size",
+    "ref": {
+      "artifact_id": "sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "kind": "probe.bytes",
+      "media_type": "text/plain",
+      "manifest_profile_sha256": "sha256:60674bbe044b4548dd901aab1bacd70ed83eeeae53d7a8dc7b3ddb8764d52a88"
+    },
+    "report": {
+      "ok": false,
+      "artifact_id": "sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "expected_sha256_hex": "0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "actual_sha256_hex": null,
+      "byte_size": null,
+      "error": "Manifest byte_size mismatch for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5: expected 100, got 8",
+      "manifest_sha256": null,
+      "manifest_profile_sha256": null
+    },
+    "actual_snapshot_expected": {
+      "sha256": "0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "byte_size": 8
+    },
+    "consumer_results": {
+      "get_bytes": {
+        "state": "refused",
+        "exception": "ArtifactIntegrityError",
+        "error": "Manifest byte_size mismatch for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5: expected 100, got 8"
+      },
+      "integrity_proof": {
+        "state": "refused",
+        "exception": "ArtifactIntegrityError",
+        "error": "Manifest byte_size mismatch for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5: expected 100, got 8"
+      }
+    }
+  },
+  {
+    "damage": "invalid_manifest",
+    "ref": {
+      "artifact_id": "sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "kind": "probe.bytes",
+      "media_type": "text/plain"
+    },
+    "report": {
+      "ok": false,
+      "artifact_id": "sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "expected_sha256_hex": "0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "actual_sha256_hex": null,
+      "byte_size": null,
+      "error": "5 validation errors for ArtifactManifest\nartifact_id\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nkind\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nmedia_type\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nbyte_size\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nintegrity\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing",
+      "manifest_sha256": null,
+      "manifest_profile_sha256": null
+    },
+    "actual_snapshot_expected": {
+      "sha256": "0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+      "byte_size": 8
+    },
+    "consumer_results": {
+      "get_bytes": {
+        "state": "refused",
+        "exception": "ValidationError",
+        "error": "5 validation errors for ArtifactManifest\nartifact_id\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nkind\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nmedia_type\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nbyte_size\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nintegrity\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing"
+      },
+      "integrity_proof": {
+        "state": "refused",
+        "exception": "ValidationError",
+        "error": "5 validation errors for ArtifactManifest\nartifact_id\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nkind\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nmedia_type\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nbyte_size\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nintegrity\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing"
+      }
+    }
+  }
+]
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/reproduce.py", line 46, in <module>
+    assert all(row['report']['actual_sha256_hex'] == row['actual_snapshot_expected']['sha256'] and row['report']['byte_size'] == row['actual_snapshot_expected']['byte_size'] for row in rows), 'B152 failure snapshot witness missing despite real byte read and typed refusal'
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: B152 failure snapshot witness missing despite real byte read and typed refusal

@@ -96,9 +96,7 @@ class TestSerializeOutcome:
         branch.params["same"] = 4
         del branch.params["stale"]
 
-        restored = deserialize_outcome(
-            serialize_outcome(NodeOutcome(status="ok", state=branch))
-        )
+        restored = deserialize_outcome(serialize_outcome(NodeOutcome(status="ok", state=branch)))
         journal = mutation_journal_for_state(restored.state)
         assert journal is not None
         assert [(row.path, row.operation, row.value) for row in journal.operations] == [
@@ -107,9 +105,14 @@ class TestSerializeOutcome:
         ]
 
         plain = NodeOutcome(status="ok", state=ExperimentState(run_id="plain-outcome"))
-        plain_wire = json.loads(serialize_outcome(plain))
+        plain_wire = json.loads(serialize_outcome(plain))["value"]
         assert set(plain_wire) == {
-            "status", "state", "artifacts", "events", "error", "skip_blocker"
+            "status",
+            "state",
+            "artifacts",
+            "events",
+            "error",
+            "skip_blocker",
         }
         assert deserialize_outcome(serialize_outcome(plain)).state.run_id == "plain-outcome"
 
@@ -121,6 +124,7 @@ class TestSerializeOutcome:
         branch = branch_state(source, write_paths=("params",)).state
         branch.params["value"] = 2
         payload = json.loads(serialize_outcome(NodeOutcome(status="ok", state=branch)))
+        payload = payload["value"]
         mutation = payload["state_mutations"][0]["value"]
         if invalid_mutation == "extra":
             mutation["unexpected"] = True
@@ -392,7 +396,10 @@ def test_output_aware_decoder_preserves_ordinary_wire_and_live_identity(tmp_path
         "error": None,
         "skip_blocker": None,
     }
-    assert serialize_outcome(ordinary) == serialization_module._dumps(expected)
+    assert serialize_outcome(ordinary) == serialization_module._dumps(
+        {"wire_schema": "polisyos.scientist.outcome_wire.v2", "value": expected}
+    )
+    assert type(deserialize_outcome(serialization_module._dumps(expected))) is NodeOutcome
     assert type(deserialize_outcome(serialize_outcome(ordinary))) is NodeOutcome
     assert decode_node_outcome(ordinary) is ordinary
     aware = _output_aware_transport_outcome(FileSystemCAS(tmp_path))

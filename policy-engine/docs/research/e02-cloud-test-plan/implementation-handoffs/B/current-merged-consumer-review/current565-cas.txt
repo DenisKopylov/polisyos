@@ -1,0 +1,843 @@
+...........FFFFFFF.........FFFFF...............................F......FF [ 92%]
+.....F                                                                   [100%]
+=================================== FAILURES ===================================
+__ test_archive_refuses_nonregular_final_path_before_staging[regular_symlink] __
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula0')
+kind = 'regular_symlink'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52871d50>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+>               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = <multiprocessing.connection.Connection object at 0x7fea62f63e00>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=18)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+_ test_archive_refuses_nonregular_final_path_before_staging[dangling_symlink] __
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula1')
+kind = 'dangling_symlink'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52bfec60>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+>               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = <multiprocessing.connection.Connection object at 0x7fea52879bd0>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=20)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+_______ test_archive_refuses_nonregular_final_path_before_staging[fifo] ________
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula2')
+kind = 'fifo'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52bffc50>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+>               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = <multiprocessing.connection.Connection object at 0x7fea52869480>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=22)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+______ test_archive_refuses_nonregular_final_path_before_staging[socket] _______
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula3')
+kind = 'socket'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52a5d2b0>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+>               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = <multiprocessing.connection.Connection object at 0x7fea52866e00>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=25)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+_____ test_archive_refuses_nonregular_final_path_before_staging[directory] _____
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_archive_refuses_nonregula4')
+kind = 'directory'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52a5de10>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "directory"]
+    )
+    def test_archive_refuses_nonregular_final_path_before_staging(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "cas")
+        old = _put(source, OLD)
+        _put(source, NEW)
+        referent = tmp_path / "old-package.tar.gz"
+        source.export_subgraph([old], referent)
+        old_bytes = referent.read_bytes()
+        target = tmp_path / "alias.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            target.symlink_to(referent)
+        elif kind == "dangling_symlink":
+            target.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(target)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            original_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(target.name)
+            monkeypatch.chdir(original_cwd)
+        else:
+            target.mkdir()
+        before = target.lstat()
+        try:
+            context = multiprocessing.get_context("spawn")
+            parent, child = context.Pipe()
+            process = context.Process(
+                target=_archive_path_probe, args=(str(source.root), str(target), child)
+            )
+            process.start()
+            try:
+>               assert parent.poll(20), "path probe did not start"
+E               AssertionError: path probe did not start
+E               assert False
+E                +  where False = poll(20)
+E                +    where poll = <multiprocessing.connection.Connection object at 0x7fea528dcb50>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:188: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=25)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+_ test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[False] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_process_interruption_afte0')
+compress = False
+
+    @pytest.mark.parametrize("compress", [False, True])
+    def test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation(
+        tmp_path: Path,
+        compress: bool,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        old = _put(store, OLD)
+        _put(store, NEW)
+        target = tmp_path / ("export.tar.gz" if compress else "export")
+        store.export_subgraph([old], target, compress=compress)
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_pause_after_publication_syscall,
+            args=(str(store.root), str(target), compress, child),
+        )
+        process.start()
+        try:
+>           assert parent.poll(20), "producer did not reach its real publication syscall"
+E           AssertionError: producer did not reach its real publication syscall
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = <multiprocessing.connection.Connection object at 0x7fea528daf30>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:287: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=28)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+_ test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[True] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_process_interruption_afte1')
+compress = True
+
+    @pytest.mark.parametrize("compress", [False, True])
+    def test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation(
+        tmp_path: Path,
+        compress: bool,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        old = _put(store, OLD)
+        _put(store, NEW)
+        target = tmp_path / ("export.tar.gz" if compress else "export")
+        store.export_subgraph([old], target, compress=compress)
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_pause_after_publication_syscall,
+            args=(str(store.root), str(target), compress, child),
+        )
+        process.start()
+        try:
+>           assert parent.poll(20), "producer did not reach its real publication syscall"
+E           AssertionError: producer did not reach its real publication syscall
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = <multiprocessing.connection.Connection object at 0x7fea52a5fcb0>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:287: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=30)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+_ test_import_archive_binds_the_supplied_regular_path_before_streaming[regular_symlink] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_0')
+kind = 'regular_symlink'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52ac0750>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+>           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = <multiprocessing.connection.Connection object at 0x7fea5294e9c0>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=32)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+_ test_import_archive_binds_the_supplied_regular_path_before_streaming[dangling_symlink] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_1')
+kind = 'dangling_symlink'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52ac0520>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+>           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = <multiprocessing.connection.Connection object at 0x7fea528ca750>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=34)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+__ test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo] __
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_2')
+kind = 'fifo'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52ac1f60>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+>           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = <multiprocessing.connection.Connection object at 0x7fea528c7a10>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=36)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+_ test_import_archive_binds_the_supplied_regular_path_before_streaming[socket] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_3')
+kind = 'socket'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52ac2270>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+>           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = <multiprocessing.connection.Connection object at 0x7fea52a6fa70>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=39)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+_ test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo_at_open] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_archive_binds_the_4')
+kind = 'fifo_at_open'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea52a71b00>
+
+    @pytest.mark.parametrize(
+        "kind", ["regular_symlink", "dangling_symlink", "fifo", "socket", "fifo_at_open"]
+    )
+    def test_import_archive_binds_the_supplied_regular_path_before_streaming(
+        tmp_path: Path, kind: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        source = FileSystemCAS(tmp_path / "source")
+        incoming = _put(source, NEW)
+        legitimate = source.export_subgraph([incoming], tmp_path / "legitimate.tar.gz").output_path
+        legitimate_bytes = legitimate.read_bytes()
+        alias = tmp_path / "input.tar.gz"
+        sock = None
+        if kind == "regular_symlink":
+            alias.symlink_to(legitimate)
+        elif kind == "dangling_symlink":
+            alias.symlink_to(tmp_path / "absent")
+        elif kind == "fifo":
+            os.mkfifo(alias)
+        elif kind == "socket":
+            sock = socket.socket(socket.AF_UNIX)
+            previous_cwd = Path.cwd()
+            monkeypatch.chdir(tmp_path)
+            sock.bind(alias.name)
+            monkeypatch.chdir(previous_cwd)
+        else:
+            alias.write_bytes(legitimate_bytes)
+        receiver = FileSystemCAS(tmp_path / "receiver")
+        prior = _put(receiver, OLD)
+        owner_bytes = {
+            p.relative_to(receiver.root).as_posix(): p.read_bytes()
+            for p in receiver.root.rglob("*")
+            if p.is_file()
+        }
+        before = alias.lstat()
+        context = multiprocessing.get_context("spawn")
+        parent, child = context.Pipe()
+        process = context.Process(
+            target=_import_path_probe,
+            args=(str(receiver.root), str(alias), kind == "fifo_at_open", child),
+        )
+        process.start()
+        try:
+>           assert parent.poll(20), "import path probe did not start"
+E           AssertionError: import path probe did not start
+E           assert False
+E            +  where False = poll(20)
+E            +    where poll = <multiprocessing.connection.Connection object at 0x7fea52abc0d0>.poll
+
+tests/unit/core/artifacts/test_transfer_generation_publication.py:506: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=16, pipe_handle=39)
+                                                  ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+ModuleNotFoundError: No module named 'core'
+___ test_failed_reused_directory_export_preserves_prior_complete_generation ____
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_failed_reused_directory_e0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea51e23310>
+
+    def test_failed_reused_directory_export_preserves_prior_complete_generation(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A failed replacement leaves the previously published directory intact."""
+        import polisyos.core.artifacts._transfer_ops as transfer_ops
+    
+        source = FileSystemCAS(tmp_path / "source")
+        artifact_a = source.put_bytes(PAYLOAD_A, _options())
+        artifact_b = source.put_bytes(PAYLOAD_B, _options())
+        export_root = tmp_path / "reused-export"
+    
+        source.export_subgraph([artifact_a.artifact_id], export_root, compress=False)
+        prior_members = {
+            path.relative_to(export_root): path.read_bytes()
+            for path in export_root.rglob("*")
+            if path.is_file()
+        }
+    
+        def fail_replacement_copy(*_args: object, **_kwargs: object) -> None:
+            raise OSError("injected replacement copy failure")
+    
+        monkeypatch.setattr(transfer_ops.shutil, "copy2", fail_replacement_copy)
+    
+>       with pytest.raises(OSError, match="replacement copy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'OSError'>
+
+tests/unit/remediation/test_cas_02.py:207: Failed
+________________ test_import_enforces_existing_tenant_ownership ________________
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_enforces_existing_0')
+
+    def test_import_enforces_existing_tenant_ownership(tmp_path: Path) -> None:
+        """A tenant cannot import over an artifact owned by another tenant."""
+        source = FileSystemCAS(tmp_path / "source")
+        source_ref = source.put_bytes(PAYLOAD_A, _options())
+        export = source.export_subgraph(
+            [source_ref.artifact_id],
+            tmp_path / "tenant.tar.gz",
+        )
+    
+        shared_root = tmp_path / "shared"
+        tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+        tenant_a.put_bytes(PAYLOAD_A, _options())
+        tenant_b = FileSystemCAS(shared_root, tenant_id="tenant-b")
+    
+>       with pytest.raises(PermissionError, match="not owned by tenant"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'PermissionError'>
+
+tests/unit/remediation/test_cas_02.py:420: Failed
+_________ test_import_rejects_a_selected_view_bound_to_another_tenant __________
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_rejects_a_selected0')
+
+    def test_import_rejects_a_selected_view_bound_to_another_tenant(tmp_path: Path) -> None:
+        """An archive cannot transfer authority-bound tenant metadata by byte possession."""
+        source = FileSystemCAS(tmp_path / "source", tenant_id="tenant-a")
+        source_ref = source.put_bytes(
+            PAYLOAD_A,
+            PutOptions(
+                kind="tests.cas02.tenant-bound",
+                media_type="application/octet-stream",
+                tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-a"),
+            ),
+        )
+        export = source.export_subgraph(
+            [source_ref],
+            tmp_path / "tenant-bound-view.tar.gz",
+        )
+        target = FileSystemCAS(tmp_path / "target", tenant_id="tenant-b")
+    
+>       with pytest.raises(PermissionError, match="bound to a different tenant"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'PermissionError'>
+
+tests/unit/remediation/test_cas_02.py:441: Failed
+_______ test_import_rolls_back_new_generation_on_mid_publication_failure _______
+
+tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest/test_import_rolls_back_new_gen0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fea51efa740>
+
+    def test_import_rolls_back_new_generation_on_mid_publication_failure(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A failed write cannot leave a partially accepted multi-artifact generation."""
+        source = FileSystemCAS(tmp_path / "source")
+        first = source.put_bytes(PAYLOAD_A, _options())
+        second = source.put_bytes(PAYLOAD_B, _options())
+        export = source.export_subgraph(
+            [first.artifact_id, second.artifact_id],
+            tmp_path / "mid-publication.tar.gz",
+        )
+        target = FileSystemCAS(tmp_path / "target")
+        original_write_once = target._files.write_once
+        writes = 0
+    
+        def fail_on_third_write(path: Path, data: bytes) -> bool:
+            nonlocal writes
+            writes += 1
+            if writes == 3:
+                raise OSError("injected mid-publication failure")
+            return original_write_once(path, data)
+    
+        monkeypatch.setattr(target._files, "write_once", fail_on_third_write)
+    
+>       with pytest.raises(OSError, match="mid-publication"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'OSError'>
+
+tests/unit/remediation/test_cas_02.py:585: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_archive_refuses_nonregular_final_path_before_staging[regular_symlink]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_archive_refuses_nonregular_final_path_before_staging[dangling_symlink]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_archive_refuses_nonregular_final_path_before_staging[fifo]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_archive_refuses_nonregular_final_path_before_staging[socket]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_archive_refuses_nonregular_final_path_before_staging[directory]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[False]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[True]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_import_archive_binds_the_supplied_regular_path_before_streaming[regular_symlink]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_import_archive_binds_the_supplied_regular_path_before_streaming[dangling_symlink]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_import_archive_binds_the_supplied_regular_path_before_streaming[socket]
+FAILED tests/unit/core/artifacts/test_transfer_generation_publication.py::test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo_at_open]
+FAILED tests/unit/remediation/test_cas_02.py::test_failed_reused_directory_export_preserves_prior_complete_generation
+FAILED tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership
+FAILED tests/unit/remediation/test_cas_02.py::test_import_rejects_a_selected_view_bound_to_another_tenant
+FAILED tests/unit/remediation/test_cas_02.py::test_import_rolls_back_new_generation_on_mid_publication_failure

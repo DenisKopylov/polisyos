@@ -264,13 +264,13 @@
       "finding_id": "LA-031",
       "recorded_status": "held",
       "candidate_observation": "The test now compares direct builder bytes against registered D0/P0, D1, D2, D4, and D5 routes, covering the five declared direct importers. D5 created_at and the release handoff digest receive the explicitly disclosed JSON compare projection below; all other output bytes/directory members are compared directly.",
-      "new_verdict": "candidate five-importer registered parity witness passes; status remains held pending independent review and any remaining full-candidate criteria; D3-only parity is not used"
+      "new_verdict": "Independent review reports GO for the six registered-stage parity/readback scope across the slice base and candidate, including the five direct common importers and the bounded D3 route; the D4 public CAS readback is included. This verdict is limited to LA-031 parity, does not rewrite the historical ledger, and needs no split for this finding. Review receipt: root rawobs-parity-review."
     },
     {
       "finding_id": "LA-032",
       "recorded_status": "held",
-      "candidate_observation": "All four public reader forms share a per-call immutable old/new layout selection over targets and priors plus optional donor; mixed/incomplete/corrupt/shape-invalid members fail closed. GenerationBasis binds only the bytes selected in this call.",
-      "new_verdict": "held / producer_missing for the whole persisted-inventory capability; independent selector consistency is candidate code only"
+      "candidate_observation": "All four public reader forms share a per-call immutable old/new layout selection over targets and priors plus optional donor; mixed/incomplete/corrupt/shape-invalid members fail closed. GenerationBasis binds only the bytes selected in this call. A complete tracked-tree census found the target/prior/donor AssetKeys and schema ids only in declarative registration/export paths, reader code, and tests; no callable source producer/materializer writes the demographic snapshot or its persisted inventory.",
+      "new_verdict": "Held / producer_missing, bridge_missing and verification_missing for the persisted-inventory capability. The independent selector is candidate code only; no source producer, persisted inventory, ArtifactRecord/BuildRunManifest chain, or public read_api replay of that producer record is present."
     }
   ],
   "checks": [
@@ -388,6 +388,13 @@
       "outcome": "BLOCKED_BY_MISSING_TOOL; bypassed only after documenting nonreceipt",
       "output": "PolicyOS hook: missing binary: /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine.",
       "config_effect": "The configured pre-commit entries are dashboard prettier/eslint plus two dashboard design checks. The staged Python-only files do not match the format/lint globs. Installation/build was prohibited. The code commit therefore used a one-command `git -c core.hooksPath=/dev/null commit`; this hook check is not reported as passed."
+    },
+    {
+      "gate": "shared pre-commit Lefthook wrapper on the post-freeze handoff update",
+      "command": "git -c core.hooksPath=/dev/null commit -m 'Record demographic producer census handoff'",
+      "outcome": "BYPASSED_AFTER_PRIOR_MISSING_TOOL_NONRECEIPT",
+      "output": "The same worktree-specific missing Lefthook binary is recorded above; no hook invocation or new hook receipt was produced for this handoff commit.",
+      "config_effect": "This commit changes only the handoff JSON. JSON parsing, census path/hash/size readback and git diff --check passed; no product test, dashboard lint or hook result is claimed."
     }
   ],
   "property": {
@@ -434,16 +441,38 @@
     "B147": "candidate private-snapshot/resume implementation and focused semantic tests; production-scale/remote behavior unestablished",
     "LA-029": "candidate installed CLI gate-route test; server lifecycle verification_missing",
     "LA-030": "candidate registered D4 -> persisted manifest/artifact -> verified read_api/consumer chain; broader pipeline/governance run out_of_scope",
-    "LA-031": "candidate registered five-importer parity witness; finding remains held pending independent review and final closure-owner adjudication",
-    "LA-032": "held; producer_missing and bridge_missing for the authoritative versioned inventory; per-call reader selector is not persisted producer inventory"
+    "LA-031": "independent GO for the reviewed six-route registered parity/readback scope; historical ledger status remains unchanged pending closure-owner adjudication",
+    "LA-032": "held; producer_missing, bridge_missing and verification_missing for authoritative versioned inventory; C-W19 is accountable closure owner; per-call reader selector is not persisted producer inventory"
   },
   "missing_owners_and_supplier_contracts": [
     {
       "finding_id": "LA-032",
-      "status": "held / producer_missing",
-      "missing": "No canonical demographic source producer and no appointed inventory/schema-version owner are evidenced in this slice. Do not have a reader fabricate authoritative inventory or version identifiers.",
-      "supplier_contract": "The appointed source owner must supply a persisted versioned inventory covering required targets and priors plus optional donor presence or explicit absence; include actual schema/data version identifiers, exact relative member paths, sha256 and byte size, layout/profile, producer/rule identity, provenance, and relevant data-time semantics. A producer must reconcile required-set completeness and persist this inventory atomically with the member generation. All four actual read paths must resolve the same inventory, verify all referenced member bytes against it, and refuse missing, corrupt, mixed-layout, unknown-version or shape-incompatible members. The current GenerationBasis helper can content-bind bytes selected by a reader, but does not establish source completeness, producer authority, or a data version.",
-      "minimum_closure_signal": "A real producer writes one persisted inventory with both required members and optional-donor state; composite plus targets/prior/donor public readers reopen that inventory and its exact bytes; negative tests falsify completeness/version/member references and all fail closed."
+      "status": "held / producer_missing + bridge_missing + verification_missing; accountable bundle owner C-W19",
+      "missing": "Coverage assigns UDF-05 / LA-032 to C-W19 as the accountable closure owner. The complete tracked-tree census at 5afffab19c30d88f6522ca397f622ef9a3135646 (tree 133dc65fb915e80d404893a42ec4fd45c9317a4f) found no runtime producer for authoritative demographic targets, transition priors, donor input, or a versioned inventory. `assets.py` declares keys/schema ids but AssetSpec is declarative and has no materializer; matching tracked JSON members are only baseline/candidate test fixtures. The actual canonical source authority and its producer are not identified in this repository slice. Exact missing inputs are source-backed state target totals and transition priors; optional donor contents or authoritative absence; producer identity/rule version; schema and data version identifiers; canonical layout/member paths; provenance; and relevant data-time semantics. C-W19 remains accountable to obtain these from the source/data authority. Do not invent a reader producer, source completeness, or version identifiers.",
+      "supplier_contract": "C-W19 must identify the canonical demographic source/data authority and use the existing Data Forge generation-basis/CAS boundary once that authority supplies the inputs and version semantics. The minimum source input is explicit source-backed state target totals and transition priors, optional donor contents or authoritative absence, plus producer/rule identity, schema/data versions, canonical member paths/layout, provenance and relevant time semantics. Use explicit source ArtifactRecord refs or bounded synthetic test fixtures; no default production database is a substitute, and if an explicit source/CAS backend is unavailable the finding stays held. The producer must atomically persist one inventory for each generated snapshot covering required targets and priors plus explicit optional-donor presence/absence, exact relative paths, sha256 and byte size for every present member, layout/profile, schema/data versions, producer/rule identity, provenance, and relevant time semantics. It must emit the normal ArtifactRecord/BuildRunManifest that points to these persisted bytes. Composite and each of the three sibling public readers must resolve the same inventory record, reopen and verify the exact member bytes, and refuse missing/corrupt/mixed-layout/unknown-version/shape-incompatible content. Reuse the current GenerationBasis helper only for its declared content-binding role; its reader-computed basis does not establish source completeness, authority, or data version. `kernel/io/generation_basis.py` is owned by the separate DFI/EMB writer and is not part of this edit.",
+      "minimum_closure_signal": "C-W19 identifies the source authority and exact minimum inputs/version contract; a real producer writes the versioned inventory and registered ArtifactRecord/BuildRunManifest from those inputs; composite plus targets/prior/donor public read_api forms reopen the same record and exact bytes; negative tests falsify completeness, version, member references, mixed layout and corrupt bytes and all fail closed while optional-donor absence and static-aging controls retain their declared behavior.",
+      "producer_census": {
+        "target_commit": "5afffab19c30d88f6522ca397f622ef9a3135646",
+        "target_tree": "133dc65fb915e80d404893a42ec4fd45c9317a4f",
+        "denominator": {
+          "tracked_tree_entries": 13699,
+          "source_code": 7788,
+          "configuration": 3409,
+          "documentation": 2254,
+          "data_or_binary": 21,
+          "other_tracked": 227,
+          "gitlinks": 0,
+          "symlinks": 0
+        },
+        "source_input_findings": "The six tracked files matching new-layout member paths are baseline/candidate test fixtures under tests/_data/data_forge/ukraine_shadow; there are no tracked production targets/prior/donor input files. Exact target/prior/donor path, legacy path, payload field, AssetKey, schema id, and four-reader searches were run over the full tracked tree. A producer-expression search covered every tracked source-code suffix path; surviving code matches are asset registration/exports, the four readers/validators, static-aging and unrelated downstream Foundry consumers, and tests. Direct inspection of AssetSpec/AssetGroup confirms these registrations bind no materializer, and builders/demography.py writes household/labor/observation contracts rather than the target/prior/donor snapshot.",
+        "raw_full_census_path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/source-census.json",
+        "raw_full_census_sha256": "2c2492df88d84a12f071c5c81de00cca7ce2c44705142fa2b8a35d9a9d2102f5",
+        "raw_full_census_size_bytes": 10573776,
+        "census_script_path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/census.py",
+        "census_script_sha256": "087b6d6514662eb47d98c5c1318e0dee5a908eaf674e4ffd7c281cc5013a2728",
+        "tracked_tree_listing_path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/tracked-tree.stdout.nul",
+        "tracked_tree_listing_sha256": "bf30964b32829c87d191f8f0c3b92d2673f2721e1ad47e8b7575a56ba86998f8"
+      }
     },
     {
       "finding_id": "LA-029",
@@ -453,25 +482,26 @@
     },
     {
       "finding_id": "LA-031",
-      "status": "held pending review/adjudication",
-      "missing": "The new witness supplies registered parity for the five named direct importers. It does not independently establish that the declared five-member importer set is complete across every future/dynamic import route or settle all migration owner criteria. Keep the five-stage receipt and ask the closure owner to adjudicate; do not substitute D3 parity."
+      "status": "historically held; independent review GO on bounded parity/readback scope",
+      "missing": "The root rawobs-parity-review independently accepted all six registered-stage parity/readback routes across the slice base and candidate, including D0/P0, D1, D2, D3, D4 and D5, with public CAS readback. The historical ledger remains unchanged until closure-owner adjudication; no additional C code or split is needed for LA-031."
     }
   ],
   "pattern_pass": {
-    "relevant_ids": ["P01", "P02", "P04", "P08", "P29", "P31", "P32", "P37", "P38", "P41"],
+    "relevant_ids": ["P01", "P02", "P04", "P08", "P29", "P31", "P32", "P35", "P37", "P38", "P41"],
     "anti_patterns_found": [
       "Independent first-existing demographic readers could select sibling files from different layouts.",
       "A per-run streaming reader could resume against a changed source path rather than an immutable run snapshot.",
-      "Import/export and D3-only parity checks did not prove the five actual registered-stage paths.",
+      "Import/export and D3-only parity checks did not prove the five actual registered-stage paths; the six-route registered parity/readback scope is now independently accepted.",
       "A fake CLI subprocess can witness argv/cwd/env but can be mistaken for a real server lifecycle receipt.",
-      "A reader-computed basis can be mistaken for a producer-backed complete inventory."
+      "A reader-computed basis can be mistaken for a producer-backed complete inventory.",
+      "AssetSpec/AssetGroup declarations can be mistaken for executable source producers or materializers."
     ],
-    "target_pattern": "One per-run immutable observation source copy with confirmed cursor; one shared selector chokepoint for all demographic readers; run the real registered D0/P0,D1,D2,D4,D5 routes and reopen persisted output records; keep fake-process and persisted producer-inventory claims at their actual evidence grades.",
+    "target_pattern": "One per-run immutable observation source copy with confirmed cursor; one shared selector chokepoint for all demographic readers; preserve the independent six-route registered parity/readback verdict; keep fake-process claims at their evidence grade; for LA-032, require a source-authoritative producer, persisted versioned inventory, registered ArtifactRecord/BuildRunManifest and four public reader reopens before closure.",
     "remaining_capability_labels": ["producer_missing", "bridge_missing", "verification_missing", "not_established"],
-    "acceptance_signal": "Semantic negative controls pass at the shared selector and resume path; all five registered stage outputs are compared against canonical builders; no held finding is promoted by code or test presence alone."
+    "acceptance_signal": "Semantic negative controls pass at the shared selector and resume path; the six-route registered parity/readback scope is independently accepted; C-W19 identifies authoritative demographic source inputs/version semantics and the real producer persists an inventory through ArtifactRecord/BuildRunManifest for all four public readers; no held finding is promoted by code or test presence alone."
   },
   "authority_purpose": "Candidate implementation and review handoff only; it changes no residual ledger status and asserts no finding closure.",
-  "review_status": "Independent demography review requested from parent after frozen implementation SHA 5a75b004e0d17c80f1d156df84db7a12a9274c9e; not yet received at handoff authoring time.",
+  "review_status": "This update records the root rawobs-parity-review GO for LA-031; it does not claim an independent review of the LA-032 source census. Demography review remains a separate post-freeze action for implementation SHA 5a75b004e0d17c80f1d156df84db7a12a9274c9e.",
   "provenance": {
     "implementation_commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
     "implementation_tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc",

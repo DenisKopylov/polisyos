@@ -10,9 +10,14 @@ not appoint an evidence issuer or authorize production observations.
 ## Restore and refusal
 
 Use the existing `StrategyState` artifact codec and the receiving strategy's
-`set_state` entry point. GP continuation requires `gp_state_version=3`, the saved
-fitted model and transforms, complete warm-row content, corpus identity, numerical
-target and supported backend fingerprint. RL continuation requires its supported
+`set_state` entry point. The current GP continuation profile requires
+`gp_state_version=4`, the saved fitted model and transforms, original fitted
+evaluation payloads with ordered IDs and raw X/Y, complete warm-row content,
+numerical target and supported backend fingerprint. Restore re-admits transferred
+fitted and warm rows through the configured CAS reader and checks their numeric
+association before constructing the model. The initial published GP26 witness
+measured the historical profile 3; it does not establish profile 4 execution.
+Profiles 1 through 3 are refused by the current receiver. RL continuation requires its supported
 wrapper version, `linear_decay.v1` schedule and nested base state. Incomplete older
 profiles are refused; there is no lossless automatic migration for missing fitted
 parameters or RNG state.
@@ -23,6 +28,13 @@ starting a new search is acceptable, create a fresh run and re-admit any retaine
 observations through the existing configured numerical basis or CAS admission
 reader. Treat that operation as a new run, not a continuation or a recovered RNG
 stream. Do not edit version, basis or backend markers to force restoration.
+
+The internal generator wrapper `bayesian_candidate_generator.v2` also retains
+indexed converted current-history rows and their full transfer references.
+Historical wrapper v1 lacks that custody and is refused. Configure the paired
+transfer bridge and target before activity, retain the converted history prefix,
+and use its ordinary `get_state`/`set_state` boundary. A local digest or a fitted
+row ID without the matching original numeric row does not supply source custody.
 
 Pareto readers accept declared front/snapshot versions `1.0` and `2.0`; unknown
 versions refuse. Version `2.0` carries explicit input assessment and nullable

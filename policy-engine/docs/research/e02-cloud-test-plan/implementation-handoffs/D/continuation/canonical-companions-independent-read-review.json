@@ -1,0 +1,115 @@
+{
+  "schema_version": "independent-canonical-companion-review.v1",
+  "reviewer": "/root/numerical_oracle",
+  "scope": "Read-only available canonical B04/B19/B23 and child classification disposition; no fullgate/backend/test rerun",
+  "integration_audit_pin": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "historical_quality_payload": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+  "historical_executed_source": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "full_output_bindings": {
+    "B04": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity/actual-complete-logs/B04.txt",
+      "bytes": 1494,
+      "sha256": "025fdd295a2336e97cf5cddae1afc31f0f3f24bea97a3f34586897a4152d6e1e"
+    },
+    "B23": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity/actual-complete-logs/B23.txt",
+      "bytes": 2589,
+      "sha256": "459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be"
+    }
+  },
+  "source_byte_bindings": {
+    "policy-engine/tools/quality/diagnostics/check_state_reads.py": {
+      "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973": "d29463920cd5c5850a0e674e669d958077c0c7b01af0d496bea66745bf51ba47",
+      "363e7ae0cb2929a92d9667334fdc0ac3087daf5e": "d29463920cd5c5850a0e674e669d958077c0c7b01af0d496bea66745bf51ba47",
+      "a70fa4d866ced24c2fac546bd684af9c5cfd61a1": "d29463920cd5c5850a0e674e669d958077c0c7b01af0d496bea66745bf51ba47"
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py": {
+      "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973": "12bdb46a7dc26bd4f18075ad88d054f2cd1666d3cd0e3b370314f6ee8b6f3934",
+      "363e7ae0cb2929a92d9667334fdc0ac3087daf5e": "12bdb46a7dc26bd4f18075ad88d054f2cd1666d3cd0e3b370314f6ee8b6f3934",
+      "a70fa4d866ced24c2fac546bd684af9c5cfd61a1": "12bdb46a7dc26bd4f18075ad88d054f2cd1666d3cd0e3b370314f6ee8b6f3934"
+    },
+    "policy-engine/architecture/public_surface/contract.toml": {
+      "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "363e7ae0cb2929a92d9667334fdc0ac3087daf5e": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "a70fa4d866ced24c2fac546bd684af9c5cfd61a1": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    "policy-engine/architecture/module_size_budget.toml": {
+      "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973": "07fb68f704cd4f11b7fa57683ea4ee41371319529e4248de27ab136b9caf2682",
+      "363e7ae0cb2929a92d9667334fdc0ac3087daf5e": "07fb68f704cd4f11b7fa57683ea4ee41371319529e4248de27ab136b9caf2682",
+      "a70fa4d866ced24c2fac546bd684af9c5cfd61a1": "07fb68f704cd4f11b7fa57683ea4ee41371319529e4248de27ab136b9caf2682"
+    }
+  },
+  "B04": {
+    "historical_verdict": "FAIL9undeclaredreads",
+    "one_file_current_extraction": "canonical _extract_spec_reads/_extract_execute_requirements on unchanged causalnode only, not whole-gate replay",
+    "missing_prefixes": [
+      "artifacts_index",
+      "inputs",
+      "params"
+    ],
+    "missing_paths": [
+      "params.causal_method_fqn",
+      "params.causal_method_params",
+      "params.enable_causal_refutation",
+      "params.enable_causal_sensitivity",
+      "params.random_seed",
+      "run_id"
+    ],
+    "canonical_disposition": "Existing NodeSpec _SPEC.state_reads covers execute state dependencies; node/Scientist owner reconciles actual read contract and producer-artifact-consumer evidence. No generic broad read declaration invented.",
+    "limitation": "AST static declarations do not prove executed producer authority or data-dependent behavior."
+  },
+  "B19": {
+    "historical_verdict": "FAIL77contracterrors plus6report-onlyfindings",
+    "stdout": "Empty stdout is not deciding proof; complete typed artifact below is deciding evidence.",
+    "encoded_bundle": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity-243-complete.json.gz",
+      "sha256": "2e6241fe1267ca64582cd1a78542b69048c025694cb1196d5539ce4d6799658a",
+      "raw_path": "results-v2/B19/artifacts/_build/.tmp/last-mile/module-size.json",
+      "bytes": 24136,
+      "manifest_match": true
+    },
+    "all_error_count": 77,
+    "all_finding_count": 6,
+    "error_message_counts": {
+      "validation tooling above warning threshold lacks a module-size budget": 53,
+      "validation tooling extraction target date must be today or future": 9,
+      "target_fail_closed_not_before must be today or future": 15
+    },
+    "all_error_subjects_are_validation_tools": false,
+    "canonical_disposition": "architecture/module_size_budget.toml: report-only module header team-architecture; fail-closed validation tooling scope team-devx. Missing validator budgets require actual owner/current logical lines/no-growth/extraction/target-date records, not arbitrary blanket allowance.",
+    "current_fullgate": "UNRUN; current raw full gate not executed by this reviewer. No inherited waiver."
+  },
+  "B23": {
+    "historical_verdict": "FAIL10publicationlinkviolations",
+    "measured_surface": "MkDocs publication membership, inline Markdown page/directory links, literal .yml references and reference-page metadata.",
+    "actual_errors": "Eight ADR176..179 links from by-topic/index to unpublished/excluded pages; author-measurement-instruments link excluded; migration-release-promotion relative ops/README outside published docs.",
+    "canonical_disposition": "Docs/publication owner reconciles actual nav/not_in_nav membership and allowed published links; no claim external URLs/site/CI/prose were verified.",
+    "current_fullgate": "UNRUN; no docs nav/shared edits or gate weakening."
+  },
+  "child_inventory": {
+    "contract": "architecture/public_surface/contract.toml",
+    "inventory": "architecture/public_surface/inventory.json",
+    "internal_rule": "Any polisyos module path not listed in this manifest is internal by default.",
+    "scientist_owner": "team-polisyos",
+    "scientist_export_count": 39,
+    "supported_entrypoints": [
+      "polisyos.scientist",
+      "polisyos.scientist.governance.continuous",
+      "polisyos.scientist.methods.research_dag",
+      "polisyos.scientist.replay"
+    ],
+    "search_autotune": "Unlisted child modules are internal. Scientist39 root exports do not list BGC/GP/neural classes. Existing internal __all__ is not a promotion into public_stable.",
+    "root_inventory_refresh": "Root owns post-freeze generation; gp_witness owns search facade doc/classification.",
+    "own_compatibility_companion": "a70fa4d866ced24c2fac546bd684af9c5cfd61a1 internal GP/RL/Pareto3 records + explicit supported-restore/fresh-run recipe; exact canonicalfragment validation in7d7 proof.",
+    "new_BGC_dfe_fragment": "Canonical exact _validate_fragments returns unsupported change_class internal-contract. Refusing historicalv1 wrapper is runtime-state-format breaking independently of internal surface classification; owner notified to use actual registered class/impact/docs.",
+    "BGC_fragment_status": "FAIL companion pending owner, separate from runtime14 positive."
+  },
+  "current_verdict": "Historical qualityFAIL remains explicit; bounded read-only disposition and byte integrity PASS; no closureids",
+  "closure_ids": [],
+  "limits": [
+    "No current fullquality/broadAST run, no hostedCI/site claim.",
+    "No source writes under otherowner lease, no inventory promotion or waiver.",
+    "No backend/model replay, no new caps, no deletion.",
+    "Original17bundles45findings46criterion denominator remains root-owned and unchanged."
+  ]
+}

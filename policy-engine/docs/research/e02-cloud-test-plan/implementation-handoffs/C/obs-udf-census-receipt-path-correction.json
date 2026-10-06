@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.ukraine_demography_census_receipt_path_update.v1",
+  "unit": "C",
+  "slice": "obs-udf",
+  "purpose": "Correct the private location cited for the already-complete LA-032 tracked-source census. This is receipt metadata only; no producer, selector, or product code changes are included.",
+  "source_history": {
+    "implementation_commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+    "previous_handoff_commit": "05dd5193116c1916733ae3e7a6240e86f16f1659",
+    "previous_handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json",
+    "previous_source_branch": "codex/e02-C-obs-udf-20261006",
+    "implementation_and_handoff_are_ancestors_of_destination_head": false,
+    "note": "These commits are provenance for the prior C implementation and its handoff. Neither commit is an ancestor of the destination branch; this path-correction commit does not import their product changes."
+  },
+  "destination": {
+    "branch": "codex/e02-C-continuation-20261006",
+    "head_before_this_metadata_update": "5f1fc8c8753cb89240007d933f1b19f740bccacb",
+    "tree_before_this_metadata_update": "09b501f369af20fdcaca9a5a7d6bf4422cb228a1",
+    "private_raw_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/udf-inventory-owner"
+  },
+  "receipt_files": [
+    {
+      "name": "source-census.json",
+      "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/source-census.json",
+      "bytes": 10573776,
+      "sha256": "2c2492df88d84a12f071c5c81de00cca7ce2c44705142fa2b8a35d9a9d2102f5",
+      "copied_byte_for_byte": true
+    },
+    {
+      "name": "census.py",
+      "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/census.py",
+      "bytes": 8291,
+      "sha256": "087b6d6514662eb47d98c5c1318e0dee5a908eaf674e4ffd7c281cc5013a2728",
+      "copied_byte_for_byte": true
+    },
+    {
+      "name": "tracked-tree.stdout.nul",
+      "destination_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/tracked-tree.stdout.nul",
+      "bytes": 1779072,
+      "sha256": "bf30964b32829c87d191f8f0c3b92d2673f2721e1ad47e8b7575a56ba86998f8",
+      "copied_byte_for_byte": true
+    }
+  ],
+  "original_c_created_scratch": {
+    "path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/udf-inventory-owner",
+    "preserved": true,
+    "cleanup_disposition": "C-created cleanup candidate for later Trash only after all evidence has been preserved and the destination handoff is accepted. No deletion or mutation was performed."
+  },
+  "la_032": {
+    "historical_status": "held",
+    "capability_labels": [
+      "producer_missing",
+      "bridge_missing",
+      "verification_missing"
+    ],
+    "accountable_closure_owner": "C-W19 / UDF-05",
+    "source_finding": "The census evidence establishes no tracked runtime producer/materializer for the authoritative target/prior/donor snapshot. AssetSpec/AssetGroup are declarative; matching tracked members are test fixtures. The canonical demographic source authority, producer, and version semantics remain absent from this slice.",
+    "no_ownerless_claim": "C-W19 is the assigned accountable closure owner. The identity of the external source/data authority is still unknown and must be obtained by C-W19; this is not represented as an unassigned closure bundle."
+  },
+  "verification": {
+    "byte_equality": true,
+    "hash_and_size_checked_for_each_copy": true,
+    "whole_census_rerun": false,
+    "product_tests_rerun": false,
+    "production_or_shared_database_used": false,
+    "original_source_modified_or_deleted": false
+  }
+}

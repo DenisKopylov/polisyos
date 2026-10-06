@@ -14,28 +14,10 @@
       "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-full-stdout.json"
     },
     {
-      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/flat-21.jsonl",
-      "bytes": 15371,
-      "sha256": "e27bc09b47999e4c4e17e9c9c4696d6ca50cb3a9bc3239f043cf4230ff0c6af0",
-      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/flat-21.jsonl"
-    },
-    {
-      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/historic-exe-4.jsonl",
-      "bytes": 3113,
-      "sha256": "72d9edde169ae8f14cdc3d38f8a83206a6cc93cb27e3977ed8f433733a6c4a22",
-      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/historic-exe-4.jsonl"
-    },
-    {
-      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/old-lanes-6.jsonl",
-      "bytes": 4464,
-      "sha256": "2bf813ba8079250941eb34e71c493f5a14caae79807fd22998dee35783b7fdcb",
-      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/old-lanes-6.jsonl"
-    },
-    {
-      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/old-root-1.jsonl",
-      "bytes": 717,
-      "sha256": "aa19bc21605bed27ee05df4ace826ba6b33c1e3e520b2df6491e3c1d65ddd168",
-      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/old-root-1.jsonl"
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-ledger-inputs.json",
+      "bytes": 26639,
+      "sha256": "f86af68862622bd9cd38ef2b955151e10c993c462238b784a8632b44dca40e85",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-ledger-inputs.json"
     },
     {
       "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-0.txt",
@@ -146,8 +128,9 @@
       "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/review.json"
     }
   ],
-  "files": 24,
-  "bytes": 169899,
-  "literal_writing_command": "Python inline metadata copy/build; exact executed audit scripts stored in literal-instruments.json, raw deciding originals unchanged.",
-  "no_source_or_runtime_changes": true
+  "files": 21,
+  "bytes": 172873,
+  "literal_writing_command": "Python metadata-only copy/build; exact executed audit scripts and four original custody ledgers stored as JSON literal containers. Original deciding raw files untouched.",
+  "no_source_or_runtime_changes": true,
+  "append_only_correction": "Initial artifact-manifest at004e146 included four ignored jsonl replica paths that normal git add omitted. This successor binds committed custody-ledger-inputs.json exact original bytes and actual Git file denominator instead; initial intermediate manifest is not the final portable input custody claim."
 }

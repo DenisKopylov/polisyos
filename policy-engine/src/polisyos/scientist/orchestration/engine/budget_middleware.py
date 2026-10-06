@@ -12,10 +12,8 @@ from decimal import Decimal
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedger,
-    BudgetLedgerMutationResult,
-    BudgetLedgerSnapshot,
-    BudgetResourceEvent,
-    BudgetResourceReservation,
+    BudgetLedgerSettlementOutcomeUnknownError,
+    BudgetLedgerSpendReceipt,
 )
 
 __all__ = ["BudgetMiddleware"]
@@ -43,6 +41,14 @@ class BudgetMiddleware:
             with self._lock:
                 self._budget = self._ledger.load()
         return self._budget
+
+    @property
+    def settlement_owner_identity(self) -> tuple[str, str, str]:
+        """Expose persisted ledger/contract identity without synthetic memory ownership."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("durable budget settlement requires a configured ledger")
+            return self._ledger.settlement_owner_identity
 
     def pre_check(self, alias: str, budget_key: str = "run") -> None:
         """Raise :class:`BudgetExhaustedError` if budget is exhausted."""
@@ -117,57 +123,38 @@ class BudgetMiddleware:
             self._budget = result.state
             return result.applied_amount
 
-    def reserve_resource(
+    def settle_spend_safe(
         self,
-        reservation_id: str,
+        event_id: str,
+        key: str,
+        amount: Decimal,
         *,
-        run_id: str,
-        budget_keys: tuple[str, ...],
-        estimated_usd: Decimal,
-        evaluation_id: str | None = None,
-    ) -> bool:
-        """Reserve an owned attempt through the existing durable ledger."""
-        reservation = BudgetResourceReservation(
-            reservation_id=reservation_id,
-            run_id=run_id,
-            budget_keys=budget_keys,
-            estimated_usd=estimated_usd,
-            evaluation_id=evaluation_id,
-        )
-        with self._lock:
-            result = self._resource_ledger().reserve_resource(reservation)
-            self._budget = result.state
-            return bool(result.reserved)
+        payload_digest: str,
+        provider: str | None = None,
+    ) -> BudgetLedgerSpendReceipt:
+        """Persist one producer charge exactly once through a configured ledger.
 
-    def settle_resource(
-        self,
-        reservation_id: str,
-        event: BudgetResourceEvent,
-    ) -> BudgetLedgerMutationResult:
-        """Reconcile full measured cost once and refresh the budget consumer snapshot."""
+        An in-memory BudgetState cannot issue a durable acknowledgment. If
+        delivery/readback fails, the same event remains resolvable; callers
+        must retain unknown settlement instead of declaring zero cost.
+        """
         with self._lock:
-            result = self._resource_ledger().settle_resource(reservation_id, event)
-            self._budget = result.state
-            return result
+            if self._ledger is None:
+                raise RuntimeError("durable budget settlement requires a configured ledger")
+            receipt = self._ledger.settle_spend(
+                event_id, key, amount, payload_digest=payload_digest, provider=provider
+            )
+            try:
+                self._budget = self._ledger.load()
+            except OSError as exc:
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest) from exc
+            return receipt
 
-    def release_resource(self, reservation_id: str) -> None:
-        """Release an owned attempt known not to require provider reconciliation."""
+    def resolve_spend_safe(self, event_id: str) -> BudgetLedgerSpendReceipt | None:
+        """Resolve a ledger receipt without manufacturing an acknowledgment from memory."""
         with self._lock:
-            self._budget = self._resource_ledger().release_resource(reservation_id).state
-
-    def require_reconciliation(self, reservation_id: str) -> None:
-        """Keep an unresolved call's reservation visible across reopening."""
-        with self._lock:
-            self._budget = self._resource_ledger().require_reconciliation(reservation_id).state
-
-    def _resource_ledger(self) -> BudgetLedger:
-        if self._ledger is None:
-            raise ValueError("measured resource accounting requires a persisted budget ledger")
-        return self._ledger
-
-    def resource_snapshot(self) -> BudgetLedgerSnapshot:
-        """Return the existing persisted owner's detached resource accounting snapshot."""
-        with self._lock:
-            snapshot = self._resource_ledger().snapshot()
-            self._budget = snapshot.state
-            return snapshot
+            if self._ledger is None:
+                raise RuntimeError("durable budget settlement requires a configured ledger")
+            receipt = self._ledger.resolve_spend(event_id)
+            self._budget = self._ledger.load()
+            return receipt

@@ -1,0 +1,208 @@
+{
+  "schema": "policyos.e02.D.published-owner-dependency.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "role": "Exact B-owned public verified-snapshot dependency, bounded D composition check; not authority appointment",
+  "implementation_sha": "72235911a7a48cd0c0cf401c2b055a8d31907c2f",
+  "implementation_tree": "6dd300a6b33b31a4b24ba231af4e0fb60065b81e",
+  "slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+  "owner_receipt_source_sha": "01129503d3cbfd6d77ef5dab85ac08e5c2e4a644",
+  "owner_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-verification-snapshot.json",
+  "owner_files": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "7bad1d5e149869bdb54a7f9560cb5ddf6be0dde1",
+      "sha256": "c0e45c89d6ddccb83d894d26b59319988c0b3b9f1453740532e944d8926fab69",
+      "bytes": 6976,
+      "prior_sha256": "9172c88724afe8a15f2d55504fc2d6953654f0d3ea8155c4f81c9e13b2a1ceb0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "329786340d076973b812a5302aefc21e0938c62f",
+      "sha256": "a3e70ebad63ed31e840ef76195c831e98bf6fe2818ed8db7b04ea9464ad8f38c",
+      "bytes": 3471,
+      "prior_sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+      "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b",
+      "bytes": 10425,
+      "prior_sha256": "c85c7c0a79abfde0131206dc7a98a360ef5cfd6bf19cdd199bb6fa8e40ff5c34"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "40acc7887fb09fdc567af6edfadff82ea2c01b9a",
+      "sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+      "bytes": 14543,
+      "prior_sha256": "4473a4742a27ff022f59383b201a0473838931aa58d635a061c99ba8b6b6af93"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "43012c9fdbdc20fd79081239d3a0c474c050a385",
+      "sha256": "641553dd8b105a31c406d3af9d2477efa75f093755afc41f9af97816ebc817d6",
+      "bytes": 43995,
+      "prior_sha256": "7d131caba0deae2ddc9762e2c5a989d51934b3e731e0d6552047bec46d902812"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "62c27d8efdeb67240643449de280548aec94e54b",
+      "sha256": "4a4ab7c0a896ae9ab10970ee660b12a144697cfa4dcdeb819be285a1a67a0eba",
+      "bytes": 21736,
+      "prior_sha256": "9dc2e4d510367e3e960bb9a1bcbecb97ebd48cd5629167af14094555a201cba8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "10c362d63a869ef3cd1bafd243916ec1faed0c9a",
+      "sha256": "c3425f30443b55fcabe44adde78bd7cd5373e7424eae1dd1a6a9ad6d4a4260d1",
+      "bytes": 5262,
+      "prior_sha256": "52ff5c08997516419f0097ae2710dcc5d602a12aaaa55a5b290be101c7b1bc2d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "fac90cf474c8e86418d0fc4e8c83b6077c8c0e6e",
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5",
+      "bytes": 756,
+      "prior_sha256": null
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "7748250f475b0ac2c212468ecb6609c8f80ed8b9",
+      "sha256": "242a23a1c4c75f230c65aa5f284da0066641d9eec945c4eccdc12abc84e7adc5",
+      "bytes": 5769,
+      "prior_sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+      "bytes": 185595,
+      "prior_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "efb9be1702503951d048a9d865a4745cdd60ba22",
+      "sha256": "cabb8b449999c0153d9f67cd65621404437c0df1f890a82b733fa3d54acf16eb",
+      "bytes": 1326,
+      "prior_sha256": null
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "a90abb5ec4a65745be7ff82b362e151d9917a287",
+      "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc",
+      "bytes": 5578,
+      "prior_sha256": null
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-verification-snapshot.toml",
+      "owner_source_sha": "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+      "owner_blob": "23efaf8eba63563337d9a9f3bf3277c05cd548d7",
+      "sha256": "2a4c17b9852073db93a93ff6b57ac9d95adc1052d2e7238e998fd5884b5191c9",
+      "bytes": 1404,
+      "prior_sha256": null
+    }
+  ],
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-verification-snapshot.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/__init__.py",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+    "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+    "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+    "policy-engine/src/polisyos/core/artifacts/protocol.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py",
+    "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py",
+    "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py"
+  ],
+  "checks": [
+    {
+      "state": "PASS",
+      "property": "Exact immutable B file bytes",
+      "file_count": 13
+    },
+    {
+      "state": "PASS",
+      "property": "B FileSystemCAS public get_verified_snapshot, manifest/content binding and actual separate OS special-path reader controls",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "execution": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "/workspace/e02-D-continuation-receipts/B-CAS-fixtures-1c4cb59be6dd4508b99e52579877299d",
+          "--junitxml",
+          "/workspace/e02-D-continuation-receipts/raw/B-CAS-smoke-1c4cb59be6dd4508b99e52579877299d/junit.xml"
+        ],
+        "cwd": "/workspace/e02-D-published-root/policy-engine",
+        "source_sha": "72235911a7a48cd0c0cf401c2b055a8d31907c2f",
+        "source_tree": "6dd300a6b33b31a4b24ba231af4e0fb60065b81e",
+        "backend": "real FileSystemCAS / POSIX / separate native snapshot worker processes",
+        "python": "locked3.14.7",
+        "exit_code": 0,
+        "wall_s": 3.541614383007982,
+        "rss_kib": 106844,
+        "stdout": "/workspace/e02-D-continuation-receipts/raw/B-CAS-smoke-1c4cb59be6dd4508b99e52579877299d/stdout.txt",
+        "junit": "/workspace/e02-D-continuation-receipts/raw/B-CAS-smoke-1c4cb59be6dd4508b99e52579877299d/junit.xml",
+        "basetemp": "/workspace/e02-D-continuation-receipts/B-CAS-fixtures-1c4cb59be6dd4508b99e52579877299d"
+      },
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/B-CAS-smoke/stdout.txt",
+          "sha256": "8038a6f81d34f6d92a6afac42c41d59d481d519a92bf3843c0187e3b55365065",
+          "bytes": 535
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/B-CAS-smoke/junit.xml",
+          "sha256": "90a558da7f3a02d53db2a96c1b9e07e332436c4bc6d9302d9313073854e1275b",
+          "bytes": 1748
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/B-CAS-smoke/result.json",
+          "sha256": "1a2aa7bb37ec62120493dfcc9f20b1ecc00a4304e9a78e8ffeaa35d017f6750b",
+          "bytes": 1132
+        }
+      ]
+    }
+  ],
+  "required_D_combined_edges": [
+    "Exact public CAS snapshot -> transfer/vector generation reopen in second process",
+    "Exact candidate/evaluation/suite snapshots -> local champion pointer commit with under-lock reread",
+    "Served SearchService checkpoint exact public snapshot fresh restore"
+  ],
+  "limitations": [
+    "Nine CAS checks do not prove these three D downstream edges; their owners execute combined tests separately",
+    "No production history, tenant/split authorization, distributed or power-loss guarantee",
+    "B minimum source/ref is identified exactly; no second ANN addressing or invented issuer",
+    "Shared budget/funnel composition still awaiting D port; CAS check did not exercise LLM helper imports"
+  ],
+  "predicate_basis": "recomputed for technical exact byte/manifest/property; authority not_established",
+  "cleanup_candidates": [
+    "/workspace/e02-D-continuation-receipts/B-CAS-fixtures-1c4cb59be6dd4508b99e52579877299d",
+    "/workspace/e02-D-continuation-receipts/raw/B-CAS-smoke-1c4cb59be6dd4508b99e52579877299d"
+  ],
+  "cleanup": "Native Trash unavailable; data retained without permanent deletion"
+}

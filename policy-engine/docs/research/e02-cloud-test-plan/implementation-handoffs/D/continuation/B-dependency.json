@@ -1,0 +1,207 @@
+{
+  "schema": "policyos.e02.D.published-owner-dependency.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "role": "Consume immutable published B mechanism; D does not author a parallel ledger/producer",
+  "implementation_sha": "d44d13adf0b8f35ad272dca2efe2bf83a39d2399",
+  "implementation_tree": "55d17af6f74277a380c362b8bbfbc651cfaca49f",
+  "slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "adoption_parent_sha": "85962a8e6eb07dc5aa2fa5605abf3cae85746a89",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-budget-ledger-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-llm-settlement.toml",
+    "policy-engine/src/polisyos/core/llm/README.md",
+    "policy-engine/src/polisyos/core/llm/settlement.py",
+    "policy-engine/src/polisyos/core/llm/traced_client.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+    "policy-engine/tests/unit/remediation/test_llm_01.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+  ],
+  "owner_files": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "owner_source_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+      "owner_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+      "bytes": 26353,
+      "prior_sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "owner_source_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+      "owner_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+      "bytes": 6067,
+      "prior_sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "owner_source_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+      "owner_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+      "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+      "bytes": 16904,
+      "prior_sha256": null
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "owner_source_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+      "owner_blob": "912c27087d105b9c23f0d589c2ce9996815e2969",
+      "sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4",
+      "bytes": 13682,
+      "prior_sha256": null
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-budget-ledger-admission.toml",
+      "owner_source_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+      "owner_blob": "063f055838b602ab6262c0cfadd7db33da0aaa21",
+      "sha256": "0621ce954d0f22cb4f11cba9b6a89a8e92b7150bd847b62dbb9495b3c587e2f1",
+      "bytes": 2213,
+      "prior_sha256": null
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "c2c631442a3ecf7587425445565d723598eaba81",
+      "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+      "bytes": 8687,
+      "prior_sha256": null
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62",
+      "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+      "bytes": 35161,
+      "prior_sha256": "b9ea8f9975b60d9e808c017ba3fca55e98b4ac642249a51677c167f5f57eafea"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+      "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+      "bytes": 28432,
+      "prior_sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "b1e91052c288df38bfa451cdee6a0436d4836b35",
+      "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+      "bytes": 37271,
+      "prior_sha256": "3b07ed40a82ea2f0e302e3406944c68b6b0497b49e054d5399b27c36473dc903"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+      "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+      "bytes": 9508,
+      "prior_sha256": "ed56939b568bd84996a904436c78b11a95cd96e6ba9d6acd3581ba9c344ff308"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "c42e89793edac0ce75b6c49107fc77082d7f14fd",
+      "sha256": "06447dfdb0023cf0e8794da2c673fdac4571c662ef729b7b89f46410931e1d2d",
+      "bytes": 3466,
+      "prior_sha256": "4dcb8d7195b84fdae83bf48aa40c83677fb52758373653de09e68231f1b16640"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "5bd4656cb9531409581784cad4b8905e3646a565",
+      "sha256": "37ca3c82ed258f655f7a6ccd219b693f57b86f8d5b8c4973a6b4c089956ca1ab",
+      "bytes": 3940,
+      "prior_sha256": "36a215b5900ee21fe9bdbca8a0fe9dcbdbf56cef1b6cf4c6a8be39cc5f3c7bcb"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-llm-settlement.toml",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "2868b0cd5d26e5fe28cdac66028aa6dce3dfaf07",
+      "sha256": "8828f2eb140952a0317f49d1899f32cd6bf505030b6846266c8b663c0e8720df",
+      "bytes": 2172,
+      "prior_sha256": null
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "ea6399f0c8de7920d18bfdfbf5882e3cdd795688",
+      "sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc",
+      "bytes": 17417,
+      "prior_sha256": "56e684f7fc8de07da14f228d05db70915f70543f641276ff0747d8e06850aa4d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "e7ecbfc3c76a902a080d2514cf6ffa752aefaadb",
+      "sha256": "6d5e5e45cf8404f72105c76cee31ff57206598cfcffb8ebe3ba486085cfc7f91",
+      "bytes": 19957,
+      "prior_sha256": "42ac71db2df4c0b830e6d4753aa0b565f02e0dc50b55ff4a126758bd306e55cd"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "9392168314e50937629b5b3902c9dd33b2505b69",
+      "sha256": "b85a152ba32ac72aa4586f40f562c008a1e01479307032f5a466faac0f90a02b",
+      "bytes": 21046,
+      "prior_sha256": "69fa47e1673caa42aae303d82539c5b3df73a767c79cbfbd471022ba1afa9531"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "ae5b63e1351c7314fa656a12023f239146697227",
+      "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682",
+      "bytes": 41666,
+      "prior_sha256": null
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "owner_source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "owner_blob": "2c9e1ab1ed6b897cc2d20ad6c4f0f517359a6b50",
+      "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de",
+      "bytes": 8263,
+      "prior_sha256": "b0d9ab57c6196a4f7740f6bdf37f0ab71b27cb8bcaac410204f2697491171512"
+    }
+  ],
+  "owner_contracts": [
+    {
+      "owner": "B DUR-01",
+      "source_sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+      "implementation_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-settlement.json",
+      "API": "settle_spend_safe/resolve_spend_safe; sole1.1 spend_receipts; unknown ACK reconciliation"
+    },
+    {
+      "owner": "B adapters",
+      "source_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "API": "LLMProducerSettlement/LLMSettledResponse, actual factory, capability-bound cache issuer, enforcer settle/reconcile"
+    }
+  ],
+  "checks": {
+    "owner_blob_exactness": "PASS: each adopted file byte-identical to its named immutable B source; all18 files captured",
+    "D_combined_runtime": "UNRUN: checkpoint awaiting D core.response helper composition and funnel consumer forward port"
+  },
+  "preservation": "D979 raw/all-alternate/finite/nonzero-underflow cost guards preserved in existing response.py. No B Gateway decoder modification. Historical D1.0 implementation/receipts preserved in original Git ancestry; not overlaid on B1.1.",
+  "required_next_delta": [
+    "Narrow D response consumer merges B unwrap/cache capability/physical-provider helpers while retaining strict cost guard",
+    "D translator/adversary capture actual returned B settlement before payload interpretation; orchestrator resolves exact receipts",
+    "Re-run actual response-text and affected full/split native consumers on composed immutable source"
+  ],
+  "limitations": [
+    "This intermediate dependency checkpoint is not a runnable combined candidate or finding closure",
+    "B receipt does not yet supply durable owned-reservation/multi-key transition or persisted per-run/evaluation scope required by corresponding original criteria",
+    "Raw JSON1e-1000 still loses precision before guard; actual decoder red remains an owner request",
+    "Owner schemas/migrations remain assigned to B; no implicit D-shaped1.0 -> B1.0 acceptance"
+  ]
+}

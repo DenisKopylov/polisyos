@@ -38,6 +38,10 @@ from .manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
+from .manifest_profile import (
+    artifact_manifest_profile_projection,
+    artifact_manifest_profile_sha256,
+)
 from .ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
 from .protocol import ArtifactStore, AsyncArtifactStore, SignatureVerifyingArtifactStore
 from .registry import RegistryBundle
@@ -108,6 +112,8 @@ __all__ = [
     "SigningConfig",
     "VerificationReport",
     "WarningRecord",
+    "artifact_manifest_profile_projection",
+    "artifact_manifest_profile_sha256",
     "artifact_ref_identity_key",
     "build_artifact_store",
     "build_cas_integrity_report",

@@ -28,8 +28,6 @@ def main() -> None:
     repo = Path(args.repo)
     sha = args.sha
     mapping_path = Path(args.equivalents)
-    mapping_bytes = mapping_path.read_bytes()
-    mapping = json.loads(mapping_bytes)
 
     git_executable = shutil.which("git")
     if git_executable is None or re.fullmatch(r"[0-9a-f]{40}", sha) is None:
@@ -40,6 +38,14 @@ def main() -> None:
 
     tree = git("rev-parse", sha + "^{tree}").decode().strip()
     tracked = set(git("ls-tree", "-r", "--name-only", sha).decode().splitlines())
+    try:
+        mapping_source_path = mapping_path.resolve().relative_to(repo.resolve()).as_posix()
+    except ValueError as exc:
+        raise ValueError("The reviewed equivalence map must belong to the pinned Git tree") from exc
+    if mapping_source_path not in tracked:
+        raise ValueError("The reviewed equivalence map must be tracked at the pinned SHA")
+    mapping_bytes = git("show", f"{sha}:{mapping_source_path}")
+    mapping = json.loads(mapping_bytes)
     cache = {}
 
     def data(path: str) -> bytes:
@@ -555,6 +561,8 @@ def main() -> None:
         "driver_path": str(Path(__file__)),
         "driver_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "equivalence_map_path": str(mapping_path),
+        "equivalence_map_git_path": mapping_source_path,
+        "equivalence_map_source_sha": sha,
         "equivalence_map_sha256": hashlib.sha256(mapping_bytes).hexdigest(),
         "argv": [
             "python3",

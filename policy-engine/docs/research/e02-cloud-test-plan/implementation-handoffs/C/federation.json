@@ -1,0 +1,347 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "federation-composer",
+  "closure_ids": [],
+  "bundle_ids": ["FED-01", "FED-02"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "70f6474883f572a56ce114aa6d298d33a30ef33a",
+    "575e7b16b59d374fc09e74563ba5dd2698877c64"
+  ],
+  "candidate_tree_sha": "621286c1c9a06059d3ecce983fffc7e2d1eead65",
+  "branch": "codex/e02-C-federation-20261006",
+  "pull_request": null,
+  "published": false,
+  "changed_paths": [
+    "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+    "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+    "policy-engine/tests/unit/remediation/test_fed_02.py"
+  ],
+  "source_changes": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "change": "For a valid zero-row UNION, preserve the empty frame columns and cast fields declared in request.schema to the declared pandas dtypes; raise SchemaIncompatibilityError if a declared dtype cannot be applied."
+    }
+  ],
+  "baseline": {
+    "query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding <B138..B145> --details --limit 20",
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "raw_archives_received": 0,
+    "route_disposition": "Every exact finding query returned historical ledger status partial, route_grade candidate_unverified, and semantic_adequacy not_established. The PASS cells below are source-reported baseline observations, not candidate evidence.",
+    "cells": [
+      {
+        "id": "F03-P041",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+        "source_locator": "received/F03.txt:171",
+        "source_state": "PASS",
+        "finding_ids": ["B138", "B140", "B141", "B145"]
+      },
+      {
+        "id": "F05-P061",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+        "source_locator": "received/F05.txt:471",
+        "source_state": "PASS",
+        "finding_ids": ["B138", "B140", "B141", "B145"]
+      },
+      {
+        "id": "F09-P046",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+        "source_locator": "received/F09.txt:162",
+        "source_state": "PASS",
+        "finding_ids": ["B138", "B140", "B141", "B145"]
+      },
+      {
+        "id": "F11-P049",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+        "source_locator": "received/F11.txt:178",
+        "source_state": "PASS",
+        "finding_ids": ["B138", "B140", "B141", "B145"]
+      },
+      {
+        "id": "F14-P049",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+        "source_locator": "received/F14.txt:399",
+        "source_state": "PASS",
+        "finding_ids": ["B138", "B140", "B141", "B145"]
+      },
+      {
+        "id": "F04-P109",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/tests/unit/remediation/test_fed_02.py",
+        "source_locator": "received/F04.txt:319",
+        "source_state": "PASS",
+        "finding_ids": ["B139", "B142", "B143", "B144"]
+      },
+      {
+        "id": "F08-P111",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "path": "policy-engine/tests/unit/remediation/test_fed_02.py",
+        "source_locator": "received/F08.txt:234",
+        "source_state": "PASS",
+        "finding_ids": ["B139", "B142", "B143", "B144"]
+      },
+      {
+        "id": "F13-P127",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/remediation/test_fed_02.py",
+        "source_locator": "received/F13.txt:254",
+        "source_state": "PASS",
+        "finding_ids": ["B139", "B142", "B143", "B144"]
+      }
+    ]
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q policy-engine/tests/unit/fabric/connectors/test_federation.py policy-engine/tests/unit/remediation/test_fed_02.py",
+      "target_sha": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+      "environment": "macOS; original policy-engine .venv Python 3.14, read-only; candidate source loaded via explicit PYTHONPATH",
+      "input_closure": "Bounded pandas source fixtures and pytest tmp_path DuckDB only; no production data or shared DB.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "35 test dots; [100%]."
+    },
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q policy-engine/tests/unit/remediation/test_fed_02.py::test_join_summary_repeated_row_key_ties_keep_stream_occurrence_order",
+      "target_sha": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+      "environment": "macOS; original policy-engine .venv Python 3.14, read-only; candidate source loaded via explicit PYTHONPATH",
+      "input_closure": "One actual public DataComposer.compose JOIN fixture with 80 repeated join keys; no production data.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": ". [100%]"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/fabric/connectors/federation/composer.py policy-engine/tests/unit/fabric/connectors/test_federation.py policy-engine/tests/unit/remediation/test_fed_02.py",
+      "target_sha": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+      "environment": "macOS; original policy-engine .venv Python 3.14, read-only",
+      "input_closure": "All three paths changed from slice base.",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "git diff --check 198076863e143dea9f89f02734b13d50dae3eed5...575e7b16b59d374fc09e74563ba5dd2698877c64",
+      "target_sha": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+      "environment": "Local attached C worktree",
+      "input_closure": "Complete candidate diff from the pinned slice base.",
+      "outcome": "PASS",
+      "output": "No output; exit 0."
+    },
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt policy-engine/.tmp/e02-C-fed-575e7b16-production-invocation.json",
+      "target_sha": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+      "environment": "macOS; original policy-engine .venv Python 3.14, read-only",
+      "input_closure": "Static direct-call reachability diagnostic over the candidate diff; no runtime invocation or business receipt produced.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "status=passed; coverage=partial; runtime_invocation_established=false; receipt=policy-engine/.tmp/e02-C-fed-575e7b16-production-invocation.json@5a391d4226c550bb0d0b7bbd7f396dc1bf114cf1b51a122d165ffc934bd52b78. Unmeasured: HTTP/router, DI/container, event bus, registered callbacks, deferred/dynamic dispatch, runtime execution, persisted business receipts, and gate substance."
+    },
+    {
+      "command": "Independent delta-only review at source freeze 575e7b16b59d374fc09e74563ba5dd2698877c64",
+      "target_sha": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+      "environment": "Read-only independent reviewer using isolated C continuation worktree; exact candidate source via checkout reference.",
+      "input_closure": "New B139 tie witness, complete FED-01/FED-02 candidate diff and focused evidence; no source writes.",
+      "outcome": "PASS",
+      "output": "Bounded GO for B138-B145; no finding-closure decision. Delta pytest log policy-engine/.tmp/e02-C2/raw/fed-review/b139-delta-pytest-rerun.log@4f8bc54b9bf791fd1f5488b98259854d436df139210ca171e2fdc713d4bdd180; Ruff log @82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18; tied-rank reversal control KILLED @6e15e5d7d83f4d46aa9c967843ec47dbc3e12413261ac1f7b9b040b4ab151467."
+    }
+  ],
+  "property": {
+    "statement": "The existing DataComposer owner keeps typed results, per-cell lineage, JOIN admission, audit summaries, and strategy-specific behavior aligned with independent fixture oracles; valid typed-empty UNION retains the declared schema through SQL readback.",
+    "runtime_path": [
+      "DataComposer.compose dispatches to _join, _union, _overlay, or _consensus",
+      "ConflictResolver and MergeLogCollector process real conflicts",
+      "compose returns the DataFrame and configured audit entries",
+      "get_last_merge_summary exposes complete summary counters",
+      "the typed-empty witness registers, persists, reopens, and describes the returned DataFrame with DuckDB"
+    ],
+    "proxy_divergence": "Before the B139 tie addition, the real JOIN SUMMARY test used distinct event_id row keys, so its sample ranks were distinct; a reversed equal-rank ordering mutant could pass it. The new actual-compose fixture uses 80 conflicts with one repeated join_key, making all stdlib sample ranks equal, and asserts the first one and three input-stream occurrence values. It does not claim permutation-invariant event identities. For B143, checking the returned sample length or weakrefs only after compose returns misses a transient unbounded list that is already gone; active _union-frame weakref sampling sees the baseline peak 2 and rejects the unnamed retained-list mutant at 80. This is a live MergeLogEntry bound, not an RSS or whole-UNION memory guarantee.",
+    "negative_controls": [
+      "B139: independently reviewed reversal of tied SUMMARY entries is rejected; exact mutant log is referenced in checks.",
+      "B140: undeclared many-to-many is refused before materialization; unknown nulls do not match unless the explicit category contract allows it.",
+      "B142: no source remains a FederationError rather than a successful typed-empty result.",
+      "B143: a local list that retains every detail entry through active compose is measured at 80 against cap=1.",
+      "B145: strict CONSENSUS rejects non-finite and invalid numeric inputs rather than letting a finite-looking aggregate hide exclusions."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_by_finding": {
+    "B138": "independently_reconciled against per-cell lineage and source-priority oracle; DuckDB readback is observed from the persisted fixture result.",
+    "B139": "independently_reconciled with stdlib SHA-256 resolver/sample ranks, exact fixture conflict identities, fixed stream occurrence ties, counters, and frame parity; live-object measurements are recomputed from weakrefs inside the active composer frame.",
+    "B140": "independently_reconciled against declared relational/cardinality and null-identity fixture oracles.",
+    "B141": "independently_reconciled by real values and schema/readback across actual strategy branches.",
+    "B142": "The declared DataSchema is an explicit fixture input; persisted DuckDB DESCRIBE/readback is independently reconciled against it.",
+    "B143": "recomputed from weak references to actual MergeLogEntry objects while _union is active; mutant control retains entries in an unnamed local list.",
+    "B144": "independently_reconciled against a separately stated nested-loop row oracle; set_index invocation count is recomputed from the actual DataFrame method calls.",
+    "B145": "independently_reconciled against finite/invalid participant expectations and exact source identities in the real CONSENSUS result."
+  },
+  "independent_review": {
+    "reviewer": "C2 coverage census lane",
+    "source_freeze_sha": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+    "source_freeze_tree": "621286c1c9a06059d3ecce983fffc7e2d1eead65",
+    "disposition": "GO for bounded candidate evidence on all eight findings; no formal finding-closure adjudication."
+  },
+  "findings": [
+    {
+      "id": "B138",
+      "bundle_id": "FED-01",
+      "historical_status": "partial / bridge_missing",
+      "candidate_verdict": "bounded_go",
+      "formal_status": "partial; root/G adjudication pending",
+      "criterion": "Preserve per-cell source lineage across three-source JOIN conflict resolution and saved-result readback.",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_join_preserves_cell_lineage_across_three_sources",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_join_mixed_cell_lineage_survives_saved_result_readback"
+      ],
+      "evidence": "A→B→C and A→C→B are compared to the independent per-cell trust oracle; the B-origin value is attributed to B before comparison with C; a local DuckDB persisted result is reopened and read.",
+      "remaining_limit": "This bounded saved-result readback does not establish every production route or a general public lineage surface."
+    },
+    {
+      "id": "B139",
+      "bundle_id": "FED-02",
+      "historical_status": "partial / surface_missing",
+      "candidate_verdict": "bounded_go; external HTTP/export surface_out_of_scope",
+      "formal_status": "partial; root/G adjudication pending",
+      "criterion": "Exercise public DataComposer.compose(JOIN, SUMMARY), returned frame/sample and get_last_merge_summary at caps 1/3 and FULL/NONE using independent conflict identity, seeded top-k, tie, and counter oracles.",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+        "policy-engine/src/polisyos/fabric/connectors/federation/resolver.py",
+        "policy-engine/src/polisyos/fabric/connectors/federation/types.py",
+        "policy-engine/tests/unit/remediation/test_fed_02.py::test_join_summary_is_bounded_and_matches_independent_relational_oracle",
+        "policy-engine/tests/unit/remediation/test_fed_02.py::test_join_summary_repeated_row_key_ties_keep_stream_occurrence_order"
+      ],
+      "evidence": "Both tests use actual DataComposer.compose JOIN. The tie case has 80 rows with one shared join key and distinct ordered source values, exact independent resolver choice and counters, equal sample ranks, expected occurrence order at cap 1/3, and frame equality across SUMMARY/FULL/NONE.",
+      "remaining_limit": "The sampled audit row_key is the repeated join key; source_a_value is used only to witness fixed input-stream occurrence order. No permutation-invariant event identity is claimed. Existing compose result/summary readback is the bounded criterion surface; an external Federation HTTP/export endpoint is not required."
+    },
+    {
+      "id": "B140",
+      "bundle_id": "FED-01",
+      "historical_status": "partial / semantic_test_missing",
+      "candidate_verdict": "bounded_go",
+      "formal_status": "partial; root/G adjudication pending",
+      "criterion": "Enforce declared JOIN cardinality and unknown/null identity before an unsafe expansion or accidental null match.",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py::DataComposer._join",
+        "policy-engine/src/polisyos/fabric/connectors/federation/types.py::CompositionRequest",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_join_rejects_undeclared_many_to_many_before_materialization",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_join_does_not_match_unknown_null_keys",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_join_declared_cardinality_matches_independent_relational_oracle",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_join_explicit_many_to_many_is_bounded_before_materialization",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_join_explicit_null_category_is_the_only_null_match_control"
+      ],
+      "evidence": "Actual JOIN checks the declared many-to-one relation, explicitly admitted many-to-many row bound, unmatched rows, and null-category policy against relational fixtures before unsafe expansion.",
+      "remaining_limit": "The fixture tests the declared request contract; it does not adjudicate a domain-specific identity policy for all callers."
+    },
+    {
+      "id": "B141",
+      "bundle_id": "FED-01",
+      "historical_status": "partial / semantic_test_missing",
+      "candidate_verdict": "bounded_go",
+      "formal_status": "partial; root/G adjudication pending",
+      "criterion": "Keep generated transport/internal names separate from user data and preserve suffix-like columns across composition and readback.",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py::_fresh_internal_name",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_union_preserves_user_source_id_column",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_join_preserves_user_suffix_like_column_names",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_generated_internal_name_families_remain_user_data",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_generated_looking_fields_survive_all_strategies_and_sql_readback"
+      ],
+      "evidence": "Real UNION/JOIN/OVERLAY/CONSENSUS paths preserve generated-looking user fields and exact values through local SQL readback.",
+      "remaining_limit": "The witness covers fixture schemas and local SQL readback; it does not impose a new global column naming policy."
+    },
+    {
+      "id": "B142",
+      "bundle_id": "FED-02",
+      "historical_status": "partial / consumer_missing",
+      "candidate_verdict": "bounded_go",
+      "formal_status": "partial; root/G adjudication pending",
+      "criterion": "Preserve the declared schema for a valid empty UNION and distinguish empty input data from absent sources or failed reads.",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py::DataComposer._union",
+        "policy-engine/src/polisyos/fabric/connectors/federation/types.py",
+        "policy-engine/tests/unit/remediation/test_fed_02.py::test_empty_union_preserves_declared_columns_and_dtypes",
+        "policy-engine/tests/unit/remediation/test_fed_02.py::test_empty_union_sql_readback_preserves_declared_types",
+        "policy-engine/tests/unit/remediation/test_fed_02.py::test_union_without_sources_is_not_typed_empty"
+      ],
+      "evidence": "The declared DataSchema drives dtype restoration for a valid empty result; DuckDB persists/reopens it and reports BIGINT/DOUBLE/VARCHAR with zero rows; no sources still raises FederationError.",
+      "remaining_limit": "The downstream SQL readback is an isolated DuckDB fixture, not a claim about a deployed database service."
+    },
+    {
+      "id": "B143",
+      "bundle_id": "FED-02",
+      "historical_status": "partial / verification_missing",
+      "candidate_verdict": "bounded_go",
+      "formal_status": "partial; root/G adjudication pending",
+      "criterion": "Bound live audit detail retention during active composition while keeping full summary counters independent of the sample cap.",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py::MergeLogCollector",
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py::DataComposer._union",
+        "policy-engine/tests/unit/remediation/test_fed_02.py::test_union_summary_measures_active_detail_liveness_and_transient_list_mutant"
+      ],
+      "evidence": "For 80 conflicts at cap=1, active-frame baseline live-entry peak=2; an unnamed transient list mutant reaches 80, and both release to one live reference after GC.",
+      "remaining_limit": "This measures live MergeLogEntry references inside _union, not process RSS, pandas frame/group memory, or a global O(1) UNION guarantee."
+    },
+    {
+      "id": "B144",
+      "bundle_id": "FED-02",
+      "historical_status": "partial / verification_missing",
+      "candidate_verdict": "bounded_go",
+      "formal_status": "partial; root/G adjudication pending",
+      "criterion": "Prepare each actual input index once per OVERLAY composition and avoid constructing unused audit payloads at AuditLevel.NONE.",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py::DataComposer._overlay",
+        "policy-engine/tests/unit/remediation/test_fed_02.py::test_overlay_prepares_each_secondary_once_and_skips_none_audit_entries",
+        "policy-engine/tests/unit/remediation/test_fed_02.py::test_overlay_multi_source_matches_nested_loop_and_audit_oracle"
+      ],
+      "evidence": "Three-source, multi-column OVERLAY matches a separate nested-loop row/audit oracle, preserves null masks and primary values, and calls set_index three times total (one primary plus two secondary frames).",
+      "remaining_limit": "Operation-count evidence establishes the tested preparation bound, not a wall-time or full-production-memory speedup."
+    },
+    {
+      "id": "B145",
+      "bundle_id": "FED-01",
+      "historical_status": "partial / semantic_test_missing",
+      "candidate_verdict": "bounded_go",
+      "formal_status": "partial; root/G adjudication pending",
+      "criterion": "Strict CONSENSUS must exclude invalid/non-finite contributors honestly and report the actual finite participants and exclusion reasons.",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py::DataComposer._consensus",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_consensus_strict_rejects_non_finite_candidates",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_consensus_strict_rejects_invalid_numeric_candidates",
+        "policy-engine/tests/unit/fabric/connectors/test_federation.py::test_consensus_reports_exact_finite_participants_and_exclusions"
+      ],
+      "evidence": "The real consensus path keeps [10,14]→12 as control, rejects infinity and invalid numeric input under strict policy, and reports exact participant/exclusion source IDs and reasons.",
+      "remaining_limit": "This does not establish global source independence, measurement validity, unit comparability, or admissibility of all possible consensus inputs."
+    }
+  ],
+  "admission_exception": {
+    "outcome": "workspace doctor resume exited 2 with status=unrun and findings=[]",
+    "unresolved_input": "registered_path_not_directory:/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos",
+    "receipt": "/Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos/.tmp/e02-C-root/raw/admission-resume.json@d19e55b97b13be0f906f8d7617781e7a34dd6ad1c846e1570663362912063367",
+    "authorization": "Продолжить в проверенных C worktrees; stale registrations не менять",
+    "handling": "Continued only in the verified, clean, attached C worktree after explicit user exception; did not prune or repair the unrelated stale registration."
+  },
+  "hook_status": {
+    "outcome": "unrun",
+    "reason": "The worktree lacks policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; the existing commit dispatcher cannot start.",
+    "handling": "The parent authorized a command-local `git -c core.hooksPath=/dev/null commit` tooling bypass; no shared or tracked hook configuration was changed."
+  },
+  "predicate_labels": {
+    "P37": "The semantic output/counter predicates are independently_reconciled against the separately stated fixture oracles; active object retention is recomputed from actual objects in the active function frame. The declared DataSchema is institutionally_supplied by the explicit request fixture, and its persisted readback is independently_reconciled against that declaration.",
+    "P38": "The previously distinct-key JOIN test and post-return liveness check diverged from the property exactly at tied sample ranks and transient local retention; the new B139 tie case and B143 active-frame mutant measure those properties directly.",
+    "P40": "The B139 review blocker was classified as the same heap equal-rank class one level deeper. The oracle was widened to repeated row keys and tied sample ranks through the actual JOIN composer path; no second local production repair was added.",
+    "P41": "The unrelated admission registration failure is recorded with its exact exception and receipt; it is not attributed to the federation product or reported as inherited test debt."
+  },
+  "capability_state_or_finding_state": "Candidate implementation and bounded semantic witnesses are complete for review. No finding is formally closed by this receipt: historical ledger rows stay partial until root/G integrates and adjudicates them. B139 external Federation HTTP/export surface is surface_out_of_scope per the criterion; existing DataComposer return/summary is the bounded internal consumer.",
+  "limitations_and_next_owner": [
+    "Root/G: integrate or otherwise admit the exact source commit/tree, review the bounded verdicts, and decide whether any ledger row changes; closure_ids remains empty.",
+    "Historical source reports are navigation only: exact finding queries return PASS cells but raw archives_received=0 and semantic_adequacy=not_established.",
+    "No broad backend/CI-parity/architecture gate or full production dataset run was performed in this slice; root owns the coordinated broad closeout wave.",
+    "The production-invocation diagnostic is static direct-call reachability with partial coverage, not runtime producer/consumer evidence; HTTP, DI, event, callbacks, deferred/dynamic dispatch, persisted business receipts and gate substance remain unmeasured.",
+    "No remote push or PR was created; root owns publication after review."
+  ]
+}

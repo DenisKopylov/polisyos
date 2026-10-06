@@ -1,0 +1,499 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-completed-quality-retry-review",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "finding_ids": [],
+  "slice_base_sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+  "implementation_commits": [
+    "c2ed65e847a2c010dc0ed4356486ba093cc00d23",
+    "189c0c10b08fcfab08698133163510aa6c89166c"
+  ],
+  "candidate_tree_sha": "fedf750fd9c55c64aa897baa7ede912a8edb7934",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/all-stage-interpretation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-default-ready-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-default-ready.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-default-ready.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-runtime-ml-ready-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-runtime-ml-ready.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-runtime-ml-ready.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/captured-profile-effective-preparation-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/complete-both-retry-output-maps.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/complete-final-architecture-finding-census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/complete-typed-json-drift.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-api-client/packages/runtime-api-client/types.ts.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/finalize.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/production-invocation-retry-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/production-invocation-retry.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/production-invocation-retry.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/review.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/root-native-partial-custody-locators.json"
+  ],
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review.json",
+  "baseline_cells": [],
+  "executed_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "executed_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "checks": [
+    {
+      "id": "architecture-default-ready",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv run --no-sync polisyos-tools architecture guardrails check --generated-freshness-workspace-root /dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready --generated-freshness-uv-cache-dir /home/agent/.cache/uv",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+        "--generated-freshness-uv-cache-dir",
+        "/home/agent/.cache/uv"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-default-ready-profile.json",
+        "git_blob": "c2a246b175c233dcf10fc40da6139adb77c771a8",
+        "bytes": 2641,
+        "sha256": "668631aeb78a30bcb94d9f173c61fa23ab5dc302e7df00411d93b70c04c84c80"
+      },
+      "input_closure": {
+        "capture": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-default-ready.json",
+          "git_blob": "c8bb2007f929ad8d1496c51ed7df06a4bbecceff",
+          "bytes": 2625,
+          "sha256": "a5a4682a07ca031bb267ab959a88a5d6070b3b0a43df0c3223a756131ab51fc6"
+        },
+        "full_map": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/complete-both-retry-output-maps.json",
+          "git_blob": "edd1e52f6ad6797e8f189a4a087098359e3ae6cd",
+          "bytes": 12956,
+          "sha256": "b12db2515cc5325473adc5529f00e2ce4067ffbe1d365c18dffd3cfd5cd57e39"
+        },
+        "effective_prep_qualification": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/captured-profile-effective-preparation-qualification.json",
+          "git_blob": "9c423aa45f52d6be7165d4af5a639bc192b0698a",
+          "bytes": 1866,
+          "sha256": "899be4d22f9c2c1456d450580bf86e4243a2372cf87763a8777165c0dc956af4"
+        },
+        "earlier_first8": "916953164be6e21b8dd2e35888f7dfe48068cb63:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review.json",
+        "registered_prep": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json"
+      },
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 133.1247834609967,
+      "maxrss_kib": 843872,
+      "output": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-default-ready.txt",
+        "git_blob": "93c982a31f85e9b49f7122b13cedef4f34cb91aa",
+        "bytes": 129485,
+        "sha256": "c5c954983c24ea9ea43a96c3b46687e20001442cd40cfe942a177d5a06f49e78"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "deciding_output": "Partial second result: OpenAPI generatorUNRUN exactlifelines;5outputs:4equal/1trustdrift;171deep-import/baseline diagnostics retained."
+    },
+    {
+      "id": "architecture-runtime-ml-ready",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv run --no-sync polisyos-tools architecture guardrails check --generated-freshness-workspace-root /workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready --generated-freshness-uv-cache-dir /home/agent/.cache/uv",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready",
+        "--generated-freshness-uv-cache-dir",
+        "/home/agent/.cache/uv"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-runtime-ml-ready-profile.json",
+        "git_blob": "e919c7ef7501e8576c012f29602c29b41b938df4",
+        "bytes": 3078,
+        "sha256": "45933c5c354b85a4e9fdf372d6cba7464acaae952be0c368328df8608f5c7822"
+      },
+      "input_closure": {
+        "capture": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-runtime-ml-ready.json",
+          "git_blob": "67cce4bfd9d9c5d7a6203682fa108ea6909c0c5b",
+          "bytes": 2638,
+          "sha256": "4b00cda6b95cc87406ae7c99051836c661eb5147023d51ddda9abac6fdc456b5"
+        },
+        "full_map": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/complete-both-retry-output-maps.json",
+          "git_blob": "edd1e52f6ad6797e8f189a4a087098359e3ae6cd",
+          "bytes": 12956,
+          "sha256": "b12db2515cc5325473adc5529f00e2ce4067ffbe1d365c18dffd3cfd5cd57e39"
+        },
+        "effective_prep_qualification": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/captured-profile-effective-preparation-qualification.json",
+          "git_blob": "9c423aa45f52d6be7165d4af5a639bc192b0698a",
+          "bytes": 1866,
+          "sha256": "899be4d22f9c2c1456d450580bf86e4243a2372cf87763a8777165c0dc956af4"
+        },
+        "earlier_first8": "916953164be6e21b8dd2e35888f7dfe48068cb63:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review.json",
+        "registered_prep": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 213.1577511170035,
+      "maxrss_kib": 1139076,
+      "output": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/architecture-runtime-ml-ready.txt",
+        "git_blob": "ba27b97215d266390d2edf9b8e64da2b4c3499a7",
+        "bytes": 129112,
+        "sha256": "7a92e6e62ffbeb133894aaf76b2b8811b958efc4b1ce4b358079a9c64ac0930d"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "deciding_output": "Complete third result FAIL:all6observed outputs/four families;4equal/2drift OpenAPI+trust;171deep-import diagnostics+baseline drift =174top-level diagnostic lines;noUNRUN."
+    },
+    {
+      "id": "production-invocation-retry",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m polisyos.runtime.quality.production_invocation --repo-root /workspace/e02-B-current-coordination/policy-engine --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt /dev/shm/e02-B-completed-quality-1862c021df74-production-invocation-retry/production-invocation-full.json",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation-retry/production-invocation-full.json"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/production-invocation-retry-profile.json",
+        "git_blob": "7147d3ddd2a3456ce6ef484dc0a15d53ce804e4f",
+        "bytes": 2472,
+        "sha256": "90ed7f3321f6115296259ed943c492b90992a1c36ebecd436ad44cdf623eb27a"
+      },
+      "input_closure": {
+        "capture": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/production-invocation-retry.json",
+          "git_blob": "e4a9ec8201dc5318eda94dcb848b68c745721767",
+          "bytes": 2679,
+          "sha256": "034683efdd3c7c188f1a28012307c35f0589d8f5d8ac2eb2e6228dc6a24c4943"
+        },
+        "full_map": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/all-stage-interpretation.json",
+          "git_blob": "27c67a9245408cb30794c0c813a15080ccfecb47",
+          "bytes": 8820,
+          "sha256": "2702965851ea63c6420ab29e185f2c11ccf89a9242747e8d3829cdee8ac02df6"
+        },
+        "effective_prep_qualification": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/captured-profile-effective-preparation-qualification.json",
+          "git_blob": "9c423aa45f52d6be7165d4af5a639bc192b0698a",
+          "bytes": 1866,
+          "sha256": "899be4d22f9c2c1456d450580bf86e4243a2372cf87763a8777165c0dc956af4"
+        },
+        "earlier_first8": "916953164be6e21b8dd2e35888f7dfe48068cb63:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review.json",
+        "registered_prep": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json"
+      },
+      "outcome": "ERROR",
+      "exit_code": -9,
+      "harness_state": "EXECUTED",
+      "wall_seconds": 109.96838946299977,
+      "maxrss_kib": 5456628,
+      "output": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/production-invocation-retry.txt",
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_before_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "deciding_output": "Second complete original command again SIGKILL/-9/emptystdout/no fullJSONreceipt; no completed scanner verdict or PID/OOM causal proof."
+    },
+    {
+      "id": "independent-full-output-and-source-map-reconciliation",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -B /tmp/e02-B-completed-quality-retry-review-1862c021df74/package.source.txt then /workspace/polisyos/policy-engine/.venv/bin/python -B /tmp/e02-B-completed-quality-retry-review-1862c021df74/finalize.source.txt",
+      "cwd": "/workspace",
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "reader": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "kind": "data-only metadata; no native/gates/collection/cache edit"
+      },
+      "input_closure": {
+        "complete_data_reader": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/review.source.txt",
+          "git_blob": "0afe3c08abaa23aa2eea5d8dc3d5f9784fb5a7d5",
+          "bytes": 12957,
+          "sha256": "17bb42d0a7a0f8840c37bcd83595ff5c861e64b5cc9c9f2a192f49e08d5e2fa8"
+        },
+        "custody_finalize_reader": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/finalize.source.txt",
+          "git_blob": "a2a1adbee42379856185059b2339cfb6139535cb",
+          "bytes": 5309,
+          "sha256": "beaf87f2e2974ea37ca8e2dc6a7f49c0f20b3e810510e3269bfa04b41a21fa6b"
+        },
+        "complete_payloads": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/index.json",
+          "git_blob": "6358823125e807308a7b807dccec4eae747e9263",
+          "bytes": 4661,
+          "sha256": "6159fa33ab515bf68580f9fcec03c6fcf4b88ffd7f371234f6f0e454b7bfc393"
+        },
+        "complete_output_maps": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/complete-both-retry-output-maps.json",
+          "git_blob": "edd1e52f6ad6797e8f189a4a087098359e3ae6cd",
+          "bytes": 12956,
+          "sha256": "b12db2515cc5325473adc5529f00e2ce4067ffbe1d365c18dffd3cfd5cd57e39"
+        },
+        "native_root_only_locator": {
+          "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/root-native-partial-custody-locators.json",
+          "git_blob": "88eefe8fed1360c7185250a51a08c48bd81b40e9",
+          "bytes": 2540,
+          "sha256": "77699d00116ee07c0641e7e753a44a158be1f23fc1e66da8f0db9902a0b35f28"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/all-stage-interpretation.json",
+        "git_blob": "27c67a9245408cb30794c0c813a15080ccfecb47",
+        "bytes": 8820,
+        "sha256": "2702965851ea63c6420ab29e185f2c11ccf89a9242747e8d3829cdee8ac02df6"
+      },
+      "deciding_output": "Capture/output hashes andsource1862 exact; second5/final6 output maps complete; final four whole-byte matches andtwo mismatches recomputed against exact Gitbytes. First8/default+registered cache preparation retained via immutable receipts; captured prep-hash misbinding qualified forward, original bytes unchanged."
+    }
+  ],
+  "property": {
+    "statement": "Reconcile complete same-source quality retry outcomes and actual generated bytes with prior first-attempt evidence, without replacing literal RED/UNRUN/resource-aborted results, rewriting captured metadata or promoting partial native collection into regression acceptance.",
+    "runtime_path": [
+      "Immutable root1862 separately runs8first quality gates andsame full architecture/static retry commands",
+      "Default andexact registered runtime+ml UVlock cache restoration enable successive offline phases",
+      "Full completed capture/stdout and retained generator outputs",
+      "Independent full six-file byte map against exact1862 expected Git source and actual first/second outcomes",
+      "Root/G bounded quality/native release decision with explicitly separate incomplete execution and custody"
+    ],
+    "proxy_divergence": "Default149 provisioning advanced second architecture to5outputs yet OpenAPI remained UNRUN; registered159 profile enabled full6-output measurement but returned FAIL, not PASS. Client/dashboard clean lines coexist with2actual generated drifts and171static diagnostics. Native inventory has3882collected/0phase reports afterSIGKILL and noXML, so collection count cannot establish runtime outcomes. First finite runtime-api PASS remains a different input/profile execution from copied-source architecture FAIL.",
+    "negative_controls": [
+      "Complete file map retains4matches/2mismatches; no artifact/case filtering or normalization of9OpenAPI example scalar changes or trust array drift.",
+      "Fullfirst4environmentUNRUN, second1generatorUNRUN andthirdcompleteFAIL preserved separately.",
+      "Two static complete command attempts SIGKILL/-9 with emptystdout/absentJSON remain ERROR, not scanner PASS or attributed product defect.",
+      "Captured third prep-hash2160default ancestor is retained unchanged; effective runtime+ml61ec actualGitref/hash qualification is explicit, not silently relabeled.",
+      "Unstartedverify13/parity34constituents andaborted fullnative3882collection remain outside any complete runtime/quality PASS claim."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_per_premise": {
+    "output_source_hashes_and_full_file_map": "recomputed complete actual observed bytes/exact immutable expected Gitbytes",
+    "capture_outcomes": "independently_reconciled completed root captures/full output",
+    "root_native_collection_and_abort": "recomputed raw artifact metadata only; source/context quantity not consumer property closure",
+    "OpenAPI_example_field_scope": "recomputed nine typed scalar paths only, no causal authority or compatibility waiver",
+    "trust_semantic_change_quantity": "not_established:19,596index-aligned leaf deltas can cascade on array reorder",
+    "individual_PID_OOM_causation": "not_established",
+    "inherited_red": "not_established",
+    "whole_B_acceptance": "not_established"
+  },
+  "capability_state_or_finding_state": "Architecture finally completed fullFAIL on1862 after supported dependency restoration. All11quality executions retained; staticscanner andfullnative stillresource-aborted/incomplete. No finding closure.",
+  "literal_quality_execution_denominators": {
+    "first8": {
+      "FAIL": 5,
+      "UNRUN": 1,
+      "PASS": 1,
+      "ERROR": 1
+    },
+    "three_additional_retries": {
+      "FAIL": 1,
+      "UNRUN": 1,
+      "ERROR": 1
+    },
+    "all11executions": {
+      "FAIL": 6,
+      "UNRUN": 2,
+      "PASS": 1,
+      "ERROR": 2
+    },
+    "latest_result_per8gate": {
+      "FAIL": 6,
+      "PASS": 1,
+      "ERROR": 1
+    },
+    "interpretation": "Historical execution counts are preserved; latest-per-gate view changes only architectureUNRUN\u2192FAIL. No inference about complete pytest cases or underlying finding closure."
+  },
+  "first8_complete_receipt": "916953164be6e21b8dd2e35888f7dfe48068cb63:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review.json",
+  "registered_preparation_complete_receipt": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json",
+  "complete_observed_artifact_checks": [
+    {
+      "family": "runtime-api-client",
+      "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "complete_observed": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js.source.txt",
+        "git_blob": "3ae262fcb1aa09aef80929be1c270170d787179e",
+        "bytes": 31276,
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+      },
+      "exact_expected": {
+        "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "git_blob": "3ae262fcb1aa09aef80929be1c270170d787179e",
+        "bytes": 31276,
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+      },
+      "whole_byte_equal": true
+    },
+    {
+      "family": "runtime-api-client",
+      "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "complete_observed": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts.source.txt",
+        "git_blob": "7fba416588d222e0195dc95f54c4a164d25264a5",
+        "bytes": 108061,
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+      },
+      "exact_expected": {
+        "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "git_blob": "7fba416588d222e0195dc95f54c4a164d25264a5",
+        "bytes": 108061,
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+      },
+      "whole_byte_equal": true
+    },
+    {
+      "family": "runtime-api-client",
+      "relative_output": "packages/runtime-api-client/types.ts",
+      "complete_observed": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-api-client/packages/runtime-api-client/types.ts.source.txt",
+        "git_blob": "fed12f54958a714d738007d69fcefcb724e4abec",
+        "bytes": 951543,
+        "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+      },
+      "exact_expected": {
+        "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/packages/runtime-api-client/types.ts",
+        "git_blob": "fed12f54958a714d738007d69fcefcb724e4abec",
+        "bytes": 951543,
+        "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+      },
+      "whole_byte_equal": true
+    },
+    {
+      "family": "runtime-dashboard-api-types",
+      "relative_output": "apps/runtime-dashboard/src/api/types.ts",
+      "complete_observed": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts.source.txt",
+        "git_blob": "91e455f1424cd2222fd3e45fd9e14a20a54cffa0",
+        "bytes": 791736,
+        "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+      },
+      "exact_expected": {
+        "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/apps/runtime-dashboard/src/api/types.ts",
+        "git_blob": "91e455f1424cd2222fd3e45fd9e14a20a54cffa0",
+        "bytes": 791736,
+        "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+      },
+      "whole_byte_equal": true
+    },
+    {
+      "family": "runtime-openapi-snapshot",
+      "relative_output": "schemas/runtime_api_v1.openapi.json",
+      "complete_observed": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json.source.txt",
+        "git_blob": "4bfd1a16a07b89d9fb359be7ba3dd240505bd6c4",
+        "bytes": 2812414,
+        "sha256": "902564b2e0a60c249cda382686cc959585559a80cd24647a17b3ef26e21645a0"
+      },
+      "exact_expected": {
+        "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/schemas/runtime_api_v1.openapi.json",
+        "git_blob": "193ea44186dc5d58fbdfa01b7bdb77e53bfe3507",
+        "bytes": 2812414,
+        "sha256": "5309d53ad805a8a1cdefab108d5f8c1bc867a640ffeb03f646fe5bd6baa7d4a3"
+      },
+      "whole_byte_equal": false
+    },
+    {
+      "family": "trust-claim-posture-register",
+      "relative_output": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "complete_observed": {
+        "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/final-output-bytes/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json.source.txt",
+        "git_blob": "4506843031535d281babd4f3a54b2b31d0d53bba",
+        "bytes": 2376644,
+        "sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119"
+      },
+      "exact_expected": {
+        "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "git_blob": "38f8b0b40ca439aa5e52cf39b3c8cda894391db6",
+        "bytes": 2365635,
+        "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+      },
+      "whole_byte_equal": false
+    }
+  ],
+  "full_finding_census": {
+    "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/complete-final-architecture-finding-census.json",
+    "git_blob": "ad16f4b1303f9747f36d7863706b2d8048ac88f5",
+    "bytes": 103154,
+    "sha256": "cbb497cbdc35e1f5a3f55ae788fec5b977552fd03356f6d462c9c60404c27cf2"
+  },
+  "full_output_maps": {
+    "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/complete-both-retry-output-maps.json",
+    "git_blob": "edd1e52f6ad6797e8f189a4a087098359e3ae6cd",
+    "bytes": 12956,
+    "sha256": "b12db2515cc5325473adc5529f00e2ce4067ffbe1d365c18dffd3cfd5cd57e39"
+  },
+  "nine_OpenAPI_typed_differences_and_trust_scope": {
+    "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/complete-typed-json-drift.json",
+    "git_blob": "efed1e878939c4c5f534e54d7101db658a85d07a",
+    "bytes": 6946,
+    "sha256": "25137d4d82ec4db97daea2a2d69b4f9555d08b46f569e42d070b31ac73733d39"
+  },
+  "captured_prep_hash_forward_qualification": {
+    "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/captured-profile-effective-preparation-qualification.json",
+    "git_blob": "9c423aa45f52d6be7165d4af5a639bc192b0698a",
+    "bytes": 1866,
+    "sha256": "899be4d22f9c2c1456d450580bf86e4243a2372cf87763a8777165c0dc956af4"
+  },
+  "effective_preparation": {
+    "captured_default_ancestor_sha256": "2160e9a862d6d2f0e56ca8f9d063219d17741834dd7468be5dbe800e70fb24ce",
+    "true_runtime_ml_profile_sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69",
+    "true_profile_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+    "qualification": "Mismatch is captured root metadata only; correctf70 effective prep is separately bound. Exact command/source/capture/generator outputs unaffected; original field bytes not rewritten."
+  },
+  "native_partial_single_custody": {
+    "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/root-native-partial-custody-locators.json",
+    "git_blob": "88eefe8fed1360c7185250a51a08c48bd81b40e9",
+    "bytes": 2540,
+    "sha256": "77699d00116ee07c0641e7e753a44a158be1f23fc1e66da8f0db9902a0b35f28"
+  },
+  "native_root_only_grade": "ROOT sole custody publisher. Exact raw refs/hashes provided; portable source/evidence publication pending, G availability not_established. No native originals duplicated in this packet.",
+  "complete_evidence": {
+    "index": {
+      "source_ref": "189c0c10b08fcfab08698133163510aa6c89166c:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-retry-review-evidence/index.json",
+      "git_blob": "6358823125e807308a7b807dccec4eae747e9263",
+      "bytes": 4661,
+      "sha256": "6159fa33ab515bf68580f9fcec03c6fcf4b88ffd7f371234f6f0e454b7bfc393"
+    },
+    "payload_count": 23,
+    "payload_bytes": 7500952,
+    "index_is_additional_object": true,
+    "scope": "Full three retry stdout/profile/captures plusall6actual observed generated artifacts andcomplete concise maps/fielddiff/custody. Expected source remains exactimmutable1862 Gitrefs.",
+    "huge_aligned_diff": "Ignored13,021,748B@62c1777cd14eac21a3d6745f1c0e0cba30d9fbf644c125a0767c390fb28fc5e6; optionalraw Gavailabilitynot_established; actual observedJSON andexpectedGit refs suffice for independent recomputation."
+  },
+  "limitations_and_next_owner": [
+    "Root/G: all global code quality RED remains actionable; do not attribute as inherited without exact baseline repeat and zero input overlap P41 proof.",
+    "Root: keepfirst8results, botharchitecture retries andbothscanner -9attempts. No gate/case exclusions, no lifecycle/source edit, no further cache mutation by this reviewer.",
+    "OpenAPI9changes are all confidence-ledger-risk-spend example hashes/ref/replayfields; no causal seed/environment conclusion or public compatibility/freshness waiver.",
+    "Trust19,596rawindex-aligned leaf deltas are not a semantic change count; fullobserved2.37MB andexactexpectedGitref/hash provided.",
+    "Six full observed output files are documentary .source.txt bytes; do not import these as canonical product source or artifact authority.",
+    "Nativefull250collects3882 butactualcaptureSIGKILL/-9 after486.204744s, inventory0runtimephases/noXML; no complete casepartition/regressionPASS. ROOT owns portable evidence publication.",
+    "Affected47whole807=806PASS1scientificFAIL is distinct parent-reported context, not full250 outcome.",
+    "Cgroupresource event correlation cannot assign causal PIDvictim proof; sourcecode defect attribution for -9/137 remains not_established.",
+    "This metadata implementation has24docs paths, no canonical source/tests/fixtures orroot edits; no native/collection/gates/cache work during retryreview.",
+    "Merging metadata after frozen checks changes only receipt tree; all actual executions remain1862/f765."
+  ]
+}

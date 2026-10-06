@@ -5,7 +5,7 @@ mechanically derived from the complete pre-version model census. Historical
 replay consults this static projection and never hashes the current source.
 
 v1/v2 source census map SHA-256: 440dda606c8ea13732c6b3470f48242efb83642c9869681cc74ebc8422159892
-v3 model-graph snapshot SHA-256: fca25bdf105c255a2e345b6d30159d6ea4841a3e5ef61eae237f62136894e0a5
+v3 model-graph snapshot SHA-256: 3cf3305653a3bc1a6cfb460a68c7a9699239c51a21986ebd93a40e9f2f134130
 Vocabulary reflection: every declared model field in each frozen graph;
 Literal and Enum/StrEnum annotations, including aliases, are type-hint-derived.
 """
@@ -2201,7 +2201,128 @@ _FROZEN_SCHEMA_V3_JSON: Final = (
     'ort_mode","identification_engine","required_target_data","limitation_refs"]}}'
 )
 
+# v3 adds a typed N5 applicability observation to every newly produced candidate.
+# Keep the historical graph extension explicit and preserve the base snapshot bytes.
+_v3_history_models = json.loads(_FROZEN_SCHEMA_V3_JSON)
+_candidate_summary_shape = _v3_history_models[
+    "polisyos.runtime.quality.generation_cycle.CandidateSummary"
+]
+_candidate_summary_shape["declared_fields"].insert(
+    _candidate_summary_shape["declared_fields"].index("value_status"),
+    "n5_applicability",
+)
+_candidate_summary_shape["wire_fields"].insert(
+    _candidate_summary_shape["wire_fields"].index("value_status"),
+    "n5_applicability",
+)
+_candidate_summary_shape["typed_model_edges"]["n5_applicability"] = [
+    [["union:0"], "polisyos.runtime.quality.joint_simulation_horizon.JointSimulationApplicability"]
+]
+_v3_history_models[
+    "polisyos.runtime.quality.joint_simulation_horizon.JointSimulationApplicability"
+] = {
+    "computed_fields": [],
+    "declared_fields": ["status", "request_digest", "engine_decisions", "blockers"],
+    "excluded_fields": [],
+    "field_vocabulary": {
+        "status": [{
+            "kind": "literal",
+            "path": [],
+            "type": None,
+            "values": ["eligible", "ineligible", "not_established"],
+        }]
+    },
+    "literal_values": {"status": ["eligible", "ineligible", "not_established"]},
+    "nullable_literal_fields": [],
+    "opaque_fields": [],
+    "typed_model_edges": {
+        "engine_decisions": [
+            [["tuple:0"], "polisyos.runtime.quality.joint_simulation_horizon.EngineDecision"]
+        ]
+    },
+    "wire_fields": ["status", "request_digest", "engine_decisions", "blockers"],
+}
+_v3_history_models[
+    "polisyos.runtime.quality.joint_simulation_horizon.EngineDecision"
+] = {
+    "computed_fields": [],
+    "declared_fields": [
+        "engine_kind",
+        "objective_ref",
+        "decision",
+        "method_fqn",
+        "equilibrium_semantics",
+        "temporal_capability",
+        "output_shape",
+        "reason",
+        "blockers",
+        "eligibility_source",
+    ],
+    "excluded_fields": [],
+    "field_vocabulary": {
+        "decision": [{
+            "kind": "literal", "path": [], "type": None,
+            "values": ["selected", "unsupported", "rejected"],
+        }],
+        "engine_kind": [{
+            "kind": "literal", "path": [], "type": None,
+            "values": [
+                "program_graph", "ncm_parallel_worlds", "coupled_des_abm",
+                "system_dynamics", "method_registry_estimator",
+            ],
+        }],
+        "equilibrium_semantics": [{
+            "kind": "literal", "path": [], "type": None,
+            "values": [
+                "none", "static_SCM", "dynamic_SCM", "time_unrolled_SCM",
+                "equilibrium_SCM", "game_model", "agent_based_model", "unsupported",
+            ],
+        }],
+        "output_shape": [{
+            "kind": "literal", "path": [], "type": None,
+            "values": [
+                "static_point", "time_series_trajectory", "program_state_trajectory",
+                "scalar_final_value", "unsupported",
+            ],
+        }],
+        "temporal_capability": [{
+            "kind": "literal", "path": [], "type": None,
+            "values": ["static", "multi_period", "unsupported"],
+        }],
+    },
+    "literal_values": {
+        "decision": ["selected", "unsupported", "rejected"],
+        "engine_kind": [
+            "program_graph", "ncm_parallel_worlds", "coupled_des_abm",
+            "system_dynamics", "method_registry_estimator",
+        ],
+        "equilibrium_semantics": [
+            "none", "static_SCM", "dynamic_SCM", "time_unrolled_SCM",
+            "equilibrium_SCM", "game_model", "agent_based_model", "unsupported",
+        ],
+        "output_shape": [
+            "static_point", "time_series_trajectory", "program_state_trajectory",
+            "scalar_final_value", "unsupported",
+        ],
+        "temporal_capability": ["static", "multi_period", "unsupported"],
+    },
+    "nullable_literal_fields": [],
+    "opaque_fields": [],
+    "typed_model_edges": {},
+    "wire_fields": [
+        "engine_kind",
+        "objective_ref",
+        "decision",
+        "method_fqn",
+        "equilibrium_semantics",
+        "temporal_capability",
+        "output_shape",
+        "reason",
+        "blockers",
+        "eligibility_source",
+    ],
+}
 FROZEN_N6_HISTORY_SCHEMA: Final[dict[str, dict[str, dict[str, object]]]] = {
     **json.loads(_FROZEN_SCHEMA_JSON),
-    "v3": json.loads(_FROZEN_SCHEMA_V3_JSON),
+    "v3": _v3_history_models,
 }

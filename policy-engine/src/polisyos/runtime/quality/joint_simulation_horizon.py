@@ -12,6 +12,7 @@ import itertools
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
+from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 import numpy as np
@@ -273,6 +274,15 @@ class EngineDecision(_StrictModel):
     reason: str
     blockers: tuple[str, ...] = ()
     eligibility_source: str = "method_registry"
+
+
+class JointSimulationApplicability(_StrictModel):
+    """Typed pre-run applicability decision for one exact N5 request."""
+
+    status: Literal["eligible", "ineligible", "not_established"]
+    request_digest: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    engine_decisions: tuple[EngineDecision, ...] = ()
+    blockers: tuple[str, ...] = ()
 
 
 class TrajectoryPoint(_StrictModel):
@@ -1026,6 +1036,59 @@ class _SelectedEngine:
     decisions: tuple[EngineDecision, ...]
 
 
+def _typed_execution_payload(value: object) -> object:
+    """Project every typed execution input, refusing opaque or omitted values."""
+
+    if isinstance(value, Enum):
+        return _typed_execution_payload(value.value)
+    if isinstance(value, BaseModel):
+        payload: dict[str, object] = {}
+        for name, field in type(value).model_fields.items():
+            item = getattr(value, name)
+            if field.exclude and item is not None:
+                raise ValueError(f"excluded_execution_input_not_bindable:{name}")
+            payload[name] = _typed_execution_payload(item)
+        for name in type(value).model_computed_fields:
+            payload[f"computed:{name}"] = _typed_execution_payload(getattr(value, name))
+        private_values = getattr(value, "__pydantic_private__", None) or {}
+        if any(item is not None for item in private_values.values()):
+            raise ValueError("private_execution_input_not_bindable")
+        return payload
+    if isinstance(value, Mapping):
+        if any(type(key) is not str for key in value):
+            raise TypeError("execution_input_mapping_key_not_string")
+        return {key: _typed_execution_payload(item) for key, item in value.items()}
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
+        return [_typed_execution_payload(item) for item in value]
+    if value is None or type(value) in {str, bool, int}:
+        return value
+    if type(value) is float:
+        if not np.isfinite(value):
+            raise ValueError("execution_input_non_finite")
+        return value
+    raise TypeError(f"execution_input_not_json_bindable:{type(value).__name__}")
+
+
+def _joint_simulation_request_digest(
+    request: JointSimulationRequest,
+) -> str | None:
+    """Hash all typed request inputs, including fields omitted from wire dumps."""
+
+    try:
+        return gy_recorded_content_hash(_typed_execution_payload(request))
+    except Exception:
+        return None
+
+
+@dataclass(frozen=True, slots=True)
+class _RequestApplicabilityEvaluation:
+    """One N5 preflight plus its private selected-plan execution handle."""
+
+    assessment: JointSimulationApplicability
+    selected: _SelectedEngine
+    world_input: Any
+
+
 @dataclass(frozen=True, slots=True)
 class _CouplingSupportDecision:
     """Engine support decision for the already-classified S5 coupling graph."""
@@ -1231,16 +1294,121 @@ class JointSimulationHorizonController:
         )
         return controller
 
-    def run(self, request: JointSimulationRequest) -> JointSimulationResult:
-        """Run individual, pairwise, and joint horizons or fail closed."""
+    def assess_applicability(
+        self,
+        request: JointSimulationRequest,
+    ) -> JointSimulationApplicability:
+        """Assess an exact request with N5's owner checks, without running an engine."""
+
+        request_digest = _joint_simulation_request_digest(request)
+        if request_digest is None:
+            return JointSimulationApplicability(
+                status="not_established",
+                blockers=("n5_request_digest_not_established",),
+            )
+        try:
+            return self._assess_request(
+                request,
+                request_digest=request_digest,
+            ).assessment
+        except JointSimulationControllerError as exc:
+            return JointSimulationApplicability(
+                status=(
+                    "ineligible"
+                    if exc.code == "intervention_assignment_conflict"
+                    else "not_established"
+                ),
+                request_digest=request_digest,
+                blockers=(exc.code,),
+            )
+
+    def _assess_request(
+        self,
+        request: JointSimulationRequest,
+        *,
+        request_digest: str | None = None,
+    ) -> _RequestApplicabilityEvaluation:
+        """Run the shared N5 pre-execution checks and retain their selection."""
 
         self._validate_world_model_record(request)
-        world_input = consume_world_model_record_for_simulation(request.world_model_record)
+        world_input = consume_world_model_record_for_simulation(
+            request.world_model_record
+        )
         for atom in request.intervention_atoms:
             resolve_intervention_atom_world_binding(atom, request.world_model_record)
         _validate_atom_assignment_compatibility(request)
-
         selected = self._select_engine(request)
+        if (
+            selected.decision.decision == "selected"
+            and selected.decision.engine_kind == "ncm_parallel_worlds"
+        ):
+            try:
+                _ncm_intervention(request.intervention_atoms, selected.plan)
+            except JointSimulationControllerError as exc:
+                return _RequestApplicabilityEvaluation(
+                    assessment=JointSimulationApplicability(
+                        status="ineligible",
+                        request_digest=request_digest,
+                        engine_decisions=selected.decisions,
+                        blockers=(exc.code,),
+                    ),
+                    selected=selected,
+                    world_input=world_input,
+                )
+        blockers = ()
+        status: Literal["eligible", "ineligible"] = "eligible"
+        if selected.decision.decision != "selected":
+            status = "ineligible"
+            blockers = tuple(
+                dict.fromkeys(
+                    reason
+                    for item in selected.decisions
+                    if item.decision != "selected"
+                    for reason in (item.reason, *item.blockers)
+                )
+            ) or ("n5_no_engine_selected",)
+        return _RequestApplicabilityEvaluation(
+            assessment=JointSimulationApplicability(
+                status=status,
+                request_digest=request_digest,
+                engine_decisions=selected.decisions,
+                blockers=blockers,
+            ),
+            selected=selected,
+            world_input=world_input,
+        )
+
+    def run(
+        self,
+        request: JointSimulationRequest,
+        *,
+        expected_applicability: JointSimulationApplicability | None = None,
+    ) -> JointSimulationResult:
+        """Run individual, pairwise, and joint horizons or fail closed."""
+
+        request_digest = (
+            _joint_simulation_request_digest(request)
+            if expected_applicability is not None
+            else None
+        )
+        if expected_applicability is not None and request_digest is None:
+            raise JointSimulationControllerError(
+                "joint_simulation_request_digest_not_established"
+            )
+        evaluation = self._assess_request(
+            request,
+            request_digest=request_digest,
+        )
+        if expected_applicability is not None and (
+            expected_applicability.model_dump(mode="json")
+            != evaluation.assessment.model_dump(mode="json")
+            or expected_applicability.status != "eligible"
+        ):
+            raise JointSimulationControllerError(
+                "joint_simulation_applicability_changed_before_run"
+            )
+        world_input = evaluation.world_input
+        selected = evaluation.selected
         decision = selected.decision
         selected_plan = selected.plan
         decisions = selected.decisions
@@ -3230,6 +3398,7 @@ __all__ = [
     "FeedbackClassification",
     "HorizonSpec",
     "InteractionTerm",
+    "JointSimulationApplicability",
     "JointSimulationControllerError",
     "JointSimulationControllerPolicy",
     "JointSimulationHorizonController",

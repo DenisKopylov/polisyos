@@ -799,8 +799,8 @@ def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> N
     """Freeze aliases/Enums across every map class and exclude computed wire keys."""
 
     frozen = generation.FROZEN_N6_HISTORY_SCHEMA
-    expected_field_counts = {"v1": 76, "v2": 82, "v3": 86}
-    expected_model_counts = {"v1": 59, "v2": 60, "v3": 62}
+    expected_field_counts = {"v1": 76, "v2": 82, "v3": 92}
+    expected_model_counts = {"v1": 59, "v2": 60, "v3": 64}
     assert {version: len(models) for version, models in frozen.items()} == expected_model_counts
     for version, models in frozen.items():
         assert sum(

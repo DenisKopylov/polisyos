@@ -82,6 +82,7 @@ from polisyos.pdc import (
     ValueOfInformationEstimate,
     gy_artifact_self_identity_projection,
     gy_content_hash,
+    gy_recorded_content_hash,
 )
 from polisyos.runtime.http.errors import RuntimeDependencyError
 from polisyos.runtime.quality._generation_cycle_history_schema import (
@@ -138,6 +139,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
     WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS,
     EnginePlan,
+    JointSimulationApplicability,
     JointSimulationHorizonController,
     JointSimulationRequest,
     JointSimulationResult,
@@ -1504,6 +1506,10 @@ class CandidateSummary(_StrictModel):
     grounding_report_ref: str | None = None
     grounding_score: float = Field(ge=0.0, le=1.0)
     current_valid: bool
+    n5_applicability: JointSimulationApplicability | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     value_status: ValuePortStatus = "value_pending_n8"
     value_decision_grade: Literal["blocked", "low", "medium", "high"] | None = None
     value_ref: str | None = None
@@ -2645,6 +2651,18 @@ class PolicyGroundingPort:
         )
 
 
+@dataclass(frozen=True, slots=True)
+class _PreparedN5Invocation:
+    """Exact data-only request assessed before selection and consumed at execution."""
+
+    candidate_id: str
+    candidate_content_hash: str
+    cycle_index: int
+    problem_content_hash: str | None
+    request: JointSimulationRequest | None
+    applicability: JointSimulationApplicability
+
+
 class JointSimulationPort:
     """Default N5 port assembling and calling the canonical joint controller."""
 
@@ -2657,6 +2675,7 @@ class JointSimulationPort:
         artifact_store: ArtifactStore | None = None,
         candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None,
     ) -> None:
+        self._preflight_default_controller = controller is None
         self._controller = controller or JointSimulationHorizonController()
         self._repo_root = repo_root
         self._artifact_store = artifact_store
@@ -2670,6 +2689,150 @@ class JointSimulationPort:
         self._cycle_substrate_context = cycle_substrate_context
         self._boundary_world_cache: dict[str, WorldModelRecord] = {}
         self._boundary_world_cache_index: dict[str, str] = {}
+
+    def supports_applicability_preflight(self, problem: DesignProblem) -> bool:
+        """Return whether composition selected the owner-built NCM data path."""
+
+        hints = problem.runtime_hints
+        return (
+            self._preflight_default_controller
+            and self._candidate_simulation_handoff is None
+            and self._artifact_store is not None
+            and hints.get("joint_simulation_resource") == "ncm_parallel_worlds"
+            and not callable(hints.get("joint_simulation_request_factory"))
+            and hints.get("joint_simulation_request") is None
+            and self._request_builder_is_requested(problem)
+        )
+
+    def prepare_candidate(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> _PreparedN5Invocation:
+        """Prepare the exact owner-built NCM request without executing an engine."""
+
+        candidate_id = _candidate_id(candidate)
+        candidate_hash = _candidate_content_hash(candidate)
+        problem_content_hash = _problem_content_hash_for_n5_preflight(problem)
+
+        def not_established(code: str) -> _PreparedN5Invocation:
+            return _PreparedN5Invocation(
+                candidate_id=candidate_id,
+                candidate_content_hash=candidate_hash,
+                cycle_index=cycle_index,
+                problem_content_hash=problem_content_hash,
+                request=None,
+                applicability=JointSimulationApplicability(
+                    status="not_established",
+                    blockers=(code,),
+                ),
+            )
+
+        if problem_content_hash is None:
+            return not_established("n5_problem_content_not_established")
+        if not self.supports_applicability_preflight(problem):
+            return not_established("n5_preflight_outside_default_ncm_composition")
+        raw_atoms = _object_get(candidate, "intervention_atoms")
+        if raw_atoms is None:
+            single_atom = _object_get(candidate, "atom")
+            atoms = (single_atom,) if single_atom is not None else ()
+        else:
+            atoms = tuple(_sequence(raw_atoms))
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+        )
+
+        if any(
+            isinstance(atom, InterventionAtomBinding)
+            and type(atom) is not InterventionAtomBinding
+            for atom in atoms
+        ):
+            return not_established(
+                "n5_preflight_intervention_atom_subclass_not_supported"
+            )
+        try:
+            request = self._build_joint_simulation_request(
+                candidate=candidate,
+                problem=problem,
+            )
+            request = self._request_with_verified_world_model(
+                request=request,
+                candidate=candidate,
+                problem=problem,
+            )
+            request, _state_consumptions, _program_binding_failures = (
+                self._request_with_bound_program_state(request)
+            )
+            if not request.engine_plan or any(
+                plan.engine_kind != "ncm_parallel_worlds"
+                for plan in request.engine_plan
+            ):
+                return not_established("n5_preflight_requires_registered_ncm_data_plan")
+            assessment = self._controller.assess_applicability(request)
+            if (
+                assessment.status == "eligible"
+                and request.coupling_graph is None
+                and len(request.intervention_atoms) > 1
+            ):
+                assessment = assessment.model_copy(
+                    update={
+                        "status": "not_established",
+                        "blockers": (
+                            "n5_coupling_graph_not_bound_for_multi_atom_request",
+                        ),
+                    }
+                )
+            return _PreparedN5Invocation(
+                candidate_id=candidate_id,
+                candidate_content_hash=candidate_hash,
+                cycle_index=cycle_index,
+                problem_content_hash=problem_content_hash,
+                request=request,
+                applicability=assessment,
+            )
+        except (
+            ArtifactIntegrityError,
+            ArtifactOwnershipError,
+            FileNotFoundError,
+            RuntimeDependencyError,
+            TypeError,
+            ValueError,
+            WorldModelRecordError,
+        ) as exc:
+            code = str(
+                getattr(exc, "code", None) or "n5_request_preparation_not_established"
+            )
+            return not_established(code)
+
+    def prepared_applicability_is_current(
+        self,
+        *,
+        prepared: _PreparedN5Invocation,
+        candidate: object,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> bool:
+        """Recompute the exact N5 decision before VOI scheduling."""
+
+        if (
+            prepared.candidate_id != _candidate_id(candidate)
+            or prepared.candidate_content_hash != _candidate_content_hash(candidate)
+            or prepared.problem_content_hash is None
+            or prepared.problem_content_hash
+            != _problem_content_hash_for_n5_preflight(problem)
+            or prepared.cycle_index != cycle_index
+            or prepared.request is None
+            or prepared.applicability.status != "eligible"
+        ):
+            return False
+        current = self._controller.assess_applicability(prepared.request)
+        return (
+            current.status == "eligible"
+            and current.model_dump(mode="json")
+            == prepared.applicability.model_dump(mode="json")
+        )
 
     def __call__(
         self,
@@ -2686,12 +2849,35 @@ class JointSimulationPort:
         ) = None,
         candidate_simulation_input_ref: CASArtifactRef | None = None,
         candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
+        prepared_candidate: _PreparedN5Invocation | None = None,
     ) -> SimulationPortObservation:
         """Run N5 from a supplied request or the data-only request builder."""
 
         candidate_id = _candidate_id(candidate)
         request = None
-        if candidate_simulation_input is not None:
+        if prepared_candidate is not None:
+            if (
+                prepared_candidate.candidate_id != candidate_id
+                or prepared_candidate.candidate_content_hash
+                != _candidate_content_hash(candidate)
+                or prepared_candidate.cycle_index != cycle_index
+                or prepared_candidate.problem_content_hash is None
+                or prepared_candidate.problem_content_hash
+                != _problem_content_hash_for_n5_preflight(problem)
+                or prepared_candidate.applicability.status != "eligible"
+                or prepared_candidate.request is None
+            ):
+                return SimulationPortObservation(
+                    candidate_id=candidate_id,
+                    status="simulation_blocked",
+                    authority_blockers=("n5_prepared_request_binding_mismatch",),
+                    diagnostics={
+                        "port": "N5",
+                        "reason": "n5_prepared_request_binding_mismatch",
+                    },
+                )
+            request = prepared_candidate.request
+        elif candidate_simulation_input is not None:
             try:
                 from polisyos.runtime.quality.candidate_simulation import (
                     CandidateSimulationN5InputV3,
@@ -2904,34 +3090,37 @@ class JointSimulationPort:
                 k_world_ref_after=(world_record.content_hash if world_record is not None else None),
                 world_model_record=world_record,
             )
-        request = (
-            request
-            if isinstance(request, JointSimulationRequest)
-            else JointSimulationRequest.model_validate(request)
-        )
-        try:
-            request = self._request_with_verified_world_model(
-                request=request,
-                candidate=candidate,
-                problem=problem,
+        state_consumptions: dict[int, WorldStateConsumptionRecord] = {}
+        program_binding_failures: dict[int, str] = {}
+        if prepared_candidate is None:
+            request = (
+                request
+                if isinstance(request, JointSimulationRequest)
+                else JointSimulationRequest.model_validate(request)
             )
-        except WorldModelRecordError as exc:
-            source = (
-                "cycle_substrate_context"
-                if self._cycle_substrate_context is not None
-                else "joint_simulation_request"
-            )
-            return SimulationPortObservation(
-                candidate_id=candidate_id,
-                status="simulation_blocked",
-                authority_blockers=(exc.code,),
-                diagnostics={
-                    "port": "N5",
-                    "reason": exc.code,
-                    "world_model_source": source,
-                    "world_model_error": str(exc),
-                },
-            )
+            try:
+                request = self._request_with_verified_world_model(
+                    request=request,
+                    candidate=candidate,
+                    problem=problem,
+                )
+            except WorldModelRecordError as exc:
+                source = (
+                    "cycle_substrate_context"
+                    if self._cycle_substrate_context is not None
+                    else "joint_simulation_request"
+                )
+                return SimulationPortObservation(
+                    candidate_id=candidate_id,
+                    status="simulation_blocked",
+                    authority_blockers=(exc.code,),
+                    diagnostics={
+                        "port": "N5",
+                        "reason": exc.code,
+                        "world_model_source": source,
+                        "world_model_error": str(exc),
+                    },
+                )
         if self._artifact_store is None:
             return SimulationPortObservation(
                 candidate_id=candidate_id,
@@ -2947,29 +3136,36 @@ class JointSimulationPort:
                 k_world_ref_after=request.world_model_record.content_hash,
                 world_model_record=request.world_model_record,
             )
-        try:
-            request, state_consumptions, program_binding_failures = (
-                self._request_with_bound_program_state(request)
+        if prepared_candidate is None:
+            try:
+                request, state_consumptions, program_binding_failures = (
+                    self._request_with_bound_program_state(request)
+                )
+            except (
+                ArtifactIntegrityError,
+                ArtifactOwnershipError,
+                FileNotFoundError,
+                RuntimeDependencyError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                code = str(getattr(exc, "code", None) or "n5_program_state_unavailable")
+                return SimulationPortObservation(
+                    candidate_id=candidate_id,
+                    status="simulation_blocked",
+                    authority_blockers=(code,),
+                    diagnostics={"port": "N5", "reason": code, "state_error": str(exc)},
+                    k_world_ref_before=request.world_model_record.content_hash,
+                    k_world_ref_after=request.world_model_record.content_hash,
+                    world_model_record=request.world_model_record,
+                )
+        if prepared_candidate is None:
+            result = self._controller.run(request)
+        else:
+            result = self._controller.run(
+                request,
+                expected_applicability=prepared_candidate.applicability,
             )
-        except (
-            ArtifactIntegrityError,
-            ArtifactOwnershipError,
-            FileNotFoundError,
-            RuntimeDependencyError,
-            TypeError,
-            ValueError,
-        ) as exc:
-            code = str(getattr(exc, "code", None) or "n5_program_state_unavailable")
-            return SimulationPortObservation(
-                candidate_id=candidate_id,
-                status="simulation_blocked",
-                authority_blockers=(code,),
-                diagnostics={"port": "N5", "reason": code, "state_error": str(exc)},
-                k_world_ref_before=request.world_model_record.content_hash,
-                k_world_ref_after=request.world_model_record.content_hash,
-                world_model_record=request.world_model_record,
-            )
-        result = self._controller.run(request)
         selected_program_index = next(
             (
                 index
@@ -5528,6 +5724,11 @@ class GenerationCycleController:
         self._artifact_store = artifact_store
         if generation_port is None and model_id is None:
             generation_port = _UnavailableGenerationPort()
+        self._n5_preflight_composition = (
+            simulation_port is None
+            and candidate_simulation_handoff is None
+            and authority_scope == "production"
+        )
         self._generation_port = generation_port or N4GenerationPort(
             model_id=str(model_id),
             repo_root=repo_root,
@@ -7834,13 +8035,29 @@ class GenerationCycleController:
             grounding=grounding,
             value_port=value_port,
         )
-        voi_decision = self.decide_next_action(
-            candidate_id=cycle.selected_candidate_ref,
-            proxy_score=proxy_score,
-            voi_estimate=voi_estimate,
-            prior_terminal_kind=terminal_kind,
-            budget_state=budget_state,
-        )
+        if dependent.get("n5_preflight_blocked"):
+            blocker = (
+                simulation.authority_blockers[0]
+                if simulation.authority_blockers
+                else "n5_applicability_not_established"
+            )
+            voi_decision = LoopVOIDecision(
+                candidate_id=cycle.selected_candidate_ref,
+                terminal_kind=terminal_kind,
+                scheduler_action="not_run_hard_feasibility_blocked",
+                scheduler_reason=blocker,
+                priority=0.0,
+                next_action="blocked",
+                reason=f"n5_preflight_blocked:{blocker}",
+            )
+        else:
+            voi_decision = self.decide_next_action(
+                candidate_id=cycle.selected_candidate_ref,
+                proxy_score=proxy_score,
+                voi_estimate=voi_estimate,
+                prior_terminal_kind=terminal_kind,
+                budget_state=budget_state,
+            )
         reentered = _cycle_record(
             problem=problem,
             cycle_index=cycle.cycle_index,
@@ -7861,6 +8078,11 @@ class GenerationCycleController:
             candidate_content_hash=rebound_atom.content_hash,
             grounding=grounding,
             low_grounding_threshold=self._low_grounding_threshold,
+            n5_applicability=JointSimulationApplicability(
+                status="not_established",
+                blockers=simulation.authority_blockers
+                or ("n7_n5_preflight_not_established",),
+            ),
         )
 
     def _candidate_scenario_proposal_result(
@@ -8199,7 +8421,16 @@ class GenerationCycleController:
         problem = state["problem"]
         cycle_index = int(state["cycle_index"])
         grounding_by_candidate: dict[str, CandidateGroundingObservation] = {}
+        applicability_by_candidate: dict[
+            str, JointSimulationApplicability | None
+        ] = {}
+        prepared_by_candidate: dict[str, _PreparedN5Invocation] = {}
         summaries: list[CandidateSummary] = []
+        port_supports_preflight = (
+            self._n5_preflight_composition
+            and isinstance(self._simulation_port, JointSimulationPort)
+            and self._simulation_port.supports_applicability_preflight(problem)
+        )
         for candidate in state["candidates"]:
             candidate_id = _candidate_id(candidate)
             grounding = self._grounding_port(
@@ -8209,6 +8440,24 @@ class GenerationCycleController:
                 generation_result=state["generation_result"],
             )
             grounding_by_candidate[candidate_id] = grounding
+            if not port_supports_preflight:
+                applicability = None
+            elif not _grounding_allows_joint_evaluation(grounding):
+                applicability = JointSimulationApplicability(
+                    status="not_established",
+                    blockers=("n5_grounding_prerequisite_not_met",),
+                )
+            else:
+                if not isinstance(self._simulation_port, JointSimulationPort):
+                    raise GenerationCycleError("n5_preflight_port_binding_lost")
+                prepared = self._simulation_port.prepare_candidate(
+                    candidate=candidate,
+                    problem=problem,
+                    cycle_index=cycle_index,
+                )
+                prepared_by_candidate[candidate_id] = prepared
+                applicability = prepared.applicability
+            applicability_by_candidate[candidate_id] = applicability
             proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
             high_proxy = proxy_score >= self._high_proxy_threshold
             low_grounding = (
@@ -8244,6 +8493,7 @@ class GenerationCycleController:
                     grounding_report_ref=grounding.report_ref,
                     grounding_score=grounding.grounding_score,
                     current_valid=grounding.current_valid,
+                    n5_applicability=applicability,
                     front=front,
                     high_proxy=high_proxy,
                     low_grounding=low_grounding,
@@ -8251,15 +8501,30 @@ class GenerationCycleController:
                     adversarial_validation_status=adversarial_status,
                 )
             )
+        n5_preflight_enforced = port_supports_preflight
         selected = _grounded_candidate_for_evaluation(
             candidates=state["candidates"],
             grounding_by_candidate=grounding_by_candidate,
             rankings=state["rankings"],
+            n5_applicability_by_candidate=(
+                applicability_by_candidate if n5_preflight_enforced else None
+            ),
             fallback=state["selected_candidate"],
+        )
+        selected_applicability = applicability_by_candidate.get(
+            _candidate_id(selected)
+        )
+        n5_preflight_blocked = n5_preflight_enforced and (
+            selected_applicability is None
+            or selected_applicability.status != "eligible"
         )
         return {
             **state,
             "grounding_by_candidate": grounding_by_candidate,
+            "n5_applicability_by_candidate": applicability_by_candidate,
+            "n5_prepared_by_candidate": prepared_by_candidate,
+            "n5_preflight_enforced": n5_preflight_enforced,
+            "n5_preflight_blocked": n5_preflight_blocked,
             "selected_candidate": selected,
             "selected_grounding": grounding_by_candidate[_candidate_id(selected)],
             "candidate_summaries": tuple(summaries),
@@ -8272,6 +8537,49 @@ class GenerationCycleController:
         candidate_id = _candidate_id(candidate)
         candidate_hash = _candidate_content_hash(candidate)
         self._n7_candidate_bindings[(candidate_id, candidate_hash)] = candidate
+        applicability = state.get("n5_applicability_by_candidate", {}).get(candidate_id)
+        prepared = state.get("n5_prepared_by_candidate", {}).get(candidate_id)
+        if state.get("n5_preflight_enforced") and (
+            applicability is None
+            or applicability.status != "eligible"
+            or prepared is None
+            or prepared.applicability.model_dump(mode="json")
+            != applicability.model_dump(mode="json")
+            or not isinstance(self._simulation_port, JointSimulationPort)
+            or not self._simulation_port.prepared_applicability_is_current(
+                prepared=prepared,
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+            )
+        ):
+            reason = (
+                applicability.blockers[0]
+                if applicability is not None and applicability.blockers
+                else "n5_applicability_not_established"
+            )
+            simulation = SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=(reason,),
+                diagnostics={
+                    "port": "N6",
+                    "reason": reason,
+                    "n5_preflight": "blocked",
+                },
+            )
+            value = ValuePortObservation(
+                status="value_blocked",
+                candidate_id=candidate_id,
+                authority_blockers=(reason,),
+                reason=f"N5 hard applicability did not admit this candidate: {reason}.",
+            )
+            return {
+                **state,
+                "simulation": simulation,
+                "value_port": value,
+                "n5_preflight_blocked": True,
+            }
         proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
         schedule = self._schedule_candidate_for_execution(
             candidate_id=candidate_id,
@@ -8345,11 +8653,21 @@ class GenerationCycleController:
                 "value_port": value,
                 "execution_schedule": schedule,
             }
-        simulation = self._simulation_port(
-            candidate=candidate,
-            problem=problem,
-            cycle_index=cycle_index,
-        )
+        if state.get("n5_preflight_enforced"):
+            if not isinstance(self._simulation_port, JointSimulationPort):
+                raise GenerationCycleError("n5_preflight_port_binding_lost")
+            simulation = self._simulation_port(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+                prepared_candidate=prepared,
+            )
+        else:
+            simulation = self._simulation_port(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+            )
         value_port = state.get("value_port_override") or self._value_port
         value = value_port(
             candidate=candidate,
@@ -9014,14 +9332,41 @@ class GenerationCycleController:
             terminal_kind=terminal_kind,
             default_revision=default_revision,
         )
-        next_action = self.decide_next_action(
-            candidate_id=candidate_id,
-            proxy_score=proxy_score,
-            voi_estimate=voi_estimate,
-            prior_terminal_kind=terminal_kind,
-            budget_state=state["budget_state"],
+        selected_applicability = state.get("n5_applicability_by_candidate", {}).get(
+            candidate_id
         )
-        if self._candidate_simulation_handoff is not None:
+        if state.get("n5_preflight_enforced") and (
+            state.get("n5_preflight_blocked")
+            or (
+                selected_applicability is not None
+                and selected_applicability.status != "eligible"
+            )
+        ):
+            reason = (
+                selected_applicability.blockers[0]
+                if selected_applicability is not None and selected_applicability.blockers
+                else "n5_applicability_not_established"
+            )
+            next_action = LoopVOIDecision(
+                candidate_id=candidate_id,
+                terminal_kind=terminal_kind,
+                scheduler_action="not_run_hard_feasibility_blocked",
+                scheduler_reason=reason,
+                priority=0.0,
+                next_action="blocked",
+                reason=f"n5_preflight_blocked:{reason}",
+            )
+        else:
+            next_action = self.decide_next_action(
+                candidate_id=candidate_id,
+                proxy_score=proxy_score,
+                voi_estimate=voi_estimate,
+                prior_terminal_kind=terminal_kind,
+                budget_state=state["budget_state"],
+            )
+        if self._candidate_simulation_handoff is not None and not state.get(
+            "n5_preflight_blocked"
+        ):
             candidate_reason = (
                 "candidate_scenario_n5_only"
                 if state["value_port"].status == "value_pending_n8"
@@ -9989,6 +10334,7 @@ def _n7_reentered_summaries(
     candidate_content_hash: str | None = None,
     grounding: CandidateGroundingObservation,
     low_grounding_threshold: float,
+    n5_applicability: JointSimulationApplicability,
 ) -> tuple[CandidateSummary, ...]:
     updated: list[CandidateSummary] = []
     low_grounding = grounding.grounding_score < low_grounding_threshold or grounding.status in {
@@ -10008,6 +10354,7 @@ def _n7_reentered_summaries(
             "grounding_report_ref": grounding.report_ref,
             "grounding_score": grounding.grounding_score,
             "current_valid": grounding.current_valid,
+            "n5_applicability": n5_applicability,
             "front": front,
             "low_grounding": low_grounding,
             "quarantine_action": grounding.quarantine_action,
@@ -12151,6 +12498,19 @@ def _problem_ref(problem: DesignProblem) -> str:
     return gy_content_hash(problem.model_dump(mode="json"))
 
 
+def _problem_content_hash_for_n5_preflight(problem: DesignProblem) -> str | None:
+    """Bind every problem field, including runtime hints, or decline preflight."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        _typed_execution_payload,
+    )
+
+    try:
+        return gy_recorded_content_hash(_typed_execution_payload(problem))
+    except Exception:
+        return None
+
+
 def _runtime_hint_optional(problem: DesignProblem, key: str) -> object | None:
     return problem.runtime_hints.get(key, None)
 
@@ -12163,6 +12523,48 @@ def _candidate_id(candidate: object) -> str:
 
 def _candidate_content_hash(candidate: object) -> str:
     atom = _object_get(candidate, "atom")
+    raw_atoms = _object_get(candidate, "intervention_atoms")
+    if raw_atoms is not None:
+        atoms = tuple(_sequence(raw_atoms))
+        if atoms:
+            from polisyos.runtime.quality.intervention_atom_binding import (
+                InterventionAtomBinding,
+            )
+
+            if all(isinstance(item, InterventionAtomBinding) for item in atoms):
+                if all(type(item) is InterventionAtomBinding for item in atoms):
+                    atom_hashes = [item.content_hash for item in atoms]
+                    if len(atom_hashes) == 1:
+                        return atom_hashes[0]
+                    return gy_content_hash(
+                        {"intervention_atom_content_hashes": atom_hashes}
+                    )
+                from polisyos.runtime.quality.joint_simulation_horizon import (
+                    _typed_execution_payload,
+                )
+
+                typed_atom_hashes: list[dict[str, str]] = []
+                for item in atoms:
+                    atom_type = f"{type(item).__module__}.{type(item).__qualname__}"
+                    try:
+                        typed_hash = gy_recorded_content_hash(
+                            {
+                                "atom_type": atom_type,
+                                "typed_fields": _typed_execution_payload(item),
+                            }
+                        )
+                    except Exception:
+                        # The bounded preflight explicitly refuses subclasses;
+                        # this is only a stable record identity when an extension
+                        # carries an opaque field the generic typed projection
+                        # cannot bind. It never supplies applicability evidence.
+                        typed_hash = item.content_hash
+                    typed_atom_hashes.append(
+                        {"atom_type": atom_type, "content_hash": typed_hash}
+                    )
+                return gy_recorded_content_hash(
+                    {"intervention_atom_bindings": typed_atom_hashes}
+                )
     provenance = _object_get(candidate, "provenance")
     value = (
         _object_get(atom, "content_hash")
@@ -12331,20 +12733,36 @@ def _grounded_candidate_for_evaluation(
     candidates: Sequence[object],
     grounding_by_candidate: Mapping[str, CandidateGroundingObservation],
     rankings: Mapping[str, tuple[float, float]],
+    n5_applicability_by_candidate: (
+        Mapping[str, JointSimulationApplicability | None] | None
+    ) = None,
     fallback: object,
 ) -> object:
-    """Select the highest-information candidate that passed grounding.
+    """Select the highest-information candidate admitted by grounding and N5.
 
     The original generated order is the final tie-breaker, so a missing VOI
-    ranking never becomes a fabricated priority.  If no candidate passed
-    grounding, retain the original selection to preserve its typed blocker in
-    the normal cycle record.
+    ranking never becomes a fabricated priority. If none is admitted, retain
+    the original identity only for a typed blocked cycle record; execution must
+    remain blocked before the VOI scheduler.
     """
 
     eligible: list[tuple[int, object]] = []
     for index, candidate in enumerate(candidates):
-        grounding = grounding_by_candidate.get(_candidate_id(candidate))
-        if grounding is not None and _grounding_allows_joint_evaluation(grounding):
+        candidate_id = _candidate_id(candidate)
+        grounding = grounding_by_candidate.get(candidate_id)
+        applicability = (
+            n5_applicability_by_candidate.get(candidate_id)
+            if n5_applicability_by_candidate is not None
+            else None
+        )
+        if (
+            grounding is not None
+            and _grounding_allows_joint_evaluation(grounding)
+            and (
+                n5_applicability_by_candidate is None
+                or (applicability is not None and applicability.status == "eligible")
+            )
+        ):
             eligible.append((index, candidate))
     if not eligible:
         return fallback

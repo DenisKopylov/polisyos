@@ -1,0 +1,24 @@
+{
+  "source_sha": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+  "source_tree": "b0631ecb8840fc2d9482ddeb283e9c8a823ac5fc",
+  "test_path": "policy-engine/tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+  "test_sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+    "--basetemp=/dev/shm/e02-oracle-b108-native-red-508f33444f8e4f6597f2b3ca07bb8dc8",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "-rA"
+  ],
+  "cwd": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine",
+  "basetemp": "/dev/shm/e02-oracle-b108-native-red-508f33444f8e4f6597f2b3ca07bb8dc8",
+  "nonexisting_before_pytest": true,
+  "PYTHONPATH": "src:.",
+  "PYTHONDONTWRITEBYTECODE": "1",
+  "no_reviewer_CPU_process_worker_caps": true
+}

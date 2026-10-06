@@ -21,7 +21,7 @@ from polisyos.scientist.policy_design.output import (
     _persist_model,
     load_policy_frontier_report,
 )
-from tests.unit.remediation.test_opt_01_hypervolume_consumers import vector
+from tests.unit.scientist.methods.search.test_hypervolume_limitations import vector
 from tests.unit.scientist.policy_design.test_phase_b_output import _candidate
 
 

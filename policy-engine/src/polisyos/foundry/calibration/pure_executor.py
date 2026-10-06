@@ -863,3 +863,62 @@ def run_pure_scan(
         seq,
     )
     return final_state, traces
+
+
+def run_pure_batch(
+    stacked_state: GlobalState,
+    *,
+    times: jax.Array,
+    keys: jax.Array,
+    bundle: StaticBundle,
+    metric_paths: Sequence[str] | None = None,
+) -> tuple[GlobalState, dict[str, Any]]:
+    """Apply one scalar schedule step to each ordered cross-sectional row.
+
+    This is a batch of separate state snapshots, not a time-series scan. Each
+    state leaf has a leading row axis matching ``times`` and ``keys``. Scalar
+    ``apply_nodes`` calls retain conditional numerical execution through
+    ``lax.map``; replacing this with ``vmap`` maps schedule predicates and can
+    execute inactive emitters. The caller admits row identities/times and
+    derives distinct row keys before entering this differentiable mechanism.
+    Distinct keys alone do not establish statistical independence of rows.
+
+    Args:
+        stacked_state: State snapshots stacked in the caller's row order.
+        times: One integer schedule time per row, with shape ``(B,)``.
+        keys: One JAX PRNG key per row (typed or legacy ``uint32`` keys).
+        bundle: The same static node/registry bundle used by scalar execution.
+        metric_paths: State paths to collect after each row's single step.
+
+    Returns:
+        The stacked final states and metric leaves in the original row order.
+        No row becomes the initial state or key of a later row.
+
+    Raises:
+        ValueError: If row axes, integer times, or PRNG key shapes disagree.
+            Active mechanism and merge failures propagate unchanged.
+    """
+    times = jnp.asarray(times)
+    if times.ndim != 1 or not jnp.issubdtype(times.dtype, jnp.integer):
+        raise ValueError("run_pure_batch times must be a one-dimensional integer row axis")
+    n_rows = times.shape[0]
+    if n_rows == 0:
+        raise ValueError("run_pure_batch requires at least one row")
+    try:
+        key_data = jax.random.key_data(keys)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("run_pure_batch requires one JAX PRNG key per row") from exc
+    if keys.shape[0:1] != (n_rows,) or key_data.ndim != 2:
+        raise ValueError("run_pure_batch key row axis must match times")
+    leaves = jax.tree_util.tree_leaves(stacked_state)
+    if not leaves or any(getattr(leaf, "shape", ())[:1] != (n_rows,) for leaf in leaves):
+        raise ValueError("run_pure_batch every state leaf must have the same leading row axis")
+    metric_paths = tuple(metric_paths or ())
+
+    def _row(row: tuple[GlobalState, jax.Array, jax.Array]):
+        state, time, key = row
+        final_state, _ = apply_nodes(state, key, bundle=bundle, t=time)
+        metrics = {path: _get_state_path(final_state, path) for path in metric_paths}
+        return final_state, metrics
+
+    return jax.lax.map(_row, (stacked_state, times, keys))

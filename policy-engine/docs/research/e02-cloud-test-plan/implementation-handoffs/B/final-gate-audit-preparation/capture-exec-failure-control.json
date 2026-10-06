@@ -1,0 +1,32 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/absent-actual-executable"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "17836910dfbf83f6b54550253a298e1a1fb68b2a",
+  "tree": "678b8933a7d38858b914fdc1df8c58b929a2acbc",
+  "head_after": "17836910dfbf83f6b54550253a298e1a1fb68b2a",
+  "wall_s": 0.004658125995774753,
+  "process_rusage_maxrss_kib": 10656,
+  "exit_code": 127,
+  "exec_setup_error": "FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/absent-actual-executable'",
+  "harness_state": "UNRUN",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/capture-exec-failure-control.txt",
+  "output_sha256": "3b87adcab43fdce7914191690e8387b668ceff28263742fb065676d75e5ca1fd",
+  "source_environment": {
+    "PYTHONPATH": null,
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": null,
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

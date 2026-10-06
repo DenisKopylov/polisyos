@@ -1,0 +1,3 @@
+Initial author-owned helper formatting: exit0; 1 file reformatted.
+After narrow source changes: exit0; 1 file left unchanged.
+No root gate was executed.

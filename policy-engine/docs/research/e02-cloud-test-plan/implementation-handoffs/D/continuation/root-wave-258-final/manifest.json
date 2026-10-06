@@ -1,0 +1,88 @@
+{
+  "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "member_count": 13,
+  "original_raw_bytes": 5395382,
+  "carrier_bytes": 783012,
+  "carrier_sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88",
+  "members": [
+    {
+      "name": "after.json",
+      "bytes": 1618218,
+      "sha256": "073999e770b0e66a2541ae1f989d2bf9b3429e500cfeea85caad1d6a2ecf87df",
+      "encoding": "base64"
+    },
+    {
+      "name": "before.json",
+      "bytes": 1618218,
+      "sha256": "1e8a02fb06ccb7f1f3866f9afbc778660ed1bbc8a0cdcae6ae8870551cb3dc4c",
+      "encoding": "base64"
+    },
+    {
+      "name": "collected-nodeids.json",
+      "bytes": 191631,
+      "sha256": "52b0f5385e4e68a9093d1a45624ef6369b3ba991898e34eed2f72a9393084c2a",
+      "encoding": "base64"
+    },
+    {
+      "name": "complete.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "complete.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "events.jsonl",
+      "bytes": 1731587,
+      "sha256": "1a0b74a36c541e74dee8a56259e5c71fc5b5c02d41b7b54d86026cf14ae5bebc",
+      "encoding": "base64"
+    },
+    {
+      "name": "execution-manifest.json",
+      "bytes": 34461,
+      "sha256": "fe9956570b8d2981d7a58f0d00b43f763e4000c759770548563addc662567e96",
+      "encoding": "base64"
+    },
+    {
+      "name": "plan.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "base64"
+    },
+    {
+      "name": "plan.stdout.txt",
+      "bytes": 895,
+      "sha256": "c439260cd740d70d6bdc04c566c689562a28a8eeb676cb44002d44ffce9f546e",
+      "encoding": "base64"
+    },
+    {
+      "name": "result.json",
+      "bytes": 45623,
+      "sha256": "aaf25a7f8b9bb0f163c1ddd6c98cab138183a0ab6b27ff440d3eb31736aa2359",
+      "encoding": "base64"
+    },
+    {
+      "name": "retained-fixture-file-identities.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "encoding": "base64"
+    },
+    {
+      "name": "selector-plan.argv.json",
+      "bytes": 7350,
+      "sha256": "3e9f2855b19e39aa1faecadf2f64f8cc5f26089a990cc96158eba36b9d4c2249",
+      "encoding": "base64"
+    },
+    {
+      "name": "selector-plan.json",
+      "bytes": 147396,
+      "sha256": "690feb39c4c1a5f5ba94c59c1b82256a71a58885542235bd3a01121fdbc89f56",
+      "encoding": "base64"
+    }
+  ]
+}

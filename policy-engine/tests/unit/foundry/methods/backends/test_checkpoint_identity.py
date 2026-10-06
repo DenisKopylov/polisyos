@@ -582,6 +582,110 @@ def test_source_class_attribute_change_refuses_actual_stale_output(tmp_path):
         _AttributeSource.multiplier = 2
 
 
+@pytest.mark.parametrize("descriptor", ["static", "class", "method", "property"])
+def test_actual_class_helper_replacement_refuses_stale_required_resume(tmp_path, descriptor):
+    """The same class/entrypoint calls a replaced descriptor in real arithmetic."""
+
+    def original_helper(*args):
+        return 2
+
+    def changed_helper(*args):
+        return 3
+
+    wrappers = {
+        "static": staticmethod,
+        "class": classmethod,
+        "method": lambda fn: fn,
+        "property": property,
+    }
+
+    class Source:
+        signature: ClassVar = _PRODUCER_SIGNATURE
+        metadata: ClassVar = _METADATA
+
+        @staticmethod
+        def pure_step(state, params):
+            instance = Source()
+            factor = instance.helper if descriptor == "property" else instance.helper()
+            return {"product": state["x"] * factor}
+
+    Source.helper = wrappers[descriptor](original_helper)
+    chain, registry = _chain()
+    registry.register(Source, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    context = _strict_context(store, chain)
+    dispatcher = _RecordingDispatcher()
+    executor = CheckpointingChainExecutor(
+        registry=registry,
+        dispatcher=dispatcher,
+        artifact_store=store,
+        checkpoint_dir=tmp_path / "checkpoints",
+    )
+    original = executor.execute(chain, initial_state={"x": 3}, seed=7, artifact_context=context)
+    path = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+    checkpoint = ChainCheckpoint.load(path)
+    pointer = path.read_bytes()
+    unchanged = executor.execute(
+        chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+    )
+    assert original.final_state["total"] == unchanged.final_state["total"] == 7
+    assert unchanged.history_complete
+    Source.helper = wrappers[descriptor](changed_helper)
+    cold = CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+        chain, initial_state={"x": 3}, seed=7, artifact_context=context
+    )
+    assert cold.final_state["total"] == 10
+    dispatcher.calls.clear()
+    with pytest.raises(CheckpointDigestMismatchError):
+        executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+        )
+    assert dispatcher.calls == []
+    assert path.read_bytes() == pointer
+
+
+def test_actual_consumed_frozen_metadata_change_refuses_stale_resume(tmp_path):
+    class Source:
+        signature: ClassVar = _PRODUCER_SIGNATURE
+        metadata: ClassVar = MethodMetadata(description="2")
+
+        @staticmethod
+        def pure_step(state, params):
+            return {"product": state["x"] * int(Source.metadata.description)}
+
+    chain, registry = _chain()
+    registry.register(Source, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    context = _strict_context(store, chain)
+    dispatcher = _RecordingDispatcher()
+    executor = CheckpointingChainExecutor(
+        registry=registry,
+        dispatcher=dispatcher,
+        artifact_store=store,
+        checkpoint_dir=tmp_path / "checkpoints",
+    )
+    assert (
+        executor.execute(chain, initial_state={"x": 3}, artifact_context=context).final_state[
+            "total"
+        ]
+        == 7
+    )
+    checkpoint = ChainCheckpoint.load(next((tmp_path / "checkpoints").glob("*_0000_*.json")))
+    Source.metadata = MethodMetadata(description="3")
+    assert (
+        CheckpointingChainExecutor(registry=registry)
+        .execute(chain, initial_state={"x": 3})
+        .final_state["total"]
+        == 10
+    )
+    dispatcher.calls.clear()
+    with pytest.raises(CheckpointDigestMismatchError):
+        executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, artifact_context=context
+        )
+    assert dispatcher.calls == []
+
+
 def test_mutable_source_capture_is_explicit_strict_boundary(tmp_path):
     chain, registry = _chain()
     factors = [2]

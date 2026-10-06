@@ -105,10 +105,44 @@ def _remove_private_exports(content: str) -> str:
     return "\n".join(cleaned) + "\n"
 
 
+def _canonicalize_stub(content: str, candidate: Path) -> str | None:
+    """Apply repository import ordering and formatting to a scratch stub."""
+    candidate.parent.mkdir(parents=True, exist_ok=True)
+    candidate.write_text(content, encoding="utf-8")
+    config = REPO_ROOT / "pyproject.toml"
+    commands = (
+        (
+            sys.executable,
+            "-m",
+            "ruff",
+            "check",
+            "--config",
+            str(config),
+            "--select",
+            "I",
+            "--fix",
+            str(candidate),
+        ),
+        (sys.executable, "-m", "ruff", "format", "--config", str(config), str(candidate)),
+    )
+    for command in commands:
+        result = run_command(command, cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+        if result.returncode != 0:
+            print(f"  Stub canonicalization failed for {candidate}:", file=sys.stderr)
+            if result.stdout:
+                print(result.stdout, file=sys.stderr)
+            if result.stderr:
+                print(result.stderr, file=sys.stderr)
+            return None
+    return candidate.read_text(encoding="utf-8")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--dry-run", action="store_true", help="Print actions without writing files"
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--dry-run", action="store_true", help="Print actions without writing files")
+    mode.add_argument(
+        "--check", action="store_true", help="Compare regenerated stubs without writing targets"
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Show generated stub paths")
     args = parser.parse_args(list(argv) if argv is not None else None)
@@ -133,13 +167,32 @@ def main(argv: Sequence[str] | None = None) -> int:
                     continue
                 cleaned = _remove_private_exports(stub_path.read_text(encoding="utf-8"))
             target = OUTPUT_MAP[module]
+            canonical = _canonicalize_stub(
+                cleaned, out_dir / "canonical" / (module.replace(".", "/") + ".pyi")
+            )
+            if canonical is None:
+                failed.append(module)
+                continue
+            cleaned = canonical
             try:
                 ast.parse(cleaned, filename=str(target))
             except SyntaxError as exc:
                 print(f"  Invalid generated stub for {module}: {exc}", file=sys.stderr)
                 failed.append(module)
                 continue
-            if args.dry_run:
+            if args.check:
+                try:
+                    existing = target.read_bytes()
+                except OSError as exc:
+                    print(f"  Cannot read checked-in stub {target}: {exc}", file=sys.stderr)
+                    failed.append(module)
+                    continue
+                if existing != cleaned.encode("utf-8"):
+                    print(f"  DRIFT: generated stub differs from {target}", file=sys.stderr)
+                    failed.append(module)
+                else:
+                    print(f"  Current -> {target}")
+            elif args.dry_run:
                 print(f"  [dry-run] Would write {len(cleaned)} chars to {target}")
             else:
                 atomic_write_text(target, cleaned, encoding="utf-8")
@@ -148,7 +201,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if failed:
         print(f"\nStub generation failed for: {', '.join(failed)}", file=sys.stderr)
         return 1
-    if args.dry_run:
+    if args.check:
+        print("\nAll Foundry method stubs are current; no target files written.")
+    elif args.dry_run:
         print("\n[dry-run] No files written.")
     else:
         print("\nStubs generated. Run 'mypy --strict polisyos.foundry.methods' to validate.")

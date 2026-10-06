@@ -623,6 +623,470 @@
       "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/review.json",
       "bytes": 6948,
       "sha256": "6addb4521bd2d637a8075d416a363e993780fdeedf8778d8e50c08cc8ac8e7e3"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/review.json",
+      "bytes": 27050,
+      "sha256": "795461cb93b6ca83c6eb0506e1200c5f131552d1ccc6e4165580d0b169e8b84b"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/affected-suite.xml",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/affected-suite.xml",
+      "bytes": 5495,
+      "sha256": "a8005939198c179f921eb203250ca171550738488ab12272ab2a01b880c11064"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/after.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/after.json",
+      "bytes": 3434,
+      "sha256": "34946923995637b1f00212d11969091fccee53528374bea44b2d2b589ab05847"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/before.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/before.json",
+      "bytes": 5984,
+      "sha256": "5fd587ea5fc6eb6d54e7ccc3fa38b00dc8d3b1ffddde0781b15edf3a81cf0857"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/certificate_probe.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/certificate_probe.py",
+      "bytes": 6005,
+      "sha256": "2e921157c7ccbed6c756ef3104e57e1d72c763ec279ee6ce4fe8b2f551c98c08"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/consumer_probe.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/consumer_probe.py",
+      "bytes": 7616,
+      "sha256": "defec037c9729417b90e995531f77bf5d90e1a76aaebb93bb930b3e945e50606"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/consumer_probe_v2.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/consumer_probe_v2.py",
+      "bytes": 7634,
+      "sha256": "691152b0c5ad9b4d87b5a232cbcb86f00173a4759ccda5b724dcc4dbf6c3f46e"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/consumer_probe_v3.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/consumer_probe_v3.py",
+      "bytes": 7763,
+      "sha256": "b1c65c8ac82f1b5e9f80d567eac1fecb973652a730dcf1fe36d44d7b6324b269"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/execution-capture.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/execution-capture.py",
+      "bytes": 1367,
+      "sha256": "afaa4a494709d90bfda600cd6f59c4808c92d6e1f61f02d8944ea49786964232"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-affected-suite.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-affected-suite.json",
+      "bytes": 1538,
+      "sha256": "42fc837ac5d074e0fcd16e9bf89351e7297e93c643f880672528ccd231047b6d"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-affected-suite.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-affected-suite.stdout",
+      "bytes": 655,
+      "sha256": "9e852ba8da888f02f3a7c7371ed5181daa0112ff5967c51eebbfb9f7ebff4616"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-canonical-generator-two-entrypoints.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-canonical-generator-two-entrypoints.json",
+      "bytes": 1239,
+      "sha256": "0fd460cec217633c4f957a8c27cf04afd70c9d18d0f8363ce4917f05fc15fcd5"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-canonical-generator-two-entrypoints.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-canonical-generator-two-entrypoints.stdout",
+      "bytes": 3163,
+      "sha256": "fdfd2872656773019aaa0ed0ba2fc6bae10f8474bc960ab40b51d567fe3d6a43"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-native.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-certificate-native.json",
+      "bytes": 1395,
+      "sha256": "f84584835bbfc800bad0a1469af6c9552cbabc935bb7de7976b6d8318f3b2626"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-native.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-certificate-native.stdout",
+      "bytes": 123115,
+      "sha256": "1c05a8dd667416042a34ee872f72ab037ebe0a1699894d8cc44d873ecd8edbbe"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-removal.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-certificate-removal.json",
+      "bytes": 1408,
+      "sha256": "ba096283ae61b50e2547195c6d9039ef9ac403afd1630c2b7c5979470958db43"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-certificate-removal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-certificate-removal.stdout",
+      "bytes": 1905,
+      "sha256": "0e611eb9add987dc59b0dff5988d90ee96a560ca5465848a4213cf2be5519ac6"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v2.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-native-v2.json",
+      "bytes": 1393,
+      "sha256": "8cb9d0b6a1ea6ddf77530fe1eb90ef30b15f36b64d96993bb90bae4a91cfd3c6"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v2.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-native-v2.stdout",
+      "bytes": 993,
+      "sha256": "52c861d7409129280c067e45aad936e19e326cfba3abedc7075ca26c73d8f705"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v3.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-native-v3.json",
+      "bytes": 1396,
+      "sha256": "b5c8cb238a2a3764dac88cb419809d74ab21900e9f0c939e2902391171788029"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native-v3.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-native-v3.stdout",
+      "bytes": 124303,
+      "sha256": "dbe63d5373f11f359a92b19ccaf71a8452607aaa3d608290b042881733cd9a45"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-native.json",
+      "bytes": 1383,
+      "sha256": "c6e40bead990079a920ab9a2d1494a8d5996fe9acd2635a4547fbb0f1fe611f3"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-native.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-native.stdout",
+      "bytes": 990,
+      "sha256": "94fd35d371ecd697e8611a06db0b3de322f2f6d871108be14f3a759c9eaecf24"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v2.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-removal-v2.json",
+      "bytes": 1408,
+      "sha256": "93d9adaa714b0552d2565240a1d006195721f595d00ac8a3c77e2faf39be2d20"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v2.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-removal-v2.stdout",
+      "bytes": 993,
+      "sha256": "52c861d7409129280c067e45aad936e19e326cfba3abedc7075ca26c73d8f705"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v3.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-removal-v3.json",
+      "bytes": 1407,
+      "sha256": "1602e8509b56cab80a6473e2939a76bccc5b2aa292e39adfc7f0b63e23777249"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal-v3.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-removal-v3.stdout",
+      "bytes": 414,
+      "sha256": "d11f53f3c995c7e012937d781a2a80cf2dc37158afbb66d22827a1619980d0b3"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-removal.json",
+      "bytes": 1399,
+      "sha256": "5c1f13de0ec067523ab64156d7c3161ee2411ddce13477f1a9c0955b69359f38"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-consumer-removal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-consumer-removal.stdout",
+      "bytes": 990,
+      "sha256": "94fd35d371ecd697e8611a06db0b3de322f2f6d871108be14f3a759c9eaecf24"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-native.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-forecast-native.json",
+      "bytes": 1391,
+      "sha256": "825293b7da10d6c338f5da66a9ef6b212b9f4a2238c767fc3cf2c387f0ea3fc6"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-native.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-forecast-native.stdout",
+      "bytes": 137103,
+      "sha256": "5b179c60f91b6267ad15f71012e42c2aa9ca2e4831a011b65797d9c967b1d862"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-removal.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-forecast-removal.json",
+      "bytes": 1404,
+      "sha256": "f2159de1d9f678e6d7d9ce584b77514b0f2cc48857082c741592f2471dfb0aaf"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-forecast-removal.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-forecast-removal.stdout",
+      "bytes": 5078,
+      "sha256": "f0bc7f1d6ad329c01e250f3fcc61898e0800fb723866a60dca9a2a9d57063f09"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/facade-source-and-inventory.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-source-and-inventory.json",
+      "bytes": 16334,
+      "sha256": "5eb37e39496d08c95dcac7e9450da90b1784a1640783338ed0afe71efac7f321"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/forecast_probe.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/forecast_probe.py",
+      "bytes": 5983,
+      "sha256": "f65c2cffec7083861fd8d16d875d29935de76d1876f63f0460be93367e6462e7"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/generator_probe.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/generator_probe.py",
+      "bytes": 1575,
+      "sha256": "f05363750f4bd93e0353470ebf594fdbda04b5a8ed8c9df1bb2f31df45433a19"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/independent-mean-oracle.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/independent-mean-oracle.json",
+      "bytes": 2152,
+      "sha256": "efc7b23a50a7643a2379946b73b9dffd03687785b9b9c48d5b2924e92121e51b"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/output-copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/output-copy-index.json",
+      "bytes": 8899,
+      "sha256": "dbb65b23a9b8995abaf25a8f5d00e5ee4af148afba96f2c590ccceb53cb627bf"
+    },
+    {
+      "family": "facades",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/validate_review.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/validate_review.py",
+      "bytes": 884,
+      "sha256": "8d24981f597917091508fd886dd8e3aac43b49c285088ffe5a1a35a13bd93c29"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/frc-independent-review-8486.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-independent-review-8486.json",
+      "bytes": 14831,
+      "sha256": "639ea31dbd960c6985e87056d360763e54d78db8f07299df7c91fdca771cd12b"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent_frc_tests.bounded20.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent_frc_tests.bounded20.py",
+      "bytes": 15457,
+      "sha256": "467c70ee85b0d7df5c6ceb84708d76a4a4b0fbe32abe8f7ff1460b49dd1b882e"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent_frc_tests.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent_frc_tests.py",
+      "bytes": 16043,
+      "sha256": "760d1109e00e842cd35bf5dbfcbca5af674b033ea9c058451e0568aaec5b4066"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/run_review.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/run_review.py",
+      "bytes": 2448,
+      "sha256": "fb606331c4fbb54f692eed914204ecbb8060f1d52e137d66da5aa9bec71b9fea"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy_pipeline.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy_pipeline.py",
+      "bytes": 2735,
+      "sha256": "90d5515db07f3874102ae499650ae567921bfc9d299c8af7eb9b4ca921d72bce"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy_probe.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy_probe.py",
+      "bytes": 1538,
+      "sha256": "824de1c6711a63240ef70fb0fe58d6b473b8ec487551400dbfac02e966587eaa"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-cas-contract-tests.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-cas-contract-tests.py",
+      "bytes": 4327,
+      "sha256": "39342a0f279a05d5787b93f817e9a5bcdab639cd044af257a57442d27fd754ac"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-status-reason-tests.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-status-reason-tests.py",
+      "bytes": 3114,
+      "sha256": "2e3a7c0a8931e66d14ec018d0392ea83c3a692210ae66271aaf0abe568ef63d4"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent-native-compact.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent-native-compact.json",
+      "bytes": 20106,
+      "sha256": "35987b8dad5762913bab5b8e873feb6c50580b7cbc245c47a637cde59bec1718"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-replay-details.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy-replay-details.json",
+      "bytes": 1747,
+      "sha256": "4678765d570604c83eefe5f083df5b6ec8a08e93d9a4f06fbd3f6376a01cd52b"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent-native-corrected.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent-native-corrected.log",
+      "bytes": 100,
+      "sha256": "b02728e28d2d798bebadb380abc324e24d8493d1793c21bfe370d5cb6923fcef"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent-native-corrected-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent-native-corrected-receipt.json",
+      "bytes": 2969,
+      "sha256": "103ae3b1fb11c010f9114a2c56032d2e93717d298b9ffabd74285c542ada11d8"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/corrupt-candidate-corrected.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/corrupt-candidate-corrected.log",
+      "bytes": 114,
+      "sha256": "5e4420effb17d982018e3feba47d2a223633cd5e92ed78633ebee85db665cab1"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/corrupt-candidate-corrected-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/corrupt-candidate-corrected-receipt.json",
+      "bytes": 3010,
+      "sha256": "30db4eb0e4c0233f92d3dcc3c127f1e982c6bd084babd265560568337e4505d9"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/repository-targeted.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/repository-targeted.log",
+      "bytes": 597,
+      "sha256": "29817a48c8dc1ec315a74fd7eff22b54410c2a4e6d2b7c6ae489a4feee767b9b"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/repository-targeted-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/repository-targeted-receipt.json",
+      "bytes": 3033,
+      "sha256": "1fc1b4ffb4f8f29084d84e85e19764ccf20bc6f9e7597189f7e1c6107ff8f6ad"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-cas-contract.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-cas-contract.log",
+      "bytes": 109,
+      "sha256": "7b458c2b5db11ac5ea366847c8ca53323b32bbca588f8fe26aa97b6cf8b5f9a2"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-cas-contract-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-cas-contract-receipt.json",
+      "bytes": 2938,
+      "sha256": "bac844abcc481f81900b0f6dce599216a111b4ed743577078bf5710222bcc8ac"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-status-reason.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-status-reason.log",
+      "bytes": 7090,
+      "sha256": "20611198e77abb5a5d45d44a6d04a8154b425f653d273e6c4c661ee767b2afc5"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-status-reason-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-status-reason-receipt.json",
+      "bytes": 2942,
+      "sha256": "0f254dad54c3a75a653e11b5e0e26846c6c395bf099e9587b11179241737f45d"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-replay.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy-replay.log",
+      "bytes": 4673,
+      "sha256": "7e6d9556538ff55b5937ab3c135516aa10c400d7ded39190002d05d2d39f5a5f"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-replay-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy-replay-receipt.json",
+      "bytes": 2864,
+      "sha256": "89bbdd2d966f0fc352dc1591e1ff0c0b9533c87c1feb95f13e11200034802bca"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/frc-style.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-style.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/frc-style-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-style-receipt.json",
+      "bytes": 3118,
+      "sha256": "280468288f715afe0068a42362a1387b8342b401a8b551e2e79b964307c7a281"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/frc-format.log",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-format.log",
+      "bytes": 26,
+      "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209"
+    },
+    {
+      "family": "frc",
+      "original_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/frc-format-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-format-receipt.json",
+      "bytes": 3136,
+      "sha256": "714483bb0e8e9d26e97ff8067bbcb74deaad247002c5ec225279d26c34ffd54b"
+    }
+  ],
+  "ignored_raw_refs": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/module-source-bindings.json",
+      "bytes": 649721,
+      "sha256": "4feaf468004b1b953138796cdfe881bc927d07f31eae3d19ea88c648e6e56a74",
+      "storage": "preserved original scratch; derived tracked-source module binding census, replayable using indexed probe and source14d Git refs; omitted from Git copies",
+      "classification": "source identity auxiliary, full deciding stdout remains committed"
     }
   ]
 }

@@ -1,0 +1,515 @@
+{
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src",
+    "native_backend": "numpy",
+    "no_thread_caps": true
+  },
+  "module_count": 1443,
+  "all_origins_in_exact_lane": true,
+  "full_origins_file": "independent-native-corrected-origins-artifacts.json",
+  "full_origins_sha256": "a66a964e570d1d634ae115ca60cf8371748acfa53cf0209cc651906f897aec2c",
+  "relevant_origins": {
+    "polisyos.calibration": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/calibration/__init__.py",
+    "polisyos.calibration.forecast_bridge": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "polisyos.core.artifacts.store": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/core/artifacts/store.py",
+    "polisyos.foundry.methods.catalog.forecasting.uncertainty": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/foundry/methods/catalog/forecasting/uncertainty.py",
+    "polisyos.foundry.methods.catalog.forecasting.univariate": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/foundry/methods/catalog/forecasting/univariate.py",
+    "polisyos.runtime.quality.generation_cycle": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "polisyos.scientist.methods.backtesting.forecast_owner": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+  },
+  "cases": [
+    {
+      "cas": "/tmp/pytest-of-agent/pytest-191/test_native_ets_from_source_to0/cas",
+      "source_ref": {
+        "artifact_id": "sha256:47fa1264214847cfc9fb5f930034d1df786042b5747f3b08927475ba16746703",
+        "kind": "fabric.data_snapshot",
+        "media_type": "application/json"
+      },
+      "request_seed": 20261009,
+      "target": "revenue",
+      "unit": "count",
+      "scale": "source_native",
+      "split": {
+        "train_start": 0,
+        "train_end": 32,
+        "holdout_start": 32,
+        "holdout_end": 37,
+        "horizon": 5
+      },
+      "temporal_roles": {
+        "data_valid_time": "2026-08-17T00:00:00Z",
+        "calibration_window_start": "2026-08-18T00:00:00Z",
+        "calibration_window_end": "2026-08-19T00:00:00Z",
+        "policy_effective_time": "2026-08-20T00:00:00Z",
+        "prediction_time": "2026-08-21T00:00:00Z",
+        "observation_time": "2026-08-22T00:00:00Z"
+      },
+      "profile": {
+        "artifact_id": "sha256:7303358084c7c70c083a06699a7c681542e9b503c06fb79d47e3a6855fb94529",
+        "kind": "ir.forecast_calibration_profile",
+        "media_type": "application/json"
+      },
+      "candidate_ref": {
+        "artifact_id": "sha256:3153743fe5f6d9b11e2a1e808a56a8c785dcc5d9c439a44359feb7dd364b83c9",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "evidence_ref": {
+        "artifact_id": "sha256:2147320653c2705048f8b06acdb24d5885dfb1111101b6e632fdb27b5a4565db",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "report_ref": {
+        "artifact_id": "sha256:170781cdd5a89e78e333dd20ea6ff5bdf2a18b940bfb15b38200644a35b96328",
+        "kind": "ir.backtest_report",
+        "media_type": "application/json"
+      },
+      "training_ref": {
+        "artifact_id": "sha256:658c24db88a3e1ca65d59a8bf26f784c895163679c66766f356a1216215eadc5",
+        "kind": "ir.forecast_training_slice",
+        "media_type": "application/json"
+      },
+      "intervals_ref": {
+        "artifact_id": "sha256:6fe94d69379bc988f7c47de7a35859415bb5cc719745f35fb6ab8d5158c63936",
+        "kind": "ir.forecasting_uncertainty_bundle",
+        "media_type": "application/json"
+      },
+      "measurement_binding": {
+        "schema_ref": {
+          "artifact_id": "sha256:1ba7876031225ba95acba926c8b065a511b7ca8951748e52bb294b692a6ce670",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "independent.frc.revenue",
+        "schema_version": "2.1.0",
+        "target_metric": "revenue",
+        "field_id": "revenue",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "nominal": 0.95,
+      "numerator": 5,
+      "denominator": 5,
+      "empirical_coverage": 1.0,
+      "floor_passed": true,
+      "failed_codes": [],
+      "authority_scope": "predictive_only",
+      "bridge_status": "bridge_pending"
+    },
+    {
+      "cas": "/tmp/pytest-of-agent/pytest-191/test_native_ets_from_source_to1/cas",
+      "source_ref": {
+        "artifact_id": "sha256:0cf6de3374e532c063f4dfa3d62ef257de983a3f8f4825061b89d83f630110d3",
+        "kind": "fabric.data_snapshot",
+        "media_type": "application/json"
+      },
+      "request_seed": 20261009,
+      "target": "revenue",
+      "unit": "count",
+      "scale": "source_native",
+      "split": {
+        "train_start": 0,
+        "train_end": 32,
+        "holdout_start": 32,
+        "holdout_end": 37,
+        "horizon": 5
+      },
+      "temporal_roles": {
+        "data_valid_time": "2026-08-17T00:00:00Z",
+        "calibration_window_start": "2026-08-18T00:00:00Z",
+        "calibration_window_end": "2026-08-19T00:00:00Z",
+        "policy_effective_time": "2026-08-20T00:00:00Z",
+        "prediction_time": "2026-08-21T00:00:00Z",
+        "observation_time": "2026-08-22T00:00:00Z"
+      },
+      "profile": {
+        "artifact_id": "sha256:513a2e4715d95b8f70008469115449cfaada5ea95b20fe54c5056c6c30963a03",
+        "kind": "ir.forecast_calibration_profile",
+        "media_type": "application/json"
+      },
+      "candidate_ref": {
+        "artifact_id": "sha256:fc77249c373db0187245230e01a03a58c999376b4eb23261bc01e5dd2bc0839e",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "evidence_ref": {
+        "artifact_id": "sha256:5c6c5016353e193c67524ba5ffd30bd67d3af16f55a6d793668f3a8ee2a85f4a",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "report_ref": {
+        "artifact_id": "sha256:75fd4785a3b23fbef5c63f48bc86739d60ca44541d988ca4d830945930cd1b61",
+        "kind": "ir.backtest_report",
+        "media_type": "application/json"
+      },
+      "training_ref": {
+        "artifact_id": "sha256:f21832223c59a44341d41c90e96692d2b7cb3f2cc47cf90bdb80e29da139e2ad",
+        "kind": "ir.forecast_training_slice",
+        "media_type": "application/json"
+      },
+      "intervals_ref": {
+        "artifact_id": "sha256:8070446dd2ee92c7d3497a19ae29dd4f31bc05a05ac4171cf3b8dca64556c34d",
+        "kind": "ir.forecasting_uncertainty_bundle",
+        "media_type": "application/json"
+      },
+      "measurement_binding": {
+        "schema_ref": {
+          "artifact_id": "sha256:1ba7876031225ba95acba926c8b065a511b7ca8951748e52bb294b692a6ce670",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "independent.frc.revenue",
+        "schema_version": "2.1.0",
+        "target_metric": "revenue",
+        "field_id": "revenue",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "nominal": 0.95,
+      "numerator": 0,
+      "denominator": 5,
+      "empirical_coverage": 0.0,
+      "floor_passed": false,
+      "failed_codes": [
+        "calibration_floor_not_met"
+      ],
+      "authority_scope": "predictive_only",
+      "bridge_status": "bridge_pending"
+    },
+    {
+      "cas": "/tmp/pytest-of-agent/pytest-191/test_nominal_without_changed_o0/cas",
+      "source_ref": {
+        "artifact_id": "sha256:0cf6de3374e532c063f4dfa3d62ef257de983a3f8f4825061b89d83f630110d3",
+        "kind": "fabric.data_snapshot",
+        "media_type": "application/json"
+      },
+      "request_seed": 20261009,
+      "target": "revenue",
+      "unit": "count",
+      "scale": "source_native",
+      "split": {
+        "train_start": 0,
+        "train_end": 32,
+        "holdout_start": 32,
+        "holdout_end": 37,
+        "horizon": 5
+      },
+      "temporal_roles": {
+        "data_valid_time": "2026-08-17T00:00:00Z",
+        "calibration_window_start": "2026-08-18T00:00:00Z",
+        "calibration_window_end": "2026-08-19T00:00:00Z",
+        "policy_effective_time": "2026-08-20T00:00:00Z",
+        "prediction_time": "2026-08-21T00:00:00Z",
+        "observation_time": "2026-08-22T00:00:00Z"
+      },
+      "profile": {
+        "artifact_id": "sha256:8189749496f394a41d0a038f7242e50b13e840481c7b1fdbb1d8fa15ae2618fb",
+        "kind": "ir.forecast_calibration_profile",
+        "media_type": "application/json"
+      },
+      "candidate_ref": {
+        "artifact_id": "sha256:984d83d56a4eb8cc8b846bc9821e361ea0a2620d93d39fcf541dcdbbeb63890b",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "evidence_ref": {
+        "artifact_id": "sha256:dfb3ab24181d604abf20392c1dee842814670534e1d6103b3164ee0e2e599e88",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "report_ref": {
+        "artifact_id": "sha256:379a085bf6255f96fa3fb11ad8d40c0264f38cb7c1c5dbdcf50e88daddebe85c",
+        "kind": "ir.backtest_report",
+        "media_type": "application/json"
+      },
+      "training_ref": {
+        "artifact_id": "sha256:f21832223c59a44341d41c90e96692d2b7cb3f2cc47cf90bdb80e29da139e2ad",
+        "kind": "ir.forecast_training_slice",
+        "media_type": "application/json"
+      },
+      "intervals_ref": {
+        "artifact_id": "sha256:d38420ba078ca15c4fdd993f9d875191bdf9b860506f9aa788d5a46a526cd7dc",
+        "kind": "ir.forecasting_uncertainty_bundle",
+        "media_type": "application/json"
+      },
+      "measurement_binding": {
+        "schema_ref": {
+          "artifact_id": "sha256:1ba7876031225ba95acba926c8b065a511b7ca8951748e52bb294b692a6ce670",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "independent.frc.revenue",
+        "schema_version": "2.1.0",
+        "target_metric": "revenue",
+        "field_id": "revenue",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "nominal": 0.8,
+      "numerator": 0,
+      "denominator": 5,
+      "empirical_coverage": 0.0,
+      "floor_passed": false,
+      "failed_codes": [
+        "calibration_floor_not_met"
+      ],
+      "authority_scope": "predictive_only",
+      "bridge_status": "bridge_pending"
+    },
+    {
+      "cas": "/tmp/pytest-of-agent/pytest-191/test_nominal_without_changed_o1/cas",
+      "source_ref": {
+        "artifact_id": "sha256:0cf6de3374e532c063f4dfa3d62ef257de983a3f8f4825061b89d83f630110d3",
+        "kind": "fabric.data_snapshot",
+        "media_type": "application/json"
+      },
+      "request_seed": 20261009,
+      "target": "revenue",
+      "unit": "count",
+      "scale": "source_native",
+      "split": {
+        "train_start": 0,
+        "train_end": 32,
+        "holdout_start": 32,
+        "holdout_end": 37,
+        "horizon": 5
+      },
+      "temporal_roles": {
+        "data_valid_time": "2026-08-17T00:00:00Z",
+        "calibration_window_start": "2026-08-18T00:00:00Z",
+        "calibration_window_end": "2026-08-19T00:00:00Z",
+        "policy_effective_time": "2026-08-20T00:00:00Z",
+        "prediction_time": "2026-08-21T00:00:00Z",
+        "observation_time": "2026-08-22T00:00:00Z"
+      },
+      "profile": {
+        "artifact_id": "sha256:513a2e4715d95b8f70008469115449cfaada5ea95b20fe54c5056c6c30963a03",
+        "kind": "ir.forecast_calibration_profile",
+        "media_type": "application/json"
+      },
+      "candidate_ref": {
+        "artifact_id": "sha256:b8d29a6c3f0893407bf7dc5d1c1c9aad3006302dd37f641fab1203f7c4653f70",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "evidence_ref": {
+        "artifact_id": "sha256:4dd24cbab7b227c687f82ad0cac3a1ff4a7950b9b1cc0f3213927cbcd67b6526",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "report_ref": {
+        "artifact_id": "sha256:a31af1cdf97242f970c53bb84f72bc84d02808561ff4a66183610f2658e1c905",
+        "kind": "ir.backtest_report",
+        "media_type": "application/json"
+      },
+      "training_ref": {
+        "artifact_id": "sha256:f21832223c59a44341d41c90e96692d2b7cb3f2cc47cf90bdb80e29da139e2ad",
+        "kind": "ir.forecast_training_slice",
+        "media_type": "application/json"
+      },
+      "intervals_ref": {
+        "artifact_id": "sha256:940615925528328007b93999e1cc467f38dc5771473848dbce4dd91c269c584c",
+        "kind": "ir.forecasting_uncertainty_bundle",
+        "media_type": "application/json"
+      },
+      "measurement_binding": {
+        "schema_ref": {
+          "artifact_id": "sha256:1ba7876031225ba95acba926c8b065a511b7ca8951748e52bb294b692a6ce670",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "independent.frc.revenue",
+        "schema_version": "2.1.0",
+        "target_metric": "revenue",
+        "field_id": "revenue",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "nominal": 0.95,
+      "numerator": 0,
+      "denominator": 5,
+      "empirical_coverage": 0.0,
+      "floor_passed": false,
+      "failed_codes": [
+        "calibration_floor_not_met"
+      ],
+      "authority_scope": "predictive_only",
+      "bridge_status": "bridge_pending"
+    },
+    {
+      "cas": "/tmp/pytest-of-agent/pytest-191/test_fresh_cas_rejects_valid_h0/cas",
+      "source_ref": {
+        "artifact_id": "sha256:0cf6de3374e532c063f4dfa3d62ef257de983a3f8f4825061b89d83f630110d3",
+        "kind": "fabric.data_snapshot",
+        "media_type": "application/json"
+      },
+      "request_seed": 20261009,
+      "target": "revenue",
+      "unit": "count",
+      "scale": "source_native",
+      "split": {
+        "train_start": 0,
+        "train_end": 32,
+        "holdout_start": 32,
+        "holdout_end": 37,
+        "horizon": 5
+      },
+      "temporal_roles": {
+        "data_valid_time": "2026-08-17T00:00:00Z",
+        "calibration_window_start": "2026-08-18T00:00:00Z",
+        "calibration_window_end": "2026-08-19T00:00:00Z",
+        "policy_effective_time": "2026-08-20T00:00:00Z",
+        "prediction_time": "2026-08-21T00:00:00Z",
+        "observation_time": "2026-08-22T00:00:00Z"
+      },
+      "profile": {
+        "artifact_id": "sha256:513a2e4715d95b8f70008469115449cfaada5ea95b20fe54c5056c6c30963a03",
+        "kind": "ir.forecast_calibration_profile",
+        "media_type": "application/json"
+      },
+      "candidate_ref": {
+        "artifact_id": "sha256:e2d9d567681f060cb87b2fd1ce3af362290d011bc038c797b1572f914de4cf34",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "evidence_ref": {
+        "artifact_id": "sha256:c00b79e26120ee7cae868043f967a75810d7d7a752381aaf5cbfd6d1f7cf9f1a",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "report_ref": {
+        "artifact_id": "sha256:7a1ec818e40e6e8f56daf5b9a40658147f39eab965f72823084db62557c6a38c",
+        "kind": "ir.backtest_report",
+        "media_type": "application/json"
+      },
+      "training_ref": {
+        "artifact_id": "sha256:f21832223c59a44341d41c90e96692d2b7cb3f2cc47cf90bdb80e29da139e2ad",
+        "kind": "ir.forecast_training_slice",
+        "media_type": "application/json"
+      },
+      "intervals_ref": {
+        "artifact_id": "sha256:e9bc6b73e1fbb9568cffb5aa3f7f4e567fefeab4d55cb62db6924ebb6d36c182",
+        "kind": "ir.forecasting_uncertainty_bundle",
+        "media_type": "application/json"
+      },
+      "measurement_binding": {
+        "schema_ref": {
+          "artifact_id": "sha256:1ba7876031225ba95acba926c8b065a511b7ca8951748e52bb294b692a6ce670",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "independent.frc.revenue",
+        "schema_version": "2.1.0",
+        "target_metric": "revenue",
+        "field_id": "revenue",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "nominal": 0.95,
+      "numerator": 0,
+      "denominator": 5,
+      "empirical_coverage": 0.0,
+      "floor_passed": false,
+      "failed_codes": [
+        "calibration_floor_not_met"
+      ],
+      "authority_scope": "predictive_only",
+      "bridge_status": "bridge_pending"
+    },
+    {
+      "cas": "/tmp/pytest-of-agent/pytest-191/test_adapter_fresh_refs_time_r0/cas",
+      "source_ref": {
+        "artifact_id": "sha256:47fa1264214847cfc9fb5f930034d1df786042b5747f3b08927475ba16746703",
+        "kind": "fabric.data_snapshot",
+        "media_type": "application/json"
+      },
+      "request_seed": 20261009,
+      "target": "revenue",
+      "unit": "count",
+      "scale": "source_native",
+      "split": {
+        "train_start": 0,
+        "train_end": 32,
+        "holdout_start": 32,
+        "holdout_end": 37,
+        "horizon": 5
+      },
+      "temporal_roles": {
+        "data_valid_time": "2026-08-17T00:00:00Z",
+        "calibration_window_start": "2026-08-18T00:00:00Z",
+        "calibration_window_end": "2026-08-19T00:00:00Z",
+        "policy_effective_time": "2026-08-20T00:00:00Z",
+        "prediction_time": "2026-08-21T00:00:00Z",
+        "observation_time": "2026-08-22T00:00:00Z"
+      },
+      "profile": {
+        "artifact_id": "sha256:7303358084c7c70c083a06699a7c681542e9b503c06fb79d47e3a6855fb94529",
+        "kind": "ir.forecast_calibration_profile",
+        "media_type": "application/json"
+      },
+      "candidate_ref": {
+        "artifact_id": "sha256:761d99c770a916af88082d4e32f278348b7bc2718e58149e6c30584f09d41c5f",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "evidence_ref": {
+        "artifact_id": "sha256:cb841f25f8bc8ebdf5d1e6d3bd9da0deddb745cb6a026cc9956dab50bcd3f06c",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "report_ref": {
+        "artifact_id": "sha256:d851e75bbfd6bff4762dab0dbf8f00993e18774151d988af5500d4f510924988",
+        "kind": "ir.backtest_report",
+        "media_type": "application/json"
+      },
+      "training_ref": {
+        "artifact_id": "sha256:658c24db88a3e1ca65d59a8bf26f784c895163679c66766f356a1216215eadc5",
+        "kind": "ir.forecast_training_slice",
+        "media_type": "application/json"
+      },
+      "intervals_ref": {
+        "artifact_id": "sha256:5a77d3a138e9127b34b8b11b743f7173963ae3b8e73e606977ae46ca7303678b",
+        "kind": "ir.forecasting_uncertainty_bundle",
+        "media_type": "application/json"
+      },
+      "measurement_binding": {
+        "schema_ref": {
+          "artifact_id": "sha256:1ba7876031225ba95acba926c8b065a511b7ca8951748e52bb294b692a6ce670",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "independent.frc.revenue",
+        "schema_version": "2.1.0",
+        "target_metric": "revenue",
+        "field_id": "revenue",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "nominal": 0.95,
+      "numerator": 5,
+      "denominator": 5,
+      "empirical_coverage": 1.0,
+      "floor_passed": true,
+      "failed_codes": [],
+      "authority_scope": "predictive_only",
+      "bridge_status": "bridge_pending"
+    }
+  ]
+}

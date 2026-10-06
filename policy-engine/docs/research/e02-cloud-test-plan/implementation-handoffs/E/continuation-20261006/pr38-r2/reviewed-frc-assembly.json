@@ -1,0 +1,183 @@
+{
+  "schema": "policyos.e02.reviewed_slice_assembly.v1",
+  "base_sha": "f2eed9b0982881db01aba83da36a3071dc5ac594",
+  "candidate_sha": "902d9f6b224f0fbeec709bc3683910fa08eba4b7",
+  "candidate_tree": "95dc868014a912a27ac6ff2787a02fa302d5a0d4",
+  "source_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+  "source_tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+  "published_receipt_head": "f73e554bfe567aec29aff957a2c026f1537e4834",
+  "full_footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason.patch.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-cas-contract.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-cas-contract.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-cas-contract.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-patch-applicable.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-patch-applicable.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-status-reason.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-status-reason.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/a-status-reason.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/admission-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/affected-native.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/affected-native.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/affected-native.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/baseline-environment-locators.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/baseline-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/copy-index-validation.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/format.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/format.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-base-measurement-configured.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-base-measurement.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-family.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-legacy-producer.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-positive-exec-error.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-positive-path-error.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-targeted-iteration.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/historical-targeted.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/legacy-replay.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/legacy-replay.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/measurement-probe.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/measurement-probe.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/positive-artifact.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/positive-artifact.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/property-removal.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/property-removal.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/results-importer.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/results-importer.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/ruff.resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/checks/ruff.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/legacy-replay-probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measure-process.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-property-removal.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/positive-artifact-probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/run-frozen.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/validate-copy-index.py.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-source-measurement.toml",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/src/polisyos/calibration/__init__.py",
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+  ],
+  "reviewed_property_objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/README.md",
+      "reviewed_blob": "60376f4791494d0bd11658943b144a6c1f5f7275",
+      "assembled_blob": "60376f4791494d0bd11658943b144a6c1f5f7275",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+      "reviewed_blob": "79aef69c9303f480e31ab02be0fe015efc8af4f1",
+      "assembled_blob": "79aef69c9303f480e31ab02be0fe015efc8af4f1",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt",
+      "reviewed_blob": "7465ec3af54e082ce033df76f6e727a1822a00c8",
+      "assembled_blob": "7465ec3af54e082ce033df76f6e727a1822a00c8",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason.patch.txt",
+      "reviewed_blob": "3d6da36973c3cac1a941d3ac916bb4004d1d4512",
+      "assembled_blob": "3d6da36973c3cac1a941d3ac916bb4004d1d4512",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/legacy-replay-probe.py.txt",
+      "reviewed_blob": "6bb6e30c6f2b6ab98be3b08df4cd72aa64a7c672",
+      "assembled_blob": "6bb6e30c6f2b6ab98be3b08df4cd72aa64a7c672",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-probe.py.txt",
+      "reviewed_blob": "2582c9d9209ac5536844be21bd89b9233d73feaa",
+      "assembled_blob": "2582c9d9209ac5536844be21bd89b9233d73feaa",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-property-removal.py.txt",
+      "reviewed_blob": "fa04fb6cb1c2099c01412cc9ca393a7303343871",
+      "assembled_blob": "fa04fb6cb1c2099c01412cc9ca393a7303343871",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-source-measurement.toml",
+      "reviewed_blob": "eb1ee71487f4bfa114d499a8314dd3d256dec3a6",
+      "assembled_blob": "eb1ee71487f4bfa114d499a8314dd3d256dec3a6",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "reviewed_blob": "ce2a77449860cc167a597a078b57b96604d3fa99",
+      "assembled_blob": "ce2a77449860cc167a597a078b57b96604d3fa99",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "reviewed_blob": "cf6830efbf67557bb3530bac7d37d71b278d6c92",
+      "assembled_blob": "cf6830efbf67557bb3530bac7d37d71b278d6c92",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "reviewed_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "assembled_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "reviewed_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "assembled_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "reviewed_blob": "4dbfe9b8ea4bd9cb95597dbeb6c9f37b56ae0861",
+      "assembled_blob": "4dbfe9b8ea4bd9cb95597dbeb6c9f37b56ae0861",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+      "reviewed_blob": "db9cf3bf3b79473c0bbf71e2a622f8b10b044795",
+      "assembled_blob": "db9cf3bf3b79473c0bbf71e2a622f8b10b044795",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "reviewed_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+      "assembled_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+      "identical": true
+    }
+  ],
+  "independent_review": "pr38-r2/independent-reviews/frc/frc-independent-review-8486.json",
+  "merge_conflict_resolution": {
+    "canonical_writer": "E root after FRC facade lease released; user-approved original narrow E facade scope",
+    "paths": [
+      "policy-engine/src/polisyos/calibration/__init__.py",
+      "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+    ],
+    "resolution": "exact independently reviewed8486 Gitblobs; preserves14d staticeager APIs and explicit consumer-required symbol oracle,adds3approved neutral bindings/readerexports",
+    "scope": "No A/Core/IR/public-contract/semantics writes"
+  },
+  "property": "Actual configured source schema/metric/unit/scale admission beforeETS callbacks, fresh row→persistedinterval oracle, separateevidence/candidatereceipt; legacyv1replay and neutralAadapter remainnongating",
+  "code_decision": "GO boundedEproducer/reader/adaptor, G acceptancepending",
+  "finding_decision": "B32/LA051 historicalpartial/limited; Adefaulttrustedverifier/status/HTTP and G strictlyrequiredlocalhistory separate",
+  "A_packet": "frc-source-measurement-r2/a-cas-contract-tests.py.txt5PASS + a-status-reason-tests.py.txt2FAIL with applicablepatch; causal/treatment/policyrefusal retained",
+  "additional_E_work": "LegacyB197 strictreportkind/schema consumer fix nowconfirmed and queued; sourcejoin/noiselawauthority remainsheld",
+  "aggregate_wave": "UNRUN until finalsourcefreeze and allreviews",
+  "merge_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/root-merge-frc.stdout.txt",
+    "bytes": 456,
+    "sha256": "a000caaa4dfe7265b0ba5d1fe783b51e77f11790cc18d6502fa853285398df83"
+  }
+}

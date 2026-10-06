@@ -511,24 +511,45 @@ class LLMBudgetEnforcer:
         ):
             raise RuntimeError("durable receipt conflicts with exact producer charge")
 
-    def reconcile_settlement(self, event: LLMProducerEvent) -> LLMSettlementAck:
-        """Resolve exact durable receipts; an absent receipt remains unknown."""
+    def reconcile_settlement(
+        self, event: LLMProducerEvent, *, retry_missing: bool = False
+    ) -> LLMSettlementAck:
+        """Resolve exact receipts or explicitly retry an owned, retained producer event.
+
+        An absent receipt remains unknown by default. Retry can publish only the
+        exact event already observed by this owner; caller-supplied events cannot
+        manufacture provider evidence or issue a new provider request.
+        """
         if self._budget_middleware is None:
             raise RuntimeError("durable reconciliation requires a budget ledger")
+        retained = self._unknown_settlements.get(event.event_id)
+        if retained is not None and retained[0] != event:
+            raise ValueError("reconciliation event conflicts with retained producer evidence")
+        if retry_missing and retained is None:
+            raise ValueError("settlement retry requires this owner's retained producer event")
         receipts = []
         for key in self._budget_keys:
             event_id, payload_digest = self._ledger_event_identity(event, key)
             receipt = self._budget_middleware.resolve_spend_safe(event_id)
+            if receipt is None and retry_missing:
+                receipt = self._budget_middleware.settle_spend_safe(
+                    event_id,
+                    key,
+                    event.amount,
+                    provider=event.provider,
+                    payload_digest=payload_digest,
+                )
             if receipt is None:
                 return LLMSettlementAck(event.event_id, event.payload_digest, "unknown")
             self._validate_receipt(receipt, event_id, payload_digest, key, event)
             receipts.append(receipt)
-        pending = self._unknown_settlements.pop(event.event_id, None)
+        pending = self._unknown_settlements.get(event.event_id)
         if pending is not None:
             self._release_reservation(
                 pending[1], run_id=self._run_id, reason="settlement_reconciled"
             )
         self._budget_state = self._budget_middleware.budget_state
+        self._unknown_settlements.pop(event.event_id, None)
         return LLMSettlementAck(
             event.event_id, event.payload_digest, "committed", tuple(receipts), "ledger"
         )

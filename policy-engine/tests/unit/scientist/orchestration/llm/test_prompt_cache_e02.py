@@ -242,6 +242,71 @@ async def test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled(tmp_
 
 
 @pytest.mark.asyncio
+async def test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider(
+    tmp_path, monkeypatch
+):
+    gateway, cache, enforcer, middleware, _ = _durable_stack(tmp_path)
+    gateway.release.set()
+    actual_settle = middleware.settle_spend_safe
+
+    def failed_delivery(*args, **kwargs):
+        raise OSError("settlement delivery unavailable before publication")
+
+    monkeypatch.setattr(middleware, "settle_spend_safe", failed_delivery)
+    with pytest.raises(LLMAccountingError) as failure:
+        await enforcer.generate(user="absent ACK", temperature=0.0, _prompt_tokens_estimate=1)
+    event = failure.value.event["producer_event"]
+    assert enforcer.reconcile_settlement(event).status == "unknown"
+    assert cache._cache.size == 0 and gateway.calls == 1
+    monkeypatch.setattr(middleware, "settle_spend_safe", actual_settle)
+    ack = enforcer.reconcile_settlement(event, retry_missing=True)
+    assert ack.status == "committed" and ack.receipts[0].amount == Decimal("0.02")
+    assert gateway.calls == 1 and middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert middleware.budget_state.reserved["run"] == 0
+    with pytest.raises(ValueError, match="retained producer"):
+        enforcer.reconcile_settlement(event, retry_missing=True)
+
+
+@pytest.mark.asyncio
+async def test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel(
+    tmp_path, monkeypatch
+):
+    gateway, cache, enforcer, middleware, events = _durable_stack(tmp_path)
+    entered, all_entered = 0, asyncio.Event()
+    actual_generate = cache.generate
+
+    async def observe_entry(*args, **kwargs):
+        nonlocal entered
+        entered += 1
+        if entered == 4:
+            all_entered.set()
+        return await actual_generate(*args, **kwargs)
+
+    monkeypatch.setattr(cache, "generate", observe_entry)
+    callers = [
+        asyncio.create_task(
+            enforcer.generate(user="shared owned", temperature=0.0, _prompt_tokens_estimate=1)
+        )
+        for _ in range(4)
+    ]
+    await all_entered.wait()
+    await gateway.started.wait()
+    callers[0].cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await callers[0]
+    gateway.release.set()
+    results = await asyncio.gather(*callers[1:])
+    await asyncio.gather(*list(enforcer._owned_calls))
+    assert gateway.calls == 1
+    assert [result.content for result in results] == ["provider value"] * 3
+    assert len([event for event in events if event["provider_call"]]) == 1
+    assert len([event for event in events if not event["provider_call"]]) == 3
+    assert middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert middleware.budget_state.reserved["run"] == 0
+    assert cache._cache.size == 1
+
+
+@pytest.mark.asyncio
 async def test_different_actual_budget_owners_cannot_join_first_owners_flight(tmp_path):
     gateway = _Gateway()
     cache, traced = _stack(gateway, [])

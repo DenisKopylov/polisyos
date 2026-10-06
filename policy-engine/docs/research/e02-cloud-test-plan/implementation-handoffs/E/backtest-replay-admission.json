@@ -515,18 +515,36 @@
       "bundle_id": "BKT-01",
       "preserved_ledger_status": "partial",
       "verdict": "limited",
-      "next_owner": "Scientist configured-workflow/input-materializer owner",
-      "reason": "K scalar actual dispatcher calls and failures are verified by controlled backend; positive native forecast backend UNRUN because missing Trinity/materializer and ExecConfig seed binding.",
-      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+      "next_owner": "Scientist backtesting forecast-profile and temporal-input contract owner",
+      "reason": "Native adapter controls reject an unadmitted scalar trajectory, reject silent trajectory truncation and prevent a singleton interval from being repeated without its declared constant profile; an explicit content-bound constant forecast contract remains supported. The positive full Scientist forecast-profile/temporal input bridge is not established, so closure remains a separate owner decision.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion": "Scalar/CI-to-trajectory estimand, horizon and time-coordinate semantics; explicit producer-admitted constant forecast preserves its meaning.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md#source-B169",
+      "deciding_check_selectors": [
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_scientist_scalar_without_constant_profile_is_not_a_trajectory",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_scientist_trajectory_length_mismatch_is_not_silently_truncated",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_singleton_interval_without_constant_profile_is_not_repeated",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_explicit_constant_profile_preserves_constant_forecast_and_interval"
+      ],
+      "closure_adjudication": "Owner formal finding-closure decision pending; technical verification, code acceptance and finding closure remain distinct."
     },
     {
       "finding_id": "B170",
       "bundle_id": "BKT-01",
       "preserved_ledger_status": "partial",
       "verdict": "limited",
-      "next_owner": "Scientist configured-workflow/input-materializer owner",
-      "reason": "Existing temporal/target/scalar controls preserved; full native target mapping and production history consumer need admitted input materializer.",
-      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+      "next_owner": "Scientist configured-workflow/input-materializer owner and Foundry execution-config owner",
+      "reason": "Controlled existing-dispatcher fixtures verify K=1/K=7 scalar calls, distinct requested seeds, persisted replay rows and requested/completed/failed counts; PROVIDED remains one externally supplied trajectory. The real Scientist workflow preserves two failed attempts and refuses missing inputs.trinity_bundle_ref. Successful native forecasting and binding requested seeds into RunSimulationNode.exec_config remain UNRUN/not_established and require the admitted input-materializer and execution-config owners.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion": "Requested K changes actual execution plan or returns explicit capability state; preserve requested/started/completed/failed, request streams, output identities and PROVIDED behavior.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md#source-B170",
+      "deciding_check_selectors": [
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_failed_replay_remains_a_terminal_failure_and_is_not_an_independent_success",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_provided_forecast_is_not_recomputed_for_a_replica_parameter",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_native_scientist_missing_trinity_is_not_counted_as_prediction_success"
+      ],
+      "closure_adjudication": "Owner formal finding-closure decision pending; technical verification, code acceptance and finding closure remain distinct."
     },
     {
       "finding_id": "B167",
@@ -551,9 +569,16 @@
       "bundle_id": "BKT-02",
       "preserved_ledger_status": "partial",
       "verdict": "limited",
-      "next_owner": "Scientist backtest trust-purpose/profile owner",
-      "reason": "Report/CAS/matrix prevent unadmitted trust authority; owner versioned trust purpose/profile is absent.",
-      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+      "next_owner": "Scientist backtest aggregation/estimand owner",
+      "reason": "Native pooled sufficient-statistic controls preserve micro RMSE across partitions of the same residuals and retain explicitly named macro metrics; empty comparison summaries cannot restore aggregate metrics. B171 concerns aggregation and shard invariance. Trust-purpose/equivalence limitations are recorded under B172/B173. The bounded technical property is verified; historical partial and final limited remain pending owner formal adjudication against the original criterion.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion": "Technical sharding preserves pooled micro error and candidate ordering; equal-scenario macro has an explicitly different weighting estimand.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md#source-B171",
+      "deciding_check_selectors": [
+        "tests/unit/remediation/test_bkt_02.py::test_micro_rmse_is_partition_invariant",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_empty_comparison_cannot_recover_metrics_from_present_but_fake_summary"
+      ],
+      "closure_adjudication": "Owner formal finding-closure decision pending; technical verification, code acceptance and finding closure remain distinct."
     },
     {
       "finding_id": "B172",
@@ -578,9 +603,16 @@
       "bundle_id": "BKT-04",
       "preserved_ledger_status": "partial",
       "verdict": "limited",
-      "next_owner": "Scientist configured-workflow/input-materializer owner",
-      "reason": "Canonical fold validation and process-local removal sensitivity preserved; production split/horizon/statistic law consumer not established.",
-      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+      "next_owner": "Scientist forward-chaining CV helper owner",
+      "reason": "The native standalone CV tests verify n=1000/max_folds=3 retains train lengths [2,500,999], test indices [2,500,999], and 1504 materialized index items before the real helper evaluator; invalid step/train/max_folds parameters reject before materialization. Removing the step-size guard triggers the expected failing progress control. This original standalone-helper criterion does not impose a universal production-history or GY-consumer prerequisite. Historical partial and final limited remain pending owner formal closure adjudication of the verified bounded helper property.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion": "Standalone forward-chaining CV helper admits progress parameters before materialization and prepares only selected fold boundaries while preserving the valid grid.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md#source-B174",
+      "deciding_check_selectors": [
+        "tests/unit/scientist/methods/backtesting/test_cv.py::TestRunForwardChainingCV::test_max_folds_limits_preparation_before_cv_evaluator",
+        "tests/unit/scientist/methods/backtesting/test_cv.py::TestForwardChainingSplits::test_invalid_cv_parameters_are_rejected_before_loop"
+      ],
+      "closure_adjudication": "Owner formal finding-closure decision pending; technical verification, code acceptance and finding closure remain distinct."
     },
     {
       "finding_id": "B175",
@@ -665,5 +697,25 @@
     ],
     "missing_remote_label": "release:breaking absent in GitHub despite tracked taxonomy; existing release:fix chosen for this fixed change and breaking compatibility retained."
   },
-  "release_fragment_owner_note": "Use existing repository release owner team-polisyos. This metadata does not appoint or ratify the missing Scientist trust-purpose/profile owner."
+  "release_fragment_owner_note": "Use existing repository release owner team-polisyos. This metadata does not appoint or ratify the missing Scientist trust-purpose/profile owner.",
+  "receipt_corrections": [
+    {
+      "kind": "criterion-specific per-ID reconciliation",
+      "reviewed_original_sources": [
+        "BKT-01.md SOURCE_BEGIN B:B169/B170",
+        "BKT-02.md SOURCE_BEGIN B:B171",
+        "BKT-04.md SOURCE_BEGIN B:B174"
+      ],
+      "corrected_finding_ids": [
+        "B169",
+        "B170",
+        "B171",
+        "B174"
+      ],
+      "source_and_test_changes": false,
+      "frozen_root_candidate_context_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "numerical_evidence": "Existing committed check receipts retained; no additional numerical run or reinterpretation of PASS as closure. Root owns the completed aggregate numerical-wave receipt.",
+      "status_policy": "All ten historical ledger partial entries and final limited verdicts preserved for owner adjudication."
+    }
+  ]
 }

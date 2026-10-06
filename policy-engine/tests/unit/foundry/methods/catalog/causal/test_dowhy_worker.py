@@ -87,7 +87,9 @@ def test_public_complete_report_builder_abi_and_real_producer_invocation(
     builder = public_causal.DoWhyIdentifyEstimate.report_from_worker_result
     assert pickle.loads(pickle.dumps(builder)) is builder  # noqa: S301 -- same-process trusted ABI bytes
     assert builder.__qualname__ == "DoWhyIdentifyEstimate.report_from_worker_result"
-    assert "report_from_worker_result" in pydoc.render_doc(public_causal.DoWhyIdentifyEstimate)
+    assert "report_from_worker_result" in pydoc.render_doc(
+        public_causal.DoWhyIdentifyEstimate, renderer=pydoc.plaintext
+    )
     calls = []
 
     def observe(**kwargs):

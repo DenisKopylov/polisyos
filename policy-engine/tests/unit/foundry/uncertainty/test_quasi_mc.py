@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from scipy.stats import kstest
+
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.foundry.uncertainty.quasi_mc import QuasiMCSampler
@@ -14,7 +16,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from scipy.stats import kstest
 
 
 def _normal_env(point: float, std: float) -> UncertaintyEnvelope:
@@ -60,7 +61,7 @@ class TestQuasiMCSampler:
     def test_power_of_two_rounding(self) -> None:
         sampler = QuasiMCSampler(method="sobol", seed=42)
         samples = sampler.sample(1000, 2)
-        assert samples.shape == (1000, 2)
+        assert samples.shape == (1024, 2)
 
     def test_unknown_method_raises(self) -> None:
         with pytest.raises(ValueError, match="Unknown QMC method"):
@@ -75,7 +76,12 @@ class TestQuasiMCSampler:
 
 class TestQMCVarianceReduction:
     def test_scrambled_rqmc_records_full_certificate(self) -> None:
-        envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 0.5)}
+        envelopes = {
+            name: _normal_env(point, 0.5).model_copy(
+                update={"metadata": {"covariance_row": row, "covariance_params": ["x", "z"]}}
+            )
+            for name, point, row in [("x", 1.0, [0.25, 0]), ("z", 2.0, [0, 0.25])]
+        }
         nominal = {"x": 1.0, "z": 2.0}
 
         def sim(**params: float) -> dict[str, float]:
@@ -105,10 +111,15 @@ class TestQMCVarianceReduction:
             == CertificateKind.RQMC_REPLICATES
         )
         assert qmc_results[0].envelope.interval_semantics == IntervalSemantics.CONFIDENCE_INTERVAL
-        assert qmc_results[0].envelope.gate_eligible is True
+        assert qmc_results[0].envelope.gate_eligible is False
 
     def test_deterministic_qmc_is_restricted_scope_only(self) -> None:
-        envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 0.5)}
+        envelopes = {
+            name: _normal_env(point, 0.5).model_copy(
+                update={"metadata": {"covariance_row": row, "covariance_params": ["x", "z"]}}
+            )
+            for name, point, row in [("x", 1.0, [0.25, 0]), ("z", 2.0, [0, 0.25])]
+        }
         nominal = {"x": 1.0, "z": 2.0}
 
         def sim(**params: float) -> dict[str, float]:

@@ -11,8 +11,11 @@ import numpy as np
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     ParametricFitCarrier,
+    PosteriorSamplesCarrier,
     UncertaintyEnvelope,
 )
+
+from .sampling_admission import admit_float32_range
 
 CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1 = 1e-7
 CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1 = 1e-10
@@ -78,7 +81,7 @@ def build_covariance_matrix(
     *,
     use_full_covariance: bool,
     jitter: float,
-    preserve_singular: bool = False,
+    preserve_singular: bool = True,
 ) -> jnp.ndarray:
     """Build a validated covariance matrix, optionally retaining exact null spaces."""
     if not math.isfinite(float(jitter)) or jitter < 0.0:
@@ -100,8 +103,8 @@ def build_covariance_matrix(
         ):
             raise ValueError(f"declared std is invalid for parameter {name!r}")
         marginal_stds.append(float(declared_std))
-    stds = jnp.asarray(marginal_stds, dtype=jnp.float32)
-    diag_cov = jnp.diag(stds**2)
+    diagonal_values = admit_float32_range(np.diag(np.square(np.asarray(marginal_stds))))
+    diag_cov = jnp.asarray(diagonal_values, dtype=jnp.float32)
 
     if not use_full_covariance:
         return diag_cov
@@ -183,7 +186,8 @@ def build_covariance_matrix(
 
     if not np.all(np.isfinite(covariance)):
         raise ValueError("covariance matrix must contain finite values")
-    return jnp.asarray(covariance, dtype=jnp.float32)
+    return jnp.asarray(admit_float32_range(covariance), dtype=jnp.float32)
+
 
 def preserve_singular_covariance(
     covariance: object,
@@ -245,7 +249,7 @@ def calibration_covariance_blocks_agree_v1(expected: object, actual: object) -> 
 
 
 def has_unknown_dependency(input_envelopes: Mapping[str, UncertaintyEnvelope]) -> bool:
-    """Return whether a producer explicitly withheld the input dependency law."""
+    """Treat missing multi-input dependence as unknown, never implicit independence."""
     unknown_values = {"unknown", "unverified", "not_established", "incompatible"}
     for envelope in input_envelopes.values():
         raw = envelope.metadata.get("dependency")
@@ -253,7 +257,18 @@ def has_unknown_dependency(input_envelopes: Mapping[str, UncertaintyEnvelope]) -
             raw = envelope.metadata.get("dependence")
         if raw is not None and str(raw).strip().lower() in unknown_values:
             return True
-    return False
+    if len(input_envelopes) <= 1:
+        return False
+    has_full_covariance = all(
+        "covariance_row" in envelope.metadata and "covariance_params" in envelope.metadata
+        for envelope in input_envelopes.values()
+    )
+    has_joint_carriers = all(
+        isinstance(envelope.distribution_payload, PosteriorSamplesCarrier)
+        and "joint_sample_id" in envelope.metadata
+        for envelope in input_envelopes.values()
+    )
+    return not (has_full_covariance or has_joint_carriers)
 
 
 def _repair_covariance(cov: jnp.ndarray, *, jitter: float) -> jnp.ndarray:

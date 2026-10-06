@@ -27,6 +27,7 @@ from polisyos.ir.analytics.uncertainty import (
 
 from .covariance import build_covariance_matrix, has_unknown_dependency
 from .protocol import PropagationResult
+from .sampling_admission import admit_float32_range, admit_sampling_support
 
 
 class AnalyticalPropagator:
@@ -53,6 +54,11 @@ class AnalyticalPropagator:
         use_full_covariance: bool = True,
     ) -> PropagationResult:
         param_names = sorted(input_envelopes)
+        admit_sampling_support(input_envelopes)
+        if covariance is not None:
+            admit_float32_range(covariance)
+        elif has_unknown_dependency(input_envelopes):
+            raise ValueError("joint input law is unknown; missing covariance is not independence")
         if covariance is None:
             covariance = build_covariance_matrix(
                 param_names,
@@ -105,7 +111,7 @@ class AnalyticalPropagator:
             interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
             is_heuristic_ci=False,
             # Propagation cannot promote a non-gate-eligible input into a gate.
-            gate_eligible=all(envelope.gate_eligible for envelope in ordered_inputs),
+            gate_eligible=False,
             metadata={
                 "formula": "linear_combination_normal",
                 "weights": dict(weights),

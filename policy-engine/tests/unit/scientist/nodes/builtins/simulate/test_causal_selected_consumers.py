@@ -367,7 +367,9 @@ def test_selected_did_peer_and_actual_source_must_match(
     monkeypatch.setattr(owner, "run_job", lambda *args, **kwargs: genuine)
     changed = data.model_copy(deep=True)
     changed.outcome[0, -1] += 0.25
-    with pytest.raises(ValueError, match="target does not bind"):
+    # Full diagnostic reconciliation now precedes the independent target check.
+    # The dedicated target discriminator above still exercises its own refusal.
+    with pytest.raises(ValueError, match="diagnostic basis/result does not bind"):
         _run_primary_causal_job(
             ctx=execution_context, state=state, spec=spec, observational_data=changed
         )

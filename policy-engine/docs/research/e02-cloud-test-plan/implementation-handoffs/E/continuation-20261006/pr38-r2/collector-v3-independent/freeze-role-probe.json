@@ -1,0 +1,21 @@
+{
+  "source_sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec",
+  "scope": "Synthetic role-only probe; no actual private input touched",
+  "controls": [
+    {
+      "role": "raw",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/synthetic-freeze-role/raw/wave/raw/source-freeze.json",
+      "state": "CONTROL_COMPLETE_BOUND",
+      "synthetic_payload_copied": true,
+      "product_native_or_gate_commands_executed": 0
+    },
+    {
+      "role": "private",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/synthetic-freeze-role/private/wave/private/source-freeze.json",
+      "state": "CONTROL_COMPLETE_BOUND",
+      "synthetic_payload_copied": true,
+      "product_native_or_gate_commands_executed": 0
+    }
+  ],
+  "property": "The explicit freeze_receipt copy uses freeze.parent as admission root and discards raw/private parent role."
+}

@@ -1,0 +1,21 @@
+{
+  "state": "READY",
+  "disposition": "GO_bounded_code_and_companions",
+  "candidate_sha": "cfd79255aab85544082fcf24f93db894202fbfa2",
+  "candidate_tree": "8b5fea530b22e5402f3e3bf31d0c5a54e4117be7",
+  "primary": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/review-cfd79255.json",
+    "bytes": 27913,
+    "sha256": "d75ba9aa14111c8f754319107b2cf63c67d32ceb64ea32f6291b518e50cf948b"
+  },
+  "index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/copy-index.json",
+    "bytes": 55506,
+    "sha256": "7bfb5295fad9af8bf9514840af9afae23161cc98a6dfbcbf4a7fae53723aa04c"
+  },
+  "indexed_files": 155,
+  "indexed_bytes": 3232732,
+  "future_global_wave_PASS": false,
+  "finding_closure": false,
+  "no_source_or_Git_mutation_by_reviewer": true
+}

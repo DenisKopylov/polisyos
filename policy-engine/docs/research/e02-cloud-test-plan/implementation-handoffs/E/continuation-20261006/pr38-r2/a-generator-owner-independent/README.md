@@ -1,0 +1,15 @@
+# Independent A/G dependency-packet review
+
+GO as a bounded owner-ready handoff. No native/global/generator execution, A/product/Git/config write, child agent, checkout or environment creation occurred. Read-only git apply --check independently confirms patch applicability; no behavior PASS or A patch application is claimed.
+
+Author packet contextEB035c0785a63c9c2a6d8991e2503a6a5117a1aa source29paths remain byteexact from actual5e3e3727685132f270a3a07b9f63dd962a88cd96 through packet EB and clean liveCFD79255aab85544082fcf24f93db894202fbfa2. Published deciding outputs are Git-bound at1e1b5028274814b7c4318671588202480390a6bc.19packet assets170661B and all complete selected actual stdout/receipts/source refs were independently reconciled. Initial auditor stopped because root advanced from EB to the owned facade CFD source; original script/stdout are preserved as non-deciding coordination evidence. Final review binds immutable packet EB and actual live CFD separately, proves all29selected paths unchanged and does not claim entire root stayed EB.
+
+Actual5e BKT/FRC group315cases=145PASS/3FAIL/167ERROR. A CAS packet5ERROR; status/reason packet1FAIL+1ERROR, with anonymous case attribution established from exact group argv and unique functions across all123native/packet source inputs. Prior8486CAS5PASS/status2FAIL and lawful generic ETS/CAS positive remain historical bounded evidence, never current5ePASS. Seven forged ref/digest/source/anonymous attribution/historical-count/owner-classification controls are rejected.
+
+Default gateway resolverNone, both default constructor/reentry calls omit it, and HTTP lifecycle does not bind ForecastOwner/resolver. Separate candidate/evidence refs, metric/unit/source schema/split/horizon/rule/profile/seed and six distinct time roles are supplied; synthetic source/profile admission and verifier provenance remain not_established. A owns strict default bridge, normalized status/reason and independent persisted verifier/fresh served read. G retains local production history/source law.
+
+Actual5e OpenAPI drift1489→1493 is separate from historical1492. The default check completed byte freshness against COMMITTEDOpenAPI with no reported client drift; newGeneratedOpenAPI client impact, compatibility and behavior remain unmeasured.101ABIregistry AST declarations identify Core Foundry FeedbackSolveResult stored in IR family; Core/IR/generator owners must classify actual migration/replay and manifest compatibility. Trust-posture mismatch is actual architecture evidence; no separate semantic trust checker ran. Canonical owner commands/classes are supplied without execution or hand-edited outputs.
+
+P41 remains not_established for inherited cause: same29blobs and generated-output mismatch do not replace exact old full-command/input replay. No finding closure/ledger status change, Calibrator/served evaluator/source-law carrier, point/interval/IR wire semantics or institutional/causal authority is invented. B32/LA-051 historical partial stays separate from this packet GO.
+
+No repeatable native fixture was created; preserve all source refs/outputs/docs. No permanent cleanup or Trash emptying.

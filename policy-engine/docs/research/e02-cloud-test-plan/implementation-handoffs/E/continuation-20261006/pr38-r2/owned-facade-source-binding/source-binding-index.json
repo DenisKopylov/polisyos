@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.appendonly_source_binding_companion_index.v1",
+  "original_index_sha256": "db188c6fabb217680c598d30d533ed3f0a2d5cf1d05069b0776cb940a5c6f1c2",
+  "implementation_sha": "cfd79255aab85544082fcf24f93db894202fbfa2",
+  "files": [
+    {
+      "path": "bind_source_checkpoint.py",
+      "bytes": 5104,
+      "sha256": "7454d8cafd85120ba8e9f144e51a3377ff77d2653af54ac18db47b793f48edab"
+    },
+    {
+      "path": "source-checkpoint-binding.json",
+      "bytes": 4827,
+      "sha256": "be97c61e4d09eb277cfe029edb05ace9fd7f13197ffcdf3f09fe18b33fcf2bd4"
+    },
+    {
+      "path": "source-checkpoint-loaded-joins.tsv",
+      "bytes": 194229,
+      "sha256": "dbb244d9b0a9b162d23ddf4c60873055bda0ffc01e0d44de4d2625131083e87d"
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+{
+  "schema": "policyos.e02.D.G-local-contract-skeleton.v1",
+  "unit": "D",
+  "slice": "published-G-local-contract-skeleton",
+  "closure_ids": [],
+  "proposal": true,
+  "local_only": true,
+  "final_D_source": {
+    "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+    "tree_sha": "e674e22edb8d94d47579326135a786c832402a15",
+    "production_source_tree": "ecb33f5d109f3c30ab5e9e59f1447d25cc8f5778"
+  },
+  "appointed_minrefs": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+    "E": null,
+    "F": null,
+    "G": null
+  },
+  "combined_source_sha": null,
+  "combined_tree_sha": null,
+  "combined_acceptance": null,
+  "source_contracts": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+    "bytes": 52438,
+    "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0"
+  },
+  "G_instructions": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/G.md",
+    "bytes": 5546,
+    "sha256": "1aa3edd908087b8b6581a4309a9f03636d4459b38b264ce9ef4d25d3095ca661"
+  },
+  "finding_and_criterion_accounting": {
+    "findings": 45,
+    "bundles": 17,
+    "occurrences": 46,
+    "limited": 35,
+    "held": 7,
+    "open": 3,
+    "closed": 0
+  },
+  "local_D_received_checks": {
+    "original17": "744occurrences737PASS7FAIL at243;15unchangedcommands lineage_checked final only.",
+    "GP26": "Actual243 independent23analytic+3nativeCAS PASS; unchanged final source2910.",
+    "final_two": {
+      "source_sha": "7602e3e259f6efdaa65104a90b77b6704c4326dc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root-replay.json",
+      "bytes": 137229,
+      "sha256": "81ae16dcff4d9bb7203aff9e06f0ce8e4fca8a2fd1d6e4e72ddb177f5da79d27"
+    },
+    "backend": "7PASS3completedFAIL15incomplete, no literal-wrapperPASS",
+    "frontend": "1PASS6incomplete1UNRUN; native doctor/CDP readiness separate",
+    "production_invocation": "ERROR/-9; no completed diagnostic/runtime invocation verdict",
+    "current142": {
+      "source_sha": "668df4bc66eede8ca285bb8bce231d5e94f8626a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent-review.json",
+      "bytes": 18548,
+      "sha256": "6eef8f6aeedc2ecf99d177f570822b19ee7c4b5873163fc6b086b824b372aba9"
+    },
+    "current40_scope": "Current3f38 joined native controller10+fiscal30 receivedPASS; no units/source law appointment. Native102 fixture Gateway/ledger checks separate external-billing boundary."
+  },
+  "downstream_contracts": [
+    {
+      "edge": "CAS-01(B)->OPT-04(D)",
+      "canonical_writer": "B/Core CAS",
+      "producer_minref": null,
+      "producer_receipt_ref": null,
+      "local_D_consumer": "ChampionRegistry/BenchmarkSuite/SearchLoopRunner",
+      "predicate": "Actual candidate/evaluation content refs and comparison basis must match; current pointer rechecked under lock, stale predecessor never overwrites winner.",
+      "declared_selector": "tests/unit/remediation/test_opt_04.py",
+      "local_D_evidence": "Original243 OPT04 canonical28PASS plus pinned independent champion callback/race proof in original8cdsnapshot; not a current combined B->D runtime.",
+      "combined_runtime_ref": null,
+      "next_owner": "B CAS writer / D OPT04 owner / G"
+    },
+    {
+      "edge": "CAS-01(B)->TRN-02(D)",
+      "canonical_writer": "B/Core CAS",
+      "producer_minref": null,
+      "producer_receipt_ref": null,
+      "local_D_consumer": "VectorMemory exact-reference and generation-snapshot readers",
+      "predicate": "Dimensions, generation keys and exactcontent identity read atomically from the same admitted snapshot; name/vector cannot replace reference.",
+      "declared_selector": "tests/unit/remediation/test_trn_02.py",
+      "local_D_evidence": "Original243 TRN02 canonical59PASS; current243 nativeCAS3 actually HNSW->CAS->BGC->GP/restore. Live owner-issued generation and second-process scope unreceived.",
+      "combined_runtime_ref": null,
+      "next_owner": "B CAS writer / D TRN02 owner / generation metadata issuer / G"
+    },
+    {
+      "edge": "STR-01(D)->DOE-01(E)",
+      "canonical_writer": "D stress producer; E DOE consumer",
+      "producer_minref": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "consumer_minref": null,
+      "consumer_receipt_ref": null,
+      "predicate": "DOE refuses oversized plans before exponential candidate materialization and preserves roundcount/actual metricdirection; partial finite observed fraction never becomes complete probability/model uncertainty.",
+      "declared_selector": "tests/unit/remediation/test_doe_01.py",
+      "local_D_evidence": "Original243 STR01 canonical38PASS; Q5authorreceipt+independentroot mechanism controls separately pinned. No actual current E DOE consumer invocation received.",
+      "combined_runtime_ref": null,
+      "next_owner": "D STR01 / E DOE01 / G"
+    }
+  ],
+  "unreceived_served_contracts": [
+    {
+      "finding_id": "B108",
+      "canonical_closure_owner": "OPT-01",
+      "inputs_or_APIs": {
+        "signed_fiscal_unit_profile_ref": null,
+        "served_fiscal_metric_source_ref": null
+      },
+      "next_owner": "Fiscal metric/input owner / search_owner / G"
+    },
+    {
+      "finding_id": "B109",
+      "canonical_closure_owner": "OPT-01",
+      "inputs_or_APIs": {
+        "A_frontier_provider_minref": null,
+        "A_frontier_export_API": null
+      },
+      "next_owner": "A frontier provider/export owner / search_owner / G"
+    },
+    {
+      "finding_id": "B131",
+      "canonical_closure_owner": "TRN-01",
+      "inputs_or_APIs": {
+        "institutional_tenant_source_access_ref": null,
+        "authorized_split_owner_ref": null
+      },
+      "next_owner": "Institutional source-access/split owner / transfer_owner / G"
+    },
+    {
+      "finding_id": "B134",
+      "canonical_closure_owner": "TRN-02",
+      "inputs_or_APIs": {
+        "live_generation_metadata_issuer_ref": null,
+        "second_process_generation_receipt_ref": null
+      },
+      "next_owner": "Index-generation metadata owner / transfer_owner / G"
+    },
+    {
+      "finding_id": "B137",
+      "canonical_closure_owner": "TRN-03",
+      "inputs_or_APIs": {
+        "authorized_revalidation_event_ref": null,
+        "revalidation_grounds_time_issuer_API": null
+      },
+      "next_owner": "Revalidation-event issuer / lesson lifecycle owner / G"
+    },
+    {
+      "finding_id": "B157",
+      "canonical_closure_owner": "FUN-02",
+      "inputs_or_APIs": {
+        "native_raw_sample_estimand_provider_API": null,
+        "actual_native_sample_input_refs": null
+      },
+      "next_owner": "B runtime/factory owner / F or E estimand/input supplier / funnel_owner / G"
+    },
+    {
+      "finding_id": "B161",
+      "canonical_closure_owner": "FUN-03",
+      "inputs_or_APIs": {
+        "permitted_same_subject_basis_update_ref": null,
+        "uncertainty_supersession_rule_ref": null
+      },
+      "next_owner": "Uncertainty update/supersession rule owner / funnel_owner / G"
+    },
+    {
+      "finding_id": "B164",
+      "canonical_closure_owner": "FUN-03",
+      "inputs_or_APIs": {
+        "typed_permit_issuer_API": null,
+        "current_permit_verifier_API": null,
+        "revoke_serialized_writer_API": null,
+        "valid_owner_issued_positive_ref": null
+      },
+      "next_owner": "Typed promotion issuer/verifier/writer boundary owner / G"
+    },
+    {
+      "finding_id": "LA-014",
+      "canonical_closure_owner": "SRV-01",
+      "inputs_or_APIs": {
+        "served_hierarchical_factory_cutover_API": null,
+        "admitted_live_search_factory_input_ref": null
+      },
+      "next_owner": "SRV-01 served factory/cutover owner / gp_witness / G"
+    },
+    {
+      "finding_id": "LA-015",
+      "canonical_closure_owner": "SRV-03",
+      "inputs_or_APIs": {
+        "persisted_SearchService_restore_resume_API": null,
+        "legacy_history_import_retirement_contract_ref": null,
+        "rollback_characterization_ref": null
+      },
+      "next_owner": "SRV-03 persistence/cutover/retirement owner / gp_witness / G"
+    }
+  ],
+  "institutional_contract": {
+    "source_truth_rights_issuer": null,
+    "measurement_population_split_issuer": null,
+    "permit_issuer_API": null,
+    "current_verifier_API": null,
+    "revoke_serialized_writer_API": null,
+    "valid_permit_positive_ref": null,
+    "rule": "Content hashes, declared profiles and conditional analytic execution do not appoint external source rights or typed promotion authority."
+  },
+  "publication_contract": {
+    "D_topic_publication": "Authorized own admitted topic only.",
+    "G_integration_publisher": "G sole publisher, separate review and exact combined freeze required.",
+    "G_branch_minref": null,
+    "main_publication_authorization": null
+  },
+  "limitations": [
+    "Local proposal only; no upstream minref guessed from old topics or source prose.",
+    "No combined A-F runtime/compatibility or G acceptance.",
+    "Backend/frontend/global diagnostics remain scoped FAIL/ERROR/UNRUN; no inferred inherited waiver.",
+    "No source, metadata, criterion or appointment rewrite; no new backend execution."
+  ],
+  "criterion_accounting_receipt": {
+    "source_sha": "e8c27984472bea72ed1a565ac816aa75db5e3bbe",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+    "bytes": 171442,
+    "sha256": "4af18432fca4a8915df64c7ffb710cdd8f1972d69d918ccce417ba15fef51182"
+  },
+  "predicate_basis": "consumer_contract_proposal; actual local source/receipt bytes independently reconciled; unknown combined-source predicates not_established"
+}

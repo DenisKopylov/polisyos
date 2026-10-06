@@ -7,7 +7,8 @@ from typing import Literal, cast
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 JsonObject = dict[str, object]
-EXPLANATION_BUNDLE_SCHEMA_VERSION = "1.0.0"
+EXPLANATION_BUNDLE_SCHEMA_VERSION = "1.1.0"
+HISTORICAL_EXPLANATION_BUNDLE_SCHEMA_VERSIONS = frozenset({"1.0.0"})
 
 
 class StrictModel(BaseModel):
@@ -143,6 +144,44 @@ class StabilityReport(StrictModel):
     max_rank_shift_top5: int | None = Field(default=None, ge=0)
 
 
+class ConditionalExplanationEvidence(StrictModel):
+    """Resolved conditional-law and estimator evidence for one attribution method.
+
+    Refs and digests identify the evidence to re-resolve. They are not self-validating
+    declarations; persisted consumers must verify them with the admitted source owner.
+    """
+
+    profile_id: Literal[
+        "gaussian_linear_exact",
+        "finite_support_weighted_exact",
+        "gaussian_bounded_hoeffding",
+    ]
+    authority_purpose: Literal["prediction_attribution"]
+    law_ref: str = Field(min_length=1)
+    law_content_digest: str = Field(min_length=1)
+    model_hash: str = Field(min_length=1)
+    model_profile_ref: str = Field(min_length=1)
+    model_profile_digest: str = Field(min_length=1)
+    model_verifier_ref: str = Field(min_length=1)
+    population_ref: str = Field(min_length=1)
+    cohort_ref: str = Field(min_length=1)
+    observation_window_ref: str = Field(min_length=1)
+    feature_schema_version: str = Field(min_length=1)
+    model_epoch: str = Field(min_length=1)
+    feature_order: list[str] = Field(min_length=1)
+    support_ref: str = Field(min_length=1)
+    provenance_ref: str = Field(min_length=1)
+    verifier_ref: str = Field(min_length=1)
+    precision_status: Literal["exact", "precision_met", "precision_not_met"]
+    draw_count_per_coalition: int | None = Field(default=None, ge=0)
+    coalition_count: int | None = Field(default=None, ge=1)
+    epsilon_per_coalition: float | None = Field(default=None, ge=0.0)
+    familywise_delta: float | None = Field(default=None, gt=0.0, lt=1.0)
+    random_seed: int | None = None
+    draw_cap_per_coalition: int | None = Field(default=None, ge=0)
+    achieved_shapley_error: float | None = Field(default=None, ge=0.0)
+
+
 class MethodExplanation(StrictModel):
     """One method-specific explanation inside the bundle."""
 
@@ -160,6 +199,7 @@ class MethodExplanation(StrictModel):
     group_attributions: list[GroupAttribution] = Field(default_factory=list)
     infidelity: InfidelityReport | None = None
     stability: StabilityReport | None = None
+    conditional_evidence: ConditionalExplanationEvidence | None = None
 
 
 class DisagreementReport(StrictModel):

@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from polisyos.berl import ConditionalEvidenceVerifier
 
 _REQUIRES_BERL_KEYS = (
     "requires_explanation_reliability",
@@ -106,6 +109,7 @@ def evaluate_warrant_berl_reliability(
     warrant: Mapping[str, Any],
     *,
     claim_id: str | None = None,
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
 ) -> WarrantReliabilityEvaluation:
     """Validate BERL reliability records linked to a warrant."""
 
@@ -123,7 +127,11 @@ def evaluate_warrant_berl_reliability(
             )
         )
     for row in rows:
-        normalized, row_issues = _normalize_reliability_record(row, warrant=warrant)
+        normalized, row_issues = _normalize_reliability_record(
+            row,
+            warrant=warrant,
+            conditional_evidence_verifier=conditional_evidence_verifier,
+        )
         records.append(normalized)
         issues.extend(row_issues)
     return WarrantReliabilityEvaluation(tuple(records), tuple(issues))
@@ -140,6 +148,7 @@ def build_berl_warrant_reliability_record(
     warrant_id: str | None = None,
     runtime_event_ref: str | None = None,
     metadata: Mapping[str, Any] | None = None,
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
 ) -> dict[str, Any]:
     """Build a BERL warrant reliability record without requiring argument refs."""
 
@@ -159,7 +168,11 @@ def build_berl_warrant_reliability_record(
         record["runtime_event_ref"] = str(runtime_event_ref)
     if explanation_bundle is not None:
         record["explanation_bundle"] = dict(explanation_bundle)
-        normalized, issues = _normalize_reliability_record(record, warrant={})
+        normalized, issues = _normalize_reliability_record(
+            record,
+            warrant={},
+            conditional_evidence_verifier=conditional_evidence_verifier,
+        )
         record.update(
             {
                 key: value
@@ -258,6 +271,7 @@ def _normalize_reliability_record(
     row: Mapping[str, Any],
     *,
     warrant: Mapping[str, Any],
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
 ) -> tuple[dict[str, Any], tuple[WarrantReliabilityIssue, ...]]:
     record_id = _first_text(*[row.get(key) for key in _RELIABILITY_RECORD_ID_KEYS])
     evidence_ref = _first_text(row.get("evidence_ref"), row.get("cas_ref"), row.get("artifact_ref"))
@@ -290,6 +304,7 @@ def _normalize_reliability_record(
             bundle_payload,
             thresholds=thresholds,
             evidence_ref=evidence_ref,
+            conditional_evidence_verifier=conditional_evidence_verifier,
         )
         normalized.update(bundle_record)
         issues.extend(bundle_issues)
@@ -376,18 +391,20 @@ def _validate_bundle_record(
     *,
     thresholds: dict[str, Any],
     evidence_ref: str | None,
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
 ) -> tuple[dict[str, Any], tuple[WarrantReliabilityIssue, ...]]:
     try:
         from polisyos.berl import (
-            ExplanationBundle,
             ValidationThresholds,
             validate_explanation_bundle,
+            validate_persisted_explanation_bundle,
         )
 
-        bundle = ExplanationBundle.model_validate(bundle_payload)
+        bundle = validate_persisted_explanation_bundle(bundle_payload)
         validation = validate_explanation_bundle(
             bundle,
             thresholds=_validation_thresholds(ValidationThresholds, thresholds),
+            conditional_evidence_verifier=conditional_evidence_verifier,
         )
     except (ImportError, TypeError, ValueError) as exc:
         return (

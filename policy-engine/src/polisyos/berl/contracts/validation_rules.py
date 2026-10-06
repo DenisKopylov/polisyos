@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, Protocol
 
 if TYPE_CHECKING:
-    from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
+    from polisyos.berl.contracts.explanation_bundle import (
+        ConditionalExplanationEvidence,
+        ExplanationBundle,
+        MethodExplanation,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,10 +34,40 @@ class ExplanationValidationResult:
     warnings: tuple[str, ...] = field(default_factory=tuple)
 
 
+@dataclass(frozen=True, slots=True)
+class ConditionalEvidenceVerification:
+    """Consumer-side result after resolving conditional source/model evidence."""
+
+    accepted: bool
+    predicate_basis: Literal[
+        "recomputed",
+        "independently_reconciled",
+        "consumer_asserted",
+        "institutionally_supplied",
+        "not_established",
+    ]
+    law_content_digest: str
+    model_hash: str
+    law_verifier_ref: str
+    model_verifier_ref: str
+
+
+class ConditionalEvidenceVerifier(Protocol):
+    """Re-resolve and content-bind the evidence behind a conditional method result."""
+
+    def verify(
+        self,
+        bundle: ExplanationBundle,
+        method: MethodExplanation,
+        evidence: ConditionalExplanationEvidence,
+    ) -> ConditionalEvidenceVerification: ...
+
+
 def validate_explanation_bundle(
     bundle: ExplanationBundle,
     *,
     thresholds: ValidationThresholds | None = None,
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
 ) -> ExplanationValidationResult:
     """Validate whether a bundle may be shown as an analyst-facing explanation."""
 
@@ -56,6 +90,13 @@ def validate_explanation_bundle(
             violations.append(f"method_lacks_declared_assumptions:{method.method_id}")
         if method.infidelity is not None and method.infidelity.evaluation_split != "heldout":
             violations.append(f"infidelity_not_heldout:{method.method_id}")
+        conditional_issue = _conditional_method_issue(
+            bundle,
+            method,
+            verifier=conditional_evidence_verifier,
+        )
+        if conditional_issue is not None:
+            violations.append(conditional_issue)
 
     upper_bounds = tuple(
         method.infidelity.upper_bound
@@ -100,10 +141,15 @@ def summarize_explanation_response(
     bundle: ExplanationBundle,
     *,
     thresholds: ValidationThresholds | None = None,
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
 ) -> dict[str, object]:
     """Return the API summary shape used by the explanation endpoint."""
 
-    validation = validate_explanation_bundle(bundle, thresholds=thresholds)
+    validation = validate_explanation_bundle(
+        bundle,
+        thresholds=thresholds,
+        conditional_evidence_verifier=conditional_evidence_verifier,
+    )
     max_bound = max(
         (
             method.infidelity.upper_bound
@@ -132,6 +178,57 @@ def summarize_explanation_response(
             "warnings": list(validation.violations + validation.warnings),
         },
     }
+
+
+def _conditional_method_issue(
+    bundle: ExplanationBundle,
+    method: MethodExplanation,
+    *,
+    verifier: ConditionalEvidenceVerifier | None,
+) -> str | None:
+    evidence = method.conditional_evidence
+    method_claims_conditional = (
+        method.method_id == "kernel_shap_conditional"
+        or method.requested_method_id == "kernel_shap_conditional"
+        or method.effective_method_id == "conditional_shapley"
+        or bundle.assumptions.feature_dependence_policy.primary
+        in {"conditional", "conditional_observational"}
+        or method.assumptions.get("feature_dependence_policy")
+        in {"conditional", "conditional_observational"}
+        or method.assumptions.get("feature_removal")
+        in {"conditional", "conditional_observational"}
+    )
+    if evidence is not None and not method_claims_conditional:
+        return f"conditional_evidence_method_mismatch:{method.method_id}"
+    if not method_claims_conditional:
+        return None
+    if evidence is None:
+        return f"conditional_law_evidence_missing:{method.method_id}"
+    if evidence.model_hash != bundle.model.model_hash:
+        return f"conditional_model_binding_mismatch:{method.method_id}"
+    if evidence.feature_schema_version != bundle.feature_context.feature_schema_version:
+        return f"conditional_feature_schema_mismatch:{method.method_id}"
+    attribution_order = [item.feature for item in method.attributions]
+    if attribution_order and evidence.feature_order != attribution_order:
+        return f"conditional_feature_order_mismatch:{method.method_id}"
+    if evidence.law_ref not in bundle.audit.artifact_refs:
+        return f"conditional_law_ref_missing_from_audit:{method.method_id}"
+    if verifier is None:
+        return f"conditional_law_verifier_unavailable:{method.method_id}"
+    try:
+        result = verifier.verify(bundle, method, evidence)
+    except Exception as exc:
+        return f"conditional_law_verification_error:{method.method_id}:{type(exc).__name__}"
+    if (
+        not result.accepted
+        or result.predicate_basis not in {"recomputed", "independently_reconciled"}
+        or result.law_content_digest != evidence.law_content_digest
+        or result.model_hash != evidence.model_hash
+        or result.law_verifier_ref != evidence.verifier_ref
+        or result.model_verifier_ref != evidence.model_verifier_ref
+    ):
+        return f"conditional_law_verification_not_admitted:{method.method_id}"
+    return None
 
 
 def _sign_conflict_rate(bundle: ExplanationBundle) -> float:

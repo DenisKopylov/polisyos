@@ -8,6 +8,8 @@ from polisyos.berl.contracts.display_policy import (
 )
 from polisyos.berl.contracts.explanation_bundle import (
     EXPLANATION_BUNDLE_SCHEMA_VERSION,
+    HISTORICAL_EXPLANATION_BUNDLE_SCHEMA_VERSIONS,
+    ConditionalExplanationEvidence,
     ExplanationBundle,
     MethodExplanation,
     bundle_json_schema,
@@ -15,9 +17,12 @@ from polisyos.berl.contracts.explanation_bundle import (
 from polisyos.berl.contracts.schema import (
     explanation_bundle_schema_id,
     generated_explanation_bundle_schema,
+    validate_persisted_explanation_bundle,
     write_explanation_bundle_schema,
 )
 from polisyos.berl.contracts.validation_rules import (
+    ConditionalEvidenceVerification,
+    ConditionalEvidenceVerifier,
     ExplanationValidationResult,
     ValidationThresholds,
     summarize_explanation_response,
@@ -26,6 +31,10 @@ from polisyos.berl.contracts.validation_rules import (
 
 __all__ = [
     "EXPLANATION_BUNDLE_SCHEMA_VERSION",
+    "HISTORICAL_EXPLANATION_BUNDLE_SCHEMA_VERSIONS",
+    "ConditionalEvidenceVerification",
+    "ConditionalEvidenceVerifier",
+    "ConditionalExplanationEvidence",
     "ExplanationBundle",
     "ExplanationValidationResult",
     "MethodExplanation",
@@ -37,5 +46,6 @@ __all__ = [
     "generated_explanation_bundle_schema",
     "summarize_explanation_response",
     "validate_explanation_bundle",
+    "validate_persisted_explanation_bundle",
     "write_explanation_bundle_schema",
 ]

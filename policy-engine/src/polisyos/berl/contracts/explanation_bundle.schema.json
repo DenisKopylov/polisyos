@@ -75,6 +75,226 @@
       "title": "BackgroundData",
       "type": "object"
     },
+    "ConditionalExplanationEvidence": {
+      "additionalProperties": false,
+      "description": "Resolved conditional-law and estimator evidence for one attribution method.\n\nRefs and digests identify the evidence to re-resolve. They are not self-validating\ndeclarations; persisted consumers must verify them with the admitted source owner.",
+      "properties": {
+        "achieved_shapley_error": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Achieved Shapley Error"
+        },
+        "authority_purpose": {
+          "const": "prediction_attribution",
+          "title": "Authority Purpose",
+          "type": "string"
+        },
+        "coalition_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coalition Count"
+        },
+        "cohort_ref": {
+          "minLength": 1,
+          "title": "Cohort Ref",
+          "type": "string"
+        },
+        "draw_cap_per_coalition": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Draw Cap Per Coalition"
+        },
+        "draw_count_per_coalition": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Draw Count Per Coalition"
+        },
+        "epsilon_per_coalition": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Epsilon Per Coalition"
+        },
+        "familywise_delta": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 1.0,
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Familywise Delta"
+        },
+        "feature_order": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Feature Order",
+          "type": "array"
+        },
+        "feature_schema_version": {
+          "minLength": 1,
+          "title": "Feature Schema Version",
+          "type": "string"
+        },
+        "law_content_digest": {
+          "minLength": 1,
+          "title": "Law Content Digest",
+          "type": "string"
+        },
+        "law_ref": {
+          "minLength": 1,
+          "title": "Law Ref",
+          "type": "string"
+        },
+        "model_epoch": {
+          "minLength": 1,
+          "title": "Model Epoch",
+          "type": "string"
+        },
+        "model_hash": {
+          "minLength": 1,
+          "title": "Model Hash",
+          "type": "string"
+        },
+        "model_profile_digest": {
+          "minLength": 1,
+          "title": "Model Profile Digest",
+          "type": "string"
+        },
+        "model_profile_ref": {
+          "minLength": 1,
+          "title": "Model Profile Ref",
+          "type": "string"
+        },
+        "model_verifier_ref": {
+          "minLength": 1,
+          "title": "Model Verifier Ref",
+          "type": "string"
+        },
+        "observation_window_ref": {
+          "minLength": 1,
+          "title": "Observation Window Ref",
+          "type": "string"
+        },
+        "population_ref": {
+          "minLength": 1,
+          "title": "Population Ref",
+          "type": "string"
+        },
+        "precision_status": {
+          "enum": [
+            "exact",
+            "precision_met",
+            "precision_not_met"
+          ],
+          "title": "Precision Status",
+          "type": "string"
+        },
+        "profile_id": {
+          "enum": [
+            "gaussian_linear_exact",
+            "finite_support_weighted_exact",
+            "gaussian_bounded_hoeffding"
+          ],
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "provenance_ref": {
+          "minLength": 1,
+          "title": "Provenance Ref",
+          "type": "string"
+        },
+        "random_seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Random Seed"
+        },
+        "support_ref": {
+          "minLength": 1,
+          "title": "Support Ref",
+          "type": "string"
+        },
+        "verifier_ref": {
+          "minLength": 1,
+          "title": "Verifier Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile_id",
+        "authority_purpose",
+        "law_ref",
+        "law_content_digest",
+        "model_hash",
+        "model_profile_ref",
+        "model_profile_digest",
+        "model_verifier_ref",
+        "population_ref",
+        "cohort_ref",
+        "observation_window_ref",
+        "feature_schema_version",
+        "model_epoch",
+        "feature_order",
+        "support_ref",
+        "provenance_ref",
+        "verifier_ref",
+        "precision_status"
+      ],
+      "title": "ConditionalExplanationEvidence",
+      "type": "object"
+    },
     "DisagreementReport": {
       "additionalProperties": false,
       "description": "Cross-method disagreement summary.",
@@ -446,6 +666,17 @@
           },
           "title": "Attributions",
           "type": "array"
+        },
+        "conditional_evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConditionalExplanationEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "effective_method_id": {
           "anyOf": [
@@ -933,7 +1164,7 @@
       "type": "object"
     }
   },
-  "$id": "https://polisyos.local/schemas/berl/explanation_bundle/1.0.0",
+  "$id": "https://polisyos.local/schemas/berl/explanation_bundle/1.1.0",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Versioned audit contract for bounded, assumption-scoped model explanations.",
@@ -1016,7 +1247,7 @@
       "$ref": "#/$defs/RedundancyContext"
     },
     "schema_version": {
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "validity": {
       "$ref": "#/$defs/ValidityReport"

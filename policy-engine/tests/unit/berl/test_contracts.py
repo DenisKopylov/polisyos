@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import polisyos.berl as berl
 from polisyos.berl.contracts.display_policy import (
     can_show_bare_bar_chart,
     explanation_limitation_message,
@@ -80,8 +81,8 @@ def _bundle(*, include_bound: bool = True) -> ExplanationBundle:
                 support_constraints="constraints-v1",
             ),
             feature_dependence_policy=FeatureDependencePolicy(
-                primary="conditional_observational",
-                alternatives_tested=["marginal_interventional"],
+                primary="marginal_interventional",
+                alternatives_tested=["conditional_observational"],
                 causal_claim_made=False,
             ),
             background_data=BackgroundData(
@@ -104,11 +105,11 @@ def _bundle(*, include_bound: bool = True) -> ExplanationBundle:
         ),
         methods=[
             MethodExplanation(
-                method_id="kernel_shap_conditional",
+                method_id="kernel_shap_marginal",
                 library="shap",
                 library_version="x.y.z",
                 params={"coalition_samples": 128},
-                assumptions={"feature_removal": "conditional_observational"},
+                assumptions={"feature_removal": "marginal_interventional"},
                 attributions=[
                     FeatureAttribution(feature="income", value=0.2),
                     FeatureAttribution(feature="assets", value=0.1),
@@ -117,7 +118,7 @@ def _bundle(*, include_bound: bool = True) -> ExplanationBundle:
             )
         ],
         disagreement=DisagreementReport(
-            methods_compared=["kernel_shap_conditional"],
+            methods_compared=["kernel_shap_marginal"],
             top_k=2,
             top_k_jaccard_median=1.0,
             kendall_tau_median=1.0,
@@ -145,7 +146,18 @@ def test_explanation_bundle_schema_is_available() -> None:
     assert schema["title"] == "ExplanationBundle"
     assert "properties" in schema
     generated = generated_explanation_bundle_schema()
-    assert generated["$id"] == "https://polisyos.local/schemas/berl/explanation_bundle/1.0.0"
+    assert generated["$id"] == "https://polisyos.local/schemas/berl/explanation_bundle/1.1.0"
+
+
+def test_public_facade_exposes_conditional_integration_boundary() -> None:
+    assert berl.ConditionalSHAPAdapter
+    assert berl.ConditionalLawResolver
+    assert berl.ConditionalModelVerifier
+    assert berl.AffineModelProfileResolver
+    assert berl.BoundedOutputProfileVerifier
+    assert berl.ResolvedConditionalLaw
+    assert berl.GaussianJointLaw
+    assert berl.WeightedFiniteSupportLaw
 
 
 def test_valid_bundle_passes_product_gate() -> None:
@@ -182,7 +194,7 @@ def test_display_policy_blocks_non_identifiable_bare_bar_chart() -> None:
     bundle = _bundle().model_copy(
         update={
             "disagreement": DisagreementReport(
-                methods_compared=["kernel_shap_conditional"],
+                methods_compared=["kernel_shap_marginal"],
                 top_k=2,
                 top_k_jaccard_median=1.0,
                 flags=["feature_level_non_identifiable"],

@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import math
 from collections.abc import Mapping
 from dataclasses import dataclass
-from itertools import combinations
 
+from polisyos.berl.adapters._coalition import exact_shapley_attributions
 from polisyos.berl.adapters._utils import background_rows_from_context, int_param
 from polisyos.berl.adapters.protocol import (
     AssumptionReport,
@@ -38,6 +37,15 @@ class KernelSHAPAdapter:
         context: ExplanationContext,
     ) -> RawExplanation:
         feature_names = context.feature_names
+        if context.feature_dependence_policy not in {
+            "marginal",
+            "marginal_interventional",
+            "empirical_interventional",
+        }:
+            raise ValueError(
+                "KernelSHAPAdapter uses marginal background replacement; "
+                "conditional semantics require an admitted conditional law"
+            )
         max_features = int_param(context, "max_exact_shap_features", self.max_exact_features)
         if len(feature_names) > max_features:
             raise ValueError(
@@ -59,29 +67,12 @@ class KernelSHAPAdapter:
             values_cache[coalition] = result
             return result
 
-        feature_count = len(feature_names)
-        factorial_n = math.factorial(feature_count)
         baseline_values = {
             feature: sum(row[feature] for row in background_rows) / len(background_rows)
             for feature in feature_names
         }
         explained_values = {feature: float(x.get(feature, 0.0)) for feature in feature_names}
-        attributions: dict[str, float] = {}
-        for feature in feature_names:
-            others = tuple(candidate for candidate in feature_names if candidate != feature)
-            total = 0.0
-            for size in range(feature_count):
-                weight = (
-                    math.factorial(size)
-                    * math.factorial(feature_count - size - 1)
-                    / factorial_n
-                )
-                for subset in combinations(others, size):
-                    coalition = frozenset(subset)
-                    total += weight * (
-                        value(coalition | {feature}) - value(coalition)
-                    )
-            attributions[feature] = total
+        attributions = exact_shapley_attributions(feature_names, value)
 
         return RawExplanation(
             method_id=self.method_id,

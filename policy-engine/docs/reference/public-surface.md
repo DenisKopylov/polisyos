@@ -102,7 +102,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 51 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
-| `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
+| `polisyos.berl` | `public_experimental` | `eager_exports` | 28 | `team-scientist` | `src/polisyos/berl/README.md` |
 | `polisyos.calibration` | `public_experimental` | `eager_exports` | 10 | `team-scientist` | `src/polisyos/calibration/README.md` |
 | `polisyos.ddm` | `internal` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
 | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
@@ -5301,7 +5301,7 @@ write_snapshot_provenance_manifest
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.berl` | `src/polisyos/berl/__init__.py` | `eager_exports` | 11 |
+| `polisyos.berl` | `src/polisyos/berl/__init__.py` | `eager_exports` | 28 |
 
 #### `polisyos.berl`
 
@@ -5309,38 +5309,72 @@ write_snapshot_provenance_manifest
 - Facade: `eager_exports`
 - Summary: Bounded Explanation Reliability Layer public API.
 
-<details><summary>Entrypoint exports (11)</summary>
+<details><summary>Entrypoint exports (28)</summary>
 
 ```text
+AffineModelProfileResolver
+BoundedOutputProfileVerifier
+ConditionalEvidenceVerification
+ConditionalEvidenceVerifier
+ConditionalExplanationEvidence
+ConditionalJointLaw
+ConditionalLawBinding
+ConditionalLawResolver
+ConditionalModelVerifier
+ConditionalSHAPAdapter
 EmpiricalBoundResult
 ExplanationBundle
 ExplanationOrchestrator
 ExplanationRequest
 ExplanationValidationResult
+GaussianJointLaw
+ResolvedConditionalLaw
 ValidationThresholds
+VerifiedAffineModelProfile
+VerifiedModelIdentity
+VerifiedOutputBounds
+WeightedFiniteSupportLaw
 empirical_bernstein_upper_bound
 estimate_local_infidelity
 hoeffding_upper_bound
 summarize_explanation_response
 validate_explanation_bundle
+validate_persisted_explanation_bundle
 ```
 
 </details>
 
-<details><summary>Supported exports (11)</summary>
+<details><summary>Supported exports (28)</summary>
 
 ```text
+AffineModelProfileResolver
+BoundedOutputProfileVerifier
+ConditionalEvidenceVerification
+ConditionalEvidenceVerifier
+ConditionalExplanationEvidence
+ConditionalJointLaw
+ConditionalLawBinding
+ConditionalLawResolver
+ConditionalModelVerifier
+ConditionalSHAPAdapter
 EmpiricalBoundResult
 ExplanationBundle
 ExplanationOrchestrator
 ExplanationRequest
 ExplanationValidationResult
+GaussianJointLaw
+ResolvedConditionalLaw
 ValidationThresholds
+VerifiedAffineModelProfile
+VerifiedModelIdentity
+VerifiedOutputBounds
+WeightedFiniteSupportLaw
 empirical_bernstein_upper_bound
 estimate_local_infidelity
 hoeffding_upper_bound
 summarize_explanation_response
 validate_explanation_bundle
+validate_persisted_explanation_bundle
 ```
 
 </details>

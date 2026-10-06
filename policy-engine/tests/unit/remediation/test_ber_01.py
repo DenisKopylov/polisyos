@@ -14,14 +14,22 @@ from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
 from pydantic import ValidationError as PydanticValidationError
 
 from polisyos.berl.adapters.protocol import (
+    AssumptionReport,
     ExplanationContext,
+    RawExplanation,
     UnavailableAdapter,
+    UncertaintyReport,
 )
 from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
 from polisyos.berl.adapters.shap_tree import TreeSHAPAdapter
 from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
-from polisyos.berl.contracts.schema import generated_explanation_bundle_schema
+from polisyos.berl.contracts.schema import (
+    generated_explanation_bundle_schema,
+    validate_persisted_explanation_bundle,
+)
 from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
+from polisyos.runtime.quality.explanation_reliability import _validate_bundle_record
+from polisyos.scientist.validation.phase5_preflight import _run_berl_validation
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
 PERSISTED_SCHEMA_PATH = (
@@ -39,7 +47,7 @@ def _persisted_validator() -> Draft202012Validator:
     return Draft202012Validator(schema)
 
 
-def _full_payload(*, schema_version: str = "1.0.0") -> dict[str, Any]:
+def _full_payload(*, schema_version: str = "1.1.0") -> dict[str, Any]:
     """Return one complete payload suitable for both schema profiles."""
 
     return {
@@ -251,6 +259,19 @@ def test_full_bundle_is_accepted_by_both_input_and_persisted_profiles() -> None:
 
     bundle = ExplanationBundle.model_validate(payload)
     _persisted_validator().validate(bundle.model_dump(mode="json"))
+    assert validate_persisted_explanation_bundle(payload) == bundle
+
+
+def test_historical_persisted_profile_keeps_its_versioned_shape() -> None:
+    payload = _full_payload(schema_version="1.0.0")
+
+    bundle = validate_persisted_explanation_bundle(payload)
+
+    assert bundle.schema_version == "1.0.0"
+    assert bundle.methods[0].conditional_evidence is None
+    payload["methods"][0]["conditional_evidence"] = {"profile_id": "fake"}
+    with pytest.raises(ValueError, match="conditional_evidence"):
+        validate_persisted_explanation_bundle(payload)
 
 
 def test_construction_input_profile_keeps_supported_defaults_explicitly_distinct() -> None:
@@ -258,7 +279,7 @@ def test_construction_input_profile_keeps_supported_defaults_explicitly_distinct
 
     bundle = ExplanationBundle.model_validate(payload)
 
-    assert bundle.schema_version == "1.0.0"
+    assert bundle.schema_version == "1.1.0"
     assert bundle.methods == []
     with pytest.raises(JsonSchemaValidationError):
         _persisted_validator().validate(payload)
@@ -298,6 +319,8 @@ def test_unknown_version_is_rejected_by_persisted_profile_only() -> None:
     assert bundle.schema_version == "9.9.9"
     with pytest.raises(JsonSchemaValidationError):
         _persisted_validator().validate(payload)
+    with pytest.raises(ValueError, match="persisted ExplanationBundle schema validation failed"):
+        validate_persisted_explanation_bundle(payload)
 
 
 def test_effective_request_changes_keep_model_and_background_distinct() -> None:
@@ -413,22 +436,16 @@ def test_kernel_shap_does_not_mutate_input_or_persisted_background_rows() -> Non
 def test_aliases_preserve_requested_ids_and_share_effective_identity() -> None:
     model = _CountingModel()
     request = _request(
-        methods=("kernel_shap", "kernel_shap_conditional"),
+        methods=("kernel_shap", "kernel_shap_marginal"),
     )
 
     bundle = ExplanationOrchestrator().explain(model, request)
     by_requested_id = {method.method_id: method.model_dump() for method in bundle.methods}
 
     assert by_requested_id["kernel_shap"]["requested_method_id"] == "kernel_shap"
-    assert (
-        by_requested_id["kernel_shap_conditional"]["requested_method_id"]
-        == "kernel_shap_conditional"
-    )
+    assert by_requested_id["kernel_shap_marginal"]["requested_method_id"] == "kernel_shap_marginal"
     assert by_requested_id["kernel_shap"]["effective_method_id"] == "kernel_shap"
-    assert (
-        by_requested_id["kernel_shap_conditional"]["effective_method_id"]
-        == "kernel_shap"
-    )
+    assert by_requested_id["kernel_shap_marginal"]["effective_method_id"] == "kernel_shap"
 
 
 def test_aliases_share_one_raw_calculation_and_are_not_disagreement_methods() -> None:
@@ -441,7 +458,7 @@ def test_aliases_share_one_raw_calculation_and_are_not_disagreement_methods() ->
     two_alias_model = _CountingModel()
     two_alias_bundle = ExplanationOrchestrator().explain(
         two_alias_model,
-        _request(methods=("kernel_shap", "kernel_shap_conditional")),
+        _request(methods=("kernel_shap", "kernel_shap_marginal")),
     )
 
     assert len(two_alias_model.calls) == len(one_alias_model.calls)
@@ -456,7 +473,7 @@ def test_alias_dedup_preserves_requested_claim_confidence_and_validation_posture
         residual_cap=0.019,
     )
     two_claim_request = replace(
-        _request(methods=("kernel_shap", "kernel_shap_conditional")),
+        _request(methods=("kernel_shap", "kernel_shap_marginal")),
         n_eval_perturbations=5,
         residual_cap=0.019,
     )
@@ -508,6 +525,105 @@ def test_unsupported_backend_keeps_requested_id_and_existing_diagnostic() -> Non
     assert method.method_id == "kernel_shap_conditional"
     assert method.scope == "diagnostic"
     assert method.params["diagnostic"] == "conditional backend unavailable"
+
+
+def test_default_conditional_request_never_uses_marginal_background_replacement() -> None:
+    model = _CountingModel()
+    bundle = ExplanationOrchestrator().explain(
+        model,
+        replace(
+            _request(methods=("kernel_shap_conditional",)),
+            feature_dependence_policy="conditional_observational",
+        ),
+    )
+
+    method = bundle.methods[0]
+    assert method.method_id == "kernel_shap_conditional"
+    assert method.scope == "diagnostic"
+    assert method.attributions == []
+    assert method.effective_method_id is None
+    assert "conditional law" in str(method.params["diagnostic"])
+    assert bundle.display_policy == "diagnostic_only"
+
+
+@dataclass(frozen=True)
+class _ForgedIdentityAdapter:
+    method_id: str = "kernel_shap"
+    effective_method_id: str = "kernel_shap"
+
+    def explain(self, model, x, context):
+        del model, x, context
+        return RawExplanation(
+            method_id="kernel_shap",
+            attributions={"x1": 1.0, "x2": 0.0},
+            requested_method_id="kernel_shap",
+            effective_method_id="tree_shap",
+            params={"effective_method_id": "tree_shap"},
+            assumptions={"feature_dependence_policy": "marginal_interventional"},
+        )
+
+    def reconstruct_delta(self, explanation, perturbation):
+        del explanation, perturbation
+        return 0.0
+
+    def estimator_uncertainty(self, explanation):
+        del explanation
+        return UncertaintyReport()
+
+    def assumptions(self, context):
+        return AssumptionReport(
+            output_scale=context.output_scale,
+            perturbation_distribution=context.perturbation_distribution,
+            feature_dependence_policy=context.feature_dependence_policy,
+        )
+
+
+def test_adapter_cannot_self_attest_a_different_effective_implementation() -> None:
+    model = _CountingModel()
+    bundle = ExplanationOrchestrator(
+        adapters={"kernel_shap": _ForgedIdentityAdapter()}
+    ).explain(model, _request(methods=("kernel_shap",)))
+
+    method = bundle.methods[0]
+    assert method.scope == "diagnostic"
+    assert method.effective_method_id is None
+    assert method.attributions == []
+    assert "identity" in str(method.params["diagnostic"]).lower()
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_fragment"),
+    [
+        ("unknown_version", "schema_version"),
+        ("missing_defaulted_field", "methods"),
+        ("nested_fake_field", "unclaimed"),
+    ],
+)
+def test_both_persisted_consumers_reject_noncanonical_records(
+    mutation: str,
+    expected_fragment: str,
+) -> None:
+    payload = _full_payload()
+    if mutation == "unknown_version":
+        payload["schema_version"] = "9.9.9"
+    elif mutation == "missing_defaulted_field":
+        payload.pop("methods")
+    else:
+        payload["model"]["unclaimed"] = "fake identity marker"
+    runtime_result, runtime_issues = _validate_bundle_record(
+        payload,
+        thresholds={},
+        evidence_ref=f"evidence://ber-01-{mutation}",
+    )
+    phase5_result = _run_berl_validation(payload)
+
+    assert runtime_result["threshold_decision"]["status"] == "fail"
+    assert any(issue.code == "policy_design_warrant_berl_bundle_invalid" for issue in runtime_issues)
+    assert phase5_result is not None
+    assert phase5_result["passed"] is False
+    combined_errors = " ".join(phase5_result["violations"])
+    assert "persisted" in combined_errors.lower()
+    assert expected_fragment in combined_errors
 
 
 def test_tree_shap_fallback_is_explicit_and_does_not_claim_tree_exactness() -> None:

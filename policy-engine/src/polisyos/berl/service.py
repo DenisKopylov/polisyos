@@ -17,6 +17,13 @@ from polisyos.berl.adapters import (
     PermutationImportanceAdapter,
     TreeSHAPAdapter,
 )
+from polisyos.berl.adapters.conditional_shapley import (
+    AffineModelProfileResolver,
+    BoundedOutputProfileVerifier,
+    ConditionalLawResolver,
+    ConditionalModelVerifier,
+    ConditionalSHAPAdapter,
+)
 from polisyos.berl.adapters.protocol import (
     AdapterUnavailableError,
     ExplanationAdapter,
@@ -27,6 +34,7 @@ from polisyos.berl.adapters.protocol import (
 from polisyos.berl.contracts.explanation_bundle import (
     AuditReport,
     BackgroundData,
+    ConditionalExplanationEvidence,
     DisagreementReport,
     ExplanationAssumptions,
     ExplanationBundle,
@@ -46,6 +54,7 @@ from polisyos.berl.contracts.explanation_bundle import (
     ValidityReport,
 )
 from polisyos.berl.contracts.validation_rules import (
+    ConditionalEvidenceVerifier,
     ValidationThresholds,
     validate_explanation_bundle,
 )
@@ -90,7 +99,7 @@ class ExplanationRequest:
     output_scale: str = "score"
     confidence: float = 0.95
     perturbation_policy: str = "conditional_empirical_local"
-    feature_dependence_policy: str = "conditional_observational"
+    feature_dependence_policy: str = "marginal_interventional"
     model_id: str = "model"
     model_hash: str = "sha256:unknown"
     model_class: str = "black_box"
@@ -98,6 +107,14 @@ class ExplanationRequest:
     calibration_ref: str | None = None
     feature_values_ref: str = "inline://features"
     feature_schema_version: str = "unknown"
+    conditional_law_ref: str | None = None
+    population_ref: str | None = None
+    cohort_ref: str | None = None
+    observation_window_ref: str | None = None
+    model_epoch: str | None = None
+    conditional_shapley_tolerance: float | None = None
+    conditional_familywise_delta: float | None = None
+    conditional_draw_cap_per_coalition: int | None = None
     constraints_ref: str | None = None
     missingness_policy: str = "model_native"
     background_rows: Sequence[Mapping[str, float]] = field(default_factory=tuple)
@@ -128,9 +145,24 @@ class ExplanationOrchestrator:
         adapters: Mapping[str, ExplanationAdapter] | None = None,
         *,
         thresholds: ValidationThresholds | None = None,
+        conditional_law_resolver: ConditionalLawResolver | None = None,
+        conditional_model_verifier: ConditionalModelVerifier | None = None,
+        affine_model_profile_resolver: AffineModelProfileResolver | None = None,
+        bounded_output_profile_verifier: BoundedOutputProfileVerifier | None = None,
+        conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
     ) -> None:
-        self._adapters = dict(adapters or default_adapters())
+        self._adapters = dict(
+            default_adapters(
+                conditional_law_resolver=conditional_law_resolver,
+                conditional_model_verifier=conditional_model_verifier,
+                affine_model_profile_resolver=affine_model_profile_resolver,
+                bounded_output_profile_verifier=bounded_output_profile_verifier,
+            )
+            if adapters is None
+            else adapters
+        )
         self._thresholds = thresholds or ValidationThresholds()
+        self._conditional_evidence_verifier = conditional_evidence_verifier
 
     def explain(self, model: ScalarModel, request: ExplanationRequest) -> ExplanationBundle:
         """Return an audited ExplanationBundle for one scalar prediction."""
@@ -149,6 +181,18 @@ class ExplanationOrchestrator:
                 **dict(request.adapter_params),
                 "background_rows": tuple(request.background_rows),
                 "lime_radius": request.perturbation_radius,
+                "conditional_law_ref": request.conditional_law_ref,
+                "model_hash": request.model_hash,
+                "population_ref": request.population_ref,
+                "cohort_ref": request.cohort_ref,
+                "observation_window_ref": request.observation_window_ref,
+                "feature_schema_version": request.feature_schema_version,
+                "model_epoch": request.model_epoch,
+                "conditional_shapley_tolerance": request.conditional_shapley_tolerance,
+                "conditional_familywise_delta": request.conditional_familywise_delta,
+                "conditional_draw_cap_per_coalition": (
+                    request.conditional_draw_cap_per_coalition
+                ),
             },
         )
         effective_cache: dict[tuple[object, ...], _CachedAdapterRun] = {}
@@ -258,10 +302,23 @@ class ExplanationOrchestrator:
             audit=AuditReport(
                 code_version="polisyos.berl@1.0.0",
                 random_seeds=[] if request.random_seed is None else [request.random_seed],
-                artifact_refs=list(request.artifact_refs),
+                artifact_refs=list(
+                    dict.fromkeys(
+                        (*request.artifact_refs,)
+                        + (
+                            (request.conditional_law_ref,)
+                            if request.conditional_law_ref is not None
+                            else ()
+                        )
+                    )
+                ),
             ),
         )
-        validation = validate_explanation_bundle(bundle, thresholds=self._thresholds)
+        validation = validate_explanation_bundle(
+            bundle,
+            thresholds=self._thresholds,
+            conditional_evidence_verifier=self._conditional_evidence_verifier,
+        )
         return bundle.model_copy(
             update={
                 "faithfulness_claim": validation.faithfulness_claim,
@@ -284,6 +341,17 @@ class ExplanationOrchestrator:
     ) -> tuple[MethodExplanation, AttributionVector | None]:
         try:
             raw = adapter.explain(model, request.x, context)
+            _validate_adapter_execution_identity(
+                raw,
+                adapter=adapter,
+                requested_method_id=requested_method_id,
+                effective_method_id=effective_method_id,
+            )
+            conditional_evidence = (
+                ConditionalExplanationEvidence.model_validate(raw.conditional_evidence)
+                if raw.conditional_evidence
+                else None
+            )
             records = build_heldout_records(
                 model=model,
                 x=request.x,
@@ -348,6 +416,7 @@ class ExplanationOrchestrator:
             scope=_scope_from_raw(raw),
             params=params,
             assumptions=dict(raw.assumptions),
+            conditional_evidence=conditional_evidence,
             attributions=feature_attributions,
             group_attributions=[
                 GroupAttribution(cluster_id=cluster_id, value=value)
@@ -423,14 +492,25 @@ class ExplanationOrchestrator:
         )
 
 
-def default_adapters() -> dict[str, ExplanationAdapter]:
+def default_adapters(
+    *,
+    conditional_law_resolver: ConditionalLawResolver | None = None,
+    conditional_model_verifier: ConditionalModelVerifier | None = None,
+    affine_model_profile_resolver: AffineModelProfileResolver | None = None,
+    bounded_output_profile_verifier: BoundedOutputProfileVerifier | None = None,
+) -> dict[str, ExplanationAdapter]:
     """Return the built-in BERL adapter registry."""
 
     return {
         "kernel_shap": cast("ExplanationAdapter", KernelSHAPAdapter()),
         "kernel_shap_conditional": cast(
             "ExplanationAdapter",
-            KernelSHAPAdapter(method_id="kernel_shap_conditional"),
+            ConditionalSHAPAdapter(
+                law_resolver=conditional_law_resolver,
+                model_verifier=conditional_model_verifier,
+                affine_profile_resolver=affine_model_profile_resolver,
+                output_bounds_verifier=bounded_output_profile_verifier,
+            ),
         ),
         "kernel_shap_marginal": cast(
             "ExplanationAdapter",
@@ -476,6 +556,42 @@ def _effective_method_id(adapter: ExplanationAdapter) -> str:
     return adapter.method_id
 
 
+def _validate_adapter_execution_identity(
+    raw: RawExplanation,
+    *,
+    adapter: ExplanationAdapter,
+    requested_method_id: str,
+    effective_method_id: str,
+) -> None:
+    """Reject adapter output whose identity contradicts the registered execution."""
+
+    if raw.method_id != adapter.method_id:
+        raise ValueError("adapter execution identity mismatch: raw method id differs from registry")
+    if raw.requested_method_id not in {None, requested_method_id, adapter.method_id}:
+        raise ValueError(
+            "adapter execution identity mismatch: raw requested method id differs from request"
+        )
+    raw_effective_ids = (
+        raw.effective_method_id,
+        _string_param(raw.params, "effective_method_id"),
+    )
+    if any(
+        candidate is not None and candidate != effective_method_id
+        for candidate in raw_effective_ids
+    ):
+        raise ValueError(
+            "adapter execution identity mismatch: raw effective method id differs from registry"
+        )
+    raw_requested_id = _string_param(raw.params, "requested_method_id")
+    if raw_requested_id is not None and raw_requested_id not in {
+        requested_method_id,
+        adapter.method_id,
+    }:
+        raise ValueError(
+            "adapter execution identity mismatch: params requested method id differs from request"
+        )
+
+
 def _effective_request_key(
     *,
     model: ScalarModel,
@@ -497,8 +613,18 @@ def _effective_request_key(
         request.calibration_ref,
         _freeze(request.x),
         _freeze(request.feature_names),
+        request.feature_schema_version,
+        request.conditional_law_ref,
+        request.population_ref,
+        request.cohort_ref,
+        request.observation_window_ref,
+        request.model_epoch,
+        request.conditional_shapley_tolerance,
+        request.conditional_familywise_delta,
+        request.conditional_draw_cap_per_coalition,
         _freeze(request.background_rows),
         _freeze(request.adapter_params),
+        _freeze(request.artifact_refs),
         _freeze(request.constraints),
         context.output_scale,
         context.perturbation_distribution,
@@ -588,18 +714,19 @@ def _diagnostic_method(
     *,
     effective_method_id: str | None = None,
 ) -> MethodExplanation:
-    effective = effective_method_id or method_id
+    params: dict[str, object] = {
+        "diagnostic": reason,
+        "requested_method_id": method_id,
+    }
+    if effective_method_id is not None:
+        params["expected_effective_method_id"] = effective_method_id
     return MethodExplanation(
         method_id=method_id,
         requested_method_id=method_id,
-        effective_method_id=effective,
+        effective_method_id=None,
         library="polisyos.berl",
         scope="diagnostic",
-        params={
-            "diagnostic": reason,
-            "requested_method_id": method_id,
-            "effective_method_id": effective,
-        },
+        params=params,
         assumptions={"faithfulness_claim": "unbounded", "display_policy": "diagnostic_only"},
     )
 

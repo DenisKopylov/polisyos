@@ -106,8 +106,8 @@ def _explanation_bundle() -> ExplanationBundle:
                 support_constraints="cas://constraints/policy-readiness",
             ),
             feature_dependence_policy=FeatureDependencePolicy(
-                primary="conditional_observational",
-                alternatives_tested=["marginal_interventional"],
+                primary="marginal_interventional",
+                alternatives_tested=["conditional_observational"],
                 causal_claim_made=False,
             ),
             background_data=BackgroundData(
@@ -118,11 +118,11 @@ def _explanation_bundle() -> ExplanationBundle:
         ),
         methods=[
             MethodExplanation(
-                method_id="kernel_shap_conditional",
+                method_id="kernel_shap_marginal",
                 library="berl-fixture",
                 library_version="1.0.0",
                 params={"coalition_samples": 64},
-                assumptions={"feature_removal": "conditional_observational"},
+                assumptions={"feature_removal": "marginal_interventional"},
                 attributions=[
                     FeatureAttribution(feature="employment_rate", value=0.18),
                     FeatureAttribution(feature="budget_share", value=0.08),
@@ -138,7 +138,7 @@ def _explanation_bundle() -> ExplanationBundle:
             )
         ],
         disagreement=DisagreementReport(
-            methods_compared=["kernel_shap_conditional"],
+            methods_compared=["kernel_shap_marginal"],
             top_k=2,
             top_k_jaccard_median=1.0,
             kendall_tau_median=1.0,

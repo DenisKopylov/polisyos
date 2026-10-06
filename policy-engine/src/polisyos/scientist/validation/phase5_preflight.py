@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import asdict, dataclass, is_dataclass
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel
 
@@ -27,6 +27,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+if TYPE_CHECKING:
+    from polisyos.berl import ConditionalEvidenceVerifier
 
 _BLOCKING_STATUSES = {"fail", "blocked", "not_run"}
 _READINESS_ORDER: dict[str, int] = {
@@ -132,6 +135,7 @@ def build_phase5_validation_report(
     base_readiness: Literal["ready", "monitor", "restricted", "blocked"] = "ready",
     generated_for: str | None = None,
     analyst_facing: bool = False,
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
 ) -> ValidationReport:
     """Build the additive ValidationReport v2 evidence bundle for Phase 5."""
 
@@ -150,7 +154,10 @@ def build_phase5_validation_report(
         _multimodality_component(all_mappings),
         _conditional_coverage_component(all_mappings),
         _shift_component(payload, all_mappings),
-        _explanation_component(all_mappings),
+        _explanation_component(
+            all_mappings,
+            conditional_evidence_verifier=conditional_evidence_verifier,
+        ),
         _fairness_component(state, payload, all_mappings),
         _sensitivity_component(all_mappings),
         _drift_component(all_mappings),
@@ -284,6 +291,8 @@ def run_phase5_artifact_preflight(
     ctx: ExecutionContext,
     state: ExperimentState,
     preflight_input: Phase5ArtifactPreflightInput,
+    *,
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
 ) -> Phase5PublicationResult:
     """Run and persist the common Phase-5 publication preflight."""
 
@@ -307,6 +316,7 @@ def run_phase5_artifact_preflight(
         base_readiness=preflight_input.base_readiness,
         generated_for=preflight_input.generated_for or preflight_input.artifact_kind,
         analyst_facing=preflight_input.analyst_facing,
+        conditional_evidence_verifier=conditional_evidence_verifier,
     )
     validation_ref = persist_validation_report(
         ctx.store,
@@ -537,7 +547,11 @@ def _shift_component(
     )
 
 
-def _explanation_component(mappings: Iterable[Mapping[str, Any]]) -> Phase5GateComponent:
+def _explanation_component(
+    mappings: Iterable[Mapping[str, Any]],
+    *,
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
+) -> Phase5GateComponent:
     records = [
         record
         for record in mappings
@@ -561,7 +575,10 @@ def _explanation_component(mappings: Iterable[Mapping[str, Any]]) -> Phase5GateC
         validation = _as_mapping(record.get("validation") or record.get("berl_validation"))
         validation_status = _norm_status(validation.get("status") or validation.get("gate_status"))
         display_policy = _norm_status(record.get("display_policy") or record.get("explanation_policy"))
-        berl_result = _run_berl_validation(record)
+        berl_result = _run_berl_validation(
+            record,
+            conditional_evidence_verifier=conditional_evidence_verifier,
+        )
         if claim not in {"bounded", "pass", "true", "verified"}:
             blockers.append("Explanation bundle lacks a bounded-infidelity envelope.")
         if berl_result is not None:
@@ -1078,21 +1095,35 @@ def _input_refs_for_publication(
     return inputs or None
 
 
-def _run_berl_validation(record: Mapping[str, Any]) -> dict[str, Any] | None:
+def _run_berl_validation(
+    record: Mapping[str, Any],
+    *,
+    conditional_evidence_verifier: ConditionalEvidenceVerifier | None = None,
+) -> dict[str, Any]:
     try:
-        from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
-        from polisyos.berl.contracts.validation_rules import validate_explanation_bundle
+        from polisyos.berl import (
+            validate_explanation_bundle,
+            validate_persisted_explanation_bundle,
+        )
 
-        bundle = ExplanationBundle.model_validate(record)
-        result = validate_explanation_bundle(bundle)
+        bundle = validate_persisted_explanation_bundle(record)
+        result = validate_explanation_bundle(
+            bundle,
+            conditional_evidence_verifier=conditional_evidence_verifier,
+        )
         return {
             "passed": result.passed,
             "display_policy": result.display_policy,
             "violations": list(result.violations),
             "warnings": list(result.warnings),
         }
-    except (ImportError, TypeError, ValueError):
-        return None
+    except (ImportError, TypeError, ValueError) as exc:
+        return {
+            "passed": False,
+            "display_policy": "diagnostic_only",
+            "violations": [f"persisted_explanation_bundle_invalid:{exc}"],
+            "warnings": [],
+        }
 
 
 def _first_fairness_audit_payload(mappings: Iterable[Mapping[str, Any]]) -> dict[str, Any] | None:

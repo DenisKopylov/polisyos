@@ -251,6 +251,7 @@ def _claim_argument_case() -> dict[str, object]:
 
 def _berl_bundle(*, upper_bound: float) -> dict[str, object]:
     return {
+        "schema_version": "1.0.0",
         "bundle_id": "berl-bundle-1",
         "created_at": datetime(2026, 5, 18, tzinfo=UTC).isoformat(),
         "faithfulness_claim": "bounded",
@@ -284,8 +285,8 @@ def _berl_bundle(*, upper_bound: float) -> dict[str, object]:
                 "support_constraints": sha("c"),
             },
             "feature_dependence_policy": {
-                "primary": "conditional_observational",
-                "alternatives_tested": ["marginal_interventional"],
+                "primary": "marginal_interventional",
+                "alternatives_tested": ["conditional_observational"],
                 "causal_claim_made": False,
             },
             "background_data": {
@@ -297,11 +298,11 @@ def _berl_bundle(*, upper_bound: float) -> dict[str, object]:
         "redundancy": {"clusters": []},
         "methods": [
             {
-                "method_id": "kernel_shap_conditional",
+                "method_id": "kernel_shap_marginal",
                 "library": "berl-fixture",
                 "library_version": "1.0.0",
                 "params": {"coalition_samples": 64},
-                "assumptions": {"feature_removal": "conditional_observational"},
+                "assumptions": {"feature_removal": "marginal_interventional"},
                 "attributions": [{"feature": "employment_rate", "value": 0.18}],
                 "infidelity": {
                     "point_estimate": 0.01,
@@ -315,7 +316,7 @@ def _berl_bundle(*, upper_bound: float) -> dict[str, object]:
             }
         ],
         "disagreement": {
-            "methods_compared": ["kernel_shap_conditional"],
+            "methods_compared": ["kernel_shap_marginal"],
             "top_k": 1,
             "top_k_jaccard_median": 1.0,
             "kendall_tau_median": 1.0,

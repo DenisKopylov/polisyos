@@ -46,6 +46,7 @@ class RawExplanation:
     effective_method_id: str | None = None
     fallback: bool = False
     fallback_reason: str | None = None
+    conditional_evidence: Mapping[str, object] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)

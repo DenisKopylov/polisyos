@@ -755,7 +755,7 @@ def test_program_graph_cache_binds_mutated_state_with_same_cas_refs(
 ) -> None:
     import jax.numpy as jnp
 
-    from polisyos.foundry.execute import put_state_snapshot
+    from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
 
     first_plan = _program_graph_plan(tmp_path)
     snapshot_ref = put_state_snapshot(

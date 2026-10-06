@@ -187,6 +187,7 @@ class HypervolumeAssessment(BaseModel):
             "optional_backend_unavailable",
             "unsupported_backend_profile",
             "backend_computation_failed",
+            "unsupported_dimension_profile",
         ]
         | None
     ) = None
@@ -249,18 +250,24 @@ class HypervolumeResult(BaseModel):
         return self
 
 
+def finite_real_scalar(raw: object) -> float | None:
+    """One scalar admission primitive for Pareto, native MO and legacy frontier."""
+    if isinstance(raw, bool) or not isinstance(raw, Real):
+        return None
+    try:
+        value = float(raw)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return value if math.isfinite(value) else None
+
+
 def _finite_vector(values: object) -> tuple[float, ...] | None:
     if not isinstance(values, (list, tuple)):
         return None
     converted: list[float] = []
     for raw in values:
-        if isinstance(raw, bool) or not isinstance(raw, Real):
-            return None
-        try:
-            value = float(raw)
-        except (TypeError, ValueError, OverflowError):
-            return None
-        if not math.isfinite(value):
+        value = finite_real_scalar(raw)
+        if value is None:
             return None
         converted.append(value)
     return tuple(converted)
@@ -271,7 +278,7 @@ def compute_hypervolume_assessed(
 ) -> HypervolumeResult:
     """Compute exact union volume in the declared float64 maximizing profile.
 
-    One and two dimensions use exact native sweeps. Higher dimensions use the
+    One and two dimensions use exact native sweeps. Three/four dimensions use the
     existing optional BoTorch 0.16.1 dominated-space partitioner with Torch
     2.10.0 on CPU in float64. Other installed versions are explicitly unsupported
     until verified. No dimensional bounding-box approximation is substituted.
@@ -294,6 +301,10 @@ def compute_hypervolume_assessed(
 
     if not ref:
         return unavailable("invalid_reference_point")
+    if len(ref) > 4:
+        return unavailable("unsupported_dimension_profile")
+    if not points:
+        return unavailable("no_usable_inputs")
     vectors: list[tuple[float, ...]] = []
     for point in points:
         vector = _finite_vector(point)

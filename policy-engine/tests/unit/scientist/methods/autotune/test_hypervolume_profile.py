@@ -38,6 +38,11 @@ def row(index=1, **values):
         ([(3.0, 1.0), (1.0, 3.0)], (0.0, 0.0), 5.0),
         ([(2.0, 0.0, 0.0), (0.0, 2.0, 0.0), (0.0, 0.0, 2.0)], (0.0, 0.0, 0.0), 0.0),
         ([(3.0, 1.0, 2.0), (1.0, 3.0, 2.0), (2.0, 2.0, 3.0)], (0.0, 0.0, 0.0), 16.0),
+        (
+            [(3.0, 1.0, 2.0, 1.0), (1.0, 3.0, 2.0, 1.0), (2.0, 2.0, 3.0, 1.0)],
+            (0.0, 0.0, 0.0, 0.0),
+            16.0,
+        ),
     ],
 )
 def test_actual_quantity_is_exact_and_order_independent(points, ref, expected):
@@ -103,3 +108,15 @@ def test_full_coordinate_version_split_unit_roundtrip_and_changed_basis_refusal(
         ParetoPromoter(
             [policies[0], policies[0]], definition_versions=["definition.1", "definition.1"]
         )
+
+
+def test_supported_dimension_and_no_input_boundaries_are_explicit():
+    unsupported = compute_hypervolume_assessed([(1.0,) * 5], (0.0,) * 5)
+    assert unsupported.value is None
+    assert unsupported.assessment.reason == "unsupported_dimension_profile"
+    empty = compute_hypervolume_assessed([], (0.0, 0.0))
+    assert empty.value is None
+    assert empty.assessment.reason == "no_usable_inputs"
+    known_zero = compute_hypervolume_assessed([(1.0, 0.0)], (0.0, 0.0))
+    assert known_zero.value == 0.0
+    assert known_zero.assessment.basis == "recomputed"

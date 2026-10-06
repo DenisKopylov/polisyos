@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import hashlib
-import math
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from numbers import Real
 from typing import Any
 
 from polisyos.common.serialization import stable_json_dumps, to_python_data
+from polisyos.scientist.methods.autotune.pareto import finite_real_scalar
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 
 _VOLATILE_CANDIDATE_KEYS = frozenset(
@@ -172,13 +171,8 @@ def dominates(a: Iterable[float], b: Iterable[float]) -> bool:
 def _finite_coordinates(values: Iterable[Any]) -> tuple[float, ...] | None:
     coordinates: list[float] = []
     for raw in values:
-        if isinstance(raw, bool) or not isinstance(raw, Real):
-            return None
-        try:
-            value = float(raw)
-        except (TypeError, ValueError, OverflowError):
-            return None
-        if not math.isfinite(value):
+        value = finite_real_scalar(raw)
+        if value is None:
             return None
         coordinates.append(value)
     return tuple(coordinates)

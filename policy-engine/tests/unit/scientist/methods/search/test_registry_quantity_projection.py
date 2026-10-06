@@ -16,7 +16,11 @@ from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.methods.search.pareto_registry import ParetoBasisScope, ParetoRegistry
+from polisyos.scientist.methods.search.pareto_registry import (
+    ParetoBasisScope,
+    ParetoRegistry,
+    ParetoView,
+)
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveChannelValue,
     ObjectiveDirection,
@@ -94,7 +98,7 @@ def test_ordinary_registry_update_and_fresh_report_preserve_quantity_assessment(
         candidates.append((candidate, candidate_ref, vector))
     snapshot = ParetoRegistry(root=registry_root).get_snapshot("ordinary-quantity")
     assessment = snapshot.hypervolume_assessments["global_feasible"]
-    projection = snapshot.project_view("global_feasible")
+    projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     assert projection.assessment.status == "complete"
     assert projection.assessment.input_count == projection.assessment.assessed_count == 2
     expected_hashes = (

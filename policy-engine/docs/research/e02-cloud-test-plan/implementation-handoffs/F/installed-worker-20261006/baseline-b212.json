@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "python3",
+    "docs/research/e02-cloud-test-plan/results/query.py",
+    "--finding",
+    "B212",
+    "--details",
+    "--limit",
+    "5"
+  ],
+  "cwd": "/workspace/e02-F-installed-worker-20261006/policy-engine",
+  "source_sha_start": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "source_sha_end": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "environment": {
+    "PYTHONPATH": "src:."
+  },
+  "exit": 0,
+  "wall_s": 0.1479817740037106,
+  "rss_kib": 18860
+}

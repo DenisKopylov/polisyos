@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/workspace/e02-F-20261006-receipts/installed-worker/pre-mapping-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/installed-worker/pre_mapping_launch.py"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-worker/pre-mapping-consumer",
+  "source_sha_start": "d3961a101ca6bb0aa9d3e927cc6d62eae09c403d",
+  "source_sha_end": "d3961a101ca6bb0aa9d3e927cc6d62eae09c403d",
+  "environment": {
+    "PYTHONPATH": "src:."
+  },
+  "exit": 1,
+  "wall_s": 11.611703599992325,
+  "rss_kib": 598500
+}

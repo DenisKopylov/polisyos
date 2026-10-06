@@ -1,0 +1,45 @@
+{
+  "python": "3.14.7",
+  "executable": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/bin/python",
+  "prefix": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env",
+  "sys_path": [
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages",
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages"
+  ],
+  "isolated": 1,
+  "application_packages": {
+    "policy-engine": "0.1.0",
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "scikit-learn": "1.8.0",
+    "networkx": "3.6.1",
+    "lightgbm": "4.6.0",
+    "dowhy": null,
+    "econml": null
+  },
+  "baseline_markers": {
+    "dowhy": "python_version < '3.13' (>=0.13,<0.14)",
+    "econml": "python_version < 3.14"
+  },
+  "worker": {
+    "python": "3.12.14",
+    "executable": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+    "packages": {
+      "dowhy": "0.14",
+      "numpy": "2.4.6",
+      "scipy": "1.15.3",
+      "pandas": "3.0.6",
+      "scikit-learn": "1.9.1",
+      "networkx": "3.7"
+    }
+  },
+  "uv": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+  "node": "v24.19.0",
+  "pnpm": "11.19.0",
+  "environment_mutations": "owned wheel/sdist installed sites only; shared app and worker .venv read-only",
+  "cloud_compute_policy": "no artificial CPU, process, or thread quota; all ready checks started"
+}

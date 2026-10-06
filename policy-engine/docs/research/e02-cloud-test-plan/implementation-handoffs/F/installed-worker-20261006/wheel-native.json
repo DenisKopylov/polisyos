@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/installed-worker/final_launch.py",
+    "wheel"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer",
+  "source_sha_start": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "source_sha_end": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "environment": {
+    "PYTHONPATH": "src:."
+  },
+  "exit": 0,
+  "wall_s": 60.826965262996964,
+  "rss_kib": 670632
+}

@@ -1,0 +1,634 @@
+{
+  "source_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "source_tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/architecture.json",
+      "sha256": "dab36a0575b17af9c28618a30edcb3131e477aef66f9c195c6359dd3b0a235cc",
+      "bytes": 485,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/architecture.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/architecture.stdout.txt",
+      "sha256": "3ee705fdcea283a949a3327efb9ce6927d89455662a6421852de6cb657097c3e",
+      "bytes": 119871,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/archive-binding.json",
+      "sha256": "c965ce7448a3286b4a09cabbbde6ceeefac66803068e3c790840726d2ef78e74",
+      "bytes": 477,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/archive-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/archive-binding.stdout.txt",
+      "sha256": "8d9dff0c6b1445674d388adacd5c0f9832ea857a8ea296ef89aecfc336e8379c",
+      "bytes": 718,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/archive-source-bindings.json.gz",
+      "sha256": "15abcc7accf910120ec6d23e1a71cefdb24f94ec4d6ebc422f4adb6b905fa08b",
+      "bytes": 265764,
+      "complete": true,
+      "encoding": "gzip",
+      "decompressed_sha256": "cc9e72e162d9f4de46b8382ffbd933a247ee1e3a0cc8ba292141b38eac900857",
+      "decompressed_bytes": 1368045,
+      "raw_local_path": "/workspace/e02-F-20261006-receipts/installed-worker/archive-source-bindings.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/archive_binding.py",
+      "sha256": "d919d9530fba81bc855b45d65936adf8e9962e117902100e1aa0c572d701fa59",
+      "bytes": 3167,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-b212.json",
+      "sha256": "d701b88465ee08654b13353d9aadfe8f9f9612e38f3379faae4ef8139f29093c",
+      "bytes": 476,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-b212.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-b212.stdout.txt",
+      "sha256": "b8a3a95f2de79a631212b9639ee500261d1bc11c889b5dab3aa48dbb55ec96cf",
+      "bytes": 8526,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-b221.json",
+      "sha256": "d8589d4abce1fec9d7addef50caebac126ba1e35d74f28e7508c9baa21303706",
+      "bytes": 477,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-b221.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-b221.stdout.txt",
+      "sha256": "6d42aeeea4cc6e0f78e52903d09d1cc625d30e7ecc0c20c6fd7fb9cf88fa32fe",
+      "bytes": 4612,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-f-failures.json",
+      "sha256": "978771cb5f2de1585e85aa228d175e9504e57488cdd723a6e50f9cc1e023f0db",
+      "bytes": 478,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-f-failures.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-f-failures.stdout.txt",
+      "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "bytes": 19253,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-la020.json",
+      "sha256": "cdff391bb7e5f69d79c566a21539908b71b6bae88c373557232f3a9b74ca9699",
+      "bytes": 478,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-la020.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/baseline-la020.stdout.txt",
+      "sha256": "a3d0e646509215c2082403aada653550f5afeb977bed22da9bbe5b6021b60ee1",
+      "bytes": 6856,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/compatibility_launch.py",
+      "sha256": "ecd2336691871de46001a5746135f31550272979b121c01da00dac504b8f5008",
+      "bytes": 1502,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/credential-review.json",
+      "sha256": "ece3396bc807b245fa10b9a85fa5926e359a455aa539164e783e95b6aea9e437",
+      "bytes": 13842,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/environment.json",
+      "sha256": "c666f205c8ce48a45630aa639557520bdb5ca609d2aceaf504833367a349b45e",
+      "bytes": 514,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/environment.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/environment.stdout.txt",
+      "sha256": "c3c252315ff4984a45b43a551f0625bff143641316041a65f5bc3065b0787449",
+      "bytes": 1693,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/environment_probe.py",
+      "sha256": "9810ae2a60243cf2d4c29ff0691ac9d0de20b1343c655a2b706466a7edd1185d",
+      "bytes": 1520,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/final-build.json",
+      "sha256": "4f49ed16c9c9a2dd12a864a03b7c3ceea3d31cc40c13f70b61f9b1c1f1250c09",
+      "bytes": 472,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/final-build.stderr.txt",
+      "sha256": "71a54b3ddd3c8aef11df62b444d015262caa229a13e6c8612b707b661dfc9807",
+      "bytes": 397,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/final-build.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/final_launch.py",
+      "sha256": "b59ab8838685777576373b0de9aa9ac6ea0ba59bb8542ae7315b5419ec3c5c0f",
+      "bytes": 972,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/final_setup.py",
+      "sha256": "b5aa7833dc43bde471b8acb57b2b28ab5a7f01e5509d72770bd02e929d46a51d",
+      "bytes": 2536,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/installed-binding.json",
+      "sha256": "8219a934d6fa462f9c2a01fb23c1d84f244cee617921bd733de95758c1fb14bd",
+      "bytes": 481,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/installed-binding.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/installed-binding.stdout.txt",
+      "sha256": "4f16178e99b39bd279d98e94526e68ee5533846905f5dfdccfdc2bc8249b515d",
+      "bytes": 473,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/installed-source-bindings.json.gz",
+      "sha256": "0d917a1bbca1fcf417a5f58e07c1f25f8aaa23dcce1f7b8f4c197cace2755ca4",
+      "bytes": 344152,
+      "complete": true,
+      "encoding": "gzip",
+      "decompressed_sha256": "3c8ba37387e4214af22a2ce62f74dbf39c990b365c7e391a1942f58547b3e8f9",
+      "decompressed_bytes": 2462440,
+      "raw_local_path": "/workspace/e02-F-20261006-receipts/installed-worker/installed-source-bindings.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/installed_binding.py",
+      "sha256": "ab2db72ddfef3bcbfa23bdbd563f09eb57d26d15cfe422ca4d477a2dc2ae1026",
+      "bytes": 1473,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-build.json",
+      "sha256": "ea78658d10d9de6bfaabf4cf8b35fe862f15a8b5d2e928400423d87dceadc54c",
+      "bytes": 478,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-build.stderr.txt",
+      "sha256": "eeaf7b1a356d007e7edf7d5c27f77200932c77771fb7e3a4180baf57f1464c73",
+      "bytes": 409,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-build.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-carriers/test_dowhy_worker.py",
+      "sha256": "a207f5351dae3231a1d339c65db8fd91a218e30f7bf8383644541c424a78e01c",
+      "bytes": 16513,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-carriers/test_gcm_backend_contract.py",
+      "sha256": "fbade972d7124c9f241b9ada5c15646268633aba26c834958ab512099c8234b3",
+      "bytes": 21099,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-carriers/test_installed_worker_profile.py",
+      "sha256": "6818c984770c710d89e7d3afc572e5226fe3e61e08494df613d96644f86c9695",
+      "bytes": 11413,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-native-red.json",
+      "sha256": "aead7c1e85ee174899ebc724d8b01747be2ec0f6b0accf15da58878cc0d69237",
+      "bytes": 527,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-native-red.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-native-red.stdout.txt",
+      "sha256": "ddad46a7596c93168e7812b8900c6d8f9ffd3952b1028a33a56f4a0d28267afe",
+      "bytes": 13767,
+      "complete": true,
+      "encoding": "json-escaped-utf8",
+      "decoded_sha256": "00f0304c5abe57d366470bd3b39f8c8ad1f89d878287ce7ce8a9ce897352f5e9",
+      "decoded_bytes": 13269,
+      "raw_local_path": "/workspace/e02-F-20261006-receipts/installed-worker/pre-mapping-native-red.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-profile-expected.json",
+      "sha256": "adaae1dc0bfcc592c5e97a904f69e75b7acbfbba8216faf7f0e89d3592107821",
+      "bytes": 1242,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-setup.json",
+      "sha256": "7e8b753a0de3c82bfa691a0783f0d0d91a2191d8532e0d91688fd4dab1921c43",
+      "bytes": 473,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-setup.stderr.txt",
+      "sha256": "9585a98352b3efafc92c1415aecdef78054969fbd96669190a2ea8d38273523d",
+      "bytes": 637,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre-mapping-setup.stdout.txt",
+      "sha256": "d5cc5a4b7e14b02066b833b71f2ae558b0b5a8511d76dd8af556ddbdb3e8e09f",
+      "bytes": 609,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre_mapping_launch.py",
+      "sha256": "367b522872e310679e7ace727362996fdc380190af5a2f538b7d405eb081c9b6",
+      "bytes": 899,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/pre_mapping_setup.py",
+      "sha256": "f541d0ffadfd5fe04006666142c2ae2589d16f97c82e1c74f843ad8379962747",
+      "bytes": 1848,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/production-invocation-report.json.gz",
+      "sha256": "3584ab0cefaa7a855da512ad38ae5295fe5d5e76fba001bdc381b73d9e75c666",
+      "bytes": 5994183,
+      "complete": true,
+      "encoding": "gzip",
+      "decompressed_sha256": "68c8dcaba8bcc37af6253ef8540127d514263de642169dc521924cd4b34221d0",
+      "decompressed_bytes": 171016994,
+      "raw_local_path": "/workspace/e02-F-20261006-receipts/installed-worker/production-invocation-report.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/production-invocation.json",
+      "sha256": "3107fd3060169ec668bb6165d010c10b67f57584435b53b1e0b07624d90d5b8c",
+      "bytes": 644,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/production-invocation.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/production-invocation.stdout.txt",
+      "sha256": "58edb2544b5e4728fdd1f451672cee60cceddd7f607ea2c11676b0237c5c491b",
+      "bytes": 3171,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/release-fragment-frozen.json",
+      "sha256": "723a1764cc04b022fc9dac59da4ec57e570354f91fb30eb30898c818f2d2f242",
+      "bytes": 492,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/release-fragment-frozen.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/release-fragment-frozen.stdout.txt",
+      "sha256": "e6c3d6bb7b0ed57bf6ac917ccc068b27a41df95f67306e8e7788523b32e58b90",
+      "bytes": 2415,
+      "complete": true,
+      "encoding": "json-escaped-utf8",
+      "decoded_sha256": "8f7a373bf994d7078dbe09ba13c019a32f4f8cec086ad537dbf7b17f1b2bc670",
+      "decoded_bytes": 2122,
+      "raw_local_path": "/workspace/e02-F-20261006-receipts/installed-worker/release-fragment-frozen.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/release_fragment_check.py",
+      "sha256": "993b013ceab0327fc2de240afd12209399d93fc2344b79873abd378517bacf72",
+      "bytes": 1349,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/results-integrity.json",
+      "sha256": "7babba52ec431d5ef7f6f9ed06b146081cf19e077925daed0d4a80b789ab90e4",
+      "bytes": 429,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/results-integrity.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/results-integrity.stdout.txt",
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "bytes": 112,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/ruff-check.json",
+      "sha256": "2c3fce2a8651ed2245717ad50b5b6bd517b2b9dbe07a863d24b85ab6ea2c81cb",
+      "bytes": 524,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/ruff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/ruff-format.json",
+      "sha256": "d3ce2c807855571604a7bf508228946cf26c9bd86f412aae5f89194c77de8984",
+      "bytes": 541,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/ruff-format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/ruff-format.stdout.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "bytes": 25,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/run_check.py",
+      "sha256": "8a09c3a55a3a84855b1b9f360c2d63b422cf9d0acab53d75d037bea8829652b1",
+      "bytes": 1133,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-compatibility.json",
+      "sha256": "f24b5ca1d3f97400a1ca2a41427489d6f3c5c5e77c92572f3d215e018561971c",
+      "bytes": 529,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-compatibility.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-compatibility.stdout.txt",
+      "sha256": "beb3fb345e3e9d4e50edee1dbf4e25fbbda677c0cd5d5dff040f0b5ae9b39059",
+      "bytes": 144237,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-native.json",
+      "sha256": "bdf79a1b56939ca5c7a23984b590111787576c350bebcf35b15c710a389dba96",
+      "bytes": 521,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-native.stdout.txt",
+      "sha256": "e74deb886fbc11b2b6c97402f1fcf68c25d976aa205a337a2f955f662ebd3bd9",
+      "bytes": 595476,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-setup-manifest.json",
+      "sha256": "8cbf433c0f044cfe99c8292edb3f24e5e780653b959625e7b05297102d52b71e",
+      "bytes": 3821,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-setup.json",
+      "sha256": "db5396674963c38e8e63f5290612568eef72c5eabdd06c910a88f4e81374f664",
+      "bytes": 487,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-setup.stderr.txt",
+      "sha256": "a6fcaab0116c29e811287f14984cfa9f0b3a330ea007a6a0fbd44c84a263dbf3",
+      "bytes": 699,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-setup.stdout.txt",
+      "sha256": "8cbf433c0f044cfe99c8292edb3f24e5e780653b959625e7b05297102d52b71e",
+      "bytes": 3821,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/source-identity.json",
+      "sha256": "b8b85bf21653a8e0e7d383632895d21b9389899700c3407b2cf489f93a837628",
+      "bytes": 24263,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-compatibility.json",
+      "sha256": "cd06e4fb5f7e6d812e5fde9dbc2bafe51f467c11ad6805c19c106c45bf166db0",
+      "bytes": 529,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-compatibility.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-compatibility.stdout.txt",
+      "sha256": "1cca184a6ea27c05da63950ab8186751f9340ec98699c78b1847c8281ba7c47b",
+      "bytes": 144237,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-native.json",
+      "sha256": "400dd032308bff8f85484509aa270934fa12653ec92431e972f0d933735d9b10",
+      "bytes": 522,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-native.stdout.txt",
+      "sha256": "d42c938c9cc5557380abff168fdc64c4a71de65438267fde4a8742faa87a0a3c",
+      "bytes": 595517,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-setup-manifest.json",
+      "sha256": "0578fcaedfc77bb35813a68fd0da3fef8e85a0e25bb2ee8abb920a60e93e1be0",
+      "bytes": 3841,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-setup.json",
+      "sha256": "2b225656d3ed4b3931fa68ab820644ce28ff70ce6fb4d9a0cd364979c70e5f3f",
+      "bytes": 489,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-setup.stderr.txt",
+      "sha256": "c0d3f57b04e732b223d7d1ed9d03fc5a91b95c7af628b436d13e84221c0ea3e6",
+      "bytes": 457,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-setup.stdout.txt",
+      "sha256": "0578fcaedfc77bb35813a68fd0da3fef8e85a0e25bb2ee8abb920a60e93e1be0",
+      "bytes": 3841,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-ab56-independent-review.json",
+      "sha256": "769ae13efb8357e00968f611d7ecb58320c5eca4c38a32eb9447c1130304b7be",
+      "bytes": 10931,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-independent-replay.py",
+      "sha256": "c29cba507f40879cac53992f249208d38686c0bdaf11171d4d73aa37fba0ddc9",
+      "bytes": 4808,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-ab56-independent.json",
+      "sha256": "bc646cb282db12af43579731b9cf7779a9c8b07f110e43e4d710aec20ae4d655",
+      "bytes": 5995,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-ab56-independent.stdout",
+      "sha256": "ff8e72c2a31dbc641d74b680ad59ff24c68b2f19e14e2b4df2da542c1187b919",
+      "bytes": 595516,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-ab56-independent.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-ab56-first-observer-error.json",
+      "sha256": "e2ccc8033731148bcc08afb6e680d7119f2d0d9df72064a003725bdd2546e397",
+      "bytes": 1456,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-ab56-first-observer-error.stdout",
+      "sha256": "f4e9dc2b209d89da58457312832e3cc4cef3624b7f575ccab81f6cf08285922d",
+      "bytes": 595517,
+      "complete": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/independent/installed-wheel-ab56-first-observer-error.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "complete": true
+    }
+  ],
+  "optional_local_archives": {
+    "source_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+    "source_tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+    "product_source_denominator": 2910,
+    "forced_resources": 7,
+    "total_byte_bound": 2917,
+    "unexpected_wheel_product_files": 0,
+    "wheel": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/final-dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "c4940f8d1e8aceeefb4e04a96d2f1e03207a885b6c85225c1ff361a10cb7f13f",
+      "bytes": 15078579
+    },
+    "sdist": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/final-dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "141b93fdbea89f1331db1548e5e6e73cb347d417c0406e3c812b3a0b28692172",
+      "bytes": 65063017
+    },
+    "bindings": "all complete byte bindings in committed archive-source-bindings.json.gz"
+  },
+  "compression": "Lossless gzip transports all171016994 production-invocation diagnostic bytes and complete source/archive/site binding rows; raw hashes and sizes are retained. Moderate deciding text stdout/stderr committed complete."
+}

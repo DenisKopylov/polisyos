@@ -1,0 +1,10 @@
+Using CPython 3.14.7 interpreter at: /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python
+Creating virtual environment at: sdist-env
+Activate with: source sdist-env/bin/activate
+Using Python 3.14.7 environment at: sdist-env
+Resolved 1 package in 1.62s
+   Building policy-engine @ file:///workspace/e02-F-20261006-receipts/installed-worker/final-dist/policy_engine-0.1.0.tar.gz
+      Built policy-engine @ file:///workspace/e02-F-20261006-receipts/installed-worker/final-dist/policy_engine-0.1.0.tar.gz
+Prepared 1 package in 3.61s
+Installed 1 package in 42ms
+ + policy-engine==0.1.0 (from file:///workspace/e02-F-20261006-receipts/installed-worker/final-dist/policy_engine-0.1.0.tar.gz)

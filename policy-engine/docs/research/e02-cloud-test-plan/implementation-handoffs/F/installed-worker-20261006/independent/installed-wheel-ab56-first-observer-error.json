@@ -1,0 +1,28 @@
+{
+  "schema": "policyos.e02.observer_attempt.v1",
+  "source_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "command": [
+    "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/installed-worker/final_launch.py",
+    "wheel"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer",
+  "outcome": "ERROR",
+  "scope": "Observer only: after actual3consumerPASS and complete runtime/asset restoration, blanket full-worktreeclean assertion rejected the author handoff untracked directory. No tracked source, Git head or installed code divergence. Corrected run records tracked-source clean and actual untracked handoff status.",
+  "actual_consumer_result": "3PASS0SKIP/ERROR; pytest58.94s",
+  "observer_exit_code": 1,
+  "actual_consumer_exit_code": "not separately persisted by first observer; completed pytest3PASS output and fresh corrected run are distinct evidence",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-first-observer-error.stdout",
+      "sha256": "f4e9dc2b209d89da58457312832e3cc4cef3624b7f575ccab81f6cf08285922d",
+      "bytes": 595517
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-first-observer-error.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

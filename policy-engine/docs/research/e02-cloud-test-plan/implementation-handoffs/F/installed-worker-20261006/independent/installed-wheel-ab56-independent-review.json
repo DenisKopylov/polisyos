@@ -1,0 +1,168 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F causal_api leaf independent read-only installed composition reviewer",
+  "source_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+  "result": "GO",
+  "scope": "Bounded installed wheel selected true DoWhy/true GCM MethodJob + persisted CAS fresh Python3.14 readers and canonical helper/class ABI; not production admission or whole scientific finding closure",
+  "predicate_basis": "independently_reconciled",
+  "p40": "Installed worker layout was a NEW concrete consumer class; complete canonical sixasset packaging/resolution invariant and actual asset removal falsifier close the bounded installed lookup gap. Raw output-slot monitor warning class and scientific authority remain declared limited; no shim or marker-only PASS.",
+  "source_review": [
+    "hatch wheel projects each of the six canonical standalone assets into private package resources; sdist retains their original canonical paths for rebuilding. No worker implementation source fork or application DoWhy dependency added.",
+    "Actual selected launcher uses Python-I and installed fixed worker script with the configured external locked3.12 interpreter. All imported product modules in fresh reader originate in the owned installed wheel, with no source-tree sys.path.",
+    "Genuine producer runs once through supported factory override and actual DoWhy backend; native OLS numerical comparator, complete typed report JSON rederivation, public helper/function pickle identities and dematerialized declared-slot identity executed.",
+    "Actual persisted reply bytes and source markers remain unchanged while installed worker.py is temporarily retired; fresh reader gives WorkerUnavailableError, assets restored exact and restored positive reader succeeds.",
+    "True GCM method fitting/query and source-bound Scientist interval consumer invoke selected installed profile plus40real bootstrap refits and fresh isolated reader; interval remains noneligible for scientific authority."
+  ],
+  "complete_input_denominator": {
+    "file_type_paths": "All actual wheel polisyos/**/*.py + tools/**/*.py including projected private worker Python assets",
+    "files": 3146,
+    "path_content_sha256": "d65a7d62d5e4541c976b31cd2d934bd4375e679b95431e05c02d327ff54e9d43",
+    "archive_installed_git_discrepancies": 0
+  },
+  "source_and_artifact_bindings": {
+    "source_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+    "tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+    "wheel": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/final-dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "c4940f8d1e8aceeefb4e04a96d2f1e03207a885b6c85225c1ff361a10cb7f13f",
+      "bytes": 15078579
+    },
+    "manifest": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-setup-manifest.json",
+      "sha256": "0578fcaedfc77bb35813a68fd0da3fef8e85a0e25bb2ee8abb920a60e93e1be0",
+      "bytes": 3841
+    },
+    "six_assets_and_three_mirrored_carriers": [
+      {
+        "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/worker.py",
+        "source_path": "policy-engine/workers/dowhy-014/worker.py",
+        "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+        "bytes": 10652
+      },
+      {
+        "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/protocol.py",
+        "source_path": "policy-engine/workers/dowhy-014/protocol.py",
+        "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+        "bytes": 4704
+      },
+      {
+        "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/pyproject.toml",
+        "source_path": "policy-engine/workers/dowhy-014/pyproject.toml",
+        "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+        "bytes": 379
+      },
+      {
+        "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/uv.lock",
+        "source_path": "policy-engine/workers/dowhy-014/uv.lock",
+        "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+        "bytes": 98340
+      },
+      {
+        "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/.python-version",
+        "source_path": "policy-engine/workers/dowhy-014/.python-version",
+        "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+        "bytes": 5
+      },
+      {
+        "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/README.md",
+        "source_path": "policy-engine/workers/dowhy-014/README.md",
+        "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+        "bytes": 4934
+      },
+      {
+        "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer/test_installed_worker_profile.py",
+        "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+        "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
+        "bytes": 11758
+      },
+      {
+        "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer/test_dowhy_worker.py",
+        "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+        "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095",
+        "bytes": 16553
+      },
+      {
+        "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer/test_gcm_backend_contract.py",
+        "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+        "sha256": "acd5d0bd70fa0768df0e517882501d7c8ea836038102f046dac42888e7776d40",
+        "bytes": 21216
+      }
+    ],
+    "launcher": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-worker/final_launch.py",
+      "sha256": "b59ab8838685777576373b0de9aa9ac6ea0ba59bb8542ae7315b5419ec3c5c0f",
+      "bytes": 972
+    }
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/installed-worker/final_launch.py",
+        "wheel"
+      ],
+      "cwd": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer",
+      "target_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "outcome": "PASS",
+      "process_exit_code": 0,
+      "pass_count": 3,
+      "skip_count": 0,
+      "error_count": 0,
+      "wall_s": 53.888936254996224,
+      "pytest_wall_s": 48.25,
+      "rss_kib": 663768,
+      "input_closure": "Complete three installed consumer cases; full actual wheel runtime-code denominator3146 Python files compared archive\u2192owned installed files\u2192exact Git source; six assets/three test carriers bound exact; all code/assets restored exact after real negative control.",
+      "output": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-independent.json",
+      "output_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-independent.json",
+        "sha256": "bc646cb282db12af43579731b9cf7779a9c8b07f110e43e4d710aec20ae4d655",
+        "bytes": 5995
+      },
+      "stdout": {
+        "path": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-independent.stdout",
+        "sha256": "ff8e72c2a31dbc641d74b680ad59ff24c68b2f19e14e2b4df2da542c1187b919",
+        "bytes": 595516
+      },
+      "stderr": {
+        "path": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-independent.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/bin/python",
+        "-I",
+        "/workspace/e02-F-20261006-receipts/installed-worker/final_launch.py",
+        "wheel"
+      ],
+      "target_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "outcome": "ERROR",
+      "scope": "Original observer-only blanket-clean postcheck failure, not product/test failure",
+      "actual_consumer_pass_count": 3,
+      "output": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-first-observer-error.json",
+      "output_ref": {
+        "path": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-first-observer-error.json",
+        "sha256": "e2ccc8033731148bcc08afb6e680d7119f2d0d9df72064a003725bdd2546e397",
+        "bytes": 1456
+      }
+    }
+  ],
+  "replayer": {
+    "path": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-independent-replay.py",
+    "sha256": "c29cba507f40879cac53992f249208d38686c0bdaf11171d4d73aa37fba0ddc9",
+    "bytes": 4808
+  },
+  "limitations": [
+    "Independent native wheel only; separate author sdist installed run remains separate evidence, not independently replayed here.",
+    "Third-party app dependencies enter through a literal readonly .pth to fresh shared appenv; whole application dependencies not independently resolved by this installedenv. Standalone worker remains actual pinned52distribution Python3.12/DoWhy0.14 profile.",
+    "Wheel15MB is a local derived build artifact with exact hash; G should rebuild from exact candidate and repeat its own installed consumer rather than assume Git transfer of the wheel binary. Complete native outputs and source/carrier/asset/manifest/replayer bytes must be committed by author/root.",
+    "Raw DoWhy missing-slot ERROR and legacy unexpected-key warnings persist while real dematerializer resolves declared report alias. F-M5 zero-warning criterion remains limited.",
+    "Known synthetic numerical/property witnesses do not establish real-world source law, graph assumptions, EvalSafety production-positive admission, scientific authority, or EconML capability. No finding closure/all-F/global-external-plugin ABI claim."
+  ],
+  "source_after": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "all_assets_and_runtime_code_restored_exact": true,
+  "actual_status_after": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/"
+}

@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-vector-search/bin/python",
+    "-I",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-academic-catalog-probe.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/fixture-output",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/candidate.tar",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-12190/installed-domain-consumer-probe-v3.stdout"
+  ],
+  "cwd": "/tmp",
+  "elapsed_seconds": 3.150095207965933,
+  "ended_at_utc": "2026-10-06T18:54:34.486239+00:00",
+  "environment": {
+    "HOME": "/Users/deniskopylov",
+    "LANG": "en_US.UTF-8",
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "TMPDIR": "/tmp"
+  },
+  "environment_is_complete_child_environment": true,
+  "exit": {
+    "bytes": 2,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/probe.exit",
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  "exit_code": 0,
+  "installed_wheel_sha256": "f446551d9c9195350bb9d9a081453adac0836cda20e35d7f3996f9ddf0f420bf",
+  "source_archive_sha256": "b4d34f51b2c5f73976dd49889195f55f591ccf1749f7cf37579378fcf0cb9e67",
+  "started_at_utc": "2026-10-06T18:54:31.335954+00:00",
+  "stderr": {
+    "bytes": 977,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/probe.stderr",
+    "sha256": "407d9dfac88765eaf75328887986c07fcbd248ef06a6b6faabac73baafd792da"
+  },
+  "stdout": {
+    "bytes": 13474,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/probe.stdout",
+    "sha256": "46febaf9209fdc84f4c685862047900b78258129ebc82f3d9bbea8af2f915446"
+  }
+}

@@ -1,0 +1,952 @@
+{
+  "result": "PASS",
+  "cut_sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+  "companion_markdown_sha256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8",
+  "snapshot": {
+    "branch": "codex/e02-C-continuation-20261006",
+    "commit": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+    "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+  },
+  "base": {
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "coverage_denominator": {
+    "all_bundles": 127,
+    "all_findings": 282,
+    "canonical_criterion_occurrences": 291,
+    "C_bundles": 33,
+    "C_findings": 54,
+    "C_hash_bound_criteria": 59
+  },
+  "rows": 54,
+  "verdict_counts": {
+    "closed": 31,
+    "limited": 9,
+    "held": 14
+  },
+  "verdict_summary_aliases_checked": [
+    {
+      "path": "/final_verdict_counts_derived_from_all_54_rows",
+      "counts": {
+        "closed": 31,
+        "held": 14,
+        "limited": 9
+      }
+    },
+    {
+      "path": "/final_adjudication/counts",
+      "counts": {
+        "closed": 31,
+        "held": 14,
+        "limited": 9
+      }
+    }
+  ],
+  "verdict_field": "root_finding_verdict",
+  "verdict_status": "final_root_adjudication",
+  "historical_inventory_rows_and_four_columns_checked": 54,
+  "current_C_md_rows_checked": 54,
+  "base_to_current_C_md_state_deltas": [
+    {
+      "id": "B139",
+      "base": [
+        "partial",
+        "surface_missing"
+      ],
+      "current": [
+        "partial",
+        "semantic_test_missing"
+      ]
+    }
+  ],
+  "criterion_occurrences_source_line_span_and_SHA_checked": 59,
+  "receipt_entries_SHA_size_locator_tree_blob_checked": 210,
+  "receipt_ids_derived_from_complete_declared_index": 210,
+  "nested_file_manifests_SHA_and_size_checked": [
+    {
+      "receipt_id": "R210",
+      "files": 7
+    }
+  ],
+  "RFC_6901_pointers_resolved": 282,
+  "code_outcome_evidence_modes": {
+    "complete_source_field_whitespace_normalized": 23,
+    "authored_criterion_summary_cited_by_deciding_receipts": 27,
+    "authored_family_scope_summary_cited_by_deciding_receipts": 4
+  },
+  "ING_enum_only_code_outcomes": [],
+  "companion_Markdown_rows": 54,
+  "source_DAG_semantic_closure_claimed": false,
+  "manifest_index_bound_receipts": [
+    "R204",
+    "R205",
+    "R206"
+  ],
+  "per_row": [
+    {
+      "id": "B138",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "FED",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 2
+    },
+    {
+      "id": "B139",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "FED",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 4,
+      "resolved_pointers": 4
+    },
+    {
+      "id": "B140",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "FED",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 2
+    },
+    {
+      "id": "B141",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "FED",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 2
+    },
+    {
+      "id": "B142",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "consumer_missing",
+      "source_family": "FED",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 2
+    },
+    {
+      "id": "B143",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "FED",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 2
+    },
+    {
+      "id": "B144",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "FED",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 2
+    },
+    {
+      "id": "B145",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "FED",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 2
+    },
+    {
+      "id": "B146",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "OBS",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 2,
+      "resolved_pointers": 6
+    },
+    {
+      "id": "B147",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "OBS",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 2,
+      "resolved_pointers": 6
+    },
+    {
+      "id": "B17",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "SCL",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 4,
+      "resolved_pointers": 5
+    },
+    {
+      "id": "B79",
+      "verdict": "limited",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "ING",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "B80",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "ING",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "B81",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "ING",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "B82",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "ING",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "B83",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "ING",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "B84",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "ING",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "B85",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "ING",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "B86",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "ING",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "B88",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "closed",
+        "G97_ledger": "closed",
+        "appendix_C": "no_finding_level_record",
+        "historical_test": "PASS_BOUNDED"
+      },
+      "baseline_capability_label": "",
+      "source_family": "ING",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "LA-005",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "held",
+        "G97_ledger": "held",
+        "appendix_C": "held",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "DFK",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 2,
+      "resolved_pointers": 3
+    },
+    {
+      "id": "LA-006",
+      "verdict": "limited",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "DFK",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 2,
+      "resolved_pointers": 3
+    },
+    {
+      "id": "LA-008",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "surface_missing",
+      "source_family": "HYG",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 5,
+      "resolved_pointers": 10
+    },
+    {
+      "id": "LA-009",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "surface_missing",
+      "source_family": "HYG",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 5,
+      "resolved_pointers": 10
+    },
+    {
+      "id": "LA-010",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "closed",
+        "G97_ledger": "closed",
+        "appendix_C": "held",
+        "historical_test": ""
+      },
+      "baseline_capability_label": "",
+      "source_family": "MIG",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 7,
+      "resolved_pointers": 14
+    },
+    {
+      "id": "LA-011",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "surface_missing",
+      "source_family": "HYG",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 5,
+      "resolved_pointers": 10
+    },
+    {
+      "id": "LA-012",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "surface_missing",
+      "source_family": "HYG",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 5,
+      "resolved_pointers": 10
+    },
+    {
+      "id": "LA-013",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "surface_missing",
+      "source_family": "HYG",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 5,
+      "resolved_pointers": 10
+    },
+    {
+      "id": "LA-018",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "HYG",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 5,
+      "resolved_pointers": 10
+    },
+    {
+      "id": "LA-021",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "closed",
+        "G97_ledger": "closed",
+        "appendix_C": "no_finding_level_record",
+        "historical_test": "PASS_BOUNDED"
+      },
+      "baseline_capability_label": "",
+      "source_family": "CAN",
+      "evidence_mode": "authored_family_scope_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "LA-022",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "PLG",
+      "evidence_mode": "authored_family_scope_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 3,
+      "resolved_pointers": 6
+    },
+    {
+      "id": "LA-023",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "PLG",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 2,
+      "deciding_receipts": 3,
+      "resolved_pointers": 6
+    },
+    {
+      "id": "LA-024",
+      "verdict": "limited",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "SCL",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 4,
+      "resolved_pointers": 5
+    },
+    {
+      "id": "LA-025",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "SCL",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 4,
+      "resolved_pointers": 5
+    },
+    {
+      "id": "LA-026",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "held",
+        "G97_ledger": "held",
+        "appendix_C": "held",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "DFK",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 2,
+      "resolved_pointers": 3
+    },
+    {
+      "id": "LA-027",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "held",
+        "G97_ledger": "held",
+        "appendix_C": "held",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "DFK",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 2,
+      "resolved_pointers": 3
+    },
+    {
+      "id": "LA-028",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "CAT",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 4,
+      "resolved_pointers": 11
+    },
+    {
+      "id": "LA-029",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "UDF",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 2,
+      "resolved_pointers": 7
+    },
+    {
+      "id": "LA-030",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "OBS",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 2,
+      "resolved_pointers": 6
+    },
+    {
+      "id": "LA-031",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "held",
+        "G97_ledger": "held",
+        "appendix_C": "held",
+        "historical_test": "PASS_BOUNDED"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "OBS",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 3,
+      "deciding_receipts": 6,
+      "resolved_pointers": 10
+    },
+    {
+      "id": "LA-032",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "held",
+        "G97_ledger": "held",
+        "appendix_C": "held",
+        "historical_test": "PASS_BOUNDED"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "UDF",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 2,
+      "resolved_pointers": 7
+    },
+    {
+      "id": "LA-034",
+      "verdict": "limited",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "BER",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 5,
+      "resolved_pointers": 7
+    },
+    {
+      "id": "LA-036",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "producer_missing",
+      "source_family": "BER",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 5,
+      "resolved_pointers": 7
+    },
+    {
+      "id": "LA-038",
+      "verdict": "limited",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "DFI",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 2,
+      "deciding_receipts": 6,
+      "resolved_pointers": 6
+    },
+    {
+      "id": "LA-039",
+      "verdict": "limited",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "DFI",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 2,
+      "deciding_receipts": 5,
+      "resolved_pointers": 3
+    },
+    {
+      "id": "LA-040",
+      "verdict": "held",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "producer_missing",
+      "source_family": "DFI",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 6,
+      "resolved_pointers": 4
+    },
+    {
+      "id": "LA-041",
+      "verdict": "limited",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "verification_missing",
+      "source_family": "DFI",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 12,
+      "resolved_pointers": 9
+    },
+    {
+      "id": "LA-042",
+      "verdict": "limited",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "closed_bounded",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "DFI",
+      "evidence_mode": "complete_source_field_whitespace_normalized",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 7,
+      "resolved_pointers": 6
+    },
+    {
+      "id": "LA-043",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "surface_missing",
+      "source_family": "CLI",
+      "evidence_mode": "authored_family_scope_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "LA-044",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "surface_missing",
+      "source_family": "CLI",
+      "evidence_mode": "authored_family_scope_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 1,
+      "resolved_pointers": 1
+    },
+    {
+      "id": "LA-047",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "semantic_test_missing",
+      "source_family": "MIG",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 5,
+      "resolved_pointers": 9
+    },
+    {
+      "id": "LA-048",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "MIG",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 6,
+      "resolved_pointers": 8
+    },
+    {
+      "id": "LA-049",
+      "verdict": "closed",
+      "historical": {
+        "owner_tsv": "closed",
+        "G97_ledger": "closed",
+        "appendix_C": "held",
+        "historical_test": ""
+      },
+      "baseline_capability_label": "",
+      "source_family": "MIG",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 4,
+      "resolved_pointers": 5
+    },
+    {
+      "id": "LA-050",
+      "verdict": "limited",
+      "historical": {
+        "owner_tsv": "partial",
+        "G97_ledger": "partial",
+        "appendix_C": "partial",
+        "historical_test": "UNRUN"
+      },
+      "baseline_capability_label": "bridge_missing",
+      "source_family": "MIG",
+      "evidence_mode": "authored_criterion_summary_cited_by_deciding_receipts",
+      "criterion_occurrences": 1,
+      "deciding_receipts": 35,
+      "resolved_pointers": 22
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+    "--repo-root",
+    "/Users/deniskopylov/.codex/worktrees/e02-C-continuation-20261006/polisyos"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-C-continuation-20261006/polisyos",
+  "exit_code": 0,
+  "generator": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+    "sha256": "894967a99fb78b75f49901a2ba16b985e4e4cca32b27e7f74a0b5a6fbcbaed52"
+  },
+  "outputs": {
+    "json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+      "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+      "size_bytes": 322414
+    },
+    "markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.md",
+      "sha256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8",
+      "size_bytes": 176581
+    }
+  },
+  "stdout": {
+    "path": "stdout.json",
+    "sha256": "01fa2f5e52ae47ba547abef06c3f326012bcbc3add65b796e6f3e64ed8cdfda6",
+    "size_bytes": 842
+  },
+  "stderr": {
+    "path": "stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0
+  },
+  "inputs": {
+    "reviewed_source_gzip": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/source-inputs/C54-final-reviewcut-20261006-v8.json.gz",
+      "sha256": "aa8c96a3dbf38874c750cf0dfdfc94de9be93925dee5ac193a2b37d595579639",
+      "uncompressed_sha256": "8636e42db8fda1bb9df617cf718ae7e20d39eb11b40639d5ee6471a28160871a"
+    },
+    "historical_inventory": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/source-inputs/C54-finding-inventory.tsv",
+      "sha256": "530f61eb0c356a9aa65b99154b233b19aadc09bde3f8f307a85a1f27965d16da"
+    },
+    "late_la039_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/late-la039/evidence-manifest.json",
+      "sha256": "de65e06eb5b03268d5a4b8b6592660be15fb7fb21d77e0ebec0ab88e6e8f00e2"
+    },
+    "pinned_source_commit": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+    "pinned_source_tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2",
+    "pinned_base_commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+  }
+}

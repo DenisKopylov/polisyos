@@ -1,0 +1,32 @@
+{
+  "result": "PASS",
+  "cut_path": "policy-engine/.tmp/e02-C2/raw/final54-review-v8/criterion_sha_drift.json",
+  "cut_sha256": "2fcc4049992571b4e4e29376656d956a56929783d3ef218306561f3608b00452",
+  "snapshot": {
+    "branch": "codex/e02-C-continuation-20261006",
+    "commit": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+    "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+  },
+  "coverage": {
+    "all_bundles": 127,
+    "all_findings": 282,
+    "canonical_criterion_occurrences": 291,
+    "C_bundles": 33,
+    "C_findings": 54,
+    "C_hash_bound_criteria": 59
+  },
+  "provisional_proposal_counts": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  },
+  "rows": 54,
+  "hash_bound_criterion_occurrences": 59,
+  "tracked_receipts_hash_and_size_checked": 209,
+  "rfc6901_row_pointers_resolved": 282,
+  "evidence_caps": {
+    "DFI": 56,
+    "CAT": 74
+  },
+  "source_dag_semantic_closure_claimed": false
+}

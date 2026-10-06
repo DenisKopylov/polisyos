@@ -1,0 +1,26 @@
+{
+  "criterion_sha_drift": {
+    "command": "python3 /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.tmp/e02-C2/raw/census/validate_c54_final_reviewcut.py /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.tmp/e02-C2/raw/final54-review-v8/criterion_sha_drift.json",
+    "input_sha256": "2fcc4049992571b4e4e29376656d956a56929783d3ef218306561f3608b00452",
+    "exit_code": 0,
+    "stdout_sha256": "6021019abba588cde0ae1b169bfa294d9dbfd2971c8c5893dd896d3ca8b40b29",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diagnostic": ""
+  },
+  "json_pointer_drift": {
+    "command": "python3 /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.tmp/e02-C2/raw/census/validate_c54_final_reviewcut.py /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.tmp/e02-C2/raw/final54-review-v8/json_pointer_drift.json",
+    "input_sha256": "3499297b317fdbdc5a445558aad98ce1f1eb7212aa3f078431264c56c54cd02b",
+    "exit_code": 1,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "6abe8051c394b53324ed28aba0a3fe4508fe27ca5a433358560a95451ac257fd",
+    "diagnostic": "KeyError: '__absent_review_drift_control__'"
+  },
+  "source_row_identity_drift": {
+    "command": "python3 /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.tmp/e02-C2/raw/census/validate_c54_final_reviewcut.py /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.tmp/e02-C2/raw/final54-review-v8/source_row_identity_drift.json",
+    "input_sha256": "e36b5f6bd67af95876d2f04dbdb93c80a5236302f2ee8b29d65193433308e946",
+    "exit_code": 1,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "5c4b4df9b08e03277ab7cb4ba1a9d7df3cb9997bfb538f18d93c5d7c2dd1ffe6",
+    "diagnostic": "AssertionError"
+  }
+}

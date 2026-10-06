@@ -1,0 +1,5 @@
+2026-10-06 21:54:33.654 | INFO     | polisyos.common.logger:_call:120 - Academic embeddings complete: 2 vectors
+2026-10-06 21:54:33.685 | WARNING  | polisyos.common.logger:_call:120 - Work index files not found in /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/fixture-output/academic-missing-index
+2026-10-06 21:54:33.698 | WARNING  | polisyos.common.logger:_call:120 - Selected work index is unreadable: selected work basis differs from current works
+2026-10-06 21:54:33.798 | WARNING  | polisyos.common.logger:_call:120 - Dataset index files not found in /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/fixture-output/catalog-missing-index
+2026-10-06 21:54:33.821 | WARNING  | polisyos.common.logger:_call:120 - Selected dataset index is unreadable: selected dataset basis differs from current datasets

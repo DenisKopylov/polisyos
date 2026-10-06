@@ -1,0 +1,27 @@
+{
+  "assessment": {
+    "grade": "post_run_source_copy_hash_only; filesystem mtime predates the run by 39.667 ms and current bytes are unchanged since the recorded post-run readback, but exact in-run byte identity was not cryptographically captured at launch",
+    "inrun_or_prelaunch_script_sha256_capture_available": false,
+    "mtime_precedes_command_start": true,
+    "mtime_to_start_delta_ms": 39.667
+  },
+  "executed_command": {
+    "argv_script_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-academic-catalog-probe.py",
+    "ended_at_utc": "2026-10-06T18:54:34.486239+00:00",
+    "exit_code": 0,
+    "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-run-20261006b/command.json",
+    "manifest_sha256": "fd011f4d0f1e4981fa8dd3744b0c7dafa12b17ee77d389cd430983b8d8b05590",
+    "started_at_utc": "2026-10-06T18:54:31.335954+00:00"
+  },
+  "prior_receipt_modified": false,
+  "prior_receipt_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/c2-installed-composition-receipt-la039.json",
+  "schema": "codex.postrun-script-source-binding.v1",
+  "script": {
+    "birthtime_utc": "2026-10-06T18:53:59.512294+00:00",
+    "bytes": 21867,
+    "ctime_utc": "2026-10-06T18:54:31.296287+00:00",
+    "current_postrun_sha256": "f0e6642a482693c56c6b34bbcd80c1a36434e4903882cc261a87f5754b3f8225",
+    "mtime_utc": "2026-10-06T18:54:31.296287+00:00",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/la039-academic-catalog-probe.py"
+  }
+}

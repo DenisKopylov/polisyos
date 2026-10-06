@@ -1,0 +1,52 @@
+{
+  "control": "generic consistency of every declared verdict-count summary alias against all 54 row verdicts",
+  "source_cut": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+    "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
+  },
+  "corrupt_copy": {
+    "path": "policy-engine/.tmp/e02-C2/raw/census/final-canonical-replay-20261006/corrupt-final-adjudication-counts.json",
+    "sha256": "9f39d9e239563f5a5c6aef00db9c64e0ab96926745a0460faba6daf1ee10ffcd",
+    "single_mutation": {
+      "json_pointer": "/final_adjudication/counts/closed",
+      "from": 31,
+      "to": 30
+    }
+  },
+  "checker": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+    "sha256": "2007b122baf8c14ae4c52c678156bf09cae716909c8e95561d2119d38e227a33"
+  },
+  "whole_cut_sha_pin_supplied": false,
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+    "--repo-root",
+    "/Users/deniskopylov/.codex/worktrees/e02-C-continuation-20261006/polisyos",
+    "--cut",
+    "policy-engine/.tmp/e02-C2/raw/census/final-canonical-replay-20261006/corrupt-final-adjudication-counts.json",
+    "--markdown",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.md",
+    "--inventory",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/source-inputs/C54-finding-inventory.tsv",
+    "--base-commit",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--snapshot-commit",
+    "48af851db5c0e802c92d9b30226acbc4436c69ba",
+    "--expected-markdown-sha",
+    "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8",
+    "--expected-inventory-sha",
+    "530f61eb0c356a9aa65b99154b233b19aadc09bde3f8f307a85a1f27965d16da"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-C-continuation-20261006/polisyos",
+  "exit_code": 1,
+  "stdout": {
+    "path": "policy-engine/.tmp/e02-C2/raw/census/final-canonical-replay-20261006/summary-count-corruption.stdout.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "policy-engine/.tmp/e02-C2/raw/census/final-canonical-replay-20261006/summary-count-corruption.stderr.txt",
+    "sha256": "25fa9197c311adfea6735020a10af34537a811f01af80abfab96fb900cdf68bb"
+  },
+  "failure_witness": "validator rejected /final_adjudication/counts because declared closed=30 differs from the actual complete row count closed=31"
+}

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 575, in <module>
+    main()
+    ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 570, in main
+    result = run(cut_path, EXPECTED_CUT_SHA)
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 242, in run
+    raise AssertionError(("declared verdict summary differs from the complete row set", alias, dict(verdict_counts)))
+AssertionError: ('declared verdict summary differs from the complete row set', {'path': '/final_adjudication/counts', 'counts': {'closed': 30, 'held': 14, 'limited': 9}}, {'closed': 31, 'limited': 9, 'held': 14})

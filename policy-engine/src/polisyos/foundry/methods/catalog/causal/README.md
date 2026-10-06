@@ -67,6 +67,15 @@ broader `polisyos.foundry.methods` facade.
   recourse, strategic response, and space-time DSCM.
 - Optional backend adapters such as `_econml_adapter.py` and
   `_sklearn_compat.py` must degrade by explicit capability contract.
+- `_dowhy_worker.py` owns the selected source-resolved cross-interpreter bridge
+  inside the existing method job. The separate pinned Python 3.12
+  [DoWhy worker profile](../../../../../../workers/dowhy-014/README.md) executes
+  actual DoWhy 0.14 linear ATE identification/estimation and explicit GCM fitting;
+  it imports no PolicyOS code and owns neither CAS nor scientific authority.
+  The Python 3.14 parent requires an actual resolved source context, validates
+  aligned input and result bindings, and persists the typed result. Native
+  synthetic-DGP tests establish bounded implementation properties; they do not
+  establish admitted real-data assumptions or Scientist evaluation authority.
 
 ## Extension Points
 

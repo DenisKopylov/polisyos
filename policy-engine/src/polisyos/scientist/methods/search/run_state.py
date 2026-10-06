@@ -212,6 +212,16 @@ class SearchRunState:
                 row["policy_evaluation"] = PolicyEvaluationVector.model_validate(
                     row["policy_evaluation"]
                 )
+                stage_b_result = row["stage_b_result"]
+                if not isinstance(stage_b_result, dict):
+                    raise ValueError("invalid search history evaluator result")
+                if "policy_evaluation" in stage_b_result:
+                    vector = PolicyEvaluationVector.model_validate(
+                        stage_b_result["policy_evaluation"]
+                    )
+                    if vector != row["policy_evaluation"]:
+                        raise ValueError("search history policy evaluation mismatch")
+                    stage_b_result["policy_evaluation"] = vector
             row["timestamp"] = datetime.fromisoformat(row["timestamp"])
             if row["timestamp"].tzinfo is None:
                 raise ValueError("search history timestamp must be timezone aware")

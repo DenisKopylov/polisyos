@@ -14,6 +14,7 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.data_forge.read_api import academic
 
 from .models import (
@@ -25,15 +26,18 @@ from .models import (
     MutationArtifact,
     PromotionDecision,
     PromotionPolicy,
+    _require_snapshot_input,
     benchmark_comparison_basis,
     default_search_registry_root,
     load_benchmark_inputs,
     load_json_artifact,
     load_model_artifact,
     require_benchmark_input,
+    verified_artifact_snapshot,
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts._integrity_ops import VerifiedArtifactSnapshot
     from polisyos.core.artifacts.protocol import ArtifactStore
 
 
@@ -104,7 +108,8 @@ class ChampionRegistry:
         suite_ref: ArtifactRef | None = None,
         pareto_promoter: Any | None = None,
     ) -> PromotionDecision:
-        evaluation = load_model_artifact(self._store, evaluation_ref, BenchmarkEvaluation)
+        snapshot = verified_artifact_snapshot(self._store, evaluation_ref)
+        evaluation = BenchmarkEvaluation.model_validate(from_canonical_bytes(snapshot.data))
         if not isinstance(evaluation, BenchmarkEvaluation):
             raise TypeError("Expected BenchmarkEvaluation")
         with self._promotion_lock(loop_id):
@@ -116,6 +121,7 @@ class ChampionRegistry:
                 evaluation_ref=evaluation_ref,
                 policy=policy,
                 suite_ref=suite_ref,
+                evaluation_snapshot=snapshot,
             )
             if rejection is not None:
                 return PromotionDecision(
@@ -144,6 +150,7 @@ class ChampionRegistry:
         evaluation_ref: ArtifactRef,
         policy: PromotionPolicy,
         suite_ref: ArtifactRef | None,
+        evaluation_snapshot: VerifiedArtifactSnapshot,
     ) -> str | None:
         if policy.loop_id != loop_id:
             return "policy_loop_mismatch"
@@ -158,7 +165,7 @@ class ChampionRegistry:
             return "candidate_loop_mismatch"
         if candidate_ref.kind != f"scientist.autotune.{loop_id}.candidate":
             return "candidate_type_mismatch"
-        manifest = self._store.get_manifest(evaluation_ref)
+        manifest = evaluation_snapshot.manifest
         if (
             evaluation_ref.kind != f"scientist.autotune.{loop_id}.evaluation"
             or manifest.artifact_schema is None
@@ -167,7 +174,7 @@ class ChampionRegistry:
             or manifest.artifact_schema.version != evaluation.suite_version
         ):
             return "evaluation_type_mismatch"
-        require_benchmark_input(self._store, evaluation_ref, candidate_ref, role="candidate")
+        _require_snapshot_input(self._store, evaluation_snapshot, candidate_ref, role="candidate")
         if suite_ref is None:
             if loop_id != "claim_adjudication":
                 return "suite_ref_required"
@@ -200,12 +207,19 @@ class ChampionRegistry:
             return "suite_version_mismatch"
         for artifact_ref in (candidate_ref, evaluation_ref):
             try:
-                require_benchmark_input(
-                    self._store, artifact_ref, suite_ref, role="benchmark_suite"
-                )
+                if artifact_ref is evaluation_ref:
+                    _require_snapshot_input(
+                        self._store, evaluation_snapshot, suite_ref, role="benchmark_suite"
+                    )
+                else:
+                    require_benchmark_input(
+                        self._store, artifact_ref, suite_ref, role="benchmark_suite"
+                    )
             except ValueError:
                 return "suite_basis_mismatch"
-        return self._evaluation_basis_failure(evaluation, evaluation_ref, policy, suite_ref)
+        return self._evaluation_basis_failure(
+            evaluation, evaluation_ref, policy, suite_ref, snapshot=evaluation_snapshot
+        )
 
     def _evaluation_basis_failure(
         self,
@@ -213,6 +227,8 @@ class ChampionRegistry:
         evaluation_ref: ArtifactRef,
         policy: PromotionPolicy,
         suite_ref: ArtifactRef,
+        *,
+        snapshot: VerifiedArtifactSnapshot | None = None,
     ) -> str | None:
         basis = evaluation.comparison_basis
         if basis is None:
@@ -220,7 +236,8 @@ class ChampionRegistry:
         suite = load_model_artifact(self._store, suite_ref, BenchmarkSuite)
         if evaluation.suite_id != suite.suite_id or evaluation.suite_version != suite.suite_version:
             return "evaluation_suite_identity_mismatch"
-        manifest = self._store.get_manifest(evaluation_ref)
+        snapshot = snapshot or verified_artifact_snapshot(self._store, evaluation_ref)
+        manifest = snapshot.manifest
         if (
             evaluation_ref.kind != f"scientist.autotune.{evaluation.loop_id}.evaluation"
             or manifest.artifact_schema is None
@@ -234,14 +251,14 @@ class ChampionRegistry:
         )
         if basis != expected:
             return "evaluation_comparison_basis_mismatch"
-        require_benchmark_input(self._store, evaluation_ref, suite_ref, role="benchmark_suite")
+        _require_snapshot_input(self._store, snapshot, suite_ref, role="benchmark_suite")
         if basis.dataset_ref is not None:
-            require_benchmark_input(
-                self._store, evaluation_ref, basis.dataset_ref, role="benchmark_dataset"
+            _require_snapshot_input(
+                self._store, snapshot, basis.dataset_ref, role="benchmark_dataset"
             )
         if basis.split_manifest_ref is not None:
-            require_benchmark_input(
-                self._store, evaluation_ref, basis.split_manifest_ref, role="benchmark_split"
+            _require_snapshot_input(
+                self._store, snapshot, basis.split_manifest_ref, role="benchmark_split"
             )
         if evaluation.resolved_runtime_split_type() != policy.compare_split:
             return "runtime_split_mismatch"
@@ -301,7 +318,8 @@ class ChampionRegistry:
         require_benchmark_input(
             self._store, evaluation_ref, ref, role="comparison_incumbent_evaluation"
         )
-        fresh = load_model_artifact(self._store, ref, BenchmarkEvaluation)
+        fresh_snapshot = verified_artifact_snapshot(self._store, ref)
+        fresh = BenchmarkEvaluation.model_validate(from_canonical_bytes(fresh_snapshot.data))
         if artifact_ref_identity_key(fresh.candidate_ref) != artifact_ref_identity_key(
             current.candidate_ref
         ):
@@ -331,7 +349,9 @@ class ChampionRegistry:
         ):
             return None, "incumbent_reevaluation_basis_mismatch"
         require_benchmark_input(self._store, ref, current.candidate_ref, role="candidate")
-        failure = self._evaluation_basis_failure(fresh, ref, policy, suite_ref)
+        failure = self._evaluation_basis_failure(
+            fresh, ref, policy, suite_ref, snapshot=fresh_snapshot
+        )
         return (None, failure) if failure else (fresh, None)
 
     def _consider_promotion_locked(

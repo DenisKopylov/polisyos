@@ -1,0 +1,17 @@
+{
+  "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+  "source_tree": "34d0333d489d065c78bbc4bbf9a9214283a4cb33",
+  "exit_code": 137,
+  "status": "ERROR_PROCESS_SIGKILL_NO_SUITE_VERDICT",
+  "requested_cases": 153,
+  "junit_produced": false,
+  "observed_after_kill": {
+    "memory_current": 17178898432,
+    "memory_max": 17179869184,
+    "oom": 240,
+    "oom_kill": 33,
+    "scope": "post-kill counters only, no specific causality assignment"
+  },
+  "descendant_305392": "zombie after parent death; no active descendant",
+  "no_identical_retry": true
+}

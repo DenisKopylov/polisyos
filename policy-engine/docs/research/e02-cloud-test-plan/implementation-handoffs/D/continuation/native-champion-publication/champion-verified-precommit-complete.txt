@@ -1,0 +1,246 @@
+{"fresh_process_pointer": {"loop_id": "verified", "candidate_ref": {"artifact_id": "sha256:23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b", "kind": "scientist.autotune.verified.candidate", "media_type": "application/json", "manifest_profile_sha256": "sha256:e28517b29874c924f75452a89c5f17dd7c0cda557519c2275ae8e208dcc6420d"}, "evaluation_ref": {"artifact_id": "sha256:36e89233d46a72e3cb9fd857195dfcc21fa0dfc2f3821790a9b5061301da6320", "kind": "scientist.autotune.verified.evaluation", "media_type": "application/json", "manifest_profile_sha256": "sha256:fd0538e66acd19f37ef000022cf4715a9ffe7124af29eec745efe28746215623"}, "metrics": {"score": 2.0}, "suite_version": "1.0", "promoted_at": "2026-10-06T16:45:56.337001Z", "search_space_version": "1.0", "metadata": {"promoted_by_policy": {"loop_id": "verified", "primary_metric": "score", "unit": "fixture_points", "direction": "maximize", "compare_split": "holdout", "min_improvement": 0.0, "min_sample_count": 0, "required_guardrails": ["finite"]}, "compare_split": "holdout", "suite_id": "verified-data", "suite_ref": "sha256:45dd00334aae4d6991057aceb33c67f169a3d9ff685349e05b16b586d338489c"}}, "model_origin": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py"}
+
+.actual_reused_views {'artifact_id': 'sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1', 'kind': 'scientist.autotune.verified.candidate', 'media_type': 'application/json', 'manifest_profile_sha256': 'sha256:26b062af76070c7408b40e345ead1775727ae91910eceb9dfa8ec074d363126c'} {'artifact_id': 'sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1', 'kind': 'scientist.autotune.verified.candidate', 'media_type': 'application/json', 'manifest_profile_sha256': 'sha256:6625d27e475e3de6eb19dcf896ca8ee140c12fc9d14f07b1790265d8f0102e8b'}
+..{"actual_pointer_boundary": "before", "pointer": "/workspace/e02-D-continuation-receipts/champion-verified-precommit-6351b979a64c4f77b7a2fe708159941e/test_actual_process_exit_aroun0/champions/verified/champion.json"}
+
+.{"actual_pointer_boundary": "after", "pointer": "/workspace/e02-D-continuation-receipts/champion-verified-precommit-6351b979a64c4f77b7a2fe708159941e/test_actual_process_exit_aroun1/champions/verified/champion.json"}
+
+..F.F.......F..FF.....
+=================================== FAILURES ===================================
+________ test_autotune_persistence_helpers_accept_protocol_backed_store ________
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-precommit-6351b979a64c4f77b7a2fe708159941e/test_autotune_persistence_help0')
+
+    def test_autotune_persistence_helpers_accept_protocol_backed_store(tmp_path) -> None:
+        backing_store = FileSystemCAS(tmp_path / ".polisyos")
+    
+        class _ArtifactStoreProxy:
+            def __init__(self, store: FileSystemCAS) -> None:
+                self._store = store
+    
+            def get_bytes(self, artifact_id):
+                return self._store.get_bytes(artifact_id)
+    
+            def put_json(self, obj, opts, *, canon_spec=None):
+                return self._store.put_json(obj, opts, canon_spec=canon_spec)
+    
+        proxy = _ArtifactStoreProxy(backing_store)
+>       ref = persist_mutation_artifact(proxy, DummyMutationConfig(value=5))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/autotune/test_registry_and_runner.py:217: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/models.py:491: in persist_mutation_artifact
+    return _qualified_artifact_ref(store, ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/models.py:450: in _qualified_artifact_ref
+    snapshot = verified_artifact_snapshot(store, ref)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <tests.unit.scientist.methods.autotune.test_registry_and_runner.test_autotune_persistence_helpers_accept_protocol_backed_store.<locals>._ArtifactStoreProxy object at 0x7f8df57c78c0>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:4aad7b24922ba1ad213c846b6f690780b271bf4c3adf5e72e4549b9841a27dba'), kind='scientist.autotune.dummy_loop.candidate', media_type='application/json', manifest_profile_sha256=None)
+
+    def verified_artifact_snapshot(
+        store: ArtifactStore, ref: ArtifactRef | str
+    ) -> VerifiedArtifactSnapshot:
+        """Require the existing optional backend proof port, without split reads."""
+        getter = getattr(store, "get_verified_snapshot", None)
+        if not callable(getter):
+>           raise ValueError("benchmark_verified_snapshot_port_required")
+E           ValueError: benchmark_verified_snapshot_port_required
+
+src/polisyos/scientist/methods/autotune/models.py:444: ValueError
+____ test_champion_registry_is_idempotent_for_same_candidate_and_evaluation ____
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-precommit-6351b979a64c4f77b7a2fe708159941e/test_champion_registry_is_idem0')
+
+    def test_champion_registry_is_idempotent_for_same_candidate_and_evaluation(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
+        )
+        candidate_ref = _persist_candidate(store, value=3, suite_ref=suite_ref)
+        evaluation_ref = _persist_evaluation(
+            store,
+            candidate_ref=candidate_ref,
+            suite_ref=suite_ref,
+            score=3.0,
+        )
+        policy = _promotion_policy()
+    
+        first = registry.consider_promotion(
+            "dummy_loop",
+            candidate_ref,
+            evaluation_ref,
+            policy,
+            suite_ref=suite_ref,
+        )
+        second = registry.consider_promotion(
+            "dummy_loop",
+            candidate_ref,
+            evaluation_ref,
+            policy,
+            suite_ref=suite_ref,
+        )
+    
+>       assert first.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='dummy_loop', promoted=False, reason='suite_basis_mismatch', champion=None, previous_champion=None).promoted
+
+tests/unit/scientist/methods/autotune/test_registry_and_runner.py:303: AssertionError
+____ test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis ____
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-precommit-6351b979a64c4f77b7a2fe708159941e/test_champion_registry_rejects7')
+
+    def test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
+        )
+        baseline_candidate = _persist_candidate(store, value=1, suite_ref=suite_ref)
+        baseline_evaluation = _persist_evaluation(
+            store,
+            candidate_ref=baseline_candidate,
+            suite_ref=suite_ref,
+            score=1.0,
+        )
+        registry.seed_baseline(
+            "dummy_loop",
+            candidate_ref=baseline_candidate,
+            evaluation_ref=baseline_evaluation,
+        )
+        challenger = _persist_candidate(store, value=7, suite_ref=suite_ref)
+        challenger_evaluation = _persist_evaluation(
+            store,
+            candidate_ref=challenger,
+            suite_ref=suite_ref,
+            score=7.0,
+        )
+    
+        decision = registry.consider_promotion(
+            "dummy_loop",
+            challenger,
+            challenger_evaluation,
+            _promotion_policy(),
+            suite_ref=suite_ref,
+        )
+    
+        assert decision.promoted is False
+>       assert decision.reason == "champion_suite_basis_unknown"
+E       AssertionError: assert 'suite_basis_mismatch' == 'champion_suite_basis_unknown'
+E         
+E         - champion_suite_basis_unknown
+E         + suite_basis_mismatch
+
+tests/unit/scientist/methods/autotune/test_registry_and_runner.py:542: AssertionError
+_____ test_champion_registry_keeps_newer_champion_when_stale_score_arrives _____
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-precommit-6351b979a64c4f77b7a2fe708159941e/test_champion_registry_keeps_n0')
+
+    def test_champion_registry_keeps_newer_champion_when_stale_score_arrives(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
+        )
+        current_candidate = _persist_candidate(store, value=3, suite_ref=suite_ref)
+        current_evaluation = _persist_evaluation(
+            store,
+            candidate_ref=current_candidate,
+            suite_ref=suite_ref,
+            score=3.0,
+        )
+        first = registry.consider_promotion(
+            "dummy_loop",
+            current_candidate,
+            current_evaluation,
+            _promotion_policy(),
+            suite_ref=suite_ref,
+        )
+>       assert first.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='dummy_loop', promoted=False, reason='suite_basis_mismatch', champion=None, previous_champion=None).promoted
+
+tests/unit/scientist/methods/autotune/test_registry_and_runner.py:629: AssertionError
+_ test_champion_registry_serializes_compare_and_publish_against_new_predecessor _
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-verified-precommit-6351b979a64c4f77b7a2fe708159941e/test_champion_registry_seriali0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8df54a7100>
+
+    def test_champion_registry_serializes_compare_and_publish_against_new_predecessor(
+        tmp_path,
+        monkeypatch,
+    ) -> None:
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        root = tmp_path / ".polisyos" / "search_registry"
+        seed_registry = ChampionRegistry(root=root, store=store)
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(data_basis="candidate_only", suite_id="dummy_suite", suite_version="1.0"),
+        )
+        seed_candidate = _persist_candidate(store, value=1, suite_ref=suite_ref)
+        seed_evaluation = _persist_evaluation(
+            store,
+            candidate_ref=seed_candidate,
+            suite_ref=suite_ref,
+            score=1.0,
+        )
+        seed_registry.consider_promotion(
+            "dummy_loop",
+            seed_candidate,
+            seed_evaluation,
+            _promotion_policy(),
+            suite_ref=suite_ref,
+        )
+    
+        slow_registry = ChampionRegistry(root=root, store=store)
+        fast_registry = ChampionRegistry(root=root, store=store)
+        slow_candidate = _persist_candidate(store, value=2, suite_ref=suite_ref)
+        slow_evaluation = _persist_evaluation(
+            store,
+            candidate_ref=slow_candidate,
+            suite_ref=suite_ref,
+            score=2.0,
+>           incumbent_evaluation_ref=_replay_incumbent(store, seed_registry, suite_ref),
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        )
+
+tests/unit/scientist/methods/autotune/test_registry_and_runner.py:689: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f8df5154150>
+registry = <polisyos.scientist.methods.autotune.registry.ChampionRegistry object at 0x7f8df54241a0>
+suite_ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a'), ki...='application/json', manifest_profile_sha256='sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47')
+
+    def _replay_incumbent(store, registry, suite_ref):
+        current = registry.get("dummy_loop")
+        evaluator = PredictableDummyEvaluator()
+        record = evaluator.evaluate(
+>           current.candidate_ref,
+            ^^^^^^^^^^^^^^^^^^^^^
+            suite_ref,
+            {"store": store, "benchmark_comparison_incumbent": current},
+        )
+E       AttributeError: 'NoneType' object has no attribute 'candidate_ref'
+
+tests/unit/scientist/methods/autotune/test_registry_and_runner.py:169: AttributeError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_autotune_persistence_helpers_accept_protocol_backed_store
+FAILED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_is_idempotent_for_same_candidate_and_evaluation
+FAILED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis
+FAILED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_keeps_newer_champion_when_stale_score_arrives
+FAILED tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_champion_registry_serializes_compare_and_publish_against_new_predecessor
+5 failed, 21 passed, 2 warnings in 23.47s

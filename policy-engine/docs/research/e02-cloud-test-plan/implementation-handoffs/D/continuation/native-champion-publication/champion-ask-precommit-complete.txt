@@ -1,0 +1,4 @@
+..............................public_snapshot_checkpoint {'artifact_id': 'sha256:5cfd5d7406f5ea6217a8622757f678cc1feea321173e745fa318065f42f34e17', 'kind': 'scientist.search.service_checkpoint', 'media_type': 'application/json', 'manifest_profile_sha256': 'sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a'}
+..............................recorded_cost_reopen {'source': 'configured_owner_recorded_state', 'receipt_revision_available': False, 'provider_cost_origin_available': False, 'recorded_by_provider': {'test-provider': 5.0}, 'unavailable_reason': None, 'canonical_contract': 'scientist.multi_host_budget_ledger.v1', 'coordination_mode': 'shared_posix_file_lock', 'recorded_spend_key_present': True}
+...........
+71 passed in 9.70s

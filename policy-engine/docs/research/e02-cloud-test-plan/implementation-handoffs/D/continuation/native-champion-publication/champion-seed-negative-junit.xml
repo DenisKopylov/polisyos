@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="6.849" timestamp="2026-10-06T17:09:47.686463+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.autotune.test_champion_verified_snapshot" name="test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite" time="3.588"><failure message="ValueError: benchmark_input_mismatch:candidate">tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-seed-negative-104899864ffb4d33b39c7199430d720e/test_native_seed_incumbent_is_0')
+
+    def test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite(tmp_path):
+        store, registry, suite_ref, policy, spec = _environment(tmp_path, values=(2,))
+        initial = seed_loop_baseline(
+            loop_id="verified",
+            baseline=_Mutation(loop_id="verified", value=1),
+            store=store,
+            registry=registry,
+        )
+        assert initial.metrics == {}
+&gt;       result = SearchLoopRunner(store=store, registry=registry).run(
+            spec, suite_ref=suite_ref, max_iterations=1
+        )
+
+tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py:249: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/runtime.py:240: in run
+    return service.run_search(
+src/polisyos/scientist/methods/search/service.py:734: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:755: in _run_locked
+    return self._drive_locked(
+src/polisyos/scientist/methods/search/service.py:822: in _drive_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:895: in _evaluate_batch
+    evaluation = self.controller._evaluate_for_tell(
+src/polisyos/scientist/methods/search/controller.py:853: in _evaluate_for_tell
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:266: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:354: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:134: in consider_promotion
+    return self._consider_promotion_locked(
+src/polisyos/scientist/methods/autotune/registry.py:504: in _consider_promotion_locked
+    incumbent, failure = self._incumbent_comparison(
+src/polisyos/scientist/methods/autotune/registry.py:299: in _incumbent_comparison
+    require_benchmark_input(
+src/polisyos/scientist/methods/autotune/models.py:691: in require_benchmark_input
+    _require_snapshot_input(store, verified_artifact_snapshot(store, ref), expected, role=role)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;tests.unit.scientist.methods.autotune.test_champion_verified_snapshot._SnapshotCAS object at 0x7f1537567770&gt;
+snapshot = VerifiedArtifactSnapshot(data=b'{"candidate_ref":{"artifact_id":"sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f...},"warnings":[]}', actual_sha256_hex='685b8d19b2ea2257bf48173b861f1b57bb8ee30fe0c3b24834d9d47fe55741dc', byte_size=559)
+expected = ArtifactRef(artifact_id=ArtifactID(root='sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1'), ki...='application/json', manifest_profile_sha256='sha256:b43b5a226d1b302ac6f57ab42da88308732f0ba638a88917bbfc7495641ba9aa')
+
+    def _require_snapshot_input(
+        store: ArtifactStore,
+        snapshot: VerifiedArtifactSnapshot,
+        expected: ArtifactRef,
+        *,
+        role: str,
+    ) -&gt; None:
+        manifest = snapshot.manifest
+        views = {
+            (str(item.artifact_id), item.manifest_profile_sha256)
+            for item in manifest.inputs
+            if item.role == role
+        }
+        identity = artifact_ref_identity_key(expected)
+        if views != {(identity[0], identity[3])}:
+&gt;           raise ValueError(f"benchmark_input_mismatch:{role}")
+E           ValueError: benchmark_input_mismatch:candidate
+
+src/polisyos/scientist/methods/autotune/models.py:709: ValueError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell" time="0.224"><failure message="AssertionError: assert [SearchIterat...n_error=None)] == [SearchIterat...n_error=None)]&#10;  &#10;  At index 0 diff: SearchIteration(iteration=0, candidate={'cost': 2}, objective_value=2.0, objective_details=[ObjectiveValue(name='cost', raw_value=2.0, direction=&lt;OptimizationDirection.MINIMIZE: 'minimize'&gt;, weight=1.0, is_satisfied=True, threshold=None)], is_promising=True, stage_a_passed=True, stage_b_result={'feedback': {'verdict': 'APPROVE'}, 'policy_evaluation': {'blocking_reasons': [], 'candidate_id': None, 'feasible': True, 'hard_constraints': {}, 'metadata': {}, 'penalties': {}, 'primary': {'cost': {'direction': 'minimize', 'kind': 'primary', 'metadata': {}, 'na...&#10;  &#10;  ...Full output truncated (2 lines hidden), use '-vv' to show">tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-seed-negative-104899864ffb4d33b39c7199430d720e/test_fresh_public_service_reta0')
+
+    def test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell(tmp_path):
+        from polisyos.scientist.policy_design.objectives import (
+            ObjectiveChannelValue,
+            ObjectiveDirection,
+            ObjectiveKind,
+            PolicyEvaluationVector,
+        )
+    
+        def evaluation(cost):
+            return EvaluationBundle(
+                objective_value=float(cost),
+                is_promising=True,
+                policy_evaluation=PolicyEvaluationVector(
+                    primary={
+                        "cost": ObjectiveChannelValue(
+                            name="cost",
+                            kind=ObjectiveKind.PRIMARY,
+                            value=float(cost),
+                            direction=ObjectiveDirection.MINIMIZE,
+                        )
+                    }
+                ),
+            )
+    
+        source = _direct(FileSystemCAS(tmp_path / "cas"))
+        first = source.ask(None, None, {})[0]
+        accepted = source.tell(first.candidate_id, evaluation(first.payload["cost"]))
+        assert accepted.frontier_delta
+        assert isinstance(source.controller._history[0].policy_evaluation, PolicyEvaluationVector)
+        fresh = _direct(FileSystemCAS(tmp_path / "cas"))
+        fresh.restore(source.checkpoint_ref)
+&gt;       assert fresh.controller._history == source.controller._history
+E       AssertionError: assert [SearchIterat...n_error=None)] == [SearchIterat...n_error=None)]
+E         
+E         At index 0 diff: SearchIteration(iteration=0, candidate={'cost': 2}, objective_value=2.0, objective_details=[ObjectiveValue(name='cost', raw_value=2.0, direction=&lt;OptimizationDirection.MINIMIZE: 'minimize'&gt;, weight=1.0, is_satisfied=True, threshold=None)], is_promising=True, stage_a_passed=True, stage_b_result={'feedback': {'verdict': 'APPROVE'}, 'policy_evaluation': {'blocking_reasons': [], 'candidate_id': None, 'feasible': True, 'hard_constraints': {}, 'metadata': {}, 'penalties': {}, 'primary': {'cost': {'direction': 'minimize', 'kind': 'primary', 'metadata': {}, 'na...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/unit/scientist/methods/search/test_service_persistence.py:678: AssertionError</failure></testcase></testsuite></testsuites>

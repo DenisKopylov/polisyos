@@ -21,7 +21,6 @@ from pydantic import (
 )
 
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
@@ -30,6 +29,7 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.canon.canon_json import CanonSpec
@@ -39,6 +39,7 @@ if TYPE_CHECKING:
 
     from pydantic.fields import FieldInfo
 
+    from polisyos.core.artifacts._integrity_ops import VerifiedArtifactSnapshot
     from polisyos.core.artifacts.protocol import ArtifactStore
 
     _ValidatorFunc = TypeVar("_ValidatorFunc", bound=Callable[..., object])
@@ -430,9 +431,26 @@ def default_store(root: Path | None = None) -> ArtifactStore:
 
 
 def load_json_artifact(store: ArtifactStore, ref: ArtifactRef | str) -> object:
-    """Load json artifact."""
-    artifact_id = ref if isinstance(ref, ArtifactRef) else ArtifactID(ref)
-    return from_canonical_bytes(store.get_bytes(artifact_id))
+    """Decode only an owned verified byte/manifest view from the configured store."""
+    return from_canonical_bytes(verified_artifact_snapshot(store, ref).data)
+
+
+def verified_artifact_snapshot(
+    store: ArtifactStore, ref: ArtifactRef | str
+) -> VerifiedArtifactSnapshot:
+    """Require the existing optional backend proof port, without split reads."""
+    getter = getattr(store, "get_verified_snapshot", None)
+    if not callable(getter):
+        raise ValueError("benchmark_verified_snapshot_port_required")
+    return cast("VerifiedArtifactSnapshot", getter(ref))
+
+
+def _qualified_artifact_ref(store: ArtifactStore, ref: ArtifactRef) -> ArtifactRef:
+    """Bind a newly published reference to its actual backend-owned manifest view."""
+    snapshot = verified_artifact_snapshot(store, ref)
+    return ref.model_copy(
+        update={"manifest_profile_sha256": artifact_manifest_profile_sha256(snapshot.manifest)}
+    )
 
 
 def load_model_artifact[ArtifactModel: _PydanticBaseModel](
@@ -457,7 +475,7 @@ def persist_mutation_artifact(
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a mutation artifact to CAS and return its typed artifact reference."""
-    return store.put_json(
+    ref = store.put_json(
         artifact,
         ArtifactWriteOptions(
             kind=kind or f"scientist.autotune.{artifact.loop_id}.candidate",
@@ -470,6 +488,7 @@ def persist_mutation_artifact(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    return _qualified_artifact_ref(store, ref)
 
 
 def persist_benchmark_suite(
@@ -492,6 +511,7 @@ def persist_benchmark_suite(
                 media_type="application/x-ndjson",
             ),
         )
+        dataset_ref = _qualified_artifact_ref(store, dataset_ref)
         split = read_split_manifest(Path(suite.split_manifest_path))
         if split.suite_id != suite.suite_id or split.suite_version != suite.suite_version:
             raise ValueError("benchmark_split_suite_mismatch")
@@ -521,7 +541,7 @@ def persist_benchmark_suite(
         )
     elif suite.dataset_ref is not None or suite.split_manifest_ref is not None:
         raise ValueError("benchmark_data_basis_mismatch")
-    return store.put_json(
+    ref = store.put_json(
         suite,
         ArtifactWriteOptions(
             kind=f"scientist.autotune.{suite.kind}.suite",
@@ -534,6 +554,7 @@ def persist_benchmark_suite(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    return _qualified_artifact_ref(store, ref)
 
 
 def persist_split_manifest(
@@ -543,7 +564,7 @@ def persist_split_manifest(
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a benchmark split manifest so the loop can replay its evaluation partitions."""
-    return store.put_json(
+    ref = store.put_json(
         split_manifest,
         ArtifactWriteOptions(
             kind="scientist.autotune.split_manifest",
@@ -556,6 +577,7 @@ def persist_split_manifest(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    return _qualified_artifact_ref(store, ref)
 
 
 def persist_benchmark_evaluation(
@@ -591,7 +613,7 @@ def persist_benchmark_evaluation(
     ):
         if ref is not None:
             merged_inputs.append(input_ref_from_artifact_ref(ref, role=role))
-    return store.put_json(
+    ref = store.put_json(
         evaluation,
         ArtifactWriteOptions(
             kind=f"scientist.autotune.{evaluation.loop_id}.evaluation",
@@ -608,6 +630,7 @@ def persist_benchmark_evaluation(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    return _qualified_artifact_ref(store, ref)
 
 
 def read_split_manifest(path: Path) -> BenchmarkSplitManifest:
@@ -638,7 +661,7 @@ def load_benchmark_inputs(
     )
     rows = [
         json.loads(line)
-        for line in store.get_bytes(suite.dataset_ref).decode().splitlines()
+        for line in verified_artifact_snapshot(store, suite.dataset_ref).data.decode().splitlines()
         if line.strip()
     ]
     if any(not isinstance(row, dict) for row in rows):
@@ -665,7 +688,17 @@ def require_benchmark_input(
     role: str,
 ) -> None:
     """Require one exact upstream manifest view for a benchmark lineage role."""
-    manifest = store.get_manifest(ref)
+    _require_snapshot_input(store, verified_artifact_snapshot(store, ref), expected, role=role)
+
+
+def _require_snapshot_input(
+    store: ArtifactStore,
+    snapshot: VerifiedArtifactSnapshot,
+    expected: ArtifactRef,
+    *,
+    role: str,
+) -> None:
+    manifest = snapshot.manifest
     views = {
         (str(item.artifact_id), item.manifest_profile_sha256)
         for item in manifest.inputs
@@ -674,7 +707,7 @@ def require_benchmark_input(
     identity = artifact_ref_identity_key(expected)
     if views != {(identity[0], identity[3])}:
         raise ValueError(f"benchmark_input_mismatch:{role}")
-    store.get_bytes(expected)
+    verified_artifact_snapshot(store, expected)
 
 
 def benchmark_policy_sha256(policy: PromotionPolicy) -> str:
@@ -705,10 +738,11 @@ def benchmark_comparison_basis(
     evaluator_profile: SchemaInfo,
 ) -> BenchmarkComparisonBasis:
     """Build one comparison identity from content-resolved suite/input references."""
-    suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
+    snapshot = verified_artifact_snapshot(store, suite_ref)
+    suite = BenchmarkSuite.model_validate(from_canonical_bytes(snapshot.data))
     if suite_ref.kind != f"scientist.autotune.{suite.kind}.suite":
         raise ValueError("benchmark_suite_type_mismatch")
-    manifest = store.get_manifest(suite_ref)
+    manifest = snapshot.manifest
     if (
         manifest.artifact_schema is None
         or manifest.artifact_schema.name != "polisyos.scientist.methods.autotune.BenchmarkSuite"

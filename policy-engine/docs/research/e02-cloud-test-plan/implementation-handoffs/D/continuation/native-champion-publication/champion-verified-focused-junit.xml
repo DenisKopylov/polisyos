@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="11" failures="0" skipped="0" tests="81" time="55.819" timestamp="2026-10-06T17:18:32.050325+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject" time="51.646" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_pending_and_completed_ids_survive_fresh_reader_and_failed_tell_rolls_back" time="0.165" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_stopped_checkpoint_is_terminal_and_wrong_rule_or_suite_refuses_without_effect" time="0.186" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal" time="0.143" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[version]" time="0.040" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[counter_bool]" time="0.043" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[history_count]" time="0.042" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[generator_cursor]" time="0.042" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_order]" time="0.046" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_huge]" time="0.045" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_origin_claim]" time="0.045" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[hard_limit_bool]" time="0.044" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[stage_a_integer]" time="0.042" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_carrier]" time="0.047" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[initial_carrier]" time="0.044" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_generator_without_checkpoint_contract_refuses_public_resume" time="0.028" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_pending_batch_order_survives_canonical_json_key_sorting" time="0.335" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_initial_sentinel_failure_resume_preserves_initial_termination" time="0.088" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_registered_checkpoint_facade_and_normal_contract_imports_do_not_load_runtime" time="0.292" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_write]" time="0.070" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_readback]" time="0.076" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]" time="0.051" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_readback]" time="0.065" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_custom_parameterized_objective_checkpoint_refuses_resume_instead_of_build_identity" time="0.026" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_stateless_evaluator_defaults_and_objective_parameters_bind_resume" time="0.028" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_warm_and_policy_configuration_changes_refuse_resume[warm_corpus]" time="0.026" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_warm_and_policy_configuration_changes_refuse_resume[policy_stack]" time="0.024" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_warm_and_policy_configuration_changes_refuse_resume[external_arbiter]" time="0.024" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_same_actual_warm_corpus_fresh_reader_preserves_training_and_current_history" time="0.110" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell" time="0.084" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_checkpoint_requires_exact_public_snapshot_profile_on_resume" time="0.023" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_actual_checkpoint_consumer_uses_one_public_verified_snapshot_without_split_reads" time="0.027" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_budget_constructor_refuses_invalid_present_scalar[True]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_budget_constructor_refuses_invalid_present_scalar[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_budget_constructor_refuses_invalid_present_scalar[nan]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_budget_constructor_refuses_invalid_present_scalar[inf]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_budget_constructor_refuses_invalid_present_scalar[-1]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_budget_constructor_refuses_invalid_present_scalar[0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_budget_constructor_refuses_invalid_present_scalar[maximum6]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-min_improvement]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-absolute_tolerance]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-min_improvement]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-absolute_tolerance]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-min_improvement]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-absolute_tolerance]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-min_improvement]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-absolute_tolerance]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-min_improvement]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-absolute_tolerance]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-min_improvement]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-absolute_tolerance]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[invalid1]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[True]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[True]" time="0.023" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.024" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[nan]" time="0.023" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[inf]" time="0.023" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[-1]" time="0.022" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[None]" time="0.021" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[cost6]" time="0.023" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_recorded_cost_public_owner_port_reopens_without_receipt_or_provider_origin_authority" time="0.044" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_recorded_memory_zero_is_available_without_durable_identity_or_measured_zero" time="0.005" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_original_v1_checkpoint_manifest_refuses_explicitly_before_effect" time="0.040" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[evaluator]" time="0.130" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[context]" time="0.130" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[callback]" time="0.135" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[codec]" time="0.136" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[opaque]" time="0.138" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_native_same_content_configuration_and_context_fresh_resume" time="0.149" /><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire]" time="0.003"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_decimal_recorded_owner_un in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_decimal_recorded_owner_un in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="tests.unit.scientist.methods.search.test_service_persistence" name="test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[canonical_tag]" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_decimal_recorded_owner_un in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[canonical_tag]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_decimal_recorded_owner_un in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_champion_verified_snapshot" name="test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_native_evaluator_registry in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_native_evaluator_registry in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_champion_verified_snapshot" name="test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_actual_reused_content_kee in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_actual_reused_content_kee in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_champion_verified_snapshot" name="test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_native_seed_incumbent_is_ in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_native_seed_incumbent_is_ in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_champion_verified_snapshot" name="test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_competing_native_writer_r in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_competing_native_writer_r in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_champion_verified_snapshot" name="test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[before-1]" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_actual_process_exit_aroun in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[before-1]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_actual_process_exit_aroun in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_champion_verified_snapshot" name="test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[after-2]" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_actual_process_exit_aroun in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[after-2]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_actual_process_exit_aroun in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="" name="test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[None]" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_ask_publication_live_stat in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[None]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_ask_publication_live_stat in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="" name="test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[put]" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_ask_publication_live_stat in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[put]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_ask_publication_live_stat in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase><testcase classname="" name="test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[readback]" time="0.001"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_ask_publication_live_stat in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_ask_publication_live_state_matches_fresh_acknowledged_checkpoint[readback]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+E               OSError: could not create numbered dir with prefix test_ask_publication_live_stat in /workspace/e02-D-continuation-receipts/champion-verified-focused-658681c942224fa5877c3d4cff18dc02 after 10 tries
+
+../../e02-D-locked-env/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError</error></testcase></testsuite></testsuites>

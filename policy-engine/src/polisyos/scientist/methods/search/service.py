@@ -132,6 +132,7 @@ class NativeSearchService:
         self._initial_candidate: dict[str, Any] | None = None
         self._initial_candidate_ids: set[str] = set()
         self._checkpoint_context: dict[str, Any] = {}
+        self._publication_blocked = False
 
     def _configuration(self, context: dict[str, Any] | None = None) -> dict[str, Any]:
         config = self.controller._config
@@ -391,6 +392,7 @@ class NativeSearchService:
 
     def checkpoint(self) -> ArtifactRef:
         """Persist an exact immutable replay view in the configured store."""
+        self._require_publication_ready()
         if self._store is None:
             raise ValueError("search_checkpoint_store_not_configured")
         generator = self.controller._generator
@@ -500,17 +502,18 @@ class NativeSearchService:
         started_at = datetime.fromisoformat(saved.started_at) if saved.started_at else None
         if started_at is not None and started_at.tzinfo is None:
             raise ValueError("search_resume_invalid_run_clock")
+        pending = checkpoint_value(saved.pending_candidates)
+        initial_candidate = checkpoint_value(saved.initial_candidate)
         # Strategies own atomic admission of their numerical/RNG state. No run
         # ledger or candidate ownership changes precede that admission.
         restore_generator(checkpoint_value(saved.generator_state))
         self.controller._config.stopping = stopping
         self.controller._run_state = state
-        pending = checkpoint_value(saved.pending_candidates)
         self._pending_candidates = {key: pending[key] for key in saved.pending_candidate_ids}
         self._initial_candidate_ids = set(saved.initial_candidate_ids)
         self._completed_candidate_ids = set(saved.completed_candidate_ids)
         self._ask_iteration = saved.ask_iteration
-        self._initial_candidate = checkpoint_value(saved.initial_candidate)
+        self._initial_candidate = initial_candidate
         self._started_at = started_at
         self._stopped_reason = saved.stopping_reason
         self._failure = saved.failure
@@ -546,6 +549,53 @@ class NativeSearchService:
         context: dict[str, Any],
     ) -> list[CandidateProposal]:
         """Generate proposals and retain candidate-ID ownership for ``tell``."""
+        self._require_publication_ready()
+        generator = self.controller._generator
+        get_state = getattr(generator, "get_state", None)
+        restore = getattr(generator, "set_state", None)
+        generator_before = (
+            deepcopy(get_state()) if callable(get_state) and callable(restore) else None
+        )
+        ledger_before = self.controller._run_state.snapshot()
+        stopping_before = deepcopy(self.controller._config.stopping)
+        pending_before = deepcopy(self._pending_candidates)
+        initial_ids_before = set(self._initial_candidate_ids)
+        initial_before = deepcopy(self._initial_candidate)
+        iteration_before = self._ask_iteration
+        context_before = dict(self._checkpoint_context)
+        ref_before = self.checkpoint_ref
+        try:
+            return self._ask_proposals(goal, search_space, context)
+        except Exception:
+            self.controller._run_state = ledger_before
+            self.controller._config.stopping = stopping_before
+            self._pending_candidates = pending_before
+            self._initial_candidate_ids = initial_ids_before
+            self._initial_candidate = initial_before
+            self._ask_iteration = iteration_before
+            self._checkpoint_context = context_before
+            self.checkpoint_ref = ref_before
+            if generator_before is not None:
+                try:
+                    restore(generator_before)
+                except Exception:
+                    self._publication_blocked = True
+            elif self._store is not None:
+                self._publication_blocked = True
+            if self.controller._diversity_enabled:
+                self._publication_blocked = True
+            raise
+
+    def _require_publication_ready(self) -> None:
+        if self._publication_blocked:
+            raise ValueError("search_publication_rollback_unavailable_reopen_last_acknowledged_ref")
+
+    def _ask_proposals(
+        self,
+        goal: dict[str, Any] | None,
+        search_space: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> list[CandidateProposal]:
         del goal, search_space
         self._checkpoint_context = dict(context)
         self.controller._prepare_service_run()
@@ -597,6 +647,7 @@ class NativeSearchService:
         evaluation: EvaluationBundle,
     ) -> TellResult:
         """Accept one previously asked evaluation through controller state."""
+        self._require_publication_ready()
         if not isinstance(candidate_id, str) or not candidate_id:
             raise KeyError(candidate_id)
         if candidate_id in self._completed_candidate_ids:

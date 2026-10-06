@@ -5,7 +5,7 @@ import threading
 import pytest
 from pydantic import ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.autotune import (
     BenchmarkEvaluation,
@@ -99,7 +99,7 @@ def _persist_candidate(
     return persist_mutation_artifact(
         store,
         DummyMutationConfig(value=value),
-        inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
     )
 
 
@@ -158,7 +158,7 @@ def _persist_evaluation(
     return persist_benchmark_evaluation(
         store,
         evaluation,
-        inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
     )
 
 
@@ -209,6 +209,9 @@ def test_autotune_persistence_helpers_accept_protocol_backed_store(tmp_path) -> 
 
         def get_bytes(self, artifact_id):
             return self._store.get_bytes(artifact_id)
+
+        def get_verified_snapshot(self, artifact_id):
+            return self._store.get_verified_snapshot(artifact_id)
 
         def put_json(self, obj, opts, *, canon_spec=None):
             return self._store.put_json(obj, opts, canon_spec=canon_spec)

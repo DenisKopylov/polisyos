@@ -1,0 +1,17 @@
+{
+  "source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+  "source_tree": "34d0333d489d065c78bbc4bbf9a9214283a4cb33",
+  "exit_code": 1,
+  "status": "ERROR_FIXTURE_SETUP",
+  "pass": 70,
+  "errors": 11,
+  "failures": 0,
+  "time_seconds": 55.82,
+  "observed_filesystem_available_bytes": 0,
+  "error": "pytest could not create numbered tmp_path directories after10tries",
+  "scope": "underlying errno not printed by framework; concurrent zero-free-space observation retained, no stronger errno inference",
+  "torch_loaded": false,
+  "botorch_loaded": false,
+  "gpytorch_loaded": false,
+  "not_a_suite_PASS": true
+}

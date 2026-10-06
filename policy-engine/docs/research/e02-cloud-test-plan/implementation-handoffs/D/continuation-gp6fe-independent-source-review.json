@@ -1,0 +1,80 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "unit": "D",
+  "reviewer": "funnel_owner",
+  "target_owner": "gp_witness",
+  "branch": "codex/e02-D-published-funnel",
+  "closure_ids": [],
+  "status": "PASS_WITHIN_READ_ONLY_SOURCE_AND_EXISTING_EVIDENCE_SCOPE",
+  "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+  "source_tree": "ae90a66a882ee9b434cd21554043d887056d75b2",
+  "source_delta_base_sha": "b06e7c2751fbbde1fa77d7a3a0482c17988897dc",
+  "evidence_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+  "documentation_companion_sha": "b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1",
+  "public_review_annotation_sha": "29836061dc86b95d574bb71b3adf15ac10a194ce",
+  "supported_profile_successor_sha": "9de48387c01e7437f31093829610bb461fa3defe",
+  "scope": "Independent full source review of the ordinary configured DOE/default typed codec/native fresh-resume path. No backend invocation, production/test edit, fixture issuer or authority subsystem by this reviewer.",
+  "reviewed_source_refs": {
+    "full_modules": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/models.py@6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py@6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "policy-engine/src/polisyos/scientist/methods/search/service.py@6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py@6fe84b7dbfd8342b543e798fdeacd9be38fba7eb"
+    ],
+    "actual_subject_consumer": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py@6fe84b7dbfd8342b543e798fdeacd9be38fba7eb#_history_identity/_history_to_evaluations",
+    "typed_checkpoint_contract": "policy-engine/src/polisyos/scientist/methods/search/contracts.py@6fe84b7dbfd8342b543e798fdeacd9be38fba7eb#SearchServiceCheckpoint",
+    "complete_defining_test": "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py@6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+    "existing_service_tests": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py@6fe84b7dbfd8342b543e798fdeacd9be38fba7eb; all four exact selectors and complete dependencies from final actual15 command inspected",
+    "companions": "policy-engine/README.md and policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml@b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1; actual298 annotation inspected"
+  },
+  "source_conclusions": [
+    "Ordinary SearchLoopSpec metadata is activated before controller creation; exact selected analysis/profile/purpose are resolved by the existing sensitivity adapter. No constructor-only scientific-effect proof is substituted.",
+    "Default PydanticMutationCodec projection is limited to exact canonical native generators and verified configured sensitivity metadata; meaningful semantic interventions and unknown mutation fields remain subject to strict typed rejection.",
+    "Selected sensitivity analysis is retained as an exact input in both candidate and evaluation manifests. Resume configuration binds the same full analysis/suite/policy/evaluator/codec profile.",
+    "Native service assigns history subject from persisted run ID and public candidate ID before publication. The actual BGC history consumer uses that subject as Evaluation.candidate_id. Whole next-proposal equality is preserved, followed by resumed evaluation/tell and a third fresh restore; the UUID carrier was not dropped from the oracle.",
+    "Pending/history/derived best/frontier identity and processed history digests validate before live restore. This is a bounded technical replay contract, not arbitrary checkpoint authenticity or evaluator/promotion authority.",
+    "Only canonical native generators gain the new candidate identity profile. Supported Sequence callers retain their existing contract, and old native profiles require original compatible reader or a new run."
+  ],
+  "evidence_binding": {
+    "deciding_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gp6fe-independent-source/binding-output.json",
+      "sha256": "1ed0447280ef5ecafec095243e499379ad6a09d401b651776e8691d6b08ed753",
+      "payload_commit": "2bbbc37237a7edbc430cd07363fa93d630e1af74"
+    },
+    "author_complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-complete.txt.gz@3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+    "author_JUnit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-junit.xml.gz@3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+    "actual_input_bytes_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/actual-input-bytes.json.xz@3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+    "actual_input_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/actual-input-index.json.gz@3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+    "verification": "All18 actual loaded module hashes independently compared with frozen6fe Git blobs. Complete final JUnit15/0fail/0error/0skip matches source6fe; all1217 content records base64/hash/size/index and retained original file bytes verified. Source/directory denominator is the entire two archived input lists across the eight named fresh producer basetemps, not repository-wide data."
+  },
+  "existing_runtime_scope": {
+    "author": "15PASS on exact6fe, pytest5.176s; actual SALib Morris8 trajectories/24 evaluations, native Sobol proposal, typed codec/CAS and supported fresh-resume tests. No numerical GP fit claim.",
+    "independent_runtime": "UNRUN by instruction; this review does not rename author15 as independent execution.",
+    "removal": "Two exact0188 removal children and their complete deciding failures reviewed; property methods match the final source as separately recorded by author. They remain0188 results, not new6fe runs.",
+    "historical_red": "0495PASS2FAIL, ccc1PASS1FAIL and f3204FAIL retained in original source-bound payload. They are not relabeled inherited or omitted."
+  },
+  "finding": {
+    "class": "supported_optional_backend_test_profile",
+    "location": "test_native_doe_factory.py::_generator at6fe",
+    "original_problem": "assert botorch_available with UNRUN text still creates pytest FAIL when optional backend is absent.",
+    "disposition": "Corrected test-only9de introduces existing pytest.importorskip for SALib/Torch/BoTorch/GPyTorch. Reviewed3 product modules byte-identical; numerical assertions preserved. Owner reports one actual available consumer PASS and missing-BoTorch controlled1SKIP/0collected exit5; this reviewer did not execute those children."
+  },
+  "public_compatibility_review": {
+    "inventory_ref": "policy-engine/architecture/public_surface/inventory.json@5eca5d0df09f3296aefe20a0797aa14837da01ff",
+    "contract_ref": "policy-engine/architecture/public_surface/contract.toml@5eca5d0df09f3296aefe20a0797aa14837da01ff",
+    "independent_existing_review_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/public-inventory-independent-review.json@4a4475c78938883b45a59133fc7d4cfea410b064",
+    "own_static_verification": "Complete literal Scientist exports independently reconcile to42 inventory names; NativeSearchService,SearchServiceCheckpoint,SearchLoopRunner are stable root aliases. Child search/autotune modules remain internal by explicit contract.",
+    "fragment_annotation": "298 binds actual inventory and existing independent review; reviewed=true applies only its five compatibility records. Real migration/runbook refs and recognized breaking labels agree with the technical profile refusal. No B ledger classification or whole-release/architecture PASS granted."
+  },
+  "remaining_limits": [
+    "Separate served hierarchical caller appointment/cutover and external owner handles remain explicit outside this ordinary native factory witness.",
+    "External evaluator/champion effects and checkpoint publication are separate atomic boundaries; no distributed exactly-once or permission grant.",
+    "Known typed replay configurations only; opaque/custom profiles remain bounded/refused.",
+    "Experimental coordinate ordering establishes neither optimization advantage nor a population law. Original scientific criteria and G formal finding acceptance remain separate."
+  ],
+  "own_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gp6fe-independent-source/binding-output.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gp6fe-independent-source-review.json"
+  ],
+  "preservation": "No product/test/source/output deletion or new backend environment writes. Original GP bytes/logs remain at their retained paths and exact committed payload. Normal own topic commits only."
+}

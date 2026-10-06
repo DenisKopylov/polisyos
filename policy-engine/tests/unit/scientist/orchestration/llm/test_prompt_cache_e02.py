@@ -1,0 +1,1029 @@
+"""Producer completion and authority falsifiers on the canonical LLM stack."""
+
+from __future__ import annotations
+
+import asyncio
+import hashlib
+import pickle
+import threading
+from contextlib import contextmanager, nullcontext
+from dataclasses import replace
+from decimal import Decimal
+from types import SimpleNamespace
+
+import pytest
+
+from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.llm.response import extract_llm_response_data
+from polisyos.core.llm.settlement import (
+    _cache_reuse_consumer_context,
+    _CacheReuseOwner,
+    _CacheReuseProvenance,
+    _request_digest,
+    producer_settlement,
+)
+from polisyos.core.llm.traced_client import LLMAccountingError, TracedLLMClient
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.tenant_context import (
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
+)
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
+from polisyos.scientist.orchestration.llm.factory import (
+    GatewayLLMConfig,
+    create_traced_gateway_client,
+)
+from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
+from polisyos.scientist.orchestration.llm.prompt_cache import (
+    CacheAdmissionUnsupportedError,
+    CacheReuseDecision,
+    CacheReuseDeniedError,
+    CachingLLMClient,
+    InMemoryPromptCache,
+)
+
+
+class _Span:
+    def set_attribute(self, *args):
+        pass
+
+    def set_status(self, *args):
+        pass
+
+    def record_exception(self, *args):
+        pass
+
+
+class _Tracer:
+    def start_as_current_span(self, *args, **kwargs):
+        return nullcontext(_Span())
+
+
+class _Gateway:
+    def __init__(self) -> None:
+        self.calls = 0
+        self.started = asyncio.Event()
+        self.release = asyncio.Event()
+
+    async def generate(self, **kwargs):
+        self.calls += 1
+        self.started.set()
+        await self.release.wait()
+        return GatewayLLMResponse(
+            content="provider value",
+            model="e02",
+            provider="synthetic",
+            request_id=f"request-{self.calls}",
+            usage=GatewayUsage(prompt_tokens=7, completion_tokens=3, cost_usd=0.02),
+        )
+
+
+def _stack(gateway: _Gateway, events: list, *, tracer=None):
+    cache = CachingLLMClient(gateway, cache=InMemoryPromptCache(), model="e02")
+    traced = TracedLLMClient(
+        cache,
+        model_name="e02",
+        tracer=tracer or _Tracer(),
+        metrics=SimpleNamespace(record_llm_call=lambda **kwargs: None),
+        required_accounting=events.append,
+        cache_reuse_owner=cache._cache_reuse_owner,
+    )
+    return cache, traced
+
+
+@pytest.mark.asyncio
+async def test_initiator_cancellation_cannot_erase_provider_completion() -> None:
+    gateway = _Gateway()
+    events = []
+    cache, client = _stack(gateway, events)
+    initiator = asyncio.create_task(client.generate(user="deterministic", temperature=0.0))
+    await gateway.started.wait()
+    initiator.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await initiator
+    gateway.release.set()
+    # Await the real producer, not a marker or arbitrary settling sleep.
+    await asyncio.gather(*(flight.task for flight in cache._inflight.values()))
+    reused = await client.generate(user="deterministic", temperature=0.0)
+    assert reused.content == "provider value"
+    assert gateway.calls == 1
+    charged = [event for event in events if event["provider_call"]]
+    assert len(charged) == 1
+    assert charged[0]["cost_usd"] == 0.02
+    assert len([event for event in events if not event["provider_call"]]) == 1
+
+
+@pytest.mark.asyncio
+async def test_optional_tracing_failure_preserves_actual_provider_result() -> None:
+    class BrokenTracer:
+        def start_as_current_span(self, *args, **kwargs):
+            raise RuntimeError("optional tracing unavailable")
+
+    gateway = _Gateway()
+    gateway.release.set()
+    events = []
+    _, client = _stack(gateway, events, tracer=BrokenTracer())
+    result = await client.generate(user="trace independent", temperature=0.0)
+    assert result.content == "provider value"
+    assert len(events) == 1
+    assert events[0]["cost_usd"] == 0.02
+
+
+@pytest.mark.asyncio
+async def test_metadata_permission_cannot_authorize_snapshot_reuse() -> None:
+    gateway = _Gateway()
+    gateway.release.set()
+    content = b"real snapshot bytes"
+    metadata = {
+        "cache_reuse": {
+            "snapshot": {
+                "ref": "artifact://evidence",
+                "version": "v1",
+                "immutable": True,
+                "content": content,
+                "content_hash": "sha256:" + hashlib.sha256(content).hexdigest(),
+            },
+            "permission": {"allowed": True, "tenant": "tenant-a", "scope": "scope-a"},
+            "tenant": "tenant-a",
+            "scope": "scope-a",
+        }
+    }
+    cache = CachingLLMClient(gateway, cache=InMemoryPromptCache(), model="e02")
+    await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+    await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+    assert gateway.calls == 2
+
+
+def _durable_stack(tmp_path, *, gateway=None, client=None, name="budget"):
+    gateway = gateway or _Gateway()
+    events = []
+    cache, traced = _stack(gateway, events)
+    middleware = BudgetMiddleware(
+        BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}),
+        ledger=FileBudgetLedger(tmp_path / f"{name}.json", ledger_id=f"ledger:{name}"),
+    )
+    enforcer = LLMBudgetEnforcer(
+        client=client or traced,
+        budget_state=middleware.budget_state,
+        budget_keys=["run"],
+        budget_middleware=middleware,
+        model_name="e02",
+        run_id="run-e02",
+    )
+    return gateway, cache, enforcer, middleware, events
+
+
+@pytest.mark.asyncio
+async def test_cancelled_initiator_settles_actual_ledger_before_cache_publication(tmp_path):
+    gateway, cache, enforcer, middleware, events = _durable_stack(tmp_path)
+    caller = asyncio.create_task(
+        enforcer.generate(user="durable", temperature=0.0, _prompt_tokens_estimate=1)
+    )
+    await gateway.started.wait()
+    caller.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await caller
+    assert middleware.budget_state.reserved["run"] > 0
+    gateway.release.set()
+    await asyncio.gather(*list(enforcer._owned_calls))
+    assert middleware.budget_state.spent["run"] == Decimal("0.02")
+    result = await enforcer.generate(user="durable", temperature=0.0, _prompt_tokens_estimate=1)
+    assert result.content == "provider value"
+    assert gateway.calls == 1
+    assert len([event for event in events if event["provider_call"]]) == 1
+    assert cache._cache.size == 1
+    charged = next(event for event in events if event["provider_call"])
+    # Reopen the actual filesystem consumer and resolve the producer-bound receipt.
+    reopened = FileBudgetLedger(tmp_path / "budget.json", ledger_id="ledger:budget")
+    event_id, digest = (
+        enforcer._ledger_event_identity(charged["producer_event"], "run")
+        if ("producer_event" in charged)
+        else (None, None)
+    )
+    settled = producer_settlement(result)
+    assert settled is not None
+    origin = settled.event.origin_event_id
+    assert origin is not None
+    key_id = f"{origin}:budget:{hashlib.sha256(b'run').hexdigest()}"
+    receipt = reopened.resolve_spend(key_id)
+    assert receipt.amount == Decimal("0.02")
+    assert reopened.load().reserved["run"] == 0
+    assert reopened.load().spent["run"] == Decimal("0.02")
+
+
+@pytest.mark.asyncio
+async def test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled(tmp_path, monkeypatch):
+    gateway, cache, enforcer, middleware, _ = _durable_stack(tmp_path)
+    gateway.release.set()
+    actual_settle = middleware.settle_spend_safe
+
+    def lose_ack(*args, **kwargs):
+        actual_settle(*args, **kwargs)
+        raise OSError("durable publication succeeded; ACK transport unavailable")
+
+    monkeypatch.setattr(middleware, "settle_spend_safe", lose_ack)
+    with pytest.raises(LLMAccountingError) as failure:
+        await enforcer.generate(user="unknown", temperature=0.0, _prompt_tokens_estimate=1)
+    event = failure.value.event["producer_event"]
+    assert failure.value.event["settlement_status"] == "unknown"
+    assert middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert middleware.budget_state.reserved["run"] > 0
+    assert cache._cache.size == 0
+    with pytest.raises(LLMAccountingError):
+        await enforcer.generate(user="unknown", temperature=0.0, _prompt_tokens_estimate=1)
+    assert gateway.calls == 1
+    monkeypatch.setattr(middleware, "settle_spend_safe", actual_settle)
+    ack = enforcer.reconcile_settlement(event)
+    assert ack.status == "committed" and ack.durability == "ledger"
+    assert (
+        actual_settle(
+            ack.receipts[0].event_id,
+            "run",
+            Decimal("0.02"),
+            provider="synthetic",
+            payload_digest=ack.receipts[0].payload_digest,
+        )
+        == ack.receipts[0]
+    )
+    assert middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert middleware.budget_state.reserved["run"] == 0
+
+
+@pytest.mark.asyncio
+async def test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider(
+    tmp_path, monkeypatch
+):
+    gateway, cache, enforcer, middleware, _ = _durable_stack(tmp_path)
+    gateway.release.set()
+    actual_settle = middleware.settle_spend_safe
+
+    def failed_delivery(*args, **kwargs):
+        raise OSError("settlement delivery unavailable before publication")
+
+    monkeypatch.setattr(middleware, "settle_spend_safe", failed_delivery)
+    with pytest.raises(LLMAccountingError) as failure:
+        await enforcer.generate(user="absent ACK", temperature=0.0, _prompt_tokens_estimate=1)
+    event = failure.value.event["producer_event"]
+    assert enforcer.reconcile_settlement(event).status == "unknown"
+    assert cache._cache.size == 0 and gateway.calls == 1
+    monkeypatch.setattr(middleware, "settle_spend_safe", actual_settle)
+    ack = enforcer.reconcile_settlement(event, retry_missing=True)
+    assert ack.status == "committed" and ack.receipts[0].amount == Decimal("0.02")
+    assert gateway.calls == 1 and middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert middleware.budget_state.reserved["run"] == 0
+    with pytest.raises(ValueError, match="retained producer"):
+        enforcer.reconcile_settlement(event, retry_missing=True)
+
+
+@pytest.mark.asyncio
+async def test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel(
+    tmp_path, monkeypatch
+):
+    gateway, cache, enforcer, middleware, events = _durable_stack(tmp_path)
+    entered, all_entered = 0, asyncio.Event()
+    actual_generate = cache.generate
+
+    async def observe_entry(*args, **kwargs):
+        nonlocal entered
+        entered += 1
+        if entered == 4:
+            all_entered.set()
+        return await actual_generate(*args, **kwargs)
+
+    monkeypatch.setattr(cache, "generate", observe_entry)
+    callers = [
+        asyncio.create_task(
+            enforcer.generate(user="shared owned", temperature=0.0, _prompt_tokens_estimate=1)
+        )
+        for _ in range(4)
+    ]
+    await all_entered.wait()
+    await gateway.started.wait()
+    callers[0].cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await callers[0]
+    gateway.release.set()
+    results = await asyncio.gather(*callers[1:])
+    await asyncio.gather(*list(enforcer._owned_calls))
+    assert gateway.calls == 1
+    assert [result.content for result in results] == ["provider value"] * 3
+    assert len([event for event in events if event["provider_call"]]) == 1
+    assert len([event for event in events if not event["provider_call"]]) == 3
+    assert middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert middleware.budget_state.reserved["run"] == 0
+    assert cache._cache.size == 1
+
+
+@pytest.mark.asyncio
+async def test_actual_cache_publication_requires_resolvable_exact_durable_receipt(
+    tmp_path, monkeypatch
+):
+    gateway, cache, enforcer, middleware, _ = _durable_stack(tmp_path)
+    gateway.release.set()
+    actual_put = cache._cache.put
+    publications = []
+
+    def witnessed_put(key, response, *, ttl_s=None, admission_check=None):
+        settlement = producer_settlement(response)
+        assert settlement is not None, "cache publication precedes producer event settlement"
+        assert settlement.ack.status == "committed" and settlement.ack.durability == "ledger"
+        for receipt in settlement.ack.receipts:
+            assert middleware.resolve_spend_safe(receipt.event_id) == receipt
+            assert receipt.amount == settlement.event.amount
+        assert middleware.budget_state.spent["run"] == Decimal("0.02")
+        publications.append(settlement)
+        return actual_put(key, response, ttl_s=ttl_s, admission_check=admission_check)
+
+    monkeypatch.setattr(cache._cache, "put", witnessed_put)
+    await enforcer.generate(user="publish bound", temperature=0.0, _prompt_tokens_estimate=1)
+    assert len(publications) == 1 and gateway.calls == 1
+
+
+@pytest.mark.asyncio
+async def test_different_actual_budget_owners_cannot_join_first_owners_flight(tmp_path):
+    gateway = _Gateway()
+    cache, traced = _stack(gateway, [])
+    _, _, first, first_budget, _ = _durable_stack(tmp_path, client=traced, name="first")
+    _, _, second, second_budget, _ = _durable_stack(tmp_path, client=traced, name="second")
+    requests = [
+        asyncio.create_task(owner.generate(user="same", temperature=0.0, _prompt_tokens_estimate=1))
+        for owner in (first, second)
+    ]
+    await gateway.started.wait()
+    # Wait on the actual owned task queue, then release physical producer work.
+    await asyncio.sleep(0)
+    gateway.release.set()
+    await asyncio.gather(*requests)
+    assert gateway.calls == 2
+    assert first_budget.budget_state.spent["run"] == Decimal("0.02")
+    assert second_budget.budget_state.spent["run"] == Decimal("0.02")
+    assert cache._cache.size == 2
+
+
+@contextmanager
+def _principal(actor="spiffe://local/e02/owner", tenant="tenant-a"):
+    token = set_current_access_scope(
+        AccessScope.for_service(tenant_id=tenant, cell_id="cell-a", spiffe_id=actor)
+    )
+    try:
+        with tenant_scope(None, tenant_id=tenant, cell_id="cell-a"):
+            yield
+    finally:
+        reset_current_access_scope(token)
+
+
+class _DeploymentReuseOwner:
+    """Versioned local owner policy, independently backed by actual CAS bytes."""
+
+    def __init__(self, store, ref, content):
+        self.store, self.ref, self.content = store, ref, content
+        self.epoch = "policy-1"
+        self.granted_actor = "spiffe://local/e02/owner"
+        self.allowed = True
+        self.decisions = []
+
+    def authorize_reuse(self, request):
+        self.decisions.append(request)
+        if (
+            not self.allowed
+            or request.actor_id != self.granted_actor
+            or request.tenant != "tenant-a"
+            or request.scope != "scope-a"
+            or request.purpose != "llm_snapshot_reuse"
+            or len(request.evidence) != 1
+        ):
+            return None
+        evidence = request.evidence[0]
+        if evidence.ref != str(self.ref.artifact_id) or evidence.version != "snapshot-v1":
+            return None
+        actual = self.store.get_bytes(self.ref)
+        if (
+            actual != self.content
+            or evidence.content != actual
+            or evidence.content_hash != "sha256:" + hashlib.sha256(actual).hexdigest()
+        ):
+            return None
+        return CacheReuseDecision(
+            issuer="deployment-owner:local-fixture",
+            epoch=self.epoch,
+            actor_id=request.actor_id,
+            tenant=request.tenant,
+            scope=request.scope,
+            purpose=request.purpose,
+            model=request.model,
+            parameters_digest=request.parameters_digest,
+            evidence=request.evidence,
+        )
+
+
+def _reuse_fixture(tmp_path):
+    content = b"actual owner-pinned immutable evidence"
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=True)
+    ref = store.put_bytes(content, PutOptions(kind="e02.reuse", media_type="text/plain"))
+    owner = _DeploymentReuseOwner(store, ref, content)
+    metadata = {
+        "cache_reuse": {
+            "tenant": "tenant-a",
+            "scope": "scope-a",
+            "snapshot": {
+                "ref": str(ref.artifact_id),
+                "version": "snapshot-v1",
+                "immutable": True,
+                "content": content,
+                "content_hash": "sha256:" + hashlib.sha256(content).hexdigest(),
+            },
+        }
+    }
+    return owner, metadata
+
+
+@pytest.mark.asyncio
+async def test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref(tmp_path):
+    with _principal():
+        owner, metadata = _reuse_fixture(tmp_path)
+        gateway = _Gateway()
+        gateway.release.set()
+        cache = CachingLLMClient(
+            gateway, cache=InMemoryPromptCache(), model="e02", reuse_authorizer=owner
+        )
+        await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        assert gateway.calls == 1
+        owner.epoch = "policy-2"
+        await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        assert gateway.calls == 2
+        owner.allowed = False
+        await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        assert gateway.calls == 3
+        owner.allowed = True
+        with _principal(actor="spiffe://local/e02/foreign"):
+            await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        assert gateway.calls == 4
+        metadata["cache_reuse"]["snapshot"]["ref"] = "artifact://readable-but-not-granted"
+        await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        assert gateway.calls == 5
+
+
+@pytest.mark.asyncio
+async def test_owner_revocation_while_follower_waits_prevents_shared_consumption(tmp_path):
+    with _principal():
+        owner, metadata = _reuse_fixture(tmp_path)
+        gateway = _Gateway()
+        cache = CachingLLMClient(
+            gateway, cache=InMemoryPromptCache(), model="e02", reuse_authorizer=owner
+        )
+        caller = asyncio.create_task(
+            cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        )
+        await gateway.started.wait()
+        follower = asyncio.create_task(
+            cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.sleep(0)
+        owner.allowed = False
+        gateway.release.set()
+        assert (await caller).content == "provider value"
+        with pytest.raises(CacheReuseDeniedError):
+            await follower
+        assert gateway.calls == 1 and cache._cache.size == 0
+
+
+@pytest.mark.asyncio
+async def test_canonical_factory_consumes_actual_owner_decision(tmp_path, monkeypatch):
+    with _principal():
+        owner, metadata = _reuse_fixture(tmp_path)
+        gateway = _Gateway()
+        gateway.release.set()
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.llm.factory.GatewayLLMClient",
+            lambda **kwargs: gateway,
+        )
+        client = create_traced_gateway_client(
+            model_name="e02",
+            cache_reuse_authorizer=owner,
+            config=GatewayLLMConfig(
+                base_url="https://synthetic.invalid",
+                api_key="fixture",
+                enable_prompt_sanitizer=False,
+            ),
+            tracer=_Tracer(),
+            metrics=SimpleNamespace(record_llm_call=lambda **kw: None),
+        )
+        await client.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        await client.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        assert gateway.calls == 1 and len(owner.decisions) >= 3
+        owner.allowed = False
+        await client.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        assert gateway.calls == 2
+
+
+@pytest.mark.asyncio
+async def test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner(tmp_path):
+    gateway = _Gateway()
+
+    class InvokeProvider:
+        async def ainvoke(self, prompt, **kwargs):
+            return await gateway.generate(user=prompt, **kwargs)
+
+        def invoke(self, prompt, **kwargs):
+            return GatewayLLMResponse(
+                content=prompt, model="e02", provider="synthetic", usage=GatewayUsage(cost_usd=0.03)
+            )
+
+    traced = TracedLLMClient(
+        InvokeProvider(),
+        model_name="e02",
+        tracer=_Tracer(),
+        metrics=SimpleNamespace(record_llm_call=lambda **kw: None),
+    )
+    _, _, enforcer, middleware, _ = _durable_stack(tmp_path, client=traced)
+    caller = asyncio.create_task(enforcer.ainvoke("owned invoke", _prompt_tokens_estimate=1))
+    await gateway.started.wait()
+    caller.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await caller
+    gateway.release.set()
+    results = await asyncio.gather(*list(enforcer._owned_calls))
+    assert producer_settlement(results[0]).ack.durability == "ledger"
+    result = enforcer.invoke("sync invoke", _prompt_tokens_estimate=1)
+    assert producer_settlement(result).ack.durability == "ledger"
+    assert middleware.budget_state.spent["run"] == Decimal("0.05")
+    assert middleware.budget_state.reserved["run"] == 0
+
+
+@pytest.mark.asyncio
+async def test_unknown_mandatory_callback_blocks_new_provider_until_exact_reconciliation():
+    gateway = _Gateway()
+    gateway.release.set()
+    available = [False]
+    recorded = []
+
+    def actual_required_owner(event):
+        if not available[0]:
+            raise OSError("required event delivery unavailable")
+        recorded.append(event)
+
+    client = TracedLLMClient(
+        gateway,
+        model_name="e02",
+        tracer=_Tracer(),
+        metrics=SimpleNamespace(record_llm_call=lambda **kw: None),
+        required_accounting=actual_required_owner,
+    )
+    with pytest.raises(LLMAccountingError) as failure:
+        await client.generate(user="required owner", temperature=0.0)
+    with pytest.raises(LLMAccountingError):
+        await client.generate(user="next independent provider", temperature=0.0)
+    assert gateway.calls == 1
+    available[0] = True
+    client.reconcile_accounting(failure.value.event["event_identity"])
+    assert len(recorded) == 1 and recorded[0]["cost_usd"] == 0.02
+    assert gateway.calls == 1
+    await client.generate(user="next independent provider", temperature=0.0)
+    assert gateway.calls == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("keys", [["run", "run"], [], "run", ["run", ""], ["run", 1]])
+async def test_invalid_accounting_target_index_refuses_before_actual_provider_or_reservation(
+    tmp_path, keys
+):
+    gateway, cache, _, middleware, _ = _durable_stack(tmp_path)
+    gateway.release.set()
+    before = middleware.budget_state.model_dump()
+    invalid = None
+    try:
+        owner = LLMBudgetEnforcer(
+            client=TracedLLMClient(
+                cache,
+                model_name="e02",
+                tracer=_Tracer(),
+                metrics=SimpleNamespace(record_llm_call=lambda **kw: None),
+            ),
+            budget_state=middleware.budget_state,
+            budget_keys=keys,
+            budget_middleware=middleware,
+            model_name="e02",
+        )
+        await owner.generate(
+            user="invalid target index", temperature=0.0, _prompt_tokens_estimate=1
+        )
+    except ValueError as error:
+        invalid = error
+    assert gateway.calls == 0
+    assert middleware.budget_state.model_dump() == before
+    assert invalid is not None
+
+
+@pytest.mark.asyncio
+async def test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh(
+    tmp_path,
+):
+    class SuppressingGateway(_Gateway):
+        def __init__(self):
+            super().__init__()
+            self.cancel_observed = asyncio.Event()
+
+        async def generate(self, **kwargs):
+            self.calls += 1
+            self.started.set()
+            try:
+                await self.release.wait()
+            except asyncio.CancelledError:
+                self.cancel_observed.set()
+                await self.release.wait()
+            return GatewayLLMResponse(
+                content="late physical response",
+                model="e02",
+                provider="synthetic",
+                request_id=f"late-request-{self.calls}",
+                usage=GatewayUsage(prompt_tokens=7, completion_tokens=3, cost_usd=0.02),
+            )
+
+    gateway = SuppressingGateway()
+    _, cache, enforcer, middleware, events = _durable_stack(tmp_path, gateway=gateway)
+    cache._inflight_timeout_s = 0.03
+    first = asyncio.create_task(
+        enforcer.generate(user="shared deadline", temperature=0.0, _prompt_tokens_estimate=1)
+    )
+    await gateway.started.wait()
+    follower = asyncio.create_task(
+        enforcer.generate(user="shared deadline", temperature=0.0, _prompt_tokens_estimate=1)
+    )
+    await gateway.cancel_observed.wait()
+    gateway.release.set()
+    results = await asyncio.gather(first, follower, return_exceptions=True)
+    assert all(isinstance(result, TimeoutError) for result in results)
+    assert gateway.calls == 1 and cache._cache.size == 0 and cache._inflight == {}
+    assert middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert middleware.budget_state.reserved["run"] == 0
+    assert len([event for event in events if event["provider_call"]]) == 1
+    # A later request is a fresh paid provider call, never a hit on the expired result.
+    result = await enforcer.generate(
+        user="shared deadline", temperature=0.0, _prompt_tokens_estimate=1
+    )
+    assert result.content == "late physical response" and gateway.calls == 2
+    assert middleware.budget_state.spent["run"] == Decimal("0.04")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("boundary", ["completion", "publication"])
+async def test_deadline_covers_mandatory_completion_and_actual_cache_lock(tmp_path, boundary):
+    gateway, cache, enforcer, middleware, events = _durable_stack(tmp_path)
+    cache._inflight_timeout_s = 0.02
+    entered, release = threading.Event(), threading.Event()
+
+    def release_after_budget():
+        assert entered.wait(1.0)
+        # This finite wait is the tested clock expiry, not a settling heuristic.
+        release.wait(0.06)
+        release.set()
+
+    timer = threading.Thread(target=release_after_budget)
+    timer.start()
+    holder = None
+    if boundary == "completion":
+        gateway.release.set()
+        traced = enforcer._client
+        original = traced._required_accounting
+
+        def complete_after_budget(event):
+            entered.set()
+            assert release.wait(1.0)
+            original(event)
+
+        traced._required_accounting = complete_after_budget
+    caller = asyncio.create_task(
+        enforcer.generate(user=f"boundary-{boundary}", temperature=0.0, _prompt_tokens_estimate=1)
+    )
+    if boundary == "publication":
+        await gateway.started.wait()
+
+        def hold_publication_lock():
+            with cache._cache._lock:
+                entered.set()
+                assert release.wait(1.0)
+
+        holder = threading.Thread(target=hold_publication_lock)
+        holder.start()
+        assert entered.wait(1.0)
+        gateway.release.set()
+    try:
+        with pytest.raises(TimeoutError):
+            await caller
+        assert cache._cache.size == 0 and gateway.calls == 1
+        assert middleware.budget_state.spent["run"] == Decimal("0.02")
+        assert middleware.budget_state.reserved["run"] == 0
+        assert len([event for event in events if event["provider_call"]]) == 1
+    finally:
+        release.set()
+        timer.join(1.0)
+        if holder is not None:
+            holder.join(1.0)
+        assert not timer.is_alive() and (holder is None or not holder.is_alive())
+
+
+@pytest.mark.asyncio
+async def test_cached_emission_rechecks_actual_owner_after_cache_read(tmp_path, monkeypatch):
+    with _principal():
+        owner, metadata = _reuse_fixture(tmp_path)
+        gateway = _Gateway()
+        gateway.release.set()
+        cache = CachingLLMClient(
+            gateway, cache=InMemoryPromptCache(), model="e02", reuse_authorizer=owner
+        )
+        await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        actual_get = cache._cache.get
+
+        def revoke_after_read(key):
+            response = actual_get(key)
+            assert response is not None
+            owner.epoch = "revoked-after-cache-read"
+            return response
+
+        monkeypatch.setattr(cache._cache, "get", revoke_after_read)
+        with pytest.raises(CacheReuseDeniedError):
+            await cache.generate(user="https://source.invalid", metadata=metadata, temperature=0.0)
+        assert gateway.calls == 1
+
+
+@pytest.mark.asyncio
+async def test_bounded_flight_refuses_unsupported_cache_before_provider():
+    class LegacyCache:
+        def get(self, key):
+            return None
+
+        def put(self, key, response, ttl_s):
+            raise AssertionError("unsupported publication must not be reached")
+
+    gateway = _Gateway()
+    gateway.release.set()
+    client = CachingLLMClient(gateway, cache=LegacyCache(), model="e02", inflight_timeout_s=0.05)
+    with pytest.raises(CacheAdmissionUnsupportedError):
+        await client.generate(user="bounded legacy cache", temperature=0.0)
+    assert gateway.calls == 0 and client._inflight == {}
+
+
+@pytest.mark.asyncio
+async def test_expired_response_unknown_ack_remains_primary_and_retains_actual_event(
+    tmp_path, monkeypatch
+):
+    class LateGateway(_Gateway):
+        async def generate(self, **kwargs):
+            self.calls += 1
+            try:
+                await self.release.wait()
+            except asyncio.CancelledError:
+                return GatewayLLMResponse(
+                    content="observed paid response",
+                    model="e02",
+                    provider="synthetic",
+                    request_id="unknown-late",
+                    usage=GatewayUsage(prompt_tokens=7, completion_tokens=3, cost_usd=0.02),
+                )
+
+    gateway = LateGateway()
+    _, cache, enforcer, middleware, _ = _durable_stack(tmp_path, gateway=gateway)
+    cache._inflight_timeout_s = 0.01
+
+    def lose_ack(*args, **kwargs):
+        raise OSError("no durable acknowledgement available")
+
+    monkeypatch.setattr(middleware, "settle_spend_safe", lose_ack)
+    with pytest.raises(LLMAccountingError) as failure:
+        await enforcer.generate(user="expired unknown", temperature=0.0, _prompt_tokens_estimate=1)
+    event = failure.value.event["producer_event"]
+    assert event.amount == Decimal("0.02")
+    assert failure.value.event["settlement_status"] == "unknown"
+    assert enforcer.reconcile_settlement(event).status == "unknown"
+    assert cache._cache.size == 0 and middleware.budget_state.reserved["run"] > 0
+    with pytest.raises(LLMAccountingError):
+        await enforcer.generate(user="expired unknown", temperature=0.0, _prompt_tokens_estimate=1)
+    assert gateway.calls == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("suppress_then_raise", [False, True])
+async def test_deadline_preserves_cooperative_timeout_and_actual_provider_error(
+    suppress_then_raise,
+):
+    class FailingGateway(_Gateway):
+        async def generate(self, **kwargs):
+            self.calls += 1
+            try:
+                await self.release.wait()
+            except asyncio.CancelledError:
+                if suppress_then_raise:
+                    raise ValueError("actual provider failure") from None
+                raise
+
+    gateway = FailingGateway()
+    cache, client = _stack(gateway, [])
+    cache._inflight_timeout_s = 0.01
+    expected = ValueError if suppress_then_raise else TimeoutError
+    with pytest.raises(expected):
+        await client.generate(user="primary failure", temperature=0.0)
+    assert gateway.calls == 1 and cache._cache.size == 0 and cache._inflight == {}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("claim", ["class-name", "mapping", "wrong-seal"])
+@pytest.mark.parametrize("traced", [True, False])
+async def test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability(
+    tmp_path, claim, traced
+):
+    claimed_type = type(
+        "_CacheReuseGatewayResponse",
+        (GatewayLLMResponse,),
+        {
+            "__module__": "provider_claim.prompt_cache",
+            "_polisyos_cache_hit": True,
+            "_polisyos_reuse_event_id": "claimed-reuse",
+            "_polisyos_cache_key": "claimed-key",
+        },
+    )
+    response = claimed_type(
+        content="actual paid response",
+        model="e02",
+        provider="synthetic",
+        request_id="provider-paid",
+        usage=GatewayUsage(prompt_tokens=7, completion_tokens=3, cost_usd=0.02),
+    )
+    if claim == "mapping":
+        response._polisyos_cache_reuse_provenance = {
+            "owner": "declared-cache-owner",
+            "cache_key": "claimed-key",
+        }
+    elif claim == "wrong-seal":
+        owner = _CacheReuseOwner()
+        response._polisyos_cache_reuse_provenance = _CacheReuseProvenance(
+            owner, object(), "claimed-key", "claimed-reuse"
+        )
+    parsed = extract_llm_response_data(response)
+    assert not parsed.cache_hit and parsed.cost_usd == 0.02
+
+    class ClaimedProvider(_Gateway):
+        async def generate(self, **kwargs):
+            self.calls += 1
+            return response
+
+    gateway = ClaimedProvider()
+    _, cache, enforcer, middleware, events = _durable_stack(
+        tmp_path, gateway=gateway, client=None if traced else gateway
+    )
+    result = await enforcer.generate(user="paid claim", temperature=0.0, _prompt_tokens_estimate=1)
+    assert gateway.calls == 1 and middleware.budget_state.spent["run"] == Decimal("0.02")
+    reopened = FileBudgetLedger(tmp_path / "budget.json", ledger_id="ledger:budget")
+    assert reopened.load().spent["run"] == Decimal("0.02")
+    if traced:
+        settlement = producer_settlement(result)
+        assert settlement.event.kind == "provider" and len(settlement.ack.receipts) == 1
+        await enforcer.generate(user="paid claim", temperature=0.0, _prompt_tokens_estimate=1)
+        assert gateway.calls == 1 and cache._cache.size == 1
+        assert middleware.budget_state.spent["run"] == Decimal("0.02")
+        assert len([event for event in events if event["provider_call"]]) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("same_request", [False, True])
+async def test_actual_physical_completion_cannot_borrow_authentic_reuse_capability(
+    tmp_path, same_request
+):
+    class BorrowingProvider(_Gateway):
+        borrowed = None
+
+        async def generate(self, **kwargs):
+            if self.borrowed is not None:
+                self.calls += 1
+                return self.borrowed
+            return await super().generate(**kwargs)
+
+    gateway = BorrowingProvider()
+    gateway.release.set()
+    _, cache, enforcer, middleware, events = _durable_stack(tmp_path, gateway=gateway)
+    first = await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
+    reused = await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
+    # A bare parser has no receiver configuration and cannot assert reuse billing.
+    assert not extract_llm_response_data(reused).cache_hit
+    with _cache_reuse_consumer_context(
+        cache._cache_reuse_owner,
+        _request_digest({"args": (), "kwargs": {"user": "original", "temperature": 0.0}}),
+    ):
+        assert extract_llm_response_data(reused).cache_hit
+    with pytest.raises(TypeError, match="cannot be serialized"):
+        pickle.dumps(reused._polisyos_cache_reuse_provenance)
+    gateway.borrowed = reused.response
+    if same_request:
+        cache._cache.clear()
+    fresh = await enforcer.generate(
+        user="original" if same_request else "physical new",
+        temperature=0.0,
+        _prompt_tokens_estimate=1,
+    )
+    first_settlement, fresh_settlement = producer_settlement(first), producer_settlement(fresh)
+    assert fresh_settlement.event.kind == "provider" and fresh_settlement.event.amount == Decimal(
+        "0.02"
+    )
+    assert fresh_settlement.event.event_id != first_settlement.event.event_id
+    assert len(fresh_settlement.ack.receipts) == 1
+    assert middleware.budget_state.spent["run"] == Decimal("0.04")
+    assert gateway.calls == 2 and cache._cache.size == (1 if same_request else 2)
+    assert len([event for event in events if event["provider_call"]]) == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "claim", ["new-issuer", "other-cache-issuer", "wrong-request", "wrong-key", "caller-kwargs"]
+)
+async def test_receiver_binds_cache_issuer_and_exact_consumption(tmp_path, monkeypatch, claim):
+    gateway, cache, enforcer, middleware, events = _durable_stack(tmp_path)
+    gateway.release.set()
+    await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
+    reused = await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
+    assert gateway.calls == 1 and middleware.budget_state.spent["run"] == Decimal("0.02")
+    assert producer_settlement(reused).event.kind == "reuse"
+    prior = reused._polisyos_cache_reuse_provenance
+    other_cache = CachingLLMClient(_Gateway(), cache=InMemoryPromptCache(), model="e02")
+
+    class PaidResponse(GatewayLLMResponse):
+        pass
+
+    kwargs = {"user": "original", "temperature": 0.0}
+    if claim == "wrong-request":
+        kwargs["user"] = "different exact request"
+    elif claim == "caller-kwargs":
+        kwargs["cache_reuse_owner"] = {"issuer": "caller-asserted", "scope": "run"}
+    digest = _request_digest({"args": (), "kwargs": kwargs})
+
+    async def actual_paid_completion(**provider_kwargs):
+        observed = await gateway.generate(**provider_kwargs)
+        response = PaidResponse(
+            content=observed.content,
+            model=observed.model,
+            provider=observed.provider,
+            usage=observed.usage,
+            request_id=observed.request_id,
+        )
+        if claim in {"new-issuer", "caller-kwargs"}:
+            provenance = _CacheReuseOwner().issue(prior.cache_key, digest)
+        elif claim == "other-cache-issuer":
+            provenance = other_cache._cache_reuse_owner.issue(prior.cache_key, digest)
+        elif claim == "wrong-key":
+            provenance = replace(prior, cache_key="different authenticated cache key")
+        else:
+            provenance = prior
+        response._polisyos_cache_reuse_provenance = provenance
+        return response
+
+    # Exercise the receiver of the genuine configured cache emitter with a real
+    # paid response carrying borrowed/foreign data, rather than a parser-only flag.
+    monkeypatch.setattr(cache, "generate", actual_paid_completion)
+    result = await enforcer.generate(**kwargs, _prompt_tokens_estimate=1)
+    settled = producer_settlement(result)
+    assert settled.event.kind == "provider" and settled.event.amount == Decimal("0.02")
+    assert len(settled.ack.receipts) == 1
+    assert gateway.calls == 2 and middleware.budget_state.spent["run"] == Decimal("0.04")
+    reopened = FileBudgetLedger(tmp_path / "budget.json", ledger_id="ledger:budget")
+    assert reopened.load().spent["run"] == Decimal("0.04")
+    assert len([event for event in events if event["provider_call"]]) == 2
+
+
+@pytest.mark.asyncio
+async def test_unconfigured_receiver_bills_self_appointed_actual_provider(tmp_path):
+    class PaidResponse(GatewayLLMResponse):
+        pass
+
+    class RawProvider(_Gateway):
+        async def generate(self, **kwargs):
+            self.calls += 1
+            response = PaidResponse(
+                content="actual raw provider",
+                model="e02",
+                provider="synthetic",
+                usage=GatewayUsage(prompt_tokens=7, completion_tokens=3, cost_usd=0.02),
+            )
+            response._polisyos_cache_reuse_provenance = _CacheReuseOwner().issue("self-appointed")
+            return response
+
+    raw = RawProvider()
+    receiver = TracedLLMClient(
+        raw, tracer=_Tracer(), metrics=SimpleNamespace(record_llm_call=lambda **_: None)
+    )
+    _, _, enforcer, middleware, _ = _durable_stack(tmp_path, gateway=raw, client=receiver)
+    result = await enforcer.generate(user="raw provider", _prompt_tokens_estimate=1)
+    settled = producer_settlement(result)
+    assert raw.calls == 1 and settled.event.kind == "provider"
+    assert len(settled.ack.receipts) == 1 and middleware.budget_state.spent["run"] == Decimal(
+        "0.02"
+    )
+
+
+def test_receiver_configuration_refuses_another_clients_issuer():
+    first = CachingLLMClient(_Gateway(), cache=InMemoryPromptCache(), model="e02")
+    second = CachingLLMClient(_Gateway(), cache=InMemoryPromptCache(), model="e02")
+    with pytest.raises(ValueError, match="configured cache client"):
+        TracedLLMClient(first, cache_reuse_owner=second._cache_reuse_owner)

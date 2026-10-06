@@ -1,0 +1,15 @@
+{
+  "head": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+  "tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+  "caps": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null
+  },
+  "captured_at_utc": "2026-10-06T17:43:58Z",
+  "scratch_location": "/tmp/e02-B-current-execution-state/checkpoint-deadline",
+  "original_ENOSPC": "Both property-removal capture attempts failed before fork and remained UNRUN; no owncleanup."
+}

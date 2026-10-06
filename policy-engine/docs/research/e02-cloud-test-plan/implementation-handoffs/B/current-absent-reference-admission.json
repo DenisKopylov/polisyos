@@ -1,0 +1,93 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-absent-reference-admission",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "c1d031ed48134a2c084b937f0275884aeb40971c",
+  "implementation_commits": [
+    "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad"
+  ],
+  "candidate_sha": "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad",
+  "candidate_tree_sha": "a03b766a9662abee10750103477c73746fac6934",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "id": "independent-source-origin-negative",
+      "target_sha": "c1d031ed48134a2c084b937f0275884aeb40971c",
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review.json",
+      "outcome": "FAIL",
+      "environment": "EXE stdlib tracing real pinned Git metadata main; no pytest/collection/product/gates",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-full-output.txt",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-full-output.txt",
+      "qualification": "Original guard FAIL preserved;229real18missing with14canonical+4incidental. Original annotation suffix bug qualified and normalized origins independently committed."
+    },
+    {
+      "id": "independent-generic-resolution-and-namespace",
+      "target_sha": "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad",
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review.json",
+      "outcome": "PASS",
+      "environment": "Independent EXE controlled AST only, no pytest/collection/product/gates",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/ff54-controls.json",
+      "qualification": "Fivecontrols for empty/partial/fullmaps and invalidexactbody. Complete launcherbytes normalizedreplace equal, no executable operationdelta;19originalgrammar controls not rerun/relabelled."
+    },
+    {
+      "id": "author-full-pinned-metadata-preflight",
+      "target_sha": "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad",
+      "command": [
+        "python3",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "--repo",
+        "/workspace/e02-B-current-coordination",
+        "--sha",
+        "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad",
+        "--equivalents",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+        "--output",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/prefreeze-ff-selector.json",
+        "--raw-output",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/prefreeze-ff-selector-lineage.json"
+      ],
+      "outcome": "PASS",
+      "environment": "Own CPython3.14.2 immutableGit source-reader; no pytest/collection/product/gates",
+      "input_closure": "Canonical25bundles/60findings/561routes/189cells and all recorded source/receipt inputs pinnedGit; exact map atsameSHA",
+      "output": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/prefreeze-ff-selector.json",
+        "sha256": "6b9b82124260eb718e81bc80c4d47c1b1ffba78dea6230bd7607617c321f0545",
+        "bytes": 642373
+      },
+      "qualification": "Ignored derivation not independent receiver proof; rerun exact metadata command to recover inputs.229wholefiles;14canonical+4incidentalUNRUN, runtimecases UNRUN."
+    }
+  ],
+  "property": {
+    "statement": "Absent source references always remain UNRUN; canonical admission and reviewed equivalence are explicit independent attributes. A mapping never turns an absent body into executed PASS.",
+    "runtime_path": [
+      "immutable canonical plans and committed source/evidence refs",
+      "pinned tracked membership and map exactbody validation",
+      "explicit absent-reference admission record",
+      "actual existing native files argument list"
+    ],
+    "proxy_divergence": "Map coverage of every source literal blocked the complete cohort on four synthetic oracle constants, despite all canonical14 mapped and all229actual nativefiles resolved.",
+    "negative_controls": [
+      "Full c1guard failure unchanged",
+      "Independent five genericmap/admission controls and invalidexactbody refusal"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Metadatainput admission repaired; actual newcohort and all60closure remain UNRUN/pending.",
+  "P40": "Generic tuple(existence,canonical-plan membership,reviewed mapping) applied to every missing reference; no percase path exclusion or invented control mapping.",
+  "limitations_and_next_owner": [
+    "Static source mentions remain separately qualified conservative input lineage, never runtime invocation evidence.",
+    "Partial/unknown grammar and @args remain unresolved as previouslydeclared; allactual existingcases measured only by finalpytest.",
+    "Six c1gates actualFAIL retained in c1-preparation-evidence; no P41 inherited waiver. c1cohort/parityUNRUN.",
+    "Newnamespace terminal-final prevents oldoutputs overwrite; no product/test/source behavior changed by this repair."
+  ],
+  "preparation_attempt_custody": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/c1-preparation-evidence/custody.json"
+}

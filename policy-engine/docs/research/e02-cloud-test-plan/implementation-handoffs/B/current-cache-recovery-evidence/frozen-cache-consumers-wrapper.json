@@ -1,0 +1,73 @@
+{
+  "source_sha": "79b2a7095b15f159d0ca168e8c15a8f94727b685",
+  "source_tree": "83257a7fa1e67c06453b2086431d356a841fee89",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "ffbc81f6c2d0e3aed328c77c1d943bb974554d2b543f402922fa6fb1a615b1d7",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+    "policy-engine/tests/unit/remediation/test_res_01.py",
+    "policy-engine/tests/unit/remediation/test_res_02.py",
+    "policy-engine/tests/unit/remediation/test_exe_02.py",
+    "policy-engine/tests/unit/scientist/mirror_contracts/test_local_runner.py",
+    "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+    "policy-engine/tests/unit/common/test_async_tools.py",
+    "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/input-closure.json",
+    "sha256": "f0859757c66cf997cd0d44ccaa38fd4dd39381906f58afc88142c19b28bdfe6c",
+    "paths": 2748,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T10:08:15.197891+00:00",
+  "end_utc": "2026-10-06T10:09:42.949024+00:00",
+  "wall_s": 87.63391098100692,
+  "max_rss_kib": 723268,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/cohort.xml",
+      "sha256": "44b642e705d11be3620e29bd1a13ea8fe848e2498a161a51be3113ed5eb80f36",
+      "bytes": 90044
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/input-closure.json",
+      "sha256": "f0859757c66cf997cd0d44ccaa38fd4dd39381906f58afc88142c19b28bdfe6c",
+      "bytes": 522180
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/native.txt",
+      "sha256": "db5b4b89041de897253e2eca42160c5a7fcd0d074b3ecff0667cca482a2db7c7",
+      "bytes": 54152
+    }
+  ]
+}

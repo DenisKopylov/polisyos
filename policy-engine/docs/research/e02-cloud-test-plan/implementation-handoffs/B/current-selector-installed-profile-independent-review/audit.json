@@ -1,0 +1,416 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "scope": "Prospective selector installed-profile role readiness only; immutable Git/source reads. No selector/native/collection/build/gates/probes.",
+  "metadata_driver_failure": {
+    "state": "FAIL metadata operation only",
+    "exit": 1,
+    "reason": "Reviewer manually asserted add.lineno==145; actual immutable source AST line is142. Original and replay both stopped before role-input evaluation. Not selector invocation, native result or product failure.",
+    "original_driver_source_utf8": "\"\"\"Read frozen selector/input roles only; never invoke selector, pytest or a gate.\"\"\"\nimport ast,hashlib,json,pathlib,platform,resource,subprocess,sys,time\nfrom datetime import UTC,datetime\nREPO=pathlib.Path('/workspace/e02-B-current-runtime')\nROOT='0fdc39831bc95f059dd220c054494fd410bde9da'\nOWNER='02b14aa0928fa32da6b46fa5169605d59e71d9ac'\nPREP='d760672190fd00237d499aa6f2b62ef276ca0b5a'\nBASE='f3858797fe2546d2230a13a6b3a1adeb9328afcb'\nPREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'\nSELECTOR=PREFIX+'final-cohort-selector.py'\nOUTER='policy-engine/tests/unit/common/test_async_tools_installed_wheel.py'\nHELPER='policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py'\nLAUNCHER=PREFIX+'current-installed-wheel-independent-evidence/launcher.py'\nPREPARATION=PREFIX+'current-installed-wheel-independent-preparation.json'\nAUDIT=PREFIX+'current-installed-wheel-source-independent-review/audit.json'\nT0=time.monotonic(); START=datetime.now(UTC).isoformat()\ndef git(*argv): return subprocess.check_output(['git',*argv],cwd=REPO)\ndef data(sha,path): return git('show',f'{sha}:{path}')\ndef ref(sha,path):\n b=data(sha,path)\n return {'source_sha':sha,'path':path,'git_blob':git('rev-parse',f'{sha}:{path}').decode().strip(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}\ndef snapshot(): return {'head':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'status':git('status','--porcelain','--untracked-files=all').decode()}\ndef snippet(path,start,end):\n lines=data(ROOT,path).decode().splitlines(keepends=True)\n b=''.join(lines[start-1:end])\n return {'source_ref':ref(ROOT,path),'line_start':start,'line_end':end,'source_utf8':b,'snippet_sha256':hashlib.sha256(b.encode()).hexdigest()}\nbefore=snapshot()\nselector=data(ROOT,SELECTOR)\ntree=ast.parse(selector)\nadd=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='add')\nassert add.lineno==145\nrole_refs=[]\nfor path,peer in [(OUTER,OWNER),(HELPER,OWNER),(LAUNCHER,OWNER),(PREPARATION,PREP)]:\n assert data(ROOT,path)==data(peer,path)\n role_refs.append({'root':ref(ROOT,path),'author':ref(peer,path),'full_bytes_equal':True})\nprior=json.loads(data(BASE,AUDIT))\nassert prior['reviewed_input_sha']==OWNER\nassert prior['ast_comparison']['direct_full_ast_equal']\nprep=json.loads(data(ROOT,PREPARATION))\nassert prep['input_profiles']['product_source_sha'] is None\nassert prep['closure_ids']==[]\nhelper_defs=prior['source_derived_cases']['child']\nouter_defs=prior['source_derived_cases']['outer']\nassert sum(c['source_derived_cases'] for c in helper_defs)==8\nassert sum(c['source_derived_cases'] for c in outer_defs)==1\napplicable_conftests=git('ls-tree','-r','--name-only',ROOT,'--','policy-engine/conftest.py','policy-engine/tests/conftest.py','policy-engine/tests/unit/conftest.py','policy-engine/tests/unit/common/conftest.py').decode().splitlines()\nroot_fixture=data(ROOT,'policy-engine/tests/conftest.py')\ncommon_fixture=data(ROOT,'policy-engine/tests/unit/common/conftest.py')\nassert 'pytest_collect_file' not in root_fixture.decode() and 'pytest_ignore_collect' not in root_fixture.decode()\nassert 'pytest_collect_file' not in common_fixture.decode()\nini=data(ROOT,'policy-engine/pytest.ini')\nassert 'python_files' not in ini.decode()\npacket={\n 'schema':'policyos.e02.independent_source_review.v1',\n 'scope':'Prospective selector installed-profile role readiness only; immutable Git/source reads. No selector/native/collection/build/gates/probes.',\n 'reviewer':'RUN /root/run_writer; selector ROOT authored, wheel input DUR authored',\n 'root_source_sha':ROOT,'root_source_tree':git('rev-parse',f'{ROOT}^{{tree}}').decode().strip(),\n 'selector_ref':ref(ROOT,SELECTOR),\n 'role_input_ref_equivalence':role_refs,\n 'prior_full_input_review':ref(BASE,PREFIX+'current-installed-wheel-source-independent-review/review.json'),\n 'prior_full_source_audit':ref(BASE,AUDIT),\n 'source_trace_guards':[\n  snippet(SELECTOR,145,170),\n  snippet(SELECTOR,214,229),\n  snippet(SELECTOR,418,461),\n  snippet(SELECTOR,481,508),\n  snippet(SELECTOR,587,601),\n  snippet(SELECTOR,779,801)\n ],\n 'mechanism_verdict':{\n  'state':'PASS bounded source role readiness; no direct helper admission gap and no selector repair required.',\n  'sources_gate':'All source admissions flow through add(), whose generic basename predicate only admits test_* or *_test.py. installed_wheel_bridge_consumer.py matches neither by spelling. This is file/profile dispatch, not selecting or suppressing child test bodies.',\n  'AST_order':'Main parses test definitions only for sources.items() after add admission. Having eight helper test cases does not bypass filename/profile gate.',\n  'directory_and_change_paths':'Directory expansion has same generic filename rule. Every changed .py under tests still enters changed_test_and_helper_inputs identity ledger; only normal test-name inputs are added to sources.',\n  'output_paths':'Normal-cohort test_paths is built only from existing admissions. Helper is an input dependency for its explicit child process, not a direct normal-cohort test file.',\n  'root_binding':'All four root input/preparation blobs are byte-equal to frozen author02b/d760. No inferred presence or stale live-root source.',\n  'separate_role_proof':'Generic selector is an input/path census; it does not itself prove execution profile or actual case count. Durable d760 input_profiles plus whole outer argv/child guards preserve installed execution role and all eight bodies.'\n },\n 'execution_role_relation_source_defined':[\n  {'role':'normal_source_cohort_entry','path':OUTER,'source_derived_cases':1,'execution_state':'UNRUN in this review','closure':'Seven explicit inputs required. Child is dispatched; outer does not import product for an installed proxy.'},\n  {'role':'isolated_installed_child_whole_file','path':HELPER,'entry_parent':OUTER,'source_derived_cases':8,'case_definitions':helper_defs,'execution_state':'UNRUN in this review','closure':'Entire helper passed as explicit pytest positional in lexical installed venv Python-I-B; every original body/guard retained and output XML/stdout/wrapper preserved.'},\n  {'role':'task_local_wheel_profile_preparer','path':LAUNCHER,'execution_state':'UNRUN in this review','closure':'Produces build/install environments, wheel and durable seven-input cohort-input-environment.json before native. Source SHA/tree must be exact ROOT-selected product snapshot, separate from DUR input source.'}\n ],\n 'retained_contract':{'preparation_input_profiles':prep['input_profiles'],'full_file_identities':prep['file_identity'],'consumer_AST_preservation':prior['ast_comparison'],'explicit_profile':prior['explicit_profile'],'prior_original9826_grade':prior['P37_qualification']},\n 'normal_configuration_source_scope':{'pytest_ini_ref':ref(ROOT,'policy-engine/pytest.ini'),'pytest_ini_utf8':ini.decode(),'applicable_ancestor_conftest_paths':applicable_conftests,'applicable_ancestor_conftest_refs':[ref(ROOT,p) for p in applicable_conftests],'no_python_files_override_in_ini':True,'no_file_admission_hook_in_two_ancestor_conftest_sources':True,'qualification':'Scoped source only. Root conftest registers two fixture plugins and active external autoload/plugin/option closure is not executed or globally proved. Child explicitly disables conftest/config/autoload and asserts installed origin.'},\n 'P37_qualification':{'normal_fixture_input':'Root must supply all seven exact persisted profile inputs; missing/foreign/mismatched inputs fail rather than skip/fallback. No actual fixture attempt here.','helper_retention':'Nondefault helper name is an explicit execution-role boundary. Its entire file identity and eight semantic cases remain mandatory installed child input; no case filter/XFAIL/exclusion of a criterion.','original_input':'9826 direct isolated-only input remains historicalUNRUN; no actual eight-error native quantity inferred.','descriptor_limits':'Historical command/token lineage and AST existence are not current profile execution or an actual normal session denominator.'},\n 'P38_qualification':{'counts':'Source-derived one outer and eight installed child cases are separate. No194 whole-file or any fresh collected case total asserted.','quality':'No selector execution, imports, installed-wheel build, test/collection/typecheck/gates or native replay by reviewer. Root targeted238 result is not audited by this packet and does not establish LA057 installed profile.','future':'Root0fd is readiness snapshot only; final public-surface/P35/whole-cohort freeze remains pending.'},\n 'finding_dispositions':[{'finding_id':'LA-057','state':'LIMITED','closure_ids':[],'basis':'Expected installed-profile input and source dispatch only.','next_owner':'ROOT derives selector on final immutable merged SHA, provisions wheel profile, executes outer and entire isolated child, preserves per-profile native outputs; G adjudicates residual external consumer scope.'}],\n 'checks':[{'id':'prospective-selector-profile-source-reconciliation','command':[sys.executable,str(pathlib.Path(__file__))],'cwd':str(REPO),'target_sha':ROOT,'start_utc':START,'end_utc':datetime.now(UTC).isoformat(),'wall_s':time.monotonic()-T0,'maxrss_kib_linux':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,'exit':0,'grade':'Git refs/fullbyte equivalence and AST source inspection only; selector main/function bodies are never executed.'}],\n 'environment':{'interpreter':sys.executable,'version':sys.version,'platform':platform.platform(),'dependencies':'Only stdlib source metadata and Git object reads; no pytest or product import.'},\n 'reviewer_before':before,'reviewer_after':snapshot(),\n 'driver_source_utf8':pathlib.Path(__file__).read_text(),'driver_sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()\n}\nassert packet['reviewer_before']==packet['reviewer_after']\npath=pathlib.Path('/tmp/e02-run-selector-role-audit.json')\npath.write_text(json.dumps(packet,ensure_ascii=False,indent=2)+'\\n')\nprint(json.dumps({'packet':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'root_source_sha':ROOT,'root_source_tree':packet['root_source_tree'],'selector_source':packet['selector_ref'],'source_state':packet['mechanism_verdict']['state'],'source_derived_outer':1,'source_derived_child':8,'runtime_and_selector_invocation':'UNRUN'},indent=2))\n",
+    "original_driver_sha256": "c9b8d88687a702a33b261c4d6aef3e4aebc64b0bbee0d27aa08dc5d200077fa1",
+    "exact_replay_command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/tmp/e02-run-selector-role-readiness.py"
+    ],
+    "full_replay_output_utf8": "Traceback (most recent call last):\n  File \"/tmp/e02-run-selector-role-readiness.py\", line 31, in <module>\n    assert add.lineno==145\n           ^^^^^^^^^^^^^^^\nAssertionError\n",
+    "full_replay_output_sha256": "f83e23a2979d003b13c076ad710b543c2dfb036900706df7afaec8ed6bee8eb4",
+    "repair": "Function range now uses AST-derived add.lineno/end_lineno, no manually guessed equality."
+  },
+  "reviewer": "RUN /root/run_writer; selector ROOT authored, wheel input DUR authored",
+  "root_source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+  "root_source_tree": "b75980daba837e15d8664785107e12d759101b82",
+  "selector_ref": {
+    "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+    "git_blob": "3cd41faaf0bfe849e427d10ed2b31941b0a9180f",
+    "bytes": 35758,
+    "sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d"
+  },
+  "role_input_ref_equivalence": [
+    {
+      "root": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+        "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+        "bytes": 4870,
+        "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+      },
+      "author": {
+        "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+        "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+        "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+        "bytes": 4870,
+        "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+      },
+      "full_bytes_equal": true
+    },
+    {
+      "root": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+        "git_blob": "a6c8303367b5caeca25629df9ba1eca714e31cd9",
+        "bytes": 9973,
+        "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09"
+      },
+      "author": {
+        "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+        "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+        "git_blob": "a6c8303367b5caeca25629df9ba1eca714e31cd9",
+        "bytes": 9973,
+        "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09"
+      },
+      "full_bytes_equal": true
+    },
+    {
+      "root": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+        "git_blob": "8a4007a95666c01058f8f4d17c39921c617e18df",
+        "bytes": 10704,
+        "sha256": "cba1f7aa1e664bd81118928db08aeca59b2067bd3eced377ceed85f775bfdedb"
+      },
+      "author": {
+        "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+        "git_blob": "8a4007a95666c01058f8f4d17c39921c617e18df",
+        "bytes": 10704,
+        "sha256": "cba1f7aa1e664bd81118928db08aeca59b2067bd3eced377ceed85f775bfdedb"
+      },
+      "full_bytes_equal": true
+    },
+    {
+      "root": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-preparation.json",
+        "git_blob": "03d8d94f68bf3f346ba33e0b6d32292bd31f3b91",
+        "bytes": 10839,
+        "sha256": "d423246f2cd7312f2c4d1d4a8b306e7ed86dbc65461e4528f36f03cd46bfedd5"
+      },
+      "author": {
+        "source_sha": "d760672190fd00237d499aa6f2b62ef276ca0b5a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-preparation.json",
+        "git_blob": "03d8d94f68bf3f346ba33e0b6d32292bd31f3b91",
+        "bytes": 10839,
+        "sha256": "d423246f2cd7312f2c4d1d4a8b306e7ed86dbc65461e4528f36f03cd46bfedd5"
+      },
+      "full_bytes_equal": true
+    }
+  ],
+  "prior_full_input_review": {
+    "source_sha": "f3858797fe2546d2230a13a6b3a1adeb9328afcb",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/review.json",
+    "git_blob": "de286fa9113823de64cc146abba1970193185bc1",
+    "bytes": 47104,
+    "sha256": "68211fbcd74de800427b3c254131a64634ae266b5e07ca7d40435bc8aaac501e"
+  },
+  "prior_full_source_audit": {
+    "source_sha": "f3858797fe2546d2230a13a6b3a1adeb9328afcb",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-source-independent-review/audit.json",
+    "git_blob": "cb48934a05b5ff4bed85b379fc45b76e73880997",
+    "bytes": 136614,
+    "sha256": "59be61de3f5382fd5dc4899f58f941256dcbda64457dd00ca50384b96d5346aa"
+  },
+  "source_trace_guards": [
+    {
+      "source_ref": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "git_blob": "3cd41faaf0bfe849e427d10ed2b31941b0a9180f",
+        "bytes": 35758,
+        "sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d"
+      },
+      "line_start": 142,
+      "line_end": 161,
+      "source_utf8": "    def add(\n        selector: str,\n        kind: str,\n        locator: str,\n        bundle: str | None = None,\n        details: dict[str, object] | None = None,\n    ) -> None:\n        p = normalize(selector)\n        if not (Path(p).name.startswith(\"test_\") or Path(p).name.endswith(\"_test.py\")):\n            return\n        key = (kind, locator, selector, bundle)\n        rows = sources.setdefault(p, {})\n        if key not in rows:\n            rows[key] = {\n                \"kind\": kind,\n                \"locator\": locator,\n                \"selector\": selector,\n                \"bundle\": bundle,\n                **(details or {}),\n            }\n",
+      "snippet_sha256": "1f1e049664e25478e833ff95e9694ba264844e34a493b3ee2a66c82662d75457"
+    },
+    {
+      "source_ref": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "git_blob": "3cd41faaf0bfe849e427d10ed2b31941b0a9180f",
+        "bytes": 35758,
+        "sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d"
+      },
+      "line_start": 179,
+      "line_end": 252,
+      "source_utf8": "    def parse_native(\n        value: object,\n        locator: str,\n        bundle_ids: list[str] | tuple[str, ...] = (),\n        role: str = (\"owner_recorded_command\"),\n    ) -> None:\n        if isinstance(value, list) and all(isinstance(x, str) for x in value):\n            argv = value\n        elif isinstance(value, str):\n            try:\n                argv = shlex.split(value)\n            except ValueError:\n                return\n        else:\n            return\n        is_pytest = any(x == \"pytest\" or x.endswith(\"/pytest\") or x == \"pytest.main\" for x in argv)\n        command_record = {\n            \"locator\": locator,\n            \"role\": role,\n            \"argv\": argv,\n            \"bundle_ids\": list(bundle_ids),\n            \"native_pytest_argv\": is_pytest,\n            \"grade\": \"complete recorded check-command lineage, no execution claim\",\n        }\n        all_commands.append(command_record)\n        if not is_pytest:\n            return\n        selectors = []\n        directory_members = []\n        positional_tokens, unresolved = native_pytest_positionals(argv, option_profile)\n        command_record[\"positional_selector_tokens\"] = positional_tokens\n        command_record[\"unresolved_option_grammar\"] = unresolved\n        for token in positional_tokens:\n            # Match a complete positional token, never a substring of an option value.\n            if pattern.fullmatch(token):\n                selectors.append(token)\n            # Native pytest directory inputs select whole tracked test files too.\n            # Expand immutable Git members, never a local filesystem or ignored output.\n            directory = token.removeprefix(\"policy-engine/\").rstrip(\"/\")\n            if directory.startswith(\"tests/\") and \".py\" not in directory:\n                members = sorted(\n                    p.removeprefix(\"policy-engine/\")\n                    for p in tracked\n                    if p.startswith(\"policy-engine/\" + directory + \"/\")\n                    and p.endswith(\".py\")\n                    and (Path(p).name.startswith(\"test_\") or Path(p).name.endswith(\"_test.py\"))\n                )\n                selectors.extend(members)\n                if members:\n                    directory_members.append(\n                        {\n                            \"native_directory_token\": token,\n                            \"members\": members,\n                            \"selection_basis\": \"pinned tracked test_*.py or *_test.py descendants\",\n                            \"grade\": \"whole-file input selection, not collection or runtime proof\",\n                        }\n                    )\n        if not selectors:\n            return\n        commands.append(\n            {\n                \"locator\": locator,\n                \"role\": role,\n                \"argv\": argv,\n                \"selectors\": selectors,\n                \"bundle_ids\": list(bundle_ids),\n                \"native_directory_inputs\": directory_members,\n                \"positional_selector_tokens\": positional_tokens,\n                \"unresolved_option_grammar\": unresolved,\n            }\n        )\n        for selector in selectors:\n            for bundle in bundle_ids or [None]:\n                add(selector, role, locator, bundle)\n",
+      "snippet_sha256": "b7c07729f222a2ce5d8f1c906b5fe84c292d390652886c80e08f218345f29244"
+    },
+    {
+      "source_ref": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "git_blob": "3cd41faaf0bfe849e427d10ed2b31941b0a9180f",
+        "bytes": 35758,
+        "sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d"
+      },
+      "line_start": 438,
+      "line_end": 459,
+      "source_utf8": "    # Include every genuinely changed/new test definition; helpers are separately listed inputs.\n    changed = (\n        git(\"diff\", \"--name-only\", \"198076863e143dea9f89f02734b13d50dae3eed5\", sha)\n        .decode()\n        .splitlines()\n    )\n    changed_tests = []\n    changed_defining = []\n    for path in changed:\n        if path not in tracked:\n            continue\n        if path.startswith(\"policy-engine/tests/\") and path.endswith(\".py\"):\n            changed_tests.append(identity(path))\n            if Path(path).name.startswith(\"test_\") or Path(path).name.endswith(\"_test.py\"):\n                add(path, \"actual_changed_test_input\", path)\n        if path.startswith(\"policy-engine/src/\") and path.endswith(\".py\"):\n            changed_defining.append(identity(path))\n    existing = []\n    missing = []\n    test_defs = {}\n    for p, records in sorted(sources.items()):\n        path = \"policy-engine/\" + p\n",
+      "snippet_sha256": "cefb75ead7d2f309537428057b2f033beb8bdbb67cde4cffb2ba4fa4a06b0dc1"
+    },
+    {
+      "source_ref": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "git_blob": "3cd41faaf0bfe849e427d10ed2b31941b0a9180f",
+        "bytes": 35758,
+        "sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d"
+      },
+      "line_start": 458,
+      "line_end": 512,
+      "source_utf8": "    for p, records in sorted(sources.items()):\n        path = \"policy-engine/\" + p\n        if path in tracked:\n            module = ast.parse(text(path), filename=path)\n            defs = []\n\n            def definition(\n                n: ast.AST,\n                qualifier: str = \"\",\n                output: list[dict[str, object]] = defs,\n                test_path: str = p,\n                module_path: str = path,\n            ) -> None:\n                if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name.startswith(\n                    \"test_\"\n                ):\n                    output.append(\n                        {\n                            \"name\": n.name,\n                            \"selector\": test_path + \"::\" + qualifier + n.name,\n                            \"line\": n.lineno,\n                            \"end_line\": n.end_lineno,\n                            \"source_sha256\": hashlib.sha256(\n                                ast.get_source_segment(text(module_path), n).encode()\n                            ).hexdigest(),\n                        }\n                    )\n\n            for n in module.body:\n                definition(n)\n                if isinstance(n, ast.ClassDef) and n.name.startswith(\"Test\"):\n                    for member in n.body:\n                        definition(member, n.name + \"::\")\n            test_defs[p] = defs\n            existing.append(\n                {\n                    \"test_path\": p,\n                    \"identity\": identity(path),\n                    \"source_refs\": list(records.values()),\n                    \"test_definitions\": defs,\n                    (\"grade\"): (\n                        \"candidate input denominator only; path/AST existence does not pro\"\n                        \"ve property or successful collection\"\n                    ),\n                }\n            )\n        else:\n            missing.append(\n                {\n                    \"named_selector\": p,\n                    \"bundle_ids\": sorted(planned.get(p, [])),\n                    \"source_refs\": list(records.values()),\n                    \"state\": \"UNRUN_named_selector_absent\",\n                    \"equivalent_candidate_selectors\": [],\n                    \"required_by_canonical_plan\": bool(planned.get(p)),\n",
+      "snippet_sha256": "6caa42c871a3b994805860e94dcfc6db4f2625676dcd1f34abcc1dd0f8b2bee3"
+    },
+    {
+      "source_ref": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "git_blob": "3cd41faaf0bfe849e427d10ed2b31941b0a9180f",
+        "bytes": 35758,
+        "sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d"
+      },
+      "line_start": 601,
+      "line_end": 608,
+      "source_utf8": "        \"changed_test_and_helper_inputs\": changed_tests,\n        \"route_records\": route_records,\n        \"test_paths\": [x[\"test_path\"] for x in existing],\n        \"candidate_whole_file_count\": len(existing),\n        \"candidate_test_inputs\": existing,\n        \"absent_named_selectors\": missing,\n        \"absent_reference_counts\": {\n            \"all\": len(missing),\n",
+      "snippet_sha256": "526b37c1bb82f959fa4b915f26d92826197416a2be5897694ae7985357b7698f"
+    },
+    {
+      "source_ref": {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "git_blob": "3cd41faaf0bfe849e427d10ed2b31941b0a9180f",
+        "bytes": 35758,
+        "sha256": "c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d"
+      },
+      "line_start": 783,
+      "line_end": 801,
+      "source_utf8": "            \"The complete deterministic walk is in this committed derivation driver.\"\n        ),\n        \"command_descriptor_input_identities\": descriptor_inputs,\n        \"script_native_child_descriptors\": driver_records,\n        \"changed_defining_source_inputs\": changed_defining,\n        \"changed_test_and_helper_inputs\": changed_tests,\n        \"descriptor_counts_only\": {\n            \"top_receipts\": len(receipt_manifest),\n            \"native_argv_lineage_rows\": len(commands),\n            \"deduplicated_native_descriptor_refs\": len(native_refs),\n            \"static_script_rows\": len(driver_records),\n            \"all_recorded_historical_command_lineage_rows\": len(all_commands),\n            \"unresolved_native_option_grammar_rows\": sum(\n                bool(row.get(\"unresolved_option_grammar\")) for row in all_commands\n            ),\n            \"grade\": \"input lineage counts only; none is a case count or PASS\",\n        },\n        \"unresolved_native_option_grammar\": [\n            {\n",
+      "snippet_sha256": "090d59421e2db5166c54163cb96beb852ca02a12051a824c3b1acb20a6d54149"
+    }
+  ],
+  "mechanism_verdict": {
+    "state": "PASS bounded source role readiness; no direct helper admission gap and no selector repair required.",
+    "sources_gate": "All source admissions flow through add(), whose generic basename predicate only admits test_* or *_test.py. installed_wheel_bridge_consumer.py matches neither by spelling. This is file/profile dispatch, not selecting or suppressing child test bodies.",
+    "AST_order": "Main parses test definitions only for sources.items() after add admission. Having eight helper test cases does not bypass filename/profile gate.",
+    "directory_and_change_paths": "Directory expansion has same generic filename rule. Every changed .py under tests still enters changed_test_and_helper_inputs identity ledger; only normal test-name inputs are added to sources.",
+    "output_paths": "Normal-cohort test_paths is built only from existing admissions. Helper is an input dependency for its explicit child process, not a direct normal-cohort test file.",
+    "root_binding": "All four root input/preparation blobs are byte-equal to frozen author02b/d760. No inferred presence or stale live-root source.",
+    "separate_role_proof": "Generic selector is an input/path census; it does not itself prove execution profile or actual case count. Durable d760 input_profiles plus whole outer argv/child guards preserve installed execution role and all eight bodies."
+  },
+  "execution_role_relation_source_defined": [
+    {
+      "role": "normal_source_cohort_entry",
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "source_derived_cases": 1,
+      "execution_state": "UNRUN in this review",
+      "closure": "Seven explicit inputs required. Child is dispatched; outer does not import product for an installed proxy."
+    },
+    {
+      "role": "isolated_installed_child_whole_file",
+      "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "entry_parent": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "source_derived_cases": 8,
+      "case_definitions": [
+        {
+          "function": "test_installed_generic_identities",
+          "source_derived_cases": 4,
+          "parameter_values": [
+            {
+              "parameter": "consumer",
+              "values": [
+                "direct",
+                "alias",
+                "facade",
+                "star_reflection"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_installed_direct_and_running_loop_context",
+          "source_derived_cases": 1,
+          "parameter_values": []
+        },
+        {
+          "function": "test_installed_timeout_cleans_real_pending_tasks",
+          "source_derived_cases": 1,
+          "parameter_values": []
+        },
+        {
+          "function": "test_installed_cancel_reaches_awaitable_finally",
+          "source_derived_cases": 2,
+          "parameter_values": [
+            {
+              "parameter": "inside_loop",
+              "values": [
+                false,
+                true
+              ]
+            }
+          ]
+        }
+      ],
+      "execution_state": "UNRUN in this review",
+      "closure": "Entire helper passed as explicit pytest positional in lexical installed venv Python-I-B; every original body/guard retained and output XML/stdout/wrapper preserved."
+    },
+    {
+      "role": "task_local_wheel_profile_preparer",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "execution_state": "UNRUN in this review",
+      "closure": "Produces build/install environments, wheel and durable seven-input cohort-input-environment.json before native. Source SHA/tree must be exact ROOT-selected product snapshot, separate from DUR input source."
+    }
+  ],
+  "retained_contract": {
+    "preparation_input_profiles": {
+      "product_source_sha": null,
+      "product_source_tree": null,
+      "product_source_state": "Root final freeze not yet selected; own DUR branch product source is not the wheel authority.",
+      "test_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "normal_source_cohort": "Root Python3.14 source interpreter plus all seven explicit inputs from launcher cohort-input-environment.json; ordinary outer file is one native case. Actual normal-cohort invocation is UNRUN.",
+      "isolated_child": "Explicit task-installed lexical venv Python -I -B, empty PYTHONPATH, no pytest plugin autoload/conftest/config pythonpath injection; child validates site within sys.prefix and exact three installed/wheel/source module bindings.",
+      "source_derived_denominators": "One outer case; child 4 generic-consumer parameters +1 context/direct/loop +1 cooperative timeout +2 cancellation parameters =8. Actual runtime counts are UNRUN; no double-counting.",
+      "optional_common_profile": "Removed; root source cohort already includes the original common whole file. No installed async-plugin profile claimed."
+    },
+    "full_file_identities": [
+      {
+        "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+        "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+        "bytes": 4870
+      },
+      {
+        "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+        "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+        "bytes": 9973
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+        "sha256": "cba1f7aa1e664bd81118928db08aeca59b2067bd3eced377ceed85f775bfdedb",
+        "bytes": 10704
+      }
+    ],
+    "consumer_AST_preservation": {
+      "attributes_included": false,
+      "normalizations": [],
+      "direct_full_ast_equal": true,
+      "old_ast_sha256": "f243a9b4fd401454d48327a5091a5266e8cd6b4047a8e86d36f7f00defa0f092",
+      "new_ast_sha256": "f243a9b4fd401454d48327a5091a5266e8cd6b4047a8e86d36f7f00defa0f092",
+      "qualification": "Standard ast.dump excludes location attributes; no node normalization/removal, and all literal assertions/semantic bodies remain equal."
+    },
+    "explicit_profile": {
+      "required_outer_environment_names": [
+        "E02_LA057_INSTALLED_PYTHON",
+        "E02_LA057_WHEEL_PATH",
+        "E02_LA057_INSTALLED_SITE",
+        "E02_LA057_SOURCE_ROOT",
+        "E02_LA057_SOURCE_SHA",
+        "E02_LA057_CONSUMER_SHA256",
+        "E02_LA057_OUTER_TEST_SHA256"
+      ],
+      "original_child_environment_names": [
+        "E02_LA057_WHEEL_PATH",
+        "E02_LA057_INSTALLED_SITE",
+        "E02_LA057_SOURCE_ROOT",
+        "E02_LA057_SOURCE_SHA",
+        "E02_LA057_TEST_SHA256"
+      ],
+      "child_test_sha_mapping": "Outer sets TEST_SHA256 to CONSUMER_SHA256; own outer bytes are separately pinned.",
+      "normal_cohort_provision": "Launcher persists durable seven-input cohort-input-environment.json before native. Normal root source cohort must use exactly those inputs; no missing-input fallback/skip.",
+      "launcher_native_scope": "Isolated installed outer invocation contains only this one outer case, whose child defines eight; original common wholefile is separately selected by root."
+    },
+    "prior_original9826_grade": {
+      "prior_premise": "Original9826 isolated fixture had five required inputs and sys.flags.isolated==1. Generic normal source cohort without that profile would not satisfy prerequisites; inferred source incompatibility only, no observed native ERROR/FAIL count.",
+      "input_change": "Adapter moves same eight consumer nodes to explicit nontest helper and introduces real normal-cohort outer dispatch. No consumer assertions weakened; explicit Python/config boundary added.",
+      "actual_execution": "Author preparation and reviewer source operation only; original9826 and adapter02b native/build remain UNRUN in this packet.",
+      "counts": "One outer versus eight child must not be summed into root native session denominator or confused with historical common suite counts."
+    }
+  },
+  "normal_configuration_source_scope": {
+    "pytest_ini_ref": {
+      "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "path": "policy-engine/pytest.ini",
+      "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    "pytest_ini_utf8": "[pytest]\nminversion = 6.0\naddopts = -ra -q --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks\ncache_dir = _cache/pytest\ntestpaths =\n    tests\nasyncio_mode = auto\nmarkers =\n    unit: fast isolated tests; applied by default when no broader taxonomy class matches\n    contract: compatibility and schema-boundary tests for stable cross-layer surfaces\n    property: hypothesis property-based tests\n    integration: multi-component or runtime-boundary tests that cross subsystem seams\n    performance: runtime, benchmark, and regression-cost tests\n    repo_quality: repository structure, lint, tooling, and test-topology quality gates\n    benchmark: performance regression benchmarks (requires pytest-benchmark)\n    smoke: minimal confidence tests for local and CI fast paths\n    slow: intentionally higher-cost tests excluded from the fastest loops\n    flaky: unstable tests that require explicit owner follow-up\n    quarantine: temporarily de-gated tests tracked in tests/quarantine.toml\n",
+    "applicable_ancestor_conftest_paths": [
+      "policy-engine/tests/conftest.py",
+      "policy-engine/tests/unit/common/conftest.py"
+    ],
+    "applicable_ancestor_conftest_refs": [
+      {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/tests/conftest.py",
+        "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+        "bytes": 9664,
+        "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+      },
+      {
+        "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/tests/unit/common/conftest.py",
+        "git_blob": "5773ee7c927c2e67ece2bae1f55dad8b02b6df9f",
+        "bytes": 105,
+        "sha256": "b2e4e5f3cf94c28ff6ff09a3975d90a5097b09b7def417c965887b80fa394b99"
+      }
+    ],
+    "no_python_files_override_in_ini": true,
+    "no_file_admission_hook_in_two_ancestor_conftest_sources": true,
+    "qualification": "Scoped source only. Root conftest registers two fixture plugins and active external autoload/plugin/option closure is not executed or globally proved. Child explicitly disables conftest/config/autoload and asserts installed origin."
+  },
+  "P37_qualification": {
+    "normal_fixture_input": "Root must supply all seven exact persisted profile inputs; missing/foreign/mismatched inputs fail rather than skip/fallback. No actual fixture attempt here.",
+    "helper_retention": "Nondefault helper name is an explicit execution-role boundary. Its entire file identity and eight semantic cases remain mandatory installed child input; no case filter/XFAIL/exclusion of a criterion.",
+    "original_input": "9826 direct isolated-only input remains historicalUNRUN; no actual eight-error native quantity inferred.",
+    "descriptor_limits": "Historical command/token lineage and AST existence are not current profile execution or an actual normal session denominator."
+  },
+  "P38_qualification": {
+    "counts": "Source-derived one outer and eight installed child cases are separate. No194 whole-file or any fresh collected case total asserted.",
+    "quality": "No selector execution, imports, installed-wheel build, test/collection/typecheck/gates or native replay by reviewer. Root targeted238 result is not audited by this packet and does not establish LA057 installed profile.",
+    "future": "Root0fd is readiness snapshot only; final public-surface/P35/whole-cohort freeze remains pending."
+  },
+  "finding_dispositions": [
+    {
+      "finding_id": "LA-057",
+      "state": "LIMITED",
+      "closure_ids": [],
+      "basis": "Expected installed-profile input and source dispatch only.",
+      "next_owner": "ROOT derives selector on final immutable merged SHA, provisions wheel profile, executes outer and entire isolated child, preserves per-profile native outputs; G adjudicates residual external consumer scope."
+    }
+  ],
+  "checks": [
+    {
+      "id": "prospective-selector-profile-source-reconciliation",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-run-selector-role-readiness-v2.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "start_utc": "2026-10-06T18:44:31.207069+00:00",
+      "end_utc": "2026-10-06T18:44:31.391933+00:00",
+      "wall_s": 0.18487944699882064,
+      "maxrss_kib_linux": 15232,
+      "exit": 0,
+      "grade": "Git refs/fullbyte equivalence and AST source inspection only; selector main/function bodies are never executed."
+    }
+  ],
+  "environment": {
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "dependencies": "Only stdlib source metadata and Git object reads; no pytest or product import."
+  },
+  "reviewer_before": {
+    "head": "f3858797fe2546d2230a13a6b3a1adeb9328afcb",
+    "tree": "c45e40d62fb0bd1693aa5e172832b7a3139d4d3a",
+    "status": ""
+  },
+  "reviewer_after": {
+    "head": "f3858797fe2546d2230a13a6b3a1adeb9328afcb",
+    "tree": "c45e40d62fb0bd1693aa5e172832b7a3139d4d3a",
+    "status": ""
+  },
+  "driver_source_utf8": "\"\"\"Read frozen selector/input roles only; never invoke selector, pytest or a gate.\"\"\"\nimport ast,hashlib,json,pathlib,platform,resource,subprocess,sys,time\nfrom datetime import UTC,datetime\nREPO=pathlib.Path('/workspace/e02-B-current-runtime')\nROOT='0fdc39831bc95f059dd220c054494fd410bde9da'\nOWNER='02b14aa0928fa32da6b46fa5169605d59e71d9ac'\nPREP='d760672190fd00237d499aa6f2b62ef276ca0b5a'\nBASE='f3858797fe2546d2230a13a6b3a1adeb9328afcb'\nPREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'\nSELECTOR=PREFIX+'final-cohort-selector.py'\nOUTER='policy-engine/tests/unit/common/test_async_tools_installed_wheel.py'\nHELPER='policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py'\nLAUNCHER=PREFIX+'current-installed-wheel-independent-evidence/launcher.py'\nPREPARATION=PREFIX+'current-installed-wheel-independent-preparation.json'\nAUDIT=PREFIX+'current-installed-wheel-source-independent-review/audit.json'\nT0=time.monotonic(); START=datetime.now(UTC).isoformat()\ndef git(*argv): return subprocess.check_output(['git',*argv],cwd=REPO)\ndef data(sha,path): return git('show',f'{sha}:{path}')\ndef ref(sha,path):\n b=data(sha,path)\n return {'source_sha':sha,'path':path,'git_blob':git('rev-parse',f'{sha}:{path}').decode().strip(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}\ndef snapshot(): return {'head':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'status':git('status','--porcelain','--untracked-files=all').decode()}\ndef snippet(path,start,end):\n lines=data(ROOT,path).decode().splitlines(keepends=True)\n b=''.join(lines[start-1:end])\n return {'source_ref':ref(ROOT,path),'line_start':start,'line_end':end,'source_utf8':b,'snippet_sha256':hashlib.sha256(b.encode()).hexdigest()}\nbefore=snapshot()\nselector=data(ROOT,SELECTOR)\ntree=ast.parse(selector)\nadd=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='add')\n\nrole_refs=[]\nfor path,peer in [(OUTER,OWNER),(HELPER,OWNER),(LAUNCHER,OWNER),(PREPARATION,PREP)]:\n assert data(ROOT,path)==data(peer,path)\n role_refs.append({'root':ref(ROOT,path),'author':ref(peer,path),'full_bytes_equal':True})\nprior=json.loads(data(BASE,AUDIT))\nassert prior['reviewed_input_sha']==OWNER\nassert prior['ast_comparison']['direct_full_ast_equal']\nprep=json.loads(data(ROOT,PREPARATION))\nassert prep['input_profiles']['product_source_sha'] is None\nassert prep['closure_ids']==[]\nhelper_defs=prior['source_derived_cases']['child']\nouter_defs=prior['source_derived_cases']['outer']\nassert sum(c['source_derived_cases'] for c in helper_defs)==8\nassert sum(c['source_derived_cases'] for c in outer_defs)==1\napplicable_conftests=git('ls-tree','-r','--name-only',ROOT,'--','policy-engine/conftest.py','policy-engine/tests/conftest.py','policy-engine/tests/unit/conftest.py','policy-engine/tests/unit/common/conftest.py').decode().splitlines()\nroot_fixture=data(ROOT,'policy-engine/tests/conftest.py')\ncommon_fixture=data(ROOT,'policy-engine/tests/unit/common/conftest.py')\nassert 'pytest_collect_file' not in root_fixture.decode() and 'pytest_ignore_collect' not in root_fixture.decode()\nassert 'pytest_collect_file' not in common_fixture.decode()\nini=data(ROOT,'policy-engine/pytest.ini')\nassert 'python_files' not in ini.decode()\npacket={\n 'schema':'policyos.e02.independent_source_review.v1',\n 'scope':'Prospective selector installed-profile role readiness only; immutable Git/source reads. No selector/native/collection/build/gates/probes.',\n 'metadata_driver_failure':{'state':'FAIL metadata operation only','exit':1,'reason':'Reviewer manually asserted add.lineno==145; actual immutable source AST line is142. Original and replay both stopped before role-input evaluation. Not selector invocation, native result or product failure.','original_driver_source_utf8':pathlib.Path('/tmp/e02-run-selector-role-readiness.py').read_text(),'original_driver_sha256':hashlib.sha256(pathlib.Path('/tmp/e02-run-selector-role-readiness.py').read_bytes()).hexdigest(),'exact_replay_command':['/workspace/polisyos/policy-engine/.venv/bin/python','/tmp/e02-run-selector-role-readiness.py'],'full_replay_output_utf8':pathlib.Path('/tmp/e02-run-selector-role-hardcoded-line-failure.txt').read_text(),'full_replay_output_sha256':hashlib.sha256(pathlib.Path('/tmp/e02-run-selector-role-hardcoded-line-failure.txt').read_bytes()).hexdigest(),'repair':'Function range now uses AST-derived add.lineno/end_lineno, no manually guessed equality.'},\n 'reviewer':'RUN /root/run_writer; selector ROOT authored, wheel input DUR authored',\n 'root_source_sha':ROOT,'root_source_tree':git('rev-parse',f'{ROOT}^{{tree}}').decode().strip(),\n 'selector_ref':ref(ROOT,SELECTOR),\n 'role_input_ref_equivalence':role_refs,\n 'prior_full_input_review':ref(BASE,PREFIX+'current-installed-wheel-source-independent-review/review.json'),\n 'prior_full_source_audit':ref(BASE,AUDIT),\n 'source_trace_guards':[\n  snippet(SELECTOR,add.lineno,add.end_lineno),\n  snippet(SELECTOR,179,252),\n  snippet(SELECTOR,438,459),\n  snippet(SELECTOR,458,512),\n  snippet(SELECTOR,601,608),\n  snippet(SELECTOR,783,801)\n ],\n 'mechanism_verdict':{\n  'state':'PASS bounded source role readiness; no direct helper admission gap and no selector repair required.',\n  'sources_gate':'All source admissions flow through add(), whose generic basename predicate only admits test_* or *_test.py. installed_wheel_bridge_consumer.py matches neither by spelling. This is file/profile dispatch, not selecting or suppressing child test bodies.',\n  'AST_order':'Main parses test definitions only for sources.items() after add admission. Having eight helper test cases does not bypass filename/profile gate.',\n  'directory_and_change_paths':'Directory expansion has same generic filename rule. Every changed .py under tests still enters changed_test_and_helper_inputs identity ledger; only normal test-name inputs are added to sources.',\n  'output_paths':'Normal-cohort test_paths is built only from existing admissions. Helper is an input dependency for its explicit child process, not a direct normal-cohort test file.',\n  'root_binding':'All four root input/preparation blobs are byte-equal to frozen author02b/d760. No inferred presence or stale live-root source.',\n  'separate_role_proof':'Generic selector is an input/path census; it does not itself prove execution profile or actual case count. Durable d760 input_profiles plus whole outer argv/child guards preserve installed execution role and all eight bodies.'\n },\n 'execution_role_relation_source_defined':[\n  {'role':'normal_source_cohort_entry','path':OUTER,'source_derived_cases':1,'execution_state':'UNRUN in this review','closure':'Seven explicit inputs required. Child is dispatched; outer does not import product for an installed proxy.'},\n  {'role':'isolated_installed_child_whole_file','path':HELPER,'entry_parent':OUTER,'source_derived_cases':8,'case_definitions':helper_defs,'execution_state':'UNRUN in this review','closure':'Entire helper passed as explicit pytest positional in lexical installed venv Python-I-B; every original body/guard retained and output XML/stdout/wrapper preserved.'},\n  {'role':'task_local_wheel_profile_preparer','path':LAUNCHER,'execution_state':'UNRUN in this review','closure':'Produces build/install environments, wheel and durable seven-input cohort-input-environment.json before native. Source SHA/tree must be exact ROOT-selected product snapshot, separate from DUR input source.'}\n ],\n 'retained_contract':{'preparation_input_profiles':prep['input_profiles'],'full_file_identities':prep['file_identity'],'consumer_AST_preservation':prior['ast_comparison'],'explicit_profile':prior['explicit_profile'],'prior_original9826_grade':prior['P37_qualification']},\n 'normal_configuration_source_scope':{'pytest_ini_ref':ref(ROOT,'policy-engine/pytest.ini'),'pytest_ini_utf8':ini.decode(),'applicable_ancestor_conftest_paths':applicable_conftests,'applicable_ancestor_conftest_refs':[ref(ROOT,p) for p in applicable_conftests],'no_python_files_override_in_ini':True,'no_file_admission_hook_in_two_ancestor_conftest_sources':True,'qualification':'Scoped source only. Root conftest registers two fixture plugins and active external autoload/plugin/option closure is not executed or globally proved. Child explicitly disables conftest/config/autoload and asserts installed origin.'},\n 'P37_qualification':{'normal_fixture_input':'Root must supply all seven exact persisted profile inputs; missing/foreign/mismatched inputs fail rather than skip/fallback. No actual fixture attempt here.','helper_retention':'Nondefault helper name is an explicit execution-role boundary. Its entire file identity and eight semantic cases remain mandatory installed child input; no case filter/XFAIL/exclusion of a criterion.','original_input':'9826 direct isolated-only input remains historicalUNRUN; no actual eight-error native quantity inferred.','descriptor_limits':'Historical command/token lineage and AST existence are not current profile execution or an actual normal session denominator.'},\n 'P38_qualification':{'counts':'Source-derived one outer and eight installed child cases are separate. No194 whole-file or any fresh collected case total asserted.','quality':'No selector execution, imports, installed-wheel build, test/collection/typecheck/gates or native replay by reviewer. Root targeted238 result is not audited by this packet and does not establish LA057 installed profile.','future':'Root0fd is readiness snapshot only; final public-surface/P35/whole-cohort freeze remains pending.'},\n 'finding_dispositions':[{'finding_id':'LA-057','state':'LIMITED','closure_ids':[],'basis':'Expected installed-profile input and source dispatch only.','next_owner':'ROOT derives selector on final immutable merged SHA, provisions wheel profile, executes outer and entire isolated child, preserves per-profile native outputs; G adjudicates residual external consumer scope.'}],\n 'checks':[{'id':'prospective-selector-profile-source-reconciliation','command':[sys.executable,str(pathlib.Path(__file__))],'cwd':str(REPO),'target_sha':ROOT,'start_utc':START,'end_utc':datetime.now(UTC).isoformat(),'wall_s':time.monotonic()-T0,'maxrss_kib_linux':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,'exit':0,'grade':'Git refs/fullbyte equivalence and AST source inspection only; selector main/function bodies are never executed.'}],\n 'environment':{'interpreter':sys.executable,'version':sys.version,'platform':platform.platform(),'dependencies':'Only stdlib source metadata and Git object reads; no pytest or product import.'},\n 'reviewer_before':before,'reviewer_after':snapshot(),\n 'driver_source_utf8':pathlib.Path(__file__).read_text(),'driver_sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()\n}\nassert packet['reviewer_before']==packet['reviewer_after']\npath=pathlib.Path('/tmp/e02-run-selector-role-audit.json')\npath.write_text(json.dumps(packet,ensure_ascii=False,indent=2)+'\\n')\nprint(json.dumps({'packet':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'root_source_sha':ROOT,'root_source_tree':packet['root_source_tree'],'selector_source':packet['selector_ref'],'source_state':packet['mechanism_verdict']['state'],'source_derived_outer':1,'source_derived_child':8,'runtime_and_selector_invocation':'UNRUN'},indent=2))\n",
+  "driver_sha256": "a8e3e50dd3abca3efc1a89e339e12f2454fa2eaa9c092174e34d869479a62274"
+}

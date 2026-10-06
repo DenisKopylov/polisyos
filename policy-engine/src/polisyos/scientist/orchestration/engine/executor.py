@@ -65,6 +65,7 @@ from polisyos.scientist.orchestration.engine.retry import (
     execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.state_branching import (
+    _completed_producer_state,
     branch_state,
     mutation_journal_for_state,
     snapshot_state,
@@ -635,6 +636,19 @@ def _should_cache(node_id: str) -> bool:
     return node_id not in _CACHE_DISABLED_NODE_IDS
 
 
+def _validate_cached_node_hit(
+    node: CacheHitValidator,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    cached_outcome: NodeOutcome,
+) -> bool:
+    """Apply the node owner's existing cache-hit acceptance rule."""
+    try:
+        return node.validate_cache_hit(ctx, state, cached_outcome)
+    except _EXECUTOR_DEGRADED_ERRORS:
+        return False
+
+
 def _topo_sort(invocations: dict[str, NodeInvocation]) -> list[str]:
     indegree: dict[str, int] = dict.fromkeys(invocations, 0)
     edges: dict[str, list[str]] = {alias: [] for alias in invocations}
@@ -1190,14 +1204,9 @@ class WorkflowExecutor:
                 if cache_key is not None and self._cache is not None:
                     cached_outcome = self._cache.get(cache_key)
                     if cached_outcome is not None and isinstance(node, CacheHitValidator):
-                        try:
-                            cache_hit_valid = node.validate_cache_hit(
-                                node_context,
-                                state,
-                                cached_outcome,
-                            )
-                        except _EXECUTOR_DEGRADED_ERRORS:
-                            cache_hit_valid = False
+                        cache_hit_valid = _validate_cached_node_hit(
+                            node, node_context, state, cached_outcome
+                        )
                         if not cache_hit_valid:
                             self._cache.discard(cache_key)
                             cached_outcome = None
@@ -1347,6 +1356,7 @@ class WorkflowExecutor:
                     branched_state = branch_state(
                         state,
                         write_paths=getattr(node.spec, "state_writes", ()),
+                        enforce_write_scope=True,
                     )
                     node_state = branched_state.state
                     set_span_attribute(
@@ -1530,6 +1540,9 @@ class WorkflowExecutor:
                             _CACHE_BYPASS_PREPARED_READ,
                         )
 
+                outcome = outcome.model_copy(
+                    update={"state": _completed_producer_state(outcome.state)}
+                )
                 duration_ms = int((time.perf_counter() - started) * 1000)
                 if self._ctx.metrics is not None:
                     self._ctx.metrics.record_node_completed(

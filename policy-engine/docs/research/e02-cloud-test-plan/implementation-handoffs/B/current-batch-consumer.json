@@ -1,0 +1,255 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-batch-consumer",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAS-03"
+  ],
+  "finding_ids": [
+    "B154",
+    "B155"
+  ],
+  "slice_base_sha": "44af46ed73f73ee5ff6e2eadf46a0a648efe6201",
+  "slice_base_tree_sha": "8d9cf488f452caebb8c4cc150a7064a316645006",
+  "implementation_commits": [
+    "0123927fe248d9015609ddf9126ccc45ffe7a098",
+    "83aa592ffa7ebfaad43336b2293896d71b8c1130",
+    "441f79f173df5e0d2a08c161120e634bb0e4f5aa"
+  ],
+  "candidate_sha": "a4ec901bcb2cee3fea7032a0d6e4b6911fa21f83",
+  "candidate_tree_sha": "f283e853b164d8439df0fce71ff7556f4e0a3edb",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "owner": "B root independent actual CAS iterator oracle; CAS canonical writer; A signature publisher consumer; G integration",
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "git_blob": "0b5a7ff298a836f32dbe499ed9da5b2b148976b7",
+      "sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "git_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+      "sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "git_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+      "sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "git_blob": "605cb8f7bee08e53ba2d6c669ead18e37e6845d2",
+      "sha256": "87932ccfe7d3842ce79427ff4bfcba1c0b76c14d4c7c0a2f2eba729de5d8bc7f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+      "git_blob": "4fc13719e7449e62c315ae8760791564b5236ae1",
+      "sha256": "e8b24432f7efee3eb3fafa1c4951efa4e40c77cea051747ed1bb82593c6c8651"
+    }
+  ],
+  "diff_footprint": {
+    "command": [
+      "git",
+      "diff",
+      "--name-status",
+      "44af46ed7",
+      "a4ec901bcb2cee3fea7032a0d6e4b6911fa21f83"
+    ],
+    "full_output": "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-format.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-format.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-frozen.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-frozen.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-frozen.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-mypy.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-mypy.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-ruff.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-delta-ruff.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-duplicate-release-base-replay.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-duplicate-release-base-replay.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-duplicate-release-base-replay.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-final-frozen.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-final-frozen.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-final-frozen.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-frozen.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-frozen.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-frozen.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-base-mypy.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-base-mypy.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-base-replay.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-base-replay.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-base-replay.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-frozen.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-frozen.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-frozen.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-mypy-frozen.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-mypy-frozen.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-completeness.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-completeness.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-completeness.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-stop.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-stop.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-stop.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-window.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-window.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-release-remove-window.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-signed-consumer.run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-signed-consumer.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/batch-signed-consumer.xml\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/input-identities.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta_first.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_release.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-independent-adapter-issuer-review.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-signature-publisher-contract.json\nA\tpolicy-engine/release-fragments/unreleased/2026-10-06-e02-cas-batch-completion.toml\nM\tpolicy-engine/src/polisyos/core/artifacts/README.md\nM\tpolicy-engine/src/polisyos/core/artifacts/_integrity_ops.py\nM\tpolicy-engine/src/polisyos/core/artifacts/_signature_ops.py\nM\tpolicy-engine/src/polisyos/core/artifacts/_transfer_ops.py\nM\tpolicy-engine/src/polisyos/core/artifacts/signing.py\nM\tpolicy-engine/src/polisyos/core/artifacts/store.py\nM\tpolicy-engine/src/polisyos/core/components/_cli_crypto.py\nA\tpolicy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py\nA\tpolicy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py\nM\tpolicy-engine/tests/unit/remediation/test_cas_03.py\n"
+  },
+  "writer_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json",
+    "sha256": "c15324e3b59db1e7f2dd8c6c15e951245f80d02a1bedc72d33f82962effb59ac",
+    "bytes": 58343
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/cas_duplicate_inventory_probe.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "a4ec901bcb2cee3fea7032a0d6e4b6911fa21f83",
+      "target_tree_sha": "f283e853b164d8439df0fce71ff7556f4e0a3edb",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "python": "CPython3.14.2 pytest9.0.2 Linux6.18.44",
+      "outcome": "PASS",
+      "wall_s": 0.511653313995339,
+      "process_rusage_maxrss_kib": 49888,
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-duplicate-inventory.json",
+          "sha256": "99ce3e9db362898eb956e300b80aa86d01fbe02d7a38fd89df11d1b816d1ab3b",
+          "bytes": 1471
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-duplicate-inventory.txt",
+          "sha256": "d64b9fbe998e0fff8f315593afb6f8e78d5ea52b9cb0657d06c6304d06d342f1",
+          "bytes": 535
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta4-cas-batch-consumer.xml",
+        "--basetemp=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta4-cas-batch-pytest"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "a4ec901bcb2cee3fea7032a0d6e4b6911fa21f83",
+      "target_tree_sha": "f283e853b164d8439df0fce71ff7556f4e0a3edb",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "python": "CPython3.14.2 pytest9.0.2 Linux6.18.44",
+      "outcome": "PASS",
+      "wall_s": 4.90443502200651,
+      "process_rusage_maxrss_kib": 92500,
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-batch-consumer.json",
+          "sha256": "9216affbfcdd7b75a9f842c935064130f82227ea9092dd703999598f2a824363",
+          "bytes": 1745
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-batch-consumer.txt",
+          "sha256": "594438f46a6cbf0285a994a5d77df5df7c87f1de8fe9ad3064fa5ec039645733",
+          "bytes": 99
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-batch-consumer.xml",
+          "sha256": "2680e6fc66369e40fbf011dff7bbd5c477b29818802e752ce361536362a2ebf2",
+          "bytes": 3522
+        }
+      ],
+      "counts": {
+        "cases": 20,
+        "pass": 20,
+        "fail": 0,
+        "error": 0,
+        "skip": 0
+      }
+    }
+  ],
+  "before_control": {
+    "source_sha": "0123927fe248d9015609ddf9126ccc45ffe7a098",
+    "executed_helper_head": "714d602bce509a21e8aa4aabbcca684d505562a4",
+    "store_sha256": "8aaa4936dc6581cee57b279dbe538ec94a303d29a1ba2e95bd691067e38ce1d3",
+    "driver": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/cas_duplicate_inventory_probe.py",
+      "sha256": "93155014a5234df0b9f346f6f4030eef86a84337864f3c07c0aa0c595fe4c2bc",
+      "bytes": 1568
+    },
+    "source_consumed": 64,
+    "source_total": 64,
+    "elapsed_s": 0.6399401539965766,
+    "deadline_s": 0.04,
+    "inventory_exhausted": true,
+    "outcome": "FAIL",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/cas-duplicate-inventory-012.txt",
+      "sha256": "5c8bb709da6c989ddb4f0c0a9d13e7aeb3a750ec1bd90cb59bf21bbbd7d24f42",
+      "bytes": 923
+    },
+    "classification": "Independent actual explicitly supplied duplicate iterator exhausts whole input after owner deadline. This is input-admission quantity escape in same B155 class, not inherited-red attribution."
+  },
+  "after_observation": {
+    "source_file": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/store.py",
+    "source_sha256": "0899b70593826b18875cac273b1621ab76a5589a03b52fb8dbd9cf4926c882a9",
+    "fixture_root": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/cas-duplicate-inventory-wze7ow94",
+    "source_consumed": 5,
+    "source_total": 64,
+    "elapsed": 0.04301898900303058,
+    "state": "aborted",
+    "abort_reason": "deadline",
+    "admitted": 1,
+    "finished": 1,
+    "inventory_exhausted": false,
+    "statuses": [
+      "unsigned",
+      "error"
+    ]
+  },
+  "input_closure": "Unchanged byte-for-byte931550 driver creates actual FileSystemCAS blob/manifest fixture, supplies64 identical fullrefs through real iterator with10ms per next and one immutable40ms absolute deadline. max_workers2/pending_window2 are tested native property caps, not imposed cloud compute quotas. Own absolute PYTHONPATH selects merged CAS source. Newfixture bytes retained at exact observation fixture_root, originalfixture at .polisyos/e02-B-current/raw/review/cas-duplicate-inventory-0jg7p177. Native full20 batch cases consume actual unsigned leased import, local Ed25519 typed reports, cancellation/deadline/partial/full membership before publication.",
+  "independent_oracle": "Complete source traversal is observed in actual generator side effects; deadline initialized once independently from monotonic clock. Before64/.6399s vs successor5/.0430s; both realCAS blob/manifests retained. Typed aborted report exposes non-exhausted source, admitted/finished counts and actual per-item statuses; no exit-code-only inference.",
+  "property_removal_control": "Writer immutable cas-batch-completion receipt binds actual completeness8FAIL, duplicate-stop8FAIL, pendingwindow1FAIL with runtime outputs. Root unchanged source-item probe is independent baseline/candidate discriminator.",
+  "P37_predicate_basis": {
+    "iteration_stop": "recomputed from actual generator effect count and monotonic deadline",
+    "typed_report_completeness": "recomputed from full immutable report membership",
+    "publisher_consumption": "not_established: A-owned all-confirmations publisher is absent",
+    "full_B_closure": "not_established until frozen cohort and final60 ledger"
+  },
+  "P38_divergence": "Pending future count and dedup accepted-item count remain1 while original source traverses64 duplicates after deadline; therefore bounded pending window is a proxy for bounded producer iteration. Shared iterator checks cancellation/deadline before/after every next and exhaustion, then report remains aborted/not-exhausted.",
+  "P40_class_disposition": "Second producer-iteration escape widened the canonical iterator shared by ID and fullref wrappers, rather than patching one duplicate case. A single uncooperative iterator next or filesystem syscall may block after entry; no interruptible iterator/IO contract exists here, so that finite physical boundary is declared.",
+  "residuals": [
+    "B154 consumer_missing until A actual all-confirmations publisher uses require_complete_valid for exactfullRefs before promotion; typed Git contract pinned below",
+    "B155 O(N) retained seen/results for finite inventory is not a total-RSS guarantee; physical single syscall/next may block",
+    "CAS B148 legacyunbound\u2192scoped compatibility FAIL remains held owner semantics, no waiver",
+    "Repository full static gate failures overlap changed gate inputs; inheritance not_established; final gates pending"
+  ],
+  "typed_A_G_contract": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-signature-publisher-contract.json",
+    "sha256": "a7c05409125b4717241b327f98c149152897ee4ea80e282d9de55302fae45cae",
+    "bytes": 5415
+  },
+  "finding_closure": "No leaf aggregate closure. Root will decide all60 after final cohort; code/bounded native consumer checks pass separately.",
+  "evidence_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/cas-duplicate-inventory-012.txt",
+      "sha256": "5c8bb709da6c989ddb4f0c0a9d13e7aeb3a750ec1bd90cb59bf21bbbd7d24f42",
+      "bytes": 923
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-duplicate-inventory.json",
+      "sha256": "99ce3e9db362898eb956e300b80aa86d01fbe02d7a38fd89df11d1b816d1ab3b",
+      "bytes": 1471
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-duplicate-inventory.txt",
+      "sha256": "d64b9fbe998e0fff8f315593afb6f8e78d5ea52b9cb0657d06c6304d06d342f1",
+      "bytes": 535
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-batch-consumer.json",
+      "sha256": "9216affbfcdd7b75a9f842c935064130f82227ea9092dd703999598f2a824363",
+      "bytes": 1745
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-batch-consumer.txt",
+      "sha256": "594438f46a6cbf0285a994a5d77df5df7c87f1de8fe9ad3064fa5ec039645733",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/currenta4-cas-batch-consumer.xml",
+      "sha256": "2680e6fc66369e40fbf011dff7bbd5c477b29818802e752ce361536362a2ebf2",
+      "bytes": 3522
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/cas_duplicate_inventory_probe.py",
+      "sha256": "93155014a5234df0b9f346f6f4030eef86a84337864f3c07c0aa0c595fe4c2bc",
+      "bytes": 1568
+    }
+  ],
+  "cleanup": "Trash absent; all unique original/successor CAS fixtures retained. Do not permanently delete; finalcloseout lists reusable scratch separately."
+}

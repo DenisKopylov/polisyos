@@ -1,0 +1,216 @@
+{
+  "schema": "policyos.e02.predecessor_storage_custody.v1",
+  "unit": "B",
+  "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "source_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "formal_closure_ids": [],
+  "actual_case_partition": {
+    "cases": 3578,
+    "PASS": 2177,
+    "FAIL": 85,
+    "ERROR": 1314,
+    "SKIP": 2,
+    "XFAIL": 0,
+    "UNRUN": 0
+  },
+  "partition_instrument": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+  "qualification": [
+    "Predecessor only; does not establish successor behavior.",
+    "All actual native statuses remain literal; setup failure means criterion body not_established.",
+    "Overlay capacity exhausted; 928 numbered tmp_path setup errors, 1 explicit ENOSPC, 344 catalog setup errors and 41 intervention setup errors independently reconciled by CAS full phase/XML audit; no universal product defect or inherited attribution.",
+    "3578 cases reconciled against complete native phase/JUnit data with 27 actual parser checks true; parser check count is not a mechanism denominator.",
+    "Global required gates all FAIL; P41 inherited provenance not_established, no waiver.",
+    "Nine immutable completed raw files stream-copied/fsynced with independent SHA readback, then original paths changed to aliases. All bytes preserved.",
+    "/tmp is volatile tmpfs; custody is cloud-session lifetime only, not disk/power-loss durability.",
+    "No native Trash available; no code/environment/fixture directory permanently deleted or pruned.",
+    "Unique prior fixture tree and completed deciding outputs preserved; cleanup candidates require handoff, not automatic deletion."
+  ],
+  "preservation_ledger": {
+    "path": "preservation-ledger.txt",
+    "bytes": 6213,
+    "sha256": "bad95d596a63c794f2ad398c111e4df9af41ef8cd2d0b3efd726fbe8f2568402",
+    "records": 18
+  },
+  "artifacts": [
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-B-cohort.json",
+      "bytes": 2977,
+      "sha256": "5d1bb970219aed1ab7119e9141a08548d07fbad505f7ff54583edbb6490e5349",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-B-cohort-profile.json",
+      "bytes": 18280,
+      "sha256": "31a9a4d2953c5206d2cbca516164d6a1f66ad8bc67385246e325e66feea39dba",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-B-cohort.txt",
+      "bytes": 3611397,
+      "sha256": "675ebace8ab28945f3b97f4fb37374f1ae3832f15e0475cad58e392fed54abf5",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-all-changed-ruff.json",
+      "bytes": 24414,
+      "sha256": "368668189785e8d9962f347f646973b43f26899db74c6f03b157dcb5a3091283",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-all-changed-ruff-profile.json",
+      "bytes": 76302,
+      "sha256": "0f331c6d5375561a25a6134a76c99e4e81aae251c74c75890b33c0ac0c44c642",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-all-changed-ruff.txt",
+      "bytes": 2913214,
+      "sha256": "94b7ce7ca4a50c145969f7a06cc248baf23133893a699657e87744d74360c619",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-all-changed-format.json",
+      "bytes": 24415,
+      "sha256": "1bad83e54f1fe85bfe113fe0302495a58e1b9ffc4e5cacf4ca601329eba9460d",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-all-changed-format-profile.json",
+      "bytes": 76302,
+      "sha256": "d2d56378f36ad43ffde8a7f99e202fb7b690a0f01bdcdbd3c962e2f2988dac87",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-all-changed-format.txt",
+      "bytes": 13569,
+      "sha256": "a2d9d5ad926063732c33da61e0a65721020b79340d8056347df460cf40d0c56e",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-architecture.json",
+      "bytes": 2369,
+      "sha256": "9ce05f90f4a3bf0c2090186e7427917d39b31fd42055fc3a86d8c0a2548e5b11",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-architecture-profile.json",
+      "bytes": 2170,
+      "sha256": "b8c456bcabb6d4925e243bbb35037e8fd06b369c357298ab0f1cfb0e5e9269f2",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-architecture.txt",
+      "bytes": 123233,
+      "sha256": "3c1a37a7f2a900c270e8faca0fe21ef985cc77ad59bc3d319dd34bcd625d2f16",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-runtime-api.json",
+      "bytes": 2420,
+      "sha256": "c4bab8ba5fdd0ac24949943fc2136beaeabdb794d0ee50133a5a914c235b9a44",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-runtime-api-profile.json",
+      "bytes": 2222,
+      "sha256": "d722ac7216bf8fcf575a44442dceaa419f038ab6a1fc73bcb6850b4e07ceb8c1",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-runtime-api.txt",
+      "bytes": 13048,
+      "sha256": "4a7599cdf48d99313f81664f95e77ffbde002338c4545f1960ef1a8522096672",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-production-invocation.json",
+      "bytes": 2625,
+      "sha256": "70e7488f9a3852207872581c6a987ef31b3b854603ad700cf97eee5278d7fba3",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-production-invocation-profile.json",
+      "bytes": 2508,
+      "sha256": "f1bd83a89bb848b9b1f4cad1e7039a8a054cdd9710b3cb2588c6042676b634a7",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-production-invocation.txt",
+      "bytes": 15789,
+      "sha256": "a1dd9073a84a62d8b1b44d60c2e39b515e351c0ee17112a8bf5440f87539bd30",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-verify-uncapped.json",
+      "bytes": 2765,
+      "sha256": "02dc20e7c15d011f55ed277815bd32d5ca704ccca1332554cee19b982f68bc94",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-verify-uncapped-profile.json",
+      "bytes": 3123,
+      "sha256": "7c364837f9104e969694a0eb0b2dab3c50afcbbb511e5b2adade99b29cb8ea86",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-verify-uncapped.txt",
+      "bytes": 18074,
+      "sha256": "0ebe92ef8fa05914968cceaddcd17688707b2ff48fee815845ea60458d919ae1",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-parity-uncapped.json",
+      "bytes": 2770,
+      "sha256": "c990e8faefe6adb7c930a67d3862d35e1a62f3fd799b857d93cd1de072b190a0",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-parity-uncapped-profile.json",
+      "bytes": 3126,
+      "sha256": "8d6bca07f38a6768b337f91867c4e921ff485fa38ad839310507a487b1ea2f35",
+      "custody": "committed complete moderate wrapper/profile"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-parity-uncapped.txt",
+      "bytes": 35088,
+      "sha256": "9b3ae101cf7a4af0c344df0aa5c420133c5a434164b4aface85bf9565976200d",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+      "bytes": 3583926,
+      "sha256": "f1ddd4788163d030277242ac7233312da78a68f6aaee27a511b0b3cb7f2cef5b",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-B-cohort-inventory.json",
+      "bytes": 20097609,
+      "sha256": "9d8ab52071bb88523755aa80c55a954223ceca47e693a1626dca2b2750b0faa4",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/review/terminal-final-production-invocation-full.json",
+      "bytes": 173315329,
+      "sha256": "1892a27aa2446bb5b0538d7d3baa5a84cfbf5564d603eaa53f432dbb35582f01",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/terminal-final-selector.json",
+      "bytes": 669809,
+      "sha256": "dd66cd003b0bc7b2c98c78d96e47a901109c2dd2b09635231c86f58dd7b3d34c",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    },
+    {
+      "path": ".polisyos/e02-B-current/raw/terminal-final-selector-lineage.json",
+      "bytes": 22532317,
+      "sha256": "2a754eb9bf2d1310cdaa5967e75efc9c92d6d7ab1b4ca6bd22d01ece53aece26",
+      "custody": "ignored raw; source-machine available only; receiver not_established pending exact rerun"
+    }
+  ],
+  "independent_receipts": {
+    "global_required_gates": "caec884877ac706653bb87ca0ea75bb70580ff68",
+    "partition": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+    "native_ownership_and_error_audit": "pending published CAS historical packet"
+  },
+  "next": "Integrate independently reviewed checkpoint budget and CAS typing repairs, update generated companion, freeze a new source and rerun full B native/required gates with a separate /tmp scratch."
+}

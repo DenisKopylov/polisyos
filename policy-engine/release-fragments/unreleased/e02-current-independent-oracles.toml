@@ -1,0 +1,11 @@
+id = "e02-current-independent-oracles"
+title = "Verify budget wire and CAS retry through independent consumers"
+type = "fixed"
+component = "scientist"
+owner = "team-policyos-runtime"
+summary = "Add independent fresh-process witnesses for required budget wire fields and corrupt duplicate CAS publication."
+evidence = ["tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py", "tests/unit/core/artifacts/test_put_consumer_oracle.py"]
+compatibility = "Legally omitted nullable budget fields remain accepted; an exhausted budget remains exhausted across fresh-process reads."
+surface_classification = "internal: runtime verification companions"
+migration = "No new product API. Existing missing ledgers require explicit configured or unlimited bootstrap before public mutation."
+limitations = "These finite filesystem/process witnesses do not establish power-loss or multi-host guarantees."

@@ -1,0 +1,64 @@
+.....F..                                                                 [100%]
+=================================== FAILURES ===================================
+___________ test_matching_bundle_reuses_without_reinvoking_selector ____________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/tmp/test_matching_bundle_reuses_wi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fdb8c32af10>
+
+    def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatch) -> None:
+        """A valid same-request CAS bundle is reused without selecting again."""
+        ctx = _build_ctx(tmp_path, run_id="R_phase15_reuse")
+        db_path = tmp_path / "skg.duckdb"
+        _seed_skg(db_path)
+        graph_ref = persist_causal_graph_model(
+            ctx.store,
+            CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+        )
+        state = ExperimentState(
+            run_id="R_phase15_reuse",
+            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+            params={
+                "target_context": {
+                    "context_id": "UA",
+                    "income_level": "lower_middle",
+                    "institutional_quality": 0.4,
+                    "post_communist": True,
+                },
+                "required_parameters": ["fiscal_multiplier"],
+                "skg_db_path": str(db_path),
+                "skg_index_dir": str(tmp_path / "idx"),
+                "domain": "fiscal",
+            },
+        )
+    
+        node = ResolveParametersNode()
+        first = node.execute(ctx, state)
+        assert first.status == "ok"
+        first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    
+        def fail_if_selected(*args, **kwargs):
+            del args, kwargs
+            raise AssertionError("ParameterSelector must not run for a matching CAS bundle")
+    
+        monkeypatch.setattr(
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector",
+            fail_if_selected,
+        )
+>       replay = node.execute(ctx, first.state.model_copy(deep=True))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py:249: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py:225: in execute
+    selector = ParameterSelector(skg_query)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def fail_if_selected(*args, **kwargs):
+        del args, kwargs
+>       raise AssertionError("ParameterSelector must not run for a matching CAS bundle")
+E       AssertionError: ParameterSelector must not run for a matching CAS bundle
+
+policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py:243: AssertionError
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_bundle_reuses_without_reinvoking_selector

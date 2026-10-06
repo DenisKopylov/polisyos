@@ -1,0 +1,257 @@
+{
+  "old-entered.xml": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/old-entered.xml",
+    "bytes": 4243,
+    "sha256": "81d1455373803a6cc0515c0d15faab501842020c406152b0a738e16156f328b7"
+  },
+  "environment-profile.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json",
+    "bytes": 9316,
+    "sha256": "4bd40418781be843d4c65acc6afc4c32aef8b356ac4974b48a45a36461a68d49"
+  },
+  "checkpoint-facade-ruff.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-ruff.txt",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "checkpoint-cancel-final-mypy.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-cancel-final-mypy.txt",
+    "bytes": 4599,
+    "sha256": "999b93040334b59035dcaf1abd3a51653f6850a677e0692727830b057bd4bac2"
+  },
+  "ruff84.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/ruff84.json",
+    "bytes": 1460,
+    "sha256": "1fc62a8df3e31ff2b496e91a3dfc8ebb3860bc454f3c6e345fb0c3d9391f60cb"
+  },
+  "checkpoint-checkpoint-first.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-checkpoint-first.txt",
+    "bytes": 1388,
+    "sha256": "8b21a9188971f4c5bb5cf2b8972b14c00e8d791da806a82d743bedb535e5afa1"
+  },
+  "source-identities.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+    "bytes": 18863,
+    "sha256": "0cfc407bceea65f17ee13249cf32e796ea66e7d7a5ac3b0c0171ebbdb7d1883f"
+  },
+  "entered-fixture.patch": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-fixture.patch",
+    "bytes": 1592,
+    "sha256": "7150dddd9e576640e34b2ee9fdbc584f8747df34d31df61d99d7a248293e2e0d"
+  },
+  "evidence-ruff-initial.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/evidence-ruff-initial.txt",
+    "bytes": 20676,
+    "sha256": "d57444ba5b77406049d42b9e756018003ba4c246542a8009c11db781ae77559f"
+  },
+  "driver-custody.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/driver-custody.json",
+    "bytes": 11417,
+    "sha256": "d7932581f28fb0bfe5a36d293ffa9614fd27821b26824b672ec219ec3f91881f"
+  },
+  "checkpoint-facade-ruff.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-ruff.json",
+    "bytes": 1881,
+    "sha256": "b1c3c0364cdcbdb0227fc63ffd0cb75155783bec5e42bf6f63e61a7f0af0e5dd"
+  },
+  "head-removal-wrapper.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/head-removal-wrapper.txt",
+    "bytes": 2770,
+    "sha256": "f1a3ee6bf867aea02e3261632da2f628aca5762b65d3117ad9afd72f2cb4785b"
+  },
+  "source-push.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-push.txt",
+    "bytes": 634,
+    "sha256": "dc3e440dfbf9584cbd6af2dd4eeb8432a09332942178cfc64cbfbd9274ced77b"
+  },
+  "checkpoint-cancel-final-native.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-cancel-final-native.json",
+    "bytes": 2189,
+    "sha256": "b4877cb504e33038c481aa573ef824ac765a2f750c7d5b5a74d0969d83cbd24c"
+  },
+  "checkpoint-cancel-final-mypy.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-cancel-final-mypy.json",
+    "bytes": 1970,
+    "sha256": "30746a52723d7feb5cd0678c4b16b173e4b76313050ba91644801a67682f8870"
+  },
+  "format84.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/format84.txt",
+    "bytes": 26,
+    "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209"
+  },
+  "checkpoint-final-mypy.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-final-mypy.txt",
+    "bytes": 4599,
+    "sha256": "da4b06bcf18e70e8c732be750684175f444c07f9a5bf2da52cb59b7d9d5c7734"
+  },
+  "resume.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/resume.json",
+    "bytes": 135822,
+    "sha256": "9e8abad8f2911ce189441115cfa3aede8e1ec9092aabc81a1968e91b377287cf"
+  },
+  "checkpoint-facade-first.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-first.json",
+    "bytes": 1895,
+    "sha256": "9c54ed666c3894ab1898f79fb7ad6e852939cdf895c96daa93345074fd972e35"
+  },
+  "evidence-ruff-intermediate.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/evidence-ruff-intermediate.txt",
+    "bytes": 9490,
+    "sha256": "201974a38852dfb9d6d79ddc7f04e0a90fea44e1765ae5f8a38acfcb33c405cc"
+  },
+  "final-affected.xml": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/final-affected.xml",
+    "bytes": 28367,
+    "sha256": "0112fa12c5ba90c7d35c623734391d06d1b3e7ac09c841b10639725673322413"
+  },
+  "facade_identity.py": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py",
+    "bytes": 3064,
+    "sha256": "18c6d6d07f63fb49a3b7c6688ccaa3caa2f05716a9e10f89646296360a379bb6"
+  },
+  "entered-cancel-probe.py": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py",
+    "bytes": 3409,
+    "sha256": "e09eb1f840048792870087bef6d47e327496545dd3ee4d21fc1c8613aa89dd29"
+  },
+  "evidence-ruff-final.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/evidence-ruff-final.txt",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "case-reconciliation.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/case-reconciliation.json",
+    "bytes": 1473,
+    "sha256": "e44b12a1fcba56a1ac48fe1405d77dba33699457f208118e8ca47f67db98cabf"
+  },
+  "format84.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/format84.json",
+    "bytes": 1478,
+    "sha256": "e12d080bead52f143891c847832ff1937a51b4b95a9314e12b05729f97f5fe7a"
+  },
+  "defining.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/defining.txt",
+    "bytes": 1141,
+    "sha256": "4bbe607986215024f27e4ab06151134bbd2303f6e4cf10d838eb2ed2bff016eb"
+  },
+  "checkpoint-facade-mypy.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-mypy.txt",
+    "bytes": 2364,
+    "sha256": "3b1ea729e412b013b12ca3b7a42a315c37af36bc337514bea901f7cf00902c3a"
+  },
+  "checkpoint-final-mypy.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-final-mypy.json",
+    "bytes": 1964,
+    "sha256": "df9c312ce7e6c39c435d7c51e6c3ec81b050eaf58eb1887eaa1e683fb20025eb"
+  },
+  "old-entered.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/old-entered.txt",
+    "bytes": 4223,
+    "sha256": "3e3620117b50871e5e0eae48341eed136c277d4931e95a93073c13998ba577a1"
+  },
+  "cancel-final-native.xml": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/cancel-final-native.xml",
+    "bytes": 8225,
+    "sha256": "583505cfc6bf36c0941f9551da909bd27d6904704d7fc392bafa38c9c0e7a92d"
+  },
+  "checkpoint-facade-format.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-format.json",
+    "bytes": 1898,
+    "sha256": "897c8b0ccdf3859b88e83b41e77b71de63b23f28e9efde2758b9335f7fbdd93c"
+  },
+  "defining-frozen.xml": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/defining-frozen.xml",
+    "bytes": 2879,
+    "sha256": "2420e1017e58b1b3dc6025c7ac51138514645ee3ce4309db2979c877162330c1"
+  },
+  "checkpoint-facade-first.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-first.txt",
+    "bytes": 1384,
+    "sha256": "7ff142a1b0855b81b74c954d93f3efe8c3143b1f745ea8b23f8e0a4dc5802bec"
+  },
+  "checkpoint-facade-format.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-format.txt",
+    "bytes": 25,
+    "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+  },
+  "evidence-format-final.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/evidence-format-final.txt",
+    "bytes": 26,
+    "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+  },
+  "defining-frozen.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/defining-frozen.txt",
+    "bytes": 80,
+    "sha256": "fe9dca0451129aaabdd76ea13e310b61a52091a146a1f9fe5b72b851eb33547f"
+  },
+  "defining.xml": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/defining.xml",
+    "bytes": 3328,
+    "sha256": "78b517611a6118ef24934d6aadbba5714bb53f80323c7999787d174bc5d2ff2d"
+  },
+  "environment.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment.json",
+    "bytes": 560,
+    "sha256": "4ba2245ea9715e2ac0ac1508db6001d1ad3e4f7b4f8e289de8707486012153ec"
+  },
+  "mypy.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/mypy.txt",
+    "bytes": 4875,
+    "sha256": "3790b10e97243e0af05105ebf273ced41d30bf866a69d771223e6c24fe217483"
+  },
+  "entered-cancel-probe.source.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.source.txt",
+    "bytes": 2298,
+    "sha256": "258ed06efeb135cf613b6d68f6202170f00c27a2e428690ff2d8f3e6b4691e83"
+  },
+  "facade_identity.source.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.source.txt",
+    "bytes": 2445,
+    "sha256": "85c9fa324b5edb0214ce61319fe91707e1bc9411a6fd7c59e4945f88f0348c90"
+  },
+  "checkpoint-checkpoint-first.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-checkpoint-first.json",
+    "bytes": 1904,
+    "sha256": "10ac1c2326e877096130ac5a90135c700cd3e34bd04f71b22cf97796e37e26b9"
+  },
+  "checkpoint-cancel-final-native.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-cancel-final-native.txt",
+    "bytes": 80,
+    "sha256": "b1caae85ec31d08a00b70488af9cc30676ea609b8012c2800620e199adf3bcb2"
+  },
+  "baseline-navigation.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json",
+    "bytes": 59374,
+    "sha256": "aef0d9bbcacb14fe1f66e6813097b9bbca1828ea6e101ed84f603732322d0580"
+  },
+  "checkpoint-final-affected.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-final-affected.json",
+    "bytes": 2527,
+    "sha256": "8b73fa502b7cacad4a505bd45d7291e167d0cf2b4f15d2b744afbde969666f65"
+  },
+  "checkpoint-facade-mypy.json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-mypy.json",
+    "bytes": 1895,
+    "sha256": "6953ba7f9e7891a1aa3b86a4433cc51979fd576a6754507211410c29d60139fc"
+  },
+  "checkpoint-final-affected.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-final-affected.txt",
+    "bytes": 7360,
+    "sha256": "d94b2ef1e10e39e38fc2ecba9d3e25752aa2686ce1f30f0574d981cc96344802"
+  },
+  "entered-cancel-probe.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.txt",
+    "bytes": 259,
+    "sha256": "242fc5d3f1a778558c491edd5309ba62ba20b57b73ac7be9208bb767c1638d6f"
+  },
+  "gc-removal-wrapper.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/gc-removal-wrapper.txt",
+    "bytes": 2770,
+    "sha256": "f1a3ee6bf867aea02e3261632da2f628aca5762b65d3117ad9afd72f2cb4785b"
+  },
+  "ruff84.txt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/ruff84.txt",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  }
+}

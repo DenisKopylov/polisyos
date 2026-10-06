@@ -1,0 +1,30 @@
+id = "2026-10-06-e02-b-cas-failed-snapshot-report"
+title = "Retain measured bytes in failed CAS verification reports"
+type = "fixed"
+component = "artifacts"
+owner = "team-runtime"
+summary = "Filesystem CAS verification retains actual digest and size from one safe byte snapshot even when validation refuses the artifact."
+evidence = ["tests/unit/core/artifacts/test_verification_failure_snapshot_report.py", "tests/unit/core/phase0/test_artifact_store.py", "tests/unit/runtime/quality/test_chronology_proof.py"]
+compatibility = "VerificationReport keeps its existing schema and normalized integrity reasons. Corrupt or mismatched acquired bytes carry actual_sha256_hex and byte_size, allowing existing consumers to distinguish rejected evidence from missing evidence. Verified reads and signing retain their original refusal classes."
+change_class = "behavior-runtime"
+surface_classification = "public_stable: filesystem CAS VerificationReport; internal: captured read result"
+migration = "Treat measurements in an invalid report as observed bytes, not artifact admission. No caller changes are required."
+api = "No public arguments or schema fields are added."
+limitations = "Failures before a safe blob read omit unavailable measurements. The witness describes one local read and does not prove filesystem crash durability or multi-host coherence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = ["src/polisyos/core/artifacts/README.md"]
+
+[[compatibility_change]]
+id = "cas-failed-snapshot-measurements"
+change_class = "behavior-runtime"
+impact = "behavior_change"
+surface = "public_stable: filesystem CAS VerificationReport"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Failed verification reports retain measured digest and size without rereading failed artifact bytes."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = ["src/polisyos/core/artifacts/README.md"]

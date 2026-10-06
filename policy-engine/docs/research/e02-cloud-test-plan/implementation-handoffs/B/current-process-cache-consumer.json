@@ -1,0 +1,400 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-process-cache-consumer",
+  "closure_ids": [],
+  "bundle_ids": [
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "EXE-01",
+    "EXE-02",
+    "CAS-02"
+  ],
+  "slice_base_sha": "5650964f97fcb3dea9fac6e2978f86262dc2411b",
+  "slice_base_tree_sha": "7b75540a46da8a1b173050c22c340fc775dc7195",
+  "published_source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53",
+    "79b2a7095b15f159d0ca168e8c15a8f94727b685"
+  ],
+  "candidate_sha": "610906bbb99dd5e26fa1494517d733fea3556075",
+  "candidate_tree_sha": "2db184ce0cea106a0bb40f7c228acfe05b2a2020",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/admission-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/admission-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-navigation-compact.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-input-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline_navigation.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-input-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-input-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/quality-full-tracked-input-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/requested-baseline-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native_original.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/capture.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cas.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cas.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cas.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cmp.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cmp.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cmp.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-dur.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-dur.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-dur.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-net-wire.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-net-wire.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-net-wire.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-run.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-run.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-run.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/tokenizer-input.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/review-fbc.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-async.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-async.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-async.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-async.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-sync.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-sync.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-sync.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-sync.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-unrun.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-unrun.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_fbc.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_unrun.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/base-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/base-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/base-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/candidate-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/candidate-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/candidate-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/full-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/full-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/implementation-commit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/base-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/base-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/base-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/candidate-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/candidate-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/candidate-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/full-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/full-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/implementation-commit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
+    "policy-engine/release-fragments/unreleased/e02-current-runtime-process.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/README.md",
+    "policy-engine/tests/unit/scientist/orchestration/engine/_retry_setup_probe.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py"
+  ],
+  "mechanism_paths": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py"
+  ],
+  "test_paths": [
+    "policy-engine/tests/unit/scientist/orchestration/engine/_retry_setup_probe.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
+    "policy-engine/release-fragments/unreleased/e02-current-runtime-process.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/README.md"
+  ],
+  "baseline_cells": [],
+  "baseline_identity_refs": [
+    "current-runtime-process-setup.json and source/process receipt141e1f47f375ef6805ede2a427f7555ae9690cf3; earlier current-runtime-process.json retained with original EMFILE blocker",
+    "current-cache-recovery.json and receipt30b546d22695d568b1ae5eaa4ec63c5ca78c43c5 hold exact source/cell/environment/input bindings; this receipt is affected consumer replay, not fresh baseline finding conclusion"
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/remediation/test_run_03.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "610906bbb99dd5e26fa1494517d733fea3556075",
+      "target_tree": "2db184ce0cea106a0bb40f7c228acfe05b2a2020",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": {
+        "tracked_source_tree": "2db184ce0cea106a0bb40f7c228acfe05b2a2020",
+        "selected_tests": [
+          "tests/unit/common/test_async_tools.py",
+          "tests/unit/scientist/orchestration/engine/test_retry.py",
+          "tests/unit/remediation/test_run_03.py"
+        ],
+        "fixture": "native physical-process/descriptor failures, actual executor/cache/ArtifactRef consumers and filesystem export/import generation cases; tracked pytest.ini+conftests and own tests/unit PYTHONPATH explicitly recorded in metadata, no original research raw"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 11.63818925000669,
+      "maxrss_kib": 130572,
+      "cases": 95,
+      "pass": 95,
+      "failures": [],
+      "skip": 0,
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer-evidence/current610-run.txt",
+          "sha256": "114a2afb2eadb87c01b8f590f7c5e59083535b9a9f5b08c84830de6b49ed637b",
+          "bytes": 646
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer-evidence/current610-run.xml",
+          "sha256": "8458b6626846f46f0609b70a7b2d94be88a692ac13bbbf5edf2181c49976ec75",
+          "bytes": 14397
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer-evidence/current610-run.json",
+          "sha256": "8eb31d94a52c43bd27faf58ec0a4fd5e416663695a94276c6f04e28dc6ac0766",
+          "bytes": 1970
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-exe-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-exe-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-exe.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "610906bbb99dd5e26fa1494517d733fea3556075",
+      "target_tree": "2db184ce0cea106a0bb40f7c228acfe05b2a2020",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": {
+        "tracked_source_tree": "2db184ce0cea106a0bb40f7c228acfe05b2a2020",
+        "selected_tests": [
+          "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+          "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py"
+        ],
+        "fixture": "native physical-process/descriptor failures, actual executor/cache/ArtifactRef consumers and filesystem export/import generation cases; tracked pytest.ini+conftests and own tests/unit PYTHONPATH explicitly recorded in metadata, no original research raw"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 32.70138016001147,
+      "maxrss_kib": 677188,
+      "cases": 26,
+      "pass": 26,
+      "failures": [],
+      "skip": 0,
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer-evidence/current610-exe.txt",
+          "sha256": "64576d99c4cef913eb9b9bd4e5a096807fe2289f77eb08a67c7de2e43fc6349d",
+          "bytes": 80
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer-evidence/current610-exe.xml",
+          "sha256": "ee84e4d9874320a694f1bc644920acafb76f27bc6b35181a58f176eb60389257",
+          "bytes": 5010
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer-evidence/current610-exe.json",
+          "sha256": "ec50f038fee491dd35e2b9746584f4cffd8f3d6b6aee09383debaecb432eebff",
+          "bytes": 1976
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/backends/test_caching_store.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "610906bbb99dd5e26fa1494517d733fea3556075",
+      "target_tree": "2db184ce0cea106a0bb40f7c228acfe05b2a2020",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/tests/unit:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "input_closure": {
+        "tracked_source_tree": "2db184ce0cea106a0bb40f7c228acfe05b2a2020",
+        "selected_tests": [
+          "tests/unit/core/artifacts/test_put_integrity_retry.py",
+          "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+          "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+          "tests/unit/core/artifacts/backends/test_caching_store.py",
+          "tests/unit/remediation/test_cas_02.py"
+        ],
+        "fixture": "native physical-process/descriptor failures, actual executor/cache/ArtifactRef consumers and filesystem export/import generation cases; tracked pytest.ini+conftests and own tests/unit PYTHONPATH explicitly recorded in metadata, no original research raw"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 18.37493958599225,
+      "maxrss_kib": 218472,
+      "cases": 78,
+      "pass": 74,
+      "failures": [
+        {
+          "classname": "tests.unit.remediation.test_cas_02",
+          "name": "test_failed_reused_directory_export_preserves_prior_complete_generation",
+          "message": "Failed: DID NOT RAISE <class 'OSError'>"
+        },
+        {
+          "classname": "tests.unit.remediation.test_cas_02",
+          "name": "test_import_enforces_existing_tenant_ownership",
+          "message": "Failed: DID NOT RAISE <class 'PermissionError'>"
+        },
+        {
+          "classname": "tests.unit.remediation.test_cas_02",
+          "name": "test_import_rejects_a_selected_view_bound_to_another_tenant",
+          "message": "Failed: DID NOT RAISE <class 'PermissionError'>"
+        },
+        {
+          "classname": "tests.unit.remediation.test_cas_02",
+          "name": "test_import_rolls_back_new_generation_on_mid_publication_failure",
+          "message": "Failed: DID NOT RAISE <class 'OSError'>"
+        }
+      ],
+      "skip": 0,
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer-evidence/current610-cas-import-closure.txt",
+          "sha256": "2315d70bcaaaf0cd4aa7324c717a6edd13ac6f1970f374df9e51d23b01916045",
+          "bytes": 6352
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer-evidence/current610-cas-import-closure.xml",
+          "sha256": "7582b749ab78e60f17d70ad12afdba756a0236dc5dddff63716d9ecf53ecb74c",
+          "bytes": 19725
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer-evidence/current610-cas-import-closure.json",
+          "sha256": "a1e3c4e07d40815e518ab1ef620a202fe73cb121831363cbdccd9b05b25890b1",
+          "bytes": 2244
+        }
+      ]
+    }
+  ],
+  "property": {
+    "statement": "Replay actual physical process/setup-resource and shared executor consumers after accepted RUN fbc repair; replay fresh producer/cache profile/cancellation custody after EXE79; resolve default-importlib native spawn input closure without changing production CAS.",
+    "runtime_path": [
+      "SharedBoundedExecutor and real process-bound retry/IPC setup plus reaper",
+      "WorkflowExecutor._recover_cache private offloop custody and actual ArtifactRef profile readback",
+      "FileSystemCAS real publication/import/caching consumers with native child driver"
+    ],
+    "proxy_divergence": "Passing an await/cancellation marker cannot establish physical resource reclamation or unpublished abandoned cache custody. These whole native files retain physical workers/process probes, exact manifests and actual consumers. Default-importlib spawn needs importable tests/unit module closure; adding explicit recorded tests/unit path removes 12 harness failures before CAS executes. Four real canonical ownership/fault negatives remain FAIL.",
+    "negative_controls": [
+      "RUN source-base actual EMFILE first-resource leak and widened source fbc native fix preserved in helper committed receipt; authorEXE independent script result no descriptors leaked at fbc",
+      "EXE cache recovery consumer comparisons base and removal retained in committed30b receipt",
+      "four exact canonicalCAS02 fault/ownership FAIL in this wave retain complete stdout; successor CAS129 updated actual mechanism seam and scoped admission not included in this older runtime",
+      "No P41 inherited-red conclusion; source attribution not_established for unresolved intersecting gates"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Intermediate affected-consumer evidence: 199 cases195PASS4FAIL; no closure from aggregate; all60 census and full frozen B cohort pending.",
+  "limitations_and_next_owner": [
+    "RUN retry one-deadline/classification successor and EXE affected deadline consumer still active; rerun when upstream contract changes.",
+    "CAS successor B148/149 typed scope and real fault seams must replace this older four FAIL input separately; old results retained.",
+    "B61 remains held without versioned SKG owner contract. No A or C owned source edit.",
+    "Full canonical gate input closure intersects changed mechanisms; no universal inherited baseline claim."
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "action": "preserve unique output/input; no permanent cleanup or registry pruning",
+    "candidates": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run-pytest",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-exe-pytest",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure-pytest",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run-cache",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-exe-cache",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-cas-import-closure-cache"
+    ],
+    "preserve": [
+      "code, tracked docs, deciding outputs and production data"
+    ]
+  }
+}

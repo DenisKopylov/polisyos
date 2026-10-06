@@ -1,0 +1,33 @@
+[
+  {
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+      "check",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py",
+      "--output-format",
+      "concise"
+    ],
+    "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+    "target_sha": "d3a3df91804fa4205681703c3346041eda743836",
+    "exit_code": 0,
+    "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/selector-option-ruff.txt",
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "bytes": 19
+  },
+  {
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+      "format",
+      "--check",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py"
+    ],
+    "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+    "target_sha": "d3a3df91804fa4205681703c3346041eda743836",
+    "exit_code": 0,
+    "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/selector-option-format.txt",
+    "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+    "bytes": 26
+  }
+]

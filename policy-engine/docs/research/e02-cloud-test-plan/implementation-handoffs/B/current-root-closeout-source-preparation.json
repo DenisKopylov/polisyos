@@ -1,0 +1,3946 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "slice": "root-closeout-source-preparation-205",
+  "reviewer": "cmp_res_probe",
+  "branch": "codex/e02-B-current-composition",
+  "closure_ids": [],
+  "formal_finding_closure": false,
+  "reviewed_source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+  "reviewed_tree_sha": "ac45ebc869b655ad349808f262eee50041b1923c",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "scope": "Independent read-only pre-final-wave source/ownership/companions/cross-unit contract review. No tests, gates, runtime, helpers or source edits; exact205 metadata preparation only, final frozen child outputs will be separately assigned.",
+  "verdict": "SOURCE_BOUNDARIES_AND_FINITE_CONTRACT_HANDOFFS_READY; FINAL_COMBINED_RUNTIME_AND_GATES_UNRUN_HERE",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Exact Git source/diff, canonical committed declarations, release/README refs and already committed typed contracts. No physical editorial/process concurrency or complete runtime import/input census is inferred from Git.",
+  "protected_A_C_zero_delta": [
+    {
+      "owner": "A",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "base": {
+        "object_ref": "o001"
+      },
+      "current": {
+        "object_ref": "o002"
+      },
+      "diff_numstat": "",
+      "outcome": "ZERO_SOURCE_DELTA"
+    },
+    {
+      "owner": "A",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "base": {
+        "object_ref": "o003"
+      },
+      "current": {
+        "object_ref": "o004"
+      },
+      "diff_numstat": "",
+      "outcome": "ZERO_SOURCE_DELTA"
+    },
+    {
+      "owner": "C",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "base": {
+        "object_ref": "o005"
+      },
+      "current": {
+        "object_ref": "o006"
+      },
+      "diff_numstat": "",
+      "outcome": "ZERO_SOURCE_DELTA"
+    }
+  ],
+  "full_changed_footprint": {
+    "command": [
+      "git",
+      "diff",
+      "--name-status",
+      "198076863e143dea9f89f02734b13d50dae3eed5",
+      "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7"
+    ],
+    "total_paths": 1381,
+    "sector_counts": {
+      "research_metadata": 1243,
+      "release_fragments": 24,
+      "source": 58,
+      "tests": 56
+    },
+    "complete_output_sha256": "def07888e1c74d6f707f452735276fffd045c360bdebb7af6a2aaf360f6d21f6",
+    "complete_current_source_paths": [
+      {
+        "object_ref": "o007"
+      },
+      {
+        "object_ref": "o008"
+      },
+      {
+        "object_ref": "o009"
+      },
+      {
+        "object_ref": "o010"
+      },
+      {
+        "object_ref": "o011"
+      },
+      {
+        "object_ref": "o012"
+      },
+      {
+        "object_ref": "o013"
+      },
+      {
+        "object_ref": "o014"
+      },
+      {
+        "object_ref": "o015"
+      },
+      {
+        "object_ref": "o016"
+      },
+      {
+        "object_ref": "o017"
+      },
+      {
+        "object_ref": "o018"
+      },
+      {
+        "object_ref": "o019"
+      },
+      {
+        "object_ref": "o020"
+      },
+      {
+        "object_ref": "o021"
+      },
+      {
+        "object_ref": "o022"
+      },
+      {
+        "object_ref": "o023"
+      },
+      {
+        "object_ref": "o024"
+      },
+      {
+        "object_ref": "o025"
+      },
+      {
+        "object_ref": "o026"
+      },
+      {
+        "object_ref": "o027"
+      },
+      {
+        "object_ref": "o028"
+      },
+      {
+        "object_ref": "o029"
+      },
+      {
+        "object_ref": "o030"
+      },
+      {
+        "object_ref": "o031"
+      },
+      {
+        "object_ref": "o032"
+      },
+      {
+        "object_ref": "o033"
+      },
+      {
+        "object_ref": "o034"
+      },
+      {
+        "object_ref": "o035"
+      },
+      {
+        "object_ref": "o036"
+      },
+      {
+        "object_ref": "o037"
+      },
+      {
+        "object_ref": "o038"
+      },
+      {
+        "object_ref": "o039"
+      },
+      {
+        "object_ref": "o040"
+      },
+      {
+        "object_ref": "o041"
+      },
+      {
+        "object_ref": "o042"
+      },
+      {
+        "object_ref": "o043"
+      },
+      {
+        "object_ref": "o044"
+      },
+      {
+        "object_ref": "o045"
+      },
+      {
+        "object_ref": "o046"
+      },
+      {
+        "object_ref": "o047"
+      },
+      {
+        "object_ref": "o048"
+      },
+      {
+        "object_ref": "o049"
+      },
+      {
+        "object_ref": "o050"
+      },
+      {
+        "object_ref": "o051"
+      },
+      {
+        "object_ref": "o052"
+      },
+      {
+        "object_ref": "o053"
+      },
+      {
+        "object_ref": "o054"
+      },
+      {
+        "object_ref": "o055"
+      },
+      {
+        "object_ref": "o056"
+      },
+      {
+        "object_ref": "o057"
+      },
+      {
+        "object_ref": "o058"
+      },
+      {
+        "object_ref": "o059"
+      },
+      {
+        "object_ref": "o060"
+      },
+      {
+        "object_ref": "o061"
+      },
+      {
+        "object_ref": "o062"
+      },
+      {
+        "object_ref": "o063"
+      },
+      {
+        "object_ref": "o064"
+      }
+    ],
+    "qualification": "Full Gitfootprint includes large immutable research/evidence records; only complete production source, mandatory README/release and named downstream contract input objects are this review scope."
+  },
+  "canonical_writer_mapping": {
+    "source_py_paths": 47,
+    "distinct_nonmerge_source_commits": 55,
+    "canonical_families": {
+      "codex/e02-B-current-runtime": 2,
+      "codex/e02-B-current-cas-generation": 11,
+      "codex/e02-B-current-execution-state": 8,
+      "codex/e02-B-current-adapters": 11,
+      "codex/e02-B-current-composition": 12,
+      "codex/e02-B-current-durability": 3
+    },
+    "unmapped_source_commits": [],
+    "unresolved_mechanism_family_overlaps": [],
+    "rows": [
+      {
+        "path": "policy-engine/src/polisyos/common/async_tools.py",
+        "canonical_mechanism_family": "codex/e02-B-current-runtime",
+        "source_binding": {
+          "object_ref": "o008"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "fd0a8b0044bb51539d812c2d0957381ed52ed3fd"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o010"
+        },
+        "canonical_CAS_packet_duplicate_normalized": true,
+        "nonmerge_source_commits": [
+          "06231bcfb0370a592db4be0ebff5b26b763e4c9c",
+          "7207ceec89e72481c0de8c3e4e64f25d667dc299"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o011"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+          "0123927fe248d9015609ddf9126ccc45ffe7a098",
+          "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o012"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "0123927fe248d9015609ddf9126ccc45ffe7a098",
+          "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o013"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "0123927fe248d9015609ddf9126ccc45ffe7a098",
+          "b882482a8937ae98fd1ffe35e75293903c9a0141",
+          "df2fd08f2550c2e3ff78b5656058484f928a7323",
+          "40f5c58bfa09e2dd3b545f64664e6a050cc34314"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "canonical_mechanism_family": "codex/e02-B-current-execution-state",
+        "source_binding": {
+          "object_ref": "o014"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "ff6d86f56948dc49780e5034d4ec2a3f619df8c6"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o015"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "b882482a8937ae98fd1ffe35e75293903c9a0141"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o016"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o017"
+        },
+        "canonical_CAS_packet_duplicate_normalized": true,
+        "nonmerge_source_commits": [
+          "06231bcfb0370a592db4be0ebff5b26b763e4c9c",
+          "7207ceec89e72481c0de8c3e4e64f25d667dc299"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o018"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o019"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+          "0123927fe248d9015609ddf9126ccc45ffe7a098"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o020"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7",
+          "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+          "83aa592ffa7ebfaad43336b2293896d71b8c1130",
+          "0123927fe248d9015609ddf9126ccc45ffe7a098",
+          "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+          "b882482a8937ae98fd1ffe35e75293903c9a0141"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+        "canonical_mechanism_family": "codex/e02-B-current-cas-generation",
+        "source_binding": {
+          "object_ref": "o021"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "0123927fe248d9015609ddf9126ccc45ffe7a098"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o023"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "a2717e3833f582725acf54d480113f9792f017f3",
+          "b0fd6afb93066c7a7e0a7349597700beb757a137"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o024"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "db88c2e2860d89c52477ce1bad61dc535b355440",
+          "a2717e3833f582725acf54d480113f9792f017f3",
+          "04079b8ff0e6efbb244778d3b2c0eea6e09feccf",
+          "b0fd6afb93066c7a7e0a7349597700beb757a137"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o025"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "db88c2e2860d89c52477ce1bad61dc535b355440",
+          "a2717e3833f582725acf54d480113f9792f017f3",
+          "4aedd41b256ee308c1832f488aa4318c6653b359",
+          "04079b8ff0e6efbb244778d3b2c0eea6e09feccf",
+          "b0fd6afb93066c7a7e0a7349597700beb757a137"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o027"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "e46cb5cd28baf204e69f556dcfea41889ed0ad35",
+          "f29d85ef8eb35af3a9566ccd6c35202c2f1fbc58"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o028"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "943325b228984dd949e03b609e3173d6de814dbe"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o029"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "943325b228984dd949e03b609e3173d6de814dbe"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o030"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+          "943325b228984dd949e03b609e3173d6de814dbe"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o032"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o033"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+          "c639295e25a602869c6c28754cd43fd856aa05cf"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o034"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o035"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "ec36f1cbb39f89b7f95f962713182b57b52ebd53"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o036"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "84b9c91b7c9705019a5bcb8090128a0f3ffd7e64"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o037"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "ec36f1cbb39f89b7f95f962713182b57b52ebd53",
+          "e10a81470275e41ebffd3324412c47707aa7dafd",
+          "84b9c91b7c9705019a5bcb8090128a0f3ffd7e64"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o038"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+          "c639295e25a602869c6c28754cd43fd856aa05cf",
+          "53e80d5d1022cc2c6375c5d364c69f058eca714a",
+          "0e441daa8eff8008ed120c94c77e39c451901ccb",
+          "89ead1586d00ff48bb296d0e36d337851fe76ee3",
+          "e10a81470275e41ebffd3324412c47707aa7dafd",
+          "84b9c91b7c9705019a5bcb8090128a0f3ffd7e64"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o040"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "ec36f1cbb39f89b7f95f962713182b57b52ebd53"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o041"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "ec36f1cbb39f89b7f95f962713182b57b52ebd53"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o043"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "054db3c913b0daf29cf503672a5ecfee7903fb7c"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o044"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+          "054db3c913b0daf29cf503672a5ecfee7903fb7c"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+        "canonical_mechanism_family": "codex/e02-B-current-composition",
+        "source_binding": {
+          "object_ref": "o045"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "054db3c913b0daf29cf503672a5ecfee7903fb7c"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "canonical_mechanism_family": "codex/e02-B-current-durability",
+        "source_binding": {
+          "object_ref": "o047"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+          "b552534d164fed0109a1105a90261bac9218dcbd"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "canonical_mechanism_family": "codex/e02-B-current-execution-state",
+        "source_binding": {
+          "object_ref": "o049"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "a175392fb4b49d19189152609d93e2ec149a4704",
+          "29da3db1c351bcc1736283301fe9a2262135d449",
+          "1bd1fd11b683bbade5411a71b02706ea206b149d",
+          "ff6d86f56948dc49780e5034d4ec2a3f619df8c6",
+          "e36dda3ca5941a6ab69264151fe2ca09fa968b61",
+          "79b2a7095b15f159d0ca168e8c15a8f94727b685",
+          "6b959db39be4214db2802d50b9daf075c7c3fdfe"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "canonical_mechanism_family": "codex/e02-B-current-durability",
+        "source_binding": {
+          "object_ref": "o050"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "2c52e1fe747627b227b5695e578b800cb7eade8b",
+          "bff2464a1303c76e387f4cd2d0cbb995e02d4bea"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "canonical_mechanism_family": "codex/e02-B-current-durability",
+        "source_binding": {
+          "object_ref": "o051"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "2c52e1fe747627b227b5695e578b800cb7eade8b"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "canonical_mechanism_family": "codex/e02-B-current-execution-state",
+        "source_binding": {
+          "object_ref": "o052"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "8b7ddbc8bba371ed7e4de20e9ef1cc5aed6ede38",
+          "f3fd8a6a92a216592988911a6c00c1b81b6ef85c"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "canonical_mechanism_family": "codex/e02-B-current-execution-state",
+        "source_binding": {
+          "object_ref": "o053"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "a175392fb4b49d19189152609d93e2ec149a4704",
+          "29da3db1c351bcc1736283301fe9a2262135d449",
+          "e36dda3ca5941a6ab69264151fe2ca09fa968b61"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "canonical_mechanism_family": "codex/e02-B-current-execution-state",
+        "source_binding": {
+          "object_ref": "o054"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "29da3db1c351bcc1736283301fe9a2262135d449",
+          "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+          "6b959db39be4214db2802d50b9daf075c7c3fdfe"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "canonical_mechanism_family": "codex/e02-B-current-runtime",
+        "source_binding": {
+          "object_ref": "o055"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "46a0bcd1ac035503ae8dec8b6df5dd4fcf794849",
+          "80c9e28badea71d4bdfc74d3aa0f0cbff6c69d9c",
+          "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+          "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53",
+          "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "canonical_mechanism_family": "codex/e02-B-current-execution-state",
+        "source_binding": {
+          "object_ref": "o057"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "a175392fb4b49d19189152609d93e2ec149a4704"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o058"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "678067cb62b077232ff9c76efd141fbfce6dc0f8"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "canonical_mechanism_family": "codex/e02-B-current-execution-state",
+        "source_binding": {
+          "object_ref": "o059"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+          "a175392fb4b49d19189152609d93e2ec149a4704",
+          "29da3db1c351bcc1736283301fe9a2262135d449",
+          "3b81bf197be10e20208f8d1925fd8d63eca74da9"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "canonical_mechanism_family": "codex/e02-B-current-execution-state",
+        "source_binding": {
+          "object_ref": "o060"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "29da3db1c351bcc1736283301fe9a2262135d449"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o062"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "0f7bdc9233af49c63874ac72e463aedeba7b2fb7",
+          "5f9c6a359a23ac4b8d7b5bc4ae662f304aeecd82",
+          "04079b8ff0e6efbb244778d3b2c0eea6e09feccf",
+          "b0fd6afb93066c7a7e0a7349597700beb757a137"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o063"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "db88c2e2860d89c52477ce1bad61dc535b355440",
+          "b0fd6afb93066c7a7e0a7349597700beb757a137"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "canonical_mechanism_family": "codex/e02-B-current-adapters",
+        "source_binding": {
+          "object_ref": "o064"
+        },
+        "canonical_CAS_packet_duplicate_normalized": false,
+        "nonmerge_source_commits": [
+          "db88c2e2860d89c52477ce1bad61dc535b355440",
+          "a2717e3833f582725acf54d480113f9792f017f3",
+          "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+          "04079b8ff0e6efbb244778d3b2c0eea6e09feccf",
+          "b0fd6afb93066c7a7e0a7349597700beb757a137"
+        ]
+      }
+    ],
+    "declared_receipt_bindings": [
+      {
+        "binding": {
+          "object_ref": "o065"
+        },
+        "branch": "codex/e02-B-current-cas-generation",
+        "declared_source_commit_refs": [
+          "0123927fe248d9015609ddf9126ccc45ffe7a098",
+          "83aa592ffa7ebfaad43336b2293896d71b8c1130",
+          "441f79f173df5e0d2a08c161120e634bb0e4f5aa"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o066"
+        },
+        "branch": "codex/e02-B-current-cas-generation",
+        "declared_source_commit_refs": [
+          "b882482a8937ae98fd1ffe35e75293903c9a0141"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o067"
+        },
+        "branch": "codex/e02-B-current-cas-generation",
+        "declared_source_commit_refs": [
+          "40f5c58bfa09e2dd3b545f64664e6a050cc34314",
+          "df2fd08f2550c2e3ff78b5656058484f928a7323"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o068"
+        },
+        "branch": "codex/e02-B-current-cas-generation",
+        "declared_source_commit_refs": [
+          "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o069"
+        },
+        "branch": "codex/e02-B-current-cas-generation",
+        "declared_source_commit_refs": [
+          "ad55562b60dcc7b449c9bc7962e2430632b578fb"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o070"
+        },
+        "branch": "codex/e02-B-current-cas-generation",
+        "declared_source_commit_refs": [
+          "7207ceec89e72481c0de8c3e4e64f25d667dc299"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o071"
+        },
+        "branch": "codex/e02-B-current-cas-generation",
+        "declared_source_commit_refs": [
+          "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o072"
+        },
+        "branch": "codex/e02-B-current-adapters",
+        "declared_source_commit_refs": [
+          "f29d85ef8eb35af3a9566ccd6c35202c2f1fbc58",
+          "e46cb5cd28baf204e69f556dcfea41889ed0ad35",
+          "678067cb62b077232ff9c76efd141fbfce6dc0f8",
+          "b0fd6afb93066c7a7e0a7349597700beb757a137",
+          "943325b228984dd949e03b609e3173d6de814dbe",
+          "04079b8ff0e6efbb244778d3b2c0eea6e09feccf",
+          "5f9c6a359a23ac4b8d7b5bc4ae662f304aeecd82",
+          "4aedd41b256ee308c1832f488aa4318c6653b359",
+          "0f7bdc9233af49c63874ac72e463aedeba7b2fb7",
+          "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+          "a2717e3833f582725acf54d480113f9792f017f3",
+          "db88c2e2860d89c52477ce1bad61dc535b355440"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o073"
+        },
+        "branch": "codex/e02-B-current-execution-state",
+        "declared_source_commit_refs": [
+          "ff6d86f56948dc49780e5034d4ec2a3f619df8c6",
+          "1bd1fd11b683bbade5411a71b02706ea206b149d",
+          "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+          "29da3db1c351bcc1736283301fe9a2262135d449",
+          "a175392fb4b49d19189152609d93e2ec149a4704",
+          "ed13ec37406a2d533d4a95e43c5afd84d2d0614a"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o074"
+        },
+        "branch": "codex/e02-B-current-coordination",
+        "declared_source_commit_refs": [
+          "0123927fe248d9015609ddf9126ccc45ffe7a098",
+          "83aa592ffa7ebfaad43336b2293896d71b8c1130",
+          "441f79f173df5e0d2a08c161120e634bb0e4f5aa"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o075"
+        },
+        "branch": "codex/e02-B-current-execution-state",
+        "declared_source_commit_refs": [
+          "6b959db39be4214db2802d50b9daf075c7c3fdfe",
+          "79b2a7095b15f159d0ca168e8c15a8f94727b685"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o076"
+        },
+        "branch": "codex/e02-B-current-composition",
+        "declared_source_commit_refs": [
+          "e10a81470275e41ebffd3324412c47707aa7dafd",
+          "53e80d5d1022cc2c6375c5d364c69f058eca714a",
+          "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+          "ec36f1cbb39f89b7f95f962713182b57b52ebd53",
+          "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+          "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+          "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o077"
+        },
+        "branch": "codex/e02-B-current-composition",
+        "declared_source_commit_refs": [
+          "06231bcfb0370a592db4be0ebff5b26b763e4c9c",
+          "c639295e25a602869c6c28754cd43fd856aa05cf",
+          "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o078"
+        },
+        "branch": "codex/e02-B-current-composition",
+        "declared_source_commit_refs": [
+          "ec36f1cbb39f89b7f95f962713182b57b52ebd53"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o079"
+        },
+        "branch": "codex/e02-B-current-composition",
+        "declared_source_commit_refs": [
+          "84b9c91b7c9705019a5bcb8090128a0f3ffd7e64",
+          "e10a81470275e41ebffd3324412c47707aa7dafd"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o080"
+        },
+        "branch": "codex/e02-B-current-composition",
+        "declared_source_commit_refs": [
+          "0e441daa8eff8008ed120c94c77e39c451901ccb",
+          "53e80d5d1022cc2c6375c5d364c69f058eca714a"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o081"
+        },
+        "branch": "codex/e02-B-current-composition",
+        "declared_source_commit_refs": [
+          "89ead1586d00ff48bb296d0e36d337851fe76ee3"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o082"
+        },
+        "branch": "codex/e02-B-current-composition",
+        "declared_source_commit_refs": [
+          "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+          "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o083"
+        },
+        "branch": "codex/e02-B-current-durability",
+        "declared_source_commit_refs": [
+          "bff2464a1303c76e387f4cd2d0cbb995e02d4bea"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o084"
+        },
+        "branch": "codex/e02-B-current-durability",
+        "declared_source_commit_refs": [
+          "2c52e1fe747627b227b5695e578b800cb7eade8b"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o085"
+        },
+        "branch": "codex/e02-B-current-durability",
+        "declared_source_commit_refs": [
+          "bff2464a1303c76e387f4cd2d0cbb995e02d4bea",
+          "2c52e1fe747627b227b5695e578b800cb7eade8b",
+          "b552534d164fed0109a1105a90261bac9218dcbd",
+          "73a055e033dad61590d3ef03b9ff44aaef2c0990"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o086"
+        },
+        "branch": "codex/e02-B-current-coordination",
+        "declared_source_commit_refs": [
+          "2c52e1fe747627b227b5695e578b800cb7eade8b",
+          "73a055e033dad61590d3ef03b9ff44aaef2c0990"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o087"
+        },
+        "branch": "codex/e02-B-current-coordination",
+        "declared_source_commit_refs": [
+          "53e80d5d1022cc2c6375c5d364c69f058eca714a",
+          "b882482a8937ae98fd1ffe35e75293903c9a0141",
+          "7207ceec89e72481c0de8c3e4e64f25d667dc299"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o088"
+        },
+        "branch": "codex/e02-B-current-coordination",
+        "declared_source_commit_refs": [
+          "bff2464a1303c76e387f4cd2d0cbb995e02d4bea"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o089"
+        },
+        "branch": "codex/e02-B-current-coordination",
+        "declared_source_commit_refs": [
+          "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53",
+          "79b2a7095b15f159d0ca168e8c15a8f94727b685"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o090"
+        },
+        "branch": "codex/e02-B-current-coordination",
+        "declared_source_commit_refs": [
+          "db88c2e2860d89c52477ce1bad61dc535b355440"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o091"
+        },
+        "branch": "codex/e02-B-current-execution-state",
+        "declared_source_commit_refs": [
+          "f3fd8a6a92a216592988911a6c00c1b81b6ef85c",
+          "8b7ddbc8bba371ed7e4de20e9ef1cc5aed6ede38",
+          "e36dda3ca5941a6ab69264151fe2ca09fa968b61"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o092"
+        },
+        "branch": "codex/e02-B-current-coordination",
+        "declared_source_commit_refs": [
+          "e36dda3ca5941a6ab69264151fe2ca09fa968b61",
+          "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o093"
+        },
+        "branch": "codex/e02-B-current-runtime",
+        "declared_source_commit_refs": [
+          "fd0a8b0044bb51539d812c2d0957381ed52ed3fd"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o094"
+        },
+        "branch": "codex/e02-B-current-runtime",
+        "declared_source_commit_refs": [
+          "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o095"
+        },
+        "branch": "codex/e02-B-current-runtime",
+        "declared_source_commit_refs": [
+          "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o096"
+        },
+        "branch": "codex/e02-B-current-runtime",
+        "declared_source_commit_refs": [
+          "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+          "80c9e28badea71d4bdfc74d3aa0f0cbff6c69d9c",
+          "46a0bcd1ac035503ae8dec8b6df5dd4fcf794849"
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o097"
+        },
+        "branch": "codex/e02-B-current-coordination",
+        "declared_source_commit_refs": [
+          "46a0bcd1ac035503ae8dec8b6df5dd4fcf794849"
+        ]
+      }
+    ],
+    "normalization": "ROOT canonical implementation handoffs also reference accepted source commits as integration/review evidence; those references are not a second source author. CAS public profile packet7207 and composition-applied062 have identical source/export/release bytes. README source bases differ, so full patch headers and complete README bytes differ; inserted seam content is equal. No arbitrary last-JSON ownership inference.",
+    "limitations": "This static mapping identifies one canonical mechanism family for each changed Python path in the accepted Git projection; it cannot retrospectively prove complete operational editor/lease concurrency. Shared mandatory companions contain serial historical source-family additions and ROOT final integration, not independent mechanism algorithms.",
+    "declared_commit_roles": {
+      "fd0a8b0044bb51539d812c2d0957381ed52ed3fd": [
+        "codex/e02-B-current-runtime"
+      ],
+      "06231bcfb0370a592db4be0ebff5b26b763e4c9c": [
+        "codex/e02-B-current-composition"
+      ],
+      "7207ceec89e72481c0de8c3e4e64f25d667dc299": [
+        "codex/e02-B-current-cas-generation",
+        "codex/e02-B-current-coordination"
+      ],
+      "ad55562b60dcc7b449c9bc7962e2430632b578fb": [
+        "codex/e02-B-current-cas-generation"
+      ],
+      "0123927fe248d9015609ddf9126ccc45ffe7a098": [
+        "codex/e02-B-current-cas-generation",
+        "codex/e02-B-current-coordination"
+      ],
+      "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa": [
+        "codex/e02-B-current-cas-generation",
+        "codex/e02-B-current-coordination"
+      ],
+      "b882482a8937ae98fd1ffe35e75293903c9a0141": [
+        "codex/e02-B-current-cas-generation",
+        "codex/e02-B-current-coordination"
+      ],
+      "df2fd08f2550c2e3ff78b5656058484f928a7323": [
+        "codex/e02-B-current-cas-generation"
+      ],
+      "40f5c58bfa09e2dd3b545f64664e6a050cc34314": [
+        "codex/e02-B-current-cas-generation"
+      ],
+      "ff6d86f56948dc49780e5034d4ec2a3f619df8c6": [
+        "codex/e02-B-current-execution-state"
+      ],
+      "441f79f173df5e0d2a08c161120e634bb0e4f5aa": [
+        "codex/e02-B-current-cas-generation",
+        "codex/e02-B-current-coordination"
+      ],
+      "836c4f2e39345fcc9a4bbcd63e21076e01feb6a7": [
+        "codex/e02-B-current-cas-generation"
+      ],
+      "83aa592ffa7ebfaad43336b2293896d71b8c1130": [
+        "codex/e02-B-current-cas-generation",
+        "codex/e02-B-current-coordination"
+      ],
+      "a2717e3833f582725acf54d480113f9792f017f3": [
+        "codex/e02-B-current-adapters"
+      ],
+      "b0fd6afb93066c7a7e0a7349597700beb757a137": [
+        "codex/e02-B-current-adapters"
+      ],
+      "db88c2e2860d89c52477ce1bad61dc535b355440": [
+        "codex/e02-B-current-adapters",
+        "codex/e02-B-current-coordination"
+      ],
+      "04079b8ff0e6efbb244778d3b2c0eea6e09feccf": [
+        "codex/e02-B-current-adapters"
+      ],
+      "4aedd41b256ee308c1832f488aa4318c6653b359": [
+        "codex/e02-B-current-adapters"
+      ],
+      "e46cb5cd28baf204e69f556dcfea41889ed0ad35": [
+        "codex/e02-B-current-adapters"
+      ],
+      "f29d85ef8eb35af3a9566ccd6c35202c2f1fbc58": [
+        "codex/e02-B-current-adapters"
+      ],
+      "943325b228984dd949e03b609e3173d6de814dbe": [
+        "codex/e02-B-current-adapters"
+      ],
+      "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac": [
+        "codex/e02-B-current-adapters"
+      ],
+      "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf": [
+        "codex/e02-B-current-composition"
+      ],
+      "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76": [
+        "codex/e02-B-current-composition"
+      ],
+      "c639295e25a602869c6c28754cd43fd856aa05cf": [
+        "codex/e02-B-current-composition"
+      ],
+      "ec36f1cbb39f89b7f95f962713182b57b52ebd53": [
+        "codex/e02-B-current-composition"
+      ],
+      "84b9c91b7c9705019a5bcb8090128a0f3ffd7e64": [
+        "codex/e02-B-current-composition"
+      ],
+      "e10a81470275e41ebffd3324412c47707aa7dafd": [
+        "codex/e02-B-current-composition"
+      ],
+      "53e80d5d1022cc2c6375c5d364c69f058eca714a": [
+        "codex/e02-B-current-composition",
+        "codex/e02-B-current-coordination"
+      ],
+      "0e441daa8eff8008ed120c94c77e39c451901ccb": [
+        "codex/e02-B-current-composition"
+      ],
+      "89ead1586d00ff48bb296d0e36d337851fe76ee3": [
+        "codex/e02-B-current-composition"
+      ],
+      "054db3c913b0daf29cf503672a5ecfee7903fb7c": [
+        "codex/e02-B-current-composition"
+      ],
+      "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f": [
+        "codex/e02-B-current-composition"
+      ],
+      "73a055e033dad61590d3ef03b9ff44aaef2c0990": [
+        "codex/e02-B-current-coordination",
+        "codex/e02-B-current-durability"
+      ],
+      "b552534d164fed0109a1105a90261bac9218dcbd": [
+        "codex/e02-B-current-durability"
+      ],
+      "a175392fb4b49d19189152609d93e2ec149a4704": [
+        "codex/e02-B-current-execution-state"
+      ],
+      "29da3db1c351bcc1736283301fe9a2262135d449": [
+        "codex/e02-B-current-execution-state"
+      ],
+      "1bd1fd11b683bbade5411a71b02706ea206b149d": [
+        "codex/e02-B-current-execution-state"
+      ],
+      "e36dda3ca5941a6ab69264151fe2ca09fa968b61": [
+        "codex/e02-B-current-coordination",
+        "codex/e02-B-current-execution-state"
+      ],
+      "79b2a7095b15f159d0ca168e8c15a8f94727b685": [
+        "codex/e02-B-current-coordination",
+        "codex/e02-B-current-execution-state"
+      ],
+      "6b959db39be4214db2802d50b9daf075c7c3fdfe": [
+        "codex/e02-B-current-execution-state"
+      ],
+      "2c52e1fe747627b227b5695e578b800cb7eade8b": [
+        "codex/e02-B-current-coordination",
+        "codex/e02-B-current-durability"
+      ],
+      "bff2464a1303c76e387f4cd2d0cbb995e02d4bea": [
+        "codex/e02-B-current-coordination",
+        "codex/e02-B-current-durability"
+      ],
+      "8b7ddbc8bba371ed7e4de20e9ef1cc5aed6ede38": [
+        "codex/e02-B-current-execution-state"
+      ],
+      "f3fd8a6a92a216592988911a6c00c1b81b6ef85c": [
+        "codex/e02-B-current-execution-state"
+      ],
+      "3b81bf197be10e20208f8d1925fd8d63eca74da9": [
+        "codex/e02-B-current-execution-state"
+      ],
+      "46a0bcd1ac035503ae8dec8b6df5dd4fcf794849": [
+        "codex/e02-B-current-coordination",
+        "codex/e02-B-current-runtime"
+      ],
+      "80c9e28badea71d4bdfc74d3aa0f0cbff6c69d9c": [
+        "codex/e02-B-current-runtime"
+      ],
+      "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8": [
+        "codex/e02-B-current-runtime"
+      ],
+      "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53": [
+        "codex/e02-B-current-coordination",
+        "codex/e02-B-current-runtime"
+      ],
+      "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f": [
+        "codex/e02-B-current-runtime"
+      ],
+      "678067cb62b077232ff9c76efd141fbfce6dc0f8": [
+        "codex/e02-B-current-adapters"
+      ],
+      "ed13ec37406a2d533d4a95e43c5afd84d2d0614a": [
+        "codex/e02-B-current-execution-state"
+      ],
+      "0f7bdc9233af49c63874ac72e463aedeba7b2fb7": [
+        "codex/e02-B-current-adapters"
+      ],
+      "5f9c6a359a23ac4b8d7b5bc4ae662f304aeecd82": [
+        "codex/e02-B-current-adapters"
+      ]
+    }
+  },
+  "mandatory_companions": {
+    "changed_readmes": [
+      {
+        "binding": {
+          "object_ref": "o007"
+        },
+        "nonmerge_changed_commits": [
+          "fd0a8b0044bb51539d812c2d0957381ed52ed3fd"
+        ],
+        "final_shared_companion_role": "Nearest canonical owner documentation; serial integration may add cross-family contract."
+      },
+      {
+        "binding": {
+          "object_ref": "o009"
+        },
+        "nonmerge_changed_commits": [
+          "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+          "75c4ae0a0019e75d8c30781167390409c9a9a49b",
+          "83aa592ffa7ebfaad43336b2293896d71b8c1130",
+          "0123927fe248d9015609ddf9126ccc45ffe7a098",
+          "b6e47f50c5bc24ecb0249d47e9dc0f4588c332aa",
+          "06231bcfb0370a592db4be0ebff5b26b763e4c9c",
+          "7207ceec89e72481c0de8c3e4e64f25d667dc299",
+          "b882482a8937ae98fd1ffe35e75293903c9a0141",
+          "df2fd08f2550c2e3ff78b5656058484f928a7323",
+          "34a261fe56692de0c3a3163e6d9eb9ab744b80d3",
+          "40f5c58bfa09e2dd3b545f64664e6a050cc34314"
+        ],
+        "final_shared_companion_role": "Nearest canonical owner documentation; serial integration may add cross-family contract."
+      },
+      {
+        "binding": {
+          "object_ref": "o022"
+        },
+        "nonmerge_changed_commits": [
+          "db88c2e2860d89c52477ce1bad61dc535b355440",
+          "a2717e3833f582725acf54d480113f9792f017f3",
+          "4aedd41b256ee308c1832f488aa4318c6653b359",
+          "04079b8ff0e6efbb244778d3b2c0eea6e09feccf",
+          "b0fd6afb93066c7a7e0a7349597700beb757a137"
+        ],
+        "final_shared_companion_role": "Nearest canonical owner documentation; serial integration may add cross-family contract."
+      },
+      {
+        "binding": {
+          "object_ref": "o026"
+        },
+        "nonmerge_changed_commits": [
+          "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+          "943325b228984dd949e03b609e3173d6de814dbe",
+          "e46cb5cd28baf204e69f556dcfea41889ed0ad35",
+          "f29d85ef8eb35af3a9566ccd6c35202c2f1fbc58"
+        ],
+        "final_shared_companion_role": "Nearest canonical owner documentation; serial integration may add cross-family contract."
+      },
+      {
+        "binding": {
+          "object_ref": "o031"
+        },
+        "nonmerge_changed_commits": [
+          "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+          "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf"
+        ],
+        "final_shared_companion_role": "Nearest canonical owner documentation; serial integration may add cross-family contract."
+      },
+      {
+        "binding": {
+          "object_ref": "o039"
+        },
+        "nonmerge_changed_commits": [
+          "ec36f1cbb39f89b7f95f962713182b57b52ebd53"
+        ],
+        "final_shared_companion_role": "Nearest canonical owner documentation; serial integration may add cross-family contract."
+      },
+      {
+        "binding": {
+          "object_ref": "o042"
+        },
+        "nonmerge_changed_commits": [
+          "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+          "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+          "ec36f1cbb39f89b7f95f962713182b57b52ebd53",
+          "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+          "c639295e25a602869c6c28754cd43fd856aa05cf",
+          "53e80d5d1022cc2c6375c5d364c69f058eca714a",
+          "0e441daa8eff8008ed120c94c77e39c451901ccb",
+          "89ead1586d00ff48bb296d0e36d337851fe76ee3",
+          "e10a81470275e41ebffd3324412c47707aa7dafd",
+          "84b9c91b7c9705019a5bcb8090128a0f3ffd7e64"
+        ],
+        "final_shared_companion_role": "Nearest canonical owner documentation; serial integration may add cross-family contract."
+      },
+      {
+        "binding": {
+          "object_ref": "o046"
+        },
+        "nonmerge_changed_commits": [
+          "d3f10bcd593699e79b8b5e4d3999536959289bf7"
+        ],
+        "final_shared_companion_role": "Nearest canonical owner documentation; serial integration may add cross-family contract."
+      },
+      {
+        "binding": {
+          "object_ref": "o048"
+        },
+        "nonmerge_changed_commits": [
+          "75c4ae0a0019e75d8c30781167390409c9a9a49b",
+          "d3f10bcd593699e79b8b5e4d3999536959289bf7",
+          "f3fd8a6a92a216592988911a6c00c1b81b6ef85c",
+          "66ba74e6cf45977024b43c2195b7a34be9aa091f",
+          "79b2a7095b15f159d0ca168e8c15a8f94727b685",
+          "6b959db39be4214db2802d50b9daf075c7c3fdfe",
+          "2e66535a630d6115e41c657103a6d98f4010338b"
+        ],
+        "final_shared_companion_role": "ROOT final shared integration contract; historic sequential source-family companion additions retained"
+      },
+      {
+        "binding": {
+          "object_ref": "o056"
+        },
+        "nonmerge_changed_commits": [
+          "d3f10bcd593699e79b8b5e4d3999536959289bf7",
+          "66ba74e6cf45977024b43c2195b7a34be9aa091f"
+        ],
+        "final_shared_companion_role": "ROOT final shared integration contract; historic sequential source-family companion additions retained"
+      },
+      {
+        "binding": {
+          "object_ref": "o061"
+        },
+        "nonmerge_changed_commits": [
+          "db88c2e2860d89c52477ce1bad61dc535b355440",
+          "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+          "b0fd6afb93066c7a7e0a7349597700beb757a137"
+        ],
+        "final_shared_companion_role": "Nearest canonical owner documentation; serial integration may add cross-family contract."
+      }
+    ],
+    "release_fragments": [
+      {
+        "binding": {
+          "object_ref": "o098"
+        },
+        "owner": "team-runtime",
+        "surface_classification": "public_stable: filesystem CAS import and caching store",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o099"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o100"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o101"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o102"
+            }
+          },
+          {
+            "kind": "runbook_docs",
+            "binding": {
+              "object_ref": "o009"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o103"
+        },
+        "owner": "team-runtime",
+        "surface_classification": "public_stable: filesystem CAS VerificationReport; internal: captured read result",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o104"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o105"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o106"
+            }
+          },
+          {
+            "kind": "runbook_docs",
+            "binding": {
+              "object_ref": "o009"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o107"
+        },
+        "owner": "team-runtime",
+        "surface_classification": "public_stable: filesystem CAS transfer reports; internal: local filesystem publication",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o108"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o101"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o102"
+            }
+          },
+          {
+            "kind": "runbook_docs",
+            "binding": {
+              "object_ref": "o009"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o109"
+        },
+        "owner": "team-policyos-foundry",
+        "surface_classification": "internal: polisyos.foundry.methods.backends.checkpointing",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o110"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o111"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o112"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o042"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o113"
+        },
+        "owner": "team-policyos-foundry",
+        "surface_classification": "internal: polisyos.foundry.methods.backends.checkpointing",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o114"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o110"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o111"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o112"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o042"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o031"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o115"
+        },
+        "owner": "team-policyos-foundry",
+        "surface_classification": "internal: polisyos.foundry.methods.backends",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o110"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o111"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o112"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o116"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o042"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o117"
+        },
+        "owner": "team-policyos-foundry",
+        "surface_classification": "internal: Foundry compiler specialization and backend materialization delegations",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o118"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o119"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o120"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o039"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o042"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o121"
+        },
+        "owner": "team-policyos-foundry",
+        "surface_classification": "internal: Foundry composer/linker and occurrence diagnostics",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o122"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o116"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o123"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o124"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o125"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o126"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o042"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o127"
+        },
+        "owner": "team-policyos-foundry",
+        "surface_classification": "internal: polisyos.foundry.methods.artifacts._fingerprint",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o128"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o031"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o129"
+        },
+        "owner": "team-policyos-runtime",
+        "surface_classification": "public_experimental: scientist.orchestration.engine FileBudgetLedger",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o050"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o130"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o131"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o051"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o132"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o133"
+        },
+        "owner": "team-runtime",
+        "surface_classification": "internal: polisyos.core.artifacts batch/signature APIs and core.components crypto CLI",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o134"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o135"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o101"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o136"
+        },
+        "owner": "team-runtime",
+        "surface_classification": "internal: polisyos.core.artifacts under the current public-surface registry",
+        "declared_refs": []
+      },
+      {
+        "binding": {
+          "object_ref": "o137"
+        },
+        "owner": "team-runtime",
+        "surface_classification": "internal: polisyos.core.artifacts and its optional snapshot protocol",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o138"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o135"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o139"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o140"
+        },
+        "owner": "team-policyos-runtime",
+        "surface_classification": "public_experimental: runtime control-plane store",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o047"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o141"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o142"
+        },
+        "owner": "team-scientist",
+        "surface_classification": "public_experimental: create_traced_gateway_client and LLMBudgetEnforcer; internal: core.llm.settlement and reuse decision contracts",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o143"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o022"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o061"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o144"
+        },
+        "owner": "team-fabric",
+        "surface_classification": "public_experimental: polisyos.fabric.connectors.ConnectionPool",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o145"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o026"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o146"
+        },
+        "owner": "team-fabric",
+        "surface_classification": "public_experimental: BoundedResourceRegistry.lease and resilience decorators",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o147"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o026"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o148"
+        },
+        "owner": "team-scientist",
+        "surface_classification": "public_experimental: scientist runner serialization",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o149"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o056"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o150"
+        },
+        "owner": "team-policyos-runtime",
+        "surface_classification": "internal_runtime",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o151"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o152"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o153"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o154"
+            }
+          },
+          {
+            "kind": "migration_docs",
+            "binding": {
+              "object_ref": "o048"
+            }
+          },
+          {
+            "kind": "runbook_docs",
+            "binding": {
+              "object_ref": "o048"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o155"
+        },
+        "owner": "team-policyos-runtime",
+        "surface_classification": "internal: runtime verification companions",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o156"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o157"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o158"
+        },
+        "owner": "team-policyos-runtime",
+        "surface_classification": "internal: scientist retry runtime producer and consumers",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o159"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o160"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o161"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o162"
+        },
+        "owner": "team-policyos-runtime",
+        "surface_classification": "internal: scientist retry process boundary",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o159"
+            }
+          },
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o160"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o163"
+        },
+        "owner": "team-policyos-runtime",
+        "surface_classification": "internal: scientist retry state settlement",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o159"
+            }
+          }
+        ]
+      },
+      {
+        "binding": {
+          "object_ref": "o164"
+        },
+        "owner": "team-policyos-runtime",
+        "surface_classification": "internal: polisyos.common.async_tools",
+        "declared_refs": [
+          {
+            "kind": "evidence",
+            "binding": {
+              "object_ref": "o161"
+            }
+          }
+        ]
+      }
+    ],
+    "release_fragment_count": 24,
+    "declared_release_ref_missing": [],
+    "qualification": "Existence/hash and exact current fields reconciled, not a release schema/generator/type gate. ROOT owns final shared engine/runner documentation and generated inventory integration; earlier accepted source-family doc commits remain in append-only history."
+  },
+  "cross_unit_contracts": [
+    {
+      "id": "B13_partial_simulation_result_B_to_A_G",
+      "owner": "A/G",
+      "receipt": {
+        "object_ref": "o082"
+      },
+      "final_binding_receipt": {
+        "object_ref": "o076"
+      },
+      "current_root_candidate": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "current_route_test": {
+        "object_ref": "o165"
+      },
+      "historical_producer_execution": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "historical_producer_outcome": "FAIL, one real full test; producer/workflow/artifact prefix assertions passed before TestClient entry, not a whole-test PASS",
+      "declared_local_contract": {
+        "candidate_source_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+        "producer_test_source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "test_bytes_identical_on_candidate": true,
+        "required_input_custody": [
+          "Existing G-admitted candidate must expose actual production catalog at native default path; catalog and optional configured acquisition overlay stay local read-only.",
+          "Record exact catalog/overlay resolved path, presence, content SHA256/size before and after. DuckDB catalog session source identities must remain unchanged while opening and reading.",
+          "Keep actual catalog schema and optional overlay policy; do not substitute an empty synthetic catalog merely to obtain served-route PASS.",
+          "Existing DatasetCatalogStore is read-only; coordinate any unrelated writer to the same catalog/overlay. Pytest CAS/DB fixtures/cache/JUnit use unique out directory, metrics port0; no new Git tree or A/C source mutation by B."
+        ],
+        "local_runnable_command": [
+          "python3",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+          "--repo",
+          "<absolute existing G-admitted repository>",
+          "--python",
+          "<absolute supported G Python3.14 executable>",
+          "--sha",
+          "<exact admitted G source SHA containing this candidate>",
+          "--out",
+          "<unique G ignored evidence directory>"
+        ],
+        "child_exact_argv_template": [
+          "<verified absolute G Python>",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "-o",
+          "cache_dir=<out>/cache",
+          "-q",
+          "tests/integration/scientist/test_res_03_real_simulation_route.py",
+          "--basetemp=<out>/fixture",
+          "--junitxml=<out>/junit.xml"
+        ],
+        "child_cwd": "<G repo>/policy-engine",
+        "child_environment": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1"
+        },
+        "positive_expectations": [
+          "Whole real route test1PASS: persisted successful SimulationResult remains a candidate reference after later workflow failure, dependent skip and independent sibling success.",
+          "Served workflow and error routes agree with original persisted report/state; debug candidate is candidate_reference_only/non_authority and content-bound.",
+          "Generic artifact manifest/content/lineage authority surfaces refuse this candidate projection; audit access entries bind actual run/node."
+        ],
+        "negative_cases_unrun_in_cloud": [
+          "simulation_result_tenant_unscoped",
+          "simulation_result_tenant_binding_mismatch",
+          "simulation_result_payload_invalid",
+          "simulation_result_schema_mismatch",
+          "simulation_result_ref_manifest_mismatch",
+          "simulation_result_binding_run_mismatch",
+          "simulation_result_binding_missing",
+          "simulation_result_binding_tenant_mismatch",
+          "simulation_result_binding_schema_mismatch",
+          "simulation_result_binding_ref_mismatch",
+          "simulation_result_node_binding_mismatch",
+          "simulation_result_node_binding_missing",
+          "simulation_result_node_not_found",
+          "simulation_result_integrity_failed",
+          "simulation_result_binding_integrity_failed"
+        ],
+        "negative_coverage": "Canonical whole test includes wrong run/node/ref, payload/report tampering, absent/unscoped/foreign tenant/cell, schema/media/kind/ref conflicts and duplicate conflicting node refs. Every negative starts after the failed startup and is UNRUN in cloud; no fabricated artifact provenance for these consumers.",
+        "A_may_need_edit": "Only if real supported local replay reveals producer/report/state binding or lifecycle consumer defect, A owns run_lifecycle.py/generation_cycle.py and must retain actual semantic/tenant/ref/integrity refusals. This handoff does not prescribe a bypass for missing production catalog.",
+        "C_may_need_edit": "none for this B13 producer/served-route contract; streaming is separate owner",
+        "B_does_not_attest": [
+          "HTTP debug service consumed the artifact, public generation lifecycle recovery, served tamper/tenant negatives or authority conflict responses",
+          "Full production dataset/source-law/evaluator validity or local catalog freshness",
+          "Full selected-manifest-profile authority for fixture refs",
+          "Exactly-once external effects or Scientist checkpoint restoration"
+        ]
+      },
+      "current_root_invocation": {
+        "wrapper_binding": {
+          "object_ref": "o166"
+        },
+        "argv": [
+          "<supported exact G Python>",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+          "--repo",
+          "<existing exact integrated G checkout>",
+          "--python",
+          "<supported exact G Python>",
+          "--sha",
+          "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+          "--out",
+          "<fresh unique ignored G evidence directory>"
+        ],
+        "qualification": "205 is this preparation point, not an integrated final G SHA. G must replace --sha with actual admitted combined candidate; no test executed here."
+      },
+      "cloud_stop": {
+        "candidate": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "step": "TestClient.__enter__ / test line505",
+        "exception": "ValueError catalog_fetch_source_unreadable",
+        "owner_path": "runtime/http/services/control/run_lifecycle.py:2232 -> data_forge/domains/catalog/knowledge/store.py:966",
+        "catalog_path": "policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "catalog_cloud_presence": false,
+        "acquisition_overlay_path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb",
+        "overlay_schema": "polisyos.data_forge.acquisition_overlay.v2",
+        "overlay_cloud_presence": false,
+        "consumer_reached": false,
+        "no_inherited_attribution": "No claim this FAIL is inherited/disjoint or a new patch regression. Actual absent-input stop is recorded."
+      },
+      "freshness": "Canonical route and protected A source unchanged. Historical061 producer prefix is not automatically a205 root-run proof; native dependent engine/CAS implementations changed through accepted families, so final root/G executed source binding stays separate.",
+      "formal_closure": false
+    },
+    {
+      "id": "NET_pool_deadline_and_stream_resume_B_to_C",
+      "owner": "C/G",
+      "adapter_receipt": {
+        "object_ref": "o072"
+      },
+      "actual_stream_contract": {
+        "object_ref": "o167"
+      },
+      "current_pool": {
+        "object_ref": "o027"
+      },
+      "current_stream": {
+        "object_ref": "o006"
+      },
+      "current_defining_oracle": {
+        "object_ref": "o168"
+      },
+      "producer_contract": {
+        "owner": "C streaming; A generation/lifecycle untouched",
+        "source_sha": "126024b95fcac6400f5afc29a60596b88cdd5212",
+        "pool_source_sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+        "contract": "acquire publishes only while absolute budget/current cancellation ownership valid; cleanup/close retains physical ownership and capacity until disconnect settles. C must compose actual served stream disconnect/recovery/cap with this producer, retaining primary errors and typed limits.",
+        "negative_case": "Restore actual cap3 accumulator with2 pending rows under cap1, then real endpoint pollEOF/flush after pause/resume; no two-row emission or hidden cap bypass. Also cancelling connect/health beforedeadline with suppression must not publish pooled handle.",
+        "oracle_owner": "EXE read-only current JSONL/CAS/CursorStore consumer probe; root provides exact checkpoint to C/G",
+        "C_source_input": "Fresh198 streaming Gitblob0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6; no C source edits by leaf"
+      },
+      "consumer_contract": {
+        "schema": "policyos.e02.B_to_C.pool_stream_recovery.v1",
+        "producer_owner": "B",
+        "consumer_owner": "C",
+        "input": "StreamRuntimeOptions(cap=3), real checkpoint operator_state accumulator=2 rows; restart StreamRuntimeOptions(cap=1, default pause policy)",
+        "required_admission": "Refuse before first resumed StreamingSourceSession.poll, StreamWindowAccumulator.flush_with_refs or _commit_stream_frontier, preserve existing checkpoint bytes/content, every successfully acquired pool session released exactly once. C selects concrete typed refusal error or publishes explicit alternative owner contract before acceptance.",
+        "healthy_retry": "Restored cap3 emits rows[1,2],then[3] exactly once with original contributor event IDs and no duplicate on third restart.",
+        "consumer_source_sha": "46656d88103f8cb289da78d92411f2d58f01df4a",
+        "consumer_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+        "next_command": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+          "--basetemp",
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-pytest",
+          "-o",
+          "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final-cache",
+          "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pool-stream-final.xml"
+        ],
+        "next_owner": "C implements stream/cursor restore admission on exact C candidate; G fetches this topic and replays the native two cases on exact accepted B+C combined versions."
+      },
+      "current_probe_command": [
+        "<exact root/G supported Python>",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "--basetemp",
+        "<fresh unique ignored temp>/pytest",
+        "-o",
+        "cache_dir=<fresh unique ignored temp>/cache",
+        "--junitxml=<fresh unique ignored temp>/pool-stream.xml"
+      ],
+      "cwd": "<exact admitted combined candidate>/policy-engine",
+      "environment": {
+        "PYTHONPATH": "src:<project>",
+        "POLISYOS_METRICS_PORT": "0"
+      },
+      "freshness": "Pool source matches committed producer fingerprint and untouched C consumer blob exactly. B admission expiry/caller cancellation and physical cleanup ownership do not establish C restore-cap/cursor/publication behavior; actual C scoped counterexample remains active until exact combined replay.",
+      "formal_closure": false
+    },
+    {
+      "id": "B154_all_signature_confirmation_publisher_B_to_A_G",
+      "owner": "A/G",
+      "receipt": {
+        "object_ref": "o169"
+      },
+      "producer_current": {
+        "object_ref": "o020"
+      },
+      "current_predicate": {
+        "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+        "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "symbol": "BulkVerificationReport",
+        "line_start": 146,
+        "line_end": 216,
+        "sha256": "f9b5a9f3420a599d3f76a588338362aec1f03c6145fc77f63bcaebf9a36d1a5a"
+      },
+      "original_predicate": {
+        "source_sha": "441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+        "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "symbol": "BulkVerificationReport",
+        "line_start": 146,
+        "line_end": 216,
+        "sha256": "f9b5a9f3420a599d3f76a588338362aec1f03c6145fc77f63bcaebf9a36d1a5a"
+      },
+      "predicate_source_equal": true,
+      "typed_contract": {
+        "schema": "policyos.e02.consumer_contract.v1",
+        "unit": "B",
+        "finding_id": "B154",
+        "status": "consumer_missing",
+        "source_sha": "441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+        "source_tree": "135c30d39535b9e103648ea8facf7595db6267b1",
+        "producer": "FileSystemCAS.verify_all_signatures(verifier, artifact_ids=required_refs, pending_window=..., cancel_event=..., deadline=<absolute monotonic>) -> BulkVerificationReport",
+        "consumer_predicate": "report.require_complete_valid(required_refs) -> None or raises ValueError. Required refs come from actual existing declared publication set, including selected profile/kind/media identity. Consume the fresh canonical in-process report, not externally provided JSON or counters.",
+        "contract_fields": [
+          "state complete|aborted",
+          "actual admitted and finished",
+          "inventory_exhausted and abort_reason",
+          "every details row artifact_id + exact artifact_ref + SignatureVerificationStatus"
+        ],
+        "purpose": "Structural full valid signature confirmation prerequisite only where the existing owner already requires all confirmations; this API does not appoint authority, a trust policy, population or public publisher.",
+        "positive_input": {
+          "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_real_full_batch_all_confirmations_are_required",
+          "input": "Three real CAS objects, fresh Ed25519 key+trusted verifier, exact persisted signatures; all3 distinct exact refs require_complete_valid succeeds."
+        },
+        "negative_inputs": [
+          {
+            "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_local_corruption_preserves_full_typed_results_and_refuses_admission",
+            "input": "Same real3 signed objects, actually corrupt second blob; report has2VALID1ERROR and completeness refuses. No publication may occur under an existing all-confirmations law."
+          },
+          {
+            "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_cancel_preserves_actual_finished_item_and_explicit_abort",
+            "input": "Same3, cancel after actual first signature verification, pending1; retain actual finished row but stateaborted, completeness refuses."
+          },
+          {
+            "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_real_full_batch_all_confirmations_are_required",
+            "input": "Keep validcounter3 and report metadata but remove actual final per-item row; predicate refuses. Callerboolean/reportcount is insufficient."
+          },
+          {
+            "native_ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa::test_selected_and_default_same_blob_remain_two_exact_confirmations",
+            "input": "Same blob default+selected have distinct required view identities; duplicate/missing/default-substitution confirmations refuse."
+          }
+        ],
+        "existing_consumers": {
+          "bulk_signature": "Actual --all cryptoCLI retains unsigned/trust options and refuses aborted state; it is not publication.",
+          "integrity_publisher": "Actual CASimport consumes TransferVerificationBatch.require_complete_valid against all measured staged intake before publisher. This is byte/manifest integrity, not signature trust admission.",
+          "a_owned_paths": [
+            {
+              "ref": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+              "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+              "bytes": 578822
+            },
+            {
+              "ref": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@441f79f173df5e0d2a08c161120e634bb0e4f5aa",
+              "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+              "bytes": 347497
+            }
+          ],
+          "source_observation": "At441 repository source call sites of verify_all_signatures are the CAS canonical producer/adapter and CLI; require_complete_valid signature consumer is absent from A publication paths. A signature custody monitor is advisory and explicitly supplied population, not appointed all-confirmations publisher."
+        },
+        "required_owner_work": "A/G chooses and integrates actual current appointed all-confirmations publication consumer, supplies exact required population and existing trust/identity settings, invokes fresh producer+predicate before durable publication under existing owner fences, and runs actual no-publication missing/local-error/aborted negatives. No A source edited by B.",
+        "boundaries": [
+          "Report is a fresh local verifier result, not serialized proof or permission token.",
+          "A owns current authorization, trust/identity law, population and publication time fences. No global snapshot/time or authority claim comes from batch complete.",
+          "Unsigned/untrusted rows remain allowed by legacy .ok behavior but never satisfy require_complete_valid; this does not retroactively mandate all-signature policy.",
+          "Incomplete callbacks/iterator can outlive a deadline; explicit aborted output cannot authorize publication."
+        ],
+        "evidence_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json"
+      },
+      "source_boundary": "Signature batch result/predicate is unchanged from exact contract point; protected A source unchanged. Fresh local report completeness is structural verified-result admission, not trust policy, appointed required population or publisher authorization. Actual all-confirmation publication consumer remains A/G work.",
+      "formal_closure": false
+    },
+    {
+      "id": "B-to-A-G-human-exposure-scoped-producer-admission",
+      "owner": "A/G canonical human-exposure producer; CAS B148 law remains HELD",
+      "receipt": {
+        "object_ref": "o170"
+      },
+      "exact_current_sources": [
+        {
+          "base": {
+            "object_ref": "o171"
+          },
+          "current": {
+            "object_ref": "o172"
+          },
+          "source_equal": true
+        },
+        {
+          "base": {
+            "object_ref": "o173"
+          },
+          "current": {
+            "object_ref": "o174"
+          },
+          "source_equal": true
+        },
+        {
+          "base": {
+            "object_ref": "o175"
+          },
+          "current": {
+            "object_ref": "o176"
+          },
+          "source_equal": true
+        }
+      ],
+      "current_scope_guard": {
+        "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "symbol": "FileSystemCAS._require_bound_context_for_owner",
+        "line_start": 2792,
+        "line_end": 2815,
+        "sha256": "cc11927787658d827b4f1beab08a77efcddaa69e1b83c24cb0a02366e3b0af18"
+      },
+      "source_guard_equal_4e": true,
+      "typed_contract": {
+        "contract_id": "B-to-A-G-human-exposure-scoped-producer-admission",
+        "candidate_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "candidate_source_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+        "current_actual_input": {
+          "store": "FileSystemCAS(tmp/cas).for_tenant(tenant-a,cell_id=cell-a)",
+          "producer": "_exposure_authority_write_inputs(event,has_artifact=store.has)",
+          "event_schema": "policyos.runtime.human_decision_exposure_event.v1; tenant_id present; cell_id absent",
+          "derived_authority_fields": {
+            "tenant_id": "tenant-a",
+            "cell_id": null
+          },
+          "derived_same_input_closure": {
+            "tenant_id": "tenant-a",
+            "cell_id": null
+          },
+          "attestation_write_options": {
+            "tenant_context": {
+              "tenant_id": "tenant-a",
+              "cell_id": null
+            }
+          },
+          "guard_owner": {
+            "tenant_id": "tenant-a",
+            "cell_id": "cell-a"
+          },
+          "actual_typed_refusal": "ArtifactOwnershipError: Manifest is bound to a different cell"
+        },
+        "producer_scope_requires_owner_decision": "A/G chooses legitimate exact runtime cell scope propagation through canonical producer and custody bindings OR an explicitly supported tenant-level None profile whose caller/source inputs are actually compatible. This receipt declares no new authority or public ownership law.",
+        "must_reconcile_all_existing_bindings": [
+          "AuthorityArtifactIdentityContext.tenant_id/cell_id",
+          "attestation body tenant/cell and resulting content ref",
+          "attestation manifest tenant_context",
+          "DiagnosticEvent.tenant_id/cell_id (writer encodes absent cell as empty string)",
+          "SameInputClosure tenant_id/cell_id and its content digest",
+          "EvidenceAuthorityEnvelope tenant_id/cell_id and linked refs",
+          "final authority-bearing payload manifest tenant_context and authority envelope/event/attestation linkage",
+          "exact retained/signable manifest bytes and custody signature/ref readback"
+        ],
+        "positive_consumer_input": {
+          "test": "test_human_decision_exposure_is_a_top_level_completed_event",
+          "delivered_body_literal": "{\"opened\":\"exact evidence bytes\"}",
+          "delivered_bytes": 33,
+          "delivered_artifact_id": "sha256:ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c",
+          "scope": "tenant-a/cell-a",
+          "trusted_signer_identity": "service://runtime/human-decision-custody",
+          "key_input_limit": "Case generates ephemeral KeyPair and trusted verifier in process; private/public key bytes are not claimed preserved in this packet. Cryptographic verification was never reached."
+        },
+        "negative_consumer_inputs": [
+          {
+            "test": "test_exposure_signature_failure_leaves_no_completed_row",
+            "scope": "tenant-a/cell-a",
+            "verifier": "Ed25519Verifier(strict_identity=True) with no trusted keys",
+            "receipt_preparation_expected_after_scope_reconciliation": "Actual canonical prepared receipt must reach reserve; named RuntimeAuthorizationAuditError did not verify must occur before any access audit append. Current scope rejection does not count as this signature negative."
+          },
+          {
+            "paired_scope_negative": "Explicit bound different cell must remain ArtifactOwnershipError before publication intent/staging. Do not accept stale/foreign declared identity because B148 owner law is HELD."
+          }
+        ],
+        "runnable_current_case_command": {
+          "status": "PROPOSED_NOT_EXECUTED_BY_REVIEWER; currently4e reproduces two early failures, owner successor expected actual full defining controls",
+          "cwd": "<clean root/G admitted checkout at exact candidate>/policy-engine",
+          "interpreter": "<supported exact candidate environment>/bin/python (root original was .polisyos/e02-B-current/environment/bin/python)",
+          "argv": [
+            "<interpreter>",
+            "-m",
+            "pytest",
+            "-vv",
+            "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_human_decision_exposure_is_a_top_level_completed_event",
+            "tests/unit/runtime/http/test_runtime_authorization_access_audit.py::test_exposure_signature_failure_leaves_no_completed_row",
+            "--basetemp",
+            "<fresh unique absolute tmp>/pytest",
+            "-o",
+            "cache_dir=<fresh unique absolute tmp>/cache",
+            "--junitxml=<fresh unique absolute tmp>/exposure.xml"
+          ],
+          "environment": {
+            "PYTHONPATH": "<checkout>/policy-engine/src:<checkout>/policy-engine",
+            "POLISYOS_METRICS_PORT": "0"
+          },
+          "isolation": "Fresh tmp per run; each actual case creates its own CAS and SQLite path. No shared source writes, generators, DB or fixed metrics port; no artificial process/thread quota."
+        },
+        "cloud_stop_point": "Real root FileSystemCAS producer→attestation write→scope guard refuses. No reserve/signature/completed exposure event, HTTP served delivery, or job-fencing continuation executed in these two cases.",
+        "B_does_not_attest": [
+          "public B148 cross-cell/cross-tenant ownership law",
+          "owner-supplied missing event cell schema authority",
+          "trusted/untrusted signature behavior in the two stopped executions",
+          "two-row exposure audit and durable diagnostic event readback",
+          "actual production served HTTP delivery or current/stale job mutation completion"
+        ],
+        "write_ownership": "A alone changes lifecycle/run_lifecycle.py; canonical human exposure/access_audit producer owner A/G coordinates exact contract. B provides this committed input/negative receipt and writes no A files. CAS matching guard stays unchanged for this contract."
+      },
+      "current_candidate": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "freshness": "Original real4e producer compatibility gap stays source-bound at205: explicit tenant-a/cell-a store vs producer tenant-a/None attestation/closure. Generic B152 report/capture repair leaves guard unchanged. Current205 runtime is UNRUN here; original failed consumers still stop before trusted/untrusted signature and completed row. No test-green permission relaxation.",
+      "formal_closure": false
+    },
+    {
+      "id": "WIRE_receiver_envelope_compatibility_root_G",
+      "owner": "root/G and current canonical runner consumers",
+      "receipt": {
+        "object_ref": "o177"
+      },
+      "source": {
+        "object_ref": "o058"
+      },
+      "test_input": {
+        "object_ref": "o178"
+      },
+      "production_changed_paths": [],
+      "limitations": [
+        "Original root4e complete cohort2FAIL remain immutable; this companion changes only one test premise plus explicit measured legacy controls and does not reinterpret original results.",
+        "New actual119PASS is scoped to this exact own checkout. Serialization/e02/normalcodec bytes equal root4e, but retry/activity_worker bytes differ. No source-equivalence or new root4e worker assertion from own replay.",
+        "Root owns independent review/merged final source freeze, supported required gates and G finding closure. No package PASS or summary alone establishes B94 closure.",
+        "Legacy unversioned input and integrity framev1 remain explicit compatibility, distinct from strict v2 Decimal payload admission. Wire integrity/type identity does not establish tenant permission, institutional authority or service adoption.",
+        "Live Ray/Temporal deployment services and full production dataset were not inputs; no deployment/state-history law claim. Existing nativeOS process fixture uses actualfork/FileSystemCAS and live PPid ancestry, not marker tests.",
+        "Output origin/hash observation is actual file-backed serialization module only, not complete transitive/import/resource/child execution readset.",
+        "Full rootwave large deciding files stay exact ignored raw refs plus root-owned Git transfer; independent receiver lacking required bytes must not use our extracted2case records as complete rootwave proof."
+      ],
+      "freshness": "Latest followup changes consumer test premise/legacy controls only; no new serialization permission law, A/C source change or root-runtime pass inherited from own119 result.",
+      "formal_closure": false
+    }
+  ],
+  "source_snapshot_observation": {
+    "current_root_head_at_end": "8325d4dbd2a7df0ecba295c60ba792e23415f1af",
+    "tracked_status_at_end": "",
+    "qualification": "Review always used immutable205 objects. A later root documentation/freeze checkpoint does not silently change this target."
+  },
+  "remaining_limits": [
+    "No final root/B cohort, architecture, runtimeAPI, production_invocation, source-quality or generated surface gate executed or adjudicated here.",
+    "Current actual gate FAIL provenance and final frozen results remain root/ADAPTER assigned; no P41 inherited/disjoint attribution.",
+    "B13 actual production catalog+optional acquisition overlay remain local read-only G inputs; no cloud synthetic replacement.",
+    "C stream restore/endpoint consumption, A all-signature publication and human exposure exact scope remain typed upstream gaps.",
+    "B148 owner law and semantic held IDs are not ratified by matching source paths or test-compatible API.",
+    "No history rewrite/main push/deployment; own metadata topic only."
+  ],
+  "checks": [],
+  "comments": [],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-root-closeout-source-preparation.json"
+  ],
+  "immutable_objects": {
+    "o001": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "bytes": 578822,
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+    },
+    "o002": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "bytes": 578822,
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+    },
+    "o003": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+    },
+    "o004": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+    },
+    "o005": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+      "bytes": 108192,
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+    },
+    "o006": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+      "bytes": 108192,
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+    },
+    "o007": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/common/README.md",
+      "git_blob": "9aeba43b5e88cf2b038808d10eed441ee660e664",
+      "bytes": 7350,
+      "sha256": "df4a561b669a247622dabf796e9924ec4a5a35b5b5f2d39ac9cedf9763ae9742"
+    },
+    "o008": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    },
+    "o009": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "git_blob": "f7305c5a512dec66d9da2c4be66947d6a4c1b6a0",
+      "bytes": 9924,
+      "sha256": "910484b76e74cbf6c3e3baca7619c309d5ea4e6a8936eab1cf9fc240bffbcdf7"
+    },
+    "o010": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "git_blob": "329786340d076973b812a5302aefc21e0938c62f",
+      "bytes": 3471,
+      "sha256": "a3e70ebad63ed31e840ef76195c831e98bf6fe2818ed8db7b04ea9464ad8f38c"
+    },
+    "o011": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "git_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+      "bytes": 12619,
+      "sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+    },
+    "o012": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "git_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+      "bytes": 18059,
+      "sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85"
+    },
+    "o013": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "git_blob": "605cb8f7bee08e53ba2d6c669ead18e37e6845d2",
+      "bytes": 46150,
+      "sha256": "87932ccfe7d3842ce79427ff4bfcba1c0b76c14d4c7c0a2f2eba729de5d8bc7f"
+    },
+    "o014": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+      "bytes": 7518,
+      "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+    },
+    "o015": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+      "git_blob": "62c27d8efdeb67240643449de280548aec94e54b",
+      "bytes": 21736,
+      "sha256": "4a4ab7c0a896ae9ab10970ee660b12a144697cfa4dcdeb819be285a1a67a0eba"
+    },
+    "o016": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "git_blob": "10c362d63a869ef3cd1bafd243916ec1faed0c9a",
+      "bytes": 5262,
+      "sha256": "c3425f30443b55fcabe44adde78bd7cd5373e7424eae1dd1a6a9ad6d4a4260d1"
+    },
+    "o017": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+      "git_blob": "fac90cf474c8e86418d0fc4e8c83b6077c8c0e6e",
+      "bytes": 756,
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5"
+    },
+    "o018": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "git_blob": "7748250f475b0ac2c212468ecb6609c8f80ed8b9",
+      "bytes": 5769,
+      "sha256": "242a23a1c4c75f230c65aa5f284da0066641d9eec945c4eccdc12abc84e7adc5"
+    },
+    "o019": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "git_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+      "bytes": 30675,
+      "sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d"
+    },
+    "o020": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "git_blob": "574e7f473d1487c4b1d1f3c232d96b6ec6cc4e7f",
+      "bytes": 189537,
+      "sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187"
+    },
+    "o021": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+      "git_blob": "4fc13719e7449e62c315ae8760791564b5236ae1",
+      "bytes": 10066,
+      "sha256": "e8b24432f7efee3eb3fafa1c4951efa4e40c77cea051747ed1bb82593c6c8651"
+    },
+    "o022": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "git_blob": "c42e89793edac0ce75b6c49107fc77082d7f14fd",
+      "bytes": 3466,
+      "sha256": "06447dfdb0023cf0e8794da2c673fdac4571c662ef729b7b89f46410931e1d2d"
+    },
+    "o023": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "git_blob": "947105fccabb40710f563e3e57d71ed06e7f0bb3",
+      "bytes": 7635,
+      "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af"
+    },
+    "o024": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "git_blob": "c2c631442a3ecf7587425445565d723598eaba81",
+      "bytes": 8687,
+      "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b"
+    },
+    "o025": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62",
+      "bytes": 35161,
+      "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a"
+    },
+    "o026": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/fabric/connectors/README.md",
+      "git_blob": "1efa36c638f11e807237e0f7ddcd7f8eba312b87",
+      "bytes": 7120,
+      "sha256": "c72429742da37fe5d48d90354dffb4fa5eb79f7fd82d9514d9508fb0aa2af46f"
+    },
+    "o027": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "git_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29",
+      "bytes": 43461,
+      "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35"
+    },
+    "o028": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+      "git_blob": "24316603e405589fe7c13a433997fb0dd32ea7c4",
+      "bytes": 5871,
+      "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429"
+    },
+    "o029": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+      "git_blob": "173dc65f7a507b88cf0fa3b9a211ddace25f2fcc",
+      "bytes": 25310,
+      "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3"
+    },
+    "o030": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+      "git_blob": "a8d670610f73536e3831a65a7d091432d4bfb599",
+      "bytes": 18511,
+      "sha256": "2f4bd7b8f46cedacd3c26134ecc9a7b9d03dd868953b34cf306dd1702a0ec035"
+    },
+    "o031": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "git_blob": "74a83463e1178760ff095102b869ed0dbe479b63",
+      "bytes": 2692,
+      "sha256": "3f8486706c7823e5a365b01c1ca66cec70c61b2b5f456881c53265d899771031"
+    },
+    "o032": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+      "git_blob": "9828a57413c04589b92ce6f03d823555f7efbee1",
+      "bytes": 383,
+      "sha256": "79a2f5203ae44074bc81e1fe6074adf23b1942960bbe62527b16772c1d827670"
+    },
+    "o033": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+      "git_blob": "aa8476593c0e5bd84e2eabb0f08b35888f6daa70",
+      "bytes": 8255,
+      "sha256": "69718adeb434cb860fdefd6f59e244f9fc0f7d7e0b1fabbeb78ff065e737f0c1"
+    },
+    "o034": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "git_blob": "731c456b7dfc2030a6afaa2ae1b3ec054b730a52",
+      "bytes": 8535,
+      "sha256": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d"
+    },
+    "o035": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+      "git_blob": "845b5cf428d1a4bca16f410e8e580382b0a9c2ec",
+      "bytes": 6744,
+      "sha256": "99ba75d7f3848cc77a3fe775a3b394aa1df21e32f10364040345cbb5dc309c06"
+    },
+    "o036": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "git_blob": "440dac6c4fae5fd9ee9a8dd5bd756fa6d2597a1c",
+      "bytes": 13846,
+      "sha256": "769060f639d99f2a04f413cfcb7b7aa3fbd0812b38cf961b2a00f31a62da95e1"
+    },
+    "o037": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "git_blob": "66832c75dbc811d9c020352682ace45f0dcc3a15",
+      "bytes": 42439,
+      "sha256": "4ded29c3bb1ef77202b4a57d9595e8b4665552293e9b92321e675a52dcbee559"
+    },
+    "o038": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+      "git_blob": "d64db68f1b6510550550097b83f0ef24d45728e3",
+      "bytes": 58334,
+      "sha256": "1e76c8b5c43136bf60f459fc41295c699ac1ff1f8640195c867b37eafc876bba"
+    },
+    "o039": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+      "git_blob": "b1ea749e1b6b4d3405eef030f2dd019c845af67e",
+      "bytes": 3210,
+      "sha256": "b24400ff7d620fc78f040743fe1d24fa1e55db3ed07576f2b7af778a3a30b1ab"
+    },
+    "o040": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+      "git_blob": "cfa6273688e423357fbad240d24f99b171f1a7a3",
+      "bytes": 41586,
+      "sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029"
+    },
+    "o041": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+      "git_blob": "26d44903742ee75c2c5e127204a41a58a42ebb37",
+      "bytes": 13808,
+      "sha256": "905f6b9270e7b137a373422e8d0795a451fed6e8639f6fd6a6974e5f8af32251"
+    },
+    "o042": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/README.md",
+      "git_blob": "02c3f305d128e9ba42923c0953d4cf6cfdaf7160",
+      "bytes": 10475,
+      "sha256": "9bf3b78f8fad8ed2aec7f73caaaf32c4b1b9cbd3ce28fca5d04381f6818ac3a0"
+    },
+    "o043": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "git_blob": "b9ae61ea8da0f8c7793eec5499aa67a73b9a933f",
+      "bytes": 34720,
+      "sha256": "402489fc3a89a9ce7567d6ae299576efb155aab1a37977b032cf532eb2833b4c"
+    },
+    "o044": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "git_blob": "347b1360a8d106a81d829b3db5aa98c537931044",
+      "bytes": 25992,
+      "sha256": "10d3d0439376525a2a270068d9024bb467468e6150dae3ec64ce250f1132d670"
+    },
+    "o045": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "git_blob": "f22016da6da13e612d07bc5257e8088730a6d176",
+      "bytes": 18716,
+      "sha256": "70210012ae7f5bc26b36a92bc9c5ab612b77f9b318d57a1c718a44276b1c9441"
+    },
+    "o046": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/runtime/http/services/README.md",
+      "git_blob": "18466d3a862771c65ce0dc234eacb8ebda001f90",
+      "bytes": 14884,
+      "sha256": "9301f344bfdcc529091757ef95d1100eb376e7744c63c36685f19e83f0fd4424"
+    },
+    "o047": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "git_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+      "bytes": 209996,
+      "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6"
+    },
+    "o048": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "git_blob": "50778105bd9f32d862eb22a4f9cc68c1a4b23b18",
+      "bytes": 10801,
+      "sha256": "807f008f0decfdd95453266864a59a9010dd554973e61151920fe9f1982bd62d"
+    },
+    "o049": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+      "bytes": 102653,
+      "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002"
+    },
+    "o050": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+      "bytes": 26353,
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+    },
+    "o051": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+      "bytes": 6067,
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+    },
+    "o052": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "git_blob": "a6a5b6cb483abe855225bdbf3860ef8475a7134a",
+      "bytes": 87102,
+      "sha256": "4712314f04747f9c29f601c71adb681cd921a6f89e4f7d426ab4850a11cb2b21"
+    },
+    "o053": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "git_blob": "abcede045da1496a8338f8206f960b0a06155709",
+      "bytes": 77010,
+      "sha256": "7dd103dcaf4deed17d3f5612d96f3b0283991096922518cbf929bd91e3e6c520"
+    },
+    "o054": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "git_blob": "854aec5c890f52b20bacce7461c532b8d064d3ff",
+      "bytes": 34274,
+      "sha256": "3f8cb9bef47dbaf1a242fda929a4d71f4276ca4c0761b7392fef34e80c81e996"
+    },
+    "o055": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "git_blob": "00c18c9a11fdaf69331651ee291fe0fec334e5ab",
+      "bytes": 79312,
+      "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271"
+    },
+    "o056": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/README.md",
+      "git_blob": "80897f922e5ce40057440d3510ebaa9a60811113",
+      "bytes": 2008,
+      "sha256": "1641b100df6115c98e0de3075611c753942fc3e33ed8dc1dc65a8187b5ae59fb"
+    },
+    "o057": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "git_blob": "c6aeddebf679cd885d3042563a3bd58c7a6841eb",
+      "bytes": 17554,
+      "sha256": "62fb2e57ba2a7fda2cd5832c5d76a586f0642252f15a0488e60602c7177a0814"
+    },
+    "o058": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "git_blob": "a30917ff03a060fe31d9d9503f7a8193b9914b99",
+      "bytes": 32381,
+      "sha256": "32e552ede3c755de0577e934ffb80f8a30dfea79f4b1dd08c1b66124b08d9b05"
+    },
+    "o059": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "git_blob": "6f5bd398af2b70cae72754a782e224b990638541",
+      "bytes": 38234,
+      "sha256": "70c99ff156d658302be6dfbc04fcaf875cb63bb822641eeec03c9924f25cd03b"
+    },
+    "o060": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "git_blob": "5a5eb75880148ddd4cb7d9824085a96f2b22dedb",
+      "bytes": 23952,
+      "sha256": "527e5f610530165ffc5275eda52d3595a74e93c600d3dfbaf78d8c5ca1c3180c"
+    },
+    "o061": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "git_blob": "5bd4656cb9531409581784cad4b8905e3646a565",
+      "bytes": 3940,
+      "sha256": "37ca3c82ed258f655f7a6ccd219b693f57b86f8d5b8c4973a6b4c089956ca1ab"
+    },
+    "o062": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "git_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+      "bytes": 28432,
+      "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e"
+    },
+    "o063": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+      "bytes": 9508,
+      "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68"
+    },
+    "o064": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "git_blob": "b1e91052c288df38bfa451cdee6a0436d4836b35",
+      "bytes": 37271,
+      "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462"
+    },
+    "o065": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json",
+      "git_blob": "27155e8cc43c0c00ca9bb79b6c4095276d30f81f",
+      "bytes": 58343,
+      "sha256": "c15324e3b59db1e7f2dd8c6c15e951245f80d02a1bedc72d33f82962effb59ac"
+    },
+    "o066": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission.json",
+      "git_blob": "3bd00b236e9816e550dcce0ed20fe41d16d14908",
+      "bytes": 30777,
+      "sha256": "a474b19b946a4009b47a884b617b01baf9cb69730d34a5edcc32f449cc2bb20f"
+    },
+    "o067": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer.json",
+      "git_blob": "2bf516b414ad6d358a763cd8af7835cf16f28a2e",
+      "bytes": 28471,
+      "sha256": "deae0501bea3f6e35ebb4466652d41ce78dd461a3c5c74f49399640e174dba6a"
+    },
+    "o068": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failed-snapshot-report-followup.json",
+      "git_blob": "32ed9577eacb93db28abe261947da7c9d7de760d",
+      "bytes": 48628,
+      "sha256": "55ce702927ff2335613a999ebd70cc053ef9b4e22f4450ec242c7923b132b0c6"
+    },
+    "o069": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failed-snapshot-report.json",
+      "git_blob": "bdc0953ea9fb3dd9c2cc88ac50c047724903d1db",
+      "bytes": 44447,
+      "sha256": "13823212bc939bddb5a62b55e4a12c91dbae67239cf230b9ca0b06282193f460"
+    },
+    "o070": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-profile-seam.json",
+      "git_blob": "3f59ba67b97ccd3ba0fed0ae71426cf9c5347b73",
+      "bytes": 3904,
+      "sha256": "cfb4bc71d4d5467554ae7d44f98d0a3d91d24cbdbafd508c68c31ddcffaec6f2"
+    },
+    "o071": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-verification-snapshot.json",
+      "git_blob": "44d1d58059dfb25f99d0694777ea806e7ce7eb8e",
+      "bytes": 17953,
+      "sha256": "cd4d2bc3f241816d4d6a17ef64d8b5eaca8e4f2978f998ca46d5740c63581d37"
+    },
+    "o072": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters.json",
+      "git_blob": "4b941e402b794be604707a95560d682ba32f5e3f",
+      "bytes": 249667,
+      "sha256": "3b84f19ffd5c52d1dc5567420d0ba0c2de07f45f81b8b557872a6a6f5e929234"
+    },
+    "o073": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
+      "git_blob": "999760b93dda34dd3584a5904174a9231d0a5c6a",
+      "bytes": 284620,
+      "sha256": "186761143590191aaa4057700c50c1f90a04bf467d60194cd17854f6e9a9a7f0"
+    },
+    "o074": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer.json",
+      "git_blob": "b6ad47518d43104b473ef80c4187cabefd2bc5e5",
+      "bytes": 21150,
+      "sha256": "8983a43852ecd942b6d629fc07992edf6b6abe666345a949558f38ba040e0b19"
+    },
+    "o075": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery.json",
+      "git_blob": "95e605c378db6b5806904bb64a0677c203f6a288",
+      "bytes": 145452,
+      "sha256": "22fc60a3351b2ce400b5162e06bd2de0fd3c3bf7afecbeb78051936c80eb1a35"
+    },
+    "o076": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+      "git_blob": "905f1bd32d14ca61d64f57c45a3521649361ad2c",
+      "bytes": 101878,
+      "sha256": "85093d04bd4c027093ef476c2d107cc152eac8af9bcf7408c305947eef44b7e0"
+    },
+    "o077": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity.json",
+      "git_blob": "a861d6a23a850784be08715892071ec2218683de",
+      "bytes": 43025,
+      "sha256": "2ad3366546424f5cb07b0661c7621ab0ebca40679980f29ca3e4141e87e79016"
+    },
+    "o078": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit.json",
+      "git_blob": "a9e8f64c69d23792962e70d4c6eec2f8849337dc",
+      "bytes": 25912,
+      "sha256": "baa5080d401fde7e1e90f76e954051814239faa6b6818d83395eb4b7e5f01f5a"
+    },
+    "o079": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload.json",
+      "git_blob": "f9a2d6317c7fccbc11784ff4b9219923abf5ff0c",
+      "bytes": 26033,
+      "sha256": "173e054fc1c4108ecaa2f38d9990fc508b5105541c58bfd380e9e8df410c0143"
+    },
+    "o080": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots.json",
+      "git_blob": "6139c67dbd9bad65d175e9eddd45bf597ac79124",
+      "bytes": 24463,
+      "sha256": "f47f7971842b8f0f6d4bf625312cf06949ad67787d0e4b0fa1d995072840472e"
+    },
+    "o081": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication.json",
+      "git_blob": "2e301834333a0a44d7334dbdd530c1a8e3aa246a",
+      "bytes": 22836,
+      "sha256": "bb2ca99ec394ce59c18967e3daa784cdce14907b041337702cef638ca604cfb9"
+    },
+    "o082": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03.json",
+      "git_blob": "71ac15a4b8d9b52342da926e8cc5ba23ab21f275",
+      "bytes": 16760,
+      "sha256": "9590b0863dd781194dab34bb52f39b24c1d88657f9d6fc2f2458958b377c4731"
+    },
+    "o083": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-bootstrap.json",
+      "git_blob": "ee976f3d75773635df450527c23c0756f1577919",
+      "bytes": 13596,
+      "sha256": "1db37db66055e170ccbc6ecf597f27021bbf20cb019a6ae34b71fbc9c093ca0f"
+    },
+    "o084": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-settlement.json",
+      "git_blob": "84193b699b74713e0099ffe2d3a4423f44668256",
+      "bytes": 37858,
+      "sha256": "b6f548bfa5bb80475eb516650bc036335cc6d81f8a8cf7b3abb393b0049ece3f"
+    },
+    "o085": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability.json",
+      "git_blob": "84e224fdfc72ee8b964ce3731dbabc05b91d0706",
+      "bytes": 91141,
+      "sha256": "551d2229eee0b9ef61e44ccc1cc588412c761e319680a25044bb15412cfdd896"
+    },
+    "o086": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-fenced-budget-consumer.json",
+      "git_blob": "6a1c767d4550aa4964aaf781cf74cd7c305670e2",
+      "bytes": 14180,
+      "sha256": "fe7e48a15c9c8c9bcc4f693be8c2bfab06091474b7d67171bb12bd7232d967ac"
+    },
+    "o087": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-generation-resume-consumer.json",
+      "git_blob": "4c3274e543d476ad06b5b2ab54a75227c4cfd350",
+      "bytes": 38330,
+      "sha256": "95cefcc109f1ca11b796a5e24b1cbed5807eca17978d39f922f97054b6b058a9"
+    },
+    "o088": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas.json",
+      "git_blob": "35f78d6fac855ae8ea5e11eb10986136312332be",
+      "bytes": 38250,
+      "sha256": "7616ab2e7b9fd2fc85d31c2e8e92a499050da7093e318174903238a615f160e7"
+    },
+    "o089": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-process-cache-consumer.json",
+      "git_blob": "dca961fc7494f35c6c4bec3dda646fe13ad340bb",
+      "bytes": 31151,
+      "sha256": "356e03355d3be528e7ed2c2e5c44f4b100d4c93a042065fe977912af7ca28c3a"
+    },
+    "o090": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-receiver-consumer.json",
+      "git_blob": "e6cdd9f890486cb61e1ac7d69e685b8ccad6af8f",
+      "bytes": 16338,
+      "sha256": "6f5106a48ebaf89656c2de50026050d71a01e68ac9b027cca0a3ca4df1339a5e"
+    },
+    "o091": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume.json",
+      "git_blob": "f8476f7b6f19b9c5b1b0c5bc629f213788346b77",
+      "bytes": 35476,
+      "sha256": "2d5e159f4c10a836c2c07c0f860099259cd85d1ed055ba654499ce55f3dfec3f"
+    },
+    "o092": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-snapshot-consumer.json",
+      "git_blob": "d602c3867126160fe2a2f005a66b40f8c326d12d",
+      "bytes": 17363,
+      "sha256": "96f868c074a2f6841460b173944b6f41466294e9a2fb9cbebba3d125b182132a"
+    },
+    "o093": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor.json",
+      "git_blob": "90b6b24f40379e65bd4b5f8aac4fc2a902019b56",
+      "bytes": 68786,
+      "sha256": "c9589b558d675dfb182453b4b69590cff44a54d7b015f9d7816e76dd45ff8f35"
+    },
+    "o094": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup.json",
+      "git_blob": "b20f418de00477d8d5968100d560b796e0024351",
+      "bytes": 67878,
+      "sha256": "6390a903d1337f1037dab7d392dd8596e03f84b586dae7d513b337c581623cac"
+    },
+    "o095": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process.json",
+      "git_blob": "5057b531915b2de91c08799eef9f261ad8052fb5",
+      "bytes": 68095,
+      "sha256": "9ba6a2e3b94b48de6d1a88c95f1dac85874027e9a07f296ba87850cc1808e087"
+    },
+    "o096": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry.json",
+      "git_blob": "7b93b4d6c77332764e0976ca98ffd564774a02f1",
+      "bytes": 107722,
+      "sha256": "ea7e481b64f0d4ec32e7c9e084651d6a50909a9dbabdc6e32107f133db17f784"
+    },
+    "o097": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-supervised-runtime-consumer.json",
+      "git_blob": "2e00a1878a70ff7e4c9c7107c911324b4264e95c",
+      "bytes": 18718,
+      "sha256": "4d51ddd4688a80e698f6175248f990ed3412c3135de50bf48a3546310a8cff90"
+    },
+    "o098": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-bound-import.toml",
+      "git_blob": "2bcbdf95f7ca3621069793ca973b648330e491fc",
+      "bytes": 2456,
+      "sha256": "017d521c49e2999756c875a15dc1313b9a0964911bc495e3bc02ca76ad667484"
+    },
+    "o099": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "git_blob": "facd74807e31c44f95cd13a657a001da5438f8e9",
+      "bytes": 14387,
+      "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+    },
+    "o100": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+      "git_blob": "aaec1f8f593fb1f63f36140d773ac14fe662b546",
+      "bytes": 2582,
+      "sha256": "2cf4a16829b342bd9b35a69fc28fcbfff845e3e8b56166d0a0cf207429038dda"
+    },
+    "o101": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "git_blob": "8253c577d0e953318de826e7fa6c1a8c8da381d1",
+      "bytes": 24197,
+      "sha256": "d64c46bb4055cb6cd65fcff05067ef6c89941b5af316a63931088fbebaa98771"
+    },
+    "o102": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "git_blob": "404f80fb7c7f1829bf167fce41e03f12585d284e",
+      "bytes": 34836,
+      "sha256": "df322346f50d545b2eb7049c7ff03f4827abe7282b7e8fdff2ab92fe513d1fe2"
+    },
+    "o103": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-failed-snapshot-report.toml",
+      "git_blob": "66366ed0671a0fe86b5de81f3357743f02afdfbc",
+      "bytes": 2044,
+      "sha256": "d3ae832f7510d63e3205829ffcf9568c0c0463eb09e0b017d5973586e3cae5fe"
+    },
+    "o104": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+      "git_blob": "e39b376a65f7cd194b439c9695da44f3a056b5e6",
+      "bytes": 9989,
+      "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+    },
+    "o105": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+      "git_blob": "5fbd693e74b17a161c7d8f4de616c2faa63c0a5f",
+      "bytes": 7257,
+      "sha256": "3c610fbed5e7c7f416b0eb9ebf0220cc2e5495452e24728ca658a5532b3cae7b"
+    },
+    "o106": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/runtime/quality/test_chronology_proof.py",
+      "git_blob": "83640077ad0a533468c94e29f07247c116ddcbbf",
+      "bytes": 64363,
+      "sha256": "069e7d9509449da6ee232809909d864c835eff44dbb94746433cd04f5c911f8f"
+    },
+    "o107": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-transfer-generations.toml",
+      "git_blob": "7b4cfc469792017d13dd08373c5dd2e1e5853be2",
+      "bytes": 2466,
+      "sha256": "f9c5a13c1639ff840a8408d8f83efe41fa5a3a800141333b467f3773d60c9ef5"
+    },
+    "o108": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+      "git_blob": "b1d912b4d742d635194a6876e3a612eb86f28205",
+      "bytes": 23917,
+      "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+    },
+    "o109": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-generations.toml",
+      "git_blob": "5e551460abf923c8a6f5eba61e032982382e3f7a",
+      "bytes": 1899,
+      "sha256": "c5962531d7a8e39b0fd455a6733c47e9227502eb5034dc10a5c36f6dc86684f4"
+    },
+    "o110": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+      "git_blob": "0044d1a55c5f41011f32af3747c4e966b6ee1160",
+      "bytes": 30912,
+      "sha256": "70818a2e1b8c4e94f930823693ef7f0d232ff7c92f987decbf97d0c39ef18449"
+    },
+    "o111": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "git_blob": "b91a1d1c70e92202cf6ccbafaeb98f307cae4e00",
+      "bytes": 13742,
+      "sha256": "025f395d25306b5a94d392489d1eea5ed9a1a0649cc0b28607b860b8d259385f"
+    },
+    "o112": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "git_blob": "df6bf688421a390dc18ef153116c0808b5585710",
+      "bytes": 15865,
+      "sha256": "d6ea1299420903c72a42e8c6b07b506ed6aaa1dc5d0366a7bcdf144aec4838b0"
+    },
+    "o113": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-identity.toml",
+      "git_blob": "39882a9e6ad3c093cbafcb03a51cd9d42c2b2f28",
+      "bytes": 2600,
+      "sha256": "2eefa50c513fe3e86ca5ed76225542c05565f28890008cd8dc12cf7a4c6bab64"
+    },
+    "o114": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "git_blob": "c4752a53c232c4e57a10433a48a7d0959a60732f",
+      "bytes": 33264,
+      "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+    },
+    "o115": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-payload.toml",
+      "git_blob": "80cc77a730d117b6de2267e9e1a8887f2be22591",
+      "bytes": 1768,
+      "sha256": "4248bbe2bf80bf672a0af66fe7a4ec36da3026da444f9f3185381cf12171c0f4"
+    },
+    "o116": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "git_blob": "3333ec1f3d826b1c37120bc9ee72540f15666cc8",
+      "bytes": 9897,
+      "sha256": "1430274f7228fccb77a5c29832d31d65b30e22740f9b622ef6553f63efe59a16"
+    },
+    "o117": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-inputs.toml",
+      "git_blob": "255e99ab4f9cc498ad70e2817665fd3d6b8a68f6",
+      "bytes": 2050,
+      "sha256": "861df37061b2db418a445126a22a3e0482567082351cb1c0a0f3a691f58e3852"
+    },
+    "o118": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+      "git_blob": "49988f85109b71f11448468ef0738c5cf5e52b65",
+      "bytes": 11608,
+      "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+    },
+    "o119": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler.py",
+      "git_blob": "a1057ad067999a25584957a43543c33f03b39b5e",
+      "bytes": 34246,
+      "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+    },
+    "o120": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+      "git_blob": "6a7d2e6ee8b1fc0991e6fd1c543c2caed4bb887c",
+      "bytes": 24311,
+      "sha256": "c7e68d8b29bd4d61b7cd5ec9c1e3b49c42cf410d38c456730171d63d0c6daa0a"
+    },
+    "o121": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-dag-admission.toml",
+      "git_blob": "9f20be757834d996f7b0288e0df119ade03e175f",
+      "bytes": 2239,
+      "sha256": "b00cfe7715dd631fd18ca4136570212ce556600037c7be708c97ecfd7430467d"
+    },
+    "o122": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+      "git_blob": "692cd62434e11f8e26ee94010914b27bb7bc3e27",
+      "bytes": 12213,
+      "sha256": "059bde6f9f3550b2f77f82039cf4d258cdac28262c2b53d092228d4cdfea91cc"
+    },
+    "o123": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+      "git_blob": "76a129359a6411a929b739e7bffb89b4312de081",
+      "bytes": 9386,
+      "sha256": "368417feeb5bd2a64280de1a3e1d6071356c886e412209a4675062532974d74e"
+    },
+    "o124": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+      "git_blob": "068de90a8210a766980418685ea8bf6a8fa44fa5",
+      "bytes": 8449,
+      "sha256": "79b396b1c7766377baf471c51b215a921409fbaa4541685073a25be215967f4a"
+    },
+    "o125": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "git_blob": "2081b0f03f530823ad022ba6becd112742016206",
+      "bytes": 17844,
+      "sha256": "0aa58ad4447e7a35b2512dae8056c01e0ff9151bcabb82879b74c0a37da9a926"
+    },
+    "o126": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/foundry/methods/test_linker.py",
+      "git_blob": "62475f6d4eb7241852dc7770fd0a4c09ff5573c4",
+      "bytes": 30180,
+      "sha256": "3443e856ba52a04e0d2c84b80380b525acded1595e88b3642bf3c9b11f0c4efb"
+    },
+    "o127": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-local-git-provenance.toml",
+      "git_blob": "44c977c303b843c7d8cebbc149d0d0761327f2aa",
+      "bytes": 1035,
+      "sha256": "34eb37d0d39c161361f9d79652a09fb94766ab1b2296335b9c2c07de7aa6f425"
+    },
+    "o128": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/foundry/methods/test_artifacts.py",
+      "git_blob": "20064d3a57890f8f5d9d38cb37c394c2e598f8a7",
+      "bytes": 25712,
+      "sha256": "a71b81fcbfa54e81a8188ebcdcd5e4bd12b765c510949b14dc35ec4d7eeb1f2b"
+    },
+    "o129": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-budget-ledger-admission.toml",
+      "git_blob": "063f055838b602ab6262c0cfadd7db33da0aaa21",
+      "bytes": 2213,
+      "sha256": "0621ce954d0f22cb4f11cba9b6a89a8e92b7150bd847b62dbb9495b3c587e2f1"
+    },
+    "o130": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "git_blob": "0d96cf6d054a24e4676352d48de8d03edea22379",
+      "bytes": 16904,
+      "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc"
+    },
+    "o131": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "git_blob": "ea6399f0c8de7920d18bfdfbf5882e3cdd795688",
+      "bytes": 17417,
+      "sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc"
+    },
+    "o132": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "git_blob": "912c27087d105b9c23f0d589c2ce9996815e2969",
+      "bytes": 13682,
+      "sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4"
+    },
+    "o133": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-batch-completion.toml",
+      "git_blob": "db7d532a7259f5b4c1416d098c8dc3698a3e5f19",
+      "bytes": 1415,
+      "sha256": "9caa30e2370b3849f4929495ae73a4235536d773ef3cc42719c1fc467ce8f194"
+    },
+    "o134": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+      "git_blob": "c493db7680df69132ef36f14e951f001f0f993e9",
+      "bytes": 14133,
+      "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503"
+    },
+    "o135": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "git_blob": "7f72aa0992ef443b4faf042b20214745df58230b",
+      "bytes": 31421,
+      "sha256": "19636b58cf687da7ec3eb9c3ded9ef9cb0ed6c24f0b3bcb6aa10e31eda9db9b9"
+    },
+    "o136": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-manifest-profile-seam.toml",
+      "git_blob": "bf94f31f7d7390231b2f51de6a3d25ee59f45111",
+      "bytes": 1015,
+      "sha256": "14d3c9a377a9ee43a44045f11a316dd2f7f8a5f68e5a43ac6172de8b14992c1c"
+    },
+    "o137": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-verification-snapshot.toml",
+      "git_blob": "23efaf8eba63563337d9a9f3bf3277c05cd548d7",
+      "bytes": 1404,
+      "sha256": "2a4c17b9852073db93a93ff6b57ac9d95adc1052d2e7238e998fd5884b5191c9"
+    },
+    "o138": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "git_blob": "a90abb5ec4a65745be7ff82b362e151d9917a287",
+      "bytes": 5578,
+      "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+    },
+    "o139": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "git_blob": "678583397bb5375579dae6581d6ac381898d2965",
+      "bytes": 4638,
+      "sha256": "cb4bb3f5564bfc4e9e602466989e622e114e725f16c4488b12c9a051d0bf2aa4"
+    },
+    "o140": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml",
+      "git_blob": "a3f539577e5cd74c04b8f284c9598c5db9eca273",
+      "bytes": 1548,
+      "sha256": "f95ea16d7aa64cc0739139eafb6f87e0a6ecdb31af623e1c4331223b830db257"
+    },
+    "o141": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "git_blob": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+      "bytes": 27256,
+      "sha256": "35f48eb3182363408dbb02e4c57b4cdb01b37b6f6df4391f3753bdf975426b48"
+    },
+    "o142": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-llm-settlement.toml",
+      "git_blob": "2868b0cd5d26e5fe28cdac66028aa6dce3dfaf07",
+      "bytes": 2172,
+      "sha256": "8828f2eb140952a0317f49d1899f32cd6bf505030b6846266c8b663c0e8720df"
+    },
+    "o143": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "git_blob": "ae5b63e1351c7314fa656a12023f239146697227",
+      "bytes": 41666,
+      "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682"
+    },
+    "o144": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-pool-admission.toml",
+      "git_blob": "080f28edac9314853dd6a18a07a88e48cb1ee91f",
+      "bytes": 1316,
+      "sha256": "37303020f76a1dd317200ec0d35e197c4fe880e7f5d5716bbc2282a85c3b7e10"
+    },
+    "o145": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+      "git_blob": "477268cb87a178c6d246a750f8acdbb89ab55491",
+      "bytes": 10635,
+      "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf"
+    },
+    "o146": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-resilience-ownership.toml",
+      "git_blob": "bfed2f352b731109bccdcc1a65ca19384ba12bc2",
+      "bytes": 1228,
+      "sha256": "1f6a205d691c2770b883d3aea99316d145fab155a51d67239300080582b80a2a"
+    },
+    "o147": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+      "git_blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4",
+      "bytes": 6312,
+      "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049"
+    },
+    "o148": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-wire-v2.toml",
+      "git_blob": "6d9b1542a6ea21b28c430433b0e81a891df5b98f",
+      "bytes": 1324,
+      "sha256": "359b37a417afb61b8095ad0c3c51f529b8bb298655d88f2762ba1f2b2b853c10"
+    },
+    "o149": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "git_blob": "0c066894d2e7a35e4078725203cbc2752eb6060b",
+      "bytes": 10251,
+      "sha256": "a0a2bb4190a150b76c09239056e7f97ec9ff8506d133fb3333d8e741770f7e03"
+    },
+    "o150": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
+      "git_blob": "02999c512a23e60b7cf7cd0e3938627082643b7e",
+      "bytes": 5584,
+      "sha256": "305183133560b78eb46fee16942fbbd5382d279c2a0bb744c7c08de70ae05d27"
+    },
+    "o151": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+      "bytes": 20275,
+      "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+    },
+    "o152": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "git_blob": "7e0d8869b551adb42abf099c22a0e53c3a3dd867",
+      "bytes": 6681,
+      "sha256": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a"
+    },
+    "o153": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "git_blob": "a6afc67edd0e385a8ffa7e11d17a010109601ac9",
+      "bytes": 13231,
+      "sha256": "cc96bdff760c0cdab55f8b6f3b388610c32e1ead363325cefbeebd4cc624dcd8"
+    },
+    "o154": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_res_01.py",
+      "git_blob": "11fbc98d4b286d33ab4c7c3ba29839831cde1f6a",
+      "bytes": 17834,
+      "sha256": "e8913b401a0101c2301671962e876c97e86afed696536407f0c86e8c2acec93b"
+    },
+    "o155": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/e02-current-independent-oracles.toml",
+      "git_blob": "4376bd73240c64318c73f948af5f3a673aca98d5",
+      "bytes": 911,
+      "sha256": "f22df7eec1b2a818efa601a443f4f1c91d23a864f4a9507566440d213f1f894d"
+    },
+    "o156": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+      "git_blob": "ca0e13e8bf30e6604026a7960f87f1d0b08a3ef6",
+      "bytes": 5302,
+      "sha256": "3da9f7887b520884b1d4b3a320965452f95ec1aafa519118bed5aca096811e73"
+    },
+    "o157": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+      "git_blob": "97190f48a671eec12e02cfe09c3ad153a462bb5f",
+      "bytes": 4011,
+      "sha256": "4c3ad9d5c7c2662b8e192570f54b13defd26beef7bda71bd378f2505b6157576"
+    },
+    "o158": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/e02-current-runtime-deadline.toml",
+      "git_blob": "304118c7ce7527507b7bddadfcccb4aa17c233c4",
+      "bytes": 1717,
+      "sha256": "4ebb9200e220e00190dbfb833d5835ecb046d7e4ee1b9efa0e6cc4d79a7cf2d3"
+    },
+    "o159": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "git_blob": "ae7769be8d7de15cbeb9fb93d2e3a783d5240f3a",
+      "bytes": 79749,
+      "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+    },
+    "o160": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "git_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+      "bytes": 14399,
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c"
+    },
+    "o161": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "git_blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+      "bytes": 15730,
+      "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+    },
+    "o162": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/e02-current-runtime-process.toml",
+      "git_blob": "30018185bca6919815b263b062c36297f50c70e4",
+      "bytes": 1593,
+      "sha256": "1b917bbf5afd8306ca6371f5e8664ce09c1e0644588b80fb2834da5f2063c1a1"
+    },
+    "o163": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/e02-current-runtime-spend.toml",
+      "git_blob": "f8f36d486d5369683730dc2e316316ac1f02b6e8",
+      "bytes": 1164,
+      "sha256": "0a3762c4d3b54124bc063bf33c7ecc6f43df2c8940d58cf3baf26e1a4631c234"
+    },
+    "o164": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/release-fragments/unreleased/e02-current-runtime.toml",
+      "git_blob": "3c805d9fd58f070282c5ceb9dd2a8c6725d99fcd",
+      "bytes": 1163,
+      "sha256": "b023625a879b7e69d2a4fa7f549c9b720f6740708c9bbb1af53f483e3cc2d002"
+    },
+    "o165": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "git_blob": "71987b5a1f52c7ca8ddb4033b306d2d6fc0a6492",
+      "bytes": 39751,
+      "sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d"
+    },
+    "o166": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+      "git_blob": "3975ca9f6aed146a3d5727ca759e45c21c96b81d",
+      "bytes": 4332,
+      "sha256": "63349188bb1e4146c5be03228023a28f8a9e97491939bf5deaf4ed97dab2a494"
+    },
+    "o167": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-contract.json",
+      "git_blob": "a90d4f45c8ece2ac5d0b51278cc308237930fd09",
+      "bytes": 31456,
+      "sha256": "0cc234162e7130e97beaec7e808a74f26fa48b8152a8fa6e1d50accee701b3fa"
+    },
+    "o168": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+      "git_blob": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7",
+      "bytes": 8699,
+      "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d"
+    },
+    "o169": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-signature-publisher-contract.json",
+      "git_blob": "2bc684de21d4b6680c5481c2e69a6f87b9fd1c53",
+      "bytes": 5415,
+      "sha256": "a7c05409125b4717241b327f98c149152897ee4ea80e282d9de55302fae45cae"
+    },
+    "o170": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-consumer-qualification.json",
+      "git_blob": "8d02609593b640b56f23ca337d4602d487dd76fb",
+      "bytes": 35845,
+      "sha256": "0bbe095e96fc6527d7e08a900da6ab6de65e3765fec518edae85b5166e67bf9b"
+    },
+    "o171": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+      "git_blob": "5449c54991689add5e4d554794137a19093b1043",
+      "bytes": 43011,
+      "sha256": "36045312577e30399fa53078f9e100c04dd6e549c10d65cf7b736abeb3803be5"
+    },
+    "o172": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/runtime/http/access_audit.py",
+      "git_blob": "5449c54991689add5e4d554794137a19093b1043",
+      "bytes": 43011,
+      "sha256": "36045312577e30399fa53078f9e100c04dd6e549c10d65cf7b736abeb3803be5"
+    },
+    "o173": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+      "git_blob": "63eaad653c6a3627fe9e99873100829facefd1e7",
+      "bytes": 44264,
+      "sha256": "60b02af0967cfc5d37055dde69748089a401ce339863810eed511f177be109eb"
+    },
+    "o174": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+      "git_blob": "63eaad653c6a3627fe9e99873100829facefd1e7",
+      "bytes": 44264,
+      "sha256": "60b02af0967cfc5d37055dde69748089a401ce339863810eed511f177be109eb"
+    },
+    "o175": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "git_blob": "780061edcaf6ec7b2e0cedabc3f81ac08b621789",
+      "bytes": 48767,
+      "sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42"
+    },
+    "o176": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "git_blob": "780061edcaf6ec7b2e0cedabc3f81ac08b621789",
+      "bytes": 48767,
+      "sha256": "78773ed6f46d7f68620bfdc875e2e38513beb31c2d97208e930f182d36873b42"
+    },
+    "o177": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer.json",
+      "git_blob": "65eeb04887d449753933fc3ecd24ebfca480f328",
+      "bytes": 46697,
+      "sha256": "2fe3c84264bae3e12b6239a9b5045151cfe5657f73c45d4c517e6318257bf62d"
+    },
+    "o178": {
+      "source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "git_blob": "6f5458b393840e4ccb94d32b89759d7b4aa7a551",
+      "bytes": 12091,
+      "sha256": "20a9f68b15462ca6e20a2ffa602828a1b64354a2457f2cc18cb8fed70430e507"
+    }
+  },
+  "accepted_final_followups_byte_binding": [
+    {
+      "canonical_point": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "current_source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "byte_equal": true,
+      "current_sha256": "bc8697dbe65fff1c2180dfb1eff1e7d4beea662f406dc332c974b448c71b4187"
+    },
+    {
+      "canonical_point": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+      "current_source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "byte_equal": true,
+      "current_sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+    },
+    {
+      "canonical_point": "a4dd3b25c369be19c80727395c689a121950fc64",
+      "current_source_sha": "205bb6ddd67b52f2f359e3f7aab7ab7aafb0dbe7",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "byte_equal": true,
+      "current_sha256": "20a9f68b15462ca6e20a2ffa602828a1b64354a2457f2cc18cb8fed70430e507"
+    }
+  ]
+}

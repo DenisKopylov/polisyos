@@ -1,0 +1,132 @@
+........................................................................ [ 59%]
+...........F......................................                       [100%]
+=================================== FAILURES ===================================
+__ test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication __
+
+tmp_path = PosixPath('/tmp/e02-B-current-execution-state/checkpoint-deadline/final-affected-pytest/test_suppressed_checkpoint_can0')
+
+    @pytest.mark.asyncio
+    async def test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication(tmp_path):
+        from polisyos.scientist.orchestration.engine.checkpoint import (
+            CASCheckpointHook,
+            resolve_latest_checkpoint,
+        )
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store)
+        entered = asyncio.Event()
+        real = CASCheckpointHook(store=store, run_dir=ctx.run.trace_path.parent)
+        completed = []
+    
+        class SuppressingHook:
+            async def on_node_complete_async(self, **kwargs):
+                entered.set()
+                try:
+                    await asyncio.Event().wait()
+                except asyncio.CancelledError:
+                    completed.append("cancelled")
+                result = await asyncio.to_thread(real.on_node_complete, **kwargs)
+                completed.append("physically_completed")
+                return result
+    
+        executor._checkpoint_hook = SuppressingHook()
+        task = asyncio.create_task(
+            executor.execute(workflow, ExperimentState(run_id="R_deadline", params={"seed": 7}))
+        )
+        await asyncio.wait_for(entered.wait(), 5)
+        before = _events(ctx)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError, match="execution_state=unknown"):
+>           await task
+
+tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1230: in _run_single_node
+    state = await self._handle_checkpoint(
+src/polisyos/scientist/orchestration/engine/async_executor.py:2221: in _handle_checkpoint
+    result = await async_checkpoint(
+tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:405: in on_node_complete_async
+    result = await asyncio.to_thread(real.on_node_complete, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/checkpoint.py:1077: in on_node_complete
+    return self.on_tier_complete(
+src/polisyos/scientist/orchestration/engine/checkpoint.py:1122: in on_tier_complete
+    publication_budget.require_active("checkpoint_artifact")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = CheckpointPublicationBudget(deadline_monotonic=None, owner_is_current=<function AsyncWorkflowExecutor.execute.<locals>...bda> at 0x7f7024407d70>, caller_cancelled=<function AsyncWorkflowExecutor.execute.<locals>.<lambda> at 0x7f7024407c10>)
+operation = 'checkpoint_artifact'
+
+    def require_active(self, operation: str, *, execution_state: str = "not_admitted") -> None:
+        if not self.owner_is_current() or self.caller_cancelled():
+>           raise asyncio.CancelledError(
+                f"checkpoint owner cancelled; execution_state={execution_state}; "
+                f"publication_operation={operation}"
+            )
+E           asyncio.exceptions.CancelledError: checkpoint owner cancelled; execution_state=not_admitted; publication_operation=checkpoint_artifact
+
+src/polisyos/scientist/orchestration/engine/checkpoint.py:95: CancelledError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/e02-B-current-execution-state/checkpoint-deadline/final-affected-pytest/test_suppressed_checkpoint_can0')
+
+    @pytest.mark.asyncio
+    async def test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication(tmp_path):
+        from polisyos.scientist.orchestration.engine.checkpoint import (
+            CASCheckpointHook,
+            resolve_latest_checkpoint,
+        )
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store)
+        entered = asyncio.Event()
+        real = CASCheckpointHook(store=store, run_dir=ctx.run.trace_path.parent)
+        completed = []
+    
+        class SuppressingHook:
+            async def on_node_complete_async(self, **kwargs):
+                entered.set()
+                try:
+                    await asyncio.Event().wait()
+                except asyncio.CancelledError:
+                    completed.append("cancelled")
+                result = await asyncio.to_thread(real.on_node_complete, **kwargs)
+                completed.append("physically_completed")
+                return result
+    
+        executor._checkpoint_hook = SuppressingHook()
+        task = asyncio.create_task(
+            executor.execute(workflow, ExperimentState(run_id="R_deadline", params={"seed": 7}))
+        )
+        await asyncio.wait_for(entered.wait(), 5)
+        before = _events(ctx)
+        task.cancel()
+>       with pytest.raises(asyncio.CancelledError, match="execution_state=unknown"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'execution_state=unknown'
+E         Actual message: 'checkpoint owner cancelled; execution_state=not_admitted; publication_operation=checkpoint_artifact'
+
+tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:416: AssertionError
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestWorkflowTimeout::test_workflow_timeout_raises
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=364158) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication

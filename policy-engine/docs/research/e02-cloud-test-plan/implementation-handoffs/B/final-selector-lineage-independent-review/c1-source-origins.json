@@ -1,0 +1,106 @@
+{
+  "schema": "policyos.e02.independent_source_locator_normalization.v1",
+  "target_sha": "c1d031ed48134a2c084b937f0275884aeb40971c",
+  "target_tree": "d09913b83338767e0e063739f97f583a19390e12",
+  "input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-full-output.txt",
+    "bytes": 67087,
+    "sha256": "cc0d22685c5f32e4cc5d856bcef78d2b2d5fb8f2a2235fa32abdc92179dc74a2"
+  },
+  "all_locator_origins": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#EXE-01": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#EXE-02": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#RES-02": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#STA-01": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-01": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md#CAS-02": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json/checks/3/command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#DUR-01": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#EXE-01": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#LLM-02": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#NET-01": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#NET-02": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#RUN-01": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#RUN-02": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#STA-01": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-01.md": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-01.md",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json#STA-02": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-02.md": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-02.md"
+  },
+  "source_identities": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+      "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87",
+      "bytes": 602186
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md",
+      "sha256": "4d2c05567d77dbe20306b5b6dddfb7c680befdc4063d177110c78573454746bf",
+      "bytes": 9457
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md",
+      "sha256": "125712af99fd3d1ab049636a1a176351b27c96becacaa10bfeab02e44eda4e1e",
+      "bytes": 17854
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md",
+      "sha256": "b4e1df5e681a96a0bbf26f0116b73cefd8737a6d84287d12427c9edd80b070bd",
+      "bytes": 13613
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md",
+      "sha256": "3317b0e88f1b3517d0e5d6ea2fef5ad20bfa19d5a39eac4a15fe146a6d698683",
+      "bytes": 17369
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md",
+      "sha256": "cacfe59ec5056d76596aeb36ea2dfa9e43925042b5bc1e77c7cbeedcbd2b240b",
+      "bytes": 16805
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md",
+      "sha256": "269282c72a89487148840df41204b4fb58cef3d8f030035be2a0e579db20b674",
+      "bytes": 29421
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md",
+      "sha256": "383e4ee21a778cef4ef27a454549f9649b3a6524991a6d078cd112b00da11394",
+      "bytes": 7878
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-01.md",
+      "sha256": "d9c8797236bcd386795b4e28e352407d753eb1b80e89f3d4f599b4324b1f8a6f",
+      "bytes": 20014
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-02.md",
+      "sha256": "2e1ea16592f6e6c38ef919fd02356ed25c85913f946121dc91f7ca64a68fea0c",
+      "bytes": 18170
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+      "sha256": "ce79be8c2a247a6dfe3bd543bc1898ca969d60d2b1012f8f8d735e521a1798db",
+      "bytes": 33768
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json",
+      "sha256": "91c0454b6e2109407fb0eb458e0bd89a41017fff01a2cfdf20a907761d074509",
+      "bytes": 17461
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+      "sha256": "5f0b852ffd3654697e0c8cb6b2b440884331a92e55393417c21e6a615ac15b42",
+      "bytes": 14262
+    }
+  ],
+  "qualification": "Original c1 observer incorrectly appended .py to markdown annotation routes. Original source_refs locators, missing membership/counts, synthetic three-hop route, and observed actual failure remain unchanged and deciding. This normalizes only exact full source-locator path prefixes via complete pinned tracked membership."
+}

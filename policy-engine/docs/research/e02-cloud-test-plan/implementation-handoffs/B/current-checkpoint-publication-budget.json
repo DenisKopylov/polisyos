@@ -1,0 +1,1358 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-checkpoint-publication-budget",
+  "closure_ids": [],
+  "proposed_bounded_findings": [
+    "B40",
+    "B52"
+  ],
+  "bundle_ids": [
+    "RUN-01",
+    "EXE-01"
+  ],
+  "slice_base_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "slice_base_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "implementation_commits": [
+    "6af060e952ae1561065f2a70668a790f5f6edcd5",
+    "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+    "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+    "bc958e8efface67193a1347e867cc7567dbfc8bc"
+  ],
+  "dependency_merge_sha": "410096ee2ece714927cbcca24f1d9f2e08b8d526",
+  "candidate_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+  "candidate_tree_sha": "5fcdbe9777dd727113c1115031cc77dcfc5d438c",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py"
+  ],
+  "source_changed_paths": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+  ],
+  "handoff_paths": "Metadata/evidence committed separately after candidate; excluded from candidate source footprint.",
+  "baseline_cells": [
+    {
+      "finding_id": "B40",
+      "id": "F01-P008",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@456f34938731b1ef11555d8333d011d3552574ec:125",
+      "environment_and_input_closure": "F01 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F01-P008"
+    },
+    {
+      "finding_id": "B40",
+      "id": "F03-P083",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@456f34938731b1ef11555d8333d011d3552574ec:213",
+      "environment_and_input_closure": "F03 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F03-P083"
+    },
+    {
+      "finding_id": "B40",
+      "id": "F05-P104",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@456f34938731b1ef11555d8333d011d3552574ec:514",
+      "environment_and_input_closure": "F05 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F05-P104"
+    },
+    {
+      "finding_id": "B40",
+      "id": "F06-P021",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@456f34938731b1ef11555d8333d011d3552574ec:205",
+      "environment_and_input_closure": "F06 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F06-P021"
+    },
+    {
+      "finding_id": "B40",
+      "id": "F09-P017",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@456f34938731b1ef11555d8333d011d3552574ec:133",
+      "environment_and_input_closure": "F09 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F09-P017"
+    },
+    {
+      "finding_id": "B40",
+      "id": "F09-P084",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@456f34938731b1ef11555d8333d011d3552574ec:200",
+      "environment_and_input_closure": "F09 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F09-P084"
+    },
+    {
+      "finding_id": "B40",
+      "id": "F10-P012",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@456f34938731b1ef11555d8333d011d3552574ec:132",
+      "environment_and_input_closure": "F10 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F10-P012"
+    },
+    {
+      "finding_id": "B40",
+      "id": "F10-P080",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@456f34938731b1ef11555d8333d011d3552574ec:200",
+      "environment_and_input_closure": "F10 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F10-P080"
+    },
+    {
+      "finding_id": "B40",
+      "id": "F15-P012",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@456f34938731b1ef11555d8333d011d3552574ec:167",
+      "environment_and_input_closure": "F15 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F15-P012"
+    },
+    {
+      "finding_id": "B40",
+      "id": "F15-P096",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@456f34938731b1ef11555d8333d011d3552574ec:251",
+      "environment_and_input_closure": "F15 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F15-P096"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F01-P120",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@456f34938731b1ef11555d8333d011d3552574ec:237",
+      "environment_and_input_closure": "F01 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F01-P120"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F02-P058",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@456f34938731b1ef11555d8333d011d3552574ec:186",
+      "environment_and_input_closure": "F02 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F02-P058"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F05-P134",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@456f34938731b1ef11555d8333d011d3552574ec:544",
+      "environment_and_input_closure": "F05 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F05-P134"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F06-P082",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@456f34938731b1ef11555d8333d011d3552574ec:266",
+      "environment_and_input_closure": "F06 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F06-P082"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F07-P054",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@456f34938731b1ef11555d8333d011d3552574ec:60",
+      "environment_and_input_closure": "F07 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F07-P054"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F09-P122",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@456f34938731b1ef11555d8333d011d3552574ec:238",
+      "environment_and_input_closure": "F09 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F09-P122"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F11-P065",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@456f34938731b1ef11555d8333d011d3552574ec:194",
+      "environment_and_input_closure": "F11 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F11-P065"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F11-P109",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@456f34938731b1ef11555d8333d011d3552574ec:238",
+      "environment_and_input_closure": "F11 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F11-P109"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F14-P070",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@456f34938731b1ef11555d8333d011d3552574ec:420",
+      "environment_and_input_closure": "F14 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F14-P070"
+    },
+    {
+      "finding_id": "B52",
+      "id": "F14-P143",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "received_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@456f34938731b1ef11555d8333d011d3552574ec:493",
+      "environment_and_input_closure": "F14 in baseline-navigation.json",
+      "grade": "source_reported_navigation_only",
+      "full_cell": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json#F14-P143"
+    }
+  ],
+  "checks": [
+    {
+      "id": "working-defining",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "-q",
+        "--basetemp=/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/checkpoint-deadline/defining-pytest",
+        "--junitxml=/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/checkpoint-deadline/defining.xml"
+      ],
+      "target_sha": null,
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": null,
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "FAIL",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/defining.txt",
+          "bytes": 1141,
+          "sha256": "4bbe607986215024f27e4ab06151134bbd2303f6e4cf10d838eb2ed2bff016eb"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/defining.xml",
+          "bytes": 3328,
+          "sha256": "78b517611a6118ef24934d6aadbba5714bb53f80323c7999787d174bc5d2ff2d"
+        }
+      ],
+      "qualification": "Actual12=11PASS1FAIL. Working-input attempt; Ruff formatting overlapped execution. Frozen source/test custody NOT_ESTABLISHED; no acceptance claim.",
+      "counts": {
+        "cases": 12,
+        "PASS": 11,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "wall_testcase_sum_s": 3.743,
+        "nonpass": [
+          {
+            "nodeid": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget::test_expired_budget_refuses_actual_cas_worker_before_artifact",
+            "outcome": "FAIL"
+          }
+        ]
+      }
+    },
+    {
+      "id": "native6af-defining",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "-q",
+        "--basetemp=/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/checkpoint-deadline/defining-frozen-pytest",
+        "--junitxml=/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/checkpoint-deadline/defining-frozen.xml"
+      ],
+      "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "PASS",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/defining-frozen.txt",
+          "bytes": 80,
+          "sha256": "fe9dca0451129aaabdd76ea13e310b61a52091a146a1f9fe5b72b851eb33547f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/defining-frozen.xml",
+          "bytes": 2879,
+          "sha256": "2420e1017e58b1b3dc6025c7ac51138514645ee3ce4309db2979c877162330c1"
+        }
+      ],
+      "qualification": "Actual14PASS on immutable6af; source/canonical store path is real FileSystemCAS, artifact/head/history freshread. Full argv reconstructed from actual executed task call, not a stored wait4 wrapper.",
+      "counts": {
+        "cases": 14,
+        "PASS": 14,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "wall_testcase_sum_s": 5.153,
+        "nonpass": []
+      }
+    },
+    {
+      "id": "old-entered-premise6af",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_entered_mutable_publication_is_unacknowledged_unknown_not_rollback[checkpoint]",
+        "-q",
+        "--basetemp=/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/checkpoint-deadline/old-entered-pytest",
+        "--junitxml=/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/checkpoint-deadline/old-entered.xml"
+      ],
+      "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "FAIL",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/old-entered.txt",
+          "bytes": 4223,
+          "sha256": "3e3620117b50871e5e0eae48341eed136c277d4931e95a93073c13998ba577a1"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/old-entered.xml",
+          "bytes": 4243,
+          "sha256": "81d1455373803a6cc0515c0d15faab501842020c406152b0a738e16156f328b7"
+        }
+      ],
+      "qualification": "Exact retained456 fixture gates BEFORE update_checkpoint_head call; new refusal prevents actual os.replace entry. P37 actual atomic-publication premise not_established. OldFAIL preserved; followup6d moves actual barrier inside os.replace after fence, no assertion weakening.",
+      "counts": {
+        "cases": 1,
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "wall_testcase_sum_s": 1.128,
+        "nonpass": [
+          {
+            "nodeid": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody::test_entered_mutable_publication_is_unacknowledged_unknown_not_rollback[checkpoint]",
+            "outcome": "FAIL"
+          }
+        ]
+      },
+      "test_input_delta": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-fixture.patch",
+        "bytes": 1592,
+        "sha256": "7150dddd9e576640e34b2ee9fdbc584f8747df34d31df61d99d7a248293e2e0d"
+      }
+    },
+    {
+      "id": "checkpoint-final-affected",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "-q",
+        "--basetemp=/tmp/e02-B-current-execution-state/checkpoint-deadline/final-affected-pytest",
+        "--junitxml=/tmp/e02-B-current-execution-state/checkpoint-deadline/final-affected.xml"
+      ],
+      "target_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "eae52c9304e3a48b0f81f16ffc279cbb39c1f9b8",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "FAIL",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-final-affected.txt",
+          "bytes": 7360,
+          "sha256": "d94b2ef1e10e39e38fc2ecba9d3e25752aa2686ce1f30f0574d981cc96344802"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-final-affected.json",
+          "bytes": 2527,
+          "sha256": "8b73fa502b7cacad4a505bd45d7291e167d0cf2b4f15d2b744afbde969666f65"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/final-affected.xml",
+          "bytes": 28367,
+          "sha256": "0112fa12c5ba90c7d35c623734391d06d1b3e7ac09c841b10639725673322413"
+        }
+      ],
+      "qualification": "Actual7wholefiles122=121PASS1FAIL. Retained SuppressingHook catches cancellation BEFORE actual CAS delegate; artifact admission correctly refuses not_admitted. Existing fixture expected physical head/unknown; actual node/cache bytes retained; corrected84 explicit preentry refusal plus entered replacement counterpart.",
+      "actual_wrapper": {
+        "exit_code": 1,
+        "wall_s": 95.84558737199404,
+        "wait4_child_rss_kib": 684588,
+        "harness_state": "EXECUTED",
+        "head_after": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a"
+      },
+      "counts": {
+        "cases": 122,
+        "PASS": 121,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "wall_testcase_sum_s": 84.15299999999999,
+        "nonpass": [
+          {
+            "nodeid": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody::test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication",
+            "outcome": "FAIL"
+          }
+        ]
+      }
+    },
+    {
+      "id": "checkpoint-cancel-final-native",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "-q",
+        "--basetemp=/tmp/e02-B-current-execution-state/checkpoint-deadline/cancel-final-native-pytest",
+        "--junitxml=/tmp/e02-B-current-execution-state/checkpoint-deadline/cancel-final-native.xml"
+      ],
+      "target_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "PASS",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-cancel-final-native.txt",
+          "bytes": 80,
+          "sha256": "b1caae85ec31d08a00b70488af9cc30676ea609b8012c2800620e199adf3bcb2"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-cancel-final-native.json",
+          "bytes": 2189,
+          "sha256": "b4877cb504e33038c481aa573ef824ac765a2f750c7d5b5a74d0969d83cbd24c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/cancel-final-native.xml",
+          "bytes": 8225,
+          "sha256": "583505cfc6bf36c0941f9551da909bd27d6904704d7fc392bafa38c9c0e7a92d"
+        }
+      ],
+      "qualification": "Actual2wholefiles40PASS at immutable84; corrected preentry fixture independently reopens verified cache/get, actual entered replacement preserves complete head/history without ACK; queued real sharedslot cancellation not_admitted/no CAS body. No broad122PASS invented.",
+      "actual_wrapper": {
+        "exit_code": 0,
+        "wall_s": 19.684968054993078,
+        "wait4_child_rss_kib": 671064,
+        "harness_state": "EXECUTED",
+        "head_after": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497"
+      },
+      "counts": {
+        "cases": 40,
+        "PASS": 40,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "wall_testcase_sum_s": 8.377,
+        "nonpass": []
+      }
+    },
+    {
+      "id": "checkpoint-final-mypy",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=skip",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "target_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "eae52c9304e3a48b0f81f16ffc279cbb39c1f9b8",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "FAIL",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-final-mypy.txt",
+          "bytes": 4599,
+          "sha256": "da4b06bcf18e70e8c732be750684175f444c07f9a5bf2da52cb59b7d9d5c7734"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-final-mypy.json",
+          "bytes": 1964,
+          "sha256": "df9c312ce7e6c39c435d7c51e6c3ec81b050eaf58eb1887eaa1e683fb20025eb"
+        }
+      ],
+      "qualification": "Actual import-skip strict profile FAIL27errors at6d;2new helperAny-return diagnostics from6af were removed by identity cast. No P41 inherited attribution.",
+      "actual_wrapper": {
+        "exit_code": 1,
+        "wall_s": 0.18035243899794295,
+        "wait4_child_rss_kib": 40472,
+        "harness_state": "EXECUTED",
+        "head_after": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a"
+      }
+    },
+    {
+      "id": "checkpoint-cancel-final-mypy",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=skip",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "target_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "FAIL",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-cancel-final-mypy.txt",
+          "bytes": 4599,
+          "sha256": "999b93040334b59035dcaf1abd3a51653f6850a677e0692727830b057bd4bac2"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-cancel-final-mypy.json",
+          "bytes": 1970,
+          "sha256": "30746a52723d7feb5cd0678c4b16b173e4b76313050ba91644801a67682f8870"
+        }
+      ],
+      "qualification": "Actual import-skip strict profile FAIL27errors at84. Source input intersects own changes; no inherited gate waiver.",
+      "actual_wrapper": {
+        "exit_code": 1,
+        "wall_s": 0.5928768680023495,
+        "wait4_child_rss_kib": 97660,
+        "harness_state": "EXECUTED",
+        "head_after": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497"
+      }
+    },
+    {
+      "id": "checkpoint-facade-first",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-B-current-execution-state/checkpoint-deadline/facade_identity.py",
+        "--order",
+        "facade-first"
+      ],
+      "target_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "5fcdbe9777dd727113c1115031cc77dcfc5d438c",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "PASS",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-first.txt",
+          "bytes": 1384,
+          "sha256": "7ff142a1b0855b81b74c954d93f3efe8c3143b1f745ea8b23f8e0a4dc5802bec"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-first.json",
+          "bytes": 1895,
+          "sha256": "9c54ed666c3894ab1898f79fb7ad6e852939cdf895c96daa93345074fd972e35"
+        }
+      ],
+      "qualification": "Fresh actual package import facade-first:3canonical object identities, budget forward-annotations, fixed legacy signature and exact3source bytes PASS; sourcebc, no product lifecycle runtime claim.",
+      "actual_wrapper": {
+        "exit_code": 0,
+        "wall_s": 0.432019098996534,
+        "wait4_child_rss_kib": 48852,
+        "harness_state": "EXECUTED",
+        "head_after": "bc958e8efface67193a1347e867cc7567dbfc8bc"
+      },
+      "literal_driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.source.txt",
+        "bytes": 2445,
+        "sha256": "85c9fa324b5edb0214ce61319fe91707e1bc9411a6fd7c59e4945f88f0348c90"
+      }
+    },
+    {
+      "id": "checkpoint-checkpoint-first",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-B-current-execution-state/checkpoint-deadline/facade_identity.py",
+        "--order",
+        "checkpoint-first"
+      ],
+      "target_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "5fcdbe9777dd727113c1115031cc77dcfc5d438c",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "PASS",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-checkpoint-first.txt",
+          "bytes": 1388,
+          "sha256": "8b21a9188971f4c5bb5cf2b8972b14c00e8d791da806a82d743bedb535e5afa1"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-checkpoint-first.json",
+          "bytes": 1904,
+          "sha256": "10ac1c2326e877096130ac5a90135c700cd3e34bd04f71b22cf97796e37e26b9"
+        }
+      ],
+      "qualification": "Fresh actual package import checkpoint-first:3canonical object identities, budget forward-annotations, fixed legacy signature and exact3source bytes PASS; sourcebc, no import cycle observed.",
+      "actual_wrapper": {
+        "exit_code": 0,
+        "wall_s": 0.3865877299977001,
+        "wait4_child_rss_kib": 44520,
+        "harness_state": "EXECUTED",
+        "head_after": "bc958e8efface67193a1347e867cc7567dbfc8bc"
+      },
+      "literal_driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.source.txt",
+        "bytes": 2445,
+        "sha256": "85c9fa324b5edb0214ce61319fe91707e1bc9411a6fd7c59e4945f88f0348c90"
+      }
+    },
+    {
+      "id": "checkpoint-facade-mypy",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=skip",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "target_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "5fcdbe9777dd727113c1115031cc77dcfc5d438c",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "FAIL",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-mypy.txt",
+          "bytes": 2364,
+          "sha256": "3b1ea729e412b013b12ca3b7a42a315c37af36bc337514bea901f7cf00902c3a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-mypy.json",
+          "bytes": 1895,
+          "sha256": "6953ba7f9e7891a1aa3b86a4433cc51979fd576a6754507211410c29d60139fc"
+        }
+      ],
+      "qualification": "Changed checkpoint-only import-skip strict profile FAIL15errors atbc. This is distinct command/denominator from prior2file27; no green claim.",
+      "actual_wrapper": {
+        "exit_code": 1,
+        "wall_s": 0.4814849810063606,
+        "wait4_child_rss_kib": 93372,
+        "harness_state": "EXECUTED",
+        "head_after": "bc958e8efface67193a1347e867cc7567dbfc8bc"
+      }
+    },
+    {
+      "id": "entered-cancel6d-probe",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-B-current-execution-state/checkpoint-deadline/entered-cancel-probe.py"
+      ],
+      "target_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "eae52c9304e3a48b0f81f16ffc279cbb39c1f9b8",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "FAIL",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.source.txt",
+          "bytes": 2298,
+          "sha256": "258ed06efeb135cf613b6d68f6202170f00c27a2e428690ff2d8f3e6b4691e83"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.txt",
+          "bytes": 259,
+          "sha256": "242fc5d3f1a778558c491edd5309ba62ba20b57b73ac7be9208bb767c1638d6f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/driver-custody.json",
+          "bytes": 11417,
+          "sha256": "d7932581f28fb0bfe5a36d293ffa9614fd27821b26824b672ec219ec3f91881f"
+        }
+      ],
+      "qualification": "Actual canonical os.replace entry then callercancel: CancelledError had EMPTY message, physical completehead/history freshverified, producer1/outputs0/finalizeFalse. Runtime physically coherent but explicit unknown custody classification NOT_ESTABLISHED. This concrete witness prompted84 structural admission classification; runnable script preserved, not claimed unchanged target-param CLI."
+    },
+    {
+      "id": "mypy6af",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=skip",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "FAIL",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/mypy.txt",
+          "bytes": 4875,
+          "sha256": "3790b10e97243e0af05105ebf273ced41d30bf866a69d771223e6c24fe217483"
+        }
+      ],
+      "qualification": "Actual29errors in import-skip strict profile;2helperAny-return errors corrected by cast6d. Full canonical workspace typegate not claimed."
+    },
+    {
+      "id": "ruff84",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py"
+      ],
+      "target_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "PASS",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/ruff84.txt",
+          "bytes": 19,
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/ruff84.json",
+          "bytes": 1460,
+          "sha256": "1fc62a8df3e31ff2b496e91a3dfc8ebb3860bc454f3c6e345fb0c3d9391f60cb"
+        }
+      ],
+      "qualification": "Actual six changed canonical/native Python files style check;84 source. The facade successor changes only import module text; singlefile Ruff/format passed in author tool beforebc commit, not relabeled as this84 run."
+    },
+    {
+      "id": "format84",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py"
+      ],
+      "target_sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "PASS",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/format84.txt",
+          "bytes": 26,
+          "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/format84.json",
+          "bytes": 1478,
+          "sha256": "e12d080bead52f143891c847832ff1937a51b4b95a9314e12b05729f97f5fe7a"
+        }
+      ],
+      "qualification": "Actual six changed canonical/native Python files style check;84 source. The facade successor changes only import module text; singlefile Ruff/format passed in author tool beforebc commit, not relabeled as this84 run."
+    },
+    {
+      "id": "head-removal-wrapper.txt",
+      "command": "Literal capture_frozen.py intended native removal command is present in full retained traceback",
+      "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "UNRUN",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/head-removal-wrapper.txt",
+          "bytes": 2770,
+          "sha256": "f1a3ee6bf867aea02e3261632da2f628aca5762b65d3117ad9afd72f2cb4785b"
+        }
+      ],
+      "qualification": "Actual ENOSPC in launcher parent while creating output; before fork. No native property body executed, no product FAIL. No cleanup. Independent df07 actual removal runs provide deciding controls instead."
+    },
+    {
+      "id": "gc-removal-wrapper.txt",
+      "command": "Literal capture_frozen.py intended native removal command is present in full retained traceback",
+      "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numeric_caps": "all six absent; exact observation environment.json",
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json"
+      },
+      "input_closure": {
+        "source_git_tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "source_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+        "scope": "Pinned declared source/tests/config plus real unique filesystem fixtures; complete dynamic runtime readset not independently attested."
+      },
+      "outcome": "UNRUN",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/gc-removal-wrapper.txt",
+          "bytes": 2770,
+          "sha256": "f1a3ee6bf867aea02e3261632da2f628aca5762b65d3117ad9afd72f2cb4785b"
+        }
+      ],
+      "qualification": "Actual ENOSPC in launcher parent while creating output; before fork. No native property body executed, no product FAIL. No cleanup. Independent df07 actual removal runs provide deciding controls instead."
+    },
+    {
+      "id": "checkpoint-facade-ruff",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "target_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_NO_SYNC": null,
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": "checkpoint.py exactbc bytes in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json; untracked docs evidence present, production bytes unchanged.",
+      "outcome": "PASS",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-ruff.txt",
+          "bytes": 19,
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-ruff.json",
+          "bytes": 1881,
+          "sha256": "b1c3c0364cdcbdb0227fc63ffd0cb75155783bec5e42bf6f63e61a7f0af0e5dd"
+        }
+      ],
+      "wrapper": {
+        "exit_code": 0,
+        "wall_s": 0.045568791989353485,
+        "head_after": "bc958e8efface67193a1347e867cc7567dbfc8bc"
+      }
+    },
+    {
+      "id": "checkpoint-facade-format",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "target_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": null,
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_NO_SYNC": null,
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": "checkpoint.py exactbc bytes in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json; untracked docs evidence present, production bytes unchanged.",
+      "outcome": "PASS",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-format.txt",
+          "bytes": 25,
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/checkpoint-facade-format.json",
+          "bytes": 1898,
+          "sha256": "897c8b0ccdf3859b88e83b41e77b71de63b23f28e9efde2758b9335f7fbdd93c"
+        }
+      ],
+      "wrapper": {
+        "exit_code": 0,
+        "wall_s": 0.04480019400944002,
+        "head_after": "bc958e8efface67193a1347e867cc7567dbfc8bc"
+      }
+    }
+  ],
+  "property": {
+    "statement": "One invocation-owned absolute monotonic budget and original owner/cancellation identity govern canonical checkpoint artifact→head→GC. Implicit helper30 cannot clip a healthy remaining budget; expiry/cancel refuses new phase and mutable publication before replace. Cancellation closes queued worker admission, while entered work reports unknown and completes the required generation naturally.",
+    "runtime_path": [
+      "AsyncWorkflowExecutor original Task/deadline/token capture",
+      "CheckpointPublicationBudget ContextVar through fixed legacy/opt-in hook dispatch",
+      "same CASCheckpointHook/create_checkpoint producer and real FileSystemCAS",
+      "tempfile fsync→budget fence→head atomic replace→complete history",
+      "GC history read→budget fence→trim tempfile fsync→publication fence",
+      "fresh FileSystemCAS/resolve_latest_checkpoint/load_checkpoint_history and native NodeResultCache consumer"
+    ],
+    "proxy_divergence": "A hook accepting budget kwargs or elapsed wait marker would miss the real35s head admitted under60 but clipped by helper30, actual tempfsync latehead, GC read→late trim, or queued-vs-entered cancellation. Independent actual property removals restore each filesystem failure.",
+    "negative_controls": [
+      "DUR exact same long35/owner60 baseFAIL vs6afPASS; propagation removalFAIL",
+      "Actual head tempfilefsync expiry/cancel must retain oldgeneration; twoheadfence removal2FAIL",
+      "Actual GC historyread expiry retains4entries; GCguard removalFAIL4→2",
+      "Actual entered os.replace expiry/cancel yields complete reopenedhead+history and noACK/finalize",
+      "Actual queued sharedslot cancellation closes admission before real CASbody; no artifact/head",
+      "Cancelled originalTask/old worker cannot adopt reused executor owner/deadline",
+      "Real fixed legacy NodeOnly wrapper and fixed tieroverride inherit context without keywordbreakage"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Bounded checkpoint budget/custody mechanism implemented and independently reviewed; formal finding closure pending root/G criterion adjudication. closure_ids remains empty.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B40",
+      "state": "LIMITED",
+      "proposed_state": "bounded_checkpoint_budget_implemented",
+      "technical_status": "Canonical checkpoint implicit30 clip and prepublish late-admission omissions repaired through original absolute ownerbudget; explicit cancellation custody fixed. RUN whole-invocation/physical uncooperative boundaries remain separate owner scope.",
+      "evidence_checks": [
+        "checkpoint-cancel-final-native",
+        "checkpoint-facade-first",
+        "checkpoint-checkpoint-first"
+      ],
+      "independent_refs": [
+        {
+          "commit": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-candidate.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "19ccca2062d807b85eeda3d53c5f523c5b0d1024",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-baseline.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "da924a4cbac8db9bc461e9c5ef3513c838bdf9ba",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-source-review.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "545f41d6fd7c6a4f882cf48e619b3e987c970d8a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-wait-admission-source-review.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "b8bb3a8b64227b40db8812e8735570670c843d19",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-facade-source-review.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "df5622065679d66b6d6685ecdd9948552cbd8e55",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-parallel-tier-compensation-independent.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        }
+      ],
+      "residuals": [
+        "Already-entered uncooperative synchronous I/O can finish after callerreturn; explicit unknown is not rollback or stop. After atomic head replace starts, required head/history generation completion remains mandatory.",
+        "Original budget prevents later mutable admission/GC and local ACK/finalize; native opaque async stores retain explicit store-owned policies and capabilities, not assumed preemption.",
+        "Legacy external hooks retain fixed signatures; opaque external code without canonical delegate cannot acquire physical cancellation guarantees from ContextVar alone. BudgetedAsyncCheckpointHook is an adjunct to original hook ABI, not standalone institutional authority."
+      ]
+    },
+    {
+      "finding_id": "B52",
+      "state": "LIMITED",
+      "proposed_state": "bounded_cache_checkpoint_publication_implemented",
+      "technical_status": "Same canonical filesystem path runs offloop with original budget, native cache/checkpoint freshreopen and prehead/GC fences; prior cache privateadmission proof remains separately pinned. No false ACK/rollback.",
+      "evidence_checks": [
+        "native6af-defining",
+        "checkpoint-cancel-final-native"
+      ],
+      "independent_refs": [
+        {
+          "commit": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-candidate.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "19ccca2062d807b85eeda3d53c5f523c5b0d1024",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-baseline.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "da924a4cbac8db9bc461e9c5ef3513c838bdf9ba",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-source-review.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "545f41d6fd7c6a4f882cf48e619b3e987c970d8a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-wait-admission-source-review.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "b8bb3a8b64227b40db8812e8735570670c843d19",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-facade-source-review.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        },
+        {
+          "commit": "df5622065679d66b6d6685ecdd9948552cbd8e55",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-parallel-tier-compensation-independent.json",
+          "qualification": "See independent_reviews; each sourcepoint remains explicit."
+        }
+      ],
+      "residuals": [
+        "Already-entered uncooperative synchronous I/O can finish after callerreturn; explicit unknown is not rollback or stop. After atomic head replace starts, required head/history generation completion remains mandatory.",
+        "Original budget prevents later mutable admission/GC and local ACK/finalize; native opaque async stores retain explicit store-owned policies and capabilities, not assumed preemption.",
+        "Legacy external hooks retain fixed signatures; opaque external code without canonical delegate cannot acquire physical cancellation guarantees from ContextVar alone. BudgetedAsyncCheckpointHook is an adjunct to original hook ABI, not standalone institutional authority.",
+        "Scientist head updater has no new lock added by this slice; existing run/workflow lock premise retained. Full concurrent same-run unauthorized writers not established here.",
+        "No B61 held snapshot/source-binding law change. Prior all15 receipt/dispositions remain separately pinned; this slice modifies bounded checkpoint publication class only.",
+        "Root owns nearest engine README/public surface companion and final fullcohort/gates. New import-only successorbc has identity/type/style checks, not fictional40native/35s rerun.",
+        "Mypy strict import-skip actual29/27/15FAIL retained. Full workspace gate and production invocation failures have no P41 inherited waiver.",
+        "Production dataset absent; local G remains owner for served/fullproduction criteria requiring it. No dataset needed for these actual filesystem budget controls."
+      ]
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Already-entered uncooperative synchronous I/O can finish after callerreturn; explicit unknown is not rollback or stop. After atomic head replace starts, required head/history generation completion remains mandatory.",
+    "Original budget prevents later mutable admission/GC and local ACK/finalize; native opaque async stores retain explicit store-owned policies and capabilities, not assumed preemption.",
+    "Legacy external hooks retain fixed signatures; opaque external code without canonical delegate cannot acquire physical cancellation guarantees from ContextVar alone. BudgetedAsyncCheckpointHook is an adjunct to original hook ABI, not standalone institutional authority.",
+    "Scientist head updater has no new lock added by this slice; existing run/workflow lock premise retained. Full concurrent same-run unauthorized writers not established here.",
+    "No B61 held snapshot/source-binding law change. Prior all15 receipt/dispositions remain separately pinned; this slice modifies bounded checkpoint publication class only.",
+    "Root owns nearest engine README/public surface companion and final fullcohort/gates. New import-only successorbc has identity/type/style checks, not fictional40native/35s rerun.",
+    "Mypy strict import-skip actual29/27/15FAIL retained. Full workspace gate and production invocation failures have no P41 inherited waiver.",
+    "Production dataset absent; local G remains owner for served/fullproduction criteria requiring it. No dataset needed for these actual filesystem budget controls."
+  ],
+  "independent_reviews": [
+    {
+      "owner": "DUR",
+      "commit": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-candidate.json",
+      "sha256": "c981376d269805ed7d09fb95e4cd2f873ae962f8c5db8b369f8f83136c061da4",
+      "bytes": 37637,
+      "runtime_target": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "outcome": "7PASS plus actual4materialFAIL property removals; no successor runtime relabeling"
+    },
+    {
+      "owner": "DUR",
+      "commit": "19ccca2062d807b85eeda3d53c5f523c5b0d1024",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-baseline.json",
+      "runtime_target": "456f34938731b1ef11555d8333d011d3552574ec",
+      "outcome": "Long35/outer60 hidden30 FAIL; short3PASS3materialFAIL"
+    },
+    {
+      "owner": "CMP",
+      "commit": "da924a4cbac8db9bc461e9c5ef3513c838bdf9ba",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-source-review.json",
+      "sha256": "c95c5781a92b31e174a5101d7b3b9face078eb804a529ea2dbdb1bcdd0cb7c7f",
+      "bytes": 103714,
+      "source_target": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "successor_qualified": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+      "outcome": "source-only NONBLOCKING; reviewer runtimeUNRUN"
+    },
+    {
+      "owner": "CMP",
+      "commit": "545f41d6fd7c6a4f882cf48e619b3e987c970d8a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-wait-admission-source-review.json",
+      "sha256": "b20329ef776c388d0d7da499f75c7089fa3dbb0351c9182551b6297bffabdf61",
+      "bytes": 36945,
+      "source_target": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "outcome": "source-only NONBLOCKING; reviewer runtimeUNRUN"
+    },
+    {
+      "owner": "CMP",
+      "commit": "b8bb3a8b64227b40db8812e8735570670c843d19",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-facade-source-review.json",
+      "sha256": "c8b1f74d2af7a1beedaf5128c24bb071eaecf6a26f84ce99517e6c9acfd7e4a9",
+      "bytes": 15447,
+      "source_target": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+      "outcome": "source-only NONBLOCKING; reviewer import/runtimeUNRUN"
+    },
+    {
+      "owner": "DUR",
+      "commit": "df5622065679d66b6d6685ecdd9948552cbd8e55",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-parallel-tier-compensation-independent.json",
+      "sha256": "c320c94f4b2a64a17f923ef060be72254030f4adb50ccc6e62d49a28a9af5367",
+      "bytes": 13522,
+      "runtime_target": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "test_sha": "2b0e836a095e6fe6224726f6be3fc8f8502a2352",
+      "outcome": "2PASS actualfail_fast compensationonce vscontinue no-compensation; realCAS A/cache survive rollback and freshpublicresume"
+    }
+  ],
+  "admission": {
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-B-current-execution-state",
+      "--path",
+      "/workspace/e02-B-current-execution-state"
+    ],
+    "outcome": "PASS admitted",
+    "full_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/resume.json",
+      "bytes": 135822,
+      "sha256": "9e8abad8f2911ce189441115cfa3aede8e1ec9092aabc81a1968e91b377287cf"
+    },
+    "dependency_base_remote_readback": "456f34938731b1ef11555d8333d011d3552574ec",
+    "source_remote_readback": {
+      "sha": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+      "PR_head": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+      "qualification": "Observed before facade import successor; successor normalpush/readback to be published by final transport observation, no future SHA claim."
+    }
+  },
+  "source_environment_input_identity": {
+    "source_identities": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/source-identities.json",
+      "bytes": 18863,
+      "sha256": "0cfc407bceea65f17ee13249cf32e796ea66e7d7a5ac3b0c0171ebbdb7d1883f"
+    },
+    "environment": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/environment-profile.json",
+      "bytes": 9316,
+      "sha256": "4bd40418781be843d4c65acc6afc4c32aef8b356ac4974b48a45a36461a68d49"
+    },
+    "baseline_navigation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/baseline-navigation.json",
+      "bytes": 59374,
+      "sha256": "aef0d9bbcacb14fe1f66e6813097b9bbca1828ea6e101ed84f603732322d0580"
+    },
+    "case_reconciliation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/case-reconciliation.json",
+      "bytes": 1473,
+      "sha256": "e44b12a1fcba56a1ac48fe1405d77dba33699457f208118e8ca47f67db98cabf"
+    },
+    "evidence_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/index.json"
+  },
+  "prior_all15_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
+    "commit": "456f34938731b1ef11555d8333d011d3552574ec",
+    "candidate_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+    "qualification": "Preserved prior separate denominator/evidence/dispositions; not automatically newcandidate PASS."
+  },
+  "criteria": {
+    "canonical_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "source_commit": "456f34938731b1ef11555d8333d011d3552574ec",
+    "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "B40_lines": [
+      752,
+      769
+    ],
+    "B52_lines": [
+      1347,
+      1362
+    ],
+    "coverage": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@456f34938731b1ef11555d8333d011d3552574ec",
+    "grade": "canonical criterion, not runtime evidence"
+  },
+  "time_roles": {
+    "deadline": "One original invocation absolute monotonic value, plus one explicit finite canonical store policy minjoin at hookentry. Never refreshed each phase.",
+    "cancellation": "Original Task and cancellingbaseline captured once; local await-cancel tombstone serializes with worker admission.",
+    "publication": "Precommit refusal vs alreadyentered generation completion; unknown returned is not durable acknowledgment."
+  },
+  "authority_purpose": "Invocation budget grants no artifact/read/publication institutional authority; full selected refs and current access controls remain canonical.",
+  "driver_custody": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/driver-custody.json",
+    "bytes": 11417,
+    "sha256": "d7932581f28fb0bfe5a36d293ffa9614fd27821b26824b672ec219ec3f91881f"
+  },
+  "predicate_premises": {
+    "finite_snapshot_observations": {
+      "predicate_basis": "independently_reconciled",
+      "qualification": "DUR exact6af7filesystemPASS/4materialremovalFAIL and exact84B73two-policy2PASS; source targets explicit, no successor relabel."
+    },
+    "author_native40_at84": {
+      "predicate_basis": "consumer_asserted",
+      "qualification": "Author actual40nativePASS at84; independent source/custody reviews do not become reviewer runtime."
+    },
+    "bc_import_identity": {
+      "predicate_basis": "consumer_asserted",
+      "qualification": "Author actualfreshprocess objectidentity/import/annotation observations atbc; finite import surface only."
+    },
+    "bc_full_checkpoint_behavior": {
+      "predicate_basis": "not_established",
+      "qualification": "Actualbc checkpoint runtimeUNRUN; import-only source equivalence reviewed separately. Prior84/6af actualruntime stays at thoseSHAs."
+    },
+    "source_only_equivalence": {
+      "predicate_basis": "independently_reconciled",
+      "qualification": "CMPbc exactoneimportmodule delta and samecanonicalobject source closure; reviewer runtimeUNRUN."
+    },
+    "future_root_cohort_and_formal_closure": {
+      "predicate_basis": "not_established",
+      "qualification": "No futurecohort/rootGcriterion verdict claimed; closure_ids[] retained."
+    }
+  }
+}

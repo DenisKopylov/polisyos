@@ -1,0 +1,26 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... ERROR: found no collectors for /workspace/e02-B-current-cas-generation/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_public_verify_capture_remains_consumable_by_actual_owner_index
+
+collected 0 items / 1 error
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/core/artifacts/test_verification_failure_snapshot_report.py _
+ImportError while importing test module '/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:9: in <module>
+    from polisyos.core.artifacts import (
+E   ImportError: cannot import name 'ArtifactTenantContextInfo' from 'polisyos.core.artifacts' (/workspace/e02-B-current-cas-generation/policy-engine/src/polisyos/core/artifacts/__init__.py)
+- generated xml file: /workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/capture-identity-removal.xml -
+=========================== short test summary info ============================
+ERROR tests/unit/core/artifacts/test_verification_failure_snapshot_report.py
+=============================== 1 error in 0.06s ===============================

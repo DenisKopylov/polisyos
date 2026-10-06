@@ -459,6 +459,7 @@ def test_single_flight_retries_when_invalidation_wins_result_delivery(
     release_compile = threading.Event()
     publication_ready = threading.Event()
     release_publication = threading.Event()
+    follower_wait_started = threading.Event()
     follower_wait_entered = threading.Event()
     release_follower = threading.Event()
     publish_calls = 0
@@ -491,6 +492,7 @@ def test_single_flight_retries_when_invalidation_wins_result_delivery(
 
     def gated_wait(*args, **kwargs):
         nonlocal wait_calls
+        follower_wait_started.set()
         result = original_wait(*args, **kwargs)
         wait_calls += 1
         if wait_calls == 1:
@@ -518,6 +520,7 @@ def test_single_flight_retries_when_invalidation_wins_result_delivery(
             sample_inputs={"value": state.value},
             jit=False,
         )
+        assert follower_wait_started.wait(timeout=2)
         release_compile.set()
         assert publication_ready.wait(timeout=2)
         assert follower_wait_entered.wait(timeout=2)

@@ -1,0 +1,964 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "original-final-cohort-deadline-premise-investigation",
+  "bundle_ids": [
+    "EXE-01"
+  ],
+  "finding_ids": [
+    "B40",
+    "B52"
+  ],
+  "finding_dispositions": [],
+  "existing_decisions_unchanged": {
+    "B40": "LIMITED",
+    "B52": "LIMITED"
+  },
+  "closure_ids": [],
+  "slice_base_sha": "37e16cbb9fa3bc914a76882c28abfb4f01c612bc",
+  "implementation_commits": [
+    "8924de484de78351d92851f46254f43fde6ebfc3",
+    "9e72daf1d98aa0ad1b223c4b5acbc9ba2319e828"
+  ],
+  "candidate_sha": "9e72daf1d98aa0ad1b223c4b5acbc9ba2319e828",
+  "candidate_tree_sha": "518137f89eebbee995d6b7be3868269c9ed869f0",
+  "publication_only_candidate": true,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/final-B-cohort-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/final-B-cohort.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/initial-head-guard-unrun.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/inspect-retained.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/original-cohort-excerpt.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/runs/R_deadline/trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d9/1e/d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d9/1e/d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d9/1e/d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed.view.629db9c522025d0c6fc47391479cb57e5c39606d5e48aae055b8831984ac437f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/runs/R_deadline/trace.jsonl"
+  ],
+  "source_changed_paths": [],
+  "metadata_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/final-B-cohort-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/final-B-cohort.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/initial-head-guard-unrun.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/inspect-retained.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/original-cohort-excerpt.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/runs/R_deadline/trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d9/1e/d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d9/1e/d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d9/1e/d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed.view.629db9c522025d0c6fc47391479cb57e5c39606d5e48aae055b8831984ac437f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/runs/R_deadline/trace.jsonl"
+  ],
+  "baseline_cells": [],
+  "baseline_cells_qualification": "New observed cohort failure, not baseline summary proof; no baseline failure is used to establish an inherited waiver.",
+  "checks": [
+    {
+      "id": "original-whole-cohort-selected-case",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml"
+      ],
+      "target_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/final-B-cohort-profile.json",
+        "bytes": 10440,
+        "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+      },
+      "input_closure": {
+        "selected_test_input": {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+          "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+          "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+          "bytes": 17286
+        },
+        "original_retained_case_inventory": [
+          {
+            "path": "artifacts/ownership/transactions/locks/stripe-03.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/ownership/transactions/locks/stripe-07.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/ownership/transactions/locks/stripe-09.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/ownership/transactions/locks/stripe-32.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/ownership/transactions/locks/stripe-34.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/ownership/transactions/locks/stripe-41.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/ownership/transactions/locks/stripe-44.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/ownership/transactions/locks/stripe-49.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/ownership/transactions/locks/stripe-61.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/ownership/transactions/root.lock",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+            "bytes": 3235,
+            "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+          },
+          {
+            "path": "artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+            "bytes": 626,
+            "sha256": "764bfbf7e00e422628e580195301f854c8fb9e80a4577b4d76f2f1865d8c1636"
+          },
+          {
+            "path": "artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+            "bytes": 626,
+            "sha256": "764bfbf7e00e422628e580195301f854c8fb9e80a4577b4d76f2f1865d8c1636"
+          },
+          {
+            "path": "artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+            "bytes": 7840,
+            "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+          },
+          {
+            "path": "artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+            "bytes": 612,
+            "sha256": "5c07314ce3f1f8558c47e896c030347234c4b955647c27e54bf4e2b538541253"
+          },
+          {
+            "path": "artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+            "bytes": 612,
+            "sha256": "5c07314ce3f1f8558c47e896c030347234c4b955647c27e54bf4e2b538541253"
+          },
+          {
+            "path": "artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+            "bytes": 1086,
+            "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+          },
+          {
+            "path": "artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+            "bytes": 623,
+            "sha256": "6fdb0454e80b845847b32d9a9f8ce931c11cd720f80d94e01304602e10a2b58d"
+          },
+          {
+            "path": "artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+            "bytes": 623,
+            "sha256": "6fdb0454e80b845847b32d9a9f8ce931c11cd720f80d94e01304602e10a2b58d"
+          },
+          {
+            "path": "artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+            "bytes": 1477,
+            "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+          },
+          {
+            "path": "artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+            "bytes": 631,
+            "sha256": "2f0f00ec3ebda932c6c109bde8310e1cc3e1645bf3ee9cffa16ffb70a7cc649e"
+          },
+          {
+            "path": "artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+            "bytes": 631,
+            "sha256": "2f0f00ec3ebda932c6c109bde8310e1cc3e1645bf3ee9cffa16ffb70a7cc649e"
+          },
+          {
+            "path": "artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+            "bytes": 2423,
+            "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+          },
+          {
+            "path": "artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+            "bytes": 616,
+            "sha256": "4cd261b9add5997941e5983958914ce4a7c37fdb3f86f4c75c93bacae6035531"
+          },
+          {
+            "path": "artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+            "bytes": 616,
+            "sha256": "4cd261b9add5997941e5983958914ce4a7c37fdb3f86f4c75c93bacae6035531"
+          },
+          {
+            "path": "artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+            "bytes": 1204,
+            "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+          },
+          {
+            "path": "artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+            "bytes": 1363,
+            "sha256": "c0e4c932341badbc7b7c87f014be1893e7a7f2746f84bc31cb75de7f32a97639"
+          },
+          {
+            "path": "artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+            "bytes": 1363,
+            "sha256": "c0e4c932341badbc7b7c87f014be1893e7a7f2746f84bc31cb75de7f32a97639"
+          },
+          {
+            "path": "artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+            "bytes": 464,
+            "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+          },
+          {
+            "path": "artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+            "bytes": 613,
+            "sha256": "d86e271df2d66637ba1761433b0dbcadfe217ad8ba45f91ce6a239b8695cfc7e"
+          },
+          {
+            "path": "artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+            "bytes": 613,
+            "sha256": "d86e271df2d66637ba1761433b0dbcadfe217ad8ba45f91ce6a239b8695cfc7e"
+          },
+          {
+            "path": "artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+            "bytes": 264,
+            "sha256": "d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9"
+          },
+          {
+            "path": "artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+            "bytes": 640,
+            "sha256": "0fff2bef14d2d11f8445928d6245918a6a6af44714bf02de86df1854e71ab4c9"
+          },
+          {
+            "path": "artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+            "bytes": 640,
+            "sha256": "0fff2bef14d2d11f8445928d6245918a6a6af44714bf02de86df1854e71ab4c9"
+          },
+          {
+            "path": "artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+            "bytes": 523,
+            "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+          },
+          {
+            "path": "artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+            "bytes": 623,
+            "sha256": "39c2b0416eb1fdeac83c710406d3d7860cc8e6ba8988d14ab16c7bcb4ec86551"
+          },
+          {
+            "path": "artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+            "bytes": 623,
+            "sha256": "39c2b0416eb1fdeac83c710406d3d7860cc8e6ba8988d14ab16c7bcb4ec86551"
+          },
+          {
+            "path": "runs/R_deadline/trace.jsonl",
+            "bytes": 195,
+            "sha256": "cc578a68ac6759a8aaec69734c060a27067deebadd0c96c02a565e52a46afaf3"
+          }
+        ],
+        "qualification": "Whole original cohort source/profile plus actual retained fixture; interleaved Task-2200 lacks a fixture identifier and is not uniquely assigned."
+      },
+      "outcome": "FAIL",
+      "original_whole_counts": {
+        "PASS": 1970,
+        "FAIL": 25,
+        "ERROR": 252,
+        "SKIP": 6
+      },
+      "selected_case": {
+        "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+        "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+        "time_s": "10.249",
+        "state": "FAIL",
+        "failure_message": "assert False"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/original-cohort-excerpt.txt",
+        "bytes": 10808,
+        "sha256": "83b2397ff938ac53284d007a95e63a840d56d94486977c055dd28b77dc491fb6"
+      },
+      "complete_original_output": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+        "bytes": 1431050,
+        "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7"
+      },
+      "complete_original_junit": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+        "bytes": 1333443,
+        "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/final-B-cohort.json",
+        "bytes": 2338,
+        "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f"
+      },
+      "property_state": "Target experiment_state entered-I/O precondition not_established in this original FAIL."
+    },
+    {
+      "id": "unchanged-narrow-native-case",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+        "--basetemp",
+        "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest-cache",
+        "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/cohort.xml"
+      ],
+      "target_sha": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+      "target_tree_sha": "93b77f5da8b01f9f743438d92ca9cb48ad97dc90",
+      "environment": {
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "equivalent_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+        "equivalent_source_tree_sha": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+        "complete_equivalence_scope": [
+          "policy-engine/src",
+          "policy-engine/tests",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml",
+          "policy-engine/uv.lock"
+        ],
+        "defining_source_test_bindings": [
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+            "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+            "bytes": 17286
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+            "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+            "bytes": 102653
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+            "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+            "bytes": 7518
+          },
+          {
+            "path": "policy-engine/src/polisyos/common/async_tools.py",
+            "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+            "bytes": 11846
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+            "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+            "bytes": 79312
+          },
+          {
+            "path": "policy-engine/pytest.ini",
+            "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+            "bytes": 1021
+          },
+          {
+            "path": "policy-engine/tests/conftest.py",
+            "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+            "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+            "bytes": 9664
+          }
+        ],
+        "own_test_lane_sha": "37e16cbb9fa3bc914a76882c28abfb4f01c612bc",
+        "unique_basetemp": "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest",
+        "profile_delta": "One exact unmodified nodeid; isolated own-lane output paths; same installed root environment. Whole-cohort selection/history/observer not replayed."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 13.198886559010134,
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+          "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+          "time": "0.972",
+          "state": "PASS"
+        }
+      ],
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-stdout.txt",
+        "bytes": 1525,
+        "sha256": "a68cdc653c7c4ba3b2d9f064e9b93c305be1b95efade8882ccea5ee1e3da17be"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-cohort.xml",
+        "bytes": 464,
+        "sha256": "af7c7869753f686e38b71e7b88fe49b08f55759e832cb42cfadb12db6174e4f9"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-receipt.json",
+        "bytes": 5866,
+        "sha256": "a9919fc425cec748abc3a3838a6fd22cf4d7ac04fe79d31da90a023da0c5673a"
+      },
+      "qualification": "Raw wrapper target_source_sha names byte-equivalent4e input projection; actual runtime checkout HEAD/tree are bbb/93b77 as declared above. It is not an exact4e checkout run and does not replace original cohort FAIL."
+    },
+    {
+      "id": "physical-original-and-narrow-cas-readback",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "_build/current-execution-state/deadline-cohort-investigation/inspect-retained.py"
+      ],
+      "target_sha": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+      "environment": {
+        "production_import_roots": [
+          "/workspace/e02-B-current-coordination/policy-engine/src",
+          "/workspace/e02-B-current-coordination/policy-engine"
+        ],
+        "source_equivalent_to": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b"
+      },
+      "input_closure": {
+        "inputs": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/readback.json",
+          "bytes": 45737,
+          "sha256": "8a8a78a3f8a3910189f5b146e76c4e77b1636b4279ff163b3752579c0d2eac9e"
+        },
+        "committed_cas_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas",
+        "original_case_files": 38,
+        "new_attempt_files": 42,
+        "locks": "Ten original/eleven narrow empty lock files are hashed in original inventory but not Git evidence; blob/manifest/trace content fully transferred."
+      },
+      "outcome": "PASS",
+      "verified_original_selected_artifacts": 9,
+      "verified_narrow_selected_artifacts": 10,
+      "original_bytes_unchanged": true,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/readback.json",
+        "bytes": 45737,
+        "sha256": "8a8a78a3f8a3910189f5b146e76c4e77b1636b4279ff163b3752579c0d2eac9e"
+      },
+      "stdout_alias": "readback stdout was byte-identical to receipt.json; same committed bytes/hash represent both, without duplication.",
+      "qualification": "Full selected refs reconstructed from actual physical manifests and verified/read on isolated exact copies; no claimed original executor ACK."
+    }
+  ],
+  "property": {
+    "original": {
+      "actual_test_state": "FAIL",
+      "target_entry": "not_established",
+      "physical_workflow_spec": "verified",
+      "experiment_state_report_effect_run_manifest": "absent",
+      "trace_events": [
+        "RUN_STARTED"
+      ],
+      "input_ack_output_ack_finalize_next_producer": "absent"
+    },
+    "narrow": {
+      "actual_test_state": "PASS",
+      "target_entry": "established by unchanged native body",
+      "late_experiment_state": "verified physical artifact",
+      "trace_events": [
+        "RUN_STARTED",
+        "RUN_INPUT_ADDED(workflow_spec)"
+      ],
+      "late_state_ack_provider_finalize": "absent"
+    },
+    "source_invariant": "One workflow deadline begins before initial snapshot/workflow_spec/input-state publication; every write uses its remaining absolute budget and guards local ref admission. Therefore there is no contract requiring a later experiment_state phase to enter before a finite deadline already consumed by preceding work."
+  },
+  "capability_state_or_finding_state": {
+    "original_selected_target_property": "P37 antecedent/entrant premise not_established, actual FAIL preserved",
+    "mechanism_failure": "not_established",
+    "cause_qualification": "Retained case state is consistent with legitimate preceding-phase deadline expiry. Interleaved workflow_spec TimeoutError is correlation-limited; exact task-to-fixture/monotonic phase timing was not retained, so no unique latency cause or causal attribution is claimed.",
+    "positive_profile": "Separate unchanged narrow input established bounded entered-CAS fencing.",
+    "full_cohort": "Actual FAIL; no inherited/flake/P41 waiver and no all-green replacement."
+  },
+  "limitations_and_next_owner": {
+    "owner": "Root/G and native test owner",
+    "next": "Preserve original whole-cohort FAIL; if strengthening fixture later, distinguish pre-target whole-deadline expiry from entered-target CAS timeout with fixture-bound task/phase observations while retaining all local-admission and real-CAS assertions. No deadline restart or timing relaxation proposed here.",
+    "boundary": "Already-entered backend may finish physical immutable work after owner timeout/cancellation; local ACK/new producer remains fenced. Existing B40/B52 LIMITED decisions and local production-dataset obligations remain unchanged."
+  },
+  "source_and_tests": "ZERO_DIFF from slice base and no fixture/timing change. One actual unchanged pytest selector only; initial exact-root-HEAD guard stopped before collection and is retained as harness UNRUN, not product failure.",
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/final-B-cohort-profile.json",
+      "bytes": 10440,
+      "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/final-B-cohort.json",
+      "bytes": 2338,
+      "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/initial-head-guard-unrun.txt",
+      "bytes": 481,
+      "sha256": "6d18292193a0ae1cb1c2e5aae87450f1b914991030aecdeeafd756d7032bf890"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/inspect-retained.py",
+      "bytes": 3491,
+      "sha256": "04569913f068cacb92db08a6ee9945b81f1bd43bb9089b088bb3476a47c0bc05"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-cohort.xml",
+      "bytes": 464,
+      "sha256": "af7c7869753f686e38b71e7b88fe49b08f55759e832cb42cfadb12db6174e4f9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-receipt.json",
+      "bytes": 5866,
+      "sha256": "a9919fc425cec748abc3a3838a6fd22cf4d7ac04fe79d31da90a023da0c5673a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/native-stdout.txt",
+      "bytes": 1525,
+      "sha256": "a68cdc653c7c4ba3b2d9f064e9b93c305be1b95efade8882ccea5ee1e3da17be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/original-cohort-excerpt.txt",
+      "bytes": 10808,
+      "sha256": "83b2397ff938ac53284d007a95e63a840d56d94486977c055dd28b77dc491fb6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/readback.json",
+      "bytes": 45737,
+      "sha256": "8a8a78a3f8a3910189f5b146e76c4e77b1636b4279ff163b3752579c0d2eac9e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/replay.py",
+      "bytes": 5222,
+      "sha256": "e6cefd14fd1397ffdad2eff1eaef1c0f7ce69fb224cb95453b077ee41cb4a496"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "764bfbf7e00e422628e580195301f854c8fb9e80a4577b4d76f2f1865d8c1636"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "764bfbf7e00e422628e580195301f854c8fb9e80a4577b4d76f2f1865d8c1636"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "5c07314ce3f1f8558c47e896c030347234c4b955647c27e54bf4e2b538541253"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "5c07314ce3f1f8558c47e896c030347234c4b955647c27e54bf4e2b538541253"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "6fdb0454e80b845847b32d9a9f8ce931c11cd720f80d94e01304602e10a2b58d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "6fdb0454e80b845847b32d9a9f8ce931c11cd720f80d94e01304602e10a2b58d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "2f0f00ec3ebda932c6c109bde8310e1cc3e1645bf3ee9cffa16ffb70a7cc649e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "2f0f00ec3ebda932c6c109bde8310e1cc3e1645bf3ee9cffa16ffb70a7cc649e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "4cd261b9add5997941e5983958914ce4a7c37fdb3f86f4c75c93bacae6035531"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "4cd261b9add5997941e5983958914ce4a7c37fdb3f86f4c75c93bacae6035531"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "c0e4c932341badbc7b7c87f014be1893e7a7f2746f84bc31cb75de7f32a97639"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "c0e4c932341badbc7b7c87f014be1893e7a7f2746f84bc31cb75de7f32a97639"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "d86e271df2d66637ba1761433b0dbcadfe217ad8ba45f91ce6a239b8695cfc7e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "d86e271df2d66637ba1761433b0dbcadfe217ad8ba45f91ce6a239b8695cfc7e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+      "bytes": 264,
+      "sha256": "d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+      "bytes": 640,
+      "sha256": "0fff2bef14d2d11f8445928d6245918a6a6af44714bf02de86df1854e71ab4c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+      "bytes": 640,
+      "sha256": "0fff2bef14d2d11f8445928d6245918a6a6af44714bf02de86df1854e71ab4c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "39c2b0416eb1fdeac83c710406d3d7860cc8e6ba8988d14ab16c7bcb4ec86551"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "39c2b0416eb1fdeac83c710406d3d7860cc8e6ba8988d14ab16c7bcb4ec86551"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/original-whole-cohort-failure/runs/R_deadline/trace.jsonl",
+      "bytes": 195,
+      "sha256": "cc578a68ac6759a8aaec69734c060a27067deebadd0c96c02a565e52a46afaf3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob",
+      "bytes": 3235,
+      "sha256": "0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json",
+      "bytes": 626,
+      "sha256": "27017071ec48da147e07a177bee9dd8679a4132d4831c3cc489d4813ec9a0b19"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json",
+      "bytes": 626,
+      "sha256": "27017071ec48da147e07a177bee9dd8679a4132d4831c3cc489d4813ec9a0b19"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob",
+      "bytes": 7840,
+      "sha256": "125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json",
+      "bytes": 612,
+      "sha256": "337680b93b95decd9c6b40660522b4f9e53557f49e05b3649a26e7d3f5e0c61b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json",
+      "bytes": 612,
+      "sha256": "337680b93b95decd9c6b40660522b4f9e53557f49e05b3649a26e7d3f5e0c61b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob",
+      "bytes": 1086,
+      "sha256": "625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json",
+      "bytes": 623,
+      "sha256": "c721161fee24ee1bf2de245ce1f596c470cf0db6547badbc0d607170917bce82"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json",
+      "bytes": 623,
+      "sha256": "c721161fee24ee1bf2de245ce1f596c470cf0db6547badbc0d607170917bce82"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob",
+      "bytes": 1477,
+      "sha256": "876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json",
+      "bytes": 631,
+      "sha256": "c0db8f7fd3d23d4c5dc22f3cd4884cf7bde57e779a1f2490dd0388790f1dc086"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json",
+      "bytes": 631,
+      "sha256": "c0db8f7fd3d23d4c5dc22f3cd4884cf7bde57e779a1f2490dd0388790f1dc086"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob",
+      "bytes": 2423,
+      "sha256": "8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json",
+      "bytes": 616,
+      "sha256": "21583656c948c0a48c7a5e6ddff0dfa6c63951829b5f595aa794f7ba8efb6580"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json",
+      "bytes": 616,
+      "sha256": "21583656c948c0a48c7a5e6ddff0dfa6c63951829b5f595aa794f7ba8efb6580"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob",
+      "bytes": 1204,
+      "sha256": "b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json",
+      "bytes": 1363,
+      "sha256": "04eb8e4f0640a7ee8962fd06307215b1eb91e100f9a0ef9ccb89fc0ab20e5ede"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json",
+      "bytes": 1363,
+      "sha256": "04eb8e4f0640a7ee8962fd06307215b1eb91e100f9a0ef9ccb89fc0ab20e5ede"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob",
+      "bytes": 464,
+      "sha256": "d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json",
+      "bytes": 613,
+      "sha256": "549e597b42456ffbee4b0da7fe1464ef70a1a631ca8591b5759f007ed3bba0ce"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json",
+      "bytes": 613,
+      "sha256": "549e597b42456ffbee4b0da7fe1464ef70a1a631ca8591b5759f007ed3bba0ce"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.blob",
+      "bytes": 264,
+      "sha256": "d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.manifest.json",
+      "bytes": 640,
+      "sha256": "3b9b25b164e88574c1327ed5884a402f4f250630e828b0fc39e3cc8b24320ba0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d5/0d/d50dcf8412f814fb5b845f9d842a4d68ee8bcb20d649a00eacda45f5a791eac9.view.58642501443f5f46d383a0805f0734db92ee2a6f39512960b02558ed861a4a44.manifest.json",
+      "bytes": 640,
+      "sha256": "3b9b25b164e88574c1327ed5884a402f4f250630e828b0fc39e3cc8b24320ba0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d9/1e/d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed.blob",
+      "bytes": 896,
+      "sha256": "d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d9/1e/d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed.manifest.json",
+      "bytes": 646,
+      "sha256": "8a8cb5083905dfa8b5b5f9c9c5b41a310eeb8fdce632aa8ff464bafb49c246d0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/d9/1e/d91e4c400f3609f30fb85d39770ea8bea745295c7a9068bfcc8e716b06f765ed.view.629db9c522025d0c6fc47391479cb57e5c39606d5e48aae055b8831984ac437f.manifest.json",
+      "bytes": 646,
+      "sha256": "8a8cb5083905dfa8b5b5f9c9c5b41a310eeb8fdce632aa8ff464bafb49c246d0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob",
+      "bytes": 523,
+      "sha256": "f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json",
+      "bytes": 623,
+      "sha256": "48a3640e417d2c91b3e5267de0c70aea3176be2d6b104024174446277a67991d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json",
+      "bytes": 623,
+      "sha256": "48a3640e417d2c91b3e5267de0c70aea3176be2d6b104024174446277a67991d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/retained-cas/unchanged-narrow-native-replay/runs/R_deadline/trace.jsonl",
+      "bytes": 515,
+      "sha256": "2a3c0c0ba69941be94d57f40346908814d8427ae19ae165c656c69286093a2f0"
+    }
+  ]
+}

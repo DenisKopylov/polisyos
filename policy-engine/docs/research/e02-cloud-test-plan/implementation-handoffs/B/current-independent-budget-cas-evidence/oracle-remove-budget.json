@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pytest-oracle-remove-budget",
+    "--junitxml",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/oracle-remove-budget.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "2e66535a630d6115e41c657103a6d98f4010338b",
+  "tree": "f9020b34c10db869f01ceb32dd254eba3968dc5e",
+  "head_after": "2e66535a630d6115e41c657103a6d98f4010338b",
+  "wall_s": 6.193281884989119,
+  "process_rusage_maxrss_kib": 88280,
+  "exit_code": 1,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/oracle-remove-budget.txt",
+  "output_sha256": "33a3be7297832215e8c4570b1f2b6f50eae7b50f90b79db729cfcaad087ddf7f",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8"
+  }
+}

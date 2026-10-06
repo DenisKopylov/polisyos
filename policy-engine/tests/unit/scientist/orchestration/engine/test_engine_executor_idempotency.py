@@ -82,7 +82,7 @@ _INVALID_REPLAY_METADATA = ComponentMetadata(
 _INVALID_REPLAY_SPEC = NodeSpec(
     metadata=_INVALID_REPLAY_METADATA,
     state_reads=["params.seed"],
-    state_writes=["params.items"],
+    state_writes=["params.items", "params.reexecuted"],
 )
 
 _FAIL_METADATA = ComponentMetadata(

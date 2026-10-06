@@ -1,0 +1,179 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "ruff-selector-intake",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "7b8c677b91c2125fcb8cb958d409b635abf2ffc6",
+  "implementation_commits": [
+    "31149736551efdc66e78c884f19de4e533696ca2"
+  ],
+  "candidate_tree_sha": "3a4304e958a6ca4d238257f4e8bde93c6938b235",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff-selector-stdout.json"
+  ],
+  "baseline_cells": [],
+  "requested_scope": "Read-only required-lint selector quality intake; no canonical code/config changes, no broad diagnostic gate, no exclusion or inherited-red verdict.",
+  "root_observation": {
+    "source_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+    "tree_sha": "5ff080ffa44cbe5226c2e3a746a2cd8a1587840a",
+    "root_clean": false,
+    "dirty_paths_observed": [
+      "policy-engine/src/polisyos/core/artifacts/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md"
+    ],
+    "qualification": "Metadata observation of this checkpoint, not final root freeze. All 5933 actual discovered files independently matched source Git blob bytes."
+  },
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "python_version": "3.14.2",
+    "ruff_version": "0.14.10",
+    "ruff_module": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/ruff/__init__.py",
+    "provisioned_environment_custody": "gate-execution-readiness.json@7b8c677b91c2125fcb8cb958d409b635abf2ffc6",
+    "sync_install_mutation": false,
+    "info_exclude": {
+      "path": "/workspace/polisyos/.git/info/exclude",
+      "bytes": 262,
+      "sha256": "e8a3bd161b62e2e283629947dc2b959b3bd8ae4ef70b2f14fc2e72e939370dbf"
+    },
+    "core_excludesFile": "No configured value observed (git config exit1, empty stdout/stderr)."
+  },
+  "checks": [
+    {
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py",
+        "--root",
+        "/workspace/e02-B-current-coordination",
+        "--source",
+        "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--published-predecessor",
+        "86f37d782a709d298a9908ca3ef891adc9f89253",
+        "--observed-source",
+        "05079708e678a8438a6df59ca3bfd906a3caa258",
+        "--observed-log",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pre-final050-changed-python-ruff.txt",
+        "--python",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "--scratch",
+        "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/ruff-selector-a5ab"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "instrument_sha": "31149736551efdc66e78c884f19de4e533696ca2",
+      "input_closure": "Full pinned tracked source set and literal diff profiles; actual Ruff metadata-only --show-files argv/config and all returned live file blobs reconciled to pinned source. Complete source references and output paths/hashes live once in committed stdout artifact. Ruff diagnostics were not run.",
+      "outcome": "PASS",
+      "scope": "metadata_selector_and_retained_diagnostic_census_only",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff-selector-stdout.json",
+        "source_sha": "31149736551efdc66e78c884f19de4e533696ca2",
+        "bytes": 8506,
+        "sha256": "165d108981362f9123ad9a3bc2c4403cc3425a588a502da8189bd52b5029dd26"
+      }
+    },
+    {
+      "command_argvs": [
+        [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py"
+        ],
+        [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py"
+        ]
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation",
+      "target_sha": "31149736551efdc66e78c884f19de4e533696ca2",
+      "input_closure": "New metadata instrument only, unchanged bytes in implementation commit; own canonical Ruff loader/config at that SHA. This is not all-changed or product-source Ruff.",
+      "outcome": "PASS",
+      "output": "All checks passed!\n1 file already formatted\n"
+    },
+    {
+      "command": "Root pre-final changed-all-Python invocation (dynamic git diff198..HEAD; complete argv not embedded in raw log).",
+      "target_sha": "05079708e678a8438a6df59ca3bfd906a3caa258",
+      "target_tree": "4e12b4ace45ea61071a5f09d20898fc5e4277755",
+      "source_binding": "Parent identified adjoining immutable source from tool calls; raw log has no before/after SHA/tree or argv header, so exact executed input closure is not_established. Immutable diff census160 and parsed2320 diagnostics are separately recomputed.",
+      "outcome": "FAIL",
+      "output": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/pre-final050-changed-python-ruff.txt",
+        "bytes": 1510152,
+        "sha256": "3a4a39b546df333b56006a7b8ffbe63a252cd6fe1fa5507d332ae23814e20589"
+      },
+      "limitation": "No exact-base replay/disjoint proof; never inherited, waived, or replaced by a narrower profile."
+    }
+  ],
+  "required_profiles": {
+    "e02_literal_closeout": {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md@a5ab26e094f6ead67e858e10a1429cac2c76d858",
+      "lines": "51-60",
+      "selection": "Every changed policy-engine/*.py in literal git diff86f37...HEAD, with no docs witness-driver carve-out. At observed source181paths; final count must be recomputed on final frozen root.",
+      "conclusion": "lint-fast/precommit scope cannot substitute for this explicit all-changed closeout check."
+    },
+    "fresh_continuation_projection": {
+      "selection": "Every changed policy-engine/*.py in diff198076..root source. At observed source177paths. This base projection differs from published literal predecessor and is disclosed separately."
+    },
+    "implemented_native_authored_ruff": {
+      "source": "tools/devx/workspace/lint_fast.py + _repo_hygiene.py + .pre-commit-config.yaml at observed root source",
+      "selection": "Concrete source/test/tool/example/helper operands plus four existing Phase8 excludes, not docs/research drivers. Complete operand/config refs, actual5933-file suffix counts and current overlap are in committed stdout. Missing explicit operands scripts and gcp/upload_gonka_secrets.py disclosed; --show-files is no diagnostic-gate verdict.",
+      "other_surfaces": "lint-full delegates lint-fast and benchmark-surfaces; benchmark-surfaces selects only benchmarks and tools/research directories with existing E,F,I,UP/E402,E501 policy. runtime-surface selects runtime source + unit/runtime tests. Direct verify/ci-parity CommandSpecs do not list Ruff; no claim about every dynamic descendant."
+    }
+  },
+  "human_contract_reconciliation": {
+    "source": "policy-engine/docs/reference/repository-hygiene.md@a5ab26e094f6ead67e858e10a1429cac2c76d858",
+    "finding": "Authored Scope includes docs/** and File-Type Contract says Ruff is repo-wide for authored Python. Concrete native wrappers/hooks do not select docs Python.",
+    "verdict": "Documented broad contract and implemented selector differ. This is a disclosed coverage boundary, not a normative exemption or full-authored green. Canonical config itself has no docs/research exclusion; supplying a witness driver explicitly subjects it to active rules.",
+    "configuration": "CONTRIBUTING.md Code Style names pyproject.toml and six rule sets, but actual Ruff loader is ruff.toml extending architecture/tooling/ruff/generated.toml with14active prefixes. Read operational config; do not manufacture a revised policy."
+  },
+  "property": {
+    "statement": "Name the full exact file-type denominator actually selected by each profile and retain all diagnostics from the observed changed-all run.",
+    "runtime_path": [
+      "canonical lint wrapper/source constants",
+      "Ruff metadata file discovery",
+      "full Git blob reconciliation",
+      "complete retained diagnostic parser"
+    ],
+    "proxy_divergence": "A green 85changed-selected product profile would not establish the all177changed Python profile containing92docs drivers. The observed full log reports2318docs-driver diagnostics, although docs selection in native lint-fast is zero.",
+    "negative_controls": [
+      "Stale bb544 source was refused after root advanced to a5ab before observation; no partial count admitted.",
+      "Full2320 diagnostic count reconciled with terminal Found2320errors line; no truncated sample used."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_metadata_intake_complete; all broad lint/native gates remain separately pending/observed FAIL",
+  "limitations_and_next_owner": [
+    "Final frozen root HEAD, literal/fresh base selection, full argv, environment and complete all-changed outputs belong to root. This metadata checkpoint is not final gate execution.",
+    "Literal historical witness bytes were not modified. Their Ruff style/security diagnostics are visible driver lint debt; byte custody is not a lint exemption.",
+    "Historical pre-final source/test diagnostics have distinct source frontiers: CMPd71 adds scoped fixed-Git-command S603 rationale; checkpoint S102 remained present at observed a5 source and newer EXE1.2 was pending integration. No final-green claim follows from source edits.",
+    "Existing --extend-exclude benchmarks also omits14 nested source/test benchmark Python files; this existing selector behavior is disclosed rather than changed. Complete recomputation uses actual Ruff discovery.",
+    "Large1510152B root diagnostics and633125B discovery lists stay ignored at exact machine path/hash. Their independent remote availability is not_established; source@SHA+committed instrument permits bounded replay, and parent owns full final stdout transfer.",
+    "No exact slice-base diagnostic replay or zero complete-input intersection was done. P41 inherited attribution stays not_established.",
+    "No source/config edits, old witness rewrites, fixture changes, new worktrees, child agents, gate skipping, process/thread caps, or environment synchronization."
+  ],
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py",
+      "source_sha": "31149736551efdc66e78c884f19de4e533696ca2",
+      "bytes": 9229,
+      "sha256": "e97540a831a457ca23e3600838de347d03efd0dc42a46facb9dea0eceef2a1bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff-selector-stdout.json",
+      "source_sha": "31149736551efdc66e78c884f19de4e533696ca2",
+      "bytes": 8506,
+      "sha256": "165d108981362f9123ad9a3bc2c4403cc3425a588a502da8189bd52b5029dd26"
+    }
+  ]
+}

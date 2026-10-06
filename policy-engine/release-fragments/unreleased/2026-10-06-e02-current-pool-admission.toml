@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-current-pool-admission"
+title = "Enforce one pool acquisition deadline through handle publication"
+type = "fixed"
+component = "fabric-connectors"
+owner = "team-fabric"
+summary = "Reject handles after the absolute acquisition budget or a new caller cancellation; retire registration atomically with successful publication and retain cleanup capacity until physical disconnect settles."
+evidence = ["tests/unit/fabric/connectors/test_pool_e02.py"]
+compatibility = "The acquisition timeout now covers connector work and metadata waits, rather than only semaphore admission."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.fabric.connectors.ConnectionPool"
+migration = "Set acquire_timeout_seconds for the complete admission path; retain independent connector connection timeout and cooperative physical drain handling."
+api = "Method signatures and returned connection handles remain compatible."
+limitations = "No hard wall-clock bound is claimed for an uncooperative connector or physical disconnect. Live permission and stream-consumer authority remain separate owner contracts."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.062" timestamp="2026-10-06T15:32:55.120589+00:00" hostname="b878f4efbdfc"><testcase classname="" name="tests.unit.core.artifacts.test_verification_failure_snapshot_report" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:9: in &lt;module&gt;
+    from polisyos.core.artifacts import (
+E   ImportError: cannot import name 'ArtifactTenantContextInfo' from 'polisyos.core.artifacts' (/workspace/e02-B-current-cas-generation/policy-engine/src/polisyos/core/artifacts/__init__.py)</error></testcase></testsuite></testsuites>

@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="20" time="14.218" timestamp="2026-10-06T11:52:46.307903+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[omitted-AsyncArtifactStoreAdapter]" time="0.014"><failure message="TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_real_cas_bridge_preserves0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdd6ccad0f0&gt;
+adapter_type = &lt;class 'polisyos.core.artifacts.async_store.AsyncArtifactStoreAdapter'&gt;
+mode = 'omitted'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("adapter_type", [AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore])
+    @pytest.mark.parametrize("mode", ["omitted", "explicit_none", "unbounded"])
+    async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
+        tmp_path, monkeypatch, adapter_type, mode
+    ):
+        store = _ReadGateCAS(tmp_path / "cas")
+&gt;       ref = store.put_json({"value": 7}, PutOptions(kind="deadline.bridge"))
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:152: TypeError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[omitted-AsyncFileSystemArtifactStore]" time="0.007"><failure message="TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_real_cas_bridge_preserves1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdd6cca5eb0&gt;
+adapter_type = &lt;class 'polisyos.core.artifacts.async_store.AsyncFileSystemArtifactStore'&gt;
+mode = 'omitted'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("adapter_type", [AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore])
+    @pytest.mark.parametrize("mode", ["omitted", "explicit_none", "unbounded"])
+    async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
+        tmp_path, monkeypatch, adapter_type, mode
+    ):
+        store = _ReadGateCAS(tmp_path / "cas")
+&gt;       ref = store.put_json({"value": 7}, PutOptions(kind="deadline.bridge"))
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:152: TypeError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[explicit_none-AsyncArtifactStoreAdapter]" time="0.006"><failure message="TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_real_cas_bridge_preserves2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdd6cc8ee00&gt;
+adapter_type = &lt;class 'polisyos.core.artifacts.async_store.AsyncArtifactStoreAdapter'&gt;
+mode = 'explicit_none'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("adapter_type", [AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore])
+    @pytest.mark.parametrize("mode", ["omitted", "explicit_none", "unbounded"])
+    async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
+        tmp_path, monkeypatch, adapter_type, mode
+    ):
+        store = _ReadGateCAS(tmp_path / "cas")
+&gt;       ref = store.put_json({"value": 7}, PutOptions(kind="deadline.bridge"))
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:152: TypeError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[explicit_none-AsyncFileSystemArtifactStore]" time="0.006"><failure message="TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_real_cas_bridge_preserves3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdd6cb41850&gt;
+adapter_type = &lt;class 'polisyos.core.artifacts.async_store.AsyncFileSystemArtifactStore'&gt;
+mode = 'explicit_none'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("adapter_type", [AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore])
+    @pytest.mark.parametrize("mode", ["omitted", "explicit_none", "unbounded"])
+    async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
+        tmp_path, monkeypatch, adapter_type, mode
+    ):
+        store = _ReadGateCAS(tmp_path / "cas")
+&gt;       ref = store.put_json({"value": 7}, PutOptions(kind="deadline.bridge"))
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:152: TypeError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[unbounded-AsyncArtifactStoreAdapter]" time="0.006"><failure message="TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_real_cas_bridge_preserves4')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdd6ca4c410&gt;
+adapter_type = &lt;class 'polisyos.core.artifacts.async_store.AsyncArtifactStoreAdapter'&gt;
+mode = 'unbounded'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("adapter_type", [AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore])
+    @pytest.mark.parametrize("mode", ["omitted", "explicit_none", "unbounded"])
+    async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
+        tmp_path, monkeypatch, adapter_type, mode
+    ):
+        store = _ReadGateCAS(tmp_path / "cas")
+&gt;       ref = store.put_json({"value": 7}, PutOptions(kind="deadline.bridge"))
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:152: TypeError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[unbounded-AsyncFileSystemArtifactStore]" time="0.006"><failure message="TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_real_cas_bridge_preserves5')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdd6ca46430&gt;
+adapter_type = &lt;class 'polisyos.core.artifacts.async_store.AsyncFileSystemArtifactStore'&gt;
+mode = 'unbounded'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("adapter_type", [AsyncArtifactStoreAdapter, AsyncFileSystemArtifactStore])
+    @pytest.mark.parametrize("mode", ["omitted", "explicit_none", "unbounded"])
+    async def test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded(
+        tmp_path, monkeypatch, adapter_type, mode
+    ):
+        store = _ReadGateCAS(tmp_path / "cas")
+&gt;       ref = store.put_json({"value": 7}, PutOptions(kind="deadline.bridge"))
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:152: TypeError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.workflow_spec]" time="1.000"><failure message="AssertionError: owner wait refreshed or entered I/O was treated as cancelled&#10;assert not True&#10; +  where True = is_set()&#10; +    where is_set = &lt;threading.Event at 0x7fdd6ca58c30: set&gt;.is_set&#10; +      where &lt;threading.Event at 0x7fdd6ca58c30: set&gt; = &lt;engine.test_workflow_deadline_custody._WriteGateCAS object at 0x7fdd6c9e0590&gt;.release">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_workflow_cas_wait_cannot_0')
+kind = 'scientist.workflow_spec', end = 'deadline'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "kind", ["scientist.workflow_spec", "scientist.experiment_state", "scientist.workflow_report"]
+    )
+    @pytest.mark.parametrize("end", ["deadline", "cancel"])
+    async def test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer(tmp_path, kind, end):
+        store = _WriteGateCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store, timeout=0.5 if end == "deadline" else None)
+        state = ExperimentState(run_id="R_deadline", params={"seed": 7})
+        store.target = kind
+        loop_thread = threading.get_ident()
+        task = asyncio.create_task(executor.execute(workflow, state))
+        if end == "deadline":
+            release = _release_after_enter(store, 0.8)
+        else:
+            release = None
+        try:
+            assert await asyncio.to_thread(store.entered.wait, 5)
+            if end == "cancel":
+                task.cancel()
+            with pytest.raises(WorkflowTimeoutError if end == "deadline" else asyncio.CancelledError):
+                await task
+&gt;           assert not store.release.is_set(), (
+                "owner wait refreshed or entered I/O was treated as cancelled"
+            )
+E           AssertionError: owner wait refreshed or entered I/O was treated as cancelled
+E           assert not True
+E            +  where True = is_set()
+E            +    where is_set = &lt;threading.Event at 0x7fdd6ca58c30: set&gt;.is_set
+E            +      where &lt;threading.Event at 0x7fdd6ca58c30: set&gt; = &lt;engine.test_workflow_deadline_custody._WriteGateCAS object at 0x7fdd6c9e0590&gt;.release
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:201: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]" time="0.998"><failure message="AssertionError: owner wait refreshed or entered I/O was treated as cancelled&#10;assert not True&#10; +  where True = is_set()&#10; +    where is_set = &lt;threading.Event at 0x7fdd6ca50b30: set&gt;.is_set&#10; +      where &lt;threading.Event at 0x7fdd6ca50b30: set&gt; = &lt;engine.test_workflow_deadline_custody._WriteGateCAS object at 0x7fdd6ca3f890&gt;.release">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_workflow_cas_wait_cannot_1')
+kind = 'scientist.experiment_state', end = 'deadline'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "kind", ["scientist.workflow_spec", "scientist.experiment_state", "scientist.workflow_report"]
+    )
+    @pytest.mark.parametrize("end", ["deadline", "cancel"])
+    async def test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer(tmp_path, kind, end):
+        store = _WriteGateCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store, timeout=0.5 if end == "deadline" else None)
+        state = ExperimentState(run_id="R_deadline", params={"seed": 7})
+        store.target = kind
+        loop_thread = threading.get_ident()
+        task = asyncio.create_task(executor.execute(workflow, state))
+        if end == "deadline":
+            release = _release_after_enter(store, 0.8)
+        else:
+            release = None
+        try:
+            assert await asyncio.to_thread(store.entered.wait, 5)
+            if end == "cancel":
+                task.cancel()
+            with pytest.raises(WorkflowTimeoutError if end == "deadline" else asyncio.CancelledError):
+                await task
+&gt;           assert not store.release.is_set(), (
+                "owner wait refreshed or entered I/O was treated as cancelled"
+            )
+E           AssertionError: owner wait refreshed or entered I/O was treated as cancelled
+E           assert not True
+E            +  where True = is_set()
+E            +    where is_set = &lt;threading.Event at 0x7fdd6ca50b30: set&gt;.is_set
+E            +      where &lt;threading.Event at 0x7fdd6ca50b30: set&gt; = &lt;engine.test_workflow_deadline_custody._WriteGateCAS object at 0x7fdd6ca3f890&gt;.release
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:201: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.workflow_report]" time="1.143"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.WorkflowTimeoutError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_workflow_cas_wait_cannot_2')
+kind = 'scientist.workflow_report', end = 'deadline'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "kind", ["scientist.workflow_spec", "scientist.experiment_state", "scientist.workflow_report"]
+    )
+    @pytest.mark.parametrize("end", ["deadline", "cancel"])
+    async def test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer(tmp_path, kind, end):
+        store = _WriteGateCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store, timeout=0.5 if end == "deadline" else None)
+        state = ExperimentState(run_id="R_deadline", params={"seed": 7})
+        store.target = kind
+        loop_thread = threading.get_ident()
+        task = asyncio.create_task(executor.execute(workflow, state))
+        if end == "deadline":
+            release = _release_after_enter(store, 0.8)
+        else:
+            release = None
+        try:
+            assert await asyncio.to_thread(store.entered.wait, 5)
+            if end == "cancel":
+                task.cancel()
+&gt;           with pytest.raises(WorkflowTimeoutError if end == "deadline" else asyncio.CancelledError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE &lt;class 'polisyos.scientist.orchestration.engine.errors.WorkflowTimeoutError'&gt;
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:199: Failed</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.workflow_spec]" time="0.185" /><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.experiment_state]" time="0.189" /><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.workflow_report]" time="0.253" /><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_workflow_without_owner_deadline_uses_explicit_unbounded_cas" time="0.281"><failure message="TimeoutError: Blocking call did not complete within 0.050s">fut = &lt;Future cancelled&gt;, timeout = 0.05
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        If the task suppresses the cancellation and returns a value instead,
+        that value is returned.
+    
+        This function is a coroutine.
+        """
+        # The special case for timeout &lt;= 0 is for the following case:
+        #
+        # async def test_waitfor():
+        #     func_started = False
+        #
+        #     async def func():
+        #         nonlocal func_started
+        #         func_started = True
+        #
+        #     try:
+        #         await asyncio.wait_for(func(), 0)
+        #     except asyncio.TimeoutError:
+        #         assert not func_started
+        #     else:
+        #         assert False
+        #
+        # asyncio.run(test_waitfor())
+    
+    
+        if timeout is not None and timeout &lt;= 0:
+            fut = ensure_future(fut)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise TimeoutError from exc
+    
+        async with timeouts.timeout(timeout):
+&gt;           return await fut
+                   ^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:488: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+func = &lt;bound method FileSystemCAS.put_json of &lt;engine.test_workflow_deadline_custody._WriteGateCAS object at 0x7fdd6ca5d810&gt;&gt;
+timeout_seconds = None, unbounded = False
+args = ({'error_policy': 'fail_fast', 'nodes': [{'alias': 'compute', 'condition': None, 'depends_on': [], 'node_id': 'scienti...inputs=None, canon=None, governance=None, tenant_context=None, same_input_closure=None, authority=None, warnings=None))
+kwargs = {'canon_spec': CanonSpec(name='polisyos.canon.json', version='0.2.0', forbid_floats=False, forbid_nan_inf=True, exclude_none=True, max_depth=128, sort_keys=True, separators=(',', ':'), ensure_ascii=False)}
+timeout = 0.05
+loop = &lt;_UnixSelectorEventLoop running=False closed=False debug=False&gt;
+call = functools.partial(&lt;bound method FileSystemCAS.put_json of &lt;engine.test_workflow_deadline_custody._WriteGateCAS object ...lse, forbid_nan_inf=True, exclude_none=True, max_depth=128, sort_keys=True, separators=(',', ':'), ensure_ascii=False))
+context = &lt;_contextvars.Context object at 0x7fdd6cafb400&gt;
+future = &lt;Future cancelled&gt;
+
+    async def run_blocking_async[T](
+        func: Callable[..., T],
+        /,
+        *args: object,
+        timeout_seconds: float | None = None,
+        unbounded: bool = False,
+        **kwargs: object,
+    ) -&gt; T:
+        """Run a blocking call without stalling the loop.
+    
+        Omitted/None timeouts retain the helper default. An owner with no configured
+        deadline must explicitly pass ``unbounded=True``; combining it with a float
+        timeout is rejected before admission. Cancellation stops queued work, while
+        an already running callable retains its physical worker until it returns.
+        """
+        if unbounded and timeout_seconds is not None:
+            raise ValueError("unbounded cannot be combined with timeout_seconds")
+        timeout = None if unbounded else _normalize_timeout(timeout_seconds)
+        loop = asyncio.get_running_loop()
+        call = functools.partial(func, *args, **kwargs)
+        context = contextvars.copy_context()
+        future = loop.run_in_executor(_get_shared_executor(), context.run, call)
+        try:
+&gt;           return await asyncio.wait_for(future, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/src/polisyos/common/async_tools.py:293: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/tasks.py:487: in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Timeout [expired]&gt;
+exc_type = &lt;class 'asyncio.exceptions.CancelledError'&gt;
+exc_val = CancelledError(), exc_tb = &lt;traceback object at 0x7fdd6cb7a800&gt;
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -&gt; bool | None:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() &lt;= self._cancelling and exc_type is not None:
+                # Since there are no new cancel requests, we're
+                # handling this.
+                if issubclass(exc_type, exceptions.CancelledError):
+&gt;                   raise TimeoutError from exc_val
+E                   TimeoutError
+
+../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/timeouts.py:114: TimeoutError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_workflow_without_owner_de0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdd6ca1fc80&gt;
+
+    @pytest.mark.asyncio
+    async def test_workflow_without_owner_deadline_uses_explicit_unbounded_cas(tmp_path, monkeypatch):
+        store = _WriteGateCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store)
+        assert async_tools._DEFAULT_TIMEOUT_SECONDS == 30
+        monkeypatch.setattr(async_tools, "_DEFAULT_TIMEOUT_SECONDS", 0.05)
+        store.target = "scientist.workflow_spec"
+        release = _release_after_enter(store, 0.12)
+        try:
+&gt;           result = await executor.execute(
+                workflow, ExperimentState(run_id="R_deadline", params={"seed": 7})
+            )
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:245: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py:203: in execute
+    workflow_ref = await self._persist_workflow_spec(workflow)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py:2224: in _persist_workflow_spec
+    return await self._async_store.put_json(
+policy-engine/src/polisyos/core/artifacts/async_store.py:82: in put_json
+    return await run_blocking_async(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = &lt;bound method FileSystemCAS.put_json of &lt;engine.test_workflow_deadline_custody._WriteGateCAS object at 0x7fdd6ca5d810&gt;&gt;
+timeout_seconds = None, unbounded = False
+args = ({'error_policy': 'fail_fast', 'nodes': [{'alias': 'compute', 'condition': None, 'depends_on': [], 'node_id': 'scienti...inputs=None, canon=None, governance=None, tenant_context=None, same_input_closure=None, authority=None, warnings=None))
+kwargs = {'canon_spec': CanonSpec(name='polisyos.canon.json', version='0.2.0', forbid_floats=False, forbid_nan_inf=True, exclude_none=True, max_depth=128, sort_keys=True, separators=(',', ':'), ensure_ascii=False)}
+timeout = 0.05
+loop = &lt;_UnixSelectorEventLoop running=False closed=False debug=False&gt;
+call = functools.partial(&lt;bound method FileSystemCAS.put_json of &lt;engine.test_workflow_deadline_custody._WriteGateCAS object ...lse, forbid_nan_inf=True, exclude_none=True, max_depth=128, sort_keys=True, separators=(',', ':'), ensure_ascii=False))
+context = &lt;_contextvars.Context object at 0x7fdd6cafb400&gt;
+future = &lt;Future cancelled&gt;
+
+    async def run_blocking_async[T](
+        func: Callable[..., T],
+        /,
+        *args: object,
+        timeout_seconds: float | None = None,
+        unbounded: bool = False,
+        **kwargs: object,
+    ) -&gt; T:
+        """Run a blocking call without stalling the loop.
+    
+        Omitted/None timeouts retain the helper default. An owner with no configured
+        deadline must explicitly pass ``unbounded=True``; combining it with a float
+        timeout is rejected before admission. Cancellation stops queued work, while
+        an already running callable retains its physical worker until it returns.
+        """
+        if unbounded and timeout_seconds is not None:
+            raise ValueError("unbounded cannot be combined with timeout_seconds")
+        timeout = None if unbounded else _normalize_timeout(timeout_seconds)
+        loop = asyncio.get_running_loop()
+        call = functools.partial(func, *args, **kwargs)
+        context = contextvars.copy_context()
+        future = loop.run_in_executor(_get_shared_executor(), context.run, call)
+        try:
+            return await asyncio.wait_for(future, timeout=timeout)
+        except TimeoutError as exc:
+            # ``asyncio.TimeoutError`` is the built-in ``TimeoutError`` on the
+            # supported Python versions, so this handler also catches a timeout
+            # raised by the blocking callable itself. Preserve that inner error
+            # when the executor future completed; only rewrite a wait timeout
+            # after asyncio cancelled the future.
+            if future.done() and not future.cancelled():
+                raise
+            future.cancel()
+&gt;           raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s") from exc
+E           TimeoutError: Blocking call did not complete within 0.050s
+
+policy-engine/src/polisyos/common/async_tools.py:303: TimeoutError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody" name="test_expired_native_cache_lookup_cannot_refresh_provider_admission" time="0.738"><failure message="KeyError: 'execution_state'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-workflow-deadline-red/tmp/test_expired_native_cache_look0')
+
+    @pytest.mark.asyncio
+    async def test_expired_native_cache_lookup_cannot_refresh_provider_admission(tmp_path):
+        store = _ReadGateCAS(tmp_path / "cas")
+        ctx, node, workflow, executor = _setup(store)
+        state = ExperimentState(run_id="R_deadline", params={"seed": 7})
+        first = await executor.execute(workflow, state)
+        assert first.report.status == "ok"
+        events = _events(ctx)
+        cache_ref = ArtifactRef.model_validate(
+            next(event for event in events if event.get("event") == "NODE_CACHE_STORE")["refs"][
+                "outputs"
+            ][0]
+        )
+        assert store.verify(cache_ref).ok
+        store.target = str(cache_ref.artifact_id)
+        # One seed read remains healthy; the second native lookup consumes the
+        # node's absolute deadline before the miss can reach the actual provider.
+        store.gate_read = 2
+        workflow.nodes[0].timeout_s = 0.2
+        release = _release_after_enter(store, 0.4)
+        try:
+            result = await executor.execute(workflow, state)
+            assert not store.release.is_set()
+            assert result.report.status == "fail"
+            assert result.report.nodes[0].error.code == "node.timeout"
+&gt;           assert result.report.nodes[0].error.details["execution_state"] == "not_admitted"
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'execution_state'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py:284: KeyError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.engine.test_native_execution_admission" name="test_native_queued_admission_preserves_slots_and_completed_prefix[fail_fast]" time="0.394" /><testcase classname="tests.unit.scientist.orchestration.engine.test_native_execution_admission" name="test_native_queued_admission_preserves_slots_and_completed_prefix[continue]" time="0.492" /><testcase classname="tests.unit.scientist.orchestration.engine.test_native_execution_admission" name="test_native_queued_admission_preserves_slots_and_completed_prefix[cancel]" time="0.311" /><testcase classname="tests.unit.scientist.orchestration.engine.test_native_execution_admission" name="test_native_readiness_preserves_real_inputs_methods_and_artifact_lineage[independent]" time="0.377" /><testcase classname="tests.unit.scientist.orchestration.engine.test_native_execution_admission" name="test_native_readiness_preserves_real_inputs_methods_and_artifact_lineage[dependency]" time="0.406" /><testcase classname="tests.unit.scientist.orchestration.engine.test_native_execution_admission" name="test_native_readiness_preserves_real_inputs_methods_and_artifact_lineage[overlap]" time="0.398" /></testsuite></testsuites>

@@ -1,0 +1,60 @@
+{
+  "base_environment": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/environment.json",
+    "at_sha": "a5077abe0f36976755f254b259b99652b8445e79",
+    "sha256": "2f9130552577f509731c887071766b4a70d513ede09fed5830bb9274d4e2a9fc"
+  },
+  "actual_process_capabilities": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "libc": [
+      "glibc",
+      "2.41"
+    ],
+    "libc_prctl": true,
+    "libc_pidfd_open": true,
+    "libc_pidfd_send_signal": true,
+    "python_os_pidfd_open": true,
+    "optional_proc_task_children_exists": false,
+    "caller_subreaper_read_status": 0,
+    "caller_subreaper_flag": 0
+  },
+  "candidate_input_files": [
+    {
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "at_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+      "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "at_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+      "git_blob": "99976e751edc45c2ee7650501a808785d0260449",
+      "sha256": "57a1ea6a58c8287935eed7d17679d229970c00c09be12cb3028cd808526014ba"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "at_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+      "git_blob": "cccc5bc78e255a6e5025eb81293a658b6817953b",
+      "sha256": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7"
+    },
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "at_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+      "git_blob": "4dd24b39596e86ff2292db550958f9f7d13729ae",
+      "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "at_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+      "git_blob": "5fea11939b339c6be5f4160d6cd561814af640f3",
+      "sha256": "32b226e00a61d66a2be221af8e9f1c37ba6ee3ae4a0471f3d9014f12a60d06ce"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "at_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+      "git_blob": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c"
+    }
+  ],
+  "full_import_closure": "All tracked product inputs pinned by candidate tree. The typed outcome serializer and shared Future producer are byte-identical to the process slice base; source changes only retry.py. Distribution/config/conftest identities are in base_environment. Real subprocess/scripts are embedded in the exact pinned test file; fixtures use unique pytest tmp_path directories."
+}

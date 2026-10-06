@@ -43,13 +43,51 @@ environment fingerprints.
   bytes and one locally checked blob snapshot. Verification, private-stage checks and the
   audit report derive size, digest and metadata from that pair. The audit builder requires
   this optional `VerifiedSnapshotArtifactStore` port instead of composing separate reads.
+- failed verification reports retain the digest and size of any safely acquired blob and
+  the digest of acquired manifest bytes, including malformed or mismatched metadata.
+  These are measurements of the refused read, not verified artifact admission. Reports
+  normalize integrity reasons without reopening repaired files; errors before a safe
+  blob read carry no invented digest or size. Verified reads and signature consumers
+  continue to refuse the original validation failure.
+- signature batches: results retain exact selected references and disclose `state`,
+  `admitted`, `finished`, `inventory_exhausted` and `abort_reason`. Local failures keep the
+  other item results. `require_complete_valid(required_refs)` reconciles every distinct
+  exact view and requires VALID for all; legacy `ok` still permits unsigned/untrusted rows
+  and cannot authorize an all-confirmations publication. A DTO supplied by another caller
+  is not a fresh local verification result or a transferable attestation.
 - registry/environment: `RegistryBundle`, `RegistryBundlePayload`, `capture_environment`, `compare_environments`
 
 ## Current State
 
+The async adapters accept explicit `unbounded=True` for an owner without a
+deadline. Omitted or `None` timeout retains the established helper default;
+combining a finite timeout with `unbounded=True` refuses before backend access.
+Workflow consumers carry their original deadline through the adapter. Native
+async backends retain their own scheduling policy; this option does not preempt
+already-entered filesystem calls or roll back a completed publication.
+
 - Last updated: 2026-10-06
 - The package still serves as the CAS source of truth for audit exports, runtime lineage, and registry bundles.
 - The tree now explicitly includes `protocol.py` and the `environment_parts.py` facade alongside the capture/comparison helpers.
+
+Batch verification/signing consumes explicit iterables lazily and keeps a bounded pending
+window. An optional absolute monotonic `deadline` and cancellation stop new item admission;
+explicit inventories check each supplied item before and after producer advancement, including
+duplicates and exhaustion. A single user iterator operation may still block; this is not hard
+preemption of arbitrary producer code.
+running physical callbacks drain before return, so uncooperative I/O can outlive that logical
+budget. Global `ArtifactBatchAbortError` preserves completed results with an aborted report;
+BaseException retains its control-flow meaning. Legacy `<batch>` diagnostic rows and total
+counters remain, while explicit completion fields describe actual admitted items.
+
+The default filesystem inventory still materializes an O(N) canonical name/member census and
+visible IDs before yielding. It checks cancellation/deadline between filesystem operations;
+one syscall remains a physical boundary. Detailed reports also require O(N) memory.
+The importer with `verify_integrity=True` consumes a full typed per-view integrity report,
+reconciling exact member membership, actual blob digest/size and manifest digest/profile
+against its measured intake before publishing. This does not add a signature trust policy
+or replace a scientific publisher's required all-signature confirmations. That A-owned
+signature publication consumer remains explicitly absent until separately integrated.
 
 ### Transfer generations
 
@@ -78,6 +116,11 @@ Importers keep one archive inode or one directory descriptor pinned from invento
 member reads, so a concurrent generation replacement cannot mix their input bytes.
 
 ### Scoped import admission and passive caches
+
+The internal write-owner type retains the concrete tenant established by owner resolution
+and the existing optional cell identity. Transfer callbacks accept only blob, manifest and
+signature members; their stream measurements and verified receipts expose read-only fields.
+These type refinements preserve the existing admission guards and runtime behavior.
 
 Transfer intake hashes incoming blobs without buffering their payloads and retains bounded
 manifest/signature bytes. The common archive/directory/exact-view admission holds artifact

@@ -1,0 +1,630 @@
+........................................................................ [ 25%]
+........................................................................ [ 50%]
+........................................................................ [ 76%]
+........FF....................................FFFF..................     [100%]
+=================================== FAILURES ===================================
+___ test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier ____
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-list-all15/tmp/test_seeded_checkpoint_publica0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f18a2d20280>
+
+    def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A fresh reader follows only the atomic head's committed tier frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+        for cut in ("after_artifact_before_head", "after_head_before_history"):
+            store = FileSystemCAS(tmp_path / cut)
+            workflow = _seeded_parallel_workflow()
+            run_id = f"R_b73_seeded_publication_cut_{cut}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            run_dir = Path(store.root) / "runs" / run_id
+            seed_head = load_checkpoint_head(run_dir)
+            assert seed_head is not None
+            seed_checkpoint = load_checkpoint(store, seed_head.checkpoint_ref)
+            seed_completed_nodes = list(seed_checkpoint.metadata.completed_nodes)
+            assert seed_completed_nodes == ["seed"]
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=seed_completed_nodes,
+                )
+            )
+            phase_queue = process_context.Queue()
+            release_event = process_context.Event()
+            writer = process_context.Process(
+                target=_b73_pause_writer_at_owner_phase,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    cut,
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head",
+                    phase_queue,
+                    release_event,
+                ),
+            )
+            try:
+                writer.start()
+                observed = phase_queue.get(timeout=60)
+                assert observed["phase"] == cut
+                remove_left_for_cut = (
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head"
+                )
+                if remove_left_for_cut:
+                    assert observed["mutation_receipt"] == {
+                        "source_sha256": (
+                            "ba199986b9ca60cd2b110af6d03ccdf679c9321426a01538ea0034e7898be66b"
+                        ),
+                        "method": "AsyncWorkflowExecutor.execute",
+                        "original_expression": "completed_nodes.extend(tier_completed)",
+                        "mutated_expression": (
+                            "completed_nodes.extend(("
+                            "b73_frontier_alias for b73_frontier_alias "
+                            "in tier_completed if b73_frontier_alias != 'left'))"
+                        ),
+                        "mutant_installed": True,
+                    }
+                else:
+                    assert observed["mutation_receipt"] is None
+                assert observed["left_calls"] == 1
+                assert observed["right_calls"] == 1
+                assert observed["final_calls"] == 0
+    
+                observed_ref = ArtifactRef.model_validate(observed["checkpoint_ref"])
+                history = load_checkpoint_history(run_dir)
+                history_refs = (
+                    []
+                    if history is None
+                    else [str(entry.checkpoint_ref.artifact_id) for entry in history.entries]
+                )
+                if cut == "after_artifact_before_head":
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head == seed_head
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    uncommitted = load_checkpoint(store, observed_ref)
+                    uncommitted_state = materialize_checkpoint_state(store, observed_ref)
+                    assert (
+                        uncommitted.metadata.completed_node_status_contract == "native_node_outcome_v1"
+                    )
+                    assert uncommitted_state["params"] == {
+                        "seed": 29,
+                        "step1": 1,
+                        "left": 1,
+                        "right": 2,
+                    }
+>                   _assert_tier_cache_entries_bind_node_identity_and_content(
+                        store,
+                        run_id=run_id,
+                        workflow=workflow,
+                        completed_nodes=["seed", "left", "right"],
+                        checkpoint_state=uncommitted_state,
+                        cache_entry_refs=uncommitted.metadata.cache_entry_refs,
+                    )
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1544: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f18a2da0b50>
+
+    def _assert_tier_cache_entries_bind_node_identity_and_content(
+        store: FileSystemCAS,
+        *,
+        run_id: str,
+        workflow: WorkflowSpec,
+        completed_nodes: list[str],
+        checkpoint_state: dict[str, Any],
+        cache_entry_refs: list[ArtifactRef],
+    ) -> tuple[str, ...]:
+        """Resolve and verify cache entries for exactly the committed peer nodes."""
+        peer_values = {"left": 1, "right": 2}
+        expected_invocations = {
+            invocation.alias: invocation
+            for invocation in workflow.nodes
+            if invocation.alias in peer_values and invocation.alias in completed_nodes
+        }
+        assert len(cache_entry_refs) == len(expected_invocations)
+        artifact_ids = [str(ref.artifact_id) for ref in cache_entry_refs]
+        assert len(artifact_ids) == len(set(artifact_ids))
+    
+        invocations_by_node_id = {
+            str(invocation.node_id): invocation for invocation in expected_invocations.values()
+        }
+        observed_aliases: set[str] = set()
+        proof_reader = NodeResultCache(store, run_id=run_id)
+        peer_input_state = ExperimentState.model_validate(checkpoint_state)
+        for alias in peer_values:
+            peer_input_state.params.pop(alias, None)
+        assert peer_input_state.params == {"seed": 29, "step1": 1}
+        registry = _seeded_parallel_registry()
+        for ref in cache_entry_refs:
+            assert ref.kind == "scientist.node_cache_entry"
+            assert ref.media_type == "application/json"
+            assert store.verify(ref).ok
+            manifest = store.get_manifest(ref)
+            assert manifest.artifact_id == ref.artifact_id
+            assert manifest.kind == ref.kind
+            assert manifest.media_type == ref.media_type
+            data = store.get_bytes(ref)
+            assert hashlib.sha256(data).hexdigest() == ref.artifact_id.hex
+            assert manifest.integrity.sha256 == ref.artifact_id.hex
+            payload = from_canonical_bytes(data)
+            entry = NodeCacheEntry.model_validate(payload)
+            assert entry.schema_version == "2.0"
+            assert entry.run_id == run_id
+            invocation = invocations_by_node_id.get(entry.node_id)
+            assert invocation is not None
+            assert invocation.alias not in observed_aliases
+            expected_key = compute_idempotency_key(
+                spec=registry.get(invocation.node_id).spec,
+                state=peer_input_state,
+                bind_params=invocation.params,
+            )
+            assert entry.idempotency_key == expected_key
+            assert entry.outcome_payload is not None
+            assert entry.outcome_ref is None
+            outcome = decode_node_outcome(entry.outcome_payload)
+            assert outcome.status == "ok"
+            assert outcome.state.run_id == run_id
+            assert outcome.state.params.get(invocation.alias) == peer_values[invocation.alias]
+            # The existing cache reader verifies CAS integrity, manifest profile,
+            # run binding, and the versioned replay proof including the cache key.
+>           assert entry.state_mutations_version == "1.0"
+E           AssertionError: assert '1.1' == '1.0'
+E             
+E             - 1.0
+E             + 1.1
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1296: AssertionError
+_ test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-list-all15/tmp/test_parallel_resume_fail_fast0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f185d74e040>
+
+    def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Fresh readers retry only the peers absent from the durable frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+    
+        error_policies: tuple[Literal["fail_fast", "continue"], ...] = ("fail_fast", "continue")
+        for error_policy in error_policies:
+            store = FileSystemCAS(tmp_path / error_policy)
+            workflow = _seeded_parallel_workflow(error_policy=error_policy)
+            run_id = f"R_b73_failure_policy_{error_policy}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            seed = resolve_latest_checkpoint(store, run_id)
+            assert seed is not None
+            _, seed_checkpoint = seed
+            assert seed_checkpoint.state is not None
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=list(seed_checkpoint.metadata.completed_nodes),
+                )
+            )
+            expected_current_fingerprint = (
+                expected_origin_fingerprint
+                if error_policy == "fail_fast"
+                else expected_residual_fingerprint
+            )
+    
+            writer_queue = process_context.Queue()
+            writer = process_context.Process(
+                target=_b73_failure_policy_writer,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    writer_queue,
+                ),
+            )
+            try:
+                writer.start()
+                writer.join(timeout=60)
+                assert writer.exitcode == 0
+                first = writer_queue.get(timeout=5)
+            finally:
+                if writer.is_alive():
+                    writer.terminate()
+                    writer.join(timeout=5)
+                writer_queue.close()
+    
+            assert first["pid"] != os.getpid()
+            assert first["report_status"] == "fail"
+            assert first["peer_calls"] == [1, 1]
+            if error_policy == "fail_fast":
+                assert first["completed_nodes"] == ["seed"]
+                assert first["params"] == {"seed": 29, "step1": 1}
+                assert first["cache_entry_refs"] == []
+            else:
+                assert first["completed_nodes"] == ["seed", "left"]
+                assert first["params"] == {"seed": 29, "step1": 1, "left": 1}
+                assert len(first["cache_entry_refs"]) == 1
+    
+            reader_queue = process_context.Queue()
+            reader = process_context.Process(
+                target=_b73_failure_policy_fresh_reader,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    expected_current_fingerprint,
+                    False,
+                    reader_queue,
+                ),
+            )
+            try:
+                reader.start()
+                reader.join(timeout=60)
+>               assert reader.exitcode == 0
+E               AssertionError: assert 1 == 0
+E                +  where 1 = <SpawnProcess name='SpawnProcess-5' pid=196168 parent=195901 stopped exitcode=1>.exitcode
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1858: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Process SpawnProcess-5:
+Traceback (most recent call last):
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 1732, in _b73_failure_policy_fresh_reader
+    trace_cache = _b73_trace_cache_snapshot(
+        store, run_id=run_id, workflow=workflow, records=before_records
+    )
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 1358, in _b73_trace_cache_snapshot
+    aliases = _assert_tier_cache_entries_bind_node_identity_and_content(
+        store,
+    ...<4 lines>...
+        cache_entry_refs=list(refs.values()),
+    )
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 1296, in _assert_tier_cache_entries_bind_node_identity_and_content
+    assert entry.state_mutations_version == "1.0"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+___________ test_existing_bundle_is_revalidated_for_changed_request ____________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-list-all15/tmp/test_existing_bundle_is_revali0')
+
+    def test_existing_bundle_is_revalidated_for_changed_request(tmp_path) -> None:
+        """A bundle ref is a reuse candidate, not proof for a changed request."""
+        ctx = _build_ctx(tmp_path, run_id="R_phase15_changed_request")
+        db_path = tmp_path / "skg.duckdb"
+        _seed_skg(db_path)
+        graph_ref = persist_causal_graph_model(
+            ctx.store,
+            CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+        )
+        state = ExperimentState(
+            run_id="R_phase15_changed_request",
+            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+            params={
+                "target_context": {
+                    "context_id": "UA",
+                    "income_level": "lower_middle",
+                    "institutional_quality": 0.4,
+                    "post_communist": True,
+                },
+                "required_parameters": ["fiscal_multiplier"],
+                "skg_db_path": str(db_path),
+                "skg_index_dir": str(tmp_path / "idx"),
+                "domain": "fiscal",
+            },
+        )
+    
+        first = ResolveParametersNode().execute(ctx, state)
+        assert first.status == "ok"
+        first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    
+        changed = first.state.model_copy(deep=True)
+>       changed.params["target_context"] = {
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "context_id": "US",
+            "income_level": "high",
+            "institutional_quality": 0.9,
+            "post_communist": False,
+        }
+
+policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:517: in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+container = {'target_context': {'context_id': 'UA', 'income_level': 'lower_middle', 'institutional_quality': 0.4, 'post_communist'...0332317352, 'ci_low': 0.875827431678772, 'ci_high': 1.732334017753601, 'draws': 256.0}}, 'phase15_runtime_ready': True}
+
+    def _authorize_container_mutation(
+        container: _TrackedDict | _TrackedList,
+        *,
+        suffixes: Iterable[tuple[str, ...]] = ((),),
+    ) -> None:
+        """Refuse a moved or aliased live target before changing any branch bytes."""
+        declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
+        paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
+        unauthorized = [
+            path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
+        ]
+        if unauthorized:
+>           raise ValueError(
+                f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+            )
+E           ValueError: undeclared state_writes at live paths: ['params.target_context']
+
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:872: ValueError
+___________ test_matching_bundle_reuses_without_reinvoking_selector ____________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-list-all15/tmp/test_matching_bundle_reuses_wi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f1850334830>
+
+    def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatch) -> None:
+        """A valid request-bound bundle replays when no current SKG source is requested."""
+        ctx = _build_ctx(tmp_path, run_id="R_phase15_reuse")
+        db_path = tmp_path / "skg.duckdb"
+        _seed_skg(db_path)
+        graph_ref = persist_causal_graph_model(
+            ctx.store,
+            CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+        )
+        state = ExperimentState(
+            run_id="R_phase15_reuse",
+            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+            params={
+                "target_context": {
+                    "context_id": "UA",
+                    "income_level": "lower_middle",
+                    "institutional_quality": 0.4,
+                    "post_communist": True,
+                },
+                "required_parameters": ["fiscal_multiplier"],
+                "skg_db_path": str(db_path),
+                "skg_index_dir": str(tmp_path / "idx"),
+                "domain": "fiscal",
+            },
+        )
+    
+        node = ResolveParametersNode()
+        first = node.execute(ctx, state)
+        assert first.status == "ok"
+        first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    
+        def fail_if_selected(*args, **kwargs):
+            del args, kwargs
+            raise AssertionError("ParameterSelector must not run for a matching CAS bundle")
+    
+        monkeypatch.setattr(
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector",
+            fail_if_selected,
+        )
+        replay_state = first.state.model_copy(deep=True)
+>       replay_state.params.pop("skg_db_path")
+
+policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py:253: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:563: in pop
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+container = {'target_context': {'context_id': 'UA', 'income_level': 'lower_middle', 'institutional_quality': 0.4, 'post_communist'...0332317352, 'ci_low': 0.875827431678772, 'ci_high': 1.732334017753601, 'draws': 256.0}}, 'phase15_runtime_ready': True}
+
+    def _authorize_container_mutation(
+        container: _TrackedDict | _TrackedList,
+        *,
+        suffixes: Iterable[tuple[str, ...]] = ((),),
+    ) -> None:
+        """Refuse a moved or aliased live target before changing any branch bytes."""
+        declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
+        paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
+        unauthorized = [
+            path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
+        ]
+        if unauthorized:
+>           raise ValueError(
+                f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+            )
+E           ValueError: undeclared state_writes at live paths: ['params.skg_db_path']
+
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:872: ValueError
+_ test_current_skg_source_reselects_unbound_bundle_and_refuses_missing_source __
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-list-all15/tmp/test_current_skg_source_resele0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f1850335fd0>
+
+    def test_current_skg_source_reselects_unbound_bundle_and_refuses_missing_source(
+        tmp_path, monkeypatch
+    ) -> None:
+        """Current reads cannot inherit a v1 bundle's absent selector-read binding."""
+        from polisyos.scientist.nodes.builtins.causal import resolve_parameters
+    
+        ctx = _build_ctx(tmp_path, run_id="R_phase15_current_source")
+        db_path = tmp_path / "skg.duckdb"
+        _seed_skg(db_path)
+        graph_ref = persist_causal_graph_model(
+            ctx.store, CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[])
+        )
+        state = ExperimentState(
+            run_id="R_phase15_current_source",
+            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+            params={
+                "target_context": {
+                    "context_id": "UA",
+                    "income_level": "lower_middle",
+                    "institutional_quality": 0.4,
+                    "post_communist": True,
+                },
+                "required_parameters": ["fiscal_multiplier"],
+                "skg_db_path": str(db_path),
+                "skg_index_dir": str(tmp_path / "idx"),
+                "domain": "fiscal",
+            },
+        )
+        node = ResolveParametersNode()
+        first_before = datetime.now(UTC).replace(microsecond=0)
+        first = node.execute(ctx, state)
+        first_after = datetime.now(UTC)
+        assert first.status == "ok"
+        first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        first_bundle = load_context_adaptive_parameter_bundle(ctx.store, first_ref)
+        selected = []
+        original_select = resolve_parameters.ParameterSelector.select_for_context
+    
+        def observe_select(self, **kwargs):
+            selected.append(kwargs)
+            return original_select(self, **kwargs)
+    
+        monkeypatch.setattr(resolve_parameters.ParameterSelector, "select_for_context", observe_select)
+        # Source253 explicitly generates a fresh second-resolution selection time.
+        # Separate calls across that boundary; identity equality is not the oracle.
+        time.sleep(1.05)
+        second_before = datetime.now(UTC).replace(microsecond=0)
+        second = node.execute(ctx, first.state.model_copy(deep=True))
+        second_after = datetime.now(UTC)
+        assert second.status == "ok"
+        assert len(selected) == 1
+        assert selected[0]["parameter_name"] == "fiscal_multiplier"
+        assert selected[0]["target_context"] == first_bundle.target_context
+        second_ref = second.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        second_bundle = load_context_adaptive_parameter_bundle(ctx.store, second_ref)
+        assert first_bundle.model_dump(exclude={"selection_timestamp"}) == second_bundle.model_dump(
+            exclude={"selection_timestamp"}
+        )
+        first_time = datetime.fromisoformat(first_bundle.selection_timestamp)
+        second_time = datetime.fromisoformat(second_bundle.selection_timestamp)
+        assert first_time.tzinfo == second_time.tzinfo == UTC
+        assert first_before <= first_time <= first_after
+        assert second_before <= second_time <= second_after
+        assert second_time > first_time
+        assert second_ref.artifact_id != first_ref.artifact_id
+        reopened = FileSystemCAS(ctx.store.root)
+        for ref in (first_ref, second_ref):
+            cas_ref = ArtifactRef.model_validate(ref.model_dump(mode="json"))
+            assert reopened.verify(cas_ref).ok
+            manifest = reopened.get_manifest(cas_ref)
+            assert manifest.kind == "ir.context_adaptive_parameter_bundle"
+            assert manifest.artifact_schema.name == "ir.context_adaptive_parameter_bundle"
+            assert manifest.artifact_schema.version == "1.0"
+            assert [(edge.role, str(edge.artifact_id)) for edge in manifest.inputs] == [
+                ("causal_graph", str(graph_ref.artifact_id))
+            ]
+        missing = first.state.model_copy(deep=True)
+>       missing.params["skg_db_path"] = str(tmp_path / "missing.duckdb")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:517: in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+container = {'target_context': {'context_id': 'UA', 'income_level': 'lower_middle', 'institutional_quality': 0.4, 'post_communist'...0332317352, 'ci_low': 0.875827431678772, 'ci_high': 1.732334017753601, 'draws': 256.0}}, 'phase15_runtime_ready': True}
+
+    def _authorize_container_mutation(
+        container: _TrackedDict | _TrackedList,
+        *,
+        suffixes: Iterable[tuple[str, ...]] = ((),),
+    ) -> None:
+        """Refuse a moved or aliased live target before changing any branch bytes."""
+        declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
+        paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
+        unauthorized = [
+            path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
+        ]
+        if unauthorized:
+>           raise ValueError(
+                f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+            )
+E           ValueError: undeclared state_writes at live paths: ['params.skg_db_path']
+
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:872: ValueError
+__________ test_changed_domain_invalidates_bundle_and_idempotency_key __________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-list-all15/tmp/test_changed_domain_invalidate0')
+
+    def test_changed_domain_invalidates_bundle_and_idempotency_key(tmp_path) -> None:
+        """Domain participates in both bundle reuse and node idempotency identity."""
+        ctx = _build_ctx(tmp_path, run_id="R_phase15_domain")
+        db_path = tmp_path / "skg.duckdb"
+        _seed_skg(db_path)
+        graph_ref = persist_causal_graph_model(
+            ctx.store,
+            CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+        )
+        state = ExperimentState(
+            run_id="R_phase15_domain",
+            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+            params={
+                "target_context": {
+                    "context_id": "UA",
+                    "income_level": "lower_middle",
+                    "institutional_quality": 0.4,
+                    "post_communist": True,
+                },
+                "required_parameters": ["fiscal_multiplier"],
+                "skg_db_path": str(db_path),
+                "skg_index_dir": str(tmp_path / "idx"),
+                "domain": "fiscal",
+            },
+        )
+    
+        node = ResolveParametersNode()
+        first = node.execute(ctx, state)
+        assert first.status == "ok"
+        first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    
+        changed = first.state.model_copy(deep=True)
+>       changed.params["domain"] = "monetary"
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py:379: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:517: in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+container = {'target_context': {'context_id': 'UA', 'income_level': 'lower_middle', 'institutional_quality': 0.4, 'post_communist'...0332317352, 'ci_low': 0.875827431678772, 'ci_high': 1.732334017753601, 'draws': 256.0}}, 'phase15_runtime_ready': True}
+
+    def _authorize_container_mutation(
+        container: _TrackedDict | _TrackedList,
+        *,
+        suffixes: Iterable[tuple[str, ...]] = ((),),
+    ) -> None:
+        """Refuse a moved or aliased live target before changing any branch bytes."""
+        declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
+        paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
+        unauthorized = [
+            path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
+        ]
+        if unauthorized:
+>           raise ValueError(
+                f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+            )
+E           ValueError: undeclared state_writes at live paths: ['params.domain']
+
+policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:872: ValueError
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestWorkflowTimeout::test_workflow_timeout_raises
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=195901) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer
+FAILED policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_existing_bundle_is_revalidated_for_changed_request
+FAILED policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_bundle_reuses_without_reinvoking_selector
+FAILED policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_current_skg_source_reselects_unbound_bundle_and_refuses_missing_source
+FAILED policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_changed_domain_invalidates_bundle_and_idempotency_key

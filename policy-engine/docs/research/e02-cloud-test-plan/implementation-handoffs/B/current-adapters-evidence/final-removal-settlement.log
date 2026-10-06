@@ -1,0 +1,34 @@
+{"driver_sha256": "ee97e96be775e5354d24b93149ac7a4b83ef732962141eacde1ea335a8119f5a", "mode": "settlement", "module_origins": {"polisyos.core.llm.response": {"path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py", "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af"}, "polisyos.core.llm.settlement": {"path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py", "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b"}, "polisyos.core.llm.traced_client": {"path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/traced_client.py", "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a"}, "polisyos.fabric.connectors.pool": {"path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py", "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35"}, "polisyos.fabric.connectors.resilience._bounded_registry": {"path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py", "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429"}, "polisyos.fabric.connectors.resilience.rate_limiter": {"path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py", "sha256": "2f4bd7b8f46cedacd3c26134ecc9a7b9d03dd868953b34cf306dd1702a0ec035"}, "polisyos.scientist.orchestration.engine.runner.serialization": {"path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py", "sha256": "32e552ede3c755de0577e934ffb80f8a30dfea79f4b1dd08c1b66124b08d9b05"}, "polisyos.scientist.orchestration.llm.prompt_cache": {"path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py", "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462"}}, "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]", "target_sha": "126024b95fcac6400f5afc29a60596b88cdd5212"}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_actual_cache_publication_requires_resolvable_exact_durable_receipt ____
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py:342: in test_actual_cache_publication_requires_resolvable_exact_durable_receipt
+    await enforcer.generate(user="publish bound", temperature=0.0, _prompt_tokens_estimate=1)
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:576: in generate
+    return await asyncio.shield(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:607: in _generate_owned
+    response = await self._client.generate(**stripped)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/llm/traced_client.py:689: in generate
+    return await self._await_owned_call(self._generate_owned(call_args, call_kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/llm/traced_client.py:242: in _await_owned_call
+    return await asyncio.shield(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/llm/traced_client.py:783: in _generate_owned
+    response = await response
+               ^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/prompt_cache.py:584: in generate
+    response = await asyncio.shield(flight.task)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<e02-settlement-in-memory-overlay>:39: in _produce
+    ???
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py:332: in witnessed_put
+    assert settlement is not None, "cache publication precedes producer event settlement"
+E   AssertionError: cache publication precedes producer event settlement
+E   assert None is not None
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_cache_publication_requires_resolvable_exact_durable_receipt
+1 failed, 41 deselected in 0.17s
+{"file_bytes_unchanged": true, "mode": "settlement", "pytest_exit": 1}

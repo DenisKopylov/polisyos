@@ -1,0 +1,100 @@
+{
+  "schema": "policyos.e02.selector_directory_source_review.v2",
+  "source_sha": "d3a3df91804fa4205681703c3346041eda743836",
+  "tree_sha": "3641bb432d7a973398a5f0851926b0dbce235e78",
+  "prior_negative_commit": "5ba2411581d164d1c5051907799a3b80337ba3ca",
+  "prior_negative_source": "b336a91390ec5f68869ca512e0a0f3b3a4ebcbeb",
+  "source_scope": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py"
+  ],
+  "delta_review": "Full generic helper/parse_native changes b336\u21927c and13compact unresolved metadata lines7c\u2192d3 read. Actual other root source changes are outside this selector-only review.",
+  "zero_helper_ast_delta": {
+    "from": "7c8684c917675d6d426c846ef58e2d1ac16269fa",
+    "to": "d3a3df91804fa4205681703c3346041eda743836",
+    "helpers": [
+      "native_pytest_positionals",
+      "normalize",
+      "add",
+      "parse_native"
+    ],
+    "basis": "Complete AST dumps, excluding source positions; profile bytes also exactequal."
+  },
+  "profile": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json",
+    "source_sha": "d3a3df91804fa4205681703c3346041eda743836",
+    "bytes": 29521,
+    "sha256": "39ebc5b60795ac764ec36dadb0fb997dbec9f4a809526044affba7a997a2bb7d",
+    "census": {
+      "source_sha": "d3a3df91804fa4205681703c3346041eda743836",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json",
+      "schema": "policyos.e02.pytest_cli_option_profile.v1",
+      "pytest_version": "9.0.2",
+      "actions": 146,
+      "option_names": 176,
+      "source_observations": 32,
+      "arity_distribution": {
+        "None": 76,
+        "0": 62,
+        "'?'": 7,
+        "'+'": 1
+      },
+      "limits": [
+        "Only named installed pytest9 contributor profile; custom repository pytest_addoption not loaded. Unknown option arity must remain unresolved, not a guessed selector.",
+        "Source options observed from actual runtime objects; does not attest product tests or case counts."
+      ]
+    }
+  },
+  "source_verdict": "No blocker in measured finite positional/registered-option grammar profile.",
+  "review_details": [
+    "Pinned observed action arities construct a standard argparse grammar. No hardcoded individual flag exemption; every recorded option participates, duplicates refuse.",
+    "Parser starts afteractual pytestmarker; option values are consumed before full-token testpath matching and immutable directory expansion. --, short groups, attached values, optional andvariable arities exercised.",
+    "Unknown option, argument file and missingvalue refuse the entirecommand positional inference, retaining reasons. d3compact metadata carries actual unresolved count+locator+argvhash+reason, not only a generic prose limit.",
+    "Actual add and directory expansion support both defaultfilename patterns, retaining locator/selector/bundle/native-directory lineage. Actualphase0 full25 members and syntheticsecondary filename passed.",
+    "Literal observe_pytest_options.py producer source was read, neverexecuted byleaf. Rootactual registry observation is consumed as pinned profile; no leaf rerun or adoption of case/runtime truth."
+  ],
+  "actual_controls": {
+    "counts": {
+      "PASS": 19
+    },
+    "cases": [
+      "positional_directory",
+      "prefixed_trailing_slash",
+      "native_string_command",
+      "non_pytest",
+      "attached_option",
+      "separate_option_value",
+      "flag_preserves_position",
+      "short_group",
+      "short_group_attached_value",
+      "sentinel",
+      "sentinel_after_variable_arity",
+      "variable_arity_then_flag",
+      "optional_value_then_flag",
+      "filename_option_value",
+      "unknown_option",
+      "argument_file",
+      "missing_value",
+      "actual_pinned_phase0_directory",
+      "default_secondary_filename"
+    ],
+    "report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/d3.json",
+    "bytes": 50413,
+    "sha256": "69641f2cd4a196930d043b35d6b7d7e85d39edd873b080cf778eed5cec47143e"
+  },
+  "stdout_alias": {
+    "actual_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-selector-directory-independent-review/d3.stdout.txt",
+    "committed_full_bytes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/d3.json",
+    "bytes": 50413,
+    "sha256": "69641f2cd4a196930d043b35d6b7d7e85d39edd873b080cf778eed5cec47143e"
+  },
+  "source_and_tests": "Own editsdocs-only; no root/source/test/profile changes byleaf, no helpers/worktrees, no livepytest/collection/gates/main.",
+  "limits": [
+    "Finite installed pytest9.0.2 registration profile; custom repository grammar remains explicit unresolved.",
+    "Metadatafile selection not actualcases/importability/conftest/runtime/servedconsumer proof.",
+    "Rootfullselector preflight229/14 and11unresolved rows were not recomputed bythis delta invocation; final wholecohort remainsroot-owned.",
+    "Originalb3365PASS1FAIL andfirst exploratory serializationharnesserror are retained immutable."
+  ],
+  "closure_ids": []
+}

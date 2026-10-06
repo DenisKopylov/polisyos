@@ -1,0 +1,656 @@
+{
+  "schema": "policyos.e02.b66-future-native-proof-plan.v1",
+  "source_snapshot_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+  "source_snapshot_tree": "9f2240ccdf76f7cd5e9d98d0a067a9e8992eba64",
+  "status": "READ_ONLY_SOURCE_PREPARATION; all future native outcomes UNRUN; source snapshot is not final-wave freeze",
+  "criterion": {
+    "original": "Canonical full LLM-01 B66: one miss + multiple hits yields one physical provider event and separate reuse events; original usage retained; genuine post-expiry call is paid again; raw=None cannot imply unknown network cost zero",
+    "current_quantity": "closure-decisions/B.md B66: producer-owned immutable event and exact idempotent ACK/ledger link survive caller cancellation; absent/lost ACK stays unknown",
+    "owner_dependency": "B67 supplies actual permission owner actor/scope/epoch/purpose/exact evidence decisions; B68 scoped single-flight depends on B66/B67, not permission metadata or temperature=0"
+  },
+  "actual_chain": [
+    "Factory wraps actual gateway/fallback in CachingLLMClient/InMemoryPromptCache and binds that genuine emitter object into TracedLLMClient receiver; authorizer injected by trusted owner composition",
+    "LLMBudgetEnforcer owned shielded generate/ainvoke task reserves actual middleware budget and installs trusted ContextVar settlement scope from persisted ledger identity/run/unique budget keys",
+    "Traced receiver installs exact request digest and completion hook; actual cache _produce calls physical completion(response, True) so any borrowed typed reuse data still bills physical provider",
+    "Completion creates unique immutable event with exact request/response/model/provider/Decimal amount, invokes mandatory settlement before metrics/cache publication",
+    "Enforcer retains exact event before ledger delivery; per-key eventID and payload digest call middleware.settle_spend_safe; actual ledger stable lock atomically deduplicates persistent non-evicted receipt index and snapshot publication",
+    "Only exact typed receipt tuple permits committed ledger ACK/reservation release. Failure remains LLMAccountingError/unknown, no cache and new paid calls blocked; reconcile resolves exact receipt or explicitly retries retained observed event, never provider",
+    "Built-in cache serializes usage plus typed origin settlement, checks absolute deadline/current owner under actual publication lock; reused consumption receives new runtime-only authenticated reuse event and origin link, billable delta0 only through configured receiver",
+    "Actual fresh FileBudgetLedger reader/subprocess resolves receipt and spent/reserved; normalizer/tracing keeps original usage separate from current billable provider event"
+  ],
+  "b66_current_consumer_prefixes": [
+    {
+      "id": "usage-through-reuse",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/remediation/test_llm_01.py::test_cache_hits_emit_reuse_without_duplicate_provider_usage",
+      "expected_deciding_assertions": {
+        "physical_provider_calls": 1,
+        "metrics_statuses": [
+          "success",
+          "cache_hit",
+          "cache_hit"
+        ],
+        "provider_cost": "0.02",
+        "reuse_cost": "0",
+        "original_prompt_tokens_each": 3,
+        "reuse_billable_prompt_and_completion_tokens": 0
+      },
+      "actual_fixture_profile": "Actual CachingLLMClient→TracedLLMClient→configured receiver, provider raw=None; optional metrics list, not durable ledger",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "expiry-is-new-paid-call",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/remediation/test_llm_01.py::test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry",
+      "expected_deciding_assertions": {
+        "physical_provider_calls": 2,
+        "spent_run": "0.04"
+      },
+      "actual_fixture_profile": "Actual wrappers + BudgetState memory profile; durable receipt not asserted by this case",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "cancelled-producer-fresh-ledger",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_settles_actual_ledger_before_cache_publication",
+      "expected_deciding_assertions": {
+        "caller": "CancelledError before producer release",
+        "reserved_before_observed_completion": ">0",
+        "physical_provider_calls": 1,
+        "provider_accounting_events": 1,
+        "cache_entries": 1,
+        "spent_run": "0.02",
+        "fresh_FileBudgetLedger_resolved_origin_receipt_amount": "0.02",
+        "fresh_FileBudgetLedger_reserved_run": "0",
+        "fresh_FileBudgetLedger_spent_run": "0.02"
+      },
+      "actual_fixture_profile": "Real gated provider + initialized BudgetMiddleware/FileBudgetLedger path; actual fresh ledger object resolves producer-origin per-key receipt",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "lost-ack-after-publication",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+      "expected_deciding_assertions": {
+        "initial_error": "LLMAccountingError settlement_status=unknown",
+        "spent_run_before_reconciliation": "0.02",
+        "reserved_before_reconciliation": ">0",
+        "cache_entries": 0,
+        "blocked_next_call_provider_calls": 1,
+        "resolved_ack": "committed, ledger",
+        "exact_duplicate_receipt": "equal original receipt; spent remains0.02",
+        "reserved_after_reconciliation": "0"
+      },
+      "actual_fixture_profile": "Fault wrapper delegates actual middleware settlement then raises OSError; actual ledger resolve/read path and exact receipt retry; no paid external API",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "absent-ack-owned-retry",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+      "expected_deciding_assertions": {
+        "absent_receipt_reconcile_status": "unknown",
+        "cache_entries": 0,
+        "physical_provider_calls_including_reconcile_retry": 1,
+        "retry_missing_ack": "committed with receipt amount0.02",
+        "spent_run": "0.02",
+        "reserved_run": "0",
+        "retry_without_retained_event": "ValueError retained producer"
+      },
+      "actual_fixture_profile": "Fault before middleware delivery; exact retained immutable producer event is prerequisite; absence never proves zero external spend",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "settlement-before-actual-cache-put",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_cache_publication_requires_resolvable_exact_durable_receipt",
+      "expected_deciding_assertions": {
+        "actual_publications": 1,
+        "physical_provider_calls": 1,
+        "settlement_ack_at_put": "committed, ledger",
+        "each_ack_receipt": "middleware.resolve_spend_safe(event_id) == receipt; amount == observed event.amount",
+        "spent_run_at_put": "0.02"
+      },
+      "actual_fixture_profile": "Witness delegates actual built-in cache.put with admission_check; asserts receipt before publication",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "four-actual-consumers-cancelled-initiator",
+      "findings": [
+        "B66",
+        "B68"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+      "expected_deciding_assertions": {
+        "actual_cache_generate_entries_before_release": 4,
+        "caller0": "CancelledError",
+        "remaining_result_contents": [
+          "provider value",
+          "provider value",
+          "provider value"
+        ],
+        "physical_provider_calls": 1,
+        "provider_accounting_events": 1,
+        "reuse_accounting_events": 3,
+        "spent_run": "0.02",
+        "reserved_run": "0",
+        "cache_entries": 1
+      },
+      "actual_fixture_profile": "Barrier observes all four canonical cache consumers; retained physical producer and middleware ledger state; followers are separate consumptions",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "async-and-sync-invoke-owner",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner",
+      "expected_deciding_assertions": {
+        "ainvoke_caller": "CancelledError before actual producer release",
+        "ainvoke_owned_result_ack": "ledger",
+        "sync_invoke_result_ack": "ledger",
+        "spent_run": ".02 + .03 = .05",
+        "reserved_run": "0"
+      },
+      "actual_fixture_profile": "Traced invoke/ainvoke → actual enforcer/middleware ledger; sync provider is typed Gateway response",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "callback-owner-reconciliation",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_unknown_mandatory_callback_blocks_new_provider_until_exact_reconciliation",
+      "expected_deciding_assertions": {
+        "blocked_calls_provider_calls": 1,
+        "reconcile_accounting_deliveries": 1,
+        "retained_cost": ".02",
+        "provider_calls_after_explicit_reconciliation_and_next_call": 2
+      },
+      "actual_fixture_profile": "Mandatory callback delivery is operational; exact retained event identity; this callback list is not a durable ledger ACK",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "expired-physical-response-remains-billable",
+      "findings": [
+        "B66",
+        "B68"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+      "expected_deciding_assertions": {
+        "owner_and_follower_results": "TimeoutError each",
+        "physical_provider_calls_before_retry": 1,
+        "cache_entries_before_retry": 0,
+        "inflight_after_actual_completion": {},
+        "spent_run_before_retry": ".02",
+        "reserved_run": "0",
+        "provider_accounting_events_before_retry": 1,
+        "physical_provider_calls_after_retry": 2,
+        "spent_run_after_retry": ".04"
+      },
+      "actual_fixture_profile": "Real provider suppresses first timeout cancellation and completes after event release; no hard physical deadline/drain claim",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "whole-completion-and-publication-budget",
+      "findings": [
+        "B66",
+        "B68"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_deadline_covers_mandatory_completion_and_actual_cache_lock",
+      "expected_deciding_assertions": {
+        "all_actual_parameter_cases": [
+          "completion",
+          "publication"
+        ],
+        "caller": "TimeoutError",
+        "cache_entries": 0,
+        "physical_provider_calls": 1,
+        "spent_run": ".02",
+        "reserved_run": "0",
+        "provider_accounting_events": 1,
+        "fixture_threads": "join and not alive"
+      },
+      "actual_fixture_profile": "Real mandatory callback/actual cache-lock wait exceeds one absolute budget; completed cost settles before refused emission",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "expired-unknown-ack-primary",
+      "findings": [
+        "B66",
+        "B68"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+      "expected_deciding_assertions": {
+        "primary_error": "LLMAccountingError, not deadline replacement",
+        "observed_event_amount": ".02",
+        "settlement_status": "unknown",
+        "reconcile_absent_status": "unknown",
+        "cache_entries": 0,
+        "reserved_run": ">0",
+        "blocked_next_call_provider_calls": 1
+      },
+      "actual_fixture_profile": "Real suppressing paid-response completion + missing ledger delivery ACK; unknown accounting retained despite logical expiry",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "unowned-claims-never-zero-charge",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability",
+      "expected_deciding_assertions": {
+        "all_actual_parameter_combinations": "claim class-name/mapping/wrong-seal × traced True/False",
+        "bare_normalizer": "cache_hit False, cost .02",
+        "physical_provider_calls": 1,
+        "actual_and_fresh_reopened_ledger_spent_run": ".02",
+        "traced_ack": "provider event, one receipt",
+        "healthy_traced_cache_reuse": "provider calls remain1, spent remains.02"
+      },
+      "actual_fixture_profile": "Actual typed paid provider response adversarial claims; trusted receiver baseline and real fresh FileBudgetLedger read",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "authentic-capability-cannot-suppress-physical-charge",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_physical_completion_cannot_borrow_authentic_reuse_capability",
+      "expected_deciding_assertions": {
+        "all_actual_parameter_cases": "same_request False/True",
+        "healthy_original_plus_hit": "one provider then genuine authenticated reuse",
+        "bare_normalizer_of_reused_response": "cache_hit False without receiver context",
+        "provenance_pickle": "TypeError cannot be serialized",
+        "second_physical_event": "provider, amount.02, new event_id, one exact receipt",
+        "physical_provider_calls": 2,
+        "spent_run": ".04",
+        "provider_accounting_events": 2
+      },
+      "actual_fixture_profile": "Actual paid completion carries genuine borrowed cache response; SAME request clears real cache, forcing physical provider completion",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "receiver-exact-issuer-request-key",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption",
+      "expected_deciding_assertions": {
+        "all_actual_parameter_cases": "new-issuer, other-cache-issuer, wrong-request, wrong-key, caller-kwargs",
+        "healthy_control": "genuine configured cache hit is reuse after first .02 provider event",
+        "adversarial_paid_completion": "provider event amount.02, one receipt",
+        "physical_provider_calls": 2,
+        "actual_and_fresh_reopened_ledger_spent_run": ".04",
+        "provider_accounting_events": 2
+      },
+      "actual_fixture_profile": "Genuine configured cache receiver exercises actual paid provider; unknown/foreign issuer, changed MAC key/request or caller kwargs cannot install authority",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "unconfigured-receiver-bills-provider",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_unconfigured_receiver_bills_self_appointed_actual_provider",
+      "expected_deciding_assertions": {
+        "raw_provider_calls": 1,
+        "event_kind": "provider",
+        "exact_receipts": 1,
+        "spent_run": ".02"
+      },
+      "actual_fixture_profile": "Actual raw provider returns genuinely constructed self-appointed cache capability; receiver configured issuer defaultsNone",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "receiver-configuration-owner",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_configuration_refuses_another_clients_issuer",
+      "expected_deciding_assertions": {
+        "constructor": "ValueError configured cache client"
+      },
+      "actual_fixture_profile": "Actual two cache clients; narrow composition admission only, not a paid runtime proof",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "accounting-target-index-admission",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_invalid_accounting_target_index_refuses_before_actual_provider_or_reservation",
+      "expected_deciding_assertions": {
+        "all_actual_parameter_cases": "duplicate, empty, scalar, empty member, nonstring member keys",
+        "physical_provider_calls": 0,
+        "budget_before_equals_after": true,
+        "failure": "ValueError"
+      },
+      "actual_fixture_profile": "Actual initialized durable budget; constructor validates/freeze target tuple before reserve",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "optional-metrics-preserve-result",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/remediation/test_llm_01.py::test_optional_metrics_failure_preserves_provider_result_and_no_retry",
+      "expected_deciding_assertions": {
+        "provider_calls": 1,
+        "response_content": "answer:hello"
+      },
+      "actual_fixture_profile": "Optional metrics recorder raises; this is resultdelivery/optional sink proof, not production backend outage evidence",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "optional-tracing-preserve-result",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_optional_tracing_failure_preserves_actual_provider_result",
+      "expected_deciding_assertions": {
+        "response_content": "provider value",
+        "recorded_required_events": 1,
+        "required_cost": ".02"
+      },
+      "actual_fixture_profile": "Optional tracer start raises; actual traced provider and required callback",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "mandatory-failure-exposes-observed-response",
+      "findings": [
+        "B65",
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/remediation/test_llm_01.py::test_mandatory_accounting_failure_exposes_received_response",
+      "expected_deciding_assertions": {
+        "failure": "LLMAccountingError",
+        "retained_response_content": "answer:hello",
+        "retained_event_provider_call": true,
+        "provider_calls": 1
+      },
+      "actual_fixture_profile": "Required callback failure does not masquerade as absent provider completion",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "raw-marker-no-authority",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/remediation/test_llm_01.py::test_provider_raw_cache_marker_cannot_forge_reuse_billing",
+      "expected_deciding_assertions": {
+        "provider_calls": 1,
+        "metric_status": "success",
+        "metric_cost": ".02"
+      },
+      "actual_fixture_profile": "Provider raw metadata is data, not accounting authority",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    }
+  ],
+  "supporting_durable_owner_prefixes": [
+    {
+      "id": "durable-retry-after-restart-and-eviction",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py::test_exact_event_retry_survives_restart_and_bounded_journal_eviction",
+      "expected_deciding_assertions": {
+        "initial_charge": "2",
+        "four_other_spends": "4",
+        "spent_after_exact_retry": "6",
+        "bounded_recent_mutations": 2,
+        "settle_spend_evicted_from_recent_history": true,
+        "fresh_child_receipt": "equal original",
+        "retry_file_bytes": "unchanged"
+      },
+      "actual_fixture_profile": "Real new subprocess, same exact event; persistent receipt index survives bounded mutation eviction",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "durable-conflict-refusal",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py::test_conflicting_event_identity_refuses_without_modifying_bytes",
+      "expected_deciding_assertions": {
+        "each_changed_tuple_member": "amount/key/provider/payload_digest",
+        "fresh_child": "ValueError",
+        "file_bytes": "unchanged",
+        "spent_run": "2"
+      },
+      "actual_fixture_profile": "Actual same event ID cannot bind a different charge",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "physical-publication-fault-and-reopen",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py::test_lost_ack_remains_unknown_until_actual_reopen_and_exact_retry",
+      "expected_deciding_assertions": {
+        "all_actual_stages": "file_fsync, replace_before, directory_fsync, kill_after_replace",
+        "nonkill_ack_status": "unknown with exact event_id/digest",
+        "kill_status": "killed",
+        "fresh_resolve_before_retry": "receipt absent for prepublication; present for directory-fsync/kill-after-replace",
+        "spent_after_exact_retry": "2",
+        "second_retry_receipt": "equal first acknowledged retry"
+      },
+      "actual_fixture_profile": "Actual subprocess os.fsync/os.replace/SIGKILL fault ports on real ledger path; /tmp tmpfs future profile is not persistent-device power-loss proof",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "physical-concurrent-same-event-once",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py::test_concurrent_actual_middleware_producers_apply_same_event_once",
+      "expected_deciding_assertions": {
+        "actual_barrier_processes": 4,
+        "all_ack_receipts": "equal",
+        "fresh_final_spent_run": "2",
+        "fresh_final_provider_spent": "2",
+        "receipt_revision": 1
+      },
+      "actual_fixture_profile": "Four intrinsic barrier participants, no orchestration quota; actual middleware/process/flock/ledger publication",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "memory-cannot-assert-durable",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py::test_memory_only_middleware_cannot_issue_durable_ack_or_owner_identity",
+      "expected_deciding_assertions": {
+        "settle_resolve_owner_identity": "RuntimeError configured ledger",
+        "spent": {}
+      },
+      "actual_fixture_profile": "Explicit no-ledger profile refuses durable ACK",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "cold-ledger-no-bootstrap-authority",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py::test_cold_settlement_cannot_publish_an_implicit_unlimited_ledger",
+      "expected_deciding_assertions": {
+        "settle_and_resolve": "FileNotFoundError explicit load_or_bootstrap",
+        "ledger_file_exists": false
+      },
+      "actual_fixture_profile": "Absent physical file is not unlimited authority",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "settlement-wire-preserves-identity",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py::test_required_settlement_wire_fields_cannot_silently_forget_ack",
+      "expected_deciding_assertions": {
+        "missing_required_fields": "event_id/payload_digest/key/amount/revision/committed_at/spend_receipts",
+        "actual_inlets": "load/resolve/settle ValueError",
+        "file_bytes": "unchanged"
+      },
+      "actual_fixture_profile": "Actual persisted ledger wire through fresh child",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "settlement-wire-consistency",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py::test_inconsistent_settlement_wire_refuses_all_actual_inlets",
+      "expected_deciding_assertions": {
+        "tamper_profiles": "identity/revision/spend/provider/schema_type/schema_unknown/canonical_contract/coordination_mode",
+        "actual_inlets": "load/resolve/settle ValueError",
+        "file_bytes": "unchanged"
+      },
+      "actual_fixture_profile": "Real child ledger read validates content/contract",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    },
+    {
+      "id": "actual-persisted-owner-scope",
+      "findings": [
+        "B66"
+      ],
+      "nodeid_prefix": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py::test_owner_identity_is_actual_persisted_and_stable_across_processes",
+      "expected_deciding_assertions": {
+        "fresh_owner_ledger_id": "ledger:actual-owner",
+        "fresh_child_owner": "equal actual middleware owner tuple",
+        "missing_persisted_identity": "ValueError"
+      },
+      "actual_fixture_profile": "Public persisted ledgerID/canonical_contract/coordination_mode, not local mutable path or request metadata",
+      "future_outcome": "UNRUN; requires exact future case/phase/source admission"
+    }
+  ],
+  "b67_owner_contract_prefixes": [
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_metadata_permission_cannot_authorize_snapshot_reuse",
+      "expected_deciding_assertions": "metadata allowed=True plus hash/ref does not install authorizer; two provider calls",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+      "expected_deciding_assertions": "actual CAS bytes/hash and actor/tenant/scope/purpose/version/ref/model/parameters bound by owner; initial hit provider1 then epoch/revocation/actor/ref changes provider5",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+      "expected_deciding_assertions": "fresh physical caller result remains billable; revoked follower PermissionError and no reusable cache publication",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_canonical_factory_consumes_actual_owner_decision",
+      "expected_deciding_assertions": "real factory injects explicitly supplied operational owner; two requests provider1; revocation next provider2",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cached_emission_rechecks_actual_owner_after_cache_read",
+      "expected_deciding_assertions": "real cache.get revokes epoch after read; no cached emission, CacheReuseDeniedError, provider1",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_frozen_snapshot_with_url_reuses",
+      "expected_deciding_assertions": "actual owner-admitted frozen snapshot retains URL/uncertainty_notes and provider1",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_changed_snapshot_bytes_or_hash_cannot_hit",
+      "expected_deciding_assertions": "changed actual bytes/new hash/stale hash require new provider; invalid context never publishes",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_lost_permission_and_model_change_cannot_hit",
+      "expected_deciding_assertions": "actual fixture owner deny and changed model each prevent old hit",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_live_url_without_snapshot_skips",
+      "expected_deciding_assertions": "two physical calls, cache0; no lexical rewrite removes URL",
+      "future_outcome": "UNRUN"
+    }
+  ],
+  "b68_scoped_flight_prefixes": [
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_different_actual_budget_owners_cannot_join_first_owners_flight",
+      "expected_deciding_assertions": "two actual initialized ledger owners require provider2, each .02, cache2",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_four_identical_allowed_misses_single_flight",
+      "expected_deciding_assertions": "actual allowed request4 gives provider1 and response4",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_different_seed_and_tenant_are_separate_flights",
+      "expected_deciding_assertions": "different seed and tenant require provider2; owner rejection must not turn scope into first-owner reuse",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_cancelled_follower_does_not_cancel_owner",
+      "expected_deciding_assertions": "follower CancelledError; physical owner healthy answer with provider1",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py::TestCachingLLMClient::test_failed_owner_clears_inflight_entry",
+      "expected_deciding_assertions": "owner/follower same actual provider failure; healthy retry second provider call succeeds",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_bounded_flight_refuses_unsupported_cache_before_provider",
+      "expected_deciding_assertions": "legacy put lacks admission callback; typed refusal before provider0/flight0",
+      "future_outcome": "UNRUN"
+    },
+    {
+      "nodeid_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_deadline_preserves_cooperative_timeout_and_actual_provider_error",
+      "expected_deciding_assertions": "cooperative deadline TimeoutError versus suppress-then-raise actual ValueError remain primary; no cache/flight",
+      "future_outcome": "UNRUN"
+    }
+  ],
+  "future_case_join_rules": [
+    "Root supplies exact fresh frozen SHA/tree and six fresh artifacts: inventory/JUnit/stdout/wait4 wrapper/profile/selector. All must be complete with inventory session_finished and wrapper EXECUTED; no setupfailure or transplanted prior namespace/source",
+    "Use literal approved3cd parser and exact pinned native pytest9.0.2 backing source/hash profile. Full unique case partition covers all actual items/phases; planned missing paths/backend admission are separate UNRUN, no invented case cardinality",
+    "Before assertions support this plan, verify actual frozen file bytes against the source identity table or separately review actual changed consumer/source bytes. Source preparation snapshot can never certify a future changed code point",
+    "Join ALL actual nodeids with each prefix, retain all param suffixes and separate collection versus definition paths. Missing prefix is UNRUN; static test function/parameter count is not a denominator or stop criterion",
+    "Actual setup/call/teardown outcomes decide: setupERROR means property body not entered; callFAIL stays FAIL; strictXPASS FAIL, nonstrictXPASS rawPASS qualified; XFAIL/skip/absence cannot substitute for demonstrated property",
+    "Positive exact native assertions under admitted source/fixtures establish only their stated quantities. Native output does not log every actual number; do not manufacture observed stdout quantities from source expected assertions",
+    "Keep whole module results and scoped overlapping families distinct; do not sum B66/B67/B68 group counts as unique case count or convert packagePASS into formal finding closure",
+    "Current test removal controls are historical source-bound falsifiers only; carry exact driver/source/output pins separately if cited, never as future actual runtime"
+  ],
+  "held_contracts": {
+    "B67": "Operational local versioned deployment-owner fixture is functional and checks actual CAS bytes, actor/scope/epoch/ref. CAS readability/hash or correctly typed constructor is not institutional permission. Production grant and required owner epoch atomicity must be supplied/reconciled by actual deployment owner; root/G cannot issue it",
+    "B68": "Scoped request/ref/permission/accounting-owner key, owned producer and cancellation/deadline cleanup can be verified for supported operational profile. Formal production reuse premise remains B67-held; stochastic independent replicates/non-idempotent action policy is not inferred from temperature0",
+    "B66_boundary": "B66 mechanism can be assessed independently for initialized FileBudgetLedger + valid typed observed provider response cost + canonical in-process configured emitter/receiver. No production external billing truth, crash before observed completion, arbitrary hostile Python-memory sandbox, distributed single-flight or persistent-device power-loss guarantee is supplied"
+  },
+  "named_G_limits": [
+    "Actual production owner grants, validity/revocation/epoch atomicity and exact evidence rights: B67 deployment owner/local G input, not CAS content authority",
+    "Actual production gateway/SDK usage and billing receipts, missing/invalid cost response and process death before observed response/event: external receipt reconciliation remains unknown, never global zero cost",
+    "Actual observability exporter outage/cardinality/backend deployment: optional metric/tracer failure fixtures verify delivered response and no automatic provider retry, not that entire backend; mandatory callback audit must retain unknown/reconcile by exact event",
+    "Raw BudgetState-only path has memory ACK, not durable receipt. Only initialized ledger path has durable profile; actual filesystem/process operations on /tmp tmpfs do not prove power-loss durability of production storage",
+    "Canonical InMemoryPromptCache performs atomic admission. Foreign cache put signature binding is compatibility admission, not semantic backend conformance; unsupported callback signature is typed refused, foreign behavior requires own real consumer evidence",
+    "Logical deadline/result refusal does not hard-kill or bound physical noncooperative provider/accounting/cache-lock drain. Flight ownership is retained until actual work completes",
+    "Full production dataset/served LLM traffic not introduced; conditional local G rerun must use this exact native/property profile and real owner/backend inputs only when criterion requires them"
+  ],
+  "historical_evidence_nontransplant": {
+    "author_wire119": "Separate WIRE consumer snapshot; not B66 future runtime proof",
+    "terminal456": "Own7c97 actual3578 partition source456; B66 subset included setupERROR and remains predecessor evidence, never future proof",
+    "paid_raw_provider_175fc": "Actual portable175fc driver plus currenta6 ledger .02/receipt1 illustrates former producer provenance boundary at its recorded source/environment; use as pinned historical negative/control, not future fresh candidate success",
+    "baseline": "Nine B66 cells and full sourcecontexts in current-adapters.json@250df6ec8366659c13b72b6a33cedf4dba5ec24a are navigation only; prior packagePASS does not prove new implementation"
+  },
+  "no_native_invocations_in_preparation": true,
+  "formal_closure_ids": []
+}

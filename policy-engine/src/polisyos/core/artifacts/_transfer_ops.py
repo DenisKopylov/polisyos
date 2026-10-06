@@ -17,12 +17,14 @@ from contextlib import ExitStack, contextmanager, suppress
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path, PurePosixPath
-from typing import TYPE_CHECKING, BinaryIO, Protocol
+from typing import TYPE_CHECKING, BinaryIO, Literal, Protocol
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
 
 from ._atomic_write import AtomicFileDurabilityError, fsync_directory
-from ._integrity_ops import ArtifactIntegrityError, validate_manifest_identity
+from ._integrity_ops import ArtifactIntegrityError, VerificationReport, validate_manifest_identity
 from ._manifest_lifecycle import ManifestLifecycle
 from .ids import ArtifactID
 from .manifest import ArtifactManifest, ArtifactRef, artifact_reference_parts
@@ -43,15 +45,54 @@ _CAS_EXPORT_MEMBER_RE = re.compile(
 )
 _CAS_EXPORT_LAYOUT = "artifacts/sha256/ab/cd/<hex>(.view.<profile>)?.(blob|manifest.json|sig)"
 _CAS_EXPORT_OWNER = "polisyos.filesystem_cas.export"
+_TransferMemberKind = Literal["blob", "manifest", "signature"]
 _VIEW_MANIFEST_MEMBER_RE = re.compile(
     r"^(?P<artifact_id>[0-9a-f]{64})\.view\.(?P<profile>[0-9a-f]{64})\.manifest\.json$"
 )
 
 
-class IntegrityVerificationReport(Protocol):
-    """Minimal integrity report protocol used by import verification helpers."""
+class TransferViewVerification(BaseModel):
+    """One actual private-stage verification bound to its exact supplied view."""
 
-    ok: bool
+    model_config = ConfigDict(extra="forbid")
+    member: str
+    report: VerificationReport
+
+
+class TransferVerificationBatch(BaseModel):
+    """Full typed integrity confirmations consumed before an actual import publish."""
+
+    model_config = ConfigDict(extra="forbid")
+    state: Literal["complete", "aborted"] = "complete"
+    details: list[TransferViewVerification] = Field(default_factory=list)
+
+    def require_complete_valid(self, intake: dict[str, TransferMemberSnapshot]) -> None:
+        """Reconcile every staged manifest against its locally measured input closure."""
+        required = {member for member in intake if member.endswith(".manifest.json")}
+        actual = [item.member for item in self.details]
+        if self.state != "complete" or len(actual) != len(required) or set(actual) != required:
+            raise ArtifactIntegrityError("transfer verification batch is incomplete")
+        for item in self.details:
+            aid = artifact_id_from_member(item.member)
+            metadata = intake[item.member].metadata
+            if aid is None or metadata is None:
+                raise ArtifactIntegrityError("transfer verification manifest is unbound")
+            manifest = ArtifactManifest.model_validate_json(metadata)
+            blob_member = f"artifacts/sha256/{aid.hex[:2]}/{aid.hex[2:4]}/{aid.hex}.blob"
+            blob = intake[blob_member]
+            report = item.report
+            if (
+                not report.ok
+                or report.artifact_id != str(aid)
+                or report.expected_sha256_hex != aid.hex
+                or report.actual_sha256_hex != blob.sha256
+                or report.byte_size != blob.byte_size
+                or report.manifest_sha256 != intake[item.member].sha256
+                or report.manifest_profile_sha256 != ManifestLifecycle.profile_sha256(manifest)
+            ):
+                raise ArtifactIntegrityError(
+                    "transfer verification lacks exact content confirmation"
+                )
 
 
 class _TransferReadStream(Protocol):
@@ -97,16 +138,24 @@ def snapshot_transfer_member(member: str, stream: _TransferReadStream) -> Transf
 class CASMemberReceipt(Protocol):
     """Verified digest and size for one owner-streamed CAS member."""
 
-    member: str
-    sha256: str
-    byte_size: int
+    @property
+    def member(self) -> str: ...
+
+    @property
+    def sha256(self) -> str: ...
+
+    @property
+    def byte_size(self) -> int: ...
 
 
 class CASMemberStream(Protocol):
     """Bounded read surface for one CAS member while its owner lease is held."""
 
-    size: int
-    receipt: CASMemberReceipt
+    @property
+    def size(self) -> int: ...
+
+    @property
+    def receipt(self) -> CASMemberReceipt: ...
 
     def read(self, size: int = -1) -> bytes: ...
 
@@ -134,6 +183,7 @@ class ImportReport:
     skipped_entries: list[str]
     verification_failed: list[str]
     imported_refs: tuple[ArtifactRef, ...] = ()
+    verification: TransferVerificationBatch | None = None
 
 
 class ExportDurabilityError(AtomicFileDurabilityError):
@@ -631,8 +681,10 @@ def validate_transfer_signatures(members: dict[str, TransferMemberSnapshot]) -> 
 
 def export_subgraph(
     *,
-    open_member: Callable[[ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]],
-    member_name: Callable[[ArtifactID | ArtifactRef, str], str],
+    open_member: Callable[
+        [ArtifactID | ArtifactRef, _TransferMemberKind], AbstractContextManager[CASMemberStream]
+    ],
+    member_name: Callable[[ArtifactID | ArtifactRef, _TransferMemberKind], str],
     artifact_ids: Iterable[ArtifactID | ArtifactRef | str],
     target: Path,
     compress: bool = True,
@@ -661,7 +713,7 @@ def export_subgraph(
     def add_archive_member(
         tar: tarfile.TarFile,
         request: ArtifactID | ArtifactRef,
-        kind: str,
+        kind: _TransferMemberKind,
     ) -> int:
         name = member_name(request, kind)
         if name in added_members:
@@ -679,7 +731,7 @@ def export_subgraph(
     def copy_directory_member(
         staging_root: Path,
         request: ArtifactID | ArtifactRef,
-        kind: str,
+        kind: _TransferMemberKind,
     ) -> int:
         name = member_name(request, kind)
         if name in added_members:
@@ -817,7 +869,7 @@ def export_subgraph(
 def import_subgraph(
     *,
     root: Path,
-    verify_artifact: Callable[[ArtifactID | ArtifactRef, Path], IntegrityVerificationReport],
+    verify_artifact: Callable[[ArtifactID | ArtifactRef, Path], VerificationReport],
     publish_staged: Callable[[Path, set[str], set[str]], tuple[ArtifactRef, ...]],
     admit_members: Callable[
         [dict[str, TransferMemberSnapshot]],
@@ -982,51 +1034,45 @@ def import_subgraph(
             if artifact_id is not None:
                 staged_by_artifact.setdefault(str(artifact_id), set()).add(member)
 
+        verification: TransferVerificationBatch | None = None
         if verify_integrity:
+            details: list[TransferViewVerification] = []
+            expected_intake = {member: intake[member] for member in staged_members}
             for artifact_ref in sorted(staged_artifacts):
                 artifact_id = ArtifactID.model_validate(artifact_ref)
-                artifact_members = staged_by_artifact.get(artifact_ref, set())
-                blob_member = (
-                    f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-                    f"/{artifact_id.hex}.blob"
-                )
-                manifest_members = sorted(
-                    member for member in artifact_members if member.endswith(".manifest.json")
-                )
-                if blob_member not in artifact_members or not manifest_members:
-                    raise ValueError(
-                        f"Transfer must contain a blob and at least one manifest view for "
-                        f"{artifact_id}"
-                    )
-                try:
-                    _validate_staged_manifest_views(
-                        staging_root,
-                        artifact_id,
-                        manifest_members,
-                    )
-                except (OSError, ValueError, TypeError):
-                    verification_failed.append(artifact_ref)
-                    continue
-                for manifest_member in manifest_members:
+                for manifest_member in sorted(staged_by_artifact[artifact_ref]):
+                    if not manifest_member.endswith(".manifest.json"):
+                        continue
+                    metadata = intake[manifest_member].metadata
+                    if metadata is None:
+                        raise ArtifactIntegrityError("transfer manifest snapshot missing")
+                    manifest = ArtifactManifest.model_validate_json(metadata)
                     profile_sha256 = member_profile_sha256(manifest_member)
-                    if profile_sha256 is None:
-                        selected: ArtifactID | ArtifactRef = artifact_id
-                    else:
-                        manifest = ArtifactManifest.model_validate_json(
-                            (
-                                staging_root / Path(*PurePosixPath(manifest_member).parts)
-                            ).read_bytes()
-                        )
+                    selected: ArtifactID | ArtifactRef = artifact_id
+                    if profile_sha256 is not None:
                         selected = ArtifactRef(
                             artifact_id=artifact_id,
                             kind=manifest.kind,
                             media_type=manifest.media_type,
                             manifest_profile_sha256=profile_sha256,
                         )
-                    report = verify_artifact(selected, staging_root)
+                    try:
+                        report = verify_artifact(selected, staging_root)
+                    except Exception as exc:
+                        report = VerificationReport(
+                            ok=False,
+                            artifact_id=artifact_ref,
+                            expected_sha256_hex=artifact_id.hex,
+                            error=str(exc),
+                        )
+                    details.append(TransferViewVerification(member=manifest_member, report=report))
                     if not report.ok:
                         verification_failed.append(artifact_ref)
-                        break
+            verification = TransferVerificationBatch(details=details)
+            try:
+                verification.require_complete_valid(expected_intake)
+            except ArtifactIntegrityError:
+                verification_failed.extend(staged_artifacts)
 
         verification_failed = sorted(set(verification_failed) | binding_failures)
         validate_transfer_signatures(intake)
@@ -1038,6 +1084,7 @@ def import_subgraph(
                 source=source,
                 skipped_entries=skipped_entries,
                 verification_failed=verification_failed,
+                verification=verification,
             )
 
         imported_refs = admission.exact_refs + publish_staged(
@@ -1051,6 +1098,7 @@ def import_subgraph(
             skipped_entries=skipped_entries,
             verification_failed=[],
             imported_refs=imported_refs,
+            verification=verification,
         )
     finally:
         source_handles.close()

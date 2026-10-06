@@ -1,0 +1,7 @@
+{
+  "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+  "fragment": "release-fragments/unreleased/2026-10-05-e02-causal-output-abi.toml",
+  "policy": "ops/release/release-fragment-policy.toml",
+  "outcome": "PASS",
+  "checked": "TOML syntax, required fields, type enum, structured compatibility, generated-client classification and resolved evidence paths; no release-wide gate claim"
+}

@@ -1,0 +1,497 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "causal-output",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAU-01",
+    "CAU-02",
+    "CAU-03",
+    "CAU-04",
+    "CAU-05"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415"
+  ],
+  "candidate_tree_sha": "e577d7403d00db9ea4d8bc8a28ad5b6b46a84d66",
+  "branch": "codex/e02-F-causal-output",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_output_contract.py",
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-causal-output-abi.toml"
+  ],
+  "baseline_cells": [],
+  "baseline_identity": {
+    "source": "c40d4acae1ce58b597267255026d9356565828fd",
+    "assessment": "New shared raw-output ABI class exposed by actual native RDD/DiD, rather than a new compactfile×cut FAILURE. ExistingcompactPASS cannot establish raw declared ABI. Full11CAU source/owner/baseline cell map was separately published in first CAU slice.",
+    "separate_caU_remote_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "separate_caU_implementation_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+    "separate_caU_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+    "note": "First CAU estimator changes are independent and are not included on this branch; merge decisions and scientific residuals remain separate."
+  },
+  "checks": [
+    {
+      "command": "Pre-edit product-source red: pytest -o addopts= --import-mode=importlib --strict-markers -q -ra -p no:cacheprovider --tb=short --show-capture=no --disable-warnings tests/unit/foundry/methods/catalog/causal/test_output_contract.py",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:. ",
+      "input_closure": "10-case development version of the new oracle, before product edits. Original common.py was exactly slice-base. This is not a full baseline suite replay or an inherited-red attribution. Later native operator controls extend the frozen oracle to12 cases.",
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-red.txt",
+        "sha256": "faa3543f9c1bcf8f5cb8a81ddf1102f8b360bffb31fc6e3b2a54be5873f6f6c3",
+        "bytes": 6067,
+        "encoding": "JSON-escaped complete console output; decode complete_console_output to recover all original bytes, including pytest trailing spaces",
+        "raw_output_sha256": "3aa69377ad43d3bcd27eec198eb00ec70a950b6c246d5f663065a7aac571a3c5"
+      },
+      "observed": "10 actual pytest failures: 9 behavioral ABI/authority failures (common declared ports: 2; authority override: 4; native RDD/DiD: 2; native kernel: 1) and 1 fallback-probe precondition KeyError. The fallback probe stops at output.pop(\"causal_effect_report\") before dematerialize or its consumer assertion; its intended proxy discriminator was not measured on the base.",
+      "failed": 10,
+      "behavioral_abi_authority_failures": 9,
+      "negative_probe_precondition_nonmeasurements": 1,
+      "measurement_classification": "The precondition failure is not PASS, not a separately established runtime fallback witness, and not a new product defect. Full raw 10 FAILED output remains unchanged. The frozen positive oracle and independent native deletion controls establish their separately bounded properties."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-cau-env/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "-ra",
+        "-p",
+        "no:cacheprovider",
+        "--tb=short",
+        "--show-capture=no",
+        "--disable-warnings",
+        "tests/unit/foundry/methods/catalog/causal/test_output_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did.py",
+        "tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+        "tests/unit/foundry/methods/catalog/causal/test_kernel_runtime.py",
+        "tests/unit/foundry/methods/catalog/causal/test_operator_valued_methods.py",
+        "tests/unit/foundry/methods/catalog/causal/test_hte_methods.py",
+        "tests/unit/foundry/methods/catalog/causal/test_causal_bcf.py",
+        "tests/unit/foundry/methods/catalog/causal/test_causal_rl.py",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_refute.py",
+        "tests/unit/foundry/methods/catalog/causal/test_dtr.py",
+        "tests/unit/foundry/methods/catalog/causal/test_endogenous_group_inequality.py",
+        "tests/unit/foundry/methods/catalog/causal/test_forest_dr.py",
+        "tests/unit/foundry/methods/catalog/causal/test_frontier_methods.py",
+        "tests/unit/foundry/methods/catalog/causal/test_g_computation.py",
+        "tests/unit/foundry/methods/catalog/causal/test_g_estimation.py",
+        "tests/unit/foundry/methods/catalog/causal/test_proximal_mediation.py",
+        "tests/unit/foundry/methods/catalog/causal/test_space_time_dscm.py",
+        "tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py",
+        "tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py",
+        "tests/unit/foundry/methods/catalog/causal/test_registration.py",
+        "tests/unit/foundry/methods/catalog/causal/test_cross_fit_dispatch.py",
+        "tests/unit/foundry/methods/catalog/causal/test_strategic.py"
+      ],
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:.  Isolated actual statsmodels0.14.6+patsy1.0.2 overlay with shared site-packages appended; DoWhy/EconML absent by profile.",
+      "input_closure": "23 frozen native test files; exact argv committed as companion. Synthetic fixtures and known jumps/ATT, genuine native implementations. No production inputs.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-native.txt",
+        "sha256": "e16d33a1bc790c268832cee34c8238630a2367d14a3b15ba647cfe9009f331c8",
+        "bytes": 1242
+      },
+      "passed": 196,
+      "skipped": 8,
+      "warnings": 106,
+      "pytest_seconds": 241.24,
+      "wall_seconds": 246.331,
+      "maxrss_kib": 558616,
+      "coverage_limitation": "PASS applies to196 executed calls only;6DoWhy and2EconML paths remain SKIP, not native backend witnesses. Compatibility aliases/empty warnings still emit raw-output warnings."
+    },
+    {
+      "command": "The same23file command: unavailable optional native paths",
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:.  Isolated actual statsmodels0.14.6+patsy1.0.2 overlay with shared site-packages appended; DoWhy/EconML absent by profile.",
+      "input_closure": "test_hte_methods.py nativeEconML2calls; test_dowhy_identify_estimate.py5calls; test_dowhy_refute.py1call",
+      "outcome": "SKIP",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-native.txt",
+        "sha256": "e16d33a1bc790c268832cee34c8238630a2367d14a3b15ba647cfe9009f331c8",
+        "bytes": 1242
+      },
+      "skipped": 8,
+      "claim": "DoWhy/EconML behavior not established in Python3.14; no shim or marker bypass."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/workspace/e02-F-receipts/output-independent-tmp",
+        "tests/unit/foundry/methods/catalog/causal/test_output_contract.py",
+        "-q",
+        "-ra",
+        "--tb=short"
+      ],
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:. ",
+      "input_closure": "Independent F/causal_api reviewer, exact12 frozen cases; real dispatcher/CAS and specialized kernel/operator consumers.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent.json",
+        "sha256": "cf51d259dd1ba05ea102eceb68406bbab5ac1fbc4daf781fbdcaae53d23618a7",
+        "bytes": 4542
+      },
+      "passed": 12,
+      "skipped": 0,
+      "pytest_seconds": 7.36,
+      "wall_seconds": 11.777947090999987,
+      "maxrss_kib": 507688
+    },
+    {
+      "command": [
+        "python",
+        "causal-output-removal-probe.txt",
+        "aliases"
+      ],
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:. ",
+      "input_closure": "In-memory canonical function-code deletion reaches all already-bound native references; same12 frozen tests. Keeps alias strings, builders, signatures, historical keys, explicit specialized results and reserved guard; source unchanged.",
+      "outcome": "PASS",
+      "observed_pytest_outcome": "FAIL",
+      "expected_exit_code": 1,
+      "observed_exit_code": 1,
+      "failed": 8,
+      "passed_controls": 4,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-aliases.txt",
+        "sha256": "0536cf67caa6319665f1f48c5cf18ec4db7c98311a12e8a57e31c1d1d46f3b97",
+        "bytes": 5101,
+        "encoding": "JSON-escaped complete console output; decode complete_console_output to recover all original bytes, including pytest trailing spaces",
+        "raw_output_sha256": "0c77e1968215d3dfb25ead5676146466af8012ac3e1af8a65ddd5fd4296f7fa0"
+      },
+      "executable_probe": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-probe.txt",
+        "sha256": "9f4d243d9e6bcdc0dfd6c4265c2313451ad698a2eab2c893630ee48bd44921a3",
+        "bytes": 1927
+      },
+      "behavioral_abi_failures": 7,
+      "negative_probe_precondition_nonmeasurements": 1,
+      "measurement_classification": "Observed aggregate 8 FAIL / 4 PASS is unchanged. Seven failures reject actual missing common ABI fields; one fallback probe raises KeyError at output.pop(\"causal_effect_report\") before its consumer discriminator, so that failure is excluded from the deciding behavioral count. Independent native RDD/DiD alias-removal 2 FAIL remains separate clean evidence."
+    },
+    {
+      "command": [
+        "python",
+        "causal-output-removal-probe.txt",
+        "authority"
+      ],
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:. ",
+      "input_closure": "In-memory reserved guard execution disabled; message/reserved fields/canonical aliases remain. Same12 frozen tests; source unchanged.",
+      "outcome": "PASS",
+      "observed_pytest_outcome": "FAIL",
+      "expected_exit_code": 1,
+      "observed_exit_code": 1,
+      "failed": 4,
+      "passed_controls": 8,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-authority.txt",
+        "sha256": "bf84ff5bd87b2e4896870f62c9988151cc480609514a6b324722de2d32b16211",
+        "bytes": 2524
+      },
+      "executable_probe": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-probe.txt",
+        "sha256": "9f4d243d9e6bcdc0dfd6c4265c2313451ad698a2eab2c893630ee48bd44921a3",
+        "bytes": 1927
+      }
+    },
+    {
+      "command": "Independent F/causal_api nativeRDD/DiD canonicalfunction-code removal of only3 aliases",
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:. ",
+      "input_closure": "Real dispatchers report SUCCESS but actual declared ports absent, so2 directABI assertions fail; no import/reflection/constructor proxy.",
+      "outcome": "PASS",
+      "observed_pytest_outcome": "FAIL",
+      "failed": 2,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent-removal.json",
+        "sha256": "c0cc12520f7852d79b8f84d1bbb45a505a05350e04e83a28b6f2232ceb4f5623",
+        "bytes": 8255
+      }
+    },
+    {
+      "command": "ruff check + ruff format --check _common.py test_output_contract.py; git diff --check",
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Shared read-only Ruff; candidate checkout",
+      "input_closure": "Both changed Python paths; whole candidate diff whitespace",
+      "outcome": "PASS",
+      "output": "All checks passed!;2 files already formatted;git diff --check no output."
+    },
+    {
+      "command": "Native TOML releasefragment validation against ops/release/release-fragment-policy.toml",
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:. ",
+      "input_closure": "Unique new fragment, requiredfields/type/structuredcompatibility/generatedclientenum and resolvedevidencepaths; not a release-wide gate",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-fragment-check.json",
+        "sha256": "3bb85d9ec0848510b94c4a9629c3d954aa8987b37696edf7458d47788c5b5ed6",
+        "bytes": 395
+      }
+    },
+    {
+      "command": "PYTHONPATH=src:. python -m tools.cli architecture guardrails check",
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:.  Full default generated freshness; private Node24.19.0/pnpm10.33.2, no installed openapi-typescript in private freshness source.",
+      "input_closure": "Whole declared architecture denominator, required default generated checks retained. No exact pre-edit base receipt or proven disjoint input denominator; red provenance not_established.",
+      "outcome": "UNRUN",
+      "observed_exit_code": 2,
+      "completed_partial_artifact_outcome": "FAIL",
+      "wall_seconds": 250.958,
+      "maxrss_kib": 1099852,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-architecture.txt",
+        "sha256": "ab2db411ad4a013dda8b23e7c44026da5e77d4ff53d5741c2558b627be6833a4",
+        "bytes": 118152
+      },
+      "observed": "Required2 TSgenerators exit254 missingopenapi-typescript/node_modules; partialcompleteddeepimportbaseline drift +runtimeOpenAPI/trustclaimregister drift. Overallno complete verdict. No baseline sync, whitelist, skip or weakening.",
+      "next_owner": "G final integration +architecture/generated freshness owners; provision actual pinned node/deps then exact candidate rerun, attribute red only against exact base."
+    },
+    {
+      "command": "PYTHONPATH=src:. python tools/quality/validation/check_production_invocation.py --base c40d4acae1ce58b597267255026d9356565828fd --receipt <local>/causal-output-production-invocation.json",
+      "target_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+      "environment": "Linuxx86_64 Python3.14.2; shared read-only numpy2.3.5/scipy1.16.3/pydantic2.12.5/pytest9.0.2; candidate cwd + PYTHONPATH=src:. ",
+      "input_closure": {
+        "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+        "current_files": 5898,
+        "base_files": 5897,
+        "source_files": 2697,
+        "current_sha256": "30c89831a3de706e74b449267db43f136809349cf08df618276f70cf094f9d7c",
+        "base_sha256": "5e0603c4e62090abea17ccfff1ab6c7976d0656f8b01367f1dec048e08364773"
+      },
+      "outcome": "UNRUN",
+      "observed_cli_status": "UNRESOLVED",
+      "observed_exit_code": 3,
+      "coverage": "partial",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-invocation.txt",
+        "sha256": "e3d48c6b54fb2192440955e868513832e4fe89510f3175ebeba2a665cf24869a",
+        "bytes": 1461
+      },
+      "full_deciding_delta_and_changed_row": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-invocation-summary.json",
+        "sha256": "8f3a0b4f6ba003489e936d186078ad7470b3c0a476fc4e274085569638ce5dde",
+        "bytes": 6873
+      },
+      "regressions": [],
+      "new_unresolved_by_construction": [
+        "polisyos.foundry.methods.catalog.causal._common.wrap_causal_output"
+      ],
+      "runtime_invocation_established": false,
+      "transfer_full_detail": "not_established;170858321byte full scannerreceipt stays local at /workspace/e02-F-receipts/causal-output-production-invocation.json@sha256:dcf8097584cd84e3d4f398770f17cc6ec43c7f8068d4e37cdfbb3f97df71be11.",
+      "next_owner": "G +runtime-quality/production_invocation canonical scanner owner. Recompute exact candidate using the command; establish production dynamic-dispatch/receipt witness. Do not whitelist construct or weaken static check."
+    }
+  ],
+  "environment": {
+    "implementation_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/e02-F-cau-env/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "source_common": "/workspace/e02-F-causal-output/policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+    "versions": {
+      "pytest": "9.0.2",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pydantic": "2.12.5",
+      "statsmodels": "0.14.6",
+      "patsy": "1.0.2"
+    },
+    "dowhy_spec_present": false,
+    "econml_spec_present": false,
+    "shared_environment_mutated": false,
+    "backend_profile": "Python3.14 baseline; real isolated statsmodels+patsy overlay, optional DoWhy/EconML marker exclusions retained"
+  },
+  "source_census": {
+    "artifact": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-census.json",
+      "sha256": "97f68460d9f3be9586627b1c0b2b384ea3134a3b988c4d292d4e081745deef00",
+      "bytes": 12060
+    },
+    "source_causal_files": 132,
+    "wrapper_calls": 106,
+    "wrapper_modules": 22,
+    "applicable_local_method_signatures": 44,
+    "neighboring_imported_signatures_excluded": 13,
+    "basis": "SourceAST derives local pure_step→wrapper calls; live MethodSignature.output_slots declares actual ports. Reflection/plugin code outside the causal directory and non-common producers excluded.",
+    "claim_bound": "Common output fields for44selected signatures, not 44 native runtime/backend/scientific witnesses. Method-specific extras must be produced by their actual owners."
+  },
+  "property": {
+    "statement": "The common causal wrapper exposes declared report/envelope aliases as the same typed report and same computed envelope; result defaults to report while explicit specialized result is preserved. Extras cannot replace report/envelope authority fields. Scientific estimates/statuses are unchanged.",
+    "canonical_owner": "polisyos.foundry.methods.catalog.causal._common.wrap_causal_output",
+    "runtime_path": [
+      "native RDD and standardDiD pure_step on known jump/ATT 3; native kernel/operator producers including refusedoperator",
+      "MethodDispatcher nativeNumpyRunner -> rawoutputactual declared ports",
+      "canonical dematerialize_method_output declared consumer; typed report persist_causal_effect_report",
+      "FileSystemCAS content-addressed persisted artifact -> reopen store -> load_causal_effect_report unchanged status/point; specialized native result passes normalizedconsumer unchanged"
+    ],
+    "consumer_abi": "MethodSignature.output_slots/output_slot_names, not an invented outputs property or reflectionabsence. Generic io aliases remain untouched.",
+    "authority_purpose": "Canonical report/envelope authority must remain tied to the supplied report, including INPUT_INVALID gate false. Explicit specialized result remains method-owned and is not promoted to report authority.",
+    "surface": "Existing Python method output bindings; compatibility fragment records addedaliases and reservedextras ValueError. No new IR/schema/serialized report format.",
+    "proxy_divergence": "Deleting actual causal_effect_report while retaining historical report lets dematerialize aliasfallback succeed; directraw declared ABI assertion fails. Dispatcher SUCCESS/legacyfallback/source keywords alone do not establish ABI.",
+    "negative_controls": [
+      "Known INPUT_INVALID report plus successful-looking reserved extras: 4 variants must raise.",
+      "Delete runtime 3 aliases while retaining keywords/old keys/guard: aggregate 8 FAIL / 4 controls PASS, comprising 7 behavioral ABI rejections and 1 fallback-probe precondition nonmeasurement.",
+      "Disable authority guard while retaining keywords/message: 4 behavioral failures and 8 controls PASS.",
+      "Independent native RDD/DiD alias deletion: 2 genuine consumer failures while dispatcher reports SUCCESS."
+    ],
+    "rule_schema": "Existing live MethodSignature output_slots, existing CausalEffectReport and persist/load schema; no newmethodological rule."
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_by_scope": {
+    "bounded_fixture_commonABI": "independently_reconciled: author196executednative calls +independent12 frozenoracle +independentnative removal",
+    "local_common_consumer_denominator": "recomputed:132files source AST +44live signatures;44native backendcoverage not_established",
+    "fullproduction_invocation": "not_established: scannerexit 3 UNRESOLVED; dynamic bridge/nativefixtures do not establish production law/history",
+    "mandatorybroad_architecture": "not_established: overall UNRUN +completedpartial FAIL; exact base redprovenance not established"
+  },
+  "capability_state_or_finding_state": "implemented_fixture_verified; limited draft slice; mandatory broad acceptance and production invocation held",
+  "pattern_pass": {
+    "P27_P31": "Canonical commonowner closes sharedbindingclass, preserves currentproducer specialized results rather than per-estimator aliaspatches.",
+    "P29_P32_P33": "Actualproducer/declared consumer/CAS path plus markerpreserving function-code removals; no keyword proof.",
+    "P35": "44 signatures derived from132sourcefiles/106calls22modules;13 neighboring signatures excluded and all 44 runtime coverage notclaimed.",
+    "P37_P38": "Actual report/envelope identity and directports checked; cheap successful fallback divergence named; production authority predicate not_established.",
+    "P40": "NEW wider shared outputABI class, with siblingRDD/DiD and specializedkernel/operator controls. It does not upgrade declared synthetic/inference/backend limits.",
+    "P41": "No inheritedred claim for architecture: exact pre-edit base absent. Scannerred retained asnewunresolved, notPASS."
+  },
+  "independent_review": {
+    "reviewer": "F/causal_api",
+    "verdict": "GO for bounded code/fixture property; broadmergeacceptance held",
+    "source_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent.json",
+      "sha256": "cf51d259dd1ba05ea102eceb68406bbab5ac1fbc4daf781fbdcaae53d23618a7",
+      "bytes": 4542
+    },
+    "property_removal_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent-removal.json",
+      "sha256": "c0cc12520f7852d79b8f84d1bbb45a505a05350e04e83a28b6f2232ceb4f5623",
+      "bytes": 8255
+    }
+  },
+  "remaining_caU_residual_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209",
+    "B210",
+    "B211",
+    "B212",
+    "B213",
+    "LA-016"
+  ],
+  "remaining_caU_residual_state": "All remain limited/partial per independently published CAU receipt; this raw-output binding repair closes no scientific finding.",
+  "dependencies": {
+    "base_only": true,
+    "compatible_independent_slices": [
+      "codex/e02-F-cau editsdid.py, not_common.py; estimatorreceipt remains bound to its ownimplementation",
+      "codex/e02-F-graph-scm uses ownGCMqueryalias, not_common wrapper"
+    ],
+    "integration_owner": "G fetch exactremotehead +receipt; root creates draftPR; no main publication"
+  },
+  "logs": {
+    "red.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-red.txt",
+      "sha256": "faa3543f9c1bcf8f5cb8a81ddf1102f8b360bffb31fc6e3b2a54be5873f6f6c3",
+      "bytes": 6067,
+      "encoding": "JSON-escaped complete console output; decode complete_console_output to recover all original bytes, including pytest trailing spaces",
+      "raw_output_sha256": "3aa69377ad43d3bcd27eec198eb00ec70a950b6c246d5f663065a7aac571a3c5"
+    },
+    "native.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-native.txt",
+      "sha256": "e16d33a1bc790c268832cee34c8238630a2367d14a3b15ba647cfe9009f331c8",
+      "bytes": 1242
+    },
+    "native-command.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-native-command.json",
+      "sha256": "c074399c0a5948f2abd04466b1e6b4afaf551799b81a76b8e0efebb323da803c",
+      "bytes": 2150
+    },
+    "census.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-census.json",
+      "sha256": "97f68460d9f3be9586627b1c0b2b384ea3134a3b988c4d292d4e081745deef00",
+      "bytes": 12060
+    },
+    "environment.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-environment.json",
+      "sha256": "9dd9d7698d0b378056412c643748729e03df2f4a5d53749b029a7d2733da3d10",
+      "bytes": 771
+    },
+    "removal-probe.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-probe.txt",
+      "sha256": "9f4d243d9e6bcdc0dfd6c4265c2313451ad698a2eab2c893630ee48bd44921a3",
+      "bytes": 1927
+    },
+    "removal-aliases.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-aliases.txt",
+      "sha256": "0536cf67caa6319665f1f48c5cf18ec4db7c98311a12e8a57e31c1d1d46f3b97",
+      "bytes": 5101,
+      "encoding": "JSON-escaped complete console output; decode complete_console_output to recover all original bytes, including pytest trailing spaces",
+      "raw_output_sha256": "0c77e1968215d3dfb25ead5676146466af8012ac3e1af8a65ddd5fd4296f7fa0"
+    },
+    "removal-authority.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-authority.txt",
+      "sha256": "bf84ff5bd87b2e4896870f62c9988151cc480609514a6b324722de2d32b16211",
+      "bytes": 2524
+    },
+    "independent.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent.json",
+      "sha256": "cf51d259dd1ba05ea102eceb68406bbab5ac1fbc4daf781fbdcaae53d23618a7",
+      "bytes": 4542
+    },
+    "independent-removal.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent-removal.json",
+      "sha256": "c0cc12520f7852d79b8f84d1bbb45a505a05350e04e83a28b6f2232ceb4f5623",
+      "bytes": 8255
+    },
+    "architecture.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-architecture.txt",
+      "sha256": "ab2db411ad4a013dda8b23e7c44026da5e77d4ff53d5741c2558b627be6833a4",
+      "bytes": 118152
+    },
+    "invocation.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-invocation.txt",
+      "sha256": "e3d48c6b54fb2192440955e868513832e4fe89510f3175ebeba2a665cf24869a",
+      "bytes": 1461
+    },
+    "invocation-summary.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-invocation-summary.json",
+      "sha256": "8f3a0b4f6ba003489e936d186078ad7470b3c0a476fc4e274085569638ce5dde",
+      "bytes": 6873
+    },
+    "fragment-check.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-fragment-check.json",
+      "sha256": "3bb85d9ec0848510b94c4a9629c3d954aa8987b37696edf7458d47788c5b5ed6",
+      "bytes": 395
+    }
+  },
+  "limitations_and_next_owner": [
+    "G:fetch this exact topic and independent CAU topic; code review/merge and findingclosure are separate. No main/force/rewrite. Mandatory broad checks stillpending.",
+    "G +runtime-qualityscannerowner: exact candidate check_production_invocation remains UNRESOLVED(exit3),newchangedcommon wrapper unresolvedbyconstruction. Thecomplete scanner170858321bytes arelocal;deciding changed row/summary committed. Full productiondynamic invocation/artifact law remains not_established; no whitelist/shim.",
+    "G +architectureowners: provision pinnedactualNode/tooldependencies, run fullarchitectureguardrails on candidate and exact base toattribute red. OverallUNRUN withpartial FAIL preserved; missingmeasurements neverPASS.",
+    "DoWhy/EconML supported-reference-environment owner/G: native backend paths SKIP by Python3.14 markers; nopositivebackendwitness. Run exact candidate in a supported declaredprofile.",
+    "C actual foundry consumer/plugin owners +G: broaderexternalreflection/plugin consumers outside localcommon source census require their canonical ABI/run evidence; genericcomponents/io.py wasnot changed.",
+    "Causal-analysisdataowner/G: production input files remain locally read-only. Syntheticjump/ATT3 and aliasidentity do not prove admittedreal data parallel trends/estimand validity/null coverage/RBC/cohort scope.",
+    "Method owners: specialized dtr_result/hte_result/kernel/operator/space-time results remain explicitproduceroutputs; common wrapper doesnot fabricate or scientificallyvalidate them.",
+    "Existing raw compatibility extras/empty warnings generatewarnings; no warningcleanliness/complete57signature ABI claim. Existing protected scientific/statusrefusal remainsunchanged."
+  ],
+  "measurement_notes": {
+    "fallback_probe": "Baseline aggregate 10 FAIL and alias-removal aggregate 8 FAIL / 4 PASS each include one setup KeyError before the fallback consumer oracle. Those failures are not counted as behavioral runtime fallback measurements. Frozen candidate 12 PASS executes the actual fallback discriminator; independent native alias-removal 2 FAIL and reserved authority 4 FAIL remain unaffected.",
+    "change_scope": "Append-only receipt classification correction; no source/test changes, no raw output changes, no retest or scientific closure."
+  }
+}

@@ -1,0 +1,31 @@
+control=authority; compiled markers retained; source file unchanged
+..FFFF......                                                             [100%]
+=================================== FAILURES ===================================
+_________ test_extras_cannot_replace_shared_authority_outputs[report] __________
+tests/unit/foundry/methods/catalog/causal/test_output_contract.py:149: in test_extras_cannot_replace_shared_authority_outputs
+    with pytest.raises(ValueError, match="reserved causal output"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+__ test_extras_cannot_replace_shared_authority_outputs[causal_effect_report] ___
+tests/unit/foundry/methods/catalog/causal/test_output_contract.py:149: in test_extras_cannot_replace_shared_authority_outputs
+    with pytest.raises(ValueError, match="reserved causal output"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+________ test_extras_cannot_replace_shared_authority_outputs[envelope] _________
+tests/unit/foundry/methods/catalog/causal/test_output_contract.py:149: in test_extras_cannot_replace_shared_authority_outputs
+    with pytest.raises(ValueError, match="reserved causal output"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+__ test_extras_cannot_replace_shared_authority_outputs[uncertainty_envelope] ___
+tests/unit/foundry/methods/catalog/causal/test_output_contract.py:149: in test_extras_cannot_replace_shared_authority_outputs
+    with pytest.raises(ValueError, match="reserved causal output"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_extras_cannot_replace_shared_authority_outputs[report]
+FAILED tests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_extras_cannot_replace_shared_authority_outputs[causal_effect_report]
+FAILED tests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_extras_cannot_replace_shared_authority_outputs[envelope]
+FAILED tests/unit/foundry/methods/catalog/causal/test_output_contract.py::test_extras_cannot_replace_shared_authority_outputs[uncertainty_envelope]
+4 failed, 8 passed, 12 warnings in 8.63s
+
+exit_code=1 wall_seconds=35.239 maxrss_kib=499672

@@ -1,0 +1,19 @@
+{
+  "implementation_sha": "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/e02-F-cau-env/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "source_common": "/workspace/e02-F-causal-output/policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+  "versions": {
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "statsmodels": "0.14.6",
+    "patsy": "1.0.2"
+  },
+  "dowhy_spec_present": false,
+  "econml_spec_present": false,
+  "shared_environment_mutated": false,
+  "backend_profile": "Python3.14 baseline; real isolated statsmodels+patsy overlay, optional DoWhy/EconML marker exclusions retained"
+}

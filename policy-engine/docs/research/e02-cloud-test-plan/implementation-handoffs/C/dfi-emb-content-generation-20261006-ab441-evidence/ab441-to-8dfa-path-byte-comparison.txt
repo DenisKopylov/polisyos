@@ -1,0 +1,96 @@
+slice_base=198076863e143dea9f89f02734b13d50dae3eed5
+ab441_source=ab44166335130463178e65dfc29a252c96afe479
+ab441_tree=b1eaa06c81fae89d56ae467e8036d5923b886f3d
+integration_candidate=8dfa7f3c544461c0ff081861848fcc5d8523da5b
+integration_tree=3eac9b5cf816e30f9c1bacc81d80e2dc75d81681
+base_to_ab441_changed_path_count=60
+
+ab441_to_8dfa_full_name_status_count=36
+ab441_to_8dfa_full_name_status:
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-baseline-query.json
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-diff-check.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-qc-publish-kernel.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-read-api-projection.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-retrieval-service.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-check.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-format.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/provider-corrective-review-targeted.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.py
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-targeted.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.py
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.stdout.txt
+A	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006.json
+M	policy-engine/src/polisyos/data_forge/domains/catalog/batch/AUTHORING.md
+M	policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md
+M	policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/batch/publish.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/registry.py
+A	policy-engine/src/polisyos/data_forge/domains/catalog/selection.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/sources/__init__.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/sources/core.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/sources/open_data.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/sources/sdmx.py
+M	policy-engine/src/polisyos/data_forge/domains/catalog/sources/specialized.py
+M	policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py
+M	policy-engine/src/polisyos/fabric/retrieval/service.py
+M	policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py
+M	policy-engine/tests/unit/data_forge/domains/catalog/batch/test_publish.py
+M	policy-engine/tests/unit/data_forge/domains/catalog/batch/test_source_registry.py
+M	policy-engine/tests/unit/data_forge/test_phase1_shared_kernel_cutover.py
+M	policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py
+M	policy-engine/tests/unit/remediation/test_dfk_02.py
+
+Slice-base-to-ab441 paths excluding implementation-handoff evidence companions, compared by Git blob at ab441 and 8dfa:
+byte-identical	policy-engine/src/polisyos/data_forge/domains/README.md	ab441=da38b47b0a8b479db882c49f4f2d218728de0c55	8dfa=da38b47b0a8b479db882c49f4f2d218728de0c55
+byte-identical	policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py	ab441=95d9e3b2ed5b18ef16832abac6a3013f97bff275	8dfa=95d9e3b2ed5b18ef16832abac6a3013f97bff275
+byte-identical	policy-engine/src/polisyos/data_forge/domains/academic/knowledge/README.md	ab441=91decb37edd0df7267cf56228b3ff0ac057b1766	8dfa=91decb37edd0df7267cf56228b3ff0ac057b1766
+byte-identical	policy-engine/src/polisyos/data_forge/domains/academic/knowledge/embedding_projection.py	ab441=5e18ab2eefb620d440ce34d7eb0529d6fe6a1b85	8dfa=5e18ab2eefb620d440ce34d7eb0529d6fe6a1b85
+byte-identical	policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py	ab441=e8381264c673e49c0264421df13784f044dfd691	8dfa=e8381264c673e49c0264421df13784f044dfd691
+different-or-absent	policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md	ab441=8b18ee8ee4c57e815a03969afad617eeb11a9296	8dfa=6aee56a6b6a1aac7563613355c8011f3909c70d6
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py	ab441=2aa866c8a5523b9a345baad5a8a4ec631453bb1a	8dfa=2aa866c8a5523b9a345baad5a8a4ec631453bb1a
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py	ab441=f6f24dd85418848664a93d2ed6cf63593561d237	8dfa=f6f24dd85418848664a93d2ed6cf63593561d237
+different-or-absent	policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py	ab441=25a937d764b82ae68ceb558449754b92d36975f9	8dfa=ca2ecfd6227edcce605bbc3091cddc6b38a86d55
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py	ab441=6d9ffc41ddcb95cdab7e249eac634f3a2114de1e	8dfa=6d9ffc41ddcb95cdab7e249eac634f3a2114de1e
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py	ab441=5761244862016d7c14835fa1aa9610e4c46e689d	8dfa=5761244862016d7c14835fa1aa9610e4c46e689d
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py	ab441=c7f39ed894869d54a46d75ccf3a0ee85844a2c35	8dfa=c7f39ed894869d54a46d75ccf3a0ee85844a2c35
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py	ab441=19eb50522b801341e40f30a113e33f5317be8842	8dfa=19eb50522b801341e40f30a113e33f5317be8842
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py	ab441=87d3a8250d375861a44de7d1697c9c05d11d9c10	8dfa=87d3a8250d375861a44de7d1697c9c05d11d9c10
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py	ab441=243930ca1ee404572c82adffaf53497722c67935	8dfa=243930ca1ee404572c82adffaf53497722c67935
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py	ab441=a6ed06f1baa13bc5a043eedffa60c6421d6f3809	8dfa=a6ed06f1baa13bc5a043eedffa60c6421d6f3809
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py	ab441=51cadd0dfc47a7570540c9257ff2e9fff2619c3b	8dfa=51cadd0dfc47a7570540c9257ff2e9fff2619c3b
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py	ab441=b380babb25e7479ad4cc751e4009df8684332ecb	8dfa=b380babb25e7479ad4cc751e4009df8684332ecb
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py	ab441=eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1	8dfa=eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md	ab441=79210b8bbb2ac6f4d6529f270c8d097fc829b82b	8dfa=79210b8bbb2ac6f4d6529f270c8d097fc829b82b
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/embedding_projection.py	ab441=9f62a19c27fac2073436f5c68ded4bd3b867bbc5	8dfa=9f62a19c27fac2073436f5c68ded4bd3b867bbc5
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py	ab441=cf928e43b36a12743ca2e46b016892298a0b5139	8dfa=cf928e43b36a12743ca2e46b016892298a0b5139
+byte-identical	policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py	ab441=f4b178c3dec2c5e2e5ec360e5298e7c473051b77	8dfa=f4b178c3dec2c5e2e5ec360e5298e7c473051b77
+byte-identical	policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py	ab441=b280580ff48f9fcb165ea5668234feed1820ffb1	8dfa=b280580ff48f9fcb165ea5668234feed1820ffb1
+byte-identical	policy-engine/src/polisyos/data_forge/kernel/README.md	ab441=50e845cd4fb0ae58795c1d1789398ecc102ca00b	8dfa=50e845cd4fb0ae58795c1d1789398ecc102ca00b
+byte-identical	policy-engine/src/polisyos/data_forge/kernel/embeddings.py	ab441=0e1d2a5229b3167c7a3d211386f6e7607b9d30a3	8dfa=0e1d2a5229b3167c7a3d211386f6e7607b9d30a3
+byte-identical	policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py	ab441=b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac	8dfa=b1b60eefd5513ebdf717bdd4eb39b1bbd9538eac
+byte-identical	policy-engine/src/polisyos/lex/knowledge/store.py	ab441=1baf941c7beaec9e89447c9de363d1ff721c704a	8dfa=1baf941c7beaec9e89447c9de363d1ff721c704a
+byte-identical	policy-engine/tests/unit/data_forge/domains/catalog/batch/test_harvester_parallel.py	ab441=e313483dca8660a73169f8a9f85e38138e01c6ee	8dfa=e313483dca8660a73169f8a9f85e38138e01c6ee
+byte-identical	policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py	ab441=5ace8679108fdd02aaf0cc7a42ed7ee8c4f80755	8dfa=5ace8679108fdd02aaf0cc7a42ed7ee8c4f80755
+byte-identical	policy-engine/tests/unit/data_forge/kernel/test_embeddings.py	ab441=9cfd7e757e8110dcabce021c605eaa84e364568a	8dfa=9cfd7e757e8110dcabce021c605eaa84e364568a
+byte-identical	policy-engine/tests/unit/remediation/test_dfi_02.py	ab441=2ab84ce89a435431d14c1a502bed5fc9f84f6299	8dfa=2ab84ce89a435431d14c1a502bed5fc9f84f6299
+byte-identical	policy-engine/tests/unit/remediation/test_dfi_03.py	ab441=b5bce675d93a1c3d30d6c92b7491e76bca016e86	8dfa=b5bce675d93a1c3d30d6c92b7491e76bca016e86
+byte-identical	policy-engine/tests/unit/remediation/test_emb_02.py	ab441=e035cf91d54fef55cf7248ca77a77e3f5de96078	8dfa=e035cf91d54fef55cf7248ca77a77e3f5de96078
+byte-identical	policy-engine/tests/unit/remediation/test_emb_03.py	ab441=7c60846f963dba808b8f681d5f2ae91cef3ecf7f	8dfa=7c60846f963dba808b8f681d5f2ae91cef3ecf7f
+byte-identical	policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py	ab441=15e9e4fa575ef2604ee53317bb38fc1e239fbafd	8dfa=15e9e4fa575ef2604ee53317bb38fc1e239fbafd
+byte-identical	policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py	ab441=ee046a090df031b89b67178a20f2f92d7c5fa899	8dfa=ee046a090df031b89b67178a20f2f92d7c5fa899
+
+Key DFI/EMB dependency paths:
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py	ab441=6d9ffc41ddcb95cdab7e249eac634f3a2114de1e	8dfa=6d9ffc41ddcb95cdab7e249eac634f3a2114de1e
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py	ab441=5761244862016d7c14835fa1aa9610e4c46e689d	8dfa=5761244862016d7c14835fa1aa9610e4c46e689d
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py	ab441=c7f39ed894869d54a46d75ccf3a0ee85844a2c35	8dfa=c7f39ed894869d54a46d75ccf3a0ee85844a2c35
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py	ab441=19eb50522b801341e40f30a113e33f5317be8842	8dfa=19eb50522b801341e40f30a113e33f5317be8842
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py	ab441=87d3a8250d375861a44de7d1697c9c05d11d9c10	8dfa=87d3a8250d375861a44de7d1697c9c05d11d9c10
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py	ab441=243930ca1ee404572c82adffaf53497722c67935	8dfa=243930ca1ee404572c82adffaf53497722c67935
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py	ab441=eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1	8dfa=eeaa31f6d2d9cdd8bedeac6e5c61996f2f5777c1
+byte-identical	policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py	ab441=f6f24dd85418848664a93d2ed6cf63593561d237	8dfa=f6f24dd85418848664a93d2ed6cf63593561d237
+different-or-absent	policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py	ab441=25a937d764b82ae68ceb558449754b92d36975f9	8dfa=ca2ecfd6227edcce605bbc3091cddc6b38a86d55
+different-or-absent	policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py	ab441=e03e3650e4be407d5a43eb2ce3acae0dd39a5744	8dfa=537172785837469853b2e0d33ac6ec8750614865

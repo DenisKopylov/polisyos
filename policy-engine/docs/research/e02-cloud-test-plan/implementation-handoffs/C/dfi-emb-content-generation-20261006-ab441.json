@@ -1,0 +1,1085 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "dfi-emb-content-generation-20261006-ab441",
+  "closure_ids": [],
+  "bundle_ids": [
+    "DFI-01",
+    "DFI-02",
+    "DFI-03",
+    "EMB-01",
+    "EMB-02",
+    "EMB-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
+    "fd23ed448dd3664b80b499863573900ea03256ea",
+    "4a9350bf3e43d1785ab7ff51b37da442e84aca8e",
+    "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+    "ab27db6d940c7a34ba2dd3837803f0b6ec4f464c",
+    "cfede50e69db4b5b5759bd560a44b308907a350e",
+    "c32011b4d11989a8bb765b6ed0f6be7af1ed303a",
+    "6cfd7ffca15f586840d1aaf42b436fe1685be9fa",
+    "d747ada477f3de1a369a2e29a547b9f66e77822b",
+    "ab44166335130463178e65dfc29a252c96afe479"
+  ],
+  "candidate_tree_sha": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+  "branch": "codex/e02-C-dfi-emb-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-158.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-29.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-changed-source-map.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-consumer-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-domain-consumer-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-domain-consumer-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-domain-consumer-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-domain-consumer-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-package-census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-payload-scope.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-profile-closure.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-profile-closure.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-profile-closure.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-profile-closure.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-native-hnsw.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ruff99.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-build.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-build.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-build.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-install.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-install.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-install.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006.json",
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+    "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+    "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+    "policy-engine/src/polisyos/data_forge/kernel/README.md",
+    "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+    "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+    "policy-engine/src/polisyos/lex/knowledge/store.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_harvester_parallel.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+    "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+    "policy-engine/tests/unit/remediation/test_dfi_02.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py",
+    "policy-engine/tests/unit/remediation/test_emb_02.py",
+    "policy-engine/tests/unit/remediation/test_emb_03.py",
+    "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
+    "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py"
+  ],
+  "baseline_cells": [
+    "F01-P079",
+    "F01-P108",
+    "F01-P122",
+    "F02-P091",
+    "F02-P116",
+    "F02-P123",
+    "F03-P007",
+    "F03-P122",
+    "F03-P137",
+    "F04-P079",
+    "F04-P122",
+    "F04-P130",
+    "F04-P137",
+    "F05-P015",
+    "F05-P136",
+    "F06-P135",
+    "F06-P136",
+    "F06-P141",
+    "F07-P005",
+    "F07-P071",
+    "F07-P115",
+    "F08-P123",
+    "F09-P079",
+    "F09-P092",
+    "F09-P110",
+    "F09-P116",
+    "F09-P123",
+    "F09-P127",
+    "F10-P106",
+    "F10-P112",
+    "F11-P011",
+    "F11-P110",
+    "F12-P110",
+    "F13-P126",
+    "F13-P143",
+    "F13-P151",
+    "F14-P091",
+    "F14-P105",
+    "F14-P135",
+    "F14-P145",
+    "F15-P008",
+    "F15-P091",
+    "F15-P145"
+  ],
+  "checks": [
+    {
+      "command": "uv run --no-sync polisyos-tools workspace doctor --worktree-admission create --branch codex/e02-C-dfi-emb-20261006 --path /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": "Invoked from the C integration worktree product root; exact requested branch and worktree root.",
+      "input_closure": "Fresh create admission against complete observed registration/admin records and filesystem state; no stale-registration exception.",
+      "outcome": "PASS",
+      "output": "Exit 0, admitted, complete_verdict=true, findings=[] and unresolved_inputs=[]. Full byte-copied JSON: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/workspace-admission-create.json@5041bb61afa6b48a2a490440cb03954a4b72875a5c6069997251aa1ad45bdd66."
+    },
+    {
+      "command": "uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch codex/e02-C-dfi-emb-20261006 --path /Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": "Invoked from the C integration worktree product root; exact attached branch and worktree root.",
+      "input_closure": "Fresh resume admission against complete observed registration/admin records and filesystem state; no stale-registration exception.",
+      "outcome": "PASS",
+      "output": "Exit 0, admitted, complete_verdict=true, findings=[] and unresolved_inputs=[]. Full byte-copied JSON: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/workspace-admission-resume.json@684e0575e475d0adb3206ebf4ffab280f104bec5ef3625feb08e35890e0aca0e."
+    },
+    {
+      "command": "Focused pytest selectors: tests/unit/remediation/test_dfi_03.py and tests/unit/data_forge/domains/catalog/batch/test_pipeline.py (the exact argv was not captured in the deciding stdout).",
+      "target_sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "environment": "macOS, Python 3.14 shared read-only policy-engine .venv with PYTHONPATH set to the candidate policy-engine root and src.",
+      "input_closure": "Current DFI stage/checkpoint and pipeline bridge tests with isolated temporary fixture files and DuckDB; no full production corpus or model weights.",
+      "outcome": "PASS",
+      "output": "31 passed. Complete deciding output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-focused-tests.stdout.txt@5069d134ef2f07750a1f17a2384560072876a4d224f06fbcbcfa059a6ddef27d."
+    },
+    {
+      "command": "PYTHONPATH=\"/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/dfi-emb-review/core-publication-cache-final/cache_invalidation_probe.py",
+      "target_sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "environment": "macOS Python 3.14 shared read-only policy-engine .venv; fixture-only WorldBank transport stub; actual producer, writer, DuckDB, benchmark and pipeline; candidate worktree was clean at review start/end.",
+      "input_closure": "Eight assertions over current source receipt/cache behavior. Full command/script/output and result JSON are copied under the evidence directory; review receipt carries the exact command and source hashes.",
+      "outcome": "PASS",
+      "output": "Independent GO: checkpoint-only completed→deferred change with stage and benchmark report bytes held fixed causes benchmark-only orchestration to recompute partial-eval, repeated partial is not reused, deleting a real DB row blocks readiness, resume refetches and restores it, and repair returns full-ready. Output policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.stdout.txt@45afeb3a1e480d144733ae283d218b5fd4f6b57f83510d0917447511c7625c68; JSON @e3e50e1eed6be6cb37318769215f95a42ffe73af0fc0949399161cba5e3fe80b. The source completion percentage can remain informationally 100 while readiness is partial; it is not used as authority."
+    },
+    {
+      "command": "Isolated installed candidate invocation: Python 3.14 venv-vector-search/bin/python -I <ab441-la038-installed-probe.py>, cwd=/private/tmp, PYTHONPATH unset.",
+      "target_sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "environment": "Exact ab441 candidate wheel installed in an isolated vector-search profile; native hnswlib 0.8.0 profile; six exercised module origins matched source and wheel member bytes.",
+      "input_closure": "Two concurrent actual canonical pipeline requests; external transport stubbed at the request-scoped boundary; actual writer/temporary DuckDB; no publishability claim.",
+      "outcome": "PASS",
+      "output": "The compatibility facade was not imported; leaf globals remained unchanged; requests produced disjoint UA and PL rows. Script policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.py@432c6a1896ec751c3b847830dc1234b69d6b177dd2885e21cb9fb34dd1900e9c; stdout @b114db2391e2fdb6bf5ea6e2350c8164bfc8da5113fc7688c72dcad8cef77bba; exit 0."
+    },
+    {
+      "command": "Isolated installed candidate invocation: Python 3.14 venv-vector-search/bin/python -I <ab441-la042-installed-probe.py>, cwd=/private/tmp, PYTHONPATH unset.",
+      "target_sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "environment": "Exact ab441 candidate wheel installed in an isolated vector-search profile; native hnswlib 0.8.0; three exercised module origins matched source and wheel member bytes; no model weights/torch/transformers.",
+      "input_closure": "Real legacy Legal embedding entrypoint and LegalKnowledgeStore on fixture entity; wrong backend and undeclared device controls; synthetic encoder fixture only.",
+      "outcome": "PASS",
+      "output": "The legacy wrapper called the supplied encoder once, bound its identity into a complete selected generation, and the actual reader returned entity-1; unsupported backend and undeclared device were refused before output. Script policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.py@ae9916449fea4285939c0bf2032c70095848cf39f9749b151fb0d28ec7b2ee49; stdout @d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587; exit 0."
+    },
+    {
+      "command": "Candidate package profile closure probe: isolated Python 3.14 ab441 venv-vector-search/bin/python -I <ab441-profile-closure.py>.",
+      "target_sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "environment": "Candidate ab441 wheel/archive in isolated vector-search profile, PYTHONPATH unset; hnswlib 0.8.0 native .so origin/version established; no pytest/test extras, torch, transformers, sentence-transformers, or pretrained weights.",
+      "input_closure": "Fresh real native 4D HNSW index/query and candidate package dependency closure.",
+      "outcome": "PASS",
+      "output": "Native HNSW query returned expected label 41 at distance 0.0. Complete output policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.stdout.txt@1a4f9d531b80ad7b1a72b64427917b9664e05de2d22d1d17ae75d0feebaaed3f."
+    },
+    {
+      "command": "Isolated candidate-wheel core lifecycle attempt: exact ab441 installed wheel probe with PYTHONPATH unset; captured in `ab441-wheel-alone-runtime-probe.py` and output files.",
+      "target_sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "environment": "Candidate wheel alone in isolated Python 3.14 environment, not the documented workspace resource profile.",
+      "input_closure": "The probe attempted resource-dependent core lifecycle calls; the required seed variable alignment resource was not supplied by the wheel.",
+      "outcome": "UNRUN",
+      "output": "The wrapper process returned exit 0 while captured inner lifecycle attempts reported missing `seed_variable_alignments.yaml`; standalone noneditable-wheel core operation remains not_established. This is not counted as a supported workspace run; see policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.stdout.txt@748b1219fc79ad65cf7cbc8d6b6b4a69c1ae2c465340f515fb49206dc017f19e. Raw executed script SHA256 b195897a0c5fb5d623ee42d1dd39dbb84fa6d1f39145cb3c8db8760c5acb1761; the committed readable copy removes only the second trailing LF."
+    },
+    {
+      "command": "python -I main-runtime-probe-harvest-publish-v2.py (exact ab441 wheel/profile staged-resource causal control; see copied script and installed composition receipt).",
+      "target_sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "environment": "Isolated Python 3.14; candidate wheel sources imported from site-packages, PYTHONPATH unset; staged local resources are a causal fixture only, not an established supported installation profile.",
+      "input_closure": "Actual producer/checkpoint/DB/benchmark/cache/retry path with fixture external transport; the shared receipt identifies script/source hashes and control outcomes.",
+      "outcome": "PASS",
+      "output": "This probe records checkpoint-only cache invalidation, partial mode on stale/deferred or missing output, failed ingest refusal, successful refetch/recovery and current receipt. It is explicitly a causal control, not proof that a wheel+workspace resource profile is supported. Output policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.stdout.txt@a40f56d8022e5fa833acca9ce7c2646e737cc016be89ab0767e39666cd6efc5c; script @fac1f577c8b36492423010c6424ccfd85b9de8206e5294c148920ea1ef556e2d. Raw executed script SHA256 fac1f577c8b36492423010c6424ccfd85b9de8206e5294c148920ea1ef556e2d; the committed readable copy removes only the second trailing LF."
+    },
+    {
+      "command": "CAT descendant 8dfa exact-archive editable install and `python -I` prod_full integration probe; exact command JSON is copied in the evidence directory.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Python 3.14 base-only environment. CAT 8dfa archive/wheel is a downstream integration candidate containing ab441 ancestry; exact-archive editable install exposes documented workspace resources with PYTHONPATH unset and cwd /tmp. This is a source-workspace integration witness, not a standalone ab441 wheel claim.",
+      "input_closure": "Synthetic World Bank fixture; 9 synthetic metadata rows, 7 actual product metrics-map augmentations, one UA/2020 external fetch stub response per selected request, 26 actual shards/observations, current checkpoint+stage+persisted DB receipt; 23 exercised modules byte-match source archive and wheel.",
+      "outcome": "PASS",
+      "output": "26 observations inserted; benchmark full-ready; QC passed; publisher full_publish_ready=true and emitted manifest; same DuckDB RetrievalService consumer returned the selected World Bank plan. Live URL reachability and production source authority are not established. Receipt policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-installed-audit-receipt.json@0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064; deciding stdout @cc1ebf19f873999e126e2aef2d188d1c81feba00dd903dc33e6ce4be28cb9590; manifest SHA `d9e43677b9a76a0405e130f2244f455f80bccde18069a1834052a6054ad0032d`."
+    },
+    {
+      "command": "CAT descendant 8dfa exact-archive editable run with existing `preflight_core` cap and the same independent readback.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Same isolated exact-archive editable profile as the `prod_full` run; not transferred as a DFI standalone-wheel result.",
+      "input_closure": "Actual `preflight_core` plan cap yielded 2 observations, 100% source preflight and QC pass, but only 20% of ten transport variables received observations.",
+      "outcome": "PASS",
+      "output": "Publisher correctly refused: consumer_ready/full_publish_ready/transportability_ready=false and no manifest created. Output policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-summary.json@3a5be1089fac3bdb3f07444d18378bea0834651c85477df296e9712493aa7fd9."
+    },
+    {
+      "command": "CAT descendant 8dfa exact-archive editable HTTP-503 negative control.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Same isolated editable workspace profile; external HTTP boundary returns controlled 503, not a live endpoint.",
+      "input_closure": "32 stubbed HTTP 503 attempts; QC observes zero reachability; publisher has no current QC content-bound receipt.",
+      "outcome": "PASS",
+      "output": "QC failed with reachability 0 and publisher refused without creating a manifest. Output policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-negative-http-503.stdout.txt@daba899b8538a8387f05dd02bbe43e3ecdf21f74113266f20ee2cfba1e3b7fb2."
+    },
+    {
+      "command": "CAT 8dfa same-profile LA-038/LA-042 composition probes, as listed in c2-installed-composition-receipt.json.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "CAT installed vector-search package and exact 8dfa archive; PYTHONPATH unset, cwd /tmp; same supported editable resource profile as CAT integration witness.",
+      "input_closure": "Separate two-request LA-038 and legacy Legal LA-042 probes. The receipt reports exit 0 for each, equal DFI-vs-CAT hashes for six and three common modules respectively; these are composition checks, not a transfer of CAT proof to the frozen DFI wheel.",
+      "outcome": "PASS",
+      "output": "Consolidated receipt policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/c2-installed-composition-receipt.json@0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1; per-probe outputs/commands are copied as `catalog-8dfa-la038-*` and `catalog-8dfa-la042-*`."
+    },
+    {
+      "command": "Historical source falsifier `ledger_removal_probe.py` at 6cfd, preserved as an earlier red control.",
+      "target_sha": "6cfd7ffca15f586840d1aaf42b436fe1685be9fa",
+      "environment": "Source-only synthetic catalog fixture with real DuckDB row deletion and checkpoint/stage markers held; prior source candidate, not ab441.",
+      "input_closure": "Removed the actual observation row and deferred the checkpoint while keeping stale stage markers; tested benchmark-facing readiness.",
+      "outcome": "FAIL",
+      "output": "The old code remained complete/full-ready after output deletion; exact control policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.stdout.txt@f542d80ea227457ced812af378ea9d13ffc5ea06addff003db129919e9603774."
+    },
+    {
+      "command": "Historical source falsifier `cache_invalidation_probe.py` at d747, preserved as an earlier red control.",
+      "target_sha": "d747ada477f3de1a369a2e29a547b9f66e77822b",
+      "environment": "Source-only synthetic catalog fixture, prior to ab441 shared cache-basis correction.",
+      "input_closure": "Checkpoint-only completed→deferred mutation with stage and report bytes unchanged; orchestrated benchmark-only run and direct benchmark compared.",
+      "outcome": "FAIL",
+      "output": "Direct benchmark became partial, but orchestrated pipeline skipped and retained full-ready. Exact control policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.stdout.txt@ca2cc22dd3ef5ef021be4b8cd84f1e8e817e6d5168bb57711f7db1623049f5b8."
+    },
+    {
+      "command": "git diff fd23ed448dd3664b80b499863573900ea03256ea..12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63 -- \"*.py\" | sort -u | xargs /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check",
+      "target_sha": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+      "environment": "macOS Python 3.14 shared read-only policy-engine .venv; Ruff config from policy-engine; full Python delta with no select-only filter.",
+      "input_closure": "Historical 10 changed Python paths from immediate parent fd23 through candidate 12190; complete stdout reported 99 diagnostics in core_sources/loaders.py. Its input paths intersect this family and provenance from slice base 198 was not established.",
+      "outcome": "FAIL",
+      "output": "Historical full-gate failure retained at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ruff99.stdout.txt@fdc509d58298bac3250a7932a57b066167e7d7ed048293029aca17556e0f4b70. This is not reported as inherited from the slice base, and no whole-gate pass is claimed for ab441."
+    },
+    {
+      "command": "Full Ruff gate at ab441 slice candidate.",
+      "target_sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "environment": "Not rerun on exact slice-base closure.",
+      "input_closure": "Current ab441 complete Ruff input denominator is not retained; exact replay from slice base 198 has not been made.",
+      "outcome": "UNRUN",
+      "output": "Current whole-gate result/origin is not_established; historical 121 full-gate failure remains separately recorded."
+    }
+  ],
+  "property": {
+    "statement": "A local core-ingest/embedding result is reusable or publishable only while the actual selected producer plan, effective config, current required output inventory/content, generation basis, checkpoint outcome, and consuming reader/publication agree. A ready marker, prior report, expected ID list, path name, or stale completion percentage alone is not sufficient.",
+    "runtime_path": [
+      "strict local source/profile intake and effective request",
+      "canonical producer (core_sources.api or domain embedding producer)",
+      "persisted checkpoint/core-output or immutable embedding generation with selector",
+      "pipeline benchmark/QC cache bridge",
+      "publisher and same-DB RetrievalService / Academic-Catalog-Legal knowledge readers",
+      "independent removal, stale-checkpoint, retry and old-or-new consumer falsifiers"
+    ],
+    "surface": "Publisher manifest plus Catalog RetrievalService and domain knowledge-store reads are the downstream runtime surfaces exercised by bounded fixture probes.",
+    "authority_purpose": "Candidate-generation and local publication-readiness evidence only. Fixture HTTP responses, metrics maps, encoder behavior and synthetic vectors are not institutionally authoritative source/model claims.",
+    "provenance": "Exact source/worktree, candidate archive/wheel and installed module-byte identity are recorded. Local source transport and model weights are fixture-controlled. No live external URL, production source history, or model-release provenance is claimed.",
+    "rule_schema_version": "Current local generation and catalog core-output receipt schemas are exercised; receipt schema identity is recorded in source/runtime artifact.",
+    "time_roles": "Current checkpoint, selected-run request/config, content-output bytes, and generation selector are decisive; informational completion percentage and fixture wall-clock values are nonauthoritative.",
+    "proxy_divergence": "On 6cfd, deleting the real observation row while retaining completion markers stayed complete/full-ready. On d747, changing only the canonical checkpoint to deferred while stage/report bytes stayed fixed made direct benchmark partial but orchestration skipped the benchmark and remained full-ready. At ab441 the shared recomputed receipt is consumed by benchmark context, input basis, and skip selection; the same falsifier now reruns as partial, removal blocks readiness, and recovery refetches the row.",
+    "negative_controls": [
+      "6cfd persisted-output removal false-green red control",
+      "d747 checkpoint-only orchestrator cache false-green red control",
+      "ab441 checkpoint-only deferred mutation with stage/report held fixed",
+      "ab441 real DuckDB observation removal and retry/refetch restoration",
+      "CAT 8dfa preflight_core positive-QC but insufficient transport readiness must refuse publisher",
+      "CAT 8dfa controlled HTTP-503 QC failure must refuse publisher",
+      "ab441 legacy Legal wrong-backend and undeclared-device refusal before output",
+      "ab441 source-selector/native HNSW publication failure controls retained in focused source tests"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_detail": {
+    "local_checkpoint_and_persisted_outputs": "recomputed from the current checkpoint/ledger and required local catalog output bytes/schema/membership; the shared current-core-output receipt is the basis for benchmark acceptance and cache skip.",
+    "effective_configuration_and_selected_sources": "recomputed for the selected current local plan and config; the strict registry/runtime owner controls full local source census and selected profile. The caller-supplied selection does not prove completeness of an unbounded external source universe.",
+    "publishability": "recomputed through current benchmark/QC receipt and publisher readiness checks in the CAT 8dfa descendant integration fixture.",
+    "external_source_history_and_live_reachability": "not_established; the CAT end-to-end fixture stubs the network boundary.",
+    "model_encoder_tokenizer_and_weight_release_authority": "not_established; installed legal encoder is synthetic and no pretrained assets were used.",
+    "external_or_dynamic_callers_and_global_ABI_absence": "not_established; compatibility entrypoints remain present."
+  },
+  "capability_state_or_finding_state": "limited",
+  "finding_states": [
+    {
+      "id": "LA-038",
+      "bundles": [
+        "DFI-01",
+        "DFI-02"
+      ],
+      "historical_status": "partial / bridge_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "finding_status": "limited",
+      "code_outcome": "Canonical `core_sources.api` is called without importing the compatibility facade; request dependencies are immutable and ContextVar-scoped; legacy facade delegates remain explicit and do not broadcast process-global mutable state. Source and exact ab441 installed probes show two concurrent canonical requests persist distinct UA and PL rows through the real writer, with leaf globals unchanged and facade absent from modules. The CAT 8dfa downstream integration also ran the unchanged API/pipeline/core-source module blobs through real ingest/checkpoint/DB/benchmark/QC/publish/RetrievalService; six common LA-038 modules were byte-identical between DFI ab441 and CAT 8dfa. External transport was fixture-stubbed.",
+      "evidence": "Direct DFI installed script/stdout are `ab441-la038-installed-probe.py`@432c6a1896ec751c3b847830dc1234b69d6b177dd2885e21cb9fb34dd1900e9c and `.stdout.txt`@b114db2391e2fdb6bf5ea6e2350c8164bfc8da5113fc7688c72dcad8cef77bba. CAT composition result is in `c2-installed-composition-receipt.json`@0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1. CAT full pipeline receipt is `catalog-8dfa-installed-audit-receipt.json`@0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064.",
+      "remaining": "Limited to the tested local producer/profile and temporary fixtures. No absence claim is made about external or dynamic callers; compatibility facade is retained, with no ABI retirement. No production source-history admission is claimed. Historical full Ruff failure/origin is separately recorded and not called inherited."
+    },
+    {
+      "id": "LA-039",
+      "bundles": [
+        "EMB-01",
+        "EMB-02"
+      ],
+      "historical_status": "partial / verification_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "finding_status": "limited",
+      "code_outcome": "Academic and Catalog retain distinct projections while using one generation publisher. The source candidate validates a staged native index against NPZ member IDs/vectors before selector publication, preserves the predecessor selector on rejection, and tests old-or-new reader behavior with a v2 discriminator. Candidate native HNSW profile closure at ab441 proves the actual `hnswlib 0.8.0` native extension and a real index query. Academic/Catalog embedding producer/readers were not rerun through the fresh ab441 installed profile; the earlier 121 installed reader receipt is historical and is not transferred as an ab441 result.",
+      "evidence": "Current exact candidate profile output is `ab441-profile-closure.stdout.txt`@1a4f9d531b80ad7b1a72b64427917b9664e05de2d22d1d17ae75d0feebaaed3f; the source test files are part of the 60-path base-to-candidate diff. Earlier installed-domain receipt at 121 is separate and not used as current installed evidence.",
+      "remaining": "No production Academic/Catalog corpus membership or immutable pretrained encoder/tokenizer/weight revision was inspected. Synthetic encoder fixtures establish structure only, not production authority, accuracy, or precision. Production corpus and model-release provenance remain not_established."
+    },
+    {
+      "id": "LA-040",
+      "bundles": [
+        "EMB-03"
+      ],
+      "historical_status": "partial / producer_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "finding_status": "held",
+      "code_outcome": "The legal generation basis binds projected member text/IDs, current entity/fact/provision membership, inspectable encoder/tokenizer identity and current projection inputs. Source tests cover same-ID edits, dimension-preserving encoder/tokenizer changes, membership change and withdrawals; exact ab441 installed legacy probe reaches a complete Legal generation and an actual Legal reader for a fixture entity. That probe does not establish full production legal member-set history or real model release provenance.",
+      "evidence": "The direct installed legal wrapper probe is `ab441-la042-installed-probe.py`@ae9916449fea4285939c0bf2032c70095848cf39f9749b151fb0d28ec7b2ee49 and stdout@d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587; it is cited here only for overlapping Legal producer/consumer behavior, not for LA-040 full membership closure.",
+      "remaining": "Held for examination of actual production Legal entity/fact/provision content membership, withdrawals, immutable encoder/tokenizer/weight revision and governing provenance. These inputs were not inspected; they are not declared unavailable. Fixture weights do not authorize production reuse."
+    },
+    {
+      "id": "LA-041",
+      "bundles": [
+        "DFI-03"
+      ],
+      "historical_status": "partial / verification_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "finding_status": "limited",
+      "code_outcome": "The owner builds one recomputed current-core-output receipt from the current planned work/checkpoint and required persisted catalog output basis; benchmark readiness and orchestrator cache skip consume the same receipt. The independent ab441 source falsifier shows checkpoint-only completion→deferred mutation while stage/report bytes remain fixed forces an orchestrated benchmark-only rerun to partial-eval; it refuses false completion after actual DB row removal, then refetches and restores the row and returns to full-ready. The installed ab441 wheel causal control exercises checkpoint/cache/failure/retry behavior with staged fixture resources. Separately, the downstream CAT 8dfa supported exact-archive editable profile runs 26 actual fixture shards through persisted checkpoint/DB receipt→benchmark→QC→publish→same-DB RetrievalService; preflight_core correctly refuses publication when only 20% transport readiness is covered.",
+      "evidence": "Independent source review output `ab441-cache-invalidation-probe.stdout.txt`@45afeb3a1e480d144733ae283d218b5fd4f6b57f83510d0917447511c7625c68 and structured JSON@e3e50e1eed6be6cb37318769215f95a42ffe73af0fc0949399161cba5e3fe80b; installed controls recorded in `c2-installed-composition-receipt.json`@0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1; CAT supported integration receipt `catalog-8dfa-installed-audit-receipt.json`@0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064. The ab441→8dfa path/blob comparison is `ab441-to-8dfa-path-byte-comparison.txt`@8ccac1df98c1ce9df93e4944fa4153f486075c00918e68b7377f15e26a123e29.",
+      "remaining": "Limited to the current local selected inputs, fixture source responses and persisted local DuckDB boundary. Remote/global source history, live URL reachability, production corpus completeness/performance and external source authorization remain not_established. Source completion percentage is informational and can remain 100% while evaluation mode/readiness is partial; it is not an authority gate. The noneditable wheel alone lacks catalog workspace seed resources; the editable integration profile is a distinct declared route."
+    },
+    {
+      "id": "LA-042",
+      "bundles": [
+        "EMB-03"
+      ],
+      "historical_status": "partial / bridge_missing (C ledger at slice base 198076863e143dea9f89f02734b13d50dae3eed5)",
+      "finding_status": "limited",
+      "code_outcome": "The retained `build_embeddings_and_index` compatibility entrypoint delegates into the canonical Legal producer, calls the supplied supported encoder, binds its identity in the selected generation and supports actual LegalKnowledgeStore readback. The exact ab441 installed probe observed one encoder call and returned fixture entity-1; wrong backend and undeclared device were rejected before output. Native HNSW is real; model weights are synthetic/absent.",
+      "evidence": "Exact ab441 installed probe script@ae9916449fea4285939c0bf2032c70095848cf39f9749b151fb0d28ec7b2ee49, stdout@d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587, stderr@6ab1986585504822e0f534cad01596b9b78fab7bcc83771e66d2fb3e3415918b; CAT descendant same-profile composition output is separately in `c2-installed-composition-receipt.json`@0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1.",
+      "remaining": "Limited to the supported local encoder fixture and retained adapter. No external ABI retirement is proposed; external caller/model-release policy and real immutable encoder assets remain not_established."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "G reviews this exact source candidate and adjudicates formal finding closure separately; closure_ids is intentionally empty.",
+    "G must run any production-history/corpus-dependent check on the exact selected integration/source SHA using local read-only data; no production corpus or full remote history was opened here.",
+    "The standalone noneditable wheel does not include the catalog workspace seed resource. A package-alone lifecycle probe recorded missing seed_variable_alignments.yaml; no wheel-plus-workspace resource contract is claimed. The CAT integration positive uses a separate exact-archive editable profile and must not be generalized to wheel-only operation.",
+    "Synthetic World Bank metadata/HTTP responses and synthetic embedding encoders/weights establish structural runtime behavior only. Live reachability, production source authority, model provenance, accuracy, and precision are not established.",
+    "Full Ruff was not replayed on the slice base or final ab441 closure. A historical full delta Ruff failure at 12190 reported 99 diagnostics in core_sources/loaders.py; exact ownership from slice base is not established, and no whole-Ruff pass is claimed.",
+    "The 12190 installed three-reader/five-channel package audit is historical and is not transferred to ab441. Current ab441 direct LA-038/042 installed probes and current CAT 8dfa descendant composition are separately scoped.",
+    "The source completion percentage may remain informationally 100 while the recomputed receipt and evaluation mode are partial; readiness derives from the shared receipt, not that percentage."
+  ],
+  "source_refs": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFI-01.md#LA-038",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFI-02.md#LA-038",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFI-03.md#LA-041",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMB-01.md#LA-039",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMB-02.md#LA-039",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMB-03.md#LA-040",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMB-03.md#LA-042",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv#LA-038..LA-042",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md#finding-la-038..finding-la-042",
+    "policy-engine/docs/reference/policy-design-case-failure-patterns.md#P37-P41"
+  ],
+  "tracked_repository_census": {
+    "status": "not_established for final ab441 caller-completeness claims",
+    "scope": "A prior tracked-Python caller census at candidate fcfe8de3 was included in the earlier 12190 handoff. It is not used here to claim absence of external or dynamic callers; the compatibility facade and legacy function are retained.",
+    "historical_census_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006.json#tracked_repository_census"
+  },
+  "pattern_classification": {
+    "P37": "Local checkpoint/output gate predicates are recomputed and receipt-bound. External source completeness, live reachability and pretrained model-release provenance remain not_established.",
+    "P38": "Stage status/report names were the divergent proxy at 6cfd/d747; current shared recomputation reads the actual selected checkpoint and persisted output basis and is consumed by benchmark and cache skip.",
+    "P40": "The 6cfd→d747→ab441 escapes are the same resume/cache-validity class. The mechanism was widened once to the current planned ledger plus actual persisted output quantity and shared by direct benchmark and pipeline cache selection. The ab441 one-level-deeper falsifier is a worked example, not a new ladder patch.",
+    "P41": "Full-Ruff red provenance is not established from slice base 198. The exact 12190 full delta red is retained as a historical failure; c320 and nearer-parent comparisons do not prove it inherited from 198."
+  },
+  "delta_parent_sha": "d747ada477f3de1a369a2e29a547b9f66e77822b",
+  "delta_changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+    "policy-engine/tests/unit/remediation/test_dfi_03.py"
+  ],
+  "intermediate_source_history": [
+    {
+      "sha": "6cfd7ffca15f586840d1aaf42b436fe1685be9fa",
+      "class": "producer finalization derives progress from current shard ledger; not itself proof of persisted outputs."
+    },
+    {
+      "sha": "d747ada477f3de1a369a2e29a547b9f66e77822b",
+      "class": "same P40 resume-validity class: bind the local core output receipt to actual persisted DB/table state."
+    },
+    {
+      "sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "class": "same P40 class widened to use the shared canonical receipt in benchmark readiness and pipeline cache skip."
+    }
+  ],
+  "independent_adversarial_review": {
+    "target_sha": "ab44166335130463178e65dfc29a252c96afe479",
+    "target_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+    "outcome": "GO for scoped LA-041 local cache-validity mechanism",
+    "assertions_passed": 8,
+    "review_receipt": "ab441-independent-review.txt@2f4c8980ca9db4bc72fd07bb7d461f5f8bb4899b23eedf13983139d4596d8468",
+    "output": "ab441-cache-invalidation-probe.stdout.txt@45afeb3a1e480d144733ae283d218b5fd4f6b57f83510d0917447511c7625c68",
+    "result_json": "ab441-cache-invalidation-probe.json@e3e50e1eed6be6cb37318769215f95a42ffe73af0fc0949399161cba5e3fe80b",
+    "scope_boundary": "This source-only independent review does not itself verify LA-038 or LA-042. Full-corpus completeness/performance remain unmeasured."
+  },
+  "installed_candidate_identity": {
+    "DFI_ab441": {
+      "commit": "ab44166335130463178e65dfc29a252c96afe479",
+      "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+      "archive_sha256": "fed40241a23c7bb946d934a97eecd50852f887621706efe026484187f8953003",
+      "archive_bytes": 460288000,
+      "wheel_sha256": "68c77ca5b91a30e98a8a21c4e651ade143724ed3a8c83e9961512ea4469c78d6",
+      "wheel_bytes": 15038167
+    },
+    "CAT_descendant_8dfa": {
+      "commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+      "archive_sha256": "b4d34f51b2c5f73976dd49889195f55f591ccf1749f7cf37579378fcf0cb9e67",
+      "wheel_sha256": "f446551d9c9195350bb9d9a081453adac0836cda20e35d7f3996f9ddf0f420bf",
+      "relationship": "Downstream integration archive containing ab441 ancestry; do not substitute it for the standalone ab441 candidate."
+    }
+  },
+  "ab441_to_8dfa_scope_comparison": {
+    "receipt": "ab441-to-8dfa-path-byte-comparison.txt@8ccac1df98c1ce9df93e4944fa4153f486075c00918e68b7377f15e26a123e29",
+    "full_diff_path_count": 36,
+    "ab441_source_paths_compared": 37,
+    "byte_identical_dfi_provider_and_runtime_paths": [
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py"
+    ],
+    "known_catalog_owner_deltas": [
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md"
+    ],
+    "interpretation": "The CAT 8dfa integrated producer/QC/publish/readback run exercises the exact unchanged DFI provider/pipeline/benchmark/core-source runtime blobs while using CAT-owned config/registry follow-on changes. It is source-workspace integration evidence, not a DFI standalone-wheel proof."
+  },
+  "installed_audit_raw_evidence": {
+    "DFI_ab441": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/c2-installed-composition-receipt.json@0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1",
+      "scope": "Exact ab441 installed 038/042 probes and staged-resource LA-041 causal control; profile and negative controls are explicit in the receipt.",
+      "raw_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441"
+    },
+    "CAT_8dfa_descendant": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-installed-audit-receipt.json@0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064",
+      "readback_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-summary.json@3a5be1089fac3bdb3f07444d18378bea0834651c85477df296e9712493aa7fd9",
+      "raw_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa"
+    },
+    "archive_claim": "Archives and wheels remain in local ignored raw directories; hashes and sizes are sufficient for exact identification. Production data, full remote history, secrets, and pretrained weights were not copied."
+  },
+  "evidence_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-focused-tests.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-independent-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-source-hashes.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-to-8dfa-path-byte-comparison.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-build.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-install.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/c2-installed-composition-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-installed-audit-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038-la042-runner.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-negative-http-503-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-negative-http-503.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-prod-full-200-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-prod-full-200.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-complete.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-focused-test.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-independent-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/workspace-admission-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/workspace-admission-resume.json"
+  ],
+  "evidence_copy_notes": [
+    "The two long installed probe scripts are byte-identical to the executed raw scripts except the tracked review copies remove one extra terminal LF to satisfy git diff --check; exact raw executed SHA256 values and paths are recorded in the corresponding checks and C2 composition receipt. No code bytes were changed."
+  ],
+  "evidence_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.json",
+      "bytes": 7675,
+      "sha256": "9e7aba955acf77228cb4369c654db67f2a1ffd23e54a487ad94ac409806be609"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.py",
+      "bytes": 13401,
+      "sha256": "26d311436c059e10f4d147af0f33fea190264c9abb80f0652e5d1a39239929c5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.stdout.txt",
+      "bytes": 8984,
+      "sha256": "f542d80ea227457ced812af378ea9d13ffc5ea06addff003db129919e9603774"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.json",
+      "bytes": 6245,
+      "sha256": "e3e50e1eed6be6cb37318769215f95a42ffe73af0fc0949399161cba5e3fe80b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.py",
+      "bytes": 11635,
+      "sha256": "ab2877434dd1026e4579e9fb285e1bf37ba42dfb0a20a116af1676d17d72d948"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.stdout.txt",
+      "bytes": 7643,
+      "sha256": "45afeb3a1e480d144733ae283d218b5fd4f6b57f83510d0917447511c7625c68"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-focused-tests.stdout.txt",
+      "bytes": 4088,
+      "sha256": "5069d134ef2f07750a1f17a2384560072876a4d224f06fbcbcfa059a6ddef27d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-independent-review.txt",
+      "bytes": 2091,
+      "sha256": "2f4c8980ca9db4bc72fd07bb7d461f5f8bb4899b23eedf13983139d4596d8468"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.py",
+      "bytes": 7797,
+      "sha256": "432c6a1896ec751c3b847830dc1234b69d6b177dd2885e21cb9fb34dd1900e9c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.stdout.txt",
+      "bytes": 5167,
+      "sha256": "b114db2391e2fdb6bf5ea6e2350c8164bfc8da5113fc7688c72dcad8cef77bba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.py",
+      "bytes": 8479,
+      "sha256": "ae9916449fea4285939c0bf2032c70095848cf39f9749b151fb0d28ec7b2ee49"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.stderr.txt",
+      "bytes": 335,
+      "sha256": "6ab1986585504822e0f534cad01596b9b78fab7bcc83771e66d2fb3e3415918b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.stdout.txt",
+      "bytes": 3215,
+      "sha256": "d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.py",
+      "bytes": 2778,
+      "sha256": "3b6f5e823f1271f76bbf25320ecd1f48d6f0a9dc951c583115176fc1704efee9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.stdout.txt",
+      "bytes": 1056,
+      "sha256": "1a4f9d531b80ad7b1a72b64427917b9664e05de2d22d1d17ae75d0feebaaed3f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-source-hashes.txt",
+      "bytes": 548,
+      "sha256": "cf7f1e876abd20e9d67bc4ebf2ad60ee7fd05fc262705d444f6bfbb4f4a436f8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.py",
+      "bytes": 27050,
+      "sha256": "b3d4302875d8e04f2018e659b40ec171709509ea453d476b8eb65c54dfed0b27"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.stderr.txt",
+      "bytes": 8868,
+      "sha256": "d4ac0d35e7cadb24c3a7409ed1a376cef82175f8f90086a194c07046dcceec51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.stdout.txt",
+      "bytes": 80958,
+      "sha256": "a40f56d8022e5fa833acca9ce7c2646e737cc016be89ab0767e39666cd6efc5c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-to-8dfa-path-byte-comparison.txt",
+      "bytes": 12613,
+      "sha256": "8ccac1df98c1ce9df93e4944fa4153f486075c00918e68b7377f15e26a123e29"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.py",
+      "bytes": 26177,
+      "sha256": "f30292b81d0cc77072bb50abafc5acfaf9a22efa845bfbb494441b690c755460"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.stderr.txt",
+      "bytes": 7215,
+      "sha256": "07e4c71cc556d1d0dd86a10a95c1dfd6d646ad776ef731e09a39dbe392391d75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.stdout.txt",
+      "bytes": 19874,
+      "sha256": "748b1219fc79ad65cf7cbc8d6b6b4a69c1ae2c465340f515fb49206dc017f19e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-build.stderr.txt",
+      "bytes": 407,
+      "sha256": "6187ec17831baafd2b6eba9ef0412e334779269a6d132f07d148b2fee454527b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-install.stderr.txt",
+      "bytes": 327,
+      "sha256": "edcae28791e4b870c80ee819a7370723ae680d4749620541e32cb087d77fb8a0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/c2-installed-composition-receipt.json",
+      "bytes": 13837,
+      "sha256": "0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-installed-audit-receipt.json",
+      "bytes": 15137,
+      "sha256": "0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038-command.json",
+      "bytes": 1987,
+      "sha256": "2bdb1ad4bf481b9e1dd4c086acabaddaccc1195df6fd8a3bd648b93949ef8cfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038-la042-runner.py",
+      "bytes": 2289,
+      "sha256": "8ed3bac94ea547cefec2a4445e778f7ee860b24ad73df4b2fddd42462e304b98"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038.stdout.txt",
+      "bytes": 5141,
+      "sha256": "06ac0c3639994aefd8589c026a8fcd45d3de65e9b90d71bb97dc80b8c0a786dc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042-command.json",
+      "bytes": 1806,
+      "sha256": "592ca1f70681f412b6ae90506cad35b4423c264e51bfbca98c9da5724d16efa3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042.stderr.txt",
+      "bytes": 335,
+      "sha256": "cf0a6436246b8954174b1c8ec720e7607c666e74b5a1d097119fcbda3ccdf767"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042.stdout.txt",
+      "bytes": 3215,
+      "sha256": "d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-negative-http-503-command.json",
+      "bytes": 1728,
+      "sha256": "1f34baddd1df6056e32713c6fb5b331073c7203f5c0b104669218575e5a22693"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-negative-http-503.stdout.txt",
+      "bytes": 2272,
+      "sha256": "daba899b8538a8387f05dd02bbe43e3ecdf21f74113266f20ee2cfba1e3b7fb2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-prod-full-200-command.json",
+      "bytes": 1906,
+      "sha256": "df1809cedbbaa1108a859a6a0ff3ed831e191342d71b54b207268ebc867bca46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-prod-full-200.stdout.txt",
+      "bytes": 6631,
+      "sha256": "cc1ebf19f873999e126e2aef2d188d1c81feba00dd903dc33e6ce4be28cb9590"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-complete.stdout.txt",
+      "bytes": 7286,
+      "sha256": "dae9fa8d694a76627bd3a69d9436a264e94ca1c7146bc0f97a8902642aeb9f2c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-summary.json",
+      "bytes": 8166,
+      "sha256": "3a5be1089fac3bdb3f07444d18378bea0834651c85477df296e9712493aa7fd9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install-command.json",
+      "bytes": 1472,
+      "sha256": "811f019ed969e9a79be017c7cd4a114ca587eb4ca8df13c6f0cf6459023e453d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install.stderr.txt",
+      "bytes": 662,
+      "sha256": "4eaf7d970fffce1aa6766034ee8123a22470e5246cb3d33802ecb77610d0d1b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.json",
+      "bytes": 4531,
+      "sha256": "af93b9c8d79056b2cb00a2e2ff7aaf326c30a8d268e4a4d3b122cadb4a4732fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.py",
+      "bytes": 10322,
+      "sha256": "4f3ade7b948faab36a54735cbf565dc98dcef62972eefca0cdcf9a533e1e4168"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.stdout.txt",
+      "bytes": 5739,
+      "sha256": "ca2cc22dd3ef5ef021be4b8cd84f1e8e817e6d5168bb57711f7db1623049f5b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-focused-test.stdout.txt",
+      "bytes": 357,
+      "sha256": "5291526fb61f79404cbeb41b76f68e0b8d65eeec4ec9d8b658a3db9d743253b7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-independent-review.txt",
+      "bytes": 2038,
+      "sha256": "41f13552ffb8e0e7b05769a9f1105f9b2dbed819a594240e1e3606deac30b15f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/workspace-admission-create.json",
+      "bytes": 34694,
+      "sha256": "5041bb61afa6b48a2a490440cb03954a4b72875a5c6069997251aa1ad45bdd66"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/workspace-admission-resume.json",
+      "bytes": 41439,
+      "sha256": "684e0575e475d0adb3206ebf4ffab280f104bec5ef3625feb08e35890e0aca0e"
+    }
+  ],
+  "installed_evidence_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.py",
+      "bytes": 7797,
+      "sha256": "432c6a1896ec751c3b847830dc1234b69d6b177dd2885e21cb9fb34dd1900e9c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.stdout.txt",
+      "bytes": 5167,
+      "sha256": "b114db2391e2fdb6bf5ea6e2350c8164bfc8da5113fc7688c72dcad8cef77bba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.py",
+      "bytes": 8479,
+      "sha256": "ae9916449fea4285939c0bf2032c70095848cf39f9749b151fb0d28ec7b2ee49"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.stderr.txt",
+      "bytes": 335,
+      "sha256": "6ab1986585504822e0f534cad01596b9b78fab7bcc83771e66d2fb3e3415918b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.stdout.txt",
+      "bytes": 3215,
+      "sha256": "d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.py",
+      "bytes": 2778,
+      "sha256": "3b6f5e823f1271f76bbf25320ecd1f48d6f0a9dc951c583115176fc1704efee9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.stdout.txt",
+      "bytes": 1056,
+      "sha256": "1a4f9d531b80ad7b1a72b64427917b9664e05de2d22d1d17ae75d0feebaaed3f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.py",
+      "bytes": 27050,
+      "sha256": "b3d4302875d8e04f2018e659b40ec171709509ea453d476b8eb65c54dfed0b27"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.stderr.txt",
+      "bytes": 8868,
+      "sha256": "d4ac0d35e7cadb24c3a7409ed1a376cef82175f8f90086a194c07046dcceec51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.stdout.txt",
+      "bytes": 80958,
+      "sha256": "a40f56d8022e5fa833acca9ce7c2646e737cc016be89ab0767e39666cd6efc5c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.exit.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.py",
+      "bytes": 26177,
+      "sha256": "f30292b81d0cc77072bb50abafc5acfaf9a22efa845bfbb494441b690c755460"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.stderr.txt",
+      "bytes": 7215,
+      "sha256": "07e4c71cc556d1d0dd86a10a95c1dfd6d646ad776ef731e09a39dbe392391d75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.stdout.txt",
+      "bytes": 19874,
+      "sha256": "748b1219fc79ad65cf7cbc8d6b6b4a69c1ae2c465340f515fb49206dc017f19e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-build.stderr.txt",
+      "bytes": 407,
+      "sha256": "6187ec17831baafd2b6eba9ef0412e334779269a6d132f07d148b2fee454527b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-install.stderr.txt",
+      "bytes": 327,
+      "sha256": "edcae28791e4b870c80ee819a7370723ae680d4749620541e32cb087d77fb8a0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/c2-installed-composition-receipt.json",
+      "bytes": 13837,
+      "sha256": "0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-installed-audit-receipt.json",
+      "bytes": 15137,
+      "sha256": "0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038-command.json",
+      "bytes": 1987,
+      "sha256": "2bdb1ad4bf481b9e1dd4c086acabaddaccc1195df6fd8a3bd648b93949ef8cfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038-la042-runner.py",
+      "bytes": 2289,
+      "sha256": "8ed3bac94ea547cefec2a4445e778f7ee860b24ad73df4b2fddd42462e304b98"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038.stdout.txt",
+      "bytes": 5141,
+      "sha256": "06ac0c3639994aefd8589c026a8fcd45d3de65e9b90d71bb97dc80b8c0a786dc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042-command.json",
+      "bytes": 1806,
+      "sha256": "592ca1f70681f412b6ae90506cad35b4423c264e51bfbca98c9da5724d16efa3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042.stderr.txt",
+      "bytes": 335,
+      "sha256": "cf0a6436246b8954174b1c8ec720e7607c666e74b5a1d097119fcbda3ccdf767"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042.stdout.txt",
+      "bytes": 3215,
+      "sha256": "d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-negative-http-503-command.json",
+      "bytes": 1728,
+      "sha256": "1f34baddd1df6056e32713c6fb5b331073c7203f5c0b104669218575e5a22693"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-negative-http-503.stdout.txt",
+      "bytes": 2272,
+      "sha256": "daba899b8538a8387f05dd02bbe43e3ecdf21f74113266f20ee2cfba1e3b7fb2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-prod-full-200-command.json",
+      "bytes": 1906,
+      "sha256": "df1809cedbbaa1108a859a6a0ff3ed831e191342d71b54b207268ebc867bca46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-prod-full-200.stdout.txt",
+      "bytes": 6631,
+      "sha256": "cc1ebf19f873999e126e2aef2d188d1c81feba00dd903dc33e6ce4be28cb9590"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-complete.stdout.txt",
+      "bytes": 7286,
+      "sha256": "dae9fa8d694a76627bd3a69d9436a264e94ca1c7146bc0f97a8902642aeb9f2c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-summary.json",
+      "bytes": 8166,
+      "sha256": "3a5be1089fac3bdb3f07444d18378bea0834651c85477df296e9712493aa7fd9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install-command.json",
+      "bytes": 1472,
+      "sha256": "811f019ed969e9a79be017c7cd4a114ca587eb4ca8df13c6f0cf6459023e453d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install.stderr.txt",
+      "bytes": 662,
+      "sha256": "4eaf7d970fffce1aa6766034ee8123a22470e5246cb3d33802ecb77610d0d1b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441.json",
+  "handoff_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/6cfd-ledger-removal-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-cache-invalidation-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-focused-tests.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-independent-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la038-installed-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-la042-installed-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-profile-closure.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-source-hashes.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-staged-resource-causal-control-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-to-8dfa-path-byte-comparison.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-alone-runtime-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-build.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/ab441-wheel-install.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/c2-installed-composition-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-installed-audit-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038-la042-runner.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la038.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-la042.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-negative-http-503-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-negative-http-503.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-prod-full-200-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-prod-full-200.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-complete.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-readback-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/catalog-8dfa-vector-install.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-cache-invalidation-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-focused-test.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/d747-independent-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/workspace-admission-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/workspace-admission-resume.json"
+  ]
+}

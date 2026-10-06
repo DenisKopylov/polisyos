@@ -1,0 +1,4 @@
+3f0a9448ea1f643da224bc326ab3b4ef9e59510d087a974eeb77b74df53a979d  policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py
+8a336d1823335776f97dc13b7a55bd79b61d002cddc5a6563615f82c5175f90f  policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py
+6502672e9c26661e2ae25c5ecc701da9584aa248b06af1b1cd5eb07267627466  policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py
+1c42de909fb1669d09e58cd6d69a7514fe2bff5a8b94a303ac2ff9108f4c0040  policy-engine/tests/unit/remediation/test_dfi_03.py

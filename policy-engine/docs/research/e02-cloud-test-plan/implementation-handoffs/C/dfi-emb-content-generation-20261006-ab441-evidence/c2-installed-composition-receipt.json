@@ -1,0 +1,236 @@
+{
+  "CAT_8dfa_same_profile_composition_probes": {
+    "full_pipeline_and_independent_oracle": {
+      "receipt": {
+        "bytes": 15137,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-installed-audit-receipt.json",
+        "sha256": "0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064"
+      },
+      "scope": "Separate CAT 8dfa full synthetic producer\u2192benchmark\u2192QC\u2192publisher\u2192direct RetrievalService witness, via documented exact-archive editable workspace route because standalone wheel lacks catalog resource data. Not transferred to DFI ab441. External calls fixture-stubbed; live source/URL reachability not established.",
+      "summary": {
+        "bytes": 8166,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-readback-summary.json",
+        "sha256": "3a5be1089fac3bdb3f07444d18378bea0834651c85477df296e9712493aa7fd9"
+      }
+    },
+    "install": {
+      "command": {
+        "bytes": 1472,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-vector-install-command.json",
+        "sha256": "811f019ed969e9a79be017c7cd4a114ca587eb4ca8df13c6f0cf6459023e453d"
+      },
+      "exit_code": 0,
+      "profile_note": "Existing private DFI vector-search venv reused; CAT wheel installed --offline --no-deps. CAT 038/042 commands used python -I, CWD /tmp, PYTHONPATH absent; no build performed.",
+      "stderr": {
+        "bytes": 662,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-vector-install.stderr",
+        "sha256": "4eaf7d970fffce1aa6766034ee8123a22470e5246cb3d33802ecb77610d0d1b1"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-vector-install.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "la_038": {
+      "command": {
+        "bytes": 1987,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-dfi-038-command.json",
+        "sha256": "2bdb1ad4bf481b9e1dd4c086acabaddaccc1195df6fd8a3bd648b93949ef8cfd"
+      },
+      "exit_code": 0,
+      "outcome": "PASS. CAT installed canonical pipeline, request-scoped external transport stub; concurrent requests wrote one separated row each (UA vs PL) through installed writer. Legacy facade absent, leaf globals unchanged. 6 CAT installed module origins byte-matched CAT wheel and exact source. DFI-vs-CAT outputs have equal hashes for all 6 common exercised modules.",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-dfi-038.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 5141,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-dfi-038.stdout",
+        "sha256": "06ac0c3639994aefd8589c026a8fcd45d3de65e9b90d71bb97dc80b8c0a786dc"
+      }
+    },
+    "la_042": {
+      "command": {
+        "bytes": 1806,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-dfi-042-command.json",
+        "sha256": "592ca1f70681f412b6ae90506cad35b4423c264e51bfbca98c9da5724d16efa3"
+      },
+      "exit_code": 0,
+      "outcome": "PASS. CAT installed legal producer wrote a complete generation and LegalKnowledgeStore returned entity-1; wrong backend and device=None refused before output. Native hnswlib profile; no model weights. 3 CAT modules byte-matched CAT wheel/source; DFI-vs-CAT outputs have equal hashes for all 3 common exercised modules.",
+      "stderr": {
+        "bytes": 335,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-dfi-042.stderr",
+        "sha256": "cf0a6436246b8954174b1c8ec720e7607c666e74b5a1d097119fcbda3ccdf767"
+      },
+      "stdout": {
+        "bytes": 3215,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-dfi-042.stdout",
+        "sha256": "d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587"
+      }
+    },
+    "same_profile_module_identity": {
+      "LA_038_common_equal_modules": [
+        "batch._core_sources_ingest_contracts",
+        "batch.pipeline",
+        "core_sources.api",
+        "core_sources.loaders",
+        "core_sources.transformers",
+        "core_sources.writers"
+      ],
+      "LA_042_common_equal_modules": [
+        "kernel.embeddings",
+        "legal.batch.embedder",
+        "lex.knowledge.store"
+      ]
+    }
+  },
+  "DFI_ab441_installed_probes": {
+    "la_038": {
+      "exit_code": 0,
+      "outcome": "Two concurrent actual canonical pipeline requests; scoped transport stub only; actual writers._insert_generic_observations writes distinct UA and PL rows and one observation each. Legacy facade remained unloaded; leaf globals unchanged; 6 installed modules matched source and wheel bytes. Fixture is not a publishability claim.",
+      "result": {
+        "bytes": 5167,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/context038-final-output/probe.stdout",
+        "sha256": "b114db2391e2fdb6bf5ea6e2350c8164bfc8da5113fc7688c72dcad8cef77bba"
+      },
+      "script": {
+        "bytes": 7797,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/context038-probe-final.py",
+        "sha256": "432c6a1896ec751c3b847830dc1234b69d6b177dd2885e21cb9fb34dd1900e9c"
+      },
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/context038-final-output/probe.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "la_041_checkpoint_cache_and_retry": {
+      "cache_falsifier": {
+        "checkpoint_only_write_kept_benchmark_output": true,
+        "checkpoint_only_write_kept_stage_state": true,
+        "direct_benchmark_mode": "partial-eval",
+        "orchestrator_mode": "partial-eval",
+        "orchestrator_skipped_stages": [],
+        "receipt_matches_checkpoint_and_stage": false,
+        "second_orchestrator_mode": "partial-eval",
+        "transport_calls_unchanged": true
+      },
+      "classification": "This is an actual installed DFI ab441 wheel replay, distinct from any source-only GO or source review. It is not a replay of a later source freeze.",
+      "exit_code": 0,
+      "failure_then_recovery": {
+        "failed_benchmark_mode": "partial-eval",
+        "failed_manifest_status": "warning",
+        "failed_reingest_db_rows": [],
+        "repair_benchmark_mode": "full-ready",
+        "repair_db_rows": [
+          [
+            "wb-gdp",
+            "NY.GDP.PCAP.PP.CD",
+            "UA",
+            2020,
+            1.1
+          ]
+        ],
+        "repair_receipt_current": true,
+        "valid_resume_benchmark_mode": "full-ready",
+        "valid_resume_fetch_call_delta": 0
+      },
+      "result": {
+        "bytes": 80958,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/main-runtime-harvest-publish-v2-output/probe.stdout",
+        "sha256": "a40f56d8022e5fa833acca9ce7c2646e737cc016be89ab0767e39666cd6efc5c"
+      },
+      "runtime": {
+        "PYTHONPATH": null,
+        "cwd": "/private/tmp",
+        "isolated_mode": true,
+        "python": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-vector-search/bin/python",
+        "safe_path": true,
+        "site_packages": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-vector-search/lib/python3.14/site-packages",
+        "sys_path": [
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-vector-search/lib/python3.14/site-packages"
+        ],
+        "sys_path_outside_source": true,
+        "version": "3.14.0"
+      },
+      "script": {
+        "bytes": 27051,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/main-runtime-probe-harvest-publish-v2.py",
+        "sha256": "fac1f577c8b36492423010c6424ccfd85b9de8206e5294c148920ea1ef556e2d"
+      },
+      "stderr": {
+        "bytes": 8868,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/main-runtime-harvest-publish-v2-output/probe.stderr",
+        "sha256": "d4ac0d35e7cadb24c3a7409ed1a376cef82175f8f90086a194c07046dcceec51"
+      }
+    },
+    "la_042": {
+      "exit_code": 0,
+      "outcome": "Actual installed legal batch producer selected a complete generation with encoder identity bound; LegalKnowledgeStore read entity-1. Wrong backend and undeclared device refused before output creation. Native HNSW profile required; no model weights used; 3 installed modules matched source and wheel bytes.",
+      "result": {
+        "bytes": 3215,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/legal042-final-output/probe.stdout",
+        "sha256": "d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587"
+      },
+      "script": {
+        "bytes": 8479,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/legal042-probe-final.py",
+        "sha256": "ae9916449fea4285939c0bf2032c70095848cf39f9749b151fb0d28ec7b2ee49"
+      },
+      "stderr": {
+        "bytes": 335,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/legal042-final-output/probe.stderr",
+        "sha256": "6ab1986585504822e0f534cad01596b9b78fab7bcc83771e66d2fb3e3415918b"
+      }
+    },
+    "runtime": "python 3.14.0, -I, CWD /private/tmp, PYTHONPATH null; origins site-packages; each deciding output reports installed bytes equal to source and wheel members."
+  },
+  "candidate_identities": {
+    "CAT_8dfa": {
+      "archive": {
+        "bytes": 460410880,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/candidate.tar",
+        "sha256": "b4d34f51b2c5f73976dd49889195f55f591ccf1749f7cf37579378fcf0cb9e67"
+      },
+      "commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "sdist": {
+        "bytes": 65249112,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/dist/policy_engine-0.1.0.tar.gz",
+        "sha256": "de96683985c249c31507cb468923789ca08a27066a2646ef26398c0180aa4c9a"
+      },
+      "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+      "wheel": {
+        "bytes": 15039358,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/dist/policy_engine-0.1.0-py3-none-any.whl",
+        "sha256": "f446551d9c9195350bb9d9a081453adac0836cda20e35d7f3996f9ddf0f420bf"
+      }
+    },
+    "DFI_ab441": {
+      "archive": {
+        "bytes": 460288000,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/candidate.tar",
+        "sha256": "fed40241a23c7bb946d934a97eecd50852f887621706efe026484187f8953003"
+      },
+      "commit": "ab44166335130463178e65dfc29a252c96afe479",
+      "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+      "wheel": {
+        "bytes": 15038167,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/dist/policy_engine-0.1.0-py3-none-any.whl",
+        "sha256": "68c77ca5b91a30e98a8a21c4e651ade143724ed3a8c83e9961512ea4469c78d6"
+      }
+    }
+  },
+  "created_at_utc": "2026-10-06",
+  "evidence_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed",
+  "purpose": "Consolidate existing installed-package witnesses for DFI ab441 and CAT 8dfa; no new build or product-source change.",
+  "schema": "codex.installed-package-composition-receipt.v1",
+  "slot_status": "released after these preserved probes and receipt creation; private environments and all raw outputs remain for parent cleanup; no source files modified.",
+  "source_only_vs_installed_boundary": {
+    "statement": "Any separate source-only ab441 cache GO remains source-only and is not substituted for an installed replay. The DFI LA-041 fields above come from the preserved -I installed-wheel result path; any later candidate/source freeze is separately identified and not covered."
+  }
+}

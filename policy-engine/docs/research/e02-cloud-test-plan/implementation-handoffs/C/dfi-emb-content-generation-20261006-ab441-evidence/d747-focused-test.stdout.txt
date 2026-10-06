@@ -1,0 +1,4 @@
+.                                                                        [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/remediation/test_dfi_03.py::test_pipeline_preserves_current_core_producer_progress_for_benchmark

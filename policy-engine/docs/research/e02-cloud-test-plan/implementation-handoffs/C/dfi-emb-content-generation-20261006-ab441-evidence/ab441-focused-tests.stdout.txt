@@ -1,0 +1,38 @@
+...............................                                          [100%]
+==================================== PASSES ====================================
+___ test_incomplete_selected_harvest_cannot_resume_and_failed_source_retries ___
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 20:16:34.745 | ERROR    | polisyos.common.logger:_call:120 - Harvest failed for source source_b: temporary source failure
+
+=========================== short test summary info ============================
+PASSED tests/unit/remediation/test_dfi_03.py::test_same_stat_changed_manifest_bytes_do_not_reuse_normalize_stage
+PASSED tests/unit/remediation/test_dfi_03.py::test_mtime_only_manifest_change_keeps_normalize_stage_reusable
+PASSED tests/unit/remediation/test_dfi_03.py::test_harvest_resume_rejects_preflight_limit_change
+PASSED tests/unit/remediation/test_dfi_03.py::test_embed_resume_rejects_changed_loaded_encoder_assets
+PASSED tests/unit/remediation/test_dfi_03.py::test_graph_resume_rejects_same_stat_changed_input[graph_load]
+PASSED tests/unit/remediation/test_dfi_03.py::test_graph_resume_rejects_same_stat_changed_input[graph_index]
+PASSED tests/unit/remediation/test_dfi_03.py::test_graph_receipts_bind_database_after_selected_downstream_writers
+PASSED tests/unit/remediation/test_dfi_03.py::test_pipeline_preserves_current_core_producer_progress_for_benchmark
+PASSED tests/unit/remediation/test_dfi_03.py::test_core_sources_ingest_is_not_resumed_without_bound_fetch_receipt
+PASSED tests/unit/remediation/test_dfi_03.py::test_core_sources_run_signature_changes_with_producer_limit
+PASSED tests/unit/remediation/test_dfi_03.py::test_core_sources_run_signature_changes_with_registry_content
+PASSED tests/unit/remediation/test_dfi_03.py::test_benchmark_resume_requires_current_core_ingest_receipt
+PASSED tests/unit/remediation/test_dfi_03.py::test_benchmark_resume_rejects_bulk_equivalence_manifest_change
+PASSED tests/unit/remediation/test_dfi_03.py::test_benchmark_resume_rejects_unselected_raw_source_change
+PASSED tests/unit/remediation/test_dfi_03.py::test_qc_resume_rejects_selected_previous_snapshot_payload_change
+PASSED tests/unit/remediation/test_dfi_03.py::test_changed_output_bytes_do_not_reuse_merge_stage
+PASSED tests/unit/remediation/test_dfi_03.py::test_legacy_directory_state_without_output_inventory_is_cache_miss
+PASSED tests/unit/remediation/test_dfi_03.py::test_empty_normalize_output_directory_is_not_reusable
+PASSED tests/unit/remediation/test_dfi_03.py::test_explicit_empty_required_outputs_do_not_fallback_to_recorded_outputs
+PASSED tests/unit/remediation/test_dfi_03.py::test_content_stage_recompute_disables_inner_resume_checkpoint
+PASSED tests/unit/remediation/test_dfi_03.py::test_publish_receipt_binds_full_registry_bytes_and_selected_source_contract
+PASSED tests/unit/remediation/test_dfi_03.py::test_publish_receipt_requires_all_published_outputs
+PASSED tests/unit/remediation/test_dfi_03.py::test_standalone_content_receipt_requires_stable_inputs_and_real_outputs
+PASSED tests/unit/remediation/test_dfi_03.py::test_real_qc_receipt_binds_shared_merged_and_duplicate_inputs[merged_records_path-{"source":"source_a","title":"Changed","description":"Description"}\n]
+PASSED tests/unit/remediation/test_dfi_03.py::test_real_qc_receipt_binds_shared_merged_and_duplicate_inputs[duplicates_report_path-source,kept_id,dropped_id\nsource_a,1,2\n]
+PASSED tests/unit/remediation/test_dfi_03.py::test_selected_empty_generation_is_reused_without_reencoding
+PASSED tests/unit/remediation/test_dfi_03.py::test_embed_resume_rejects_config_rule_and_selected_output_changes
+PASSED tests/unit/remediation/test_dfi_03.py::test_interrupted_embed_state_is_never_reusable
+PASSED tests/unit/remediation/test_dfi_03.py::test_incomplete_selected_harvest_cannot_resume_and_failed_source_retries
+PASSED tests/unit/data_forge/domains/catalog/batch/test_pipeline.py::test_pipeline_writes_telemetry_when_qc_fails
+PASSED tests/unit/data_forge/domains/catalog/batch/test_pipeline.py::test_embed_resume_does_not_skip_when_selected_member_is_missing

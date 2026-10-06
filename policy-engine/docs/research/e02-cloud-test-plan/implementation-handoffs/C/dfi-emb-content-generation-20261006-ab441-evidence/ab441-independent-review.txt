@@ -1,0 +1,19 @@
+Frozen candidate: branch codex/e02-C-dfi-emb-20261006
+Commit: ab44166335130463178e65dfc29a252c96afe479
+Tree: b1eaa06c81fae89d56ae467e8036d5923b886f3d
+Parent: d747ada477f3de1a369a2e29a547b9f66e77822b
+Worktree status: clean at review start/end
+
+Independent end-to-end falsifier argv:
+PYTHONPATH="/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine/src" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/dfi-emb-review/core-publication-cache-final/cache_invalidation_probe.py
+Exit: 0
+Script: cache_invalidation_probe.py
+Script SHA256: ab2877434dd1026e4579e9fb285e1bf37ba42dfb0a20a116af1676d17d72d948
+Full stdout: cache-invalidation-probe.stdout.txt
+Full stdout SHA256: 45afeb3a1e480d144733ae283d218b5fd4f6b57f83510d0917447511c7625c68
+Structured JSON: cache-invalidation-probe.json
+JSON SHA256: e3e50e1eed6be6cb37318769215f95a42ffe73af0fc0949399161cba5e3fe80b
+
+The tiny WorldBank fixture runs actual planner/producer/writer/DB/benchmark/pipeline, with only connector describe/fetch stubbed. Eight assertions passed: genuine observation persists; changing only checkpoint completion to deferred preserves core-stage and report bytes before the call; benchmark-only pipeline does not skip and reports partial; a repeated run does not reuse the partial receipt without a valid current core receipt; direct benchmark also reports partial; removing the real DB row blocks benchmark; core resume refetches and restores the row; readiness returns after repair.
+
+Review verdict: GO for the shared LA-041 local content-binding/cache-validity mechanism tested here. The prior d747 pipeline-cache escape is closed by one shared recomputation source used by benchmark, input-basis generation and the skip selector. Full-corpus source completeness/partiality/performance remains a separate unmeasured data-record residual. This review does not assess LA-038's facade/leaf concurrency contract.

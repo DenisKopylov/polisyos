@@ -1,0 +1,178 @@
+{
+  "candidate": {
+    "commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+    "source_archive_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/source/policy-engine",
+    "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+    "wheel_sha256": "f446551d9c9195350bb9d9a081453adac0836cda20e35d7f3996f9ddf0f420bf"
+  },
+  "http_503_negative_control": {
+    "live_url_reachability": "not_established",
+    "publisher_refusal": "Dataset publish blocked: no current qc content-bound receipt",
+    "qc_value": 0.0,
+    "requests": 32,
+    "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/negative-http-503/negative-http-503/catalog-runtime-result.json",
+    "result_sha256": "ddc01e614ce40af69d91506e0a39bcfbb2e6a0270c5d72d07c877110f42f4992"
+  },
+  "oracle_imports": [
+    "stdlib json/hashlib/zipfile/pathlib",
+    "duckdb for read-only database queries"
+  ],
+  "oracle_product_runtime_imports": [],
+  "preflight_core": {
+    "benchmark": {
+      "evaluation_mode": "full-ready",
+      "foundry_fitness_pct": 100.0,
+      "retrieval_miss": "social_trust",
+      "retrieval_ready_pct": 90.0,
+      "search_misses": [
+        "trust_en",
+        "trust_uk"
+      ],
+      "search_top5_pct": 88.889,
+      "source_preflight_pct": 100.0,
+      "transport_ready_pct": 20.0
+    },
+    "candidate_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+    "candidate_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+    "canonical_observation_counts": {
+      "gdp_per_capita": 1,
+      "health_outcomes": 1
+    },
+    "component_artifact_count": 26,
+    "core_observations": 2,
+    "core_receipt_current": true,
+    "core_receipt_digest": "sha256:276d5229f68486322d6c33838a8f694bb370de66368699f48e77e7fe4628efbc",
+    "database_counts": {
+      "ds_datasets": 16,
+      "ds_distributions": 16,
+      "ds_metric_bindings": 25,
+      "ds_observations": 2,
+      "ds_variable_alignments": 26
+    },
+    "database_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/positive-core-fixed/positive/main/snapshot/datasets/graph/dataset_catalog.duckdb",
+    "database_sha256": "8d0c0cd1568ce8eca6662eadeb1d24f6294aa9e4c1a352775ae0d7340ef0d16c",
+    "editable_archive_resources_match": {
+      "metrics_map": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+      "seed_variable_alignments": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8"
+    },
+    "http_status_fixture": 200,
+    "live_url_reachability": "not_established",
+    "merged_records": 16,
+    "missing_profile_refusal": "catalog_run_profile_unresolved: catalog_run_profile_unresolved",
+    "module_count": 23,
+    "module_origins_match_archive_and_wheel": true,
+    "normalized_records": 16,
+    "profile": "preflight_core",
+    "publisher": {
+      "consumer_ready": false,
+      "full_publish_ready": false,
+      "manifest_path": null,
+      "manifest_sha256": null,
+      "publish_mode": "blocked",
+      "transportability_ready": false
+    },
+    "qc_passed": true,
+    "raw_fixture_plus_product_map_counts": {
+      "persisted_rows": 16,
+      "product_augmented_rows": 7,
+      "stub_rows": 9
+    },
+    "raw_manifest_sha256": "71d15946c1c7a7f976085b405dcf7245b1f3b1cbe1664f338b4f2f4c7e865c42",
+    "raw_payload_sha256": "28556ade39f3ea889e33f709504890a4c463d124204c9787dcb7cf61f5626f4d",
+    "result_sha256": "c14f9cde93355057d7f7f8f0e56656b4685a1cbb74f7250dd05e3bc6c86d02f6",
+    "retrieval_plan": {
+      "connector_id": "worldbank.wdi",
+      "dataset_id": "NY.GDP.PCAP.PP.CD",
+      "metric_id": "gdp_per_capita",
+      "profile_id": "worldbank_wdi"
+    },
+    "runtime_isolated_no_path_mutation": true,
+    "source_registry_sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b",
+    "source_result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/positive-core-fixed/positive/catalog-runtime-result.json",
+    "unknown_profile_refusal": "unsupported_run_profile: unknown-profile",
+    "wheel_sha256": "f446551d9c9195350bb9d9a081453adac0836cda20e35d7f3996f9ddf0f420bf"
+  },
+  "prod_full": {
+    "benchmark": {
+      "evaluation_mode": "full-ready",
+      "foundry_fitness_pct": 100.0,
+      "retrieval_miss": "social_trust",
+      "retrieval_ready_pct": 90.0,
+      "search_misses": [
+        "trust_en",
+        "trust_uk"
+      ],
+      "search_top5_pct": 88.889,
+      "source_preflight_pct": 100.0,
+      "transport_ready_pct": 90.0
+    },
+    "candidate_commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+    "candidate_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+    "canonical_observation_counts": {
+      "corruption_level": 3,
+      "education_outcomes": 2,
+      "gdp_per_capita": 4,
+      "health_outcomes": 3,
+      "inflation": 2,
+      "institutional_quality": 3,
+      "labor_force_participation": 2,
+      "migration": 1,
+      "poverty_rate": 4,
+      "unemployment_rate": 2
+    },
+    "component_artifact_count": 28,
+    "core_observations": 26,
+    "core_receipt_current": true,
+    "core_receipt_digest": "sha256:667d3e8e756a677fe3a9ff0f267388bec24b85b62d15a2aa1172e72a49cd3066",
+    "database_counts": {
+      "ds_datasets": 16,
+      "ds_distributions": 16,
+      "ds_metric_bindings": 25,
+      "ds_observations": 26,
+      "ds_variable_alignments": 26
+    },
+    "database_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/main/snapshot/datasets/graph/dataset_catalog.duckdb",
+    "database_sha256": "4aa0e4ef294aa7776539bfdad5f6e539fd182b623b0ec127c8ee40b81b960788",
+    "editable_archive_resources_match": {
+      "metrics_map": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+      "seed_variable_alignments": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8"
+    },
+    "http_status_fixture": 200,
+    "live_url_reachability": "not_established",
+    "merged_records": 16,
+    "missing_profile_refusal": "catalog_run_profile_unresolved: catalog_run_profile_unresolved",
+    "module_count": 23,
+    "module_origins_match_archive_and_wheel": true,
+    "normalized_records": 16,
+    "profile": "prod_full",
+    "publisher": {
+      "consumer_ready": true,
+      "full_publish_ready": true,
+      "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/main/snapshot/datasets/publish/manifest.json",
+      "manifest_sha256": "d9e43677b9a76a0405e130f2244f455f80bccde18069a1834052a6054ad0032d",
+      "publish_mode": "full-ready",
+      "transportability_ready": true
+    },
+    "qc_passed": true,
+    "raw_fixture_plus_product_map_counts": {
+      "persisted_rows": 16,
+      "product_augmented_rows": 7,
+      "stub_rows": 9
+    },
+    "raw_manifest_sha256": "4533261db5318e8d0c7013ca7c283b683de5e84aa9414cf111f779f5f81f2dac",
+    "raw_payload_sha256": "19aee4139a37ac63db240e94b61369f3308d8f58a1481109351ff045aeb30847",
+    "result_sha256": "ac735525db9c0438c508f90149e62f51b41ae11f4f28a89d2d54bca0703f8c4a",
+    "retrieval_plan": {
+      "connector_id": "worldbank.wdi",
+      "dataset_id": "NY.GDP.PCAP.PP.CD",
+      "metric_id": "gdp_per_capita",
+      "profile_id": "worldbank_wdi"
+    },
+    "runtime_isolated_no_path_mutation": true,
+    "source_registry_sha256": "230722766aaebf068dd8e7e7c69c8ade1f8639b863e19afc70cc7737f908016b",
+    "source_result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/catalog-runtime-result.json",
+    "unknown_profile_refusal": "unsupported_run_profile: unknown-profile",
+    "wheel_sha256": "f446551d9c9195350bb9d9a081453adac0836cda20e35d7f3996f9ddf0f420bf"
+  },
+  "standalone_wheel_boundary": "catalog workspace resources resolve only under the documented editable source-workspace install; this oracle tested that profile, not a wheel-only resource promise"
+}

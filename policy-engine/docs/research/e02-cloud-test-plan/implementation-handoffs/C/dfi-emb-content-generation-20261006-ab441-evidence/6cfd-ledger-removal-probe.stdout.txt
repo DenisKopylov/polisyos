@@ -1,0 +1,229 @@
+2026-10-06 19:25:44.701 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard d32224ae7e838a43fc6434eb: source=worldbank, request_dataset_id=NY.GDP.PCAP.PP.CD, country=UA
+{
+  "assertions": {
+    "bridge_kept_full_ready_after_actual_ledger_was_deferred": true,
+    "checkpoint_reuse_still_claimed_core_complete": true,
+    "content_bound_benchmark_receipt_current_for_stale_stage_declaration": true,
+    "initial_success_produced_actual_row": true,
+    "same_checkpoint_reuse_did_not_fetch_after_db_output_loss": true,
+    "source_preflight_reports_real_incomplete_inputs": true
+  },
+  "result": {
+    "actual_ledger_falsified_same_stage_markers": {
+      "benchmark_evaluation_mode": "full-ready",
+      "benchmark_partial_eval": 0,
+      "benchmark_source_preflight_ready_pct": 0.0,
+      "checkpoint_completed_entry_present": false,
+      "checkpoint_deferred_status": "deferred",
+      "checkpoint_publishable_core_complete": false,
+      "core_stage_state_after_benchmark": {
+        "input_fingerprint": "1136055d931c78897ce8c67f4e7d67b1534b2cba1276d23e2a8e839677e0d026:38e90bfe29435372e8bd71a6aaf207d35afd12d7c3a5c0493880728862eda706",
+        "metadata": {
+          "async_jobs_open": 0,
+          "avg_rows_per_shard": 0.0,
+          "backfill_pending": 0,
+          "blocked_by_source": {},
+          "bytes_downloaded_by_source": {},
+          "capability_failures_by_source": {},
+          "completed_by_source": {},
+          "completed_shards": 0,
+          "current_phase": "deferred",
+          "deferred_by_reason": {},
+          "deferred_ratio": 0.0,
+          "deferred_shards": 0,
+          "empty_fetch_ratio": 0.0,
+          "empty_ratio_by_source": {},
+          "failed_shards": 0,
+          "failures": 0,
+          "inflight_by_source": {},
+          "observation_mode": "core",
+          "observations": 0,
+          "planned_work_packages": 1,
+          "planner_phase": "deferred",
+          "planner_pruned_shards": 0,
+          "publishable_core_complete": true,
+          "publishable_core_pending": 0,
+          "queue_backlog_by_source": {},
+          "quota_wait_seconds_by_source": {},
+          "request_count_by_source": {},
+          "rows_per_request": 0.0,
+          "source_core_completion_pct": {
+            "worldbank": 100.0
+          },
+          "source_full_completion_pct": {
+            "worldbank": 100.0
+          },
+          "subphases": {
+            "long_tail_backfill": {
+              "remaining": 0,
+              "status": "skipped"
+            },
+            "publishable_core": {
+              "remaining": 0,
+              "status": "complete"
+            },
+            "support_sketch": {
+              "count": 1,
+              "status": "complete"
+            }
+          },
+          "support_sketch_count": 1,
+          "time_to_full_backfill": 0.002,
+          "time_to_publishable_core": null,
+          "writer_backlog_rows": 0,
+          "writer_flush_count": 0,
+          "writer_flush_latency_ms": 0.0
+        },
+        "outputs": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/dfi-emb-review/core-publication-delta/ledger-removal-fixture/snapshot/datasets/graph/dataset_catalog.duckdb"
+        ],
+        "status": "complete"
+      },
+      "core_stage_state_before_benchmark": {
+        "input_fingerprint": "1136055d931c78897ce8c67f4e7d67b1534b2cba1276d23e2a8e839677e0d026:38e90bfe29435372e8bd71a6aaf207d35afd12d7c3a5c0493880728862eda706",
+        "metadata": {
+          "async_jobs_open": 0,
+          "avg_rows_per_shard": 0.0,
+          "backfill_pending": 0,
+          "blocked_by_source": {},
+          "bytes_downloaded_by_source": {},
+          "capability_failures_by_source": {},
+          "completed_by_source": {},
+          "completed_shards": 0,
+          "current_phase": "deferred",
+          "deferred_by_reason": {},
+          "deferred_ratio": 0.0,
+          "deferred_shards": 0,
+          "empty_fetch_ratio": 0.0,
+          "empty_ratio_by_source": {},
+          "failed_shards": 0,
+          "failures": 0,
+          "inflight_by_source": {},
+          "observation_mode": "core",
+          "observations": 0,
+          "planned_work_packages": 1,
+          "planner_phase": "deferred",
+          "planner_pruned_shards": 0,
+          "publishable_core_complete": true,
+          "publishable_core_pending": 0,
+          "queue_backlog_by_source": {},
+          "quota_wait_seconds_by_source": {},
+          "request_count_by_source": {},
+          "rows_per_request": 0.0,
+          "source_core_completion_pct": {
+            "worldbank": 100.0
+          },
+          "source_full_completion_pct": {
+            "worldbank": 100.0
+          },
+          "subphases": {
+            "long_tail_backfill": {
+              "remaining": 0,
+              "status": "skipped"
+            },
+            "publishable_core": {
+              "remaining": 0,
+              "status": "complete"
+            },
+            "support_sketch": {
+              "count": 1,
+              "status": "complete"
+            }
+          },
+          "support_sketch_count": 1,
+          "time_to_full_backfill": 0.002,
+          "time_to_publishable_core": null,
+          "writer_backlog_rows": 0,
+          "writer_flush_count": 0,
+          "writer_flush_latency_ms": 0.0
+        },
+        "outputs": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/dfi-emb-review/core-publication-delta/ledger-removal-fixture/snapshot/datasets/graph/dataset_catalog.duckdb"
+        ],
+        "status": "complete"
+      },
+      "current_benchmark_receipt_available": true,
+      "current_benchmark_receipt_basis_digest": "ac0ed1e3aea40261e57cfc3f1ffd4d9f3f2c04359a178cb066eaac99776149a6",
+      "db_observations": 0,
+      "source_preflight": {
+        "sources": [
+          {
+            "auth_or_env_failure": false,
+            "binding_count": 1,
+            "catalog_count": 1,
+            "complete_empty_shards": 0,
+            "complete_with_rows_shards": 0,
+            "completed_shards": 0,
+            "dataset_count": 1,
+            "deferred_shards": 1,
+            "empirical_rows": 0,
+            "empirical_status": "none",
+            "failed_shards": 0,
+            "failure_reason": "no_raw_data",
+            "observation_missing_due_to_stage_block": false,
+            "raw_count": 0,
+            "ready": false,
+            "registry_count": 1,
+            "schema_profile_count": 1,
+            "source": "worldbank",
+            "source_blocked_by_quota": false,
+            "status": "partial_with_deferred_manifest"
+          }
+        ]
+      }
+    },
+    "after_db_output_removed_then_resumed": {
+      "additional_fetch_calls": 0,
+      "checkpoint_has_success_entry": "complete_with_rows",
+      "completed_manifest_count": 0,
+      "core_stats_observations": 0,
+      "db_observations": 0,
+      "producer_manifest_completed_shards": 0,
+      "producer_manifest_status": "ok",
+      "publishable_core_complete": true,
+      "publishable_core_pending": 0,
+      "source_core_completion_pct": {
+        "worldbank": 100.0
+      },
+      "source_summary": {},
+      "stage_status": "complete"
+    },
+    "assertions": {
+      "bridge_kept_full_ready_after_actual_ledger_was_deferred": true,
+      "checkpoint_reuse_still_claimed_core_complete": true,
+      "content_bound_benchmark_receipt_current_for_stale_stage_declaration": true,
+      "initial_success_produced_actual_row": true,
+      "same_checkpoint_reuse_did_not_fetch_after_db_output_loss": true,
+      "source_preflight_reports_real_incomplete_inputs": true
+    },
+    "candidate_commit": "6cfd7ffca15f586840d1aaf42b436fe1685be9fa",
+    "candidate_tree": "9bd7a520dc7532046c822a1c580334650018319b",
+    "fixture_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/dfi-emb-review/core-publication-delta/ledger-removal-fixture",
+    "initial": {
+      "benchmark_evaluation_mode": "full-ready",
+      "checkpoint_entry_status": "complete_with_rows",
+      "checkpoint_shard_id": "d32224ae7e838a43fc6434eb",
+      "completed_manifest_count": 1,
+      "core_complete": true,
+      "core_pending": 0,
+      "core_stats_observations": 1,
+      "core_status": "complete",
+      "db_observations": 1,
+      "deferred_manifest_count": 0,
+      "fetch_calls": 1,
+      "source_summary": {
+        "worldbank": {
+          "complete": 1,
+          "complete_empty": 0,
+          "complete_with_rows": 1,
+          "deferred": 0,
+          "failed": 0,
+          "rows": 1
+        }
+      }
+    },
+    "run_signature": "38e90bfe29435372e8bd71a6aaf207d35afd12d7c3a5c0493880728862eda706"
+  },
+  "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/dfi-emb-review/core-publication-delta/ledger-removal-probe.json",
+  "result_sha256": "9e7aba955acf77228cb4369c654db67f2a1ffd23e54a487ad94ac409806be609"
+}

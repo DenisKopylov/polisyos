@@ -1,0 +1,23 @@
+Frozen candidate: branch codex/e02-C-dfi-emb-20261006
+Commit: d747ada477f3de1a369a2e29a547b9f66e77822b
+Tree: 8993d250a4e2ed48cb184254acde0bcf7ad17c8d
+Parent: 6cfd7ffca15f586840d1aaf42b436fe1685be9fa
+Worktree status at review end: clean
+
+Focused test argv (from policy-engine):
+PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q -rA tests/unit/remediation/test_dfi_03.py::test_pipeline_preserves_current_core_producer_progress_for_benchmark
+Exit: 0
+Output: focused-test.stdout.txt
+Output SHA256: 5291526fb61f79404cbeb41b76f68e0b8d65eeec4ec9d8b658a3db9d743253b7
+
+Independent probe argv:
+PYTHONPATH="/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-dfi-emb-20261006/polisyos/policy-engine/src" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/dfi-emb-review/core-publication-final/cache_invalidation_probe.py
+Exit: 1 because assertion pipeline_cache_recomputes_falsified_checkpoint is false; this is the finding. Five of six assertions pass, including direct consumer rejection, DB-output deletion invalidation, re-fetch and successful repair.
+Output: cache-invalidation-probe-second-run.stdout.txt
+Output SHA256: ca2cc22dd3ef5ef021be4b8cd84f1e8e817e6d5168bb57711f7db1623049f5b8
+Structured output: cache-invalidation-probe.json
+Structured output SHA256: af93b9c8d79056b2cb00a2e2ff7aaf326c30a8d268e4a4d3b122cadb4a4732fc
+Script: cache_invalidation_probe.py
+Script SHA256: 4f3ade7b948faab36a54735cbf565dc98dcef62972eefca0cdcf9a533e1e4168
+
+Finding: the canonical observation checkpoint is read by benchmark, but omitted from pipeline.py benchmark basis. A checkpoint-only ledger change leaves the content receipt current, so run_dataset_pipeline_sync skips benchmark and preserves stale full-ready. Direct run_benchmark rejects it as partial-eval. The database output mutation is included and correctly invalidates the receipt.

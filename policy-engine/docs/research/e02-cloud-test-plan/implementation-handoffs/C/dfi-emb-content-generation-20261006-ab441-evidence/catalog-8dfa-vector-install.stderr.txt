@@ -1,0 +1,7 @@
+Using Python 3.14.0 environment at: /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/venv-vector-search
+Resolved 1 package in 24ms
+Prepared 1 package in 427ms
+Uninstalled 1 package in 452ms
+Installed 1 package in 85ms
+ - policy-engine==0.1.0 (from file:///Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/dfi-ab441/dist/policy_engine-0.1.0-py3-none-any.whl)
+ + policy-engine==0.1.0 (from file:///Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/dist/policy_engine-0.1.0-py3-none-any.whl)

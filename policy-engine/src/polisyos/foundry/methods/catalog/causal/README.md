@@ -85,6 +85,23 @@ broader `polisyos.foundry.methods` facade.
 
 ## Extension Points
 
+### Installed selected-worker profile
+
+The wheel projects the six canonical files from `workers/dowhy-014/` into the
+private causal `_dowhy_profile` resource directory. The sdist retains those
+same source paths so rebuilding its wheel uses the same mappings. The fixed
+worker script and protocol have one source owner; packaging does not create a
+second implementation or add DoWhy to the Python 3.14 application dependencies.
+
+Configure `POLISYOS_DOWHY_WORKER_PYTHON` with the server-owned absolute Python
+3.12 interpreter containing the separately locked worker dependencies. The
+parent validates the complete profile before invoking the worker; missing
+resources or interpreter configuration remain typed unavailability. Installed
+consumer tests exercise a real method job, CAS persistence and a fresh reader,
+then retire and restore a private resource to distinguish execution from a
+profile marker. Their known-DGP results establish bounded numerical and ABI
+properties; production input admission and scientific authority remain separate.
+
 ### DiD diagnostic basis
 
 The dedicated Standard and Staggered DiD producers attach a separate

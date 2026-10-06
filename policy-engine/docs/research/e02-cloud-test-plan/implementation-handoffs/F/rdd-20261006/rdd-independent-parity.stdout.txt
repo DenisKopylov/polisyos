@@ -1,0 +1,1 @@
+{"outcome": "PASS", "case_count": 36, "source_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594", "max_absolute_errors": {"point": 8.482103908136196e-13, "se": 2.3367419110797982e-12, "ci": 4.5496939549138915e-12, "tau_us": 5.240252676230739e-14, "se_us": 7.827072323607354e-15}}

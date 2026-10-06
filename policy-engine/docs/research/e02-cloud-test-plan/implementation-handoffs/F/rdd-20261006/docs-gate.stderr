@@ -1,0 +1,49 @@
+Using CPython 3.14.7
+Creating virtual environment at: .venv
+   Building policy-engine @ file:///workspace/e02-F-rdd-20261006/policy-engine
+Downloading ml-dtypes (4.8MiB)
+Downloading libcst (2.2MiB)
+Downloading pygments (1.2MiB)
+Downloading duckdb (19.5MiB)
+Downloading pydantic-core (2.0MiB)
+Downloading grpcio (6.4MiB)
+Downloading tiktoken (1.1MiB)
+Downloading matplotlib (9.4MiB)
+Downloading scipy (34.1MiB)
+Downloading aiohttp (1.6MiB)
+Downloading kiwisolver (1.4MiB)
+Downloading jax (2.8MiB)
+Downloading uvloop (4.1MiB)
+Downloading pillow (6.6MiB)
+Downloading fonttools (4.7MiB)
+ Downloaded pygments
+ Downloaded tiktoken
+ Downloaded pydantic-core
+ Downloaded libcst
+ Downloaded ml-dtypes
+ Downloaded fonttools
+Downloading pyarrow (45.5MiB)
+Downloading numpy (15.8MiB)
+Downloading pymoo (4.9MiB)
+Downloading cryptography (4.2MiB)
+Downloading pandas (11.8MiB)
+Downloading zstandard (5.3MiB)
+Downloading jaxlib (76.4MiB)
+ Downloaded kiwisolver
+ Downloaded grpcio
+ Downloaded aiohttp
+ Downloaded jax
+ Downloaded cryptography
+ Downloaded pymoo
+ Downloaded uvloop
+ Downloaded matplotlib
+ Downloaded pillow
+ Downloaded zstandard
+ Downloaded duckdb
+ Downloaded numpy
+ Downloaded pandas
+ Downloaded scipy
+      Built policy-engine @ file:///workspace/e02-F-rdd-20261006/policy-engine
+ Downloaded pyarrow
+ Downloaded jaxlib
+Installed 149 packages in 97ms

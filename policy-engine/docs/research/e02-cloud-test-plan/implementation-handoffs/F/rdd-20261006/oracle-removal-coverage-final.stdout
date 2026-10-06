@@ -1,0 +1,44 @@
+{
+  "outcome": "FAIL",
+  "case_count": 4036,
+  "maximum_abs_differences": {
+    "tau_us": 1.0302869668521453e-13,
+    "tau_bc": 0.919330453492945,
+    "se_us": 1.1796119636642288e-14,
+    "se_rb": 0.9882689130569361,
+    "ci": 3.4649424795314214
+  },
+  "differential_failure_count": 12108,
+  "coverage": [
+    {
+      "true_jump": 0.0,
+      "seed_first": 271000,
+      "seed_last": 272999,
+      "replicates": 2000,
+      "covered": 1687,
+      "coverage": 0.8435,
+      "binomial_Clopper_Pearson_99pct": [
+        0.8215054496742898,
+        0.863835772640195
+      ],
+      "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+      "outcome": "FAIL"
+    },
+    {
+      "true_jump": 3.0,
+      "seed_first": 821000,
+      "seed_last": 822999,
+      "replicates": 2000,
+      "covered": 1676,
+      "coverage": 0.838,
+      "binomial_Clopper_Pearson_99pct": [
+        0.8157245752412147,
+        0.8586435635864071
+      ],
+      "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+      "outcome": "FAIL"
+    }
+  ],
+  "wall_product_s": 11.256739854012267,
+  "wall_reference_s": 10.50418274399999
+}

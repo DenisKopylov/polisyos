@@ -1,0 +1,87 @@
+{
+  "reviewer": "F CAU direct leaf",
+  "candidate": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+  "tree": "c5821a7f576a407e8c99af53f5e101a33ebac2fd",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "outcome": "GO bounded scientific profile",
+  "changed_paths": [
+    "policy-engine/dev-oracles/rdd-cct/README.md",
+    "policy-engine/dev-oracles/rdd-cct/compare.py",
+    "policy-engine/dev-oracles/rdd-cct/pyproject.toml",
+    "policy-engine/dev-oracles/rdd-cct/uv.lock",
+    "policy-engine/docs/reference/foundry/causal-rdd-profile.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+    "policy-engine/tests/unit/remediation/test_cau_03.py"
+  ],
+  "scope": "Sharp CCT2014 fixed symmetric h/b, q=p+1,p1/2,HC0,unique running support; actual external rdrobust2.1.0 public callable only, no package source copied or product dependency. Conventional homoskedastic profile preserved distinctly.",
+  "checks": [
+    "Fresh exact native57PASS/0skip",
+    "36 new independently generated nonpolynomial heteroskedastic inputs directly match tau.us/tau.bc,se.us/se.rb and Robust CI; maxCIabsdiff4.55e-12",
+    "Actual canonical dematerialize_method_output strictdeclared projection returns exactly causal_effect_report with original typed report identity"
+  ],
+  "raw_diagnostic_qualification": "Raw pure_step lacks causal_effect_report key; canonical alias/projection consumer succeeds. Raw key census is not an ABI falsifier and no product defect is inferred from it.",
+  "limits": [
+    "Reviewer did not repeat author4000DGPcoverage; inspected complete fresh author oracle/removal contracts and bounded provenance; no inherited PASS",
+    "Known synthetic iid coverage is not admitted real-data continuity/no-manipulation/bandwidth validity",
+    "No fuzzy,tied support,cluster,masspointadjustment,automatic selector or universal finite-sample claim",
+    "Mandatory broad integration/production static invocation outcomes stay separate; no scannerPASS from native runtime success"
+  ],
+  "artifacts": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-native.json",
+      "bytes": 1454,
+      "sha256": "acd67066652f4e094d940fd40ae1b3d34d19dc40e3be7b03b3268e69d51574f8"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-native.stdout.txt",
+      "bytes": 2804,
+      "sha256": "30b28795778bc7c05e500d028201a4e5dc34078c5ad7d7d66b20659b2d0299e3"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-parity.json",
+      "bytes": 1256,
+      "sha256": "d8add518c043b348c1c5178ed9dcf1a4aec19532975ab66e9de1cdfb691d1dc6"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-oracle.json",
+      "bytes": 45973,
+      "sha256": "3f2399de78d422b72c7a16470a8e5163a971db3a377c4ec669ca317ade57477a"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-parity.stdout.txt",
+      "bytes": 278,
+      "sha256": "2bb95ce903456de0c4ed28e748cfea91a972c96338015b84b4c9909fea5dc009"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-canonical-consumer.json",
+      "bytes": 2122,
+      "sha256": "3f31ceb0155d44f8b6d812968c4b9bcb38b906a24839af898e072a074cf6487a"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-canonical-consumer.stdout.txt",
+      "bytes": 183,
+      "sha256": "7e15aefd7aad0f7dedbe4acc9a72f4d175e6c88cebff6437da37e791ecfef09c"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-abi.json",
+      "bytes": 1977,
+      "sha256": "22728a7a25a35e9308ca485fd5ee985ebf9bda55bf67ec0be47cc96d24f0169d"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-abi.stdout.txt",
+      "bytes": 309,
+      "sha256": "e15164c707b695ad7b94b53d7806222fd96507178a9bea370297ffd9fc78ea55"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/rdd-independent-oracle.py",
+      "bytes": 3478,
+      "sha256": "c2b3f5e51c99bc8c0091b90c26ba39b00b1c703eb637da24a670f589c4334fa4"
+    }
+  ]
+}

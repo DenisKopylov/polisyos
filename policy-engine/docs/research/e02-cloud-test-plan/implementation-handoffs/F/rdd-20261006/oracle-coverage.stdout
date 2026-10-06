@@ -1,0 +1,44 @@
+{
+  "outcome": "PASS",
+  "case_count": 4036,
+  "maximum_abs_differences": {
+    "tau_us": 1.0302869668521453e-13,
+    "tau_bc": 3.090860900556436e-12,
+    "se_us": 1.1796119636642288e-14,
+    "se_rb": 1.4199530440350827e-11,
+    "ci": 3.658229275060876e-11
+  },
+  "differential_failure_count": 0,
+  "coverage": [
+    {
+      "true_jump": 0.0,
+      "seed_first": 271000,
+      "seed_last": 272999,
+      "replicates": 2000,
+      "covered": 1879,
+      "coverage": 0.9395,
+      "binomial_Clopper_Pearson_99pct": [
+        0.9244397002602118,
+        0.9524206677451729
+      ],
+      "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+      "outcome": "PASS"
+    },
+    {
+      "true_jump": 3.0,
+      "seed_first": 821000,
+      "seed_last": 822999,
+      "replicates": 2000,
+      "covered": 1877,
+      "coverage": 0.9385,
+      "binomial_Clopper_Pearson_99pct": [
+        0.9233370445758633,
+        0.9515285696159681
+      ],
+      "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+      "outcome": "PASS"
+    }
+  ],
+  "wall_product_s": 44.789740678999806,
+  "wall_reference_s": 14.896116823001648
+}

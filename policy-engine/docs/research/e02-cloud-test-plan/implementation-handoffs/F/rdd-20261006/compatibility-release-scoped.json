@@ -1,0 +1,24 @@
+{
+  "source_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+  "outcome": "PASS",
+  "scope": "one exactownedRDDfragment throughcanonicalvalidator; full82fragmentgateFAIL2 remainsseparate",
+  "report": {
+    "phase": "repository-best-in-class-phase-5.10",
+    "mode": "report_only",
+    "status": "reported",
+    "policy": "architecture/gates/compatibility_release.toml",
+    "fragments_dir": "/workspace/e02-F-20261006-receipts/rdd/release-fragment-inputs",
+    "fragment_count": 1,
+    "structured_compatibility_change_count": 1,
+    "breaking_classes_checked": [],
+    "contract_error_count": 0,
+    "finding_count": 0,
+    "contract_errors": [],
+    "findings": [],
+    "summary": {
+      "compatibility_surfaces": 5,
+      "promotion_checks": 4,
+      "generated_families": 6
+    }
+  }
+}

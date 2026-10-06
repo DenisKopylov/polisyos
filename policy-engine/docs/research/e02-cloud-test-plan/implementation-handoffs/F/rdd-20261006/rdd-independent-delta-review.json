@@ -1,0 +1,59 @@
+{
+  "schema": "policyos.e02.independent_delta_review.v1",
+  "reviewer": "F/cau",
+  "candidate_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+  "reviewed_prior_sha": "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+  "outcome": "GO_BOUNDED",
+  "changed_paths": [
+    "policy-engine/dev-oracles/rdd-cct/README.md",
+    "policy-engine/dev-oracles/rdd-cct/compare.py",
+    "policy-engine/release-fragments/unreleased/2026-10-06-rdd-sharp-rbc.toml"
+  ],
+  "source_module_unchanged_sha256": "1e13e98fa6238f76b545c8597b03ae1eff648807e17609713ad084c21701e009",
+  "assessment": "The loop and admission changes actually include both 2000-replication groups for removal and preserve the selected positive oracle and product. Release metadata correctly states the existing explicit sharp fixed HC0 profile and independent GPL development-only oracle, not product dependency. No blocker in the three-path delta.",
+  "fresh_removal_receipt": {
+    "path": "/workspace/e02-F-20261006-receipts/rdd/oracle-removal-coverage-final.json",
+    "bytes": 13842,
+    "sha256": "7138f2786ea135347fcbaec22a25a83ff83f4ba18eb32fbacfe9d83946cf87f1",
+    "source_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+    "case_count": 4036,
+    "differential_failure_count": 12108,
+    "coverage": [
+      {
+        "true_jump": 0.0,
+        "seed_first": 271000,
+        "seed_last": 272999,
+        "replicates": 2000,
+        "covered": 1687,
+        "coverage": 0.8435,
+        "binomial_Clopper_Pearson_99pct": [
+          0.8215054496742898,
+          0.863835772640195
+        ],
+        "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+        "outcome": "FAIL"
+      },
+      {
+        "true_jump": 3.0,
+        "seed_first": 821000,
+        "seed_last": 822999,
+        "replicates": 2000,
+        "covered": 1676,
+        "coverage": 0.838,
+        "binomial_Clopper_Pearson_99pct": [
+          0.8157245752412147,
+          0.8586435635864071
+        ],
+        "declared_acceptance": "99% binomial interval contains .95 and empirical coverage in [.925,.975]",
+        "outcome": "FAIL"
+      }
+    ],
+    "outcome": "FAIL"
+  },
+  "limitations": [
+    "Review reads complete native source delta and complete deciding summary; does not claim a new independent repetition of all 4036 cases.",
+    "Old removal command omitted coverage groups; only the fresh fb022aa receipt measures both targets.",
+    "Raw ABI diagnostic remains qualified by actual canonical dematerializer PASS.",
+    "Native 57-case and independent 36-setting numerical checks were executed on prior unchanged product source; broader architecture/compatibility/docs/scanner gates are not promoted to PASS."
+  ]
+}

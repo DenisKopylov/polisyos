@@ -7,8 +7,8 @@ import pytest
 
 from polisyos.foundry.methods.base import ComplexityClass
 from polisyos.foundry.methods.catalog.causal import rdd as rdd_module
-from polisyos.foundry.methods.catalog.causal.rdd import RegressionDiscontinuity
 from polisyos.foundry.methods.catalog.causal.protocols import RDDObservationalData
+from polisyos.foundry.methods.catalog.causal.rdd import RegressionDiscontinuity
 from polisyos.ir.analytics.causal import EstimationStatus
 
 
@@ -184,8 +184,8 @@ def test_cau_03_omitted_bias_correction_is_explicitly_uncorrected() -> None:
     assert explicit.method_params["bias_correction"] is False
 
 
-def test_cau_03_true_bias_correction_fails_closed_without_an_estimate() -> None:
-    """A requested RBC profile cannot be relabelled as ordinary local-polynomial output."""
+def test_cau_03_true_bias_correction_requires_explicit_bias_bandwidth() -> None:
+    """The fixed RBC profile cannot silently invent a bias bandwidth."""
 
     report = _report(
         RegressionDiscontinuity.pure_step(
@@ -194,11 +194,10 @@ def test_cau_03_true_bias_correction_fails_closed_without_an_estimate() -> None:
         )
     )
 
-    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.status is EstimationStatus.INPUT_INVALID
     assert report.point_estimate is None
     assert report.confidence_interval is None
-    assert report.metadata["capability"] == "unsupported_rbc"
-    assert "rdrobust" in (report.status_reason or "")
+    assert "bias_bandwidth" in (report.status_reason or "")
 
 
 @pytest.mark.parametrize("malformed", ["false", 1, None])
@@ -244,9 +243,7 @@ def test_cau_03_unknown_kernel_fails_closed() -> None:
 
     assert report.status is EstimationStatus.INPUT_INVALID
     assert report.point_estimate is None
-    assert report.status_reason == (
-        "kernel must be one of: triangular, epanechnikov, uniform"
-    )
+    assert report.status_reason == ("kernel must be one of: triangular, epanechnikov, uniform")
 
 
 @pytest.mark.parametrize("polynomial_order", [1.5, "2", True, 0, -1, 3, 99])

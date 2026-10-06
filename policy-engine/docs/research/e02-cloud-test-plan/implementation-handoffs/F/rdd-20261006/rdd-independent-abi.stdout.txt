@@ -1,0 +1,1 @@
+{"owner": "polisyos.foundry.methods.catalog.causal.rdd", "status": "success", "declared_slots": ["causal_effect_report"], "actual_keys": ["__determinism_tier__", "envelope", "report", "warnings"], "declared_missing": ["causal_effect_report"], "point": 3.099852985287918, "profile": "sharp_cct_rbc_hc0_fixed"}

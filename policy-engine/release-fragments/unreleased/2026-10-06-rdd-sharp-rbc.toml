@@ -1,0 +1,30 @@
+id = "2026-10-06-rdd-sharp-rbc"
+title = "Execute sharp regression-discontinuity robust bias correction"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-polisyos"
+summary = "Explicit fixed-bandwidth sharp RD executes CCT leading-bias correction and covariance-aware HC0 robust intervals."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py", "tests/unit/remediation/test_cau_03.py", "docs/reference/foundry/causal-rdd-profile.md"]
+compatibility = "Omitted bias_correction preserves the conventional profile. Explicit bias_correction=True requires finite positive h/b and the supported sharp p/q, kernel, HC0 and fixed-selector options; unsupported corrected settings remain typed point-free failures."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry; existing registered causal method and report consumer"
+migration = "Supply bandwidth and bias_bandwidth with bias_correction=True; read tau_bc, se.rb and the robust confidence interval from the causal effect report."
+api = "Existing registered method and CausalEffectReport schema retain their identities; method_params records the actual finite inference profile and input digest."
+limitations = "Sharp iid asymptotic inference only. No fuzzy input, clustering, mass-point adjustment, automatic bandwidth selector, validated McCrary test or admitted-real-data validity claim. Product code is native clean-room NumPy; pinned GPL rdrobust is an explicitly authorized isolated development oracle, not a product dependency or distribution authorization."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/foundry/causal-rdd-profile.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "sharp-rbc-fixed-hc0"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: registered causal.inference.regression_discontinuity@1.0.0"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Supported explicit sharp RBC settings now compute the correction and its robust interval; the conventional omitted default remains available."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/foundry/causal-rdd-profile.md"]
+runbook_docs = []

@@ -1,0 +1,120 @@
+{
+  "check": "All recipe command paths exist at their exact cited implementation source; commands were not executed as production checks.",
+  "checks": [
+    {
+      "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "path": "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_02.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_03.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "path": "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_03.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "path": "policy-engine/tests/unit/ddm",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "implementation_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "path": "policy-engine/tests/unit/remediation/test_ddm_02.py",
+      "exit_code": 0,
+      "stderr": ""
+    }
+  ],
+  "result": "PASS"
+}

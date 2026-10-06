@@ -1,0 +1,12 @@
+{
+  "target_sha": "fcb4271c9be301595c7e26bfaeaf368030ad7792",
+  "total_paths": 105,
+  "group_counts": {
+    "PCL_continuous_persistence": 8,
+    "DDM_runtime_and_facade": 15,
+    "BKT_FRC_S10_and_adjacent_report_consumers": 24,
+    "CAL_and_welfare_consumer": 23,
+    "MC_joint_law_support_and_Scientist_consumer": 21,
+    "DOE_SALib_and_consumer_factory": 14
+  }
+}

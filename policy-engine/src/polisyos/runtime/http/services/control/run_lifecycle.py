@@ -3753,6 +3753,9 @@ class ControlPlaneService(
                         value_ref=row.observation.value_ref,
                         authority_blockers=row.observation.authority_blockers,
                         reason=row.observation.reason or "conditional_simulation_value_unavailable",
+                        conditional_interaction_evidence=(
+                            row.observation.conditional_interaction_evidence
+                        ),
                         predicate_basis=(
                             "recomputed"
                             if row.projection_source == "recomputed_from_n5_cas"

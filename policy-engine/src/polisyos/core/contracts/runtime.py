@@ -1895,6 +1895,31 @@ class RunOperatorDiagnostic(BaseModel):
     projection_labels: list[RunOperatorProjectionStateLabel] = Field(default_factory=list)
 
 
+class ConditionalSimulationInteractionEvidence(BaseModel):
+    """Recomputed numerical coverage, without causal order or time-unit authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal[
+        "policyos.runtime.conditional_simulation_interaction_evidence.v1"
+    ] = "policyos.runtime.conditional_simulation_interaction_evidence.v1"
+    horizon_start: int
+    horizon_end: int
+    horizon_step: int = Field(gt=0)
+    requested_steps: tuple[int, ...]
+    observed_steps: tuple[int, ...]
+    trajectory_scope_count: int = Field(gt=0)
+    checked_interaction_orders: tuple[int, ...]
+    max_checked_interaction_order: int | None = Field(default=None, ge=1)
+    higher_order_residuals: dict[str, dict[int, float]]
+    residual_scope: Literal["no_higher_order", "third_order", "aggregate_three_plus"]
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    authority_purpose: Literal["conditional_simulation_only"] = "conditional_simulation_only"
+    unit_binding_status: Literal["not_established"] = "not_established"
+    time_binding_status: Literal["not_established"] = "not_established"
+    sampling_uncertainty_status: Literal["not_established"] = "not_established"
+
+
 class ConditionalSimulationObservation(BaseModel):
     """A replayed simulation-only value, without causal or promotion authority."""
 
@@ -1907,6 +1932,9 @@ class ConditionalSimulationObservation(BaseModel):
     evaluation_mode: Literal["simulate_only"] = "simulate_only"
     predicate_basis: Literal["recomputed", "not_established"]
     authority_purpose: Literal["conditional_simulation_only"] = "conditional_simulation_only"
+    conditional_interaction_evidence: ConditionalSimulationInteractionEvidence | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _conditional_value_requires_resolved_basis(self) -> ConditionalSimulationObservation:

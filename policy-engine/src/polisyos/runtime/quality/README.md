@@ -18,6 +18,17 @@ closeout meaning.
 
 Boundary notes:
 
+- `conditional_simulation_replay.py` is the ordinary run GET consumer for the
+  completed Core-owned compiled artifact. It resolves the exact N4, N5 and
+  historical context through their existing owners, content-binds numeric CAS
+  readback, and invokes the default conditional N8 consumer again. Recursive
+  identity and control-job identity remain separate. It returns simulation-only
+  limitations; it does not rerun N5, sign currentness, or grant promotion.
+- The conditional N8 consumer reconciles complete individual, pairwise and joint
+  trajectory scopes and requested step labels, then recomputes higher-order
+  residuals and checked-order coverage. Its typed API diagnostic reports
+  numerical coverage only. Physical units/time and maximum causal interaction
+  order remain unestablished; four or more atoms yield an aggregate residual.
 - `production_invocation.py` is a runnable internal regression instrument over all
   tracked source, tooling and test Python files. It distinguishes calls from
   imports and definitions, follows explicit call paths to runnable roots, and

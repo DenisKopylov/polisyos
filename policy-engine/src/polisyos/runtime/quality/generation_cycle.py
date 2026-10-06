@@ -18,6 +18,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import inspect
+import itertools
 import json
 import math
 import os
@@ -61,6 +62,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.manifest import artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.contracts.runtime import ConditionalSimulationInteractionEvidence
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,
@@ -1337,6 +1339,9 @@ class ValuePortObservation(_StrictModel):
     transport_receipt: ValueTransportReceipt | None = None
     calibration_receipt: ValueCalibrationReceipt | None = None
     value_receipt: ValueGateReceipt | None = None
+    conditional_interaction_evidence: ConditionalSimulationInteractionEvidence | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     wall_time_ms: float | None = Field(default=None, ge=0.0)
 
     @model_validator(mode="after")
@@ -5054,6 +5059,101 @@ def _validated_n8_candidate_simulation_blockers(
     return persisted_blockers, None
 
 
+def _recompute_conditional_interaction_evidence(
+    result: JointSimulationResult,
+) -> ConditionalSimulationInteractionEvidence:
+    """Reconcile interaction claims with complete persisted numerical trajectories.
+
+    Coverage answers which orders were checked by this trajectory set. For four
+    or more atoms the residual is an aggregate above pairwise order; it does not
+    identify any individual higher order or establish a causal maximum. Step
+    labels are checked against the request, without inferring physical time.
+    """
+
+    atom_ids = tuple(result.atom_ids)
+    canonical_atoms = tuple(sorted(atom_ids))
+    pairs = tuple(itertools.combinations(canonical_atoms, 2))
+    expected_scopes = {
+        *(("individual", (atom_id,)) for atom_id in canonical_atoms),
+        *(("pairwise", pair) for pair in pairs),
+        ("joint", canonical_atoms),
+    }
+    requested_steps = tuple(result.horizon.steps())
+    by_scope = {
+        (trajectory.run_level, tuple(sorted(trajectory.atom_ids))): trajectory
+        for trajectory in result.trajectories
+    }
+    if (
+        not canonical_atoms
+        or len(set(atom_ids)) != len(atom_ids)
+        or len(by_scope) != len(result.trajectories)
+        or set(by_scope) != expected_scopes
+        or any(
+            tuple(point.step for point in trajectory.points) != requested_steps
+            for trajectory in result.trajectories
+        )
+    ):
+        _joint_simulation_result_integrity_error("interaction_trajectory_scope_or_grid_mismatch")
+    points = {
+        scope: {point.step: point for point in trajectory.points}
+        for scope, trajectory in by_scope.items()
+    }
+    residuals: dict[str, dict[int, float]] = {}
+    if len(atom_ids) >= 3:
+        for outcome in result.selected_outcomes:
+            by_step: dict[int, float] = {}
+            for step in requested_steps:
+                individual_sum = sum(
+                    points[("individual", (atom_id,))][step].effect[outcome] for atom_id in atom_ids
+                )
+                pair_interaction_sum = sum(
+                    points[("pairwise", tuple(sorted(pair)))][step].effect[outcome]
+                    - sum(
+                        points[("individual", (atom_id,))][step].effect[outcome] for atom_id in pair
+                    )
+                    for pair in itertools.combinations(atom_ids, 2)
+                )
+                by_step[step] = float(
+                    points[("joint", canonical_atoms)][step].effect[outcome]
+                    - individual_sum
+                    - pair_interaction_sum
+                )
+            residuals[outcome] = by_step
+    if (
+        result.higher_order_residuals != residuals
+        or result.feedback_classification.higher_order_residuals != residuals
+        or any(
+            not math.isfinite(value) for by_step in residuals.values() for value in by_step.values()
+        )
+    ):
+        _joint_simulation_result_integrity_error("interaction_residual_mismatch")
+    checked_orders = (1,)
+    if len(atom_ids) >= 2:
+        checked_orders += (2,)
+    if len(atom_ids) == 3:
+        checked_orders += (3,)
+    if result.feedback_classification.checked_interaction_orders != checked_orders:
+        _joint_simulation_result_integrity_error("interaction_order_mismatch")
+    return ConditionalSimulationInteractionEvidence(
+        horizon_start=result.horizon.start,
+        horizon_end=result.horizon.end,
+        horizon_step=result.horizon.step,
+        requested_steps=requested_steps,
+        observed_steps=tuple(point.step for point in by_scope[("joint", canonical_atoms)].points),
+        trajectory_scope_count=len(by_scope),
+        checked_interaction_orders=checked_orders,
+        max_checked_interaction_order=max(checked_orders),
+        higher_order_residuals=residuals,
+        residual_scope=(
+            "no_higher_order"
+            if len(atom_ids) < 3
+            else "third_order"
+            if len(atom_ids) == 3
+            else "aggregate_three_plus"
+        ),
+    )
+
+
 def _conditional_simulation_value_observation(
     *,
     candidate: object,
@@ -5168,6 +5268,17 @@ def _conditional_simulation_value_observation(
                 world_model_record_content_hash=world_hash,
             )
     blockers.update(persisted_blockers)
+    try:
+        interaction_evidence = _recompute_conditional_interaction_evidence(result)
+    except GenerationCycleError as exc:
+        return _blocked_value_observation(
+            code=exc.code,
+            reason=f"N8 conditional interaction evidence is not admissible: {exc}",
+            mode="simulate_only",
+            started=started,
+            candidate_id=candidate_id,
+            world_model_record_content_hash=world_hash,
+        )
     return ValuePortObservation(
         status="value_conditional",
         candidate_id=candidate_id,
@@ -5180,6 +5291,7 @@ def _conditional_simulation_value_observation(
         evaluation_mode="simulate_only",
         decision_grade="low",
         world_model_record_content_hash=result.world_model_record_content_hash,
+        conditional_interaction_evidence=interaction_evidence,
         wall_time_ms=(time.monotonic() - started) * 1000.0,
     )
 
